@@ -63,7 +63,7 @@ Working prototype POST shape:
 - `Purchase_Order` `{id}` only for single-PO bills (looked up from purchase lines). **Omitted** when there is no PO (same as multi-PO bills).
 - `Vendor` `{id}` from an existing prototype invoice for that vendor name
 - `Invoice_Number`, `Invoice_Date`, `Invoice_Verification_Amount`
-- `Invoice_Type` `3` when a PO is present. Existing prototype no-PO vendor bills use `Invoice_Type` `4` (not 3).
+- `Invoice_Type` `3` when a PO is present. Existing prototype no-PO vendor bills use `Invoice_Type` `4` (GUI label **Miscellaneous**), not 3.
 - `Invoice_Due_Date`, `Terms_Code`, `Currency` `{id: 3}`, `Remit_To_Address`, `Transaction_Date`
 - `Comments` `API TEST prototype only do not pay.`
 
