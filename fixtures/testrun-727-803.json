@@ -192,8 +192,8 @@
         { "name": "Settlement", "amount": 1.64 },
         { "name": "Taxes/Fees", "amount": 8.79 }
       ],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "Hudson Energy Services, LLC",
@@ -202,8 +202,8 @@
       "po": null,
       "amount": 2391.09,
       "fees": [{ "name": "ERCOT/market/TDSP pass-throughs", "amount": null }],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "UniFirst First Aid & Safety",
@@ -212,8 +212,8 @@
       "po": null,
       "amount": 744.5,
       "fees": [],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "Shoppa's Material Handling, Ltd",
@@ -222,8 +222,8 @@
       "po": null,
       "amount": 814.73,
       "fees": [],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "UniFirst Corporation",
@@ -235,8 +235,8 @@
         { "name": "Energy Surcharge", "amount": 3.0 },
         { "name": "garment protection fees", "amount": null }
       ],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Energy surcharge and garment fees are Fees and surcharges, not PPV."
     },
     {
       "vendor": "GRM Information Management Services of Dallas, LLC",
@@ -248,8 +248,8 @@
         { "name": "Account Maintenance", "amount": 22.68 },
         { "name": "Check Processing", "amount": 25.0 }
       ],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Account maintenance and check processing are Fees and surcharges, not PPV."
     },
     {
       "vendor": "NTEX Electric Inc.",
@@ -258,8 +258,8 @@
       "po": null,
       "amount": 1694.48,
       "fees": [],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "Waste Connections Lone Star, Inc",
@@ -268,8 +268,8 @@
       "po": null,
       "amount": 357.8,
       "fees": [],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "Luxor Staffing, Inc.",
@@ -278,8 +278,8 @@
       "po": null,
       "amount": 840.0,
       "fees": [],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
     },
     {
       "vendor": "Priority1",
@@ -288,8 +288,8 @@
       "po": null,
       "amount": 485.7,
       "fees": [{ "name": "Freight Charge", "amount": 485.7 }],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Freight is Fees and surcharges, not PPV."
     },
     {
       "vendor": "Gas and Supply North Texas, LLC",
@@ -310,8 +310,8 @@
       "po": null,
       "amount": 1463.98,
       "fees": [{ "name": "rental + fuel surcharge", "amount": null }],
-      "action": "hold",
-      "hold_reason": "no-PO"
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Rental and fuel surcharge are Fees and surcharges, not PPV."
     }
   ]
 }

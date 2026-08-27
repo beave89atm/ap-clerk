@@ -11,9 +11,21 @@ CHICAGO = ZoneInfo("America/Chicago")
 COMMENTS = "API TEST prototype only do not pay."
 CURRENCY_USD_ID = 3
 INVOICE_TYPE_PO = 3
+# Existing prototype no-PO vendor bills (UniFirst, Shoppa, Hudson, Luxor, GRM, etc.) use type 4.
+INVOICE_TYPE_NO_PO = 4
 FORBIDDEN_BATCH_IDS = {669}
 FORBIDDEN_BATCH_NAMES = {"Mark Brown 8/4/26"}
-FORBIDDEN_INVOICE_IDS = {9474, 9475, 9476, 9477, 9478}
+FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
+HOLD_ONLY_REASONS = {
+    "check stop",
+    "statement",
+    "pod",
+    "payment letter",
+    "dup",
+    "duplicate",
+    "not-a-bill",
+    "not a bill",
+}
 FEE_KEYWORDS = (
     "shop supplies",
     "packaging",
@@ -158,6 +170,39 @@ def extract_po_number(text: str | None) -> str | None:
 
 def invoice_number_key(value: str | None) -> str:
     return (value or "").strip().upper()
+
+
+def invoice_type_for(po: Any) -> int:
+    """PO bills use type 3. Existing prototype no-PO bills use type 4, not 3."""
+    if po is None or str(po).strip() in {"", "None", "null"}:
+        return INVOICE_TYPE_NO_PO
+    return INVOICE_TYPE_PO
+
+
+def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:
+    """Real vendor bills get a header even with no PO. HOLD is not for missing PO alone."""
+    if inv.get("check_stop") or str(inv.get("hold_reason") or "").strip().upper() == "CHECK STOP":
+        return False, "CHECK STOP"
+    reason = str(inv.get("hold_reason") or "").strip()
+    reason_key = reason.lower()
+    if reason_key in HOLD_ONLY_REASONS:
+        return False, reason or reason_key
+    if inv.get("action") == "hold" and reason_key and reason_key not in {"no-po", "no po", "nopo"}:
+        return False, reason
+    return True, ""
+
+
+def vendor_match_score(fixture_vendor: str | None, sample_text: str | None) -> int:
+    """Prefer the most specific vendor name so UniFirst Corp != UniFirst First Aid."""
+    if not names_match(fixture_vendor, sample_text):
+        return 0
+    a_tokens = set(normalize_name(fixture_vendor).split())
+    b_tokens = set(normalize_name(sample_text).split())
+    if not a_tokens or not b_tokens:
+        return 0
+    overlap = len(a_tokens & b_tokens)
+    exact = 8 if a_tokens == b_tokens else 0
+    return overlap * 10 + exact
 
 
 def lookup_text(value: Any) -> str:

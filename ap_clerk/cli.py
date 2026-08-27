@@ -18,17 +18,18 @@ from ap_clerk.rules import (
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_BATCH_NAMES,
     FORBIDDEN_INVOICE_IDS,
-    INVOICE_TYPE_PO,
     batch_name_for,
     chicago_today,
     due_date_from_terms,
     extract_po_number,
     format_fees,
     invoice_number_key,
+    invoice_type_for,
     kimco_datetime,
     lookup_id,
     lookup_text,
-    names_match,
+    should_create_header,
+    vendor_match_score,
     parse_iso_date,
 )
 
@@ -94,6 +95,7 @@ def run_enter(
 
     invoice_by_number = _index_invoices(existing_invoices)
     vendor_samples = _vendor_samples(existing_invoices)
+    _seed_vendor_samples(client, vendor_samples, invoice_by_number, invoices)
     po_index = _index_purchase_orders(purchase_lines)
     batch = _find_or_create_batch(client, batches, batch_name)
     batch_label = f"{batch_name} ({batch['id']})"
@@ -173,6 +175,74 @@ def _vendor_samples(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
             }
         )
     return samples
+
+
+def _seed_vendor_samples(
+    client: KimcoClient,
+    samples: list[dict[str, Any]],
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoices: list[dict[str, Any]],
+) -> None:
+    """GET a bounded set of existing invoices so no-PO vendor/remit/terms can be matched by name."""
+    needed = []
+    for inv in invoices:
+        if not should_create_header(inv)[0]:
+            continue
+        if _best_vendor_sample(inv.get("vendor") or "", "", samples):
+            continue
+        needed.append(inv)
+    if not needed:
+        return
+
+    prefixes: set[str] = set()
+    for inv in needed:
+        key = invoice_number_key(str(inv.get("invoice_number") or ""))
+        for n in (4, 5, 6, 7):
+            if len(key) >= n:
+                prefixes.add(key[:n])
+
+    ranked: list[int] = []
+    seen = {int(s["invoice_id"]) for s in samples if s.get("invoice_id") is not None}
+    for key, item in invoice_by_number.items():
+        item_id = item.get("id")
+        if item_id is None or int(item_id) in seen:
+            continue
+        if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+            ranked.append(int(item_id))
+    extras = sorted(
+        (int(item["id"]) for item in invoice_by_number.values() if item.get("id") is not None),
+        reverse=True,
+    )
+    for item_id in extras:
+        if item_id not in seen and item_id not in ranked:
+            ranked.append(item_id)
+        if len(ranked) >= 500:
+            break
+
+    LOGGER.info("Seeding vendor samples from %s existing invoices for %s unmatched vendors", min(len(ranked), 350), len(needed))
+    probed = 0
+    for item_id in ranked:
+        if probed >= 350:
+            break
+        try:
+            item = client.get_item("ap_invoices", item_id)
+        except KimcoError:
+            continue
+        probed += 1
+        values = item.get("values") or {}
+        vendor_field = values.get("Vendor")
+        vendor_id = lookup_id(vendor_field)
+        if vendor_id is None:
+            continue
+        samples.append(
+            {
+                "vendor_id": vendor_id,
+                "vendor_text": lookup_text(vendor_field),
+                "invoice_id": item.get("id"),
+                "po_text": lookup_text(values.get("Purchase_Order")),
+            }
+        )
+        seen.add(item_id)
 
 
 def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -256,12 +326,9 @@ def _process_invoice(
         "Attach status": attach,
     }
 
-    if inv.get("check_stop") or (inv.get("hold_reason") == "CHECK STOP"):
-        row["Why"] = "HOLD: CHECK STOP. Do not create a header."
-        return row
-    if inv.get("action") == "hold" or not po:
-        reason = inv.get("hold_reason") or "no-PO"
-        row["Why"] = f"HOLD: {reason}. No-PO invoices do not get a header."
+    create_ok, hold_reason = should_create_header(inv)
+    if not create_ok:
+        row["Why"] = f"HOLD: {hold_reason}. Do not create a header."
         return row
 
     existing = invoice_by_number.get(invoice_number_key(number))
@@ -272,17 +339,29 @@ def _process_invoice(
         if existing_id in FORBIDDEN_INVOICE_IDS:
             row["Why"] = f"Fail/already exists (do not recreate id {existing_id})"
         else:
-            row["Why"] = "Fail/already exists"
+            row["Why"] = f"Fail/already exists (id {existing_id})"
         return row
 
-    po_info = po_index.get(str(po))
-    if not po_info:
-        row["Why"] = f"HOLD: PO {po} is not in prototype; do not invent a PO. Lines would also be blocked/405 until Select Receipts."
+    has_po = bool(po)
+    po_info = po_index.get(str(po)) if has_po else None
+    if has_po and not po_info:
+        row["Why"] = (
+            f"HOLD: PO {po} is not in prototype; do not invent a PO. "
+            "Select Receipts only when a PO exists."
+        )
         return row
 
-    vendor_info = _resolve_vendor(vendor, po_info["text"], vendor_samples)
+    vendor_info = _resolve_vendor(
+        client,
+        vendor,
+        po_info["text"] if po_info else "",
+        vendor_samples,
+        invoice_by_number=invoice_by_number,
+        invoice_number=number,
+    )
     if not vendor_info:
-        row["Why"] = f"HOLD: vendor/remit/terms not found on prototype for {vendor} (PO {po} exists as {po_info['text']})."
+        hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (no-PO bill; looked up by vendor name)"
+        row["Why"] = f"HOLD: vendor/remit/terms not found on prototype for {vendor}{hint}."
         return row
 
     try:
@@ -300,12 +379,12 @@ def _process_invoice(
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
-    payload = {
+    invoice_type = invoice_type_for(po)
+    payload: dict[str, Any] = {
         "AP_Invoice_Batch": {"id": batch["id"]},
-        "Purchase_Order": {"id": po_info["id"]},
         "Vendor": {"id": vendor_info["vendor_id"]},
         "Invoice_Number": number,
-        "Invoice_Type": INVOICE_TYPE_PO,
+        "Invoice_Type": invoice_type,
         "Invoice_Date": kimco_datetime(invoice_day),
         "Invoice_Verification_Amount": float(amount),
         "Invoice_Due_Date": kimco_datetime(due),
@@ -315,6 +394,8 @@ def _process_invoice(
         "Transaction_Date": kimco_datetime(invoice_day),
         "Comments": COMMENTS,
     }
+    if po_info:
+        payload["Purchase_Order"] = {"id": po_info["id"]}
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
         row["Result"] = "Fail"
@@ -331,21 +412,125 @@ def _process_invoice(
     row["Result"] = "Success"
     row["KIMCO id"] = created_id
     row["Attach status"] = pdf_status
+    if po_info:
+        line_note = (
+            "Lines blocked/405: API cannot Select Receipts until Editable is on; "
+            "do not type Add Item. "
+        )
+    else:
+        line_note = (
+            "Purchase Order left blank (no-PO bill; same as multi-PO). "
+            "Do not Select Receipts or invent PO lines. "
+        )
     row["Why"] = (
-        "Header created. Lines blocked/405: API cannot Select Receipts until Editable is on; "
-        "do not type Add Item. Fees recorded in Fees and surcharges (not PPV). "
+        f"Header created (Invoice_Type {invoice_type}). {line_note}"
+        "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
         f"Attach status={pdf_status}."
     )
-    LOGGER.info("Created invoice %s id=%s vendor=%s po=%s", number, created_id, vendor, po)
+    LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s", number, created_id, vendor, po, invoice_type)
     return row
 
 
-def _resolve_vendor(fixture_vendor: str, po_text: str, samples: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _resolve_vendor(
+    client: KimcoClient,
+    fixture_vendor: str,
+    po_text: str,
+    samples: list[dict[str, Any]],
+    *,
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoice_number: str,
+) -> dict[str, Any] | None:
+    match = _best_vendor_sample(fixture_vendor, po_text, samples)
+    if match:
+        return match
+    discovered = _discover_vendor_from_invoices(
+        client,
+        fixture_vendor,
+        samples,
+        invoice_by_number=invoice_by_number,
+        invoice_number=invoice_number,
+    )
+    if discovered:
+        return discovered
+    return _best_vendor_sample(fixture_vendor, po_text, samples)
+
+
+def _best_vendor_sample(fixture_vendor: str, po_text: str, samples: list[dict[str, Any]]) -> dict[str, Any] | None:
     po_vendor = po_text.split("-", 1)[1] if "-" in po_text else po_text
+    scored: list[tuple[int, dict[str, Any]]] = []
     for sample in samples:
-        if names_match(fixture_vendor, sample["vendor_text"]) or names_match(po_vendor, sample["vendor_text"]):
-            return sample
-        if names_match(fixture_vendor, sample["po_text"]) or names_match(po_vendor, sample["po_text"]):
+        score = max(
+            vendor_match_score(fixture_vendor, sample.get("vendor_text")),
+            vendor_match_score(po_vendor, sample.get("vendor_text")),
+            vendor_match_score(fixture_vendor, sample.get("po_text")),
+            vendor_match_score(po_vendor, sample.get("po_text")),
+        )
+        if score:
+            scored.append((score, sample))
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1]
+
+
+def _discover_vendor_from_invoices(
+    client: KimcoClient,
+    fixture_vendor: str,
+    samples: list[dict[str, Any]],
+    *,
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoice_number: str,
+) -> dict[str, Any] | None:
+    """GET existing invoices and match Vendor text. Do not invent vendor/remit/terms."""
+    needle = invoice_number_key(invoice_number)
+    prefixes = {needle[:n] for n in (4, 5, 6, 7) if len(needle) >= n}
+    ranked_ids: list[int] = []
+    seen_ids: set[int] = {s.get("invoice_id") for s in samples if s.get("invoice_id") is not None}
+    for key, item in invoice_by_number.items():
+        item_id = item.get("id")
+        if item_id is None or item_id in seen_ids:
+            continue
+        if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+            ranked_ids.append(int(item_id))
+    # Then recent-looking numeric ids (highest first).
+    extras = sorted(
+        (int(item.get("id")) for item in invoice_by_number.values() if item.get("id") is not None),
+        reverse=True,
+    )
+    for item_id in extras:
+        if item_id not in seen_ids and item_id not in ranked_ids:
+            ranked_ids.append(item_id)
+        if len(ranked_ids) >= 400:
+            break
+
+    LOGGER.info("Vendor name lookup for %s: probing %s existing invoices", fixture_vendor, min(len(ranked_ids), 250))
+    probed = 0
+    for item_id in ranked_ids:
+        if probed >= 250:
+            break
+        if item_id in seen_ids:
+            continue
+        try:
+            item = client.get_item("ap_invoices", item_id)
+        except KimcoError:
+            continue
+        probed += 1
+        values = item.get("values") or {}
+        vendor_field = values.get("Vendor")
+        vendor_id = lookup_id(vendor_field)
+        vendor_text = lookup_text(vendor_field)
+        if vendor_id is None:
+            continue
+        sample = {
+            "vendor_id": vendor_id,
+            "vendor_text": vendor_text,
+            "invoice_id": item.get("id"),
+            "po_text": lookup_text(values.get("Purchase_Order")),
+        }
+        samples.append(sample)
+        seen_ids.add(item_id)
+        if _best_vendor_sample(fixture_vendor, "", [sample]):
+            LOGGER.info("Matched vendor %s from existing invoice id=%s", vendor_text, item.get("id"))
             return sample
     return None
 

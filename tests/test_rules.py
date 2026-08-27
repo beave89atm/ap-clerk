@@ -1,12 +1,17 @@
 from datetime import date
 
 from ap_clerk.rules import (
+    INVOICE_TYPE_NO_PO,
+    INVOICE_TYPE_PO,
     batch_name_for,
     due_date_from_terms,
     extract_po_number,
     format_fees,
+    invoice_type_for,
     is_fee_or_surcharge,
     names_match,
+    should_create_header,
+    vendor_match_score,
 )
 
 
@@ -41,3 +46,42 @@ def test_fees_are_not_ppv():
 def test_extract_po_number():
     assert extract_po_number("PO58351-TELECOM PRODUCTS") == "58351"
     assert extract_po_number("PO58634-CAPITAL MACHINE TECHNOLOGIES") == "58634"
+
+
+def test_no_po_real_bills_still_get_a_header():
+    bill = {"vendor": "ENGIE Resources LLC", "po": None, "action": "create"}
+    assert should_create_header(bill) == (True, "")
+    assert should_create_header({**bill, "action": "hold", "hold_reason": "no-PO"}) == (True, "")
+    assert invoice_type_for(None) == INVOICE_TYPE_NO_PO
+    assert invoice_type_for("") == INVOICE_TYPE_NO_PO
+    assert invoice_type_for("58808") == INVOICE_TYPE_PO
+
+
+def test_hold_remains_for_check_stop_and_not_a_bill():
+    assert should_create_header({"check_stop": True, "hold_reason": "CHECK STOP"}) == (False, "CHECK STOP")
+    assert should_create_header({"action": "hold", "hold_reason": "statement"})[0] is False
+    assert should_create_header({"action": "hold", "hold_reason": "POD"})[0] is False
+    assert should_create_header({"action": "hold", "hold_reason": "not-a-bill"})[0] is False
+
+
+def test_unifirst_vendors_do_not_collapse():
+    corp = "1187-UNIFIRST CORPORATION"
+    first_aid = "1207-UNIFIRST FIRST AID & SAFETY"
+    assert names_match("UniFirst Corporation", corp)
+    assert names_match("UniFirst First Aid & Safety", first_aid)
+    assert vendor_match_score("UniFirst Corporation", corp) > vendor_match_score(
+        "UniFirst Corporation", first_aid
+    )
+    assert vendor_match_score("UniFirst First Aid & Safety", first_aid) > vendor_match_score(
+        "UniFirst First Aid & Safety", corp
+    )
+
+
+def test_no_po_vendor_name_matching():
+    assert names_match("Hudson Energy Services, LLC", "1086-HUDSON ENERGY-24312")
+    assert names_match("Shoppa's Material Handling, Ltd", "1157-SHOPPA'S MATERIAL HANDLING")
+    assert names_match("GRM Information Management Services of Dallas, LLC", "1076-GRM INFORMATION MANAGEMENT SERVICES")
+    assert names_match("Gas and Supply North Texas, LLC", "1069-GAS AND SUPPLY")
+    assert names_match("Priority1", "1143-PRIORITY 1")
+    assert names_match("Luxor Staffing, Inc.", "1110-LUXOR STAFFING, INC.")
+    assert names_match("NTEX Electric Inc.", "1132-NTEX ELECTRIC")
