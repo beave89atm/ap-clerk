@@ -213,10 +213,13 @@ def _seed_vendor_samples(
         (int(item["id"]) for item in invoice_by_number.values() if item.get("id") is not None),
         reverse=True,
     )
-    for item_id in extras:
+    # Mix recent ids with a stride through older invoices so utility/staffing
+    # vendors (Luxor, Priority 1, etc.) are not missed.
+    stride = extras[:: max(1, len(extras) // 200)]
+    for item_id in extras[:200] + stride:
         if item_id not in seen and item_id not in ranked:
             ranked.append(item_id)
-        if len(ranked) >= 500:
+        if len(ranked) >= 600:
             break
 
     LOGGER.info("Seeding vendor samples from %s existing invoices for %s unmatched vendors", min(len(ranked), 350), len(needed))
