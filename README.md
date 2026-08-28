@@ -51,7 +51,7 @@ Kyle wants this scheduled. Every weekday at **5:00am America/Chicago**, process 
 - Still skip not-a-bill / statement / POD / CHECK STOP / payment and **replace** so 30 real bills are attempted when possible. Those skips get `AI HOLD` and a HOLD Excel row with the same why.
 - Persist `runs/daily-cursor.json` (last processed `receivedDateTime` + message id). The next weekday **continues after the previous 30**. It does not restart at 7/28 every morning.
 
-**Enter on LIVE KIMCO (`--live`):** batch `API Agent - M/D/YY` America/Chicago. Same match rules as the 8/27 live test: no-PO still gets a header; Select Receipts when a PO exists; fees and surcharges vs PPV; PDF attach; no invented vendors; HOLD only for CHECK STOP / statements / PODs / dups / not-a-bill.
+**Enter on LIVE KIMCO (`--live`):** batch `API Agent - M/D/YY` America/Chicago. Same header rules as the 8/27 live test, plus Treyce 8/28 / Kyle PPV: no-PO still gets a header; Select Receipts when a PO exists (part + PO/WO line, slip # = invoice # before HOLD-no-receipts); fees and surcharges vs signed PPV (10% of invoice total **and** ≤ $100, else price-does-not-match HOLD); invoice # as printed; invoice date from the PDF not the email; vendor from the live PO / aliases 1386 and 1410; PDF attach; HOLD also for CHECK STOP / statements / PODs / dups / not-a-bill / price does not match.
 
 **Email:** after the run, send `runs/AP-run-YYYY-MM-DD.xlsx` to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` via Graph `sendMail`. Subject `AP run YYYY-MM-DD`. Body is short: Success / Fail / HOLD counts and batch id. If Application `Mail.Send` is missing (403), the xlsx is still written and the run records `email-denied` without crashing the enter path.
 
@@ -173,22 +173,48 @@ Vendor / remit / terms are copied from an existing prototype invoice matched by 
 
 If the invoice number already exists on prototype, the CLI does not recreate it and records `Fail/already exists`.
 
-## Fees vs PPV
+## Fees vs PPV (Kyle, 2026-08-28)
 
-Fees and surcharges (shop supplies, packaging recovery, fuel/energy surcharge, freight, shipping, admin/account/check fees, garment protection, rental, and similar add-ons) are **not** Purchase Price Variance. They go to Additional Charge **Fees and surcharges** / **F-Fees & Surcharges**, and they are recorded in the Excel **Fees and surcharges** column. The CLI does not post a PPV additional charge for those.
+Fees and surcharges (shop supplies, packaging recovery, fuel/energy surcharge, freight, shipping & handling, admin/account/check fees, garment protection, rental, and similar add-ons) are **not** Purchase Price Variance. They go to Additional Charge **Fees and surcharges** / **F-Fees & Surcharges**, and they are recorded in the Excel **Fees and surcharges** column. Never post those as PPV.
 
-PPV is only a merchandise unit-price gap vs the PO, and only if that gap is under 10% of the invoice total. Otherwise HOLD and return to purchasing. The 7/27–8/3 test pack has no known PPV cases.
+When an invoice **line** amount does not match the PO **line** amount:
+
+- Post Additional Charge **Purchase Price Variance** (signed; negative is allowed) **only if both**: `|variance|` ≤ 10% of the **invoice total** **and** total PPV on that bill ≤ **$100**.
+- If the variance is **over 10% of invoice total or over $100**, do **not** post PPV. **HOLD / AI HOLD** as **price does not match**. Purchasing must unreceive, change the PO price, and re-receive. Add a comment on the PO line for **@Shawn McKibben**. Do **not** alter receipt unit price in GI (that breaks WO cost, material cost, and PO clearing).
+- **$0 PO unit price** is a price-does-not-match HOLD (Modern Heat pattern), not a PPV.
+
+Worked examples:
+
+| Case | Decision |
+| --- | --- |
+| EMJ 770.16 vs 752.10 on a $752.10 invoice (2.4%, under $100) | PPV **−18.06** |
+| O'Neal $0.10 rounding | PPV **−0.10** |
+| $120 gap on a $2000 invoice (6% but >$100) | price does not match |
+| $50 gap on a $400 invoice (12.5%) | price does not match |
 
 Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid in 10 days. It is not a different due date.
 
-## Select Receipts gap
+## Treyce 2026-08-28 notes
+
+1. **Vendor lookup:** if name match fails, use the vendor on the live PO. Aliases: National Specialty Alloys = vendor **1386**; Coherent Corp. = vendor **1410**. Do not Fail “vendor missing” when the PO has a vendor.
+2. **Invoice number as printed.** Modern Heat Treat: `8-220804` not `220804` (vendor prefix). Do not invent prefixes; learn from the invoice PDF or a known vendor pattern.
+3. **Invoice date** = the date printed on the invoice, not the email received date (Telecom 17602 is 8/26 not 8/27).
+4. **Select Receipts:** match invoice **part numbers** and PO/WO lines, not the first qty that fits. Modern Heat 220804 was lines **6–7** (parts `625-5200-002` and `400-5200-001`), not lines 1–3.
+5. Search receipts harder before HOLD-no-receipts (Fastenal `TXFT499356` was findable). Try slip # = invoice #, then part, qty, PO line.
+6. Categories unchanged: Success = `Entered in AI`; HOLD/Fail = `AI HOLD`.
+
+## Select Receipts
 
 Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Item**, and **only when a PO exists**. No-PO headers leave Purchase Order blank and do not get invented PO lines. The API cannot Select Receipts until Editable is on. This AP list rejects PUT/edit and attach POST with 405 (`list does not allow items to be edited`). The CLI does **not** invent line POSTs that skip Select Receipts. Successful PO-bill header rows record lines as blocked/405 in the Excel **Why** column.
+
+Matching (Treyce 2026-08-28): pick the receipt whose **part number** and **PO/WO line** match the invoice line. Do not take the first leftover qty that fits. Search order before HOLD-no-receipts: **slip # = invoice #**, part, qty, PO line. Fastenal `TXFT499356` is findable that way. Modern Heat `8-220804` is PO lines 6–7, not 1–3. If receipts were searched and none match, HOLD / `AI HOLD` (no header). If receipts were not loaded, the CLI does not invent a HOLD-no-receipts.
 
 ## HOLD rules
 
 - Real vendor bills with no PO: **create the header**. Do not HOLD just because there is no PO.
 - HOLD remains for CHECK STOP, statements, PODs, payment letters, dups, and not-a-bill.
+- **Price does not match** (Kyle 2026-08-28): HOLD / `AI HOLD` when the merchandise line gap is over 10% of invoice total or over $100, or when the PO unit price is $0. Do not post PPV. Purchasing unreceives, changes the PO price, and re-receives. Comment **@Shawn McKibben**. Do not change GI receipt unit price.
+- HOLD-no-receipts only after a thorough search (slip # = invoice #, part, qty, PO line) finds nothing. Fastenal `TXFT499356` was findable and must not HOLD for that reason.
 - Gas and Supply `0040325801`: CHECK STOP, HOLD, no header.
 - Skip statements, PODs, payment letters, and dups (already filtered from the fixture).
 - Do not delete or void anything.
