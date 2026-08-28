@@ -39,6 +39,8 @@ If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoe
 
 `enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox and does not flag or move mail.
 
+**First live 20-invoice test (2026-08-27 America/Chicago, Kyle said go):** batch `API Agent - 8/27/26` id **688**. 15 Success headers **9663–9677**, 5 Fail, 0 HOLD. Outlook was not flagged. PDF attach notify returned **405**. Vendor-missing leftovers: National Specialty Alloys `453743` and Coherent Corp. `120953` (PO exists on live; vendor id was not found; not invented). Report: `runs/AP-run-2026-08-27.xlsx`.
+
 Identified 2026-08-28 with GET only (auth success; token not printed; zero live records written):
 
 | List | GUID | Confirmed by GET |
