@@ -9,10 +9,21 @@ from pathlib import Path
 from typing import Any
 
 from ap_clerk.auth import format_presence, load_credentials, resolve_target
+from ap_clerk.cursor import DEFAULT_CURSOR_PATH, load_cursor, save_cursor
+from ap_clerk.daily import (
+    DEFAULT_DAILY_LIMIT,
+    cursor_from_run,
+    email_body_for,
+    email_subject_for,
+    result_counts,
+    write_email_sidecar,
+)
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
+    EMAIL_DENIED,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
+    REPORT_TO,
     GraphClient,
     GraphError,
     MailboxRejected,
@@ -22,7 +33,7 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
-from ap_clerk.inbox import pull_recent_bills
+from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.rules import (
@@ -57,8 +68,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
     parser.add_argument(
         "command",
-        choices=["enter", "pull"],
-        help="enter: fixture invoices as header-only AP bills. pull: list unflagged AP mailbox messages (no flag).",
+        choices=["enter", "pull", "daily", "probe"],
+        help=(
+            "enter: fixture or inbox invoices as header-only AP bills. "
+            "pull: list unflagged AP mailbox messages (no category write). "
+            "daily: weekday 5am America/Chicago FIFO of 30 from 2026-07-28 (requires --live). "
+            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail)."
+        ),
     )
     parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
     parser.add_argument("--report", default=None, help="Output xlsx path. Default: runs/AP-run-YYYY-MM-DD.xlsx")
@@ -72,13 +88,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--from-inbox",
         action="store_true",
-        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com (does not flag).",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; HOLD/Fail/skips→AI HOLD.",
     )
     parser.add_argument(
         "--limit",
         type=int,
-        default=20,
-        help="When --from-inbox, attempt this many most-recent real bills (processed oldest-first).",
+        default=None,
+        help="Bills to attempt. enter --from-inbox default 20 (most recent). daily default 30 (FIFO from cursor).",
+    )
+    parser.add_argument(
+        "--cursor",
+        default=str(ROOT / DEFAULT_CURSOR_PATH),
+        help="daily: persisted FIFO cursor JSON (last received datetime / message id).",
+    )
+    parser.add_argument(
+        "--email-to",
+        default=REPORT_TO,
+        help=f"daily: send the Excel report to this address FROM {ALLOWED_MAILBOX}.",
     )
     parser.add_argument(
         "--mailbox",
@@ -109,6 +135,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "pull":
         return _run_pull(args)
+    if args.command == "probe":
+        return _run_probe(args)
+    if args.command == "daily":
+        return _run_daily(args)
 
     target = resolve_target(live_flag=args.live)
     creds = load_credentials(target=target)
@@ -119,7 +149,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Using credential pair: {creds.key_source}", flush=True)
     print(f"Instance host: {creds.instance_url}", flush=True)
     if creds.target == "live":
-        print("Live target. Kyle said go. Writes use live host + live GUIDs only. Outlook will not be flagged.", flush=True)
+        print(
+            "Live target. Kyle said go. Writes use live host + live GUIDs only. "
+            "Success gets Entered in AI; HOLD/Fail get AI HOLD. No follow-up flag.",
+            flush=True,
+        )
 
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
     batch_name = batch_name_for(as_of)
@@ -127,11 +161,18 @@ def main(argv: list[str] | None = None) -> int:
     fixture_path = Path(args.fixture)
     graph_client = None
     invoices: list[dict[str, Any]]
+    inbox_skip_rows: list[dict[str, Any]] = []
+    category_status = "not-attempted"
     if args.from_inbox:
         graph_client = _optional_graph_client()
         if graph_client is None:
             print("Graph credentials missing or authenticate failed. Cannot pull inbox.", flush=True)
             return 2
+        try:
+            category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+            print(f"AI HOLD master category: {category_status}", flush=True)
+        except (GraphError, MailboxRejected):
+            print("AI HOLD master category: category-denied", flush=True)
         from datetime import timedelta
 
         start = parse_iso_date(args.inbox_from) if args.inbox_from else as_of - timedelta(days=45)
@@ -144,16 +185,19 @@ def main(argv: list[str] | None = None) -> int:
             received_from=start,
             received_to=end,
             pdf_dir=pdf_dir,
+            unprocessed_only=True,
+            mark_skips=True,
         )
+        inbox_skip_rows = skip_rows_for_report(skipped, batch_name)
         print(
             f"Inbox selected {len(invoices)} bill(s) from {args.mailbox} "
             f"({start.isoformat()} to {end.isoformat()}); skipped {len(skipped)} non-bill(s). "
-            "No messages were flagged.",
+            "Success→Entered in AI; unable-to-process→AI HOLD.",
             flush=True,
         )
         if not invoices:
             print("No vendor invoices selected from inbox.", flush=True)
-            write_report(report_path, [])
+            write_report(report_path, inbox_skip_rows)
             return 2
     else:
         invoices = _load_fixture(fixture_path)
@@ -161,6 +205,12 @@ def main(argv: list[str] | None = None) -> int:
             inv.get("graph_message_id") or inv.get("graphMessageId") for inv in invoices
         )
         graph_client = _optional_graph_client() if needs_graph else None
+        if graph_client is not None:
+            try:
+                category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+                print(f"AI HOLD master category: {category_status}", flush=True)
+            except (GraphError, MailboxRejected):
+                print("AI HOLD master category: category-denied", flush=True)
         if args.match_inbox:
             invoices = _attach_inbox_ids(
                 invoices,
@@ -174,6 +224,7 @@ def main(argv: list[str] | None = None) -> int:
     if not creds.ready:
         print(creds.error or "Credentials not ready. Writing HOLD report and stopping.", flush=True)
         rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
+        rows.extend(inbox_skip_rows)
         write_report(report_path, rows)
         print(f"Wrote {report_path}", flush=True)
         return 2
@@ -199,15 +250,17 @@ def main(argv: list[str] | None = None) -> int:
             pdf_dir=pdf_dir,
             graph_client=graph_client,
             mailbox=args.mailbox,
-            flag_outlook=False if creds.target == "live" else True,
+            flag_outlook=True,
         )
     except KimcoError as exc:
         label = "Live" if creds.target == "live" else "Prototype"
         print(f"{label} call failed: {exc}", flush=True)
         rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
+        rows.extend(inbox_skip_rows)
         write_report(report_path, rows)
         return 1
 
+    rows.extend(inbox_skip_rows)
     write_report(report_path, rows)
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
@@ -912,6 +965,236 @@ def _attach_inbox_ids(
     matched = sum(1 for inv in enriched if inv.get("graph_message_id"))
     LOGGER.info("Attached Graph message ids to %s/%s invoices (flag happens after match, not now)", matched, len(enriched))
     return enriched
+
+
+def _run_probe(args: argparse.Namespace) -> int:
+    """Graph-only: AI HOLD category + Mail.Send draft check. Never sendMail. Never KIMCO."""
+    print(format_graph_presence(), flush=True)
+    mailbox = assert_allowed_mailbox(args.mailbox)
+    graph_creds = load_graph_credentials()
+    if not graph_creds.ready:
+        print(graph_creds.error or "Graph credentials missing.", flush=True)
+        return 2
+    try:
+        client = GraphClient.authenticate(
+            graph_creds.tenant_id or "",
+            graph_creds.client_id or "",
+            graph_creds.client_secret or "",
+        )
+        category_status = client.ensure_ai_hold_category(mailbox)
+        probe = client.probe_send_authorization(mailbox)
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+    except GraphError as exc:
+        print(f"Graph probe failed: {exc}", flush=True)
+        return 1
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    out_path = Path(args.out) if args.out else ROOT / "runs" / f"graph-send-probe-{as_of.isoformat()}.json"
+    payload = {
+        "mailbox": mailbox,
+        "other_mailboxes_used": [],
+        "kimco_writes": False,
+        "send_mail_invoked": False,
+        "mail_sent_to_anyone": False,
+        "ai_hold_category": category_status,
+        "probe": probe,
+        "notes": (
+            "Draft created on the AP mailbox and deleted. sendMail was not called. "
+            "Daily still emails Treyce only after a real --live enter."
+        ),
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"AI HOLD master category: {category_status}", flush=True)
+    print(
+        f"Mail.Send role={'present' if probe.get('mail_send_role') else 'absent'} "
+        f"draft={probe.get('draft_status')} draft_http={probe.get('draft_http')} "
+        f"deleted_http={probe.get('draft_deleted_http')} send_mail_invoked=false",
+        flush=True,
+    )
+    print(f"Wrote {out_path}. No mail was sent. No KIMCO writes.", flush=True)
+    return 0
+
+
+def _run_daily(args: argparse.Namespace) -> int:
+    """Weekday 5am America/Chicago FIFO of 30. Requires --live. Does not start a CI cron."""
+    if not args.live:
+        print(
+            "daily requires --live (live KIMCO + live creds). "
+            "Refusing to run without the live flag so CI/prototype cannot post.",
+            flush=True,
+        )
+        return 2
+
+    target = resolve_target(live_flag=True)
+    creds = load_credentials(target=target)
+    print(format_presence(creds.presence), flush=True)
+    print(format_graph_presence(), flush=True)
+    print(f"Target: {creds.target}", flush=True)
+    if creds.key_source:
+        print(f"Using credential pair: {creds.key_source}", flush=True)
+    print(f"Instance host: {creds.instance_url}", flush=True)
+    print(
+        "Daily FIFO from 2026-07-28 America/Chicago toward today. "
+        "Skip Entered in AI. Replace not-a-bill. Cursor persists. "
+        "Success→Entered in AI; HOLD/Fail→AI HOLD. No follow-up flag.",
+        flush=True,
+    )
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    batch_name = batch_name_for(as_of)
+    report_path = Path(args.report) if args.report else ROOT / "runs" / f"AP-run-{as_of.isoformat()}.xlsx"
+    limit = max(1, int(args.limit or DEFAULT_DAILY_LIMIT))
+    cursor_path = Path(args.cursor)
+    cursor = load_cursor(cursor_path)
+    print(
+        f"Cursor: last_received={cursor.last_receivedDateTime or 'none (start 2026-07-28)'} "
+        f"last_message_id={'set' if cursor.last_message_id else 'none'}",
+        flush=True,
+    )
+
+    graph_client = _optional_graph_client()
+    if graph_client is None:
+        print("Graph credentials missing or authenticate failed. Cannot run daily inbox FIFO.", flush=True)
+        write_report(report_path, [])
+        write_email_sidecar(report_path, EMAIL_DENIED, subject=email_subject_for(as_of), to=args.email_to)
+        return 2
+
+    category_status = "not-attempted"
+    try:
+        category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+    except (GraphError, MailboxRejected):
+        category_status = "category-denied"
+    print(f"AI HOLD master category: {category_status}", flush=True)
+
+    pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
+    try:
+        invoices, skipped = pull_recent_bills(
+            graph_client,
+            mailbox=args.mailbox,
+            limit=limit,
+            received_from=None,
+            received_to=as_of,
+            pdf_dir=pdf_dir,
+            max_messages=max(400, limit * 20),
+            fifo=True,
+            unprocessed_only=True,
+            cursor=cursor,
+            mark_skips=True,
+        )
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+    except GraphError as exc:
+        print(f"Graph daily pull failed: {exc}", flush=True)
+        write_report(report_path, [])
+        write_email_sidecar(report_path, EMAIL_DENIED, subject=email_subject_for(as_of), to=args.email_to)
+        return 1
+
+    print(
+        f"Daily selected {len(invoices)} bill(s) from {args.mailbox} "
+        f"(FIFO from 2026-07-28 / cursor; skipped {len(skipped)} non-bill(s)).",
+        flush=True,
+    )
+
+    skip_rows = skip_rows_for_report(skipped, batch_name)
+    rows: list[dict[str, Any]] = []
+    batch_label = batch_name
+
+    if not creds.ready:
+        print(creds.error or "Live credentials not ready. Writing HOLD report and stopping.", flush=True)
+        rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
+        rows.extend(skip_rows)
+        write_report(report_path, rows)
+        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        print(f"Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 2
+
+    if not invoices and not skip_rows:
+        write_report(report_path, [])
+        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        print(f"No unprocessed vendor invoices in the FIFO window. Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, [], batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 0
+
+    try:
+        client = KimcoClient.authenticate(
+            creds.instance_url,
+            creds.key or "",
+            creds.password or "",
+            target=creds.target,
+        )
+        print("Live auth success (token not printed). Proceeding with live writes.", flush=True)
+        if invoices:
+            rows = run_enter(
+                client,
+                invoices,
+                batch_name=batch_name,
+                pdf_dir=pdf_dir,
+                graph_client=graph_client,
+                mailbox=args.mailbox,
+                flag_outlook=True,
+            )
+            if rows:
+                batch_label = str(rows[0].get("Batch") or batch_name)
+        else:
+            rows = []
+    except KimcoError as exc:
+        print(f"Live call failed: {exc}", flush=True)
+        rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
+        rows.extend(skip_rows)
+        write_report(report_path, rows)
+        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        print(f"Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 1
+
+    rows.extend(skip_rows)
+    write_report(report_path, rows)
+    save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+    return 0
+
+
+def _email_daily_report(
+    graph_client: GraphClient | None,
+    report_path: Path,
+    rows: list[dict[str, Any]],
+    *,
+    batch_label: str,
+    as_of,
+    to: str,
+) -> str:
+    subject = email_subject_for(as_of)
+    body = email_body_for(rows, batch_label=batch_label, as_of=as_of)
+    if graph_client is None:
+        status = EMAIL_DENIED
+    else:
+        try:
+            status = graph_client.send_run_report(
+                ALLOWED_MAILBOX,
+                to=to,
+                subject=subject,
+                body=body,
+                attachment_path=report_path,
+            )
+        except MailboxRejected:
+            raise
+        except GraphError:
+            status = EMAIL_DENIED
+    write_email_sidecar(report_path, status, subject=subject, to=to)
+    counts = result_counts(rows)
+    print(
+        f"Email status={status} to={to} subject={subject} "
+        f"Success={counts['Success']} Fail={counts['Fail']} HOLD={counts['HOLD']}",
+        flush=True,
+    )
+    return status
 
 
 def _run_pull(args: argparse.Namespace) -> int:

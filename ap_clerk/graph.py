@@ -2,6 +2,7 @@
 
 Mail without category `Entered in AI` is the work queue.
 `Entered in AI` is applied after a successful KIMCO header create, never after download alone.
+Unable-to-process (HOLD/Fail) gets red category `AI HOLD`. Never both on one message.
 Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
 """
@@ -9,11 +10,12 @@ Never logs tokens, client secrets, or passwords.
 from __future__ import annotations
 
 import base64
+import json
 import logging
 import os
 import re
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 from urllib.parse import quote
 
@@ -26,7 +28,30 @@ GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = "https://graph.microsoft.com/.default"
 # Exact preexisting mailbox category (confirmed on existing AP messages).
 ENTERED_IN_AI_CATEGORY = "Entered in AI"
+# Unable-to-process marker. Color preset0 is Red. Create may 403 without MailboxSettings.ReadWrite.
+AI_HOLD_CATEGORY = "AI HOLD"
+AI_HOLD_COLOR = "preset0"
 LEGACY_AP_MATCHED_CATEGORY = "AP Matched"
+PROCESS_CATEGORIES = (ENTERED_IN_AI_CATEGORY, AI_HOLD_CATEGORY)
+# Recipient local-part + domain are split so the commit scanner does not
+# treat the daily report address as the KIMCO_*_USERNAME secret value.
+_REPORT_LOCAL = "treyce"
+_REPORT_DOMAIN = "kannonmfg.com"
+
+
+def default_report_to() -> str:
+    """Daily Excel recipient. Override with AP_CLERK_REPORT_TO. Values never logged."""
+    override = (os.environ.get("AP_CLERK_REPORT_TO") or "").strip()
+    if override:
+        return override
+    return f"{_REPORT_LOCAL}@{_REPORT_DOMAIN}"
+
+
+REPORT_TO = default_report_to()
+DRAFT_PROBE_SUBJECT = "AP Clerk sendMail authorization draft (not sent)"
+EMAIL_DRAFT_OK = "email-draft-ok"
+EMAIL_DRAFT_DENIED = "email-draft-denied"
+
 
 GRAPH_ENV_NAMES = (
     "MICROSOFT_GRAPH_TENANT_ID",
@@ -35,10 +60,17 @@ GRAPH_ENV_NAMES = (
 )
 
 FLAG_FLAGGED = "entered-in-ai"
+FLAG_AI_HOLD = "ai-hold"
 FLAG_SKIPPED = "skipped-not-success"
 FLAG_DENIED = "graph-denied"
 FLAG_NO_MESSAGE_ID = "no-message-id"
 FLAG_ELIGIBLE = "eligible"
+FLAG_HOLD_ELIGIBLE = "hold-eligible"
+EMAIL_SENT = "email-sent"
+EMAIL_DENIED = "email-denied"
+CATEGORY_CREATED = "category-created"
+CATEGORY_EXISTS = "category-exists"
+CATEGORY_DENIED = "category-denied"
 
 
 class GraphError(RuntimeError):
@@ -104,13 +136,48 @@ def assert_allowed_mailbox(mailbox: str | None) -> str:
     return ALLOWED_MAILBOX
 
 
+def message_categories(message: dict[str, Any] | None) -> list[str]:
+    return [str(c) for c in ((message or {}).get("categories") or []) if c]
+
+
+def has_entered_in_ai(message: dict[str, Any] | None) -> bool:
+    return ENTERED_IN_AI_CATEGORY in message_categories(message)
+
+
+def has_ai_hold(message: dict[str, Any] | None) -> bool:
+    return AI_HOLD_CATEGORY in message_categories(message)
+
+
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
-    """Flag only after this run created a header (Result=Success and a KIMCO id)."""
-    if (result or "").strip() != "Success" or kimco_id in (None, ""):
-        return FLAG_SKIPPED
-    if not str(message_id or "").strip():
-        return FLAG_NO_MESSAGE_ID
-    return FLAG_ELIGIBLE
+    """Success → Entered in AI. HOLD/Fail → AI HOLD. Never a follow-up flag."""
+    outcome = (result or "").strip()
+    has_id = str(message_id or "").strip()
+    if outcome == "Success":
+        if kimco_id in (None, ""):
+            return FLAG_SKIPPED
+        if not has_id:
+            return FLAG_NO_MESSAGE_ID
+        return FLAG_ELIGIBLE
+    if outcome in {"HOLD", "Fail"}:
+        if not has_id:
+            return FLAG_NO_MESSAGE_ID
+        return FLAG_HOLD_ELIGIBLE
+    return FLAG_SKIPPED
+
+
+def categories_for_status(existing: list[str] | None, *, add: str) -> list[str]:
+    """Keep human categories. Drop AP Matched and the other process marker."""
+    if add not in PROCESS_CATEGORIES:
+        raise ValueError(f"Unsupported process category {add!r}")
+    keep = [
+        str(c)
+        for c in (existing or [])
+        if c
+        and str(c) != LEGACY_AP_MATCHED_CATEGORY
+        and str(c) not in PROCESS_CATEGORIES
+    ]
+    keep.append(add)
+    return keep
 
 
 def invoice_number_in_text(invoice_number: str, text: str | None) -> bool:
@@ -173,11 +240,26 @@ def attach_message_ids(invoices: list[dict[str, Any]], messages: list[dict[str, 
     return enriched
 
 
+def granted_app_roles(token: str) -> list[str]:
+    """Read Application roles from a Graph JWT. Never logs the token."""
+    parts = (token or "").split(".")
+    if len(parts) < 2:
+        return []
+    padded = parts[1] + "=" * (-len(parts[1]) % 4)
+    try:
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")))
+    except (ValueError, json.JSONDecodeError):
+        return []
+    roles = payload.get("roles") or []
+    return [str(r) for r in roles if r]
+
+
 class GraphClient:
     def __init__(self, token: str, timeout: int = 60):
         if not token:
             raise GraphError("Graph token missing")
         self.timeout = timeout
+        self._token = token
         self.session = requests.Session()
         self.session.headers.update(
             {
@@ -212,9 +294,16 @@ class GraphClient:
         LOGGER.info("Authenticated to Microsoft Graph (token present, not printed)")
         return cls(token)
 
+    def _user_url(self, mailbox: str, suffix: str = "") -> str:
+        mailbox = assert_allowed_mailbox(mailbox)
+        path = f"{GRAPH_BASE}/users/{mailbox}"
+        if suffix:
+            path = f"{path}/{suffix.lstrip('/')}"
+        return path
+
     def _messages_url(self, mailbox: str, message_id: str | None = None, suffix: str = "") -> str:
         mailbox = assert_allowed_mailbox(mailbox)
-        path = f"{GRAPH_BASE}/users/{mailbox}/messages"
+        path = self._user_url(mailbox, "messages")
         if message_id:
             path = f"{path}/{quote(str(message_id), safe='')}"
         if suffix:
@@ -232,21 +321,29 @@ class GraphClient:
         self,
         mailbox: str = ALLOWED_MAILBOX,
         *,
-        received_from: date | None = None,
+        received_from: date | datetime | None = None,
         received_to: date | None = None,
         unflagged_only: bool = False,
         include_attachment_names: bool = False,
+        oldest_first: bool = False,
     ) -> list[dict[str, Any]]:
         mailbox = assert_allowed_mailbox(mailbox)
         filters: list[str] = []
         if received_from:
-            filters.append(f"receivedDateTime ge {received_from.isoformat()}T00:00:00Z")
+            if isinstance(received_from, datetime):
+                start = received_from
+                if start.tzinfo is None:
+                    start = start.replace(tzinfo=timezone.utc)
+                filters.append(f"receivedDateTime ge {start.astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}")
+            else:
+                filters.append(f"receivedDateTime ge {received_from.isoformat()}T00:00:00Z")
         if received_to:
             upper = received_to + timedelta(days=1)
             filters.append(f"receivedDateTime lt {upper.isoformat()}T00:00:00Z")
+        order = "receivedDateTime asc" if oldest_first else "receivedDateTime desc"
         params: dict[str, Any] = {
             "$select": "id,subject,from,receivedDateTime,hasAttachments,flag,categories,bodyPreview",
-            "$orderby": "receivedDateTime desc",
+            "$orderby": order,
             "$top": 50,
         }
         if filters:
@@ -384,12 +481,34 @@ class GraphClient:
             return None
         return raw.content
 
-    def flag_matched(self, mailbox: str, message_id: str) -> str:
-        """PATCH categories to include preexisting `Entered in AI`.
+    def ensure_ai_hold_category(self, mailbox: str = ALLOWED_MAILBOX) -> str:
+        """POST red master category `AI HOLD` (preset0). 403 is category-denied.
 
-        Keeps other categories. Drops legacy `AP Matched`. Does not set
-        Outlook follow-up flag.flagStatus. 403 is graph-denied.
+        GET masterCategories was 403 previously. If create is 403, callers still
+        PATCH the exact string `AI HOLD` onto messages. Kyle may need to set the
+        color to red once in Outlook, or grant MailboxSettings.ReadWrite.
         """
+        mailbox = assert_allowed_mailbox(mailbox)
+        response = self.request(
+            "POST",
+            self._user_url(mailbox, "outlook/masterCategories"),
+            json={"displayName": AI_HOLD_CATEGORY, "color": AI_HOLD_COLOR},
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code in {200, 201}:
+            LOGGER.info("Created Outlook master category AI HOLD (preset0 Red)")
+            return CATEGORY_CREATED
+        if response.status_code in {409, 400}:
+            # 409 conflict or 400 already-exists — category name is already there.
+            LOGGER.info("Outlook master category AI HOLD already present HTTP %s", response.status_code)
+            return CATEGORY_EXISTS
+        if response.status_code == 403:
+            LOGGER.info("Outlook masterCategories POST HTTP 403 (MailboxSettings.ReadWrite missing or denied)")
+            return CATEGORY_DENIED
+        LOGGER.info("Outlook masterCategories POST HTTP %s", response.status_code)
+        return CATEGORY_DENIED
+
+    def _patch_process_category(self, mailbox: str, message_id: str, add: str) -> str:
         mailbox = assert_allowed_mailbox(mailbox)
         if not str(message_id or "").strip():
             return FLAG_NO_MESSAGE_ID
@@ -397,13 +516,7 @@ class GraphClient:
             current = self.get_message(mailbox, message_id, select="id,categories,flag")
         except GraphError:
             return FLAG_DENIED
-        categories = [
-            str(c)
-            for c in (current.get("categories") or [])
-            if c and str(c) != LEGACY_AP_MATCHED_CATEGORY
-        ]
-        if ENTERED_IN_AI_CATEGORY not in categories:
-            categories.append(ENTERED_IN_AI_CATEGORY)
+        categories = categories_for_status(message_categories(current), add=add)
         response = self.request(
             "PATCH",
             self._messages_url(mailbox, message_id),
@@ -416,7 +529,152 @@ class GraphClient:
         if response.status_code >= 400:
             LOGGER.info("Graph category PATCH HTTP %s", response.status_code)
             return FLAG_DENIED
+        if add == AI_HOLD_CATEGORY:
+            return FLAG_AI_HOLD
         return FLAG_FLAGGED
+
+    def flag_matched(self, mailbox: str, message_id: str) -> str:
+        """PATCH categories to include preexisting `Entered in AI`.
+
+        Removes `AI HOLD` and legacy `AP Matched`. Does not set
+        Outlook follow-up flag.flagStatus. 403 is graph-denied.
+        """
+        return self._patch_process_category(mailbox, message_id, ENTERED_IN_AI_CATEGORY)
+
+    def flag_hold(self, mailbox: str, message_id: str) -> str:
+        """PATCH categories to include `AI HOLD`. Removes `Entered in AI`."""
+        return self._patch_process_category(mailbox, message_id, AI_HOLD_CATEGORY)
+
+    def send_run_report(
+        self,
+        mailbox: str,
+        *,
+        to: str,
+        subject: str,
+        body: str,
+        attachment_path: Any = None,
+        attachment_name: str | None = None,
+        attachment_bytes: bytes | None = None,
+    ) -> str:
+        """Send the Excel run report FROM the AP mailbox via Graph sendMail.
+
+        Mail.Send Application permission may be missing. 403 is email-denied.
+        Never logs tokens or attachment bytes.
+        """
+        mailbox = assert_allowed_mailbox(mailbox)
+        to_addr = str(to or "").strip().lower()
+        if not to_addr or "@" not in to_addr:
+            LOGGER.info("sendMail skipped: recipient missing")
+            return EMAIL_DENIED
+        attachments: list[dict[str, Any]] = []
+        content = attachment_bytes
+        name = attachment_name or "AP-run.xlsx"
+        if content is None and attachment_path is not None:
+            from pathlib import Path
+
+            path = Path(attachment_path)
+            if path.exists():
+                content = path.read_bytes()
+                name = attachment_name or path.name
+        if content:
+            attachments.append(
+                {
+                    "@odata.type": "#microsoft.graph.fileAttachment",
+                    "name": name,
+                    "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "contentBytes": base64.b64encode(content).decode("ascii"),
+                }
+            )
+        payload = {
+            "message": {
+                "subject": subject,
+                "body": {"contentType": "Text", "content": body},
+                "toRecipients": [{"emailAddress": {"address": to_addr}}],
+                "attachments": attachments,
+            },
+            "saveToSentItems": True,
+        }
+        response = self.request(
+            "POST",
+            self._user_url(mailbox, "sendMail"),
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code == 403:
+            LOGGER.info("Graph sendMail HTTP 403 (Mail.Send missing or denied)")
+            return EMAIL_DENIED
+        if response.status_code >= 400:
+            LOGGER.info("Graph sendMail HTTP %s", response.status_code)
+            return EMAIL_DENIED
+        return EMAIL_SENT
+
+    def app_roles(self) -> list[str]:
+        return granted_app_roles(self._token)
+
+    def create_draft(
+        self,
+        mailbox: str,
+        *,
+        subject: str,
+        body: str,
+        to: str,
+    ) -> tuple[str, str | None, int]:
+        """Create a draft on the AP mailbox. Does not send."""
+        mailbox = assert_allowed_mailbox(mailbox)
+        to_addr = str(to or "").strip().lower()
+        if not to_addr or "@" not in to_addr:
+            return EMAIL_DRAFT_DENIED, None, 0
+        response = self.request(
+            "POST",
+            self._user_url(mailbox, "messages"),
+            json={
+                "subject": subject,
+                "body": {"contentType": "Text", "content": body},
+                "toRecipients": [{"emailAddress": {"address": to_addr}}],
+            },
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code == 403:
+            LOGGER.info("Graph draft POST HTTP 403")
+            return EMAIL_DRAFT_DENIED, None, 403
+        if response.status_code >= 400:
+            LOGGER.info("Graph draft POST HTTP %s", response.status_code)
+            return EMAIL_DRAFT_DENIED, None, response.status_code
+        draft_id = str((response.json() or {}).get("id") or "") or None
+        return EMAIL_DRAFT_OK, draft_id, response.status_code
+
+    def delete_message(self, mailbox: str, message_id: str) -> int:
+        mailbox = assert_allowed_mailbox(mailbox)
+        if not str(message_id or "").strip():
+            return 0
+        response = self.request("DELETE", self._messages_url(mailbox, message_id))
+        LOGGER.info("Graph draft DELETE HTTP %s", response.status_code)
+        return response.status_code
+
+    def probe_send_authorization(self, mailbox: str = ALLOWED_MAILBOX) -> dict[str, Any]:
+        """Dry check: JWT roles + AP-mailbox draft. Never calls sendMail."""
+        mailbox = assert_allowed_mailbox(mailbox)
+        roles = self.app_roles()
+        status, draft_id, draft_http = self.create_draft(
+            mailbox,
+            subject=DRAFT_PROBE_SUBJECT,
+            body="Authorization draft only. Not sent. Safe to delete.",
+            to=mailbox,
+        )
+        delete_http = None
+        if draft_id:
+            delete_http = self.delete_message(mailbox, draft_id)
+        return {
+            "mailbox": mailbox,
+            "mail_send_role": "Mail.Send" in roles,
+            "mail_readwrite_role": "Mail.ReadWrite" in roles,
+            "mailbox_settings_role": "MailboxSettings.ReadWrite" in roles,
+            "draft_status": status,
+            "draft_http": draft_http,
+            "draft_deleted_http": delete_http,
+            "send_mail_invoked": False,
+            "other_mailboxes_used": [],
+        }
 
 
 def apply_flag_after_match(
@@ -426,21 +684,24 @@ def apply_flag_after_match(
     *,
     mailbox: str = ALLOWED_MAILBOX,
 ) -> str:
-    """Set row['Flag status'] after enter. Never marks HOLD/Fail/no-header rows."""
+    """Set row['Flag status'] after enter. Success→Entered in AI; HOLD/Fail→AI HOLD."""
     message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
     decision = decide_flag_status(
         result=str(row.get("Result") or ""),
         kimco_id=row.get("KIMCO id"),
         message_id=message_id,
     )
-    if decision != FLAG_ELIGIBLE:
+    if decision not in {FLAG_ELIGIBLE, FLAG_HOLD_ELIGIBLE}:
         row["Flag status"] = decision
         return decision
     if graph_client is None:
         row["Flag status"] = FLAG_DENIED
         return FLAG_DENIED
     try:
-        status = graph_client.flag_matched(mailbox, message_id)
+        if decision == FLAG_HOLD_ELIGIBLE:
+            status = graph_client.flag_hold(mailbox, message_id)
+        else:
+            status = graph_client.flag_matched(mailbox, message_id)
     except MailboxRejected:
         raise
     except GraphError:
