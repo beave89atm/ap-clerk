@@ -196,10 +196,10 @@ NOT_A_BILL_SUBJECT_RE = re.compile(
     r"(\bcheck\s*stop\b|\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|"
     r"\bremittance\s+advice\b|\bpayment\s+confirmation\b|\bpayment\s+received\b|"
     r"\bthank\s+you\s+for\s+your\s+payment\b|\bwire\s+confirmation\b|"
-    r"\bdelivery\s+receipt\b)",
+    r"\bdelivery\s+receipt\b|\bpast\s+due\b|\bcollection\s+notice\b)",
     flags=re.I,
 )
-STATEMENT_RE = re.compile(r"\b(account\s+)?statement\b", flags=re.I)
+STATEMENT_RE = re.compile(r"\b(account\s+)?statement\b|\bpast\s+due\b|\bcollection\s+notice\b", flags=re.I)
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
 

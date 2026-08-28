@@ -12,6 +12,8 @@ from ap_clerk.graph import ALLOWED_MAILBOX, GraphClient, assert_allowed_mailbox
 from ap_clerk.pdf_invoice import parse_invoice_pdf
 from ap_clerk.rules import classify_mail, parse_iso_date
 
+STATEMENT_FILE_RE = re.compile(r"statement|custstate|pastdue|past[_ -]?due|aging", flags=re.I)
+
 LOGGER = logging.getLogger("ap_clerk")
 
 SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop"}
@@ -80,7 +82,10 @@ def pull_recent_bills(
         message_id = str(message.get("id") or "")
         names = graph.list_attachment_names(mailbox, message_id) if message.get("hasAttachments") else []
         message["attachment_names"] = names
-        klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
+        if any(STATEMENT_FILE_RE.search(n or "") for n in names):
+            klass = "statement"
+        else:
+            klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
         if klass in SKIP_CLASSES:
             skipped.append(
                 {
@@ -114,13 +119,16 @@ def pull_recent_bills(
             )
             continue
         from_name = sender_name(message)
+        from_addr = sender_address(message)
         chosen: dict[str, Any] | None = None
         for filename, content in pdfs:
+            if STATEMENT_FILE_RE.search(filename or ""):
+                continue
             dest = pdf_dir / f"{_safe_filename(str(message.get('receivedDateTime') or '')[:10])}_{_safe_filename(filename)}"
             if dest.exists():
                 dest = pdf_dir / f"{len(selected)+len(skipped)}_{dest.name}"
             dest.write_bytes(content)
-            parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name)
+            parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
             if parsed.get("check_stop"):
                 skipped.append(
                     {
@@ -133,7 +141,7 @@ def pull_recent_bills(
                 )
                 chosen = None
                 break
-            if parsed.get("pdf_text_empty") and not parsed.get("invoice_number"):
+            if parsed.get("pdf_text_empty") and parsed.get("amount") in (None, ""):
                 continue
             if not parsed.get("invoice_number") and not parsed.get("amount"):
                 continue

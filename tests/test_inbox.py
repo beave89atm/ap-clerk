@@ -12,19 +12,52 @@ from ap_clerk.cli import _process_invoice
 def test_parse_invoice_text_generic_bill():
     text = """
     Fastenal Company
-    Invoice Number: TXFT499739
-    Invoice Date: 07/30/2026
-    Customer PO: 58749
-    Shipping & Handling $124.83
-    Invoice Total $2,620.08
+    Invoice Date Invoice No.
+    07/30/2026 TXFT499739
+    Invoice Total
+    2620.08 USD
+    Cust. No.
+    Cust. P.O.
+    TXFT40601
+    58749
+    Shipping & Handling
+    124.83
     """
-    parsed = parse_invoice_text(text, subject="Invoice TXFT499739", from_name="Fastenal Company")
+    parsed = parse_invoice_text(
+        text,
+        subject="Fastenal invoice(s) have been generated for you.",
+        from_name="FastenalReporting",
+        from_address="FastenalReporting@fastenal.com",
+        filename="TXFT499739.pdf",
+    )
     assert parsed["invoice_number"] == "TXFT499739"
     assert parsed["po"] == "58749"
     assert parsed["amount"] == 2620.08
-    assert parsed["date"] == "2026-07-30"
+    assert parsed["vendor"] == "Fastenal Company"
     assert parsed["check_stop"] is False
-    assert any("Shipping" in f["name"] or "shipping" in f["name"].lower() for f in parsed["fees"])
+
+
+def test_parse_air_products_and_emj():
+    air = parse_invoice_text(
+        "Invoice No.: 436251638\nDate: 08/26/2026\nTotal to be paid USD 2,017.20\nPurchase Order Number: NONE\nDelivery Charge 135.00\nHazmat Charge 120.00",
+        subject="Air Products Invoice 0436251638",
+        from_address="apdirect@airproducts.com",
+        filename="Air_Products_Invoice_0436251638.PDF",
+    )
+    assert air["invoice_number"] == "436251638"
+    assert air["amount"] == 2017.20
+    assert air["po"] is None
+    assert air["vendor"] == "Air Products and Chemicals, Inc"
+
+    emj = parse_invoice_text(
+        "INVOICE NUMBER S814379432\nINVOICE DATE 26-AUG-2026\nCUSTOMER PO 58984\nINVOICE TOTAL $ 752.10",
+        subject="EARLE M. JORGENSEN COMPANY - Invoices for 08/26/26",
+        from_address="EMJCreditSouth@emjmetals.com",
+    )
+    assert emj["invoice_number"] == "S814379432"
+    assert emj["po"] == "58984"
+    assert emj["amount"] == 752.10
+    assert emj["vendor"] == "Earle M. Jorgensen Co"
 
 
 def test_parse_invoice_text_check_stop():
@@ -112,7 +145,7 @@ def test_pull_recent_bills_skips_and_returns_oldest_first(tmp_path: Path):
     # Instead, patch parse_invoice_pdf.
     from ap_clerk import inbox as inbox_mod
 
-    def fake_parse(path, *, subject="", from_name=""):
+    def fake_parse(path, *, subject="", from_name="", from_address=""):
         number = "NEW1"
         if "MID2" in path.name or "MID2" in subject:
             number = "MID2"

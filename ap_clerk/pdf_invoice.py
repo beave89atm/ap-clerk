@@ -15,33 +15,84 @@ from ap_clerk.rules import FEE_KEYWORDS, extract_po_number, is_fee_or_surcharge
 LOGGER = logging.getLogger("ap_clerk")
 
 _INV_LABEL = re.compile(
-    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#|inv\s+no\.?)\s*[:.\s#-]*([A-Z0-9][A-Z0-9/_-]{2,})",
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#-]*([A-Z]{0,8}\d{3,}[A-Z0-9/_-]*)",
     flags=re.I,
 )
-_INV_BARE = re.compile(r"\b(?:invoice)\s+([A-Z]{1,6}-?\d{4,}|\d{5,})\b", flags=re.I)
+_INV_FASTENAL = re.compile(r"\b(TXFT\d{5,})\b", flags=re.I)
+_INV_GAS = re.compile(r"\b(00\d{8})\b")
+_INV_EMJ = re.compile(r"\bINVOICE NUMBER\s+([A-Z]\d{6,})\b", flags=re.I)
+_PO_NONE = re.compile(r"purchase\s*order(?:\s*number)?\s*[:.\s#-]*none\b", flags=re.I)
 _PO_LABEL = re.compile(
-    r"(?:purchase\s*order|customer\s*p\.?o\.?|your\s*p\.?o\.?|p\.?o\.?\s*(?:number|no\.?|#)?)\s*[:.\s#-]*([A-Z]{0,6}\d{4,8})",
+    r"(?:purchase\s*order(?:\s*number)?|customer\s*p\.?o\.?|your\s*p\.?o\.?|cust(?:omer)?\.?\s*p\.?o\.?)\s*[:.#\s-]*([A-Z]{0,4}\d{4,8})",
     flags=re.I,
 )
+_PO_BARE = re.compile(r"\bPO\s*[:.#]?\s*(\d{4,6})\b", flags=re.I)
 _AMOUNT_LABEL = re.compile(
-    r"(?:invoice\s*total|amount\s*due|total\s*due|balance\s*due|amount\s*of\s*invoice|"
-    r"total\s*invoice|invoice\s*amount|total\s*amount\s*due|amount\s*to\s*pay|"
-    r"please\s*pay|grand\s*total)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2})?)",
+    r"(?:total\s+to\s+be\s+paid(?:\s+usd)?|invoice\s*total|amount\s*due|total\s*due|"
+    r"total\s*amount\s*due|total\s*-\s*this\s*invoice|invoice\s*amount|"
+    r"grand\s*total|total\s+order\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2})?)",
     flags=re.I,
 )
-_TOTAL_FALLBACK = re.compile(r"\b(?:total)\s*[:.\s]*\$\s*([\d,]+(?:\.\d{2})?)", flags=re.I)
-_MONEY = re.compile(r"\$\s*([\d,]+(?:\.\d{2})?)")
+_AMOUNT_BEFORE = re.compile(
+    r"\$?\s*([\d,]+(?:\.\d{2}))\s*(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
+    flags=re.I,
+)
+_CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440"}
+_TOTAL_MONEY = re.compile(r"(?:^|\b)total(?:\s+\$|\s*[:.\s]*\$)\s*([\d,]+(?:\.\d{2})?)", flags=re.I)
+_MONEY = re.compile(r"\$?\s*([\d,]+(?:\.\d{2}))")
 _DATE_LABEL = re.compile(
     r"(?:invoice\s*date|date\s*of\s*invoice|inv(?:oice)?\s*date)\s*[:.\s]*"
-    r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4})",
+    r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4})",
     flags=re.I,
 )
 _DATE_ANY = re.compile(
-    r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4})\b"
+    r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{4})\b"
 )
 _CHECK_STOP = re.compile(r"\bcheck\s*stop\b", flags=re.I)
-_FROM_LINE = re.compile(r"^(?:from|bill\s*from|sold\s*by|remit(?:\s*to)?)\s*[:\-]\s*(.+)$", flags=re.I)
-_MULTI_PO_SPLIT = re.compile(r"[;,/]|and")
+_BAD_INVOICE_WORDS = {
+    "WHEN",
+    "TYPE",
+    "DUE",
+    "PLEASE",
+    "TOTAL",
+    "PAGE",
+    "DATE",
+    "NONE",
+    "INVOICE",
+    "NUMBER",
+    "ORIGINAL",
+    "STATEMENT",
+}
+
+DOMAIN_VENDORS = {
+    "airproducts.com": "Air Products and Chemicals, Inc",
+    "emjmetals.com": "Earle M. Jorgensen Co",
+    "onealsteel.com": "O'Neal Steel - Dallas (GP)",
+    "gasandsupply.com": "Gas and Supply North Texas, LLC",
+    "fastenal.com": "Fastenal Company",
+    "mcmaster.com": "McMaster-Carr Supply Company",
+    "modernht.com": "Modern Heat Treat Inc",
+    "ii-vi.com": "Coherent Corp.",
+    "nsalloys.com": "National Specialty Alloys, Inc",
+}
+
+SUBJECT_VENDORS = (
+    (re.compile(r"fastenal", re.I), "Fastenal Company"),
+    (re.compile(r"mcmaster", re.I), "McMaster-Carr Supply Company"),
+    (re.compile(r"o'?neal", re.I), "O'Neal Steel - Dallas (GP)"),
+    (re.compile(r"earle m\.?\s*jorgensen|\bemj\b", re.I), "Earle M. Jorgensen Co"),
+    (re.compile(r"air products", re.I), "Air Products and Chemicals, Inc"),
+    (re.compile(r"gas\s*&?\s*supply", re.I), "Gas and Supply North Texas, LLC"),
+    (re.compile(r"luxor", re.I), "Luxor Staffing, Inc."),
+    (re.compile(r"national specialty alloys", re.I), "National Specialty Alloys, Inc"),
+    (re.compile(r"modern heat treat", re.I), "Modern Heat Treat Inc"),
+    (re.compile(r"coherent|ii-vi", re.I), "Coherent Corp."),
+    (re.compile(r"telecom products", re.I), "Telecom Products Inc."),
+    (re.compile(r"rmp industrial", re.I), "RMP Industrial Supply Inc"),
+    (re.compile(r"tejas transportation", re.I), "Tejas Transportation"),
+    (re.compile(r"telecom products", re.I), "Telecom Products Inc."),
+    (re.compile(r"service experts", re.I), "Service Experts"),
+)
 
 
 def extract_pdf_text(path: Path) -> str:
@@ -70,16 +121,25 @@ def parse_money(value: str | None) -> float | None:
 def parse_date_value(value: str | None) -> str | None:
     if not value:
         return None
-    text = value.strip()
-    for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%m-%d-%Y", "%m-%d-%y", "%B %d, %Y", "%b %d, %Y", "%B %d %Y", "%b %d %Y"):
+    text = value.strip().replace(",", "")
+    for fmt in (
+        "%Y-%m-%d",
+        "%m/%d/%Y",
+        "%m/%d/%y",
+        "%m-%d-%Y",
+        "%m-%d-%y",
+        "%d-%b-%Y",
+        "%d-%b-%y",
+        "%B %d %Y",
+        "%b %d %Y",
+        "%B %d, %Y",
+        "%b %d, %Y",
+    ):
         try:
-            return datetime.strptime(text.replace(",", ""), fmt.replace(",", "")).date().isoformat()
+            return datetime.strptime(text, fmt).date().isoformat()
         except ValueError:
             continue
-    try:
-        return datetime.strptime(text, "%B %d, %Y").date().isoformat()
-    except ValueError:
-        return None
+    return None
 
 
 def _unique(items: list[str]) -> list[str]:
@@ -94,15 +154,59 @@ def _unique(items: list[str]) -> list[str]:
     return out
 
 
+def _looks_like_date_token(token: str) -> bool:
+    if parse_date_value(token):
+        return True
+    return bool(re.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", token or ""))
+
+
+def _usable_invoice_number(token: str | None) -> str | None:
+    if not token:
+        return None
+    value = token.strip(" .:-#")
+    if not value or value.upper() in _BAD_INVOICE_WORDS:
+        return None
+    if _looks_like_date_token(value):
+        return None
+    if re.fullmatch(r"20\d{2}", value):
+        return None
+    if re.fullmatch(r"[A-Za-z]+", value):
+        return None
+    if len(re.sub(r"\D", "", value)) < 3:
+        return None
+    if len(value) > 24:
+        return None
+    return value
+
+
 def extract_po_numbers(text: str) -> list[str]:
+    if _PO_NONE.search(text or ""):
+        return []
     found: list[str] = []
     for match in _PO_LABEL.finditer(text or ""):
         raw = match.group(1)
+        if raw.upper() in {"NONE", "NET"} or raw.upper().startswith("TXFT"):
+            continue
         number = extract_po_number(raw) or re.sub(r"\D", "", raw)
-        if number and 4 <= len(number) <= 8:
+        if number and 4 <= len(number) <= 8 and not number.startswith("00"):
             found.append(number)
-    for match in re.finditer(r"\bPO\s*#?\s*(\d{4,6})\b", text or "", flags=re.I):
+    for match in _PO_BARE.finditer(text or ""):
         found.append(match.group(1))
+    modern = re.search(r"\b(\d{5}),\s*line\b", text or "", flags=re.I)
+    if modern:
+        found.append(modern.group(1))
+    # Fastenal: Cust. No. / Cust. P.O. then TXFTxxxxx \n 58xxx
+    fastenal = re.search(
+        r"Cust(?:omer)?\.?\s*P\.?O\.?.{0,80}?TXFT\d+\s+(\d{5,6})",
+        text or "",
+        flags=re.I | re.S,
+    )
+    if fastenal:
+        found.append(fastenal.group(1))
+    # Fastenal column dump: customer number then PO on the next line
+    stacked = re.search(r"\bTXFT\d{5,}\s+(\d{5,6})\b", text or "", flags=re.I)
+    if stacked:
+        found.append(stacked.group(1))
     return _unique(found)
 
 
@@ -113,13 +217,12 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
         if not stripped or not is_fee_or_surcharge(stripped):
             continue
         amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
-        amounts = [a for a in amounts if a is not None]
+        amounts = [a for a in amounts if a is not None and a < 100000]
         name = re.sub(r"\s+\$?[\d,]+\.\d{2}\s*$", "", stripped)
         name = re.sub(r"\s{2,}", " ", name).strip(" :-")
         if not name:
             name = next((k for k in FEE_KEYWORDS if k in stripped.lower()), "fee")
         fees.append({"name": name[:80], "amount": amounts[-1] if amounts else None})
-    # Dedup by lowercase name
     dedup: list[dict[str, Any]] = []
     seen: set[str] = set()
     for fee in fees:
@@ -131,27 +234,59 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
     return dedup[:8]
 
 
-def _vendor_from_text(text: str, *, from_name: str = "", subject: str = "") -> str:
+def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
+    addr = (from_address or "").lower()
+    if "@" in addr:
+        domain = addr.split("@", 1)[1]
+        if domain in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[domain]
+    blob = f"{subject}\n{from_name}\n{from_address}"
+    for pattern, vendor in SUBJECT_VENDORS:
+        if pattern.search(blob):
+            return vendor
+    for line in (text or "").splitlines():
+        stripped = line.strip()
+        if re.match(
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial)",
+            stripped,
+            re.I,
+        ):
+            return stripped[:80]
     if from_name and "@" not in from_name:
         cleaned = re.sub(r"\s+", " ", from_name).strip()
-        if cleaned and "microsoft" not in cleaned.lower() and "mailer" not in cleaned.lower():
-            return cleaned
-    for line in (text or "").splitlines()[:20]:
-        match = _FROM_LINE.match(line.strip())
+        if re.search(r"\b(inc|llc|ltd|co|company|corp|supply|steel|products|staffing|alloys)\b", cleaned, re.I):
+            return cleaned[:80]
+    return (from_name or subject or "").strip()[:80]
+
+
+def _invoice_from_filename(filename: str) -> str | None:
+    name = filename or ""
+    for pattern in (
+        r"(TXFT\d{5,})",
+        r"Invoice[-_ ]+(\d{4,})",
+        r"Inv(\d{5,})",
+        r"[-_](\d{5,})\.pdf$",
+        r"inv[-_ ]+(\d{4,})",
+        r"(00\d{8})",
+        r"[-_]([A-Z]\d{7,})",
+    ):
+        match = re.search(pattern, name, flags=re.I)
         if match:
-            return match.group(1).strip()[:80]
-    # First substantial letterhead-looking line
-    for line in (text or "").splitlines()[:12]:
-        stripped = line.strip()
-        if len(stripped) < 4 or len(stripped) > 80:
-            continue
-        if re.search(r"invoice|page\s+\d|statement|remit to|bill to", stripped, flags=re.I):
-            continue
-        if re.search(r"[A-Za-z]{3,}", stripped) and not re.match(r"^\d", stripped):
-            return stripped[:80]
-    if from_name:
-        return re.sub(r"\s+", " ", from_name).strip()[:80]
-    return (subject or "").strip()[:80]
+            return _usable_invoice_number(match.group(1))
+    return None
+
+
+def _invoice_from_subject(subject: str) -> str | None:
+    for pattern in (
+        r"Invoice\s*(?:Number|#|No\.?)?\s*[-:#]?\s*([A-Z]{0,8}\d{4,})",
+        r"\b(TXFT\d{5,})\b",
+        r"\b(00\d{8})\b",
+        r"\binv(?:oice)?\s+(\d{4,})\b",
+    ):
+        match = re.search(pattern, subject or "", flags=re.I)
+        if match:
+            return _usable_invoice_number(match.group(1))
+    return None
 
 
 def parse_invoice_text(
@@ -159,58 +294,89 @@ def parse_invoice_text(
     *,
     subject: str = "",
     from_name: str = "",
+    from_address: str = "",
     filename: str = "",
 ) -> dict[str, Any]:
     blob = "\n".join([subject, filename, text or ""])
-    invoice_number = ""
-    match = _INV_LABEL.search(blob)
-    if match:
-        invoice_number = match.group(1).strip(" .:-")
-    if not invoice_number:
-        match = _INV_BARE.search(blob)
+    invoice_number = None
+    for rx in (_INV_EMJ, _INV_LABEL, _INV_GAS):
+        match = rx.search(text or "")
         if match:
-            invoice_number = match.group(1).strip()
+            invoice_number = _usable_invoice_number(match.group(1))
+            if invoice_number and invoice_number.upper() not in _CUSTOMER_ACCOUNTS:
+                break
+            invoice_number = None
     if not invoice_number:
-        file_match = re.search(r"([A-Z0-9][A-Z0-9/_-]{4,})", filename or "", flags=re.I)
-        if file_match and not re.search(r"invoice|statement|attachment", file_match.group(1), flags=re.I):
-            invoice_number = file_match.group(1)
+        fastenal_hits = [
+            tok.upper()
+            for tok in _INV_FASTENAL.findall(blob)
+            if tok.upper() not in _CUSTOMER_ACCOUNTS
+        ]
+        if fastenal_hits:
+            invoice_number = fastenal_hits[0]
+    if not invoice_number:
+        filename_inv = _invoice_from_filename(filename)
+        if filename_inv and filename_inv.upper() not in _CUSTOMER_ACCOUNTS:
+            invoice_number = filename_inv
+    if not invoice_number:
+        subject_inv = _invoice_from_subject(subject)
+        if subject_inv and subject_inv.upper() not in _CUSTOMER_ACCOUNTS and "account #" not in (subject or "").lower():
+            invoice_number = subject_inv
+    luxor = re.search(r"Invoice\s*#\s*\n\s*\d{1,2}/\d{1,2}/\d{2,4}\s+(\d{4,})", text or "", flags=re.I)
+    if luxor and not invoice_number:
+        invoice_number = _usable_invoice_number(luxor.group(1))
+    # O'Neal invoice numbers look like 15452509 and appear twice (filename is often the date).
+    oneal = re.findall(r"\b(15\d{6})\b", text or "")
+    if oneal and (not invoice_number or _looks_like_date_token(invoice_number) or re.fullmatch(r"8?\d{6,7}", invoice_number or "")):
+        if "oneal" in blob.lower() or "o'neal" in blob.lower() or "o_neal" in (filename or "").lower():
+            invoice_number = oneal[0]
 
     pos = extract_po_numbers(blob)
     amount = None
-    amt_match = _AMOUNT_LABEL.search(text or "") or _AMOUNT_LABEL.search(blob)
+    amt_match = _AMOUNT_BEFORE.search(text or "") or _AMOUNT_LABEL.search(text or "") or _AMOUNT_LABEL.search(blob)
     if amt_match:
         amount = parse_money(amt_match.group(1))
+        if amount == 0:
+            amount = None
     if amount is None:
-        totals = [parse_money(m) for m in _TOTAL_FALLBACK.findall(text or "")]
-        totals = [a for a in totals if a is not None]
+        totals = [parse_money(m) for m in _TOTAL_MONEY.findall(text or "")]
+        totals = [a for a in totals if a not in (None, 0, 0.0)]
         if totals:
             amount = max(totals)
+    if amount is None:
+        usd_vals = []
+        for left, right in re.findall(r"USD\s*([\d,]+(?:\.\d{2}))|([\d,]+(?:\.\d{2}))\s+USD", text or "", flags=re.I):
+            usd_vals.append(parse_money(left or right))
+        usd_vals = [a for a in usd_vals if a not in (None, 0, 0.0)]
+        if usd_vals:
+            best = max(usd_vals)
+            if amount is None or best > amount:
+                amount = best
+    if amount is None:
+        sub = re.search(r"\b(?:SUB-?TOTAL|AMOUNT DUE)\s*:?\s*([\d,]+(?:\.\d{2}))", text or "", flags=re.I)
+        if sub:
+            amount = parse_money(sub.group(1))
+            if amount == 0:
+                amount = None
 
     invoice_date = None
     date_match = _DATE_LABEL.search(blob)
     if date_match:
         invoice_date = parse_date_value(date_match.group(1))
     if not invoice_date:
-        for raw in _DATE_ANY.findall(blob):
+        for raw in _DATE_ANY.findall(text or ""):
             parsed = parse_date_value(raw)
-            if parsed:
+            if parsed and parsed >= "2025-01-01":
                 invoice_date = parsed
                 break
 
     check_stop = bool(_CHECK_STOP.search(blob))
-    vendor = _vendor_from_text(text, from_name=from_name, subject=subject)
+    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=text)
     fees = extract_fees(text)
-    po: str | None
-    if len(pos) == 1:
-        po = pos[0]
-    elif len(pos) > 1:
-        po = None
-    else:
-        po = None
-
+    po = pos[0] if len(pos) == 1 else None
     return {
         "vendor": vendor,
-        "invoice_number": invoice_number,
+        "invoice_number": invoice_number or "",
         "date": invoice_date,
         "po": po,
         "pos": pos,
@@ -228,9 +394,16 @@ def parse_invoice_pdf(
     *,
     subject: str = "",
     from_name: str = "",
+    from_address: str = "",
 ) -> dict[str, Any]:
     text = extract_pdf_text(path)
-    parsed = parse_invoice_text(text, subject=subject, from_name=from_name, filename=path.name)
+    parsed = parse_invoice_text(
+        text,
+        subject=subject,
+        from_name=from_name,
+        from_address=from_address,
+        filename=path.name,
+    )
     parsed["pdf_path"] = str(path)
     parsed["pdf_text_empty"] = not (text or "").strip()
     return parsed

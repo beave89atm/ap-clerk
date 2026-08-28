@@ -323,7 +323,7 @@ class GraphClient:
         response = self.request(
             "GET",
             self._messages_url(mailbox, message_id, "attachments"),
-            params={"$select": "id,name,contentType,size,@odata.type"},
+            params={"$select": "id,name,contentType,size"},
         )
         if response.status_code != 200:
             LOGGER.info("Graph attachment list HTTP %s", response.status_code)
