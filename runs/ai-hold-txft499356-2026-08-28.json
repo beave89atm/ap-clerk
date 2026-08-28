@@ -1,0 +1,33 @@
+{
+  "mailbox": "accountspayable@kannonmfg.com",
+  "other_mailboxes_used": [],
+  "invoice_number": "TXFT499356",
+  "kimco_id": 9677,
+  "why": "HOLD-no-receipts from the 8/27 live run",
+  "vendor": "Fastenal Company",
+  "unique": true,
+  "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq9AAA=",
+  "subject": "Fastenal invoice(s) have been generated for you.",
+  "receivedDateTime": "2026-08-27T21:31:26Z",
+  "attachment_names": [
+    "TXFT499356.pdf"
+  ],
+  "score": 140,
+  "categories_before": [],
+  "flag_before": "notFlagged",
+  "flag_hold_status": "ai-hold",
+  "category_patch_body": [
+    "AI HOLD"
+  ],
+  "categories_after": [
+    "AI HOLD"
+  ],
+  "flag_after": "notFlagged",
+  "has_ai_hold": true,
+  "has_entered_in_ai": false,
+  "followup_flag_set": false,
+  "kimco_writes": false,
+  "send_mail_invoked": false,
+  "messages_patched": 1,
+  "notes": "Kyle created master category AI HOLD (red). This run PATCHed only the unique TXFT499356 message. Did not add Entered in AI. Did not set flag.flagStatus. No KIMCO writes. No sendMail."
+}
