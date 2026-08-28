@@ -160,6 +160,8 @@ Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or a
 
 `Mail.ReadWrite` (Application) is required for the PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
 
+**Mail.ReadWrite probe (2026-08-28):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) was uniquely identified on `accountspayable@kannonmfg.com` (1 search hit; attachment `Invoice - 16960.pdf`; `flagStatus=notFlagged`). PATCH returned **403** (`graph-denied`). The message was left unflagged. No other mailbox was used. Grant Application `Mail.ReadWrite` and re-run enter/`--match-inbox` to flag after Success.
+
 ## Safety
 
 - Default target is prototype. Live stays off until Kyle says go.
