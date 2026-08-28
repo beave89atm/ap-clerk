@@ -1,2 +1,181 @@
 # Kannon AP Clerk
 
+Daily-runnable CLI that enters **header-only** AP invoices on the **KIMCO prototype** by default.
+
+**Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
+
+This repository is the AP Clerk only. It does not depend on deer-intelligence, Customer_PO_Automation, Quote_Automation, or Capacity_Analysis.
+
+## What it does
+
+1. Authenticates to KIMCO (`POST /api/v2/authenticate` with `{key, password}`, then Bearer token). Default host is prototype.
+2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
+3. Creates header-only AP invoices for real vendor bills. A missing PO is **not** a HOLD: the header is still created with Purchase Order left blank. Select Receipts is used only when a PO exists.
+4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. This VM has no inbox PDFs, so the run records `Attach status = no-pdf-on-vm`.
+5. After a **Success** header create, flags the source Outlook message on `accountspayable@kannonmfg.com` only (unflagged mail stays the work queue).
+6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`.
+
+## Prototype (default)
+
+Hard-coded prototype services (do not use live GUIDs on prototype):
+
+| List | GUID |
+| --- | --- |
+| AP invoices | `4898fd433bff417daa1689dece54b840` |
+| AP batches | `23245dfe2158496cbf949e7091d0542c` |
+| Purchase lines | `f5b4b6f631be45f58d10e019060bd761` |
+| Receipts | `0a74fb9972974950a5e24e8f4981aaff` |
+| Document types | `c2c451ebb51d42fb96e2651490ee1477` |
+
+Auth: `POST https://prototype.kimcoerp.com/api/v2/authenticate`.
+
+If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimcoerp.com`. Prototype target refuses any URL containing `live.kimcoerp.com`.
+
+## Live (Kyle said go)
+
+`--live` or `KIMCO_TARGET=live` selects live. Default is still off. The CLI refuses that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
+
+If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Outlook is **not** flagged (`Mail.ReadWrite` is not granted); the Excel **Flag in Outlook** column is Yes on Success so Kyle can flag those messages manually.
+
+`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox and does not flag or move mail.
+
+**First live 20-invoice test (2026-08-27 America/Chicago, Kyle said go):** batch `API Agent - 8/27/26` id **688**. 15 Success headers **9663–9677**, 5 Fail, 0 HOLD. Outlook was not flagged. PDF attach notify returned **405**. Vendor-missing leftovers: National Specialty Alloys `453743` and Coherent Corp. `120953` (PO exists on live; vendor id was not found; not invented). Report: `runs/AP-run-2026-08-27.xlsx`.
+
+**Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.
+
+Identified 2026-08-28 with GET only (auth success; token not printed; zero live records written):
+
+| List | GUID | Confirmed by GET |
+| --- | --- | --- |
+| AP invoices | `bcca4094b6ec4564942b19f5d7bb255c` | HTTP 200; fields include `Invoice_Number`, `Vendor`, `Purchase_Order`, `Invoice_Type`, `AP_Invoice_Batch` |
+| AP invoice batches | `31bf524dcd5b464580d4a1b55c01881e` | HTTP 200; fields include `AP_Invoice_Batch_ID`, `Batch_Owner`, `Description`, `Status` |
+| Purchase lines | `f1f8732f8daa4e2b9d8065037f7bb43d` | HTTP 200; fields include `Purchase_Order_Number`, `Purchase_Line_Number`, `Quantity` |
+| Receipts | `494eafafa31a42bba7eb8697a36a3f0a` | HTTP 200; fields include `Name`, `PO_Item_Number`, `Quantity_Received`, `Receipt` |
+
+Live AP invoice list: default list columns are sparse (`Invoice_Number`, `Invoice_Balance`, `Vendor_$_Display_Name`, `Purchase_Order`, `Closed`, `Void`). Item GET returns a full header. No `Editable` field. Create-only was **not** proven (no POST/PUT to test). GET attachments on an existing invoice returned 200.
+
+No live batches named `API Agent - M/D/YY` were found (687 batches scanned). Existing names are person-dated (for example `8/25/26 - tw`).
+
+## Environment names
+
+Credentials are read from the environment only. Values are never invented and never printed. The CLI prints only present/absent for each name.
+
+**Prototype** uses the first populated pair:
+
+1. `KIMCO_PROTOTYPE_API_KEY` / `KIMCO_PROTOTYPE_API_PASSWORD` / `KIMCO_PROTOTYPE_INSTANCE_URL`
+2. aliases `KIMCO_API_KEY` / `KIMCO_API_PASSWORD`
+
+**Live** (only with `--live` or `KIMCO_TARGET=live`) uses:
+
+- `KIMCO_LIVE_API_KEY` / `KIMCO_LIVE_API_PASSWORD` / `KIMCO_LIVE_INSTANCE_URL`
+
+**Outlook / Graph** (same client-credentials as Mail.Read; mailbox writes need Application `Mail.ReadWrite`):
+
+- `MICROSOFT_GRAPH_TENANT_ID` / `MICROSOFT_GRAPH_CLIENT_ID` / `MICROSOFT_GRAPH_CLIENT_SECRET`
+
+If keys are missing, the CLI still writes an Excel report with HOLD/Fail rows and stops before any KIMCO calls.
+
+## Install and run
+
+```bash
+python3 -m pip install -r requirements.txt
+python3 -m ap_clerk enter \
+  --fixture fixtures/testrun-727-803.json \
+  --as-of 2026-08-27 \
+  --report runs/AP-run-2026-08-27.xlsx
+```
+
+`--as-of` overrides the Chicago calendar date used for batch naming and the default report filename.
+
+`--live` is off by default. First live 20-invoice test (Kyle said go):
+
+```bash
+python3 -m ap_clerk enter --live --from-inbox --limit 20
+```
+
+Inbox pull (read-only; does **not** flag):
+
+```bash
+python3 -m ap_clerk pull \
+  --inbox-from 2026-07-27 \
+  --inbox-to 2026-08-03 \
+  --out runs/inbox-unflagged.json
+```
+
+`--match-inbox` on `enter` attaches Graph message ids onto fixture invoices, then flags **after** a Success header create — never after download alone. `--mailbox` must be `accountspayable@kannonmfg.com`; any other mailbox is rejected.
+
+## Batch naming
+
+- Exact name: `API Agent - M/D/YY` (no leading zeros).
+- Never reuse batch `Mark Brown 8/4/26` (id 669) or any other person's batch.
+- Never recreate KIMCO invoices 9474–9478 (batch 670 `API Agent - 8/24/26`) or 9481–9499 (batch 671).
+
+## Header create (PO-bill field list is a hypothesis; no-PO shape taken from existing prototype bills)
+
+Working prototype POST shape:
+
+- `AP_Invoice_Batch` `{id}`
+- `Purchase_Order` `{id}` only for single-PO bills (looked up from purchase lines). **Omitted** when there is no PO (same as multi-PO bills).
+- `Vendor` `{id}` from an existing prototype invoice for that vendor name
+- `Invoice_Number`, `Invoice_Date`, `Invoice_Verification_Amount`
+- `Invoice_Type` `3` when a PO is present. Existing prototype no-PO vendor bills use `Invoice_Type` `4` (GUI label **Miscellaneous**), not 3.
+- `Invoice_Due_Date`, `Terms_Code`, `Currency` `{id: 3}`, `Remit_To_Address`, `Transaction_Date`
+- `Comments` `API TEST prototype only do not pay.`
+
+Vendor / remit / terms are copied from an existing prototype invoice matched by vendor name. PO id comes from purchase lines when a PO exists. The CLI will not invent a PO or PO lines. If the bill names a PO that is not in prototype, that bill is **HOLD**. If the bill has no PO, the header is still created and Purchase Order is left blank.
+
+If the invoice number already exists on prototype, the CLI does not recreate it and records `Fail/already exists`.
+
+## Fees vs PPV
+
+Fees and surcharges (shop supplies, packaging recovery, fuel/energy surcharge, freight, shipping, admin/account/check fees, garment protection, rental, and similar add-ons) are **not** Purchase Price Variance. They go to Additional Charge **Fees and surcharges** / **F-Fees & Surcharges**, and they are recorded in the Excel **Fees and surcharges** column. The CLI does not post a PPV additional charge for those.
+
+PPV is only a merchandise unit-price gap vs the PO, and only if that gap is under 10% of the invoice total. Otherwise HOLD and return to purchasing. The 7/27–8/3 test pack has no known PPV cases.
+
+Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid in 10 days. It is not a different due date.
+
+## Select Receipts gap
+
+Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Item**, and **only when a PO exists**. No-PO headers leave Purchase Order blank and do not get invented PO lines. The API cannot Select Receipts until Editable is on. This AP list rejects PUT/edit and attach POST with 405 (`list does not allow items to be edited`). The CLI does **not** invent line POSTs that skip Select Receipts. Successful PO-bill header rows record lines as blocked/405 in the Excel **Why** column.
+
+## HOLD rules
+
+- Real vendor bills with no PO: **create the header**. Do not HOLD just because there is no PO.
+- HOLD remains for CHECK STOP, statements, PODs, payment letters, dups, and not-a-bill.
+- Gas and Supply `0040325801`: CHECK STOP, HOLD, no header.
+- Skip statements, PODs, payment letters, and dups (already filtered from the fixture).
+- Do not delete or void anything.
+
+## Excel report
+
+`runs/AP-run-YYYY-MM-DD.xlsx` columns:
+
+Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook.
+
+**Flag in Outlook:** `Yes` on Success (manual — Kyle can flag the AP mailbox message). `No` on HOLD/Fail. This live run does **not** PATCH Outlook (`Mail.ReadWrite` is not granted).
+
+One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a flag was attempted.
+
+## Outlook flag after match
+
+The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Unflagged mail is the work queue; flagged means already processed.
+
+When an invoice is pulled from that mailbox and this run creates a KIMCO header (`Result=Success`), the CLI PATCHes:
+
+`https://graph.microsoft.com/v1.0/users/accountspayable@kannonmfg.com/messages/{id}`
+
+with `{"flag":{"flagStatus":"flagged"}}`. It then tries to add category `AP Matched`. Category failure does **not** undo the flag.
+
+Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or any row where a header was not created. Graph message id is kept on the run so flag happens after match, not after download/`pull` alone.
+
+`Mail.ReadWrite` (Application) is required for the PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
+
+**Mail.ReadWrite probe (2026-08-28):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) was uniquely identified on `accountspayable@kannonmfg.com` (1 search hit; attachment `Invoice - 16960.pdf`; `flagStatus=notFlagged`). PATCH returned **403** (`graph-denied`). The message was left unflagged. No other mailbox was used. Grant Application `Mail.ReadWrite` and re-run enter/`--match-inbox` to flag after Success.
+
+## Safety
+
+- Default target is prototype. Live writes only with `--live` + `KIMCO_LIVE_*` after Kyle said go.
+- Secret values are never printed.
+- No invoice is deleted or voided.
+- Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
+- The only Outlook mailbox this CLI will read is `accountspayable@kannonmfg.com`. Live enter does not flag mail.

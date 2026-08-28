@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+.python-version
+.DS_Store
+*.token
+.pytest_cache/
+.mypy_cache/
+runs/inbox-pdfs/
+runs/inbox-raw/
+*.pdf
