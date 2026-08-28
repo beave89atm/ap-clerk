@@ -218,7 +218,9 @@ Graph message id is kept on the run so the category is applied after match, not 
 
 `Mail.ReadWrite` (Application) is required for the message PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
 
-**Red `AI HOLD` master category:** the CLI POSTs `/users/accountspayable@kannonmfg.com/outlook/masterCategories` with `displayName` `AI HOLD` and color `preset0` (Red). `GET masterCategories` was **403** on 2026-08-28. If create is also 403 (`MailboxSettings.ReadWrite` missing), the CLI still PATCHes the message categories with the exact string `AI HOLD`. Kyle may need to set that category color to red once in Outlook, or grant MailboxSettings.ReadWrite.
+**Red `AI HOLD` master category:** the CLI POSTs `/users/accountspayable@kannonmfg.com/outlook/masterCategories` with `displayName` `AI HOLD` and color `preset0` (Red). `GET masterCategories` was **403** on 2026-08-28. **Create POST was also 403** on 2026-08-28 (`MailboxSettings.ReadWrite` not in the token). The CLI still PATCHes the message categories with the exact string `AI HOLD`. Kyle may need to set that category color to red once in Outlook, or grant MailboxSettings.ReadWrite.
+
+**Mail.Send (2026-08-28, after Kyle granted Application Mail.Send):** Token role `Mail.Send` is **present**. `probe` created a draft on `accountspayable@kannonmfg.com` only (HTTP **201**) and deleted it (HTTP **204**). `sendMail` was **not** called. No mail was sent to Treyce or anyone else. Daily will use `sendMail` after a real `--live` enter. Report: `runs/graph-send-probe-2026-08-28.json`.
 
 **Category lookup (2026-08-28):** `GET .../outlook/masterCategories` returned **403** (`ErrorAccessDenied`). Existing AP messages already carry the preexisting category exactly **`Entered in AI`** (3 messages; follow-up flag not set on those). Other categories seen on listed mail: `Solved!`, `Investigating`, `Purchasing Investigating`, `No KC Receipt`, `Problems/Issues`, `Partial Receipt`, `Cost Discrepancy`.
 
