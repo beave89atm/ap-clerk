@@ -4,8 +4,11 @@ from ap_clerk.rules import (
     INVOICE_TYPE_NO_PO,
     INVOICE_TYPE_PO,
     batch_name_for,
+    classify_mail,
+    comments_for,
     due_date_from_terms,
     extract_po_number,
+    flag_in_outlook_for,
     format_fees,
     invoice_type_for,
     is_fee_or_surcharge,
@@ -75,6 +78,22 @@ def test_unifirst_vendors_do_not_collapse():
     assert vendor_match_score("UniFirst First Aid & Safety", first_aid) > vendor_match_score(
         "UniFirst First Aid & Safety", corp
     )
+
+
+def test_classify_mail_skips_not_a_bill():
+    assert classify_mail(subject="Monthly Account Statement") == "statement"
+    assert classify_mail(subject="POD for shipment 123", attachment_names=["pod-123.pdf"]) == "pod"
+    assert classify_mail(subject="Payment confirmation - thank you") == "payment"
+    assert classify_mail(subject="CHECK STOP Gas and Supply") == "check_stop"
+    assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
+
+
+def test_flag_in_outlook_is_manual_yes_only_on_success():
+    assert flag_in_outlook_for("Success") == "Yes"
+    assert flag_in_outlook_for("HOLD") == "No"
+    assert flag_in_outlook_for("Fail") == "No"
+    assert comments_for("live") == "API Agent"
+    assert "prototype" in comments_for("prototype").lower()
 
 
 def test_no_po_vendor_name_matching():

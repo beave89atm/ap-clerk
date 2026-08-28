@@ -1,6 +1,7 @@
 """Thin KIMCO REST client. Never logs secrets or token values.
 
-Live writes stay refused until Kyle says go. Default target is prototype.
+Default target is prototype. Live writes require target=live and live.kimcoerp.com.
+Kyle said go for live writes on 2026-08-28 (explicit --live + KIMCO_LIVE_* only).
 """
 
 from __future__ import annotations
@@ -30,7 +31,10 @@ LIVE_SERVICES = {
     "receipts": "494eafafa31a42bba7eb8697a36a3f0a",
 }
 
+# Kept for older HOLD rows / tests. Live writes are allowed when Kyle said go
+# and the client target is live (never on the prototype target).
 LIVE_WRITE_BLOCKED = "Live writes are off until Kyle says go"
+LIVE_WRITES_ENABLED = True
 
 
 def services_for(target: str) -> dict[str, str]:
@@ -103,10 +107,10 @@ class KimcoClient:
         if self.target == "live":
             if not live_url:
                 raise KimcoError("Live client refuses non-live hosts")
-            if method_upper not in {"GET", "HEAD"}:
-                raise KimcoError(LIVE_WRITE_BLOCKED)
         elif live_url:
             raise KimcoError("Refusing live.kimcoerp.com on prototype target")
+        if method_upper not in {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}:
+            raise KimcoError(f"Unsupported HTTP method {method_upper}")
         response = self.session.request(method, url, timeout=self.timeout, **kwargs)
         return response
 
@@ -145,8 +149,6 @@ class KimcoClient:
 
     def create(self, service: str, values: dict[str, Any]) -> tuple[int | None, dict[str, Any], int, str]:
         """POST a header. Returns (id, body, status, error_text)."""
-        if self.target == "live":
-            raise KimcoError(LIVE_WRITE_BLOCKED)
         response = self.request("POST", self._url(service), json=values)
         status = response.status_code
         text = response.text
@@ -164,6 +166,25 @@ class KimcoClient:
             return None, body, status, text[:500]
         return _created_id(body), body, status, ""
 
+    def options(self, service: str, item_id: int | None = None) -> tuple[int, str]:
+        """Probe allowed methods. Returns (status, Allow header). Never prints bodies."""
+        response = self.request("OPTIONS", self._url(service, item_id))
+        allow = response.headers.get("Allow") or response.headers.get("allow") or ""
+        return response.status_code, allow
+
+    def try_put_probe_rejected(self, service: str, item_id: int) -> str:
+        """Read-only capability hint: GET then reject if the list is not editable.
+
+        Does not send a PUT of invented values. Uses a HEAD/OPTIONS probe first.
+        """
+        status, allow = self.options(service, item_id)
+        allow_u = allow.upper()
+        if "PUT" in allow_u or "PATCH" in allow_u:
+            return f"editable-options-{status}:{allow}"
+        if status in {404, 405}:
+            return f"blocked-{status}"
+        return f"options-{status}:{allow or 'no-Allow'}"
+
     def try_official_attach(
         self,
         invoice_id: int,
@@ -173,9 +194,7 @@ class KimcoClient:
         size: int,
         content: bytes,
     ) -> str:
-        """Official 7.7 attach. On this AP list, upload notify is expected to 405."""
-        if self.target == "live":
-            raise KimcoError(LIVE_WRITE_BLOCKED)
+        """Official 7.7 attach. On some AP lists, upload notify is 405."""
         notify = self.request(
             "POST",
             self._url("ap_invoices", invoice_id, "attachments/upload"),

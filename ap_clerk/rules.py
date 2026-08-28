@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 CHICAGO = ZoneInfo("America/Chicago")
 COMMENTS = "API TEST prototype only do not pay."
+LIVE_COMMENTS = "API Agent"
 CURRENCY_USD_ID = 3
 INVOICE_TYPE_PO = 3
 # Existing prototype no-PO vendor bills (UniFirst, Shoppa, Hudson, Luxor, GRM, etc.) use type 4.
@@ -16,6 +17,18 @@ INVOICE_TYPE_NO_PO = 4
 FORBIDDEN_BATCH_IDS = {669}
 FORBIDDEN_BATCH_NAMES = {"Mark Brown 8/4/26"}
 FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
+def flag_in_outlook_for(result: str | None) -> str:
+    """Manual Outlook flag column. Yes only after Success so Kyle can flag it."""
+    return "Yes" if (result or "").strip() == "Success" else "No"
+
+
+def comments_for(target: str) -> str:
+    """Live bills are real; do not stamp the prototype 'do not pay' comment."""
+    if (target or "").strip().lower() == "live":
+        return LIVE_COMMENTS
+    return COMMENTS
+
+
 HOLD_ONLY_REASONS = {
     "check stop",
     "statement",
@@ -177,6 +190,37 @@ def invoice_type_for(po: Any) -> int:
     if po is None or str(po).strip() in {"", "None", "null"}:
         return INVOICE_TYPE_NO_PO
     return INVOICE_TYPE_PO
+
+
+NOT_A_BILL_SUBJECT_RE = re.compile(
+    r"(\bcheck\s*stop\b|\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|"
+    r"\bremittance\s+advice\b|\bpayment\s+confirmation\b|\bpayment\s+received\b|"
+    r"\bthank\s+you\s+for\s+your\s+payment\b|\bwire\s+confirmation\b|"
+    r"\bdelivery\s+receipt\b)",
+    flags=re.I,
+)
+STATEMENT_RE = re.compile(r"\b(account\s+)?statement\b", flags=re.I)
+INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
+POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
+
+
+def classify_mail(*, subject: str = "", attachment_names: list[str] | None = None, preview: str = "") -> str:
+    """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', or 'not-a-bill'."""
+    names = " ".join(attachment_names or [])
+    blob = f"{subject}\n{names}\n{preview}"
+    if re.search(r"\bcheck\s*stop\b", blob, flags=re.I):
+        return "check_stop"
+    if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", blob, flags=re.I):
+        return "payment"
+    if POD_NAME_RE.search(blob) or re.search(r"\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|\bdelivery\s+receipt\b", blob, flags=re.I):
+        if INVOICE_HINT_RE.search(subject) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
+            return "invoice"
+        return "pod"
+    if STATEMENT_RE.search(blob) and not INVOICE_HINT_RE.search(subject) and not INVOICE_HINT_RE.search(names):
+        return "statement"
+    if NOT_A_BILL_SUBJECT_RE.search(blob) and not INVOICE_HINT_RE.search(subject):
+        return "not-a-bill"
+    return "invoice"
 
 
 def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:

@@ -22,7 +22,8 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
-from ap_clerk.kimco import LIVE_WRITE_BLOCKED, KimcoClient, KimcoError
+from ap_clerk.inbox import pull_recent_bills
+from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.rules import (
     COMMENTS,
@@ -32,14 +33,17 @@ from ap_clerk.rules import (
     FORBIDDEN_INVOICE_IDS,
     batch_name_for,
     chicago_today,
+    comments_for,
     due_date_from_terms,
     extract_po_number,
+    flag_in_outlook_for,
     format_fees,
     invoice_number_key,
     invoice_type_for,
     kimco_datetime,
     lookup_id,
     lookup_text,
+    names_match,
     should_create_header,
     vendor_match_score,
     parse_iso_date,
@@ -63,7 +67,18 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--live",
         action="store_true",
-        help="Use live.kimcoerp.com + live GUIDs. Default off. Requires KIMCO_LIVE_*. Writes stay off until Kyle says go.",
+        help="Use live.kimcoerp.com + live GUIDs. Requires KIMCO_LIVE_*. Kyle said go for live writes.",
+    )
+    parser.add_argument(
+        "--from-inbox",
+        action="store_true",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com (does not flag).",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=20,
+        help="When --from-inbox, attempt this many most-recent real bills (processed oldest-first).",
     )
     parser.add_argument(
         "--mailbox",
@@ -104,26 +119,57 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Using credential pair: {creds.key_source}", flush=True)
     print(f"Instance host: {creds.instance_url}", flush=True)
     if creds.target == "live":
-        print("Live is off until Kyle says go. --live authenticates only; no live writes.", flush=True)
+        print("Live target. Kyle said go. Writes use live host + live GUIDs only. Outlook will not be flagged.", flush=True)
 
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
     batch_name = batch_name_for(as_of)
     report_path = Path(args.report) if args.report else ROOT / "runs" / f"AP-run-{as_of.isoformat()}.xlsx"
     fixture_path = Path(args.fixture)
-    invoices = _load_fixture(fixture_path)
-    needs_graph = bool(args.match_inbox) or any(
-        inv.get("graph_message_id") or inv.get("graphMessageId") for inv in invoices
-    )
-    graph_client = _optional_graph_client() if needs_graph else None
-    if args.match_inbox:
-        invoices = _attach_inbox_ids(
-            invoices,
+    graph_client = None
+    invoices: list[dict[str, Any]]
+    if args.from_inbox:
+        graph_client = _optional_graph_client()
+        if graph_client is None:
+            print("Graph credentials missing or authenticate failed. Cannot pull inbox.", flush=True)
+            return 2
+        from datetime import timedelta
+
+        start = parse_iso_date(args.inbox_from) if args.inbox_from else as_of - timedelta(days=45)
+        end = parse_iso_date(args.inbox_to) if args.inbox_to else as_of
+        pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
+        invoices, skipped = pull_recent_bills(
+            graph_client,
             mailbox=args.mailbox,
-            start=args.inbox_from,
-            end=args.inbox_to,
-            graph_client=graph_client,
-            fixture_path=fixture_path,
+            limit=max(1, int(args.limit or 20)),
+            received_from=start,
+            received_to=end,
+            pdf_dir=pdf_dir,
         )
+        print(
+            f"Inbox selected {len(invoices)} bill(s) from {args.mailbox} "
+            f"({start.isoformat()} to {end.isoformat()}); skipped {len(skipped)} non-bill(s). "
+            "No messages were flagged.",
+            flush=True,
+        )
+        if not invoices:
+            print("No vendor invoices selected from inbox.", flush=True)
+            write_report(report_path, [])
+            return 2
+    else:
+        invoices = _load_fixture(fixture_path)
+        needs_graph = bool(args.match_inbox) or any(
+            inv.get("graph_message_id") or inv.get("graphMessageId") for inv in invoices
+        )
+        graph_client = _optional_graph_client() if needs_graph else None
+        if args.match_inbox:
+            invoices = _attach_inbox_ids(
+                invoices,
+                mailbox=args.mailbox,
+                start=args.inbox_from,
+                end=args.inbox_to,
+                graph_client=graph_client,
+                fixture_path=fixture_path,
+            )
 
     if not creds.ready:
         print(creds.error or "Credentials not ready. Writing HOLD report and stopping.", flush=True)
@@ -140,18 +186,20 @@ def main(argv: list[str] | None = None) -> int:
             target=creds.target,
         )
         if creds.target == "live":
-            print("Live auth success (token not printed). Stopping before any live list/create/attach.", flush=True)
-            rows = [_offline_row(inv, batch_name, LIVE_WRITE_BLOCKED) for inv in invoices]
-            write_report(report_path, rows)
-            print(f"Wrote {report_path}", flush=True)
-            return 2
+            print("Live auth success (token not printed). Proceeding with live writes.", flush=True)
+        pdf_dir = Path(args.pdf_dir) if args.pdf_dir else None
+        if args.from_inbox and pdf_dir is None:
+            pdf_dir = ROOT / "runs" / "inbox-pdfs"
+        elif args.from_inbox:
+            pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
         rows = run_enter(
             client,
             invoices,
             batch_name=batch_name,
-            pdf_dir=Path(args.pdf_dir) if args.pdf_dir else None,
+            pdf_dir=pdf_dir,
             graph_client=graph_client,
             mailbox=args.mailbox,
+            flag_outlook=False if creds.target == "live" else True,
         )
     except KimcoError as exc:
         label = "Live" if creds.target == "live" else "Prototype"
@@ -174,6 +222,7 @@ def run_enter(
     pdf_dir: Path | None = None,
     graph_client: GraphClient | None = None,
     mailbox: str = ALLOWED_MAILBOX,
+    flag_outlook: bool = True,
 ) -> list[dict[str, Any]]:
     LOGGER.info("Loading %s lists (invoices, batches, purchase lines)", client.target)
     existing_invoices = client.list_items("ap_invoices")
@@ -202,6 +251,7 @@ def run_enter(
                 pdf_dir=pdf_dir,
                 graph_client=graph_client,
                 mailbox=mailbox,
+                flag_outlook=flag_outlook,
             )
         )
     return rows
@@ -233,17 +283,45 @@ def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, An
         "PPV": "none",
         "Attach status": "no-pdf-on-vm",
         "Flag status": FLAG_SKIPPED,
+        "Flag in Outlook": flag_in_outlook_for(result),
     }
 
 
-def _index_invoices(items: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    index: dict[str, dict[str, Any]] = {}
+def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    index: dict[str, list[dict[str, Any]]] = {}
     for item in items:
         values = item.get("values") or {}
         key = invoice_number_key(values.get("Invoice_Number"))
         if key:
-            index[key] = item
+            index.setdefault(key, []).append(item)
     return index
+
+
+def _find_existing_invoice(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    vendor: str,
+) -> dict[str, Any] | None:
+    """Match same vendor + invoice #. Do not treat a different vendor as a dup."""
+    items = invoice_by_number.get(invoice_number_key(number)) or []
+    if not items:
+        return None
+    if not vendor:
+        return items[0]
+    for item in items:
+        values = item.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            return item
+    return None
+
+
+def _remember_invoice(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    item: dict[str, Any],
+) -> None:
+    invoice_by_number.setdefault(invoice_number_key(number), []).append(item)
 
 
 def _vendor_samples(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -251,17 +329,20 @@ def _vendor_samples(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     seen: set[int] = set()
     for item in items:
         values = item.get("values") or {}
-        vendor = values.get("Purchase_Order_$_Vendor")
+        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor")
         vendor_id = lookup_id(vendor)
-        if vendor_id is None or vendor_id in seen:
+        vendor_text = lookup_text(vendor) or lookup_text(values.get("Vendor_$_Display_Name"))
+        if vendor_id is None:
+            continue
+        if vendor_id in seen:
             continue
         seen.add(vendor_id)
         samples.append(
             {
                 "vendor_id": vendor_id,
-                "vendor_text": lookup_text(vendor),
+                "vendor_text": vendor_text,
                 "invoice_id": item.get("id"),
-                "po_text": lookup_text(values.get("Purchase_Order_$_Display_Name")),
+                "po_text": lookup_text(values.get("Purchase_Order") or values.get("Purchase_Order_$_Display_Name")),
             }
         )
     return samples
@@ -293,14 +374,20 @@ def _seed_vendor_samples(
 
     ranked: list[int] = []
     seen = {int(s["invoice_id"]) for s in samples if s.get("invoice_id") is not None}
-    for key, item in invoice_by_number.items():
-        item_id = item.get("id")
-        if item_id is None or int(item_id) in seen:
-            continue
-        if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
-            ranked.append(int(item_id))
+    for key, items in invoice_by_number.items():
+        for item in items:
+            item_id = item.get("id")
+            if item_id is None or int(item_id) in seen:
+                continue
+            if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+                ranked.append(int(item_id))
     extras = sorted(
-        (int(item["id"]) for item in invoice_by_number.values() if item.get("id") is not None),
+        (
+            int(item["id"])
+            for items in invoice_by_number.values()
+            for item in items
+            if item.get("id") is not None
+        ),
         reverse=True,
     )
     # Mix recent ids with a stride through older invoices so utility/staffing
@@ -371,13 +458,23 @@ def _find_or_create_batch(client: KimcoClient, batches: list[dict[str, Any]], ba
             LOGGER.info("Found existing batch id=%s name=%s", batch_id, name)
             return {"id": batch_id, "name": name, "created": False}
     LOGGER.info("Creating batch %s", batch_name)
-    values = {
+    values: dict[str, Any] = {
         "AP_Invoice_Batch_ID": batch_name,
-        "Description": COMMENTS,
-        "Batch_Owner": {"id": 173},
+        "Description": comments_for(client.target),
         "Status": 0,
     }
+    owner_id = _discover_batch_owner(client, batches)
+    if owner_id is not None:
+        values["Batch_Owner"] = {"id": owner_id}
+    elif client.target != "live":
+        values["Batch_Owner"] = {"id": 173}
     created_id, body, status, error = client.create("ap_batches", values)
+    if created_id is None and "Batch_Owner" not in values:
+        # Retry with a looked-up owner only if create said owner is required.
+        owner_id = _discover_batch_owner(client, batches, any_owner=True)
+        if owner_id is not None:
+            values["Batch_Owner"] = {"id": owner_id}
+            created_id, body, status, error = client.create("ap_batches", values)
     if created_id is None:
         raise KimcoError(f"Batch create failed HTTP {status}: {error}")
     if created_id in FORBIDDEN_BATCH_IDS:
@@ -386,18 +483,66 @@ def _find_or_create_batch(client: KimcoClient, batches: list[dict[str, Any]], ba
     return {"id": created_id, "name": batch_name, "created": True, "raw": body}
 
 
+def _discover_batch_owner(
+    client: KimcoClient,
+    batches: list[dict[str, Any]],
+    *,
+    any_owner: bool = False,
+) -> int | None:
+    """Reuse an API Agent batch owner. Do not invent a person or reuse Mark Brown."""
+    for item in batches:
+        values = item.get("values") or {}
+        name = str(values.get("AP_Invoice_Batch_ID") or "")
+        batch_id = item.get("id")
+        if batch_id in FORBIDDEN_BATCH_IDS or name in FORBIDDEN_BATCH_NAMES:
+            continue
+        owner = lookup_id(values.get("Batch_Owner"))
+        if owner is None:
+            continue
+        if name.startswith("API Agent"):
+            return owner
+    if not any_owner:
+        return None
+    for item in batches:
+        values = item.get("values") or {}
+        name = str(values.get("AP_Invoice_Batch_ID") or "")
+        if item.get("id") in FORBIDDEN_BATCH_IDS or name in FORBIDDEN_BATCH_NAMES:
+            continue
+        owner = lookup_id(values.get("Batch_Owner"))
+        if owner is not None:
+            return owner
+    return None
+
+
+def _finish_row(
+    row: dict[str, Any],
+    inv: dict[str, Any],
+    graph_client: GraphClient | None,
+    mailbox: str,
+    *,
+    flag_outlook: bool,
+) -> dict[str, Any]:
+    row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or ""))
+    if flag_outlook:
+        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
+    else:
+        row["Flag status"] = FLAG_SKIPPED
+    return row
+
+
 def _process_invoice(
     client: KimcoClient,
     inv: dict[str, Any],
     *,
     batch: dict[str, Any],
     batch_label: str,
-    invoice_by_number: dict[str, dict[str, Any]],
+    invoice_by_number: dict[str, list[dict[str, Any]]],
     vendor_samples: list[dict[str, Any]],
     po_index: dict[str, dict[str, Any]],
     pdf_dir: Path | None,
     graph_client: GraphClient | None = None,
     mailbox: str = ALLOWED_MAILBOX,
+    flag_outlook: bool = True,
 ) -> dict[str, Any]:
     vendor = inv.get("vendor") or ""
     number = str(inv.get("invoice_number") or "")
@@ -420,15 +565,15 @@ def _process_invoice(
         "PPV": "none",
         "Attach status": attach,
         "Flag status": FLAG_NO_MESSAGE_ID,
+        "Flag in Outlook": "No",
     }
 
     create_ok, hold_reason = should_create_header(inv)
     if not create_ok:
         row["Why"] = f"HOLD: {hold_reason}. Do not create a header."
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    existing = invoice_by_number.get(invoice_number_key(number))
+    existing = _find_existing_invoice(invoice_by_number, number, vendor)
     if existing:
         existing_id = existing.get("id")
         row["KIMCO id"] = existing_id
@@ -437,18 +582,20 @@ def _process_invoice(
             row["Why"] = f"Fail/already exists (do not recreate id {existing_id})"
         else:
             row["Why"] = f"Fail/already exists (id {existing_id})"
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    has_po = bool(po)
-    po_info = po_index.get(str(po)) if has_po else None
-    if has_po and not po_info:
-        row["Why"] = (
-            f"HOLD: PO {po} is not in {client.target}; do not invent a PO. "
-            "Select Receipts only when a PO exists."
-        )
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
+    multi_po = bool(inv.get("multi_po")) or len(pos) > 1
+    po_info = None
+    po_missing_note = ""
+    if multi_po:
+        po_missing_note = "Multi-PO bill: header Purchase Order left blank; Select Receipts per PO. "
+    elif po:
+        po_info = po_index.get(str(po))
+        if not po_info:
+            po_missing_note = (
+                f"PO {po} is not in {client.target}; Purchase Order left blank (will not invent a PO). "
+            )
 
     vendor_info = _resolve_vendor(
         client,
@@ -459,29 +606,43 @@ def _process_invoice(
         invoice_number=number,
     )
     if not vendor_info:
-        hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (no-PO bill; looked up by vendor name)"
-        row["Why"] = f"HOLD: vendor/remit/terms not found on {client.target} for {vendor}{hint}."
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (looked up by vendor name)"
+        row["Result"] = "Fail"
+        row["Why"] = (
+            f"Fail: vendor missing on {client.target} for {vendor}{hint}. "
+            "Will not invent a vendor/remit-to ID."
+        )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     try:
         sample = client.get_item("ap_invoices", int(vendor_info["invoice_id"]))
     except KimcoError as exc:
-        row["Why"] = f"HOLD: could not load vendor sample invoice: {exc}"
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        row["Result"] = "Fail"
+        row["Why"] = f"Fail: could not load vendor sample invoice: {exc}"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     sample_values = sample.get("values") or {}
     remit = sample_values.get("Remit_To_Address")
     terms = sample_values.get("Terms_Code")
     if lookup_id(remit) is None or lookup_id(terms) is None:
-        row["Why"] = "HOLD: sample invoice missing remit or terms; will not invent them."
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        row["Result"] = "Fail"
+        row["Why"] = "Fail: sample invoice missing remit or terms; will not invent them."
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if not inv.get("date"):
+        row["Result"] = "Fail"
+        row["Why"] = "Fail: invoice date missing from PDF/email; will not invent a date."
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    if amount in (None, ""):
+        row["Result"] = "Fail"
+        row["Why"] = "Fail: invoice amount missing from PDF; will not invent an amount."
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
-    invoice_type = invoice_type_for(po)
+    invoice_type = invoice_type_for(po if po_info else None)
+    currency = sample_values.get("Currency")
+    currency_id = lookup_id(currency) or CURRENCY_USD_ID
     payload: dict[str, Any] = {
         "AP_Invoice_Batch": {"id": batch["id"]},
         "Vendor": {"id": vendor_info["vendor_id"]},
@@ -491,49 +652,63 @@ def _process_invoice(
         "Invoice_Verification_Amount": float(amount),
         "Invoice_Due_Date": kimco_datetime(due),
         "Terms_Code": {"id": lookup_id(terms)},
-        "Currency": {"id": CURRENCY_USD_ID},
+        "Currency": {"id": currency_id},
         "Remit_To_Address": {"id": lookup_id(remit)},
         "Transaction_Date": kimco_datetime(invoice_day),
-        "Comments": COMMENTS,
+        "Comments": comments_for(client.target),
     }
-    if po_info:
+    if po_info and not multi_po:
         payload["Purchase_Order"] = {"id": po_info["id"]}
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
         row["Result"] = "Fail"
         row["Why"] = f"Fail: header create HTTP {status}: {error}"
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
     if created_id in FORBIDDEN_INVOICE_IDS:
         row["Result"] = "Fail"
         row["KIMCO id"] = created_id
         row["Why"] = "Fail: create returned a forbidden existing invoice id; will not edit it."
-        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-        return row
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    invoice_by_number[invoice_number_key(number)] = {"id": created_id, "values": {"Invoice_Number": number}}
-    pdf_status = _maybe_attach(client, created_id, number, pdf_dir)
+    _remember_invoice(
+        invoice_by_number,
+        number,
+        {"id": created_id, "values": {"Invoice_Number": number, "Vendor": {"text": vendor}}},
+    )
+    pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
+    edit_hint = ""
+    probe = getattr(client, "try_put_probe_rejected", None)
+    if probe:
+        try:
+            edit_hint = probe("ap_invoices", created_id)
+        except KimcoError:
+            edit_hint = "options-failed"
     row["Result"] = "Success"
     row["KIMCO id"] = created_id
     row["Attach status"] = pdf_status
-    if po_info:
-        line_note = (
-            "Lines blocked/405: API cannot Select Receipts until Editable is on; "
-            "do not type Add Item. "
-        )
+    if po_info and not multi_po:
+        if "editable" in edit_hint:
+            line_note = (
+                "Header PO set. Select Receipts via API not implemented without an Editable receipt action; "
+                "do not type Add Item. "
+            )
+        else:
+            line_note = (
+                f"Lines blocked ({edit_hint}): API cannot Select Receipts until Editable is on; "
+                "do not type Add Item. Live UI needed if PUT is 405. "
+            )
     else:
         line_note = (
-            "Purchase Order left blank (no-PO bill; same as multi-PO). "
-            "Do not Select Receipts or invent PO lines. "
+            "Purchase Order left blank (no-PO or multi-PO or PO not on target). "
+            "Do not type Add Item. "
         )
     row["Why"] = (
-        f"Header created (Invoice_Type {invoice_type}). {line_note}"
+        f"Header created (Invoice_Type {invoice_type}). {po_missing_note}{line_note}"
         "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
         f"Attach status={pdf_status}."
     )
     LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s", number, created_id, vendor, po, invoice_type)
-    apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
-    return row
+    return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
 
 def _resolve_vendor(
@@ -591,15 +766,20 @@ def _discover_vendor_from_invoices(
     prefixes = {needle[:n] for n in (4, 5, 6, 7) if len(needle) >= n}
     ranked_ids: list[int] = []
     seen_ids: set[int] = {s.get("invoice_id") for s in samples if s.get("invoice_id") is not None}
-    for key, item in invoice_by_number.items():
-        item_id = item.get("id")
-        if item_id is None or item_id in seen_ids:
-            continue
-        if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
-            ranked_ids.append(int(item_id))
-    # Then recent-looking numeric ids (highest first).
+    for key, items in invoice_by_number.items():
+        for item in items:
+            item_id = item.get("id")
+            if item_id is None or item_id in seen_ids:
+                continue
+            if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+                ranked_ids.append(int(item_id))
     extras = sorted(
-        (int(item.get("id")) for item in invoice_by_number.values() if item.get("id") is not None),
+        (
+            int(item.get("id"))
+            for items in invoice_by_number.values()
+            for item in items
+            if item.get("id") is not None
+        ),
         reverse=True,
     )
     for item_id in extras:
@@ -640,15 +820,26 @@ def _discover_vendor_from_invoices(
     return None
 
 
-def _maybe_attach(client: KimcoClient, invoice_id: int, invoice_number: str, pdf_dir: Path | None) -> str:
-    if pdf_dir is None or not pdf_dir.exists():
-        return "no-pdf-on-vm"
-    matches = list(pdf_dir.glob(f"*{invoice_number}*.pdf")) + list(pdf_dir.glob("*.pdf"))
-    # Only attach a PDF that clearly belongs to this invoice number.
-    named = [p for p in matches if invoice_number.lower() in p.name.lower()]
-    if not named:
-        return "no-pdf-on-vm"
-    pdf = named[0]
+def _maybe_attach(
+    client: KimcoClient,
+    invoice_id: int,
+    invoice_number: str,
+    pdf_dir: Path | None,
+    explicit_pdf: str | None = None,
+) -> str:
+    pdf: Path | None = None
+    if explicit_pdf:
+        candidate = Path(explicit_pdf)
+        if candidate.exists() and candidate.suffix.lower() == ".pdf":
+            pdf = candidate
+    if pdf is None:
+        if pdf_dir is None or not pdf_dir.exists() or not invoice_number:
+            return "no-pdf-on-vm"
+        matches = list(pdf_dir.glob(f"*{invoice_number}*.pdf"))
+        named = [p for p in matches if invoice_number.lower() in p.name.lower()]
+        if not named:
+            return "no-pdf-on-vm"
+        pdf = named[0]
     try:
         content = pdf.read_bytes()
         return client.try_official_attach(

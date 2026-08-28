@@ -10,3 +10,6 @@ venv/
 *.token
 .pytest_cache/
 .mypy_cache/
+runs/inbox-pdfs/
+runs/inbox-raw/
+*.pdf

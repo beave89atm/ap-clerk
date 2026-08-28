@@ -12,7 +12,6 @@ from ap_clerk.auth import load_credentials, resolve_target
 from ap_clerk.cli import main
 from ap_clerk.kimco import (
     LIVE_SERVICES,
-    LIVE_WRITE_BLOCKED,
     PROTOTYPE_SERVICES,
     KimcoClient,
     KimcoError,
@@ -119,15 +118,25 @@ def test_prototype_client_refuses_live_host() -> None:
         KimcoClient(LIVE_URL, "token")
 
 
-def test_live_client_refuses_writes() -> None:
+def test_live_client_allows_writes_on_live_host() -> None:
     client = KimcoClient(LIVE_URL, "token", target="live")
     assert client.services["ap_invoices"] == LIVE_SERVICES["ap_invoices"]
-    with pytest.raises(KimcoError, match="Kyle"):
-        client.create("ap_invoices", {"Invoice_Number": "x"})
-    with pytest.raises(KimcoError, match="Kyle"):
-        client.request("POST", f"{LIVE_URL}/api/v2/{LIVE_SERVICES['ap_invoices']}")
-    with pytest.raises(KimcoError, match="Kyle"):
-        client.try_official_attach(1, name="a.pdf", content_type="application/pdf", size=1, content=b"x")
+
+    class FakeResp:
+        status_code = 200
+        text = '{"id": 1}'
+        headers = {}
+
+        def json(self):
+            return {"id": 1}
+
+    with patch.object(client.session, "request", return_value=FakeResp()) as req:
+        created_id, _body, status, error = client.create("ap_invoices", {"Invoice_Number": "x"})
+        assert created_id == 1
+        assert status == 200
+        assert error == ""
+        req.assert_called()
+        assert req.call_args.args[0] == "POST"
 
 
 def test_live_client_refuses_prototype_host() -> None:
@@ -161,7 +170,7 @@ def test_cli_live_refuses_without_creds(monkeypatch: pytest.MonkeyPatch, tmp_pat
     assert report.exists()
 
 
-def test_cli_live_auth_success_does_not_write(
+def test_cli_live_auth_success_runs_enter(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
@@ -169,7 +178,7 @@ def test_cli_live_auth_success_does_not_write(
     _clear_kimco_env(monkeypatch)
     monkeypatch.setenv("KIMCO_LIVE_API_KEY", "live-key")
     monkeypatch.setenv("KIMCO_LIVE_API_PASSWORD", "live-pw")
-    report = tmp_path / "hold.xlsx"
+    report = tmp_path / "live.xlsx"
 
     class FakeClient:
         target = "live"
@@ -180,8 +189,29 @@ def test_cli_live_auth_success_does_not_write(
         assert key == "live-key"
         return FakeClient()
 
+    def fake_enter(client, invoices, **kwargs):
+        assert client.target == "live"
+        assert kwargs.get("flag_outlook") is False
+        return [
+            {
+                "Vendor": "Test Vendor",
+                "Invoice #": "1",
+                "date": "2026-08-28",
+                "PO": "",
+                "Amount": 1,
+                "Result": "Success",
+                "Why": "Header created",
+                "KIMCO id": 100,
+                "Batch": "API Agent - 8/28/26 (1)",
+                "Fees and surcharges": "none",
+                "PPV": "none",
+                "Attach status": "no-pdf-on-vm",
+                "Flag in Outlook": "Yes",
+            }
+        ]
+
     with patch("ap_clerk.cli.KimcoClient.authenticate", side_effect=fake_auth):
-        with patch("ap_clerk.cli.run_enter") as run_enter:
+        with patch("ap_clerk.cli.run_enter", side_effect=fake_enter) as run_enter:
             code = main(
                 [
                     "enter",
@@ -194,14 +224,14 @@ def test_cli_live_auth_success_does_not_write(
                     "2026-08-28",
                 ]
             )
-            run_enter.assert_not_called()
-    assert code == 2
+            run_enter.assert_called_once()
+    assert code == 0
     out = capsys.readouterr().out
     assert "Live auth success" in out
-    assert "Stopping before any live list/create/attach" in out
     assert "token not printed" in out
+    assert "Outlook will not be flagged" in out
     assert report.exists()
     sheet = load_workbook(report).active
-    whys = [row[6].value for row in sheet.iter_rows(min_row=2)]
-    assert all(why == LIVE_WRITE_BLOCKED for why in whys)
-    assert all((row[5].value == "HOLD") for row in sheet.iter_rows(min_row=2))
+    assert sheet.cell(1, 13).value == "Flag in Outlook"
+    assert sheet.cell(2, 6).value == "Success"
+    assert sheet.cell(2, 13).value == "Yes"

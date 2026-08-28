@@ -7,6 +7,7 @@ Never logs tokens, client secrets, or passwords.
 
 from __future__ import annotations
 
+import base64
 import logging
 import os
 import re
@@ -314,6 +315,67 @@ class GraphClient:
             LOGGER.info("Graph attachment metadata HTTP %s (names skipped)", response.status_code)
             return []
         return [str(item.get("name") or "") for item in (response.json() or {}).get("value") or []]
+
+    def list_attachments(self, mailbox: str, message_id: str) -> list[dict[str, Any]]:
+        mailbox = assert_allowed_mailbox(mailbox)
+        if not message_id:
+            return []
+        response = self.request(
+            "GET",
+            self._messages_url(mailbox, message_id, "attachments"),
+            params={"$select": "id,name,contentType,size,@odata.type"},
+        )
+        if response.status_code != 200:
+            LOGGER.info("Graph attachment list HTTP %s", response.status_code)
+            return []
+        return [item for item in (response.json() or {}).get("value") or [] if isinstance(item, dict)]
+
+    def download_pdf_attachments(self, mailbox: str, message_id: str) -> list[tuple[str, bytes]]:
+        """Download PDF file attachments only. Never logs bytes or tokens."""
+        mailbox = assert_allowed_mailbox(mailbox)
+        downloaded: list[tuple[str, bytes]] = []
+        for item in self.list_attachments(mailbox, message_id):
+            name = str(item.get("name") or "attachment.pdf")
+            ctype = str(item.get("contentType") or "").lower()
+            odata = str(item.get("@odata.type") or "").lower()
+            if "itemattachment" in odata:
+                continue
+            if not (name.lower().endswith(".pdf") or "pdf" in ctype):
+                continue
+            att_id = str(item.get("id") or "")
+            if not att_id:
+                continue
+            content = self._download_attachment_bytes(mailbox, message_id, att_id)
+            if content:
+                downloaded.append((name, content))
+                LOGGER.info("Downloaded PDF attachment name=%s bytes=%s", name, len(content))
+        return downloaded
+
+    def _download_attachment_bytes(self, mailbox: str, message_id: str, attachment_id: str) -> bytes | None:
+        mailbox = assert_allowed_mailbox(mailbox)
+        detail = self.request(
+            "GET",
+            self._messages_url(mailbox, message_id, f"attachments/{quote(attachment_id, safe='')}"),
+        )
+        if detail.status_code != 200:
+            LOGGER.info("Graph attachment GET HTTP %s", detail.status_code)
+            return None
+        payload = detail.json() or {}
+        encoded = payload.get("contentBytes")
+        if encoded:
+            try:
+                return base64.b64decode(encoded)
+            except (ValueError, TypeError):
+                LOGGER.info("Graph attachment contentBytes were not valid base64")
+                return None
+        raw = self.request(
+            "GET",
+            self._messages_url(mailbox, message_id, f"attachments/{quote(attachment_id, safe='')}/$value"),
+        )
+        if raw.status_code != 200:
+            LOGGER.info("Graph attachment $value HTTP %s", raw.status_code)
+            return None
+        return raw.content
 
     def flag_matched(self, mailbox: str, message_id: str) -> str:
         """PATCH flagStatus=flagged, then best-effort category AP Matched.

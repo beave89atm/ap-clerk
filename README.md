@@ -2,7 +2,7 @@
 
 Daily-runnable CLI that enters **header-only** AP invoices on the **KIMCO prototype** by default.
 
-**Live is off until Kyle says go.** Do not pass `--live` or set `KIMCO_TARGET=live` for invoice entry. The live host and GUIDs are wired behind that explicit switch only.
+**Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
 This repository is the AP Clerk only. It does not depend on deer-intelligence, Customer_PO_Automation, Quote_Automation, or Capacity_Analysis.
 
@@ -31,11 +31,13 @@ Auth: `POST https://prototype.kimcoerp.com/api/v2/authenticate`.
 
 If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimcoerp.com`. Prototype target refuses any URL containing `live.kimcoerp.com`.
 
-## Live (off until Kyle says go)
+## Live (Kyle said go)
 
-`--live` or `KIMCO_TARGET=live` selects live. Default is off. The CLI refuses to run that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
+`--live` or `KIMCO_TARGET=live` selects live. Default is still off. The CLI refuses that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
 
-If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. Live writes (POST/PUT/PATCH/DELETE after authenticate) stay blocked until Kyle says go. `enter --live` authenticates, then stops.
+If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Outlook is **not** flagged (`Mail.ReadWrite` is not granted); the Excel **Flag in Outlook** column is Yes on Success so Kyle can flag those messages manually.
+
+`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox and does not flag or move mail.
 
 Identified 2026-08-28 with GET only (auth success; token not printed; zero live records written):
 
@@ -81,7 +83,11 @@ python3 -m ap_clerk enter \
 
 `--as-of` overrides the Chicago calendar date used for batch naming and the default report filename.
 
-`--live` is off by default. Do not use it until Kyle says go.
+`--live` is off by default. First live 20-invoice test (Kyle said go):
+
+```bash
+python3 -m ap_clerk enter --live --from-inbox --limit 20
+```
 
 Inbox pull (read-only; does **not** flag):
 
@@ -140,9 +146,9 @@ Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Ite
 
 `runs/AP-run-YYYY-MM-DD.xlsx` columns:
 
-Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag status.
+Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook.
 
-**Flag status:** `flagged` (Success + header created + Graph PATCH ok), `skipped-not-success` (HOLD / Fail / CHECK STOP / no header), `graph-denied` (PATCH 403 or Graph write failed; Mail.ReadWrite may still be pending), `no-message-id` (fixture/run had no Graph message id).
+**Flag in Outlook:** `Yes` on Success (manual — Kyle can flag the AP mailbox message). `No` on HOLD/Fail. This live run does **not** PATCH Outlook (`Mail.ReadWrite` is not granted).
 
 One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a flag was attempted.
 
@@ -164,8 +170,8 @@ Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or a
 
 ## Safety
 
-- Default target is prototype. Live stays off until Kyle says go.
+- Default target is prototype. Live writes only with `--live` + `KIMCO_LIVE_*` after Kyle said go.
 - Secret values are never printed.
 - No invoice is deleted or voided.
-- Live POST/PUT/PATCH/DELETE after authenticate are refused in this CLI.
-- The only Outlook mailbox this CLI will read or flag is `accountspayable@kannonmfg.com`.
+- Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
+- The only Outlook mailbox this CLI will read is `accountspayable@kannonmfg.com`. Live enter does not flag mail.
