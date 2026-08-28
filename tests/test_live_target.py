@@ -191,7 +191,7 @@ def test_cli_live_auth_success_runs_enter(
 
     def fake_enter(client, invoices, **kwargs):
         assert client.target == "live"
-        assert kwargs.get("flag_outlook") is False
+        assert kwargs.get("flag_outlook") is True
         return [
             {
                 "Vendor": "Test Vendor",
@@ -229,7 +229,9 @@ def test_cli_live_auth_success_runs_enter(
     out = capsys.readouterr().out
     assert "Live auth success" in out
     assert "token not printed" in out
-    assert "Outlook will not be flagged" in out
+    assert "Entered in AI" in out
+    assert "AI HOLD" in out
+    assert "follow-up flag" in out.lower() or "No follow-up flag" in out
     assert report.exists()
     sheet = load_workbook(report).active
     assert sheet.cell(1, 13).value == "Flag in Outlook"

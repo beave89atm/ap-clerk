@@ -18,8 +18,8 @@ FORBIDDEN_BATCH_IDS = {669}
 FORBIDDEN_BATCH_NAMES = {"Mark Brown 8/4/26"}
 FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
 def flag_in_outlook_for(result: str | None) -> str:
-    """Manual Outlook flag column. Yes only after Success so Kyle can flag it."""
-    return "Yes" if (result or "").strip() == "Success" else "No"
+    """Outlook category column. Yes for Success (Entered in AI) and HOLD/Fail (AI HOLD)."""
+    return "Yes" if (result or "").strip() in {"Success", "HOLD", "Fail"} else "No"
 
 
 def comments_for(target: str) -> str:

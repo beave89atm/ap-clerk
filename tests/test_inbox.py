@@ -207,7 +207,7 @@ def test_live_missing_vendor_is_fail_and_no_outlook_flag():
     )
     assert row["Result"] == "Fail"
     assert "vendor missing" in row["Why"]
-    assert row["Flag in Outlook"] == "No"
+    assert row["Flag in Outlook"] == "Yes"
     assert row["Flag status"] == "skipped-not-success"
 
 

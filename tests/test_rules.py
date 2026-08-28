@@ -88,10 +88,10 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
 
 
-def test_flag_in_outlook_is_manual_yes_only_on_success():
+def test_flag_in_outlook_yes_for_success_hold_and_fail():
     assert flag_in_outlook_for("Success") == "Yes"
-    assert flag_in_outlook_for("HOLD") == "No"
-    assert flag_in_outlook_for("Fail") == "No"
+    assert flag_in_outlook_for("HOLD") == "Yes"
+    assert flag_in_outlook_for("Fail") == "Yes"
     assert comments_for("live") == "API Agent"
     assert "prototype" in comments_for("prototype").lower()
 
