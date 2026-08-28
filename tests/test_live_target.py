@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from openpyxl import load_workbook
 
 from ap_clerk.auth import load_credentials, resolve_target
 from ap_clerk.cli import main
@@ -197,5 +198,10 @@ def test_cli_live_auth_success_does_not_write(
     assert code == 2
     out = capsys.readouterr().out
     assert "Live auth success" in out
-    assert LIVE_WRITE_BLOCKED in out
+    assert "Stopping before any live list/create/attach" in out
+    assert "token not printed" in out
     assert report.exists()
+    sheet = load_workbook(report).active
+    whys = [row[6].value for row in sheet.iter_rows(min_row=2)]
+    assert all(why == LIVE_WRITE_BLOCKED for why in whys)
+    assert all((row[5].value == "HOLD") for row in sheet.iter_rows(min_row=2))
