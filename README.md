@@ -35,13 +35,15 @@ If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimc
 
 `--live` or `KIMCO_TARGET=live` selects live. Default is still off. The CLI refuses that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
 
-If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Outlook is **not** flagged (`Mail.ReadWrite` is not granted); the Excel **Flag in Outlook** column is Yes on Success so Kyle can flag those messages manually.
+If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Application `Mail.ReadWrite` is now granted on the Kannon AP Clerk Entra app (admin consent 2026-08-28). After a Success header create, `enter` can PATCH the source Outlook flag on `accountspayable@kannonmfg.com` only.
 
-`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox and does not flag or move mail.
+`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox. Flag happens only after Success, and only on that AP mailbox.
 
 **First live 20-invoice test (2026-08-27 America/Chicago, Kyle said go):** batch `API Agent - 8/27/26` id **688**. 15 Success headers **9663–9677**, 5 Fail, 0 HOLD. Outlook was not flagged. PDF attach notify returned **405**. Vendor-missing leftovers: National Specialty Alloys `453743` and Coherent Corp. `120953` (PO exists on live; vendor id was not found; not invented). Report: `runs/AP-run-2026-08-27.xlsx`.
 
-**Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.
+**Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged in that GUI pass. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.
+
+**Mail.ReadWrite flag probe (2026-08-28, TEST FLAG ONLY):** After Kyle granted Application `Mail.ReadWrite` + admin consent, one already-Success message from the 8/27 live run was flagged. No KIMCO create/edit/void. No prototype or live invoice writes. No other mailbox. No other messages flagged. See Outlook section below.
 
 Identified 2026-08-28 with GET only (auth success; token not printed; zero live records written):
 
@@ -152,7 +154,7 @@ Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Ite
 
 Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook.
 
-**Flag in Outlook:** `Yes` on Success (manual — Kyle can flag the AP mailbox message). `No` on HOLD/Fail. This live run does **not** PATCH Outlook (`Mail.ReadWrite` is not granted).
+**Flag in Outlook:** `Yes` on Success, `No` on HOLD/Fail. After Application `Mail.ReadWrite` was granted, Success rows can be PATCHed on `accountspayable@kannonmfg.com` (see Outlook section). The 2026-08-27 Excel still records the first live run, which did not PATCH Outlook.
 
 One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a flag was attempted.
 
@@ -170,7 +172,9 @@ Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or a
 
 `Mail.ReadWrite` (Application) is required for the PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
 
-**Mail.ReadWrite probe (2026-08-28):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) was uniquely identified on `accountspayable@kannonmfg.com` (1 search hit; attachment `Invoice - 16960.pdf`; `flagStatus=notFlagged`). PATCH returned **403** (`graph-denied`). The message was left unflagged. No other mailbox was used. Grant Application `Mail.ReadWrite` and re-run enter/`--match-inbox` to flag after Success.
+**Mail.ReadWrite probe (2026-08-28, earlier same day):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) was uniquely identified on `accountspayable@kannonmfg.com` (1 search hit; attachment `Invoice - 16960.pdf`; `flagStatus=notFlagged`). PATCH returned **403** (`graph-denied`). The message was left unflagged. No other mailbox was used.
+
+**Mail.ReadWrite probe (2026-08-28, after admin consent):** TEST FLAG ONLY. Client-credentials token OK (values not printed). Preferred already-Success live-run bill: TELECOM PRODUCTS `17601` (KIMCO **9663**). Unique on `accountspayable@kannonmfg.com`: search `17601` had 6 hits; only one had invoice # `17601` + PDF `Invoice - 17601.pdf` + vendor `Accounting@TPITexas.com`. Graph message id `AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqhAAA=`. Received `2026-08-26T21:32:29Z`. GET before: `flagStatus=notFlagged`, categories `[]`. PATCH `{"flag":{"flagStatus":"flagged"}}` returned **200**. Best-effort category `AP Matched` also **200**. GET after: `flagStatus=flagged`, categories `["AP Matched"]`. Stopped. McMaster `70846521` (KIMCO 9670) was identified as a unique backup and **not** flagged. No KIMCO writes.
 
 ## Safety
 
@@ -178,4 +182,4 @@ Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or a
 - Secret values are never printed.
 - No invoice is deleted or voided.
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
-- The only Outlook mailbox this CLI will read is `accountspayable@kannonmfg.com`. Live enter does not flag mail.
+- The only Outlook mailbox this CLI will read or flag is `accountspayable@kannonmfg.com`. Flag only after Success.
