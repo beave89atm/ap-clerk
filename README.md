@@ -12,7 +12,8 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
 3. Creates header-only AP invoices for real vendor bills. A missing PO is **not** a HOLD: the header is still created with Purchase Order left blank. Select Receipts is used only when a PO exists.
 4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. This VM has no inbox PDFs, so the run records `Attach status = no-pdf-on-vm`.
-5. Writes `runs/AP-run-YYYY-MM-DD.xlsx`.
+5. After a **Success** header create, flags the source Outlook message on `accountspayable@kannonmfg.com` only (unflagged mail stays the work queue).
+6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`.
 
 ## Prototype (default)
 
@@ -62,6 +63,10 @@ Credentials are read from the environment only. Values are never invented and ne
 
 - `KIMCO_LIVE_API_KEY` / `KIMCO_LIVE_API_PASSWORD` / `KIMCO_LIVE_INSTANCE_URL`
 
+**Outlook / Graph** (same client-credentials as Mail.Read; mailbox writes need Application `Mail.ReadWrite`):
+
+- `MICROSOFT_GRAPH_TENANT_ID` / `MICROSOFT_GRAPH_CLIENT_ID` / `MICROSOFT_GRAPH_CLIENT_SECRET`
+
 If keys are missing, the CLI still writes an Excel report with HOLD/Fail rows and stops before any KIMCO calls.
 
 ## Install and run
@@ -77,6 +82,17 @@ python3 -m ap_clerk enter \
 `--as-of` overrides the Chicago calendar date used for batch naming and the default report filename.
 
 `--live` is off by default. Do not use it until Kyle says go.
+
+Inbox pull (read-only; does **not** flag):
+
+```bash
+python3 -m ap_clerk pull \
+  --inbox-from 2026-07-27 \
+  --inbox-to 2026-08-03 \
+  --out runs/inbox-unflagged.json
+```
+
+`--match-inbox` on `enter` attaches Graph message ids onto fixture invoices, then flags **after** a Success header create — never after download alone. `--mailbox` must be `accountspayable@kannonmfg.com`; any other mailbox is rejected.
 
 ## Batch naming
 
@@ -124,9 +140,25 @@ Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Ite
 
 `runs/AP-run-YYYY-MM-DD.xlsx` columns:
 
-Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status.
+Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag status.
 
-One row per invoice in `fixtures/testrun-727-803.json`.
+**Flag status:** `flagged` (Success + header created + Graph PATCH ok), `skipped-not-success` (HOLD / Fail / CHECK STOP / no header), `graph-denied` (PATCH 403 or Graph write failed; Mail.ReadWrite may still be pending), `no-message-id` (fixture/run had no Graph message id).
+
+One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a flag was attempted.
+
+## Outlook flag after match
+
+The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Unflagged mail is the work queue; flagged means already processed.
+
+When an invoice is pulled from that mailbox and this run creates a KIMCO header (`Result=Success`), the CLI PATCHes:
+
+`https://graph.microsoft.com/v1.0/users/accountspayable@kannonmfg.com/messages/{id}`
+
+with `{"flag":{"flagStatus":"flagged"}}`. It then tries to add category `AP Matched`. Category failure does **not** undo the flag.
+
+Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or any row where a header was not created. Graph message id is kept on the run so flag happens after match, not after download/`pull` alone.
+
+`Mail.ReadWrite` (Application) is required for the PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
 
 ## Safety
 
@@ -134,3 +166,4 @@ One row per invoice in `fixtures/testrun-727-803.json`.
 - Secret values are never printed.
 - No invoice is deleted or voided.
 - Live POST/PUT/PATCH/DELETE after authenticate are refused in this CLI.
+- The only Outlook mailbox this CLI will read or flag is `accountspayable@kannonmfg.com`.
