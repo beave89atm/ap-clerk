@@ -1,4 +1,7 @@
-"""Thin KIMCO prototype REST client. Never logs secrets or token values."""
+"""Thin KIMCO REST client. Never logs secrets or token values.
+
+Live writes stay refused until Kyle says go. Default target is prototype.
+"""
 
 from __future__ import annotations
 
@@ -19,17 +22,38 @@ PROTOTYPE_SERVICES = {
     "document_types": "c2c451ebb51d42fb96e2651490ee1477",
 }
 
+# Identified 2026-08-28 via GET-only on live.kimcoerp.com (no writes).
+LIVE_SERVICES = {
+    "ap_invoices": "bcca4094b6ec4564942b19f5d7bb255c",
+    "ap_batches": "31bf524dcd5b464580d4a1b55c01881e",
+    "purchase_lines": "f1f8732f8daa4e2b9d8065037f7bb43d",
+    "receipts": "494eafafa31a42bba7eb8697a36a3f0a",
+}
+
+LIVE_WRITE_BLOCKED = "Live writes are off until Kyle says go"
+
+
+def services_for(target: str) -> dict[str, str]:
+    if target == "live":
+        return LIVE_SERVICES
+    return PROTOTYPE_SERVICES
+
 
 class KimcoError(RuntimeError):
     pass
 
 
 class KimcoClient:
-    def __init__(self, base_url: str, token: str, timeout: int = 90):
-        if LIVE_HOST in (base_url or "").lower():
-            raise KimcoError("Refusing live.kimcoerp.com")
+    def __init__(self, base_url: str, token: str, timeout: int = 90, *, target: str = "prototype"):
+        self.target = target if target in {"prototype", "live"} else "prototype"
+        self.services = services_for(self.target)
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        if self.target == "live":
+            if LIVE_HOST not in (self.base_url or "").lower():
+                raise KimcoError("Live target requires live.kimcoerp.com")
+        elif LIVE_HOST in (self.base_url or "").lower():
+            raise KimcoError("Refusing live.kimcoerp.com on prototype target")
         self.session = requests.Session()
         self.session.headers.update(
             {
@@ -40,9 +64,19 @@ class KimcoClient:
         )
 
     @classmethod
-    def authenticate(cls, base_url: str, key: str, password: str) -> "KimcoClient":
-        if LIVE_HOST in (base_url or "").lower():
-            raise KimcoError("Refusing live.kimcoerp.com")
+    def authenticate(
+        cls,
+        base_url: str,
+        key: str,
+        password: str,
+        *,
+        target: str = "prototype",
+    ) -> "KimcoClient":
+        if target == "live":
+            if LIVE_HOST not in (base_url or "").lower():
+                raise KimcoError("Live target requires live.kimcoerp.com")
+        elif LIVE_HOST in (base_url or "").lower():
+            raise KimcoError("Refusing live.kimcoerp.com on prototype target")
         url = f"{base_url.rstrip('/')}/api/v2/authenticate"
         response = requests.post(url, json={"key": key, "password": password}, timeout=60)
         if response.status_code != 200:
@@ -51,11 +85,11 @@ class KimcoClient:
         token = payload.get("token")
         if not token:
             raise KimcoError("Authenticate response had no token field")
-        LOGGER.info("Authenticated to prototype (token present, not printed)")
-        return cls(base_url, token)
+        LOGGER.info("Authenticated to %s (token present, not printed)", target)
+        return cls(base_url, token, target=target)
 
     def _url(self, service: str, item_id: int | str | None = None, suffix: str = "") -> str:
-        guid = PROTOTYPE_SERVICES[service]
+        guid = self.services[service]
         path = f"{self.base_url}/api/v2/{guid}"
         if item_id is not None:
             path = f"{path}/{item_id}"
@@ -64,8 +98,15 @@ class KimcoClient:
         return path
 
     def request(self, method: str, url: str, **kwargs) -> requests.Response:
-        if LIVE_HOST in url.lower():
-            raise KimcoError("Refusing live.kimcoerp.com")
+        method_upper = (method or "").upper()
+        live_url = LIVE_HOST in (url or "").lower()
+        if self.target == "live":
+            if not live_url:
+                raise KimcoError("Live client refuses non-live hosts")
+            if method_upper not in {"GET", "HEAD"}:
+                raise KimcoError(LIVE_WRITE_BLOCKED)
+        elif live_url:
+            raise KimcoError("Refusing live.kimcoerp.com on prototype target")
         response = self.session.request(method, url, timeout=self.timeout, **kwargs)
         return response
 
@@ -104,6 +145,8 @@ class KimcoClient:
 
     def create(self, service: str, values: dict[str, Any]) -> tuple[int | None, dict[str, Any], int, str]:
         """POST a header. Returns (id, body, status, error_text)."""
+        if self.target == "live":
+            raise KimcoError(LIVE_WRITE_BLOCKED)
         response = self.request("POST", self._url(service), json=values)
         status = response.status_code
         text = response.text
@@ -131,6 +174,8 @@ class KimcoClient:
         content: bytes,
     ) -> str:
         """Official 7.7 attach. On this AP list, upload notify is expected to 405."""
+        if self.target == "live":
+            raise KimcoError(LIVE_WRITE_BLOCKED)
         notify = self.request(
             "POST",
             self._url("ap_invoices", invoice_id, "attachments/upload"),

@@ -1,16 +1,15 @@
-"""Daily-runnable AP Clerk CLI for KIMCO prototype only."""
+"""Daily-runnable AP Clerk CLI. Default target is KIMCO prototype."""
 
 from __future__ import annotations
 
 import argparse
 import json
 import logging
-import sys
 from pathlib import Path
 from typing import Any
 
-from ap_clerk.auth import format_presence, load_credentials
-from ap_clerk.kimco import KimcoClient, KimcoError
+from ap_clerk.auth import format_presence, load_credentials, resolve_target
+from ap_clerk.kimco import LIVE_WRITE_BLOCKED, KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.rules import (
     COMMENTS,
@@ -38,20 +37,29 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype only)")
+    parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
     parser.add_argument("command", choices=["enter"], help="enter fixture invoices as header-only AP bills")
     parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
     parser.add_argument("--report", default=None, help="Output xlsx path. Default: runs/AP-run-YYYY-MM-DD.xlsx")
     parser.add_argument("--as-of", default=None, help="Override Chicago calendar date YYYY-MM-DD")
     parser.add_argument("--pdf-dir", default=None, help="Optional directory of invoice PDFs to attach")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Use live.kimcoerp.com + live GUIDs. Default off. Requires KIMCO_LIVE_*. Writes stay off until Kyle says go.",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    creds = load_credentials()
+    target = resolve_target(live_flag=args.live)
+    creds = load_credentials(target=target)
     print(format_presence(creds.presence), flush=True)
+    print(f"Target: {creds.target}", flush=True)
     if creds.key_source:
         print(f"Using credential pair: {creds.key_source}", flush=True)
     print(f"Instance host: {creds.instance_url}", flush=True)
+    if creds.target == "live":
+        print("Live is off until Kyle says go. --live authenticates only; no live writes.", flush=True)
 
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
     batch_name = batch_name_for(as_of)
@@ -67,10 +75,22 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        client = KimcoClient.authenticate(creds.instance_url, creds.key or "", creds.password or "")
+        client = KimcoClient.authenticate(
+            creds.instance_url,
+            creds.key or "",
+            creds.password or "",
+            target=creds.target,
+        )
+        if creds.target == "live":
+            print("Live auth success (token not printed). Stopping before any live list/create/attach.", flush=True)
+            rows = [_offline_row(inv, batch_name, LIVE_WRITE_BLOCKED) for inv in invoices]
+            write_report(report_path, rows)
+            print(f"Wrote {report_path}", flush=True)
+            return 2
         rows = run_enter(client, invoices, batch_name=batch_name, pdf_dir=Path(args.pdf_dir) if args.pdf_dir else None)
     except KimcoError as exc:
-        print(f"Prototype call failed: {exc}", flush=True)
+        label = "Live" if creds.target == "live" else "Prototype"
+        print(f"{label} call failed: {exc}", flush=True)
         rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
         write_report(report_path, rows)
         return 1
@@ -88,7 +108,7 @@ def run_enter(
     batch_name: str,
     pdf_dir: Path | None = None,
 ) -> list[dict[str, Any]]:
-    LOGGER.info("Loading prototype lists (invoices, batches, purchase lines)")
+    LOGGER.info("Loading %s lists (invoices, batches, purchase lines)", client.target)
     existing_invoices = client.list_items("ap_invoices")
     batches = client.list_items("ap_batches")
     purchase_lines = client.list_items("purchase_lines")
@@ -349,7 +369,7 @@ def _process_invoice(
     po_info = po_index.get(str(po)) if has_po else None
     if has_po and not po_info:
         row["Why"] = (
-            f"HOLD: PO {po} is not in prototype; do not invent a PO. "
+            f"HOLD: PO {po} is not in {client.target}; do not invent a PO. "
             "Select Receipts only when a PO exists."
         )
         return row
@@ -364,7 +384,7 @@ def _process_invoice(
     )
     if not vendor_info:
         hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (no-PO bill; looked up by vendor name)"
-        row["Why"] = f"HOLD: vendor/remit/terms not found on prototype for {vendor}{hint}."
+        row["Why"] = f"HOLD: vendor/remit/terms not found on {client.target} for {vendor}{hint}."
         return row
 
     try:
