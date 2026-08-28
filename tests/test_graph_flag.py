@@ -9,6 +9,7 @@ import pytest
 from ap_clerk.cli import _process_invoice, main
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
+    ENTERED_IN_AI_CATEGORY,
     FLAG_DENIED,
     FLAG_FLAGGED,
     FLAG_NO_MESSAGE_ID,
@@ -61,9 +62,13 @@ def test_success_flags_source_message():
         resp.status_code = 200
         if method == "PATCH":
             patches.append(kwargs.get("json") or {})
-            resp.json.return_value = {"flag": {"flagStatus": "flagged"}}
+            resp.json.return_value = {"categories": [ENTERED_IN_AI_CATEGORY]}
         else:
-            resp.json.return_value = {"id": "AAMk-success", "categories": [], "flag": {"flagStatus": "flagged"}}
+            resp.json.return_value = {
+                "id": "AAMk-success",
+                "categories": ["AP Matched"],
+                "flag": {"flagStatus": "notFlagged"},
+            }
         return resp
 
     client = GraphClient("token-not-printed")
@@ -77,9 +82,10 @@ def test_success_flags_source_message():
     status = apply_flag_after_match(row, invoice, client)
     assert status == FLAG_FLAGGED
     assert row["Flag status"] == FLAG_FLAGGED
-    assert "Flag status=flagged" in row["Why"]
-    assert {"flag": {"flagStatus": "flagged"}} in patches
-    assert any("AP Matched" in (body.get("categories") or []) for body in patches)
+    assert "Flag status=entered-in-ai" in row["Why"]
+    assert not any("flag" in (body or {}) for body in patches)
+    assert any(body.get("categories") == [ENTERED_IN_AI_CATEGORY] for body in patches)
+    assert all("AP Matched" not in (body.get("categories") or []) for body in patches)
 
 
 def test_hold_does_not_flag():

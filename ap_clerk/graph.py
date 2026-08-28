@@ -1,7 +1,8 @@
 """Microsoft Graph mailbox client for accountspayable@kannonmfg.com only.
 
-Unflagged mail is the work queue. Flagged means already processed.
-Flag happens after a successful KIMCO header create, never after download alone.
+Mail without category `Entered in AI` is the work queue.
+`Entered in AI` is applied after a successful KIMCO header create, never after download alone.
+Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
 """
 
@@ -23,7 +24,9 @@ LOGGER = logging.getLogger("ap_clerk")
 ALLOWED_MAILBOX = "accountspayable@kannonmfg.com"
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 GRAPH_SCOPE = "https://graph.microsoft.com/.default"
-AP_MATCHED_CATEGORY = "AP Matched"
+# Exact preexisting mailbox category (confirmed on existing AP messages).
+ENTERED_IN_AI_CATEGORY = "Entered in AI"
+LEGACY_AP_MATCHED_CATEGORY = "AP Matched"
 
 GRAPH_ENV_NAMES = (
     "MICROSOFT_GRAPH_TENANT_ID",
@@ -31,7 +34,7 @@ GRAPH_ENV_NAMES = (
     "MICROSOFT_GRAPH_CLIENT_SECRET",
 )
 
-FLAG_FLAGGED = "flagged"
+FLAG_FLAGGED = "entered-in-ai"
 FLAG_SKIPPED = "skipped-not-success"
 FLAG_DENIED = "graph-denied"
 FLAG_NO_MESSAGE_ID = "no-message-id"
@@ -241,8 +244,6 @@ class GraphClient:
         if received_to:
             upper = received_to + timedelta(days=1)
             filters.append(f"receivedDateTime lt {upper.isoformat()}T00:00:00Z")
-        if unflagged_only:
-            filters.append("flag/flagStatus ne 'flagged'")
         params: dict[str, Any] = {
             "$select": "id,subject,from,receivedDateTime,hasAttachments,flag,categories,bodyPreview",
             "$orderby": "receivedDateTime desc",
@@ -266,6 +267,12 @@ class GraphClient:
             messages.extend(chunk)
             url = payload.get("@odata.nextLink")
             LOGGER.info("Listed Graph messages got=%s total=%s", len(chunk), len(messages))
+        if unflagged_only:
+            messages = [
+                message
+                for message in messages
+                if ENTERED_IN_AI_CATEGORY not in [str(c) for c in (message.get("categories") or []) if c]
+            ]
         if include_attachment_names:
             for message in messages:
                 message["attachment_names"] = self.list_attachment_names(mailbox, message.get("id") or "")
@@ -378,45 +385,38 @@ class GraphClient:
         return raw.content
 
     def flag_matched(self, mailbox: str, message_id: str) -> str:
-        """PATCH flagStatus=flagged, then best-effort category AP Matched.
+        """PATCH categories to include preexisting `Entered in AI`.
 
-        A category failure does not undo the flag. 403 is graph-denied.
+        Keeps other categories. Drops legacy `AP Matched`. Does not set
+        Outlook follow-up flag.flagStatus. 403 is graph-denied.
         """
         mailbox = assert_allowed_mailbox(mailbox)
         if not str(message_id or "").strip():
             return FLAG_NO_MESSAGE_ID
-        url = self._messages_url(mailbox, message_id)
+        try:
+            current = self.get_message(mailbox, message_id, select="id,categories,flag")
+        except GraphError:
+            return FLAG_DENIED
+        categories = [
+            str(c)
+            for c in (current.get("categories") or [])
+            if c and str(c) != LEGACY_AP_MATCHED_CATEGORY
+        ]
+        if ENTERED_IN_AI_CATEGORY not in categories:
+            categories.append(ENTERED_IN_AI_CATEGORY)
         response = self.request(
             "PATCH",
-            url,
-            json={"flag": {"flagStatus": "flagged"}},
+            self._messages_url(mailbox, message_id),
+            json={"categories": categories},
             headers={"Content-Type": "application/json"},
         )
         if response.status_code == 403:
-            LOGGER.info("Graph flag PATCH HTTP 403 (Mail.ReadWrite missing or denied)")
+            LOGGER.info("Graph category PATCH HTTP 403 (Mail.ReadWrite missing or denied)")
             return FLAG_DENIED
         if response.status_code >= 400:
-            LOGGER.info("Graph flag PATCH HTTP %s", response.status_code)
+            LOGGER.info("Graph category PATCH HTTP %s", response.status_code)
             return FLAG_DENIED
-        self._try_set_category(mailbox, message_id)
         return FLAG_FLAGGED
-
-    def _try_set_category(self, mailbox: str, message_id: str) -> None:
-        try:
-            current = self.get_message(mailbox, message_id, select="id,categories,flag")
-            categories = [str(c) for c in (current.get("categories") or []) if c]
-            if AP_MATCHED_CATEGORY not in categories:
-                categories.append(AP_MATCHED_CATEGORY)
-            response = self.request(
-                "PATCH",
-                self._messages_url(mailbox, message_id),
-                json={"categories": categories},
-                headers={"Content-Type": "application/json"},
-            )
-            if response.status_code >= 400:
-                LOGGER.info("Graph category PATCH HTTP %s (flag kept)", response.status_code)
-        except GraphError:
-            LOGGER.info("Graph category write failed (flag kept)")
 
 
 def apply_flag_after_match(
@@ -426,7 +426,7 @@ def apply_flag_after_match(
     *,
     mailbox: str = ALLOWED_MAILBOX,
 ) -> str:
-    """Set row['Flag status'] after enter. Never flags HOLD/Fail/no-header rows."""
+    """Set row['Flag status'] after enter. Never marks HOLD/Fail/no-header rows."""
     message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
     decision = decide_flag_status(
         result=str(row.get("Result") or ""),

@@ -1,4 +1,4 @@
-"""Select the 20 most recent vendor invoices from the AP mailbox. Does not flag mail."""
+"""Select the 20 most recent vendor invoices from the AP mailbox. Does not write categories."""
 
 from __future__ import annotations
 
