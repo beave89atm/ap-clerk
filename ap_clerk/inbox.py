@@ -26,7 +26,7 @@ from ap_clerk.graph import (
     has_entered_in_ai,
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf
-from ap_clerk.rules import classify_mail, parse_iso_date
+from ap_clerk.rules import classify_mail
 
 STATEMENT_FILE_RE = re.compile(r"statement|custstate|pastdue|past[_ -]?due|aging", flags=re.I)
 
@@ -273,11 +273,7 @@ def pull_recent_bills(
         chosen["from_name"] = from_name
         chosen["action"] = "create"
         chosen["id"] = message_id
-        if not chosen.get("date") and message.get("receivedDateTime"):
-            try:
-                chosen["date"] = parse_iso_date(str(message["receivedDateTime"])).isoformat()
-            except ValueError:
-                pass
+        # Invoice date is the date printed on the invoice, never email received.
         selected.append(chosen)
         LOGGER.info(
             "Selected bill %s/%s vendor=%s invoice=%s received=%s",

@@ -10,14 +10,22 @@ from typing import Any
 
 from pypdf import PdfReader
 
-from ap_clerk.rules import FEE_KEYWORDS, extract_po_number, is_fee_or_surcharge
+from ap_clerk.rules import (
+    FEE_KEYWORDS,
+    extract_po_number,
+    is_fee_or_surcharge,
+    known_invoice_prefix,
+    printed_invoice_number,
+)
 
 LOGGER = logging.getLogger("ap_clerk")
 
 _INV_LABEL = re.compile(
-    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#-]*([A-Z]{0,8}\d{3,}[A-Z0-9/_-]*)",
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#]*([A-Z]{0,8}\d-?\d{3,}[A-Z0-9/_-]*)",
     flags=re.I,
 )
+_INV_PREFIXED = re.compile(r"\b(\d-\d{5,8})\b")
+_PART_NUMBER = re.compile(r"\b(\d{3}-\d{4}-\d{3})\b")
 _INV_FASTENAL = re.compile(r"\b(TXFT\d{5,})\b", flags=re.I)
 _INV_GAS = re.compile(r"\b(00\d{8})\b")
 _INV_EMJ = re.compile(r"\bINVOICE NUMBER\s+([A-Z]\d{6,})\b", flags=re.I)
@@ -234,6 +242,47 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
     return dedup[:8]
 
 
+def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
+    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts."""
+    lines: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for raw_line in (text or "").splitlines():
+        stripped = raw_line.strip()
+        if not stripped:
+            continue
+        parts = _PART_NUMBER.findall(stripped)
+        if not parts:
+            continue
+        amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
+        amounts = [a for a in amounts if a is not None and a < 100000]
+        qty = None
+        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", stripped, flags=re.I)
+        if qty_match:
+            qty = parse_money(qty_match.group(1))
+        elif amounts and len(amounts) >= 2:
+            qty = amounts[0]
+        po_line = None
+        line_match = re.search(r"\b(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
+        if line_match:
+            po_line = int(line_match.group(1))
+        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", stripped, flags=re.I)
+        for part in parts:
+            if part in seen:
+                continue
+            seen.add(part)
+            lines.append(
+                {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amounts[-1] if amounts else None,
+                    "po_line": po_line,
+                    "wo": wo_match.group(1) if wo_match else None,
+                    "label": stripped[:80],
+                }
+            )
+    return lines[:40]
+
+
 def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
     addr = (from_address or "").lower()
     if "@" in addr:
@@ -263,8 +312,10 @@ def _invoice_from_filename(filename: str) -> str | None:
     name = filename or ""
     for pattern in (
         r"(TXFT\d{5,})",
-        r"Invoice[-_ ]+(\d{4,})",
-        r"Inv(\d{5,})",
+        r"\b(\d-\d{5,8})\b",
+        r"Invoice[-_ ]+(\d-\d{5,8}|\d{4,})",
+        r"Inv(\d-\d{5,8}|\d{5,})",
+        r"[-_](\d-\d{5,8})\.pdf$",
         r"[-_](\d{5,})\.pdf$",
         r"inv[-_ ]+(\d{4,})",
         r"(00\d{8})",
@@ -298,8 +349,15 @@ def parse_invoice_text(
     filename: str = "",
 ) -> dict[str, Any]:
     blob = "\n".join([subject, filename, text or ""])
+    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=text)
     invoice_number = None
+    if known_invoice_prefix(vendor):
+        prefixed = _INV_PREFIXED.search(text or "")
+        if prefixed:
+            invoice_number = _usable_invoice_number(prefixed.group(1))
     for rx in (_INV_EMJ, _INV_LABEL, _INV_GAS):
+        if invoice_number:
+            break
         match = rx.search(text or "")
         if match:
             invoice_number = _usable_invoice_number(match.group(1))
@@ -330,6 +388,7 @@ def parse_invoice_text(
     if oneal and (not invoice_number or _looks_like_date_token(invoice_number) or re.fullmatch(r"8?\d{6,7}", invoice_number or "")):
         if "oneal" in blob.lower() or "o'neal" in blob.lower() or "o_neal" in (filename or "").lower():
             invoice_number = oneal[0]
+    invoice_number = printed_invoice_number(invoice_number, vendor=vendor, text=text or "")
 
     pos = extract_po_numbers(blob)
     amount = None
@@ -359,10 +418,19 @@ def parse_invoice_text(
             if amount == 0:
                 amount = None
 
+    # Printed invoice date only. Never subject "Dated:" or the email received day.
     invoice_date = None
-    date_match = _DATE_LABEL.search(blob)
+    date_match = _DATE_LABEL.search(text or "")
     if date_match:
         invoice_date = parse_date_value(date_match.group(1))
+    if not invoice_date:
+        loose = re.search(
+            r"(?:^|\n)\s*date\s*[:.\s]+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}-[A-Za-z]{3}-\d{2,4})",
+            text or "",
+            flags=re.I,
+        )
+        if loose:
+            invoice_date = parse_date_value(loose.group(1))
     if not invoice_date:
         for raw in _DATE_ANY.findall(text or ""):
             parsed = parse_date_value(raw)
@@ -371,8 +439,8 @@ def parse_invoice_text(
                 break
 
     check_stop = bool(_CHECK_STOP.search(blob))
-    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=text)
     fees = extract_fees(text)
+    lines = extract_invoice_lines(text)
     po = pos[0] if len(pos) == 1 else None
     return {
         "vendor": vendor,
@@ -382,6 +450,7 @@ def parse_invoice_text(
         "pos": pos,
         "amount": amount,
         "fees": fees,
+        "lines": lines,
         "check_stop": check_stop,
         "hold_reason": "CHECK STOP" if check_stop else "",
         "multi_po": len(pos) > 1,

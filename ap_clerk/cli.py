@@ -37,24 +37,31 @@ from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.rules import (
-    COMMENTS,
     CURRENCY_USD_ID,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_BATCH_NAMES,
     FORBIDDEN_INVOICE_IDS,
+    PRICE_DOES_NOT_MATCH,
+    PRICE_MISMATCH_PO_COMMENT,
     batch_name_for,
     chicago_today,
     comments_for,
     due_date_from_terms,
+    evaluate_bill_price_variance,
     extract_po_number,
     flag_in_outlook_for,
     format_fees,
+    format_ppv,
     invoice_number_key,
     invoice_type_for,
     kimco_datetime,
+    known_vendor_id,
     lookup_id,
     lookup_text,
+    match_receipts,
+    money,
     names_match,
+    normalize_receipt,
     should_create_header,
     vendor_match_score,
     parse_iso_date,
@@ -286,6 +293,13 @@ def run_enter(
     vendor_samples = _vendor_samples(existing_invoices)
     _seed_vendor_samples(client, vendor_samples, invoice_by_number, invoices)
     po_index = _index_purchase_orders(purchase_lines)
+    receipts: list[dict[str, Any]] | None
+    try:
+        receipts = [normalize_receipt(item) for item in client.list_items("receipts")]
+        LOGGER.info("Loaded %s receipts for Select Receipts matching", len(receipts))
+    except KimcoError as exc:
+        LOGGER.info("Receipts list unavailable; will not HOLD-no-receipts without a search: %s", type(exc).__name__)
+        receipts = None
     batch = _find_or_create_batch(client, batches, batch_name)
     batch_label = f"{batch_name} ({batch['id']})"
     LOGGER.info("Using batch %s", batch_label)
@@ -301,6 +315,7 @@ def run_enter(
                 invoice_by_number=invoice_by_number,
                 vendor_samples=vendor_samples,
                 po_index=po_index,
+                receipts=receipts,
                 pdf_dir=pdf_dir,
                 graph_client=graph_client,
                 mailbox=mailbox,
@@ -414,6 +429,9 @@ def _seed_vendor_samples(
             continue
         if _best_vendor_sample(inv.get("vendor") or "", "", samples):
             continue
+        alias_id = known_vendor_id(inv.get("vendor") or "")
+        if alias_id and _sample_by_vendor_id(samples, alias_id):
+            continue
         needed.append(inv)
     if not needed:
         return
@@ -488,11 +506,50 @@ def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, A
         number = extract_po_number(text)
         if not po_id or not number:
             continue
+        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor")
+        vendor_id = lookup_id(vendor)
+        vendor_text = lookup_text(vendor) or lookup_text(values.get("Vendor_$_Display_Name"))
+        if not vendor_text and "-" in (text or ""):
+            vendor_text = text.split("-", 1)[1].strip()
+        line_no = values.get("Purchase_Line_Number") or values.get("Line_Number")
+        if isinstance(line_no, dict):
+            line_no = line_no.get("text") or line_no.get("id")
+        part = lookup_text(values.get("Item_Number") or values.get("Item") or values.get("PO_Item_Number")) or values.get("Item_Number")
+        qty = money(values.get("Quantity") or values.get("Qty"))
+        unit_price = money(values.get("Unit_Price") or values.get("Price") or values.get("Unit_Cost"))
+        amount = money(values.get("Amount") or values.get("Line_Amount") or values.get("Extended_Price"))
+        if amount is None and unit_price is not None and qty is not None:
+            amount = round(unit_price * qty, 2)
+        wo = lookup_text(values.get("Work_Order") or values.get("WO"))
+        line_row = {
+            "id": item.get("id"),
+            "line_no": line_no,
+            "po_line": line_no,
+            "line": line_no,
+            "part": str(part or "").strip(),
+            "qty": qty,
+            "quantity": qty,
+            "unit_price": unit_price,
+            "amount": amount,
+            "wo": wo,
+        }
         current = index.get(number)
         if current is None:
-            index[number] = {"id": po_id, "text": text, "line_ids": [item.get("id")]}
+            index[number] = {
+                "id": po_id,
+                "text": text,
+                "line_ids": [item.get("id")],
+                "vendor_id": vendor_id,
+                "vendor_text": vendor_text,
+                "lines": [line_row],
+            }
         elif current["id"] == po_id:
             current["line_ids"].append(item.get("id"))
+            current["lines"].append(line_row)
+            if current.get("vendor_id") is None and vendor_id is not None:
+                current["vendor_id"] = vendor_id
+            if not current.get("vendor_text") and vendor_text:
+                current["vendor_text"] = vendor_text
     return index
 
 
@@ -593,6 +650,7 @@ def _process_invoice(
     vendor_samples: list[dict[str, Any]],
     po_index: dict[str, dict[str, Any]],
     pdf_dir: Path | None,
+    receipts: list[dict[str, Any]] | None = None,
     graph_client: GraphClient | None = None,
     mailbox: str = ALLOWED_MAILBOX,
     flag_outlook: bool = True,
@@ -653,7 +711,7 @@ def _process_invoice(
     vendor_info = _resolve_vendor(
         client,
         vendor,
-        po_info["text"] if po_info else "",
+        po_info,
         vendor_samples,
         invoice_by_number=invoice_by_number,
         invoice_number=number,
@@ -664,6 +722,15 @@ def _process_invoice(
         row["Why"] = (
             f"Fail: vendor missing on {client.target} for {vendor}{hint}. "
             "Will not invent a vendor/remit-to ID."
+        )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if not vendor_info.get("invoice_id"):
+        row["Result"] = "Fail"
+        row["Why"] = (
+            f"Fail: vendor {vendor_info.get('vendor_id')} is known "
+            f"({vendor_info.get('vendor_text') or vendor}) but no sample invoice "
+            "for remit/terms. Not a vendor-missing fail."
         )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
@@ -690,6 +757,38 @@ def _process_invoice(
         row["Result"] = "Fail"
         row["Why"] = "Fail: invoice amount missing from PDF; will not invent an amount."
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    invoice_lines = list(inv.get("lines") or [])
+    po_lines = list((po_info or {}).get("lines") or [])
+    if not invoice_lines and po_lines and len(po_lines) == 1 and amount not in (None, ""):
+        invoice_lines = [{"amount": amount, "qty": po_lines[0].get("qty"), "part": po_lines[0].get("part"), "po_line": po_lines[0].get("po_line")}]
+    price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
+    if price["hold"]:
+        row["Result"] = "HOLD"
+        row["PPV"] = "none"
+        row["Why"] = price["why"] or f"HOLD: {PRICE_DOES_NOT_MATCH}."
+        if PRICE_MISMATCH_PO_COMMENT not in row["Why"]:
+            row["Why"] = f"{row['Why']} {PRICE_MISMATCH_PO_COMMENT}"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    if price["ppv_total"]:
+        row["PPV"] = format_ppv(price["ppv_total"])
+
+    receipt_note = ""
+    if receipts is not None and (po_info or po):
+        receipt_result = match_receipts(
+            invoice_number=number,
+            invoice_lines=invoice_lines,
+            receipts=receipts,
+            po_number=str(po) if po else None,
+        )
+        if receipt_result["hold_no_receipts"]:
+            row["Result"] = "HOLD"
+            row["Why"] = (
+                "HOLD: no receipts after slip # / part / qty / PO line search "
+                f"(invoice {number}). Will not guess a qty-only slip."
+            )
+            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        receipt_note = receipt_result["why"] + " "
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
@@ -755,8 +854,18 @@ def _process_invoice(
             "Purchase Order left blank (no-PO or multi-PO or PO not on target). "
             "Do not type Add Item. "
         )
+    ppv_note = ""
+    if price["ppv_total"]:
+        ppv_note = (
+            f"Post Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
+            "(signed; negative allowed). "
+        )
+        for item in price.get("items") or []:
+            if item.get("reason") and item.get("action") == "ppv":
+                ppv_note += item["reason"] + " "
     row["Why"] = (
-        f"Header created (Invoice_Type {invoice_type}). {po_missing_note}{line_note}"
+        f"Header created (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
+        f"{ppv_note}"
         "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
         f"Attach status={pdf_status}."
     )
@@ -764,27 +873,71 @@ def _process_invoice(
     return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
 
+def _sample_by_vendor_id(samples: list[dict[str, Any]], vendor_id: int | None) -> dict[str, Any] | None:
+    if vendor_id is None:
+        return None
+    for sample in samples:
+        if sample.get("vendor_id") == vendor_id:
+            return sample
+    return None
+
+
 def _resolve_vendor(
     client: KimcoClient,
     fixture_vendor: str,
-    po_text: str,
+    po_info: dict[str, Any] | None,
     samples: list[dict[str, Any]],
     *,
     invoice_by_number: dict[str, dict[str, Any]],
     invoice_number: str,
 ) -> dict[str, Any] | None:
+    """Name match, then known alias, then the vendor on the live PO.
+
+    Do not Fail vendor-missing when the PO has a vendor (Treyce 2026-08-28).
+    Aliases: National Specialty Alloys=1386, Coherent Corp.=1410.
+    """
+    po_text = (po_info or {}).get("text") or ""
+    po_vendor_id = (po_info or {}).get("vendor_id")
+    po_vendor_text = (po_info or {}).get("vendor_text") or ""
+    alias_id = known_vendor_id(fixture_vendor) or known_vendor_id(po_vendor_text)
+
     match = _best_vendor_sample(fixture_vendor, po_text, samples)
     if match:
         return match
+    if alias_id:
+        aliased = _sample_by_vendor_id(samples, alias_id)
+        if aliased:
+            return aliased
+    if po_vendor_id:
+        from_po = _sample_by_vendor_id(samples, int(po_vendor_id))
+        if from_po:
+            return from_po
+    if po_vendor_text:
+        from_po_name = _best_vendor_sample(po_vendor_text, po_text, samples)
+        if from_po_name:
+            return from_po_name
+
     discovered = _discover_vendor_from_invoices(
         client,
         fixture_vendor,
         samples,
         invoice_by_number=invoice_by_number,
         invoice_number=invoice_number,
+        prefer_vendor_id=alias_id or po_vendor_id,
     )
     if discovered:
         return discovered
+
+    # Vendor is known from alias or the live PO; remit/terms sample may still be missing.
+    known_id = alias_id or po_vendor_id
+    if known_id:
+        return {
+            "vendor_id": int(known_id),
+            "vendor_text": fixture_vendor or po_vendor_text,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_po": True,
+        }
     return _best_vendor_sample(fixture_vendor, po_text, samples)
 
 
@@ -813,8 +966,9 @@ def _discover_vendor_from_invoices(
     *,
     invoice_by_number: dict[str, dict[str, Any]],
     invoice_number: str,
+    prefer_vendor_id: int | None = None,
 ) -> dict[str, Any] | None:
-    """GET existing invoices and match Vendor text. Do not invent vendor/remit/terms."""
+    """GET existing invoices and match Vendor text or a known vendor id."""
     needle = invoice_number_key(invoice_number)
     prefixes = {needle[:n] for n in (4, 5, 6, 7) if len(needle) >= n}
     ranked_ids: list[int] = []
@@ -867,6 +1021,9 @@ def _discover_vendor_from_invoices(
         }
         samples.append(sample)
         seen_ids.add(item_id)
+        if prefer_vendor_id is not None and vendor_id == int(prefer_vendor_id):
+            LOGGER.info("Matched vendor id %s from existing invoice id=%s", vendor_id, item.get("id"))
+            return sample
         if _best_vendor_sample(fixture_vendor, "", [sample]):
             LOGGER.info("Matched vendor %s from existing invoice id=%s", vendor_text, item.get("id"))
             return sample

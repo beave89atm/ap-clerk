@@ -3,16 +3,24 @@ from datetime import date
 from ap_clerk.rules import (
     INVOICE_TYPE_NO_PO,
     INVOICE_TYPE_PO,
+    PRICE_DOES_NOT_MATCH,
+    SHAWN_MCKIBBEN,
     batch_name_for,
     classify_mail,
     comments_for,
+    decide_ppv,
     due_date_from_terms,
+    evaluate_bill_price_variance,
     extract_po_number,
     flag_in_outlook_for,
     format_fees,
+    format_ppv,
     invoice_type_for,
     is_fee_or_surcharge,
+    known_vendor_id,
+    match_receipts,
     names_match,
+    printed_invoice_number,
     should_create_header,
     vendor_match_score,
 )
@@ -94,6 +102,127 @@ def test_flag_in_outlook_yes_for_success_hold_and_fail():
     assert flag_in_outlook_for("Fail") == "Yes"
     assert comments_for("live") == "API Agent"
     assert "prototype" in comments_for("prototype").lower()
+
+
+def test_kyle_ppv_rule_2026_08_28():
+    """Kyle: |var| <= 10% of invoice total AND bill PPV <= $100. Signed PPV."""
+    emj = decide_ppv(invoice_line_amount=752.10, po_line_amount=770.16, invoice_total=752.10)
+    assert emj["action"] == "ppv"
+    assert emj["ppv"] == -18.06
+    assert emj["hold"] is False
+
+    oneal = decide_ppv(invoice_line_amount=100.00, po_line_amount=100.10, invoice_total=100.00)
+    assert oneal["action"] == "ppv"
+    assert oneal["ppv"] == -0.10
+
+    over_abs = decide_ppv(invoice_line_amount=1880.00, po_line_amount=2000.00, invoice_total=2000.00)
+    assert over_abs["hold"] is True
+    assert over_abs["ppv"] == 0.0
+    assert PRICE_DOES_NOT_MATCH in over_abs["reason"]
+    assert SHAWN_MCKIBBEN in over_abs["reason"]
+    assert "Do not alter receipt unit price in GI" in over_abs["reason"]
+
+    over_pct = decide_ppv(invoice_line_amount=350.00, po_line_amount=400.00, invoice_total=400.00)
+    assert over_pct["hold"] is True
+    assert PRICE_DOES_NOT_MATCH in over_pct["reason"]
+
+    zero_po = decide_ppv(
+        invoice_line_amount=100.00,
+        po_line_amount=0.0,
+        invoice_total=100.00,
+        po_unit_price=0.0,
+    )
+    assert zero_po["hold"] is True
+    assert "Not PPV" in zero_po["reason"]
+    assert PRICE_DOES_NOT_MATCH in zero_po["reason"]
+
+    fee = decide_ppv(
+        invoice_line_amount=26.25,
+        po_line_amount=0.0,
+        invoice_total=200.00,
+        label="Shipping & Handling",
+    )
+    assert fee["action"] == "fee"
+    assert fee["hold"] is False
+    assert fee["ppv"] == 0.0
+    assert format_ppv(-18.06) == "-18.06"
+    assert format_ppv(0) == "none"
+
+
+def test_ppv_bill_cap_and_fees_stay_out():
+    bill = evaluate_bill_price_variance(
+        [
+            {"part": "STEEL", "amount": 752.10},
+            {"label": "Shop supplies", "amount": 12.00, "fee": True},
+        ],
+        [{"part": "STEEL", "amount": 770.16, "unit_price": 770.16}],
+        invoice_total=752.10,
+    )
+    assert bill["hold"] is False
+    assert bill["ppv_total"] == -18.06
+    assert any(item.get("action") == "fee" for item in bill["items"])
+
+
+def test_vendor_aliases_nsa_and_coherent():
+    assert known_vendor_id("National Specialty Alloys") == 1386
+    assert known_vendor_id("National Specialty Alloys, Inc") == 1386
+    assert known_vendor_id("Coherent Corp.") == 1410
+    assert known_vendor_id("Coherent") == 1410
+    assert known_vendor_id("Fastenal Company") is None
+
+
+def test_printed_invoice_number_modern_heat_prefix():
+    assert printed_invoice_number("220804", vendor="Modern Heat Treat Inc", text="Invoice Number: 8-220804") == "8-220804"
+    assert printed_invoice_number("220804", vendor="Modern Heat Treat Inc", text="") == "8-220804"
+    assert printed_invoice_number("TXFT499356", vendor="Fastenal Company", text="TXFT499356") == "TXFT499356"
+    assert printed_invoice_number("17602", vendor="Telecom Products Inc.", text="Invoice 17602") == "17602"
+
+
+def test_select_receipts_matches_part_and_po_line_not_first_qty():
+    result = match_receipts(
+        invoice_number="8-220804",
+        invoice_lines=[
+            {"part": "625-5200-002", "qty": 1},
+            {"part": "400-5200-001", "qty": 1},
+        ],
+        receipts=[
+            {"part": "AAA-1111-000", "qty": 1, "po_line": 1, "slip": "R1"},
+            {"part": "BBB-2222-000", "qty": 1, "po_line": 2, "slip": "R2"},
+            {"part": "CCC-3333-000", "qty": 1, "po_line": 3, "slip": "R3"},
+            {"part": "625-5200-002", "qty": 1, "po_line": 6, "slip": "R6"},
+            {"part": "400-5200-001", "qty": 1, "po_line": 7, "slip": "R7"},
+        ],
+    )
+    assert result["hold_no_receipts"] is False
+    picked_lines = {str(hit["receipt"]["po_line"]) for hit in result["matched"]}
+    picked_parts = {hit["receipt"]["part"] for hit in result["matched"]}
+    assert picked_lines == {"6", "7"}
+    assert picked_parts == {"625-5200-002", "400-5200-001"}
+
+
+def test_fastenal_slip_equals_invoice_number_is_findable():
+    result = match_receipts(
+        invoice_number="TXFT499356",
+        invoice_lines=[],
+        receipts=[
+            {"slip": "OTHERSLIP", "qty": 6, "part": "WRONG", "po_line": 1},
+            {"slip": "TXFT499356", "qty": 6, "part": "FAST-42", "po_line": 4, "po": "58700"},
+        ],
+        po_number="58700",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["slip"] == "TXFT499356"
+
+
+def test_qty_only_is_not_a_receipt_match():
+    result = match_receipts(
+        invoice_number="NO-SLIP",
+        invoice_lines=[{"qty": 6, "part": "NEED-THIS"}],
+        receipts=[{"slip": "R9", "qty": 6, "part": "DIFFERENT", "po_line": 1}],
+    )
+    assert result["hold_no_receipts"] is True
+    assert result["matched"] == []
 
 
 def test_no_po_vendor_name_matching():
