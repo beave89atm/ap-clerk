@@ -230,6 +230,8 @@ Graph message id is kept on the run so the category is applied after match, not 
 
 **`Entered in AI` apply (2026-08-28):** 14 already-Success 8/27 messages (9663–9676) uniquely identified (vendor + invoice # + PDF; Air Products / EMJ / O'Neal / Gas & Supply confirmed via PDF text). Category PATCH **200** on all 14; GET after each showed `Entered in AI`. Telecom 17601: removed `AP Matched`, cleared `flagStatus` back to `notFlagged`. Skipped: 9677 Fastenal `TXFT499356` (HOLD-no-receipts) and Fail rows NSA `453743`, Coherent `120953`, Fastenal `TXFT496725` / `TXFT499639` / `TXFT499528`. No KIMCO writes. Report: `runs/entered-in-ai-2026-08-28.json`.
 
+**`AI HOLD` verify (2026-08-28, after Kyle created red master category `AI HOLD`):** Fastenal `TXFT499356` / 9677 uniquely identified on `accountspayable@kannonmfg.com` only (attachment `TXFT499356.pdf`, received `2026-08-27T21:31:26Z`, score 140). One other `$search` hit was a 2026-06-25 Fastenal notice (score 0; left unchanged). Categories before `[]`. PATCH body `{"categories":["AI HOLD"]}` only — did not add `Entered in AI`, did not set `flag.flagStatus`. GET after: categories `["AI HOLD"]`, flag `notFlagged`. Neighbor Fastenal messages unchanged. No KIMCO writes. No `sendMail`. Report: `runs/ai-hold-txft499356-2026-08-28.json`.
+
 ## Safety
 
 - Default target is prototype. Live writes only with `--live` + `KIMCO_LIVE_*` after Kyle said go.
