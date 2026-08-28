@@ -965,7 +965,7 @@ def _run_pull(args: argparse.Namespace) -> int:
     payload: dict[str, Any] = {
         "mailbox": mailbox,
         "window": {"from": start, "to": end},
-        "notes": "Unflagged mail is the work queue. pull does not flag. Flag happens after enter Success.",
+        "notes": "Mail without category Entered in AI is the work queue. pull does not write categories. After enter Success the CLI adds Entered in AI.",
         "messages": queue,
     }
     if args.match_fixture:

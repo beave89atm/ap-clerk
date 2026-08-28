@@ -23,6 +23,7 @@ COLUMNS = [
     "PPV",
     "Attach status",
     "Flag in Outlook",
+    "Flag status",
 ]
 
 
@@ -52,7 +53,7 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
                 fill = fills.get(str(value))
                 if fill:
                     cell.fill = fill
-    widths = [28, 18, 12, 12, 12, 10, 55, 12, 22, 40, 10, 16, 18]
+    widths = [28, 18, 12, 12, 12, 10, 55, 12, 22, 40, 10, 16, 18, 18]
     for idx, width in enumerate(widths, start=1):
         sheet.column_dimensions[get_column_letter(idx)].width = width
     sheet.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{max(1, len(rows) + 1)}"

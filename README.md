@@ -12,7 +12,7 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
 3. Creates header-only AP invoices for real vendor bills. A missing PO is **not** a HOLD: the header is still created with Purchase Order left blank. Select Receipts is used only when a PO exists.
 4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. This VM has no inbox PDFs, so the run records `Attach status = no-pdf-on-vm`.
-5. After a **Success** header create, flags the source Outlook message on `accountspayable@kannonmfg.com` only (unflagged mail stays the work queue).
+5. After a **Success** header create, adds the preexisting Outlook category `Entered in AI` on `accountspayable@kannonmfg.com` only (mail without that category stays the work queue). Does **not** use the Outlook follow-up flag or `AP Matched`.
 6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`.
 
 ## Prototype (default)
@@ -35,13 +35,15 @@ If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimc
 
 `--live` or `KIMCO_TARGET=live` selects live. Default is still off. The CLI refuses that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
 
-If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Outlook is **not** flagged (`Mail.ReadWrite` is not granted); the Excel **Flag in Outlook** column is Yes on Success so Kyle can flag those messages manually.
+If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` authenticates and then creates today's `API Agent - M/D/YY` batch plus invoice headers on live. Application `Mail.ReadWrite` is now granted on the Kannon AP Clerk Entra app (admin consent 2026-08-28). After a Success header create, `enter` PATCHes category `Entered in AI` on `accountspayable@kannonmfg.com` only. It does not set `flag.flagStatus`.
 
-`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox and does not flag or move mail.
+`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first. It does not drain the mailbox. `Entered in AI` is applied only after Success, and only on that AP mailbox.
 
 **First live 20-invoice test (2026-08-27 America/Chicago, Kyle said go):** batch `API Agent - 8/27/26` id **688**. 15 Success headers **9663–9677**, 5 Fail, 0 HOLD. Outlook was not flagged. PDF attach notify returned **405**. Vendor-missing leftovers: National Specialty Alloys `453743` and Coherent Corp. `120953` (PO exists on live; vendor id was not found; not invented). Report: `runs/AP-run-2026-08-27.xlsx`.
 
-**Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.
+**Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged in that GUI pass. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.
+
+**Mail.ReadWrite / `Entered in AI` (2026-08-28):** After admin consent, Graph can write the AP mailbox. Kyle's preexisting category is exactly `Entered in AI` (confirmed on existing messages; `outlook/masterCategories` GET was 403). That category is the process marker. The follow-up flag and `AP Matched` are not. 14 already-Success 8/27 headers (9663–9676) received `Entered in AI`. HOLD/Fail rows were not marked. No KIMCO writes. See Outlook section below.
 
 Identified 2026-08-28 with GET only (auth success; token not printed; zero live records written):
 
@@ -150,27 +152,33 @@ Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Ite
 
 `runs/AP-run-YYYY-MM-DD.xlsx` columns:
 
-Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook.
+Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook, Flag status.
 
-**Flag in Outlook:** `Yes` on Success (manual — Kyle can flag the AP mailbox message). `No` on HOLD/Fail. This live run does **not** PATCH Outlook (`Mail.ReadWrite` is not granted).
+**Flag in Outlook:** `Yes` on Success, `No` on HOLD/Fail. **Flag status** records whether category `Entered in AI` was applied (`entered-in-ai` / `skipped-not-success` / `graph-denied`). The process marker is that category, not the Outlook follow-up flag.
 
 One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a flag was attempted.
 
-## Outlook flag after match
+## Outlook category after match
 
-The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Unflagged mail is the work queue; flagged means already processed.
+The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail without category `Entered in AI` is the work queue; that category means already processed.
 
 When an invoice is pulled from that mailbox and this run creates a KIMCO header (`Result=Success`), the CLI PATCHes:
 
 `https://graph.microsoft.com/v1.0/users/accountspayable@kannonmfg.com/messages/{id}`
 
-with `{"flag":{"flagStatus":"flagged"}}`. It then tries to add category `AP Matched`. Category failure does **not** undo the flag.
+with `{"categories":[<existing except AP Matched>, "Entered in AI"]}`. It does **not** set `flag.flagStatus`. It does **not** add `AP Matched`.
 
-Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or any row where a header was not created. Graph message id is kept on the run so flag happens after match, not after download/`pull` alone.
+Do **not** mark HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or any row where a header was not created. Graph message id is kept on the run so the category is applied after match, not after download/`pull` alone.
 
 `Mail.ReadWrite` (Application) is required for the PATCH. Same `MICROSOFT_GRAPH_*` client-credentials as Mail.Read. A 403 is recorded as `graph-denied`; the CLI does not invent another mailbox.
 
-**Mail.ReadWrite probe (2026-08-28):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) was uniquely identified on `accountspayable@kannonmfg.com` (1 search hit; attachment `Invoice - 16960.pdf`; `flagStatus=notFlagged`). PATCH returned **403** (`graph-denied`). The message was left unflagged. No other mailbox was used. Grant Application `Mail.ReadWrite` and re-run enter/`--match-inbox` to flag after Success.
+**Category lookup (2026-08-28):** `GET .../outlook/masterCategories` returned **403** (`ErrorAccessDenied`). Existing AP messages already carry the preexisting category exactly **`Entered in AI`** (3 messages; follow-up flag not set on those). Other categories seen on listed mail: `Solved!`, `Investigating`, `Purchasing Investigating`, `No KC Receipt`, `Problems/Issues`, `Partial Receipt`, `Cost Discrepancy`. No new master category was created.
+
+**Mail.ReadWrite probe (2026-08-28, earlier same day):** Graph token OK (Mail.Read). Telecom `Invoice - 16960` (KIMCO 9481) uniquely identified; PATCH follow-up flag returned **403**. Left unchanged.
+
+**Follow-up-flag probe (2026-08-28, after admin consent, superseded):** Telecom `17601` / 9663 was PATCHed `flagStatus=flagged` and `AP Matched`. Kyle then said the marker is `Entered in AI`, not the follow-up flag.
+
+**`Entered in AI` apply (2026-08-28):** 14 already-Success 8/27 messages (9663–9676) uniquely identified (vendor + invoice # + PDF; Air Products / EMJ / O'Neal / Gas & Supply confirmed via PDF text). Category PATCH **200** on all 14; GET after each showed `Entered in AI`. Telecom 17601: removed `AP Matched`, cleared `flagStatus` back to `notFlagged`. Skipped: 9677 Fastenal `TXFT499356` (HOLD-no-receipts) and Fail rows NSA `453743`, Coherent `120953`, Fastenal `TXFT496725` / `TXFT499639` / `TXFT499528`. No KIMCO writes. Report: `runs/entered-in-ai-2026-08-28.json`.
 
 ## Safety
 
@@ -178,4 +186,4 @@ Do **not** flag HOLD, Fail, CHECK STOP, statements, PODs, dups, not-a-bill, or a
 - Secret values are never printed.
 - No invoice is deleted or voided.
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
-- The only Outlook mailbox this CLI will read is `accountspayable@kannonmfg.com`. Live enter does not flag mail.
+- The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` only after Success. Never use the follow-up flag or `AP Matched` as the process marker.

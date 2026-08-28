@@ -1,0 +1,40 @@
+{
+  "probe": "Mail.ReadWrite TEST FLAG ONLY after admin consent",
+  "date": "2026-08-28",
+  "mailbox": "accountspayable@kannonmfg.com",
+  "other_mailboxes_used": [],
+  "kimco_writes": false,
+  "prototype_writes": false,
+  "live_invoice_writes": false,
+  "secrets_printed": false,
+  "auth": "client_credentials (MICROSOFT_GRAPH_TENANT_ID / CLIENT_ID / CLIENT_SECRET present; values not printed)",
+  "preferred": {
+    "vendor": "TELECOM PRODUCTS INC.",
+    "invoice_number": "17601",
+    "kimco_id": 9663,
+    "selected": true
+  },
+  "backup_identified_not_flagged": {
+    "vendor": "McMaster-Carr Supply Company",
+    "invoice_number": "70846521",
+    "kimco_id": 9670,
+    "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqpAAA=",
+    "flagged": false
+  },
+  "identity": {
+    "search_hits_for_17601": 6,
+    "strict_vendor_invoice_pdf_matches": 1,
+    "subject": "Invoice - 17601",
+    "from_address": "Accounting@TPITexas.com",
+    "pdf_attachment": "Invoice - 17601.pdf"
+  },
+  "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqhAAA=",
+  "receivedDateTime": "2026-08-26T21:32:29Z",
+  "flagStatus_before": "notFlagged",
+  "patch_http": 200,
+  "flagStatus_after": "flagged",
+  "category_http": 200,
+  "category_stuck": false,
+  "categories_after": ["AP Matched"],
+  "other_messages_flagged": false
+}
