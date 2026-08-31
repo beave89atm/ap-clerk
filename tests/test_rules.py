@@ -168,6 +168,12 @@ def test_vendor_aliases_nsa_and_coherent():
     assert known_vendor_id("National Specialty Alloys, Inc") == 1386
     assert known_vendor_id("Coherent Corp.") == 1410
     assert known_vendor_id("Coherent") == 1410
+    assert known_vendor_id("Priority 1") == 145
+    assert known_vendor_id("MSC Industrial Supply") == 128
+    assert known_vendor_id("Metal Supermarkets") == 121
+    assert known_vendor_id("Marmon/Keystone") == 115
+    assert known_vendor_id("Amada America") == 18
+    assert known_vendor_id("Exotic Metals") == 346
     assert known_vendor_id("Fastenal Company") is None
 
 

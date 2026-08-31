@@ -71,6 +71,8 @@ python3 -m ap_clerk probe
 
 Creates (or records 403 for) master category `AI HOLD`, then creates and deletes a draft on `accountspayable@kannonmfg.com` only. It never calls `sendMail`.
 
+**Weekday FIFO 30 (2026-08-31 America/Chicago):** batch `API Agent - 8/31/26` id **689**. 30 bills attempted from 2026-07-28 (no prior cursor; skip `Entered in AI`). **14 Success** headers **9678–9691**, **7 Fail** (5 already-exists; 2 Amada work-order reports), **9 HOLD** bills (3 price-does-not-match + 6 no-receipts) plus 40 not-a-bill/statement skip rows. Success also got `flag.flagStatus=flagged`. Mail.Send to Treyce: **email-sent**. Cursor: `runs/daily-cursor.json` last_received **2026-07-30T06:29:03Z**. Report: `runs/AP-run-2026-08-31.xlsx`. Attach notify still **405**.
+
 **First live 20-invoice test (2026-08-27 America/Chicago, Kyle said go):** batch `API Agent - 8/27/26` id **688**. 15 Success headers **9663–9677**, 5 Fail, 0 HOLD. Outlook was not flagged. PDF attach notify returned **405**. Vendor-missing leftovers: National Specialty Alloys `453743` and Coherent Corp. `120953` (PO exists on live; vendor id was not found; not invented). Report: `runs/AP-run-2026-08-27.xlsx`.
 
 **Select Receipts + PDF attach (2026-08-28, live web login):** GUI work on the same 15 Success headers only. No new headers or batches. Outlook not flagged in that GUI pass. 9/10 PO headers had receipts selected; Fastenal `TXFT499356` / 9677 is HOLD-no-receipts (no qty-6 slip on live). All 15 vendor PDFs attached on the header (Graph match by vendor + invoice #). Fees posted as **F-Fees & Surcharges** (McMaster 68.93, Modern Heat 26.25, Fastenal 92.05 / 21.79 / 21.70). PPV posted only on Fastenal `TXFT499646` (4.80). Fail rows were not touched.

@@ -59,6 +59,17 @@ VENDOR_ID_ALIASES = {
     "national specialty alloys": 1386,
     "coherent": 1410,
     "ii vi": 1410,
+    # Confirmed 2026-08-31 via GET of existing live invoices (API Vendor.id, not invented).
+    "priority 1": 145,
+    "priority1": 145,
+    "msc industrial": 128,
+    "metal supermarkets": 121,
+    "marmon": 115,
+    "keystone": 115,
+    "jp steel": 100,
+    "amada": 18,
+    "exotic metals": 346,
+    "curbell": 353,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for

@@ -82,6 +82,11 @@ DOMAIN_VENDORS = {
     "modernht.com": "Modern Heat Treat Inc",
     "ii-vi.com": "Coherent Corp.",
     "nsalloys.com": "National Specialty Alloys, Inc",
+    "mscdirect.com": "MSC Industrial Supply",
+    "metalsupermarkets.com": "Metal Supermarkets",
+    "marmonkeystone.com": "Marmon/Keystone",
+    "amada.com": "Amada America",
+    "curbellplastics.com": "Curbell Plastics",
 }
 
 SUBJECT_VENDORS = (
@@ -100,6 +105,14 @@ SUBJECT_VENDORS = (
     (re.compile(r"tejas transportation", re.I), "Tejas Transportation"),
     (re.compile(r"telecom products", re.I), "Telecom Products Inc."),
     (re.compile(r"service experts", re.I), "Service Experts"),
+    (re.compile(r"priority\s*1|priority1invoice", re.I), "Priority 1"),
+    (re.compile(r"\bmsc\b|msc industrial", re.I), "MSC Industrial Supply"),
+    (re.compile(r"metal supermarket", re.I), "Metal Supermarkets"),
+    (re.compile(r"marmon|keystone", re.I), "Marmon/Keystone"),
+    (re.compile(r"\bamada\b", re.I), "Amada America"),
+    (re.compile(r"exotic metals", re.I), "Exotic Metals"),
+    (re.compile(r"jp steel", re.I), "JP Steel"),
+    (re.compile(r"curbell", re.I), "Curbell Plastics"),
 )
 
 
@@ -289,14 +302,14 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
         domain = addr.split("@", 1)[1]
         if domain in DOMAIN_VENDORS:
             return DOMAIN_VENDORS[domain]
-    blob = f"{subject}\n{from_name}\n{from_address}"
+    blob = f"{subject}\n{from_name}\n{from_address}\n{text or ''}"
     for pattern, vendor in SUBJECT_VENDORS:
         if pattern.search(blob):
             return vendor
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell)",
             stripped,
             re.I,
         ):

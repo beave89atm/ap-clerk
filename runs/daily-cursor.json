@@ -1,0 +1,10 @@
+{
+  "mailbox": "accountspayable@kannonmfg.com",
+  "start_from": "2026-07-28",
+  "last_receivedDateTime": "2026-07-30T06:29:03Z",
+  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAN225oEAAA=",
+  "last_run_date": "2026-08-31",
+  "last_batch": "API Agent - 8/31/26 (689)",
+  "processed_count": 70,
+  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-08-31 daily processed 30 bills + 40 skips through 2026-07-30T06:29:03Z (Marmon 2575687). Batch API Agent - 8/31/26 id 689. Headers 9678-9691. Next weekday continues AFTER this cursor. Do not restart at 7/28."
+}

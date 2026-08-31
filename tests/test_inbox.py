@@ -5,9 +5,36 @@ from __future__ import annotations
 from pathlib import Path
 
 from ap_clerk.inbox import pull_recent_bills
-from ap_clerk.pdf_invoice import parse_invoice_text
+from ap_clerk.pdf_invoice import parse_invoice_text, vendor_from_context
 from ap_clerk.cli import _process_invoice
 from ap_clerk.rules import PRICE_DOES_NOT_MATCH, is_fee_or_surcharge
+
+
+def test_vendor_from_email_domain_and_filename():
+    assert vendor_from_context(
+        subject="MSC invoice",
+        from_name="DoNotReply",
+        from_address="DoNotReply@invoices.mscdirect.com",
+        text="MSC INDUSTRIAL SUPPLY CO.\nInvoice Number 64564711",
+    ) == "MSC Industrial Supply"
+    assert vendor_from_context(
+        subject="Priority1Invoice17786949",
+        from_name="Treyce Wegmann",
+        from_address="ap-clerk-test@example.com",
+        text="Remit To: Priority1\nInvoice 17786949",
+    ) == "Priority 1"
+    assert vendor_from_context(
+        subject="Sales Invoice SI1090494",
+        from_name="Metal Supermarkets",
+        from_address="fortworth@metalsupermarkets.com",
+        text="",
+    ) == "Metal Supermarkets"
+    assert vendor_from_context(
+        subject="Invoice",
+        from_name="mkinv37",
+        from_address="mkinv37@marmonkeystone.com",
+        text="SOLD BY: MARMON/KEYSTONE",
+    ) == "Marmon/Keystone"
 
 
 def test_parse_invoice_text_generic_bill():
