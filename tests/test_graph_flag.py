@@ -97,7 +97,7 @@ def test_success_flags_source_message():
     assert status == FLAG_FLAGGED
     assert row["Flag status"] == FLAG_FLAGGED
     assert "Flag status=entered-in-ai" in row["Why"]
-    assert not any("flag" in (body or {}) for body in patches)
+    assert any((body.get("flag") or {}).get("flagStatus") == "flagged" for body in patches)
     assert any(body.get("categories") == [ENTERED_IN_AI_CATEGORY] for body in patches)
     assert all("AP Matched" not in (body.get("categories") or []) for body in patches)
 

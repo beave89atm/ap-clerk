@@ -517,10 +517,15 @@ class GraphClient:
         except GraphError:
             return FLAG_DENIED
         categories = categories_for_status(message_categories(current), add=add)
+        payload: dict[str, Any] = {"categories": categories}
+        # Success also sets the Outlook follow-up flag. HOLD/Fail/skip must not.
+        # Categories remain the process marker; flag is not used to decide the queue.
+        if add == ENTERED_IN_AI_CATEGORY:
+            payload["flag"] = {"flagStatus": "flagged"}
         response = self.request(
             "PATCH",
             self._messages_url(mailbox, message_id),
-            json={"categories": categories},
+            json=payload,
             headers={"Content-Type": "application/json"},
         )
         if response.status_code == 403:
@@ -536,8 +541,9 @@ class GraphClient:
     def flag_matched(self, mailbox: str, message_id: str) -> str:
         """PATCH categories to include preexisting `Entered in AI`.
 
-        Removes `AI HOLD` and legacy `AP Matched`. Does not set
-        Outlook follow-up flag.flagStatus. 403 is graph-denied.
+        Removes `AI HOLD` and legacy `AP Matched`. Also sets
+        flag.flagStatus=flagged after a successful header create.
+        HOLD/Fail/skip must not be flagged. 403 is graph-denied.
         """
         return self._patch_process_category(mailbox, message_id, ENTERED_IN_AI_CATEGORY)
 

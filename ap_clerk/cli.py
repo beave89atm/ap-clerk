@@ -1196,7 +1196,7 @@ def _run_daily(args: argparse.Namespace) -> int:
     print(
         "Daily FIFO from 2026-07-28 America/Chicago toward today. "
         "Skip Entered in AI. Replace not-a-bill. Cursor persists. "
-        "Success→Entered in AI; HOLD/Fail→AI HOLD. No follow-up flag.",
+        "Success→Entered in AI + flag.flagStatus=flagged; HOLD/Fail→AI HOLD (not flagged).",
         flush=True,
     )
 
