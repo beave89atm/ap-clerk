@@ -506,7 +506,7 @@ def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, A
         number = extract_po_number(text)
         if not po_id or not number:
             continue
-        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor")
+        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor") or values.get("PO_Vendor")
         vendor_id = lookup_id(vendor)
         vendor_text = lookup_text(vendor) or lookup_text(values.get("Vendor_$_Display_Name"))
         if not vendor_text and "-" in (text or ""):
@@ -707,6 +707,22 @@ def _process_invoice(
             po_missing_note = (
                 f"PO {po} is not in {client.target}; Purchase Order left blank (will not invent a PO). "
             )
+        else:
+            po_vendor_text = str(po_info.get("vendor_text") or po_info.get("text") or "")
+            po_vendor_id = po_info.get("vendor_id")
+            invoice_vendor_id = known_vendor_id(vendor)
+            known_conflict = (
+                invoice_vendor_id is not None
+                and po_vendor_id is not None
+                and int(invoice_vendor_id) != int(po_vendor_id)
+                and not names_match(vendor, po_vendor_text)
+                and not vendor_match_score(vendor, po_vendor_text)
+            )
+            if known_conflict:
+                po_missing_note = (
+                    f"PO {po} is {po_vendor_text}, not {vendor}; Purchase Order left blank. "
+                )
+                po_info = None
 
     vendor_info = _resolve_vendor(
         client,
@@ -774,7 +790,7 @@ def _process_invoice(
         row["PPV"] = format_ppv(price["ppv_total"])
 
     receipt_note = ""
-    if receipts is not None and (po_info or po):
+    if receipts is not None and po_info:
         receipt_result = match_receipts(
             invoice_number=number,
             invoice_lines=invoice_lines,
@@ -1265,14 +1281,20 @@ def _run_daily(args: argparse.Namespace) -> int:
         rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
         rows.extend(skip_rows)
         write_report(report_path, rows)
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 2
 
     if not invoices and not skip_rows:
         write_report(report_path, [])
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"No unprocessed vendor invoices in the FIFO window. Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, [], batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 0
@@ -1304,14 +1326,20 @@ def _run_daily(args: argparse.Namespace) -> int:
         rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
         rows.extend(skip_rows)
         write_report(report_path, rows)
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 1
 
     rows.extend(skip_rows)
     write_report(report_path, rows)
-    save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+    save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
     _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)

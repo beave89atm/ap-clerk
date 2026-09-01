@@ -70,6 +70,20 @@ VENDOR_ID_ALIASES = {
     "amada": 18,
     "exotic metals": 346,
     "curbell": 353,
+    # Confirmed 2026-09-01 via GET of existing live invoices / PO_Vendor (API Vendor.id).
+    "capital machine": 45,
+    "willbanks": 202,
+    "shoppa": 159,
+    "eastern metal": 64,
+    "unifirst first aid": 209,
+    "green valley": 405,
+    "luxor": 112,
+    "rmp industrial": 322,
+    "purvis": 333,
+    "gas and supply": 71,
+    "clear kut": 345,
+    "tpi": 183,
+    "telecom": 183,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for
@@ -150,16 +164,32 @@ def format_ppv(amount: float | None) -> str:
 
 
 def known_vendor_id(name: str | None) -> int | None:
-    """National Specialty Alloys → 1386; Coherent Corp. → 1410."""
+    """National Specialty Alloys → 1386; Coherent Corp. → 1410.
+
+    Longest alias wins so UniFirst First Aid (209) is not collapsed to UniFirst (189).
+    """
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    if raw in VENDOR_ID_ALIASES:
+        return VENDOR_ID_ALIASES[raw]
     norm = normalize_name(name)
     if not norm:
         return None
     if norm in VENDOR_ID_ALIASES:
         return VENDOR_ID_ALIASES[norm]
+    scored: list[tuple[int, int]] = []
     for key, vendor_id in VENDOR_ID_ALIASES.items():
-        if key in norm or norm in key or names_match(name, key):
-            return vendor_id
-    return None
+        # Alias must appear in the vendor name. Do not match "unifirst" ⊂ "unifirst first aid".
+        if (
+            key == norm
+            or key in norm.split()
+            or (len(key.split()) >= 2 and key in norm)
+            or (len(key) >= 6 and key in norm)
+        ):
+            scored.append((len(key), vendor_id))
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1]
 
 
 def known_invoice_prefix(vendor: str | None) -> str | None:
@@ -462,7 +492,9 @@ def normalize_receipt(item: dict[str, Any]) -> dict[str, Any]:
         "po_line": po_line,
         "line": po_line,
         "line_no": po_line,
-        "po": extract_po_number(str(po_number or "")) or str(po_number or "").strip(),
+        "po": extract_po_number(str(po_number or ""))
+        or extract_po_number(str(receipt_field(item, "Name") or ""))
+        or str(po_number or "").strip(),
         "wo": str(wo or "").strip(),
         "name": str(receipt_field(item, "Name") or ""),
         "raw": values,
@@ -553,8 +585,10 @@ def match_receipts(
                 matched.append({"line": {"invoice_number": invoice_number}, "receipt": receipt, "score": 80})
                 found = True
                 break
-            if po_number and str(receipt.get("po") or "") == str(po_number) and receipt.get("part"):
-                # A PO+part hit without an invoice line is a candidate, not a qty guess.
+            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
+            if po_number and receipt_po == str(po_number):
+                # PO on the receipt name (PO58808-MCMASTER-CARR - 2026/7/31) is enough.
+                # Do not fall back to first leftover qty.
                 matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 65})
                 found = True
                 break
