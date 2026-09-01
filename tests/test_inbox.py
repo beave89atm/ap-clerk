@@ -683,3 +683,90 @@ def test_hold_no_receipts_after_thorough_search():
     assert row["Result"] == "HOLD"
     assert "no receipts" in row["Why"].lower()
     assert row["KIMCO id"] == ""
+
+
+def test_parse_capital_machine_po_and_trailing_total():
+    text = """
+    Invoice
+    Date
+    7/30/2026
+    Invoice #
+    26167
+    Capital Machine Technologies, Inc
+    P.O. Number
+    58634
+    FREIGHT UPS TRKG # 1Z0ER88103504318501 34.00 34.00
+    $403.00
+    """
+    parsed = parse_invoice_text(text, filename="Inv_26167_from_Capital_Machine_Technologies_Inc.pdf")
+    assert parsed["vendor"] == "Capital Machine Technologies, Inc"
+    assert parsed["invoice_number"] == "26167"
+    assert parsed["po"] == "58634"
+    assert parsed["amount"] == 403.00
+    assert parsed["date"] == "2026-07-30"
+
+
+def test_parse_willbanks_total_due_usd_and_your_po():
+    text = """
+    Invoice 209661 (USD)
+    Date 7/30/2026
+    Issued from:
+    Willbanks Metals
+    Your PO  58504  (6/24/2026)
+    Totals 858.03 LBS Amount 1,828.08
+    Total Due   (USD) 1,828.08
+    """
+    parsed = parse_invoice_text(text, from_name="Estevan Uribe")
+    assert parsed["vendor"] == "Willbanks Metals"
+    assert parsed["invoice_number"] == "209661"
+    assert parsed["po"] == "58504"
+    assert parsed["amount"] == 1828.08
+
+
+def test_parse_telecom_jul_26_date():
+    text = """
+    Number: 16960 Date:  27-Jul-26
+    Invoice
+    TELECOM PRODUCTS INC.
+    PO: 58351 Ln: 001
+    $10,431.36 Invoice Total:
+    """
+    parsed = parse_invoice_text(text, subject="Invoice - 16960")
+    assert parsed["invoice_number"] == "16960"
+    assert parsed["date"] == "2026-07-27"
+    assert parsed["po"] == "58351"
+    assert parsed["amount"] == 10431.36
+    assert parsed["vendor"] == "Telecom Products Inc."
+
+
+def test_parse_shoppas_psi_is_not_customer_po():
+    text = """
+    Invoice Date
+    PSI-001216291 07/30/26
+    Shoppa’s Material Handling, Ltd
+    Bill To:
+    C109050
+    KANNON MANUFACTURING
+    Dallas, TX 75261-2027 Total Due 814.73
+    """
+    parsed = parse_invoice_text(
+        text,
+        filename="C109050__PSI-001216291__.pdf",
+        from_name="Shoppas Material Handling",
+    )
+    assert parsed["invoice_number"] == "PSI-001216291"
+    assert parsed["amount"] == 814.73
+    assert parsed["po"] is None
+    assert "109050" not in parsed["pos"]
+    assert parsed["vendor"] == "Shoppa's Material Handling"
+
+
+def test_parse_unifirst_first_aid_from_sender():
+    parsed = parse_invoice_text(
+        "Invoice Number: 42203000308\nInvoice Date: 07/29/2026\nInvoice Total:\n 711.16\n 744.50\n 33.34\n 744.50",
+        from_name="ARFirstaidinquiry@unifirst.com",
+        from_address="ARFirstaidinquiry@unifirst.com",
+    )
+    assert parsed["vendor"] == "UniFirst First Aid & Safety"
+    assert parsed["invoice_number"] == "42203000308"
+    assert parsed["amount"] == 744.50

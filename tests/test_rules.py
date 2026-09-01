@@ -239,3 +239,27 @@ def test_no_po_vendor_name_matching():
     assert names_match("Priority1", "1143-PRIORITY 1")
     assert names_match("Luxor Staffing, Inc.", "1110-LUXOR STAFFING, INC.")
     assert names_match("NTEX Electric Inc.", "1132-NTEX ELECTRIC")
+
+
+def test_known_vendor_ids_from_live_get():
+    assert known_vendor_id("Capital Machine Technologies, Inc") == 45
+    assert known_vendor_id("Willbanks Metals") == 202
+    assert known_vendor_id("Clear Kut Engraving") == 345
+    assert known_vendor_id("UniFirst First Aid & Safety") == 209
+    assert known_vendor_id("UniFirst First Aid") == 209
+    assert known_vendor_id("Eastern Metal Supply of Texas") == 64
+    assert known_vendor_id("Shoppa's Material Handling") == 159
+    assert known_vendor_id("Telecom Products Inc.") == 183
+
+
+def test_receipt_name_carries_po_for_select_receipts():
+    result = match_receipts(
+        invoice_number="69233267",
+        invoice_lines=[],
+        receipts=[
+            {"name": "PO58808-MCMASTER-CARR - 2026/7/31", "slip": "", "part": "PO58808-02", "qty": 1},
+        ],
+        po_number="58808",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
