@@ -1265,14 +1265,20 @@ def _run_daily(args: argparse.Namespace) -> int:
         rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
         rows.extend(skip_rows)
         write_report(report_path, rows)
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 2
 
     if not invoices and not skip_rows:
         write_report(report_path, [])
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"No unprocessed vendor invoices in the FIFO window. Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, [], batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 0
@@ -1304,14 +1310,20 @@ def _run_daily(args: argparse.Namespace) -> int:
         rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
         rows.extend(skip_rows)
         write_report(report_path, rows)
-        save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
         print(f"Wrote {report_path}", flush=True)
         _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
         return 1
 
     rows.extend(skip_rows)
     write_report(report_path, rows)
-    save_cursor(cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label), cursor_path)
+    save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
     _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)

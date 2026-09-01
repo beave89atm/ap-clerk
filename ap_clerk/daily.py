@@ -57,6 +57,7 @@ def cursor_from_run(
     as_of: date,
     batch: str | None,
     mailbox: str = ALLOWED_MAILBOX,
+    previous: DailyCursor | None = None,
 ) -> DailyCursor:
     examined: list[dict[str, Any]] = []
     for inv in invoices:
@@ -74,7 +75,20 @@ def cursor_from_run(
             }
         )
     examined.sort(key=lambda m: str(m.get("receivedDateTime") or ""))
-    return cursor_after_messages(examined, as_of=as_of, batch=batch, mailbox=mailbox)
+    if not examined and previous is not None:
+        # Empty window must not restart at 7/28 or drop the last Marmon cursor.
+        return DailyCursor(
+            last_receivedDateTime=previous.last_receivedDateTime,
+            last_message_id=previous.last_message_id,
+            mailbox=mailbox,
+            last_run_date=as_of.isoformat(),
+            last_batch=batch or previous.last_batch,
+            processed_count=previous.processed_count,
+        )
+    advanced = cursor_after_messages(examined, as_of=as_of, batch=batch, mailbox=mailbox)
+    if previous is not None:
+        advanced.processed_count = previous.processed_count + advanced.processed_count
+    return advanced
 
 
 def write_email_sidecar(report_path: Path, status: str, *, subject: str, to: str = REPORT_TO) -> Path:

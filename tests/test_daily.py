@@ -429,3 +429,30 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
     assert "token" not in out.lower() or "token not printed" in out.lower()
     loaded = load_cursor(cursor)
     assert loaded.last_message_id == "AAMk-1"
+
+
+def test_cursor_from_run_keeps_prior_position_and_accumulates():
+    from ap_clerk.daily import cursor_from_run
+
+    previous = DailyCursor(
+        last_receivedDateTime="2026-07-30T06:29:03Z",
+        last_message_id="AAMk-marmon",
+        last_run_date="2026-08-31",
+        last_batch="API Agent - 8/31/26 (689)",
+        processed_count=70,
+    )
+    empty = cursor_from_run([], [], as_of=date(2026, 9, 1), batch="API Agent - 9/1/26", previous=previous)
+    assert empty.last_message_id == "AAMk-marmon"
+    assert empty.last_receivedDateTime == "2026-07-30T06:29:03Z"
+    assert empty.processed_count == 70
+
+    advanced = cursor_from_run(
+        [{"graph_message_id": "AAMk-next", "receivedDateTime": "2026-07-30T07:00:00Z"}],
+        [{"graph_message_id": "AAMk-skip", "receivedDateTime": "2026-07-30T06:45:00Z"}],
+        as_of=date(2026, 9, 1),
+        batch="API Agent - 9/1/26 (690)",
+        previous=previous,
+    )
+    assert advanced.last_message_id == "AAMk-next"
+    assert advanced.last_receivedDateTime == "2026-07-30T07:00:00Z"
+    assert advanced.processed_count == 72
