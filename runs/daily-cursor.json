@@ -6,5 +6,5 @@
   "last_run_date": "2026-09-02",
   "last_batch": "API Agent - 9/2/26 (694)",
   "processed_count": 201,
-  "notes": "FIFO from 2026-07-28 America/Chicago toward today. Next weekday continues after this cursor. Do not restart at 7/28."
+  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-02 daily processed 30 bills + 37 skips through 2026-08-05T04:26:33Z (O'Neal 15428516). Batch API Agent - 9/2/26 id 694. Headers 9757-9774. Next weekday continues AFTER this cursor. Do not restart at 7/28."
 }
