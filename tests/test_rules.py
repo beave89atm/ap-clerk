@@ -250,6 +250,32 @@ def test_known_vendor_ids_from_live_get():
     assert known_vendor_id("Eastern Metal Supply of Texas") == 64
     assert known_vendor_id("Shoppa's Material Handling") == 159
     assert known_vendor_id("Telecom Products Inc.") == 183
+    assert known_vendor_id("NTEX Electric Inc.") == 134
+    assert known_vendor_id("Kloeckner Metals Corporation") == 106
+    assert known_vendor_id("Morgan Steel") == 304
+    assert known_vendor_id("American Bearing Company") == 20
+    assert known_vendor_id("Crosslink Powder Coating") == 278
+    assert known_vendor_id("Joseph T. Ryerson & Son, Inc") == 152
+    assert known_vendor_id("GRM Information Management Services") == 78
+    assert known_vendor_id("Alternative Parts Inc") == 215
+    assert known_vendor_id("DoNotReply@altparts.com") == 215
+    assert known_vendor_id("Tube Supply") == 341
+    assert known_vendor_id("Lavanture Products") == 295
+    assert known_vendor_id("McQueary Industries") == 119
+    assert known_vendor_id("Hudson Energy") == 88
+
+
+def test_receipt_name_matches_even_when_invoice_line_was_synthesized():
+    result = match_receipts(
+        invoice_number="9306966730",
+        invoice_lines=[{"qty": 6, "part": "1", "po_line": 1}],
+        receipts=[
+            {"name": "PO58789-RYERSON, JOSEPH T. & SON - 2026/8/12", "slip": "", "part": "PO58789-01", "qty": None},
+        ],
+        po_number="58789",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
 
 
 def test_receipt_name_carries_po_for_select_receipts():

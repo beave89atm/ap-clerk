@@ -84,6 +84,21 @@ VENDOR_ID_ALIASES = {
     "clear kut": 345,
     "tpi": 183,
     "telecom": 183,
+    # Confirmed 2026-09-02 via GET of existing live invoices (API Vendor.id, not invented).
+    "ntex": 134,
+    "grm": 78,
+    "kloeckner": 106,
+    "morgan steel": 304,
+    "american bearing": 20,
+    "crosslink": 278,
+    "ryerson": 152,
+    "mcqueary": 119,
+    "hudson energy": 88,
+    "lavanture": 295,
+    "alternative parts": 215,
+    "altparts": 215,
+    "alt parts": 215,
+    "tube supply": 341,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for
@@ -589,6 +604,17 @@ def match_receipts(
             if po_number and receipt_po == str(po_number):
                 # PO on the receipt name (PO58808-MCMASTER-CARR - 2026/7/31) is enough.
                 # Do not fall back to first leftover qty.
+                matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 65})
+                found = True
+                break
+
+    # Synthesized single-PO-line invoices still match a receipt named for that PO.
+    if not found and po_number:
+        for receipt in normalized:
+            if id(receipt) in used:
+                continue
+            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
+            if receipt_po == str(po_number):
                 matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 65})
                 found = True
                 break

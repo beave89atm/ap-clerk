@@ -770,3 +770,70 @@ def test_parse_unifirst_first_aid_from_sender():
     assert parsed["vendor"] == "UniFirst First Aid & Safety"
     assert parsed["invoice_number"] == "42203000308"
     assert parsed["amount"] == 744.50
+
+
+def test_parse_0902_ntex_msc_grm_altparts_tube():
+    ntex = parse_invoice_text(
+        "NTEX Electric Inc.\nINVOICE # DATE TOTAL DUE\n17-2557 08/01/2026 $1,694.48\nBALANCE DUE $1,694.48",
+        from_address="matt@ntexelectric.com",
+        filename="INVOICE_17-2557_from_NTEX_Electric_Inc_.pdf",
+    )
+    assert ntex["vendor"] == "NTEX Electric Inc."
+    assert ntex["invoice_number"] == "17-2557"
+    assert ntex["amount"] == 1694.48
+
+    msc = parse_invoice_text(
+        "MSC INDUSTRIAL SUPPLY CO.\nCustomer Number Invoice Number\n02627782 66623661\nAmount Due $422.87\nInvoice Number Purchase Order No.\n66623661 VENDING/1565",
+        from_address="DoNotReply@invoices.mscdirect.com",
+        filename="66623661_02627782.PDF",
+    )
+    assert msc["invoice_number"] == "66623661"
+    assert msc["amount"] == 422.87
+
+    grm = parse_invoice_text(
+        "GRM INFORMATION MANAGEMENT SERVICES.\nInvoice   00012913\nDate      07/31/2026\nAccount   13010065\nTotal amount due: $189.78",
+        from_address="billingdal@grmdocument.com",
+        filename="INVOICE_13010065_202607.pdf",
+    )
+    assert grm["vendor"] == "GRM Information Management Services"
+    assert grm["invoice_number"] == "00012913"
+    assert grm["amount"] == 189.78
+
+    alt = parse_invoice_text(
+        "www.altparts.com\nInvoice Number:\n0097416-IN\nP.O. Number\n58832\n1,765.44 Invoice Total:",
+        from_address="DoNotReply@altparts.com",
+        filename="000002434_SO_0097416IN_20260803_000.PDF",
+    )
+    assert alt["vendor"] == "Alternative Parts Inc"
+    assert alt["invoice_number"] == "0097416-IN"
+    assert alt["po"] == "58832"
+    assert alt["amount"] == 1765.44
+
+    tube = parse_invoice_text(
+        "https://www.tubesupply.com/terms-and-conditions\n58809\n01175961\n$2140.74",
+        from_address="accounting2@sss-steel.com",
+        filename="FMGLASER853499000006.pdf",
+    )
+    assert tube["vendor"] == "Tube Supply"
+    assert tube["invoice_number"] == "01175961"
+    assert tube["po"] == "58809"
+    assert tube["amount"] == 2140.74
+
+    lav = parse_invoice_text(
+        "Remit address: Lavanture Products\nSV1426672\n58843\nInvoice amount\n38.04",
+        from_name="Sandi Ehlers",
+        filename="SalesInvoice_SV1426672_20260804_58843_1786258.PDF",
+    )
+    assert lav["vendor"] == "Lavanture Products"
+    assert lav["invoice_number"] == "SV1426672"
+    assert lav["po"] == "58843"
+
+    kloeckner = parse_invoice_text(
+        "Kloeckner Metals Corporation\nPLEASE PAY THIS AMOUNT\n$7,167.00\n15206040",
+        from_address="autotask@kloecknermetals.com",
+        filename="invoice_15206040_260803225345.pdf",
+    )
+    assert kloeckner["vendor"] == "Kloeckner Metals Corporation"
+    assert kloeckner["invoice_number"] == "15206040"
+    assert 25576511 not in (kloeckner.get("pos") or [])
+    assert kloeckner["amount"] == 7167.00

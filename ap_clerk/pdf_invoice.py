@@ -30,6 +30,17 @@ _INV_FASTENAL = re.compile(r"\b(TXFT\d{5,})\b", flags=re.I)
 _INV_GAS = re.compile(r"\b(00\d{8})\b")
 _INV_EMJ = re.compile(r"\bINVOICE NUMBER\s+([A-Z]\d{6,})\b", flags=re.I)
 _INV_PSI = re.compile(r"\b(PSI-\d{6,})\b", flags=re.I)
+_INV_NTEX = re.compile(r"\b(\d{2}-\d{4})\b")
+_INV_SV = re.compile(r"\b(SV\d{6,})\b", flags=re.I)
+_INV_DASH_IN = re.compile(r"\b(\d{6,}-IN)\b", flags=re.I)
+_INV_MCQUEARY = re.compile(r"\b(\d{2}-\d{5})\b")
+_INV_TUBE = re.compile(r"\b(011\d{5})\b")
+_INV_MSC_REAL = re.compile(r"Invoice Number\s+(\d{7,8})\b", flags=re.I)
+_INV_GRM = re.compile(r"Invoice\s{2,}(\d{7,8})\b", flags=re.I)
+_AMOUNT_BALANCE = re.compile(
+    r"(?:balance\s+due|please\s+pay\s+this\s+amount)\s*[:.]?\s*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
 _PO_NONE = re.compile(r"purchase\s*order(?:\s*number)?\s*[:.\s#-]*none\b", flags=re.I)
 _PO_LABEL = re.compile(
     r"(?:purchase\s*order(?:\s*number)?|customer\s*p\.?o\.?|your\s*p\.?o\.?|"
@@ -51,7 +62,7 @@ _AMOUNT_BEFORE = re.compile(
     r"\$?\s*([\d,]+(?:\.\d{2}))\s*(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
     flags=re.I,
 )
-_CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440"}
+_CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440", "02627782"}
 _TOTAL_MONEY = re.compile(r"(?:^|\b)total(?:\s+\$|\s*[:.\s]*\$)\s*([\d,]+(?:\.\d{2})?)", flags=re.I)
 _MONEY = re.compile(r"\$?\s*([\d,]+(?:\.\d{2}))")
 _DATE_LABEL = re.compile(
@@ -97,6 +108,15 @@ DOMAIN_VENDORS = {
     "wcicustomer.com": "Waste Connections Lone Star, Inc",
     "unifirstfirstaidandsafety.com": "UniFirst First Aid & Safety",
     "unifirst.com": "UniFirst Corporation",
+    "ntexelectric.com": "NTEX Electric Inc.",
+    "kloeckner.com": "Kloeckner Metals Corporation",
+    "kloecknermetals.com": "Kloeckner Metals Corporation",
+    "altparts.com": "Alternative Parts Inc",
+    "grmdocument.com": "GRM Information Management Services",
+    "grmdocumentmanagement.com": "GRM Information Management Services",
+    "tubesupply.com": "Tube Supply",
+    "crosslinktx.com": "Crosslink Powder Coating",
+    "ryerson.com": "Joseph T. Ryerson & Son, Inc",
 }
 
 SUBJECT_VENDORS = (
@@ -134,6 +154,18 @@ SUBJECT_VENDORS = (
     (re.compile(r"eastern metal", re.I), "Eastern Metal Supply of Texas"),
     (re.compile(r"green valley compressor", re.I), "Green Valley Compressor LLC"),
     (re.compile(r"purvis", re.I), "Purvis Industries"),
+    (re.compile(r"ntex", re.I), "NTEX Electric Inc."),
+    (re.compile(r"kloeckner", re.I), "Kloeckner Metals Corporation"),
+    (re.compile(r"american bearing", re.I), "American Bearing Company"),
+    (re.compile(r"morgan steel", re.I), "Morgan Steel"),
+    (re.compile(r"\bgrm\b", re.I), "GRM Information Management Services"),
+    (re.compile(r"alternative parts|altparts", re.I), "Alternative Parts Inc"),
+    (re.compile(r"tube supply|tubesupply", re.I), "Tube Supply"),
+    (re.compile(r"lavanture", re.I), "Lavanture Products"),
+    (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
+    (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
+    (re.compile(r"mcqueary", re.I), "McQueary Industries"),
+    (re.compile(r"hudson energy", re.I), "Hudson Energy"),
 )
 
 
@@ -199,7 +231,10 @@ def _unique(items: list[str]) -> list[str]:
 def _looks_like_date_token(token: str) -> bool:
     if parse_date_value(token):
         return True
-    return bool(re.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", token or ""))
+    if re.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", token or ""):
+        return True
+    # AUG-03-2026 leftovers like 03-2026
+    return bool(re.fullmatch(r"\d{1,2}-20\d{2}", token or ""))
 
 
 def _usable_invoice_number(token: str | None) -> str | None:
@@ -253,13 +288,19 @@ def extract_po_numbers(text: str) -> list[str]:
         found.append(stacked.group(1))
     your_po = re.findall(r"Your\s+PO\s+(\d{5,6})", text or "", flags=re.I)
     found.extend(your_po)
+    # Live KIMCO POs are 57xxx–59xxx and often sit unlabeled on Tube Supply / Morgan PDFs.
+    found.extend(re.findall(r"\b(5[7-9]\d{3})\b", text or ""))
     # Shoppas / UniFirst customer accounts like C109050 are not POs.
     cleaned: list[str] = []
     for number in _unique(found):
         if re.search(rf"\bC{re.escape(number)}\b", text or "", flags=re.I):
             continue
+        # Vendor-internal 8-digit POs (Kloeckner 25576511) are not KIMCO POs.
+        if len(number) >= 8:
+            continue
         cleaned.append(number)
-    return cleaned
+    kimco = [n for n in cleaned if re.fullmatch(r"5[7-9]\d{3}", n)]
+    return kimco or cleaned
 
 
 def extract_fees(text: str) -> list[dict[str, Any]]:
@@ -342,7 +383,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy)",
             stripped,
             re.I,
         ):
@@ -358,8 +399,9 @@ def _invoice_from_filename(filename: str) -> str | None:
     name = filename or ""
     for pattern in (
         r"(TXFT\d{5,})",
+        r"\b(\d{2}-\d{4,5})\b",
         r"\b(\d-\d{5,8})\b",
-        r"Invoice[-_ ]+(\d-\d{5,8}|\d{4,})",
+        r"Invoice[-_ ]+(\d-\d{5,8}|\d{2}-\d{4,5}|\d{4,})",
         r"Inv(\d-\d{5,8}|\d{5,})",
         r"[-_](\d-\d{5,8})\.pdf$",
         r"[-_](\d{5,})\.pdf$",
@@ -367,6 +409,8 @@ def _invoice_from_filename(filename: str) -> str | None:
         r"(00\d{8})",
         r"[-_]([A-Z]\d{7,})",
         r"(PSI-\d{6,})",
+        r"(SV\d{6,})",
+        r"(\d{6,}-IN)",
     ):
         match = re.search(pattern, name, flags=re.I)
         if match:
@@ -402,7 +446,7 @@ def parse_invoice_text(
         prefixed = _INV_PREFIXED.search(text or "")
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
-    for rx in (_INV_EMJ, _INV_LABEL, _INV_GAS):
+    for rx in (_INV_EMJ, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
         if invoice_number:
             break
         match = rx.search(text or "")
@@ -411,6 +455,27 @@ def parse_invoice_text(
             if invoice_number and invoice_number.upper() not in _CUSTOMER_ACCOUNTS:
                 break
             invoice_number = None
+    vendor_l = (vendor or "").lower()
+    blob_l = blob.lower()
+    if not invoice_number and ("ntex" in vendor_l or "ntex" in blob_l):
+        ntex = _INV_NTEX.search(text or "") or _INV_NTEX.search(filename or "")
+        if ntex:
+            invoice_number = _usable_invoice_number(ntex.group(1))
+    if not invoice_number and ("tube supply" in vendor_l or "tubesupply" in blob_l):
+        tube = _INV_TUBE.search(text or "")
+        if tube:
+            invoice_number = _usable_invoice_number(tube.group(1))
+    if not invoice_number:
+        msc_pair = re.search(
+            r"Customer Number\s+Invoice Number\s+(\d{7,8})\s+(\d{7,8})",
+            text or "",
+            flags=re.I,
+        )
+        if msc_pair:
+            first, second = msc_pair.group(1), msc_pair.group(2)
+            pick = second if first.upper() in _CUSTOMER_ACCOUNTS else first
+            if pick.upper() not in _CUSTOMER_ACCOUNTS:
+                invoice_number = _usable_invoice_number(pick)
     if not invoice_number:
         psi = _INV_PSI.search(blob)
         if psi:
@@ -451,8 +516,13 @@ def parse_invoice_text(
 
     pos = extract_po_numbers(blob)
     amount = None
+    bal = _AMOUNT_BALANCE.search(text or "") or _AMOUNT_BALANCE.search(blob)
+    if bal:
+        amount = parse_money(bal.group(1))
+        if amount == 0:
+            amount = None
     stacked_total = re.search(r"Invoice Total:\s*\n(.{0,240})", text or "", flags=re.I | re.S)
-    if stacked_total:
+    if amount is None and stacked_total:
         nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", stacked_total.group(1))]
         nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
         if nums:
@@ -495,6 +565,9 @@ def parse_invoice_text(
         trailing_amt = [a for a in trailing_amt if a not in (None, 0, 0.0) and a < 100000]
         if trailing_amt:
             amount = trailing_amt[-1]
+    due_all = re.search(r"Total amount due:\s*\$?\s*([\d,]+(?:\.\d{2}))", text or "", flags=re.I)
+    if due_all:
+        amount = parse_money(due_all.group(1)) or amount
     if amount is None:
         # UniFirst First Aid: Invoice Total: then Net / Tax / Total / Balance.
         block = re.search(r"Invoice Total:(.{0,240})", text or "", flags=re.I | re.S)
