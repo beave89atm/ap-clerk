@@ -57,6 +57,7 @@ def test_fees_are_not_ppv():
 def test_extract_po_number():
     assert extract_po_number("PO58351-TELECOM PRODUCTS") == "58351"
     assert extract_po_number("PO58634-CAPITAL MACHINE TECHNOLOGIES") == "58634"
+    assert extract_po_number("PO58768-GEXPRO SERVICES") == "58768"
 
 
 def test_no_po_real_bills_still_get_a_header():
@@ -263,6 +264,16 @@ def test_known_vendor_ids_from_live_get():
     assert known_vendor_id("Lavanture Products") == 295
     assert known_vendor_id("McQueary Industries") == 119
     assert known_vendor_id("Hudson Energy") == 88
+    assert known_vendor_id("Leeco Steel, LLC") == 109
+    assert known_vendor_id("NoreplyMV / Leeco") == 109
+    assert known_vendor_id("Austin Hardware & Supply Inc.") == 34
+    assert known_vendor_id("autoinvoices@austinhardware.com") == 34
+    assert known_vendor_id("A1 Image, Inc.") == 8
+    assert known_vendor_id("a1imageinc@gmail.com") == 8
+    assert known_vendor_id("Maynard Nexsen PC") == 116
+    assert known_vendor_id("Gexpro Services") == 73
+    assert known_vendor_id("Legacy Wire Products") == 292
+    assert known_vendor_id("Beshert Steel Processing") == 37
 
 
 def test_receipt_name_matches_even_when_invoice_line_was_synthesized():

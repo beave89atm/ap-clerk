@@ -370,11 +370,14 @@ def _find_existing_invoice(
     number: str,
     vendor: str,
 ) -> dict[str, Any] | None:
-    """Match same vendor + invoice #. Do not treat a different vendor as a dup."""
+    """Match same vendor + invoice #. A unique invoice # on live is already-exists
+    even when the mailbox sender name does not match (NoreplyMV / Leeco).
+    Do not treat a different vendor as a dup when two vendors share a number.
+    """
     items = invoice_by_number.get(invoice_number_key(number)) or []
     if not items:
         return None
-    if not vendor:
+    if not vendor or len(items) == 1:
         return items[0]
     for item in items:
         values = item.get("values") or {}
@@ -500,11 +503,20 @@ def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, A
     index: dict[str, dict[str, Any]] = {}
     for item in lines:
         values = item.get("values") or {}
-        po = values.get("Purchase_Order_Number")
+        po = (
+            values.get("Purchase_Order_Number")
+            or values.get("Purchase_Order")
+            or values.get("Name")
+            or values.get("Display_Name")
+        )
         po_id = lookup_id(po)
-        text = lookup_text(po) or lookup_text(values.get("Display_Name"))
+        text = lookup_text(po) or lookup_text(values.get("Display_Name")) or lookup_text(values.get("Name"))
+        if not text and po is not None and not isinstance(po, dict):
+            text = str(po)
         number = extract_po_number(text)
-        if not po_id or not number:
+        if not number:
+            continue
+        if not po_id:
             continue
         vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor") or values.get("PO_Vendor")
         vendor_id = lookup_id(vendor)

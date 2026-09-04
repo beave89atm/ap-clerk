@@ -99,6 +99,17 @@ VENDOR_ID_ALIASES = {
     "altparts": 215,
     "alt parts": 215,
     "tube supply": 341,
+    # Confirmed 2026-09-04 via GET of existing live invoices (API Vendor.id).
+    "leeco": 109,
+    "austin hardware": 34,
+    "austinhardware": 34,
+    "a1 image": 8,
+    "a1image": 8,
+    "maynard": 116,
+    "nexsen": 116,
+    "gexpro": 73,
+    "legacy wire": 292,
+    "beshert": 37,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for

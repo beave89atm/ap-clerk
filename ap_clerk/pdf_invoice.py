@@ -37,6 +37,17 @@ _INV_MCQUEARY = re.compile(r"\b(\d{2}-\d{5})\b")
 _INV_TUBE = re.compile(r"\b(011\d{5})\b")
 _INV_MSC_REAL = re.compile(r"Invoice Number\s+(\d{7,8})\b", flags=re.I)
 _INV_GRM = re.compile(r"Invoice\s{2,}(\d{7,8})\b", flags=re.I)
+_INV_PS_INV = re.compile(r"\b(PS-INV\d{5,})\b", flags=re.I)
+_INV_JVT = re.compile(r"\b(JVT\s+SI-\d{4,})\b", flags=re.I)
+_INV_A1_STACKED = re.compile(
+    r"Invoice:\s*(?:\n+\s*INVOICE DATE)?\s*\n+\s*(\d{1,2}/\d{1,2}/\d{2,4})\s*\n+\s*(\d{5,})",
+    flags=re.I,
+)
+_INV_COLON_NUM = re.compile(r"Invoice:\s*\n+\s*(\d{5,8})\b", flags=re.I)
+_TOTAL_STACKED = re.compile(
+    r"(?:^|\n)\s*TOTAL\b[:. \t]*\n(?:[ \t]*[A-Za-z].*\n){0,6}[ \t]*([\d,]+\.\d{2})",
+    flags=re.I,
+)
 _AMOUNT_BALANCE = re.compile(
     r"(?:balance\s+due|please\s+pay\s+this\s+amount)\s*[:.]?\s*\$?\s*([\d,]+(?:\.\d{2}))",
     flags=re.I,
@@ -51,7 +62,8 @@ _PO_BARE = re.compile(r"\bPO\s*[:.#]?\s*(\d{4,6})\b", flags=re.I)
 _AMOUNT_LABEL = re.compile(
     r"(?:total\s+to\s+be\s+paid(?:\s+usd)?|invoice\s*total|amount\s*due|total\s*due|"
     r"total\s*amount\s*due|total\s*-\s*this\s*invoice|invoice\s*amount|"
-    r"grand\s*total|total\s+order\s+amount|total\s+due\s*\(\s*usd\s*\))\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2})?)",
+    r"grand\s*total|total\s+order\s+amount|total\s+due\s*\(\s*usd\s*\)|"
+    r"total\s*\$?\s*incl\.?\s*tax|total\s+this\s+invoice)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2})?)",
     flags=re.I,
 )
 _AMOUNT_USD_DUE = re.compile(
@@ -117,6 +129,12 @@ DOMAIN_VENDORS = {
     "tubesupply.com": "Tube Supply",
     "crosslinktx.com": "Crosslink Powder Coating",
     "ryerson.com": "Joseph T. Ryerson & Son, Inc",
+    "austinhardware.com": "Austin Hardware & Supply Inc.",
+    "a1image.com": "A1 Image Office Systems",
+    "gexpro.com": "Gexpro Services",
+    "gexproservices.com": "Gexpro Services",
+    "maynardnexsen.com": "Maynard Nexsen PC",
+    "leecosteel.com": "Leeco Steel, LLC",
 }
 
 SUBJECT_VENDORS = (
@@ -162,6 +180,13 @@ SUBJECT_VENDORS = (
     (re.compile(r"alternative parts|altparts", re.I), "Alternative Parts Inc"),
     (re.compile(r"tube supply|tubesupply", re.I), "Tube Supply"),
     (re.compile(r"lavanture", re.I), "Lavanture Products"),
+    (re.compile(r"leeco", re.I), "Leeco Steel, LLC"),
+    (re.compile(r"austin hardware", re.I), "Austin Hardware & Supply Inc."),
+    (re.compile(r"a1[\s_]*image", re.I), "A1 Image Office Systems"),
+    (re.compile(r"maynard\s+nexsen|nexsen", re.I), "Maynard Nexsen PC"),
+    (re.compile(r"legacy wire", re.I), "Legacy Wire Products"),
+    (re.compile(r"gexpro", re.I), "Gexpro Services"),
+    (re.compile(r"beshert|triple-?s steel|steel warehouse", re.I), "Beshert Steel Processing"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
@@ -383,7 +408,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert)",
             stripped,
             re.I,
         ):
@@ -399,10 +424,11 @@ def _invoice_from_filename(filename: str) -> str | None:
     name = filename or ""
     for pattern in (
         r"(TXFT\d{5,})",
+        r"(PS-INV\d{5,})",
         r"\b(\d{2}-\d{4,5})\b",
         r"\b(\d-\d{5,8})\b",
         r"Invoice[-_ ]+(\d-\d{5,8}|\d{2}-\d{4,5}|\d{4,})",
-        r"Inv(\d-\d{5,8}|\d{5,})",
+        r"Inv[_-]?(\d-\d{5,8}|\d{5,})",
         r"[-_](\d-\d{5,8})\.pdf$",
         r"[-_](\d{5,})\.pdf$",
         r"inv[-_ ]+(\d{4,})",
@@ -446,7 +472,7 @@ def parse_invoice_text(
         prefixed = _INV_PREFIXED.search(text or "")
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
-    for rx in (_INV_EMJ, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
+    for rx in (_INV_EMJ, _INV_PS_INV, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
         if invoice_number:
             break
         match = rx.search(text or "")
@@ -476,6 +502,10 @@ def parse_invoice_text(
             pick = second if first.upper() in _CUSTOMER_ACCOUNTS else first
             if pick.upper() not in _CUSTOMER_ACCOUNTS:
                 invoice_number = _usable_invoice_number(pick)
+    if not invoice_number:
+        a1_stacked = _INV_A1_STACKED.search(text or "")
+        if a1_stacked:
+            invoice_number = _usable_invoice_number(a1_stacked.group(2))
     if not invoice_number:
         psi = _INV_PSI.search(blob)
         if psi:
@@ -558,6 +588,12 @@ def parse_invoice_text(
         due = _AMOUNT_USD_DUE.search(text or "") or _AMOUNT_USD_DUE.search(blob)
         if due:
             amount = parse_money(due.group(1))
+    if amount is None:
+        stacked_total_amt = _TOTAL_STACKED.search(text or "")
+        if stacked_total_amt:
+            amount = parse_money(stacked_total_amt.group(1))
+            if amount == 0:
+                amount = None
     if amount is None:
         # Capital Machine prints a lone $1,067.50 on the last line.
         trailing = re.findall(r"\$([\d,]+(?:\.\d{2}))", text or "")

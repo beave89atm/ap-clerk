@@ -837,3 +837,56 @@ def test_parse_0902_ntex_msc_grm_altparts_tube():
     assert kloeckner["invoice_number"] == "15206040"
     assert 25576511 not in (kloeckner.get("pos") or [])
     assert kloeckner["amount"] == 7167.00
+
+
+def test_parse_0904_leeco_austin_a1_legacy_maynard():
+    leeco = parse_invoice_text(
+        "Leeco Steel, LLC * 1011 Warrenville Rd.\nInvoice:\n619920\nPO Number\n57891\nTotal:\n900.00",
+        from_name="NoreplyMV",
+        filename="619920.pdf",
+    )
+    assert leeco["vendor"] == "Leeco Steel, LLC"
+    assert leeco["invoice_number"] == "619920"
+    assert leeco["po"] == "57891"
+    assert leeco["amount"] == 900.00
+
+    austin = parse_invoice_text(
+        "PLEASE REMIT TO:\nAustin Hardware & Supply Inc.\nInvoice#\n2488089\nPO Number\n58838\n"
+        "TOTAL\nTracking Number\n Due Date\nDuty\n293.70",
+        from_address="autoinvoices@austinhardware.com",
+        filename="2488089.pdf",
+    )
+    assert austin["vendor"] == "Austin Hardware & Supply Inc."
+    assert austin["invoice_number"] == "2488089"
+    assert austin["po"] == "58838"
+    assert austin["amount"] == 293.70
+
+    a1 = parse_invoice_text(
+        "Invoice:\nINVOICE DATE\n8/6/2026\n66609\nA1 Image, Inc.\nTOTAL\n$753.46",
+        from_address="a1imageinc@gmail.com",
+        filename="Inv_66609_from_A1_IMAGE_INC._22868.pdf",
+    )
+    assert a1["vendor"] == "A1 Image Office Systems"
+    assert a1["invoice_number"] == "66609"
+    assert a1["amount"] == 753.46
+
+    legacy = parse_invoice_text(
+        "Legacy Wire Products\nInvoice No.\nPS-INV103946\nExternal Document No.\n58819\nTotal $ Incl. Tax\n657.25",
+        from_name="Giovanny",
+        filename="Sales Invoice PS-INV103946.pdf",
+    )
+    assert legacy["vendor"] == "Legacy Wire Products"
+    assert legacy["invoice_number"] == "PS-INV103946"
+    assert legacy["po"] == "58819"
+    assert legacy["amount"] == 657.25
+
+    maynard = parse_invoice_text(
+        "Invoice No. 536280291\nInvoice Date April 8, 2026\nTotal This Invoice $678.00\n"
+        "Maynard Nexsen PC USPS Mail: Dept 6575",
+        from_name="Kyle Cleaver",
+        filename="536280291_BL_1194107_824266.pdf",
+    )
+    assert maynard["vendor"] == "Maynard Nexsen PC"
+    assert maynard["invoice_number"] == "536280291"
+    assert maynard["amount"] == 678.00
+    assert maynard["po"] is None
