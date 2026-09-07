@@ -890,3 +890,91 @@ def test_parse_0904_leeco_austin_a1_legacy_maynard():
     assert maynard["invoice_number"] == "536280291"
     assert maynard["amount"] == 678.00
     assert maynard["po"] is None
+
+
+def test_parse_0907_tmc_unifirst_aft_hapeco_precision():
+    tmc = parse_invoice_text(
+        "Time Manufacturing Company\nINVOICE\nInvoice: TMC-1076921\nDate:\n8/10/2026\n"
+        "PO Number:\n58380\nAmount Due: 202.97",
+        from_address="ARNotifications@versalift.com",
+        filename="1076921.pdf",
+    )
+    assert tmc["vendor"] == "Versalift National Parts Distribution Center"
+    assert tmc["invoice_number"] == "TMC-1076921"
+    assert tmc["po"] == "58380"
+    assert tmc["amount"] == 202.97
+
+    unifirst = parse_invoice_text(
+        "UNIFIRST CORPORATION\nInvoice #:\nUSD 1,049.30\n2810791064\nInvoice Date:\n08/07/2026\n"
+        "Amount Due:\nUSD 1,049.30",
+        from_address="UniFirstInvoices@UniFirst.com",
+        filename="DirectInvoice_2810791064.pdf",
+    )
+    assert unifirst["vendor"] == "UniFirst Corporation"
+    assert unifirst["invoice_number"] == "2810791064"
+    assert unifirst["amount"] == 1049.30
+    assert unifirst["date"] == "2026-08-07"
+
+    aft = parse_invoice_text(
+        "AFT Industries Inc\nINVOICE NO.\n50830\nINVOICE DATE:\n8/11/2026\nTotal Dollars: $150.00",
+        from_address="accounting@aft-corp.com",
+        subject="Automated Finishing Technology Invoice Number: 50830",
+        filename="Invoice 50830.pdf",
+    )
+    assert aft["vendor"] == "Automated Finishing Technology"
+    assert aft["invoice_number"] == "50830"
+    assert aft["amount"] == 150.00
+
+    hapeco = parse_invoice_text(
+        "Branch: 02 Irving - Hapeco\nINVOICE\n6114659\nPO Number\n58563\nAMOUNT DUE:\n4,528.15",
+        from_name="Misty McCoy",
+        subject="FW: HAPECO, INC - Invoice# 6114659",
+        filename="Inv6114659.pdf",
+    )
+    assert hapeco["vendor"] == "Hapeco, Inc"
+    assert hapeco["invoice_number"] == "6114659"
+    assert hapeco["po"] == "58563"
+    assert hapeco["amount"] == 4528.15
+
+    precision = parse_invoice_text(
+        "Precision Fabrication Services\nINVOICE #\n19339\nPURCHASE ORDER:\n58771\n"
+        "DATE CREATED:\n08/10/2026\nTOTAL: $3,309.46",
+        from_name="Melody Channell",
+        filename="19339.pdf",
+    )
+    assert precision["vendor"] == "Precision Fabrication Services"
+    assert precision["invoice_number"] == "19339"
+    assert precision["po"] == "58771"
+    assert precision["amount"] == 3309.46
+
+    polymer = parse_invoice_text(
+        "Remit To: Polymer Products, L.P.\nInvoice No\n23158\nInvoice date\n8/10/2026\n"
+        "58460\nTotal amount due: 555.30",
+        from_name="Nelys Gonzalez",
+        filename="tmp8BF4.pdf",
+    )
+    assert polymer["vendor"] == "Polymer Products"
+    assert polymer["invoice_number"] == "23158"
+    assert polymer["po"] == "58460"
+    assert polymer["amount"] == 555.30
+
+    metal = parse_invoice_text(
+        "METAL SUPERMARKETS FORT WORTH\nInvoice Date: Aug-10-2026\nINVOICE # 1090818\n"
+        "Customer Purchase Order # 58885\nDue Date: Sep-09-2026\nTotal $\n49.80",
+        from_address="fortworth@metalsupermarkets.com",
+        filename="Sales Invoice-023702-SI1090818.pdf",
+    )
+    assert metal["vendor"] == "Metal Supermarkets"
+    assert metal["invoice_number"] == "1090818"
+    assert metal["date"] == "2026-08-10"
+    assert metal["po"] == "58885"
+
+    austin = parse_invoice_text(
+        "Austin Hardware & Supply Inc.\nInvoice#\n2489971\nPO Number\n58878\n"
+        "Ext Price\n30.00\n30.00\n9.79\n293.70\nTOTAL\nTracking Number\nDue Date\n0.00",
+        from_address="autoinvoices@austinhardware.com",
+        filename="2489971.pdf",
+    )
+    assert austin["vendor"] == "Austin Hardware & Supply Inc."
+    assert austin["invoice_number"] == "2489971"
+    assert austin["amount"] == 293.70

@@ -39,6 +39,7 @@ _INV_MSC_REAL = re.compile(r"Invoice Number\s+(\d{7,8})\b", flags=re.I)
 _INV_GRM = re.compile(r"Invoice\s{2,}(\d{7,8})\b", flags=re.I)
 _INV_PS_INV = re.compile(r"\b(PS-INV\d{5,})\b", flags=re.I)
 _INV_JVT = re.compile(r"\b(JVT\s+SI-\d{4,})\b", flags=re.I)
+_INV_TMC = re.compile(r"\b(TMC-\d{5,})\b", flags=re.I)
 _INV_A1_STACKED = re.compile(
     r"Invoice:\s*(?:\n+\s*INVOICE DATE)?\s*\n+\s*(\d{1,2}/\d{1,2}/\d{2,4})\s*\n+\s*(\d{5,})",
     flags=re.I,
@@ -70,6 +71,12 @@ _AMOUNT_USD_DUE = re.compile(
     r"Total Due\s*(?:\(\s*USD\s*\))?\s*\$?\s*([\d,]+(?:\.\d{2}))",
     flags=re.I,
 )
+_AMOUNT_USD_PREFIX = re.compile(r"\bUSD\s+([\d,]+(?:\.\d{2}))", flags=re.I)
+_AMOUNT_DUE_LABEL = re.compile(
+    r"(?:amount due|total current charges|current charges due)\s*[:.\s]*(?:USD\s*)?([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_EXT_PRICE = re.compile(r"Ext(?:ended)?\s*Price.{0,120}?([\d,]+\.\d{2})", flags=re.I | re.S)
 _AMOUNT_BEFORE = re.compile(
     r"\$?\s*([\d,]+(?:\.\d{2}))\s*(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
     flags=re.I,
@@ -79,11 +86,11 @@ _TOTAL_MONEY = re.compile(r"(?:^|\b)total(?:\s+\$|\s*[:.\s]*\$)\s*([\d,]+(?:\.\d
 _MONEY = re.compile(r"\$?\s*([\d,]+(?:\.\d{2}))")
 _DATE_LABEL = re.compile(
     r"(?:invoice\s*date|date\s*of\s*invoice|inv(?:oice)?\s*date)\s*[:.\s]*"
-    r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4})",
+    r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4}|[A-Za-z]{3,9}-\d{1,2}-\d{2,4})",
     flags=re.I,
 )
 _DATE_ANY = re.compile(
-    r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4})\b"
+    r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4}|[A-Za-z]{3,9}-\d{1,2}-\d{2,4})\b"
 )
 _CHECK_STOP = re.compile(r"\bcheck\s*stop\b", flags=re.I)
 _BAD_INVOICE_WORDS = {
@@ -135,6 +142,8 @@ DOMAIN_VENDORS = {
     "gexproservices.com": "Gexpro Services",
     "maynardnexsen.com": "Maynard Nexsen PC",
     "leecosteel.com": "Leeco Steel, LLC",
+    "versalift.com": "Versalift National Parts Distribution Center",
+    "aft-corp.com": "Automated Finishing Technology",
 }
 
 SUBJECT_VENDORS = (
@@ -187,6 +196,11 @@ SUBJECT_VENDORS = (
     (re.compile(r"legacy wire", re.I), "Legacy Wire Products"),
     (re.compile(r"gexpro", re.I), "Gexpro Services"),
     (re.compile(r"beshert|triple-?s steel|steel warehouse", re.I), "Beshert Steel Processing"),
+    (re.compile(r"precision fabrication", re.I), "Precision Fabrication Services"),
+    (re.compile(r"versalift", re.I), "Versalift National Parts Distribution Center"),
+    (re.compile(r"automated finishing|aft industries", re.I), "Automated Finishing Technology"),
+    (re.compile(r"polymer products", re.I), "Polymer Products"),
+    (re.compile(r"hapeco", re.I), "Hapeco, Inc"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
@@ -233,6 +247,9 @@ def parse_date_value(value: str | None) -> str | None:
         "%b %d %Y",
         "%B %d, %Y",
         "%b %d, %Y",
+        "%b-%d-%Y",
+        "%b-%d-%y",
+        "%B-%d-%Y",
     ):
         try:
             return datetime.strptime(text, fmt).date().isoformat()
@@ -408,7 +425,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries)",
             stripped,
             re.I,
         ):
@@ -425,6 +442,7 @@ def _invoice_from_filename(filename: str) -> str | None:
     for pattern in (
         r"(TXFT\d{5,})",
         r"(PS-INV\d{5,})",
+        r"(TMC-\d{5,})",
         r"\b(\d{2}-\d{4,5})\b",
         r"\b(\d-\d{5,8})\b",
         r"Invoice[-_ ]+(\d-\d{5,8}|\d{2}-\d{4,5}|\d{4,})",
@@ -472,7 +490,7 @@ def parse_invoice_text(
         prefixed = _INV_PREFIXED.search(text or "")
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
-    for rx in (_INV_EMJ, _INV_PS_INV, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
+    for rx in (_INV_EMJ, _INV_PS_INV, _INV_TMC, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
         if invoice_number:
             break
         match = rx.search(text or "")
@@ -546,8 +564,18 @@ def parse_invoice_text(
 
     pos = extract_po_numbers(blob)
     amount = None
+    due_label = _AMOUNT_DUE_LABEL.search(text or "") or _AMOUNT_DUE_LABEL.search(blob)
+    if due_label:
+        amount = parse_money(due_label.group(1))
+        if amount == 0:
+            amount = None
+    if amount is None and ("unifirst" in vendor_l or "unifirst" in blob_l):
+        usd_hits = [parse_money(m) for m in _AMOUNT_USD_PREFIX.findall(text or "")]
+        usd_hits = [a for a in usd_hits if a not in (None, 0, 0.0) and a < 20000]
+        if usd_hits:
+            amount = usd_hits[0]
     bal = _AMOUNT_BALANCE.search(text or "") or _AMOUNT_BALANCE.search(blob)
-    if bal:
+    if amount is None and bal:
         amount = parse_money(bal.group(1))
         if amount == 0:
             amount = None
@@ -595,6 +623,13 @@ def parse_invoice_text(
             if amount == 0:
                 amount = None
     if amount is None:
+        ext_block = re.search(r"Ext(?:ended)?\s*Price(.{0,400})", text or "", flags=re.I | re.S)
+        if ext_block:
+            ext_nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", ext_block.group(1))]
+            ext_nums = [a for a in ext_nums if a not in (None, 0, 0.0) and a < 100000]
+            if ext_nums:
+                amount = max(ext_nums)
+    if amount is None:
         # Capital Machine prints a lone $1,067.50 on the last line.
         trailing = re.findall(r"\$([\d,]+(?:\.\d{2}))", text or "")
         trailing_amt = [parse_money(m) for m in trailing]
@@ -629,9 +664,16 @@ def parse_invoice_text(
     if not invoice_date:
         for raw in _DATE_ANY.findall(text or ""):
             parsed = parse_date_value(raw)
-            if parsed and parsed >= "2025-01-01":
-                invoice_date = parsed
-                break
+            if not parsed or parsed < "2025-01-01":
+                continue
+            # MSC / Austin print Due Date before Invoice Date in the extracted text.
+            around = (text or "")
+            idx = around.lower().find(raw.lower())
+            window = around[max(0, idx - 24) : idx] if idx >= 0 else ""
+            if re.search(r"\bdue\s*date\b", window, flags=re.I):
+                continue
+            invoice_date = parsed
+            break
 
     check_stop = bool(_CHECK_STOP.search(blob))
     fees = extract_fees(text)

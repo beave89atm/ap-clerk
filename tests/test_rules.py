@@ -274,6 +274,17 @@ def test_known_vendor_ids_from_live_get():
     assert known_vendor_id("Gexpro Services") == 73
     assert known_vendor_id("Legacy Wire Products") == 292
     assert known_vendor_id("Beshert Steel Processing") == 37
+    assert known_vendor_id("UniFirst Corporation") == 189
+    assert known_vendor_id("Precision Fabrication Services, LLC") == 144
+    assert known_vendor_id("Versalift National Parts Distribution Center") == 178
+    assert known_vendor_id("ARNotifications@versalift.com") == 178
+    assert known_vendor_id("Automated Finishing Technology") == 331
+    assert known_vendor_id("AFT Corp") == 331
+    assert known_vendor_id("Polymer Products") == 358
+    assert known_vendor_id("HAPECO, INC") == 384
+    assert known_vendor_id("McMaster-Carr Supply Company") == 117
+    assert known_vendor_id("Air Products and Chemicals, Inc") == 13
+    assert known_vendor_id("Earle M. Jorgensen Co") == 208
 
 
 def test_receipt_name_matches_even_when_invoice_line_was_synthesized():

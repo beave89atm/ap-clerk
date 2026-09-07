@@ -110,6 +110,19 @@ VENDOR_ID_ALIASES = {
     "gexpro": 73,
     "legacy wire": 292,
     "beshert": 37,
+    # Confirmed 2026-09-07 via GET of existing live invoices (API Vendor.id).
+    "unifirst corporation": 189,
+    "precision fabrication": 144,
+    "versalift": 178,
+    "automated finishing": 331,
+    "aft corp": 331,
+    "aftcorp": 331,
+    "polymer products": 358,
+    "hapeco": 384,
+    "mcmaster": 117,
+    "air products": 13,
+    "earle": 208,
+    "emj": 208,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for

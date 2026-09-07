@@ -218,13 +218,14 @@ def pull_recent_bills(
             continue
         from_name = sender_name(message)
         from_addr = sender_address(message)
-        chosen: dict[str, Any] | None = None
+        chosen_bills: list[dict[str, Any]] = []
+        check_stopped = False
         for filename, content in pdfs:
             if STATEMENT_FILE_RE.search(filename or ""):
                 continue
             dest = pdf_dir / f"{_safe_filename(str(message.get('receivedDateTime') or '')[:10])}_{_safe_filename(filename)}"
             if dest.exists():
-                dest = pdf_dir / f"{len(selected)+len(skipped)}_{dest.name}"
+                dest = pdf_dir / f"{len(selected)+len(skipped)+len(chosen_bills)}_{dest.name}"
             dest.write_bytes(content)
             parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
             if parsed.get("check_stop"):
@@ -242,47 +243,51 @@ def pull_recent_bills(
                         "hold_reason": "CHECK STOP",
                     }
                 )
-                chosen = None
+                check_stopped = True
                 break
             if parsed.get("pdf_text_empty") and parsed.get("amount") in (None, ""):
                 continue
             if not parsed.get("invoice_number") and not parsed.get("amount"):
                 continue
-            chosen = parsed
-            chosen["pdf_path"] = str(dest)
-            break
-        if not chosen:
-            if not any(s.get("subject") == subject and s.get("class") == "check_stop" for s in skipped):
-                flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
-                skipped.append(
-                    {
-                        "subject": subject,
-                        "receivedDateTime": message.get("receivedDateTime"),
-                        "class": "unreadable-or-not-a-bill",
-                        "attachment_names": names,
-                        "graph_message_id": message_id,
-                        "vendor": from_name,
-                        "Flag status": flag_status,
-                        "hold_reason": "not-a-bill",
-                    }
-                )
+            parsed["pdf_path"] = str(dest)
+            parsed["graph_message_id"] = message_id
+            parsed["subject"] = subject
+            parsed["receivedDateTime"] = message.get("receivedDateTime")
+            parsed["from_name"] = from_name
+            parsed["action"] = "create"
+            parsed["id"] = message_id
+            chosen_bills.append(parsed)
+            if len(selected) + len(chosen_bills) >= limit:
+                break
+        if check_stopped:
             continue
-        chosen["graph_message_id"] = message_id
-        chosen["subject"] = subject
-        chosen["receivedDateTime"] = message.get("receivedDateTime")
-        chosen["from_name"] = from_name
-        chosen["action"] = "create"
-        chosen["id"] = message_id
-        # Invoice date is the date printed on the invoice, never email received.
-        selected.append(chosen)
-        LOGGER.info(
-            "Selected bill %s/%s vendor=%s invoice=%s received=%s",
-            len(selected),
-            limit,
-            chosen.get("vendor"),
-            chosen.get("invoice_number"),
-            chosen.get("receivedDateTime"),
-        )
+        if not chosen_bills:
+            flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+            skipped.append(
+                {
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": "unreadable-or-not-a-bill",
+                    "attachment_names": names,
+                    "graph_message_id": message_id,
+                    "vendor": from_name,
+                    "Flag status": flag_status,
+                    "hold_reason": "not-a-bill",
+                }
+            )
+            continue
+        for chosen in chosen_bills:
+            if len(selected) >= limit:
+                break
+            selected.append(chosen)
+            LOGGER.info(
+                "Selected bill %s/%s vendor=%s invoice=%s received=%s",
+                len(selected),
+                limit,
+                chosen.get("vendor"),
+                chosen.get("invoice_number"),
+                chosen.get("receivedDateTime"),
+            )
 
     if not fifo:
         # Process oldest-first among the most-recent `limit`
