@@ -4,10 +4,17 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ap_clerk.inbox import pull_recent_bills
+from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE, pull_recent_bills
 from ap_clerk.pdf_invoice import parse_invoice_text, vendor_from_context
 from ap_clerk.cli import _process_invoice
 from ap_clerk.rules import PRICE_DOES_NOT_MATCH, is_fee_or_surcharge
+
+
+def test_purchase_order_pdf_is_not_a_bill():
+    assert PO_FILE_RE.search("Purchase_Order_58861.pdf")
+    assert PO_FILE_RE.search("packing-slip-926.pdf")
+    assert not PO_FILE_RE.search("Sales Invoice PS-INV103969.pdf")
+    assert STATEMENT_FILE_RE.search("Account_Statement.pdf")
 
 
 def test_vendor_from_email_domain_and_filename():

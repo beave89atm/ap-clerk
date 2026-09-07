@@ -29,6 +29,9 @@ from ap_clerk.pdf_invoice import parse_invoice_pdf
 from ap_clerk.rules import classify_mail
 
 STATEMENT_FILE_RE = re.compile(r"statement|custstate|pastdue|past[_ -]?due|aging", flags=re.I)
+# A vendor invoice email may also attach the customer's PO. Do not enter the PO PDF as a bill
+# (9/7 created Legacy 9888 / invoice # 58861 from Purchase_Order_58861.pdf).
+PO_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
 
 LOGGER = logging.getLogger("ap_clerk")
 
@@ -221,7 +224,7 @@ def pull_recent_bills(
         chosen_bills: list[dict[str, Any]] = []
         check_stopped = False
         for filename, content in pdfs:
-            if STATEMENT_FILE_RE.search(filename or ""):
+            if STATEMENT_FILE_RE.search(filename or "") or PO_FILE_RE.search(filename or ""):
                 continue
             dest = pdf_dir / f"{_safe_filename(str(message.get('receivedDateTime') or '')[:10])}_{_safe_filename(filename)}"
             if dest.exists():
