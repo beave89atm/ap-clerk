@@ -226,6 +226,21 @@ class KimcoClient:
             return f"complete-failed-{complete.status_code}"
         return "attached"
 
+    def try_select_receipts(self, invoice_id: int, receipt_ids: list[Any] | None = None) -> str:
+        """Select Receipts only when the AP list is Editable. Never invent Add Item POSTs.
+
+        Until a real receipt-select action exists, keep the live UI path.
+        """
+        hint = self.try_put_probe_rejected("ap_invoices", invoice_id)
+        if "editable" not in hint:
+            return "blocked-405"
+        LOGGER.info(
+            "Select Receipts API action is not implemented; live UI required (invoice %s, %s receipt id(s))",
+            invoice_id,
+            len(receipt_ids or []),
+        )
+        return "blocked-no-receipt-action"
+
 
 def _created_id(body: Any) -> int | None:
     if not isinstance(body, dict):

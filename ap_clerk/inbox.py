@@ -25,7 +25,7 @@ from ap_clerk.graph import (
     has_ai_hold,
     has_entered_in_ai,
 )
-from ap_clerk.pdf_invoice import parse_invoice_pdf
+from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
 from ap_clerk.rules import classify_mail
 
 STATEMENT_FILE_RE = re.compile(
@@ -34,12 +34,22 @@ STATEMENT_FILE_RE = re.compile(
 )
 # A vendor invoice email may also attach the customer's PO. Do not enter the PO PDF as a bill
 # (9/7 created Legacy 9888 / invoice # 58861 from Purchase_Order_58861.pdf).
-PO_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
+PO_FILE_RE = PO_DOCUMENT_FILE_RE
 
 LOGGER = logging.getLogger("ap_clerk")
 
-SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop"}
-HOLD_SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop", "unreadable-or-not-a-bill"}
+SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop", "internal"}  # noise; replaced so 30 real bills are still attempted
+HOLD_SKIP_CLASSES = {
+    "statement",
+    "pod",
+    "payment",
+    "not-a-bill",
+    "check_stop",
+    "internal",
+    "unreadable-or-not-a-bill",
+}
+# Clear noise can skip before PDF download. Vague not-a-bill still inspects vendor PDFs (AQPC).
+CLEAR_SKIP_CLASSES = {"statement", "pod", "payment", "check_stop", "internal"}
 
 
 def sender_name(message: dict[str, Any]) -> str:
@@ -175,7 +185,7 @@ def pull_recent_bills(
             klass = "statement"
         else:
             klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
-        if klass in SKIP_CLASSES:
+        if klass in CLEAR_SKIP_CLASSES:
             flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
             skipped.append(
                 {
@@ -234,6 +244,9 @@ def pull_recent_bills(
                 dest = pdf_dir / f"{len(selected)+len(skipped)+len(chosen_bills)}_{dest.name}"
             dest.write_bytes(content)
             parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
+            if parsed.get("is_purchase_order_doc"):
+                LOGGER.info("Skipping PO-not-invoice attachment %s", filename)
+                continue
             if parsed.get("check_stop"):
                 flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
                 skipped.append(
@@ -257,6 +270,7 @@ def pull_recent_bills(
                     continue
                 if not bill.get("invoice_number") and not bill.get("amount"):
                     continue
+                # Vendor invoices with a verified PDF must enter (AQPC).
                 bill["pdf_path"] = str(dest)
                 bill["graph_message_id"] = message_id
                 bill["subject"] = subject
@@ -311,7 +325,7 @@ def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list
             continue
         reason = item.get("hold_reason") or item.get("class") or "not-a-bill"
         flag_status = item.get("Flag status") or FLAG_AI_HOLD
-        why = f"HOLD: {reason}. Do not create a header."
+        why = f"HOLD (bill-vs-noise): {reason}. Do not create a header."
         if flag_status:
             why = f"{why} Flag status={flag_status}."
         received = str(item.get("receivedDateTime") or "")
@@ -331,6 +345,7 @@ def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list
                 "Attach status": "no-pdf-on-vm",
                 "Flag status": flag_status,
                 "Flag in Outlook": "Yes",
+                "Notes": "",
                 "graph_message_id": item.get("graph_message_id") or "",
                 "receivedDateTime": received,
             }

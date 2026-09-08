@@ -108,6 +108,25 @@ _BAD_INVOICE_WORDS = {
     "STATEMENT",
 }
 
+PO_DOCUMENT_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
+_PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b", flags=re.I)
+_INVOICE_DOC_HINT = re.compile(r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|bill\s+to)\b", flags=re.I)
+
+
+def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
+    """True for a PO/packing-list attachment that must not be entered as a vendor invoice."""
+    name = filename or ""
+    if PO_DOCUMENT_FILE_RE.search(name):
+        return True
+    blob = text or ""
+    if _PO_DOC_HEADING.search(blob) and not _INVOICE_DOC_HINT.search(blob):
+        return True
+    if _PO_DOC_HEADING.search(blob) and re.search(r"\bship\s+to\b", blob, flags=re.I):
+        if not re.search(r"\binvoice\s*(total|number|no\.?|#)\b", blob, flags=re.I):
+            return True
+    return False
+
+
 DOMAIN_VENDORS = {
     "airproducts.com": "Air Products and Chemicals, Inc",
     "emjmetals.com": "Earle M. Jorgensen Co",
@@ -147,6 +166,8 @@ DOMAIN_VENDORS = {
     "morgansteel.net": "Morgan Steel",
     "pctsupport.com": "PCT Support",
     "xcaliberind.com": "Xcaliber Industrial LLC",
+    "aqpowder.com": "American Quality Powder Coating",
+    "americanqualitypowder.com": "American Quality Powder Coating",
 }
 
 SUBJECT_VENDORS = (
@@ -207,6 +228,7 @@ SUBJECT_VENDORS = (
     (re.compile(r"morgan steel", re.I), "Morgan Steel"),
     (re.compile(r"pct\s+support|pctsupport", re.I), "PCT Support"),
     (re.compile(r"xcaliber", re.I), "Xcaliber Industrial LLC"),
+    (re.compile(r"american\s+quality\s+powder|aqpc", re.I), "American Quality Powder Coating"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
@@ -431,7 +453,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|xcaliber)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|xcaliber)",
             stripped,
             re.I,
         ):
@@ -555,44 +577,53 @@ def parse_invoice_text(
     from_address: str = "",
     filename: str = "",
 ) -> dict[str, Any]:
-    blob = "\n".join([subject, filename, text or ""])
-    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=text)
+    pdf_text = text or ""
+    blob = "\n".join([subject, filename, pdf_text])
+    sources = {"invoice_number": "", "date": "", "amount": "", "po": ""}
+    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=pdf_text)
     invoice_number = None
+    invoice_from_pdf = False
     if known_invoice_prefix(vendor):
-        prefixed = _INV_PREFIXED.search(text or "")
+        prefixed = _INV_PREFIXED.search(pdf_text)
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
+            invoice_from_pdf = bool(invoice_number)
     for rx in (_INV_EMJ, _INV_PS_INV, _INV_TMC, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_LABEL, _INV_GAS):
         if invoice_number:
             break
-        match = rx.search(text or "")
+        match = rx.search(pdf_text)
         if match:
             invoice_number = _usable_invoice_number(match.group(1))
             if invoice_number and invoice_number.upper() not in _CUSTOMER_ACCOUNTS:
+                invoice_from_pdf = True
                 break
             invoice_number = None
     vendor_l = (vendor or "").lower()
     blob_l = blob.lower()
-    if not invoice_number and ("mcqueary" in vendor_l or "mcqueary" in blob_l):
-        mcq = _INV_MCQUEARY.search(text or "") or _INV_MCQUEARY.search(filename or "")
+    if not invoice_number and ("mcqueary" in vendor_l or "mcqueary" in pdf_text.lower()):
+        mcq = _INV_MCQUEARY.search(pdf_text)
         if mcq:
             invoice_number = _usable_invoice_number(mcq.group(1))
+            invoice_from_pdf = bool(invoice_number)
     if ("gas and supply" in vendor_l or "gasandsupply" in blob_l):
-        gas = _INV_GAS.search(text or "")
+        gas = _INV_GAS.search(pdf_text)
         if gas:
             invoice_number = _usable_invoice_number(gas.group(1))
-    if not invoice_number and ("ntex" in vendor_l or "ntex" in blob_l):
-        ntex = _INV_NTEX.search(text or "") or _INV_NTEX.search(filename or "")
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number and ("ntex" in vendor_l or "ntex" in pdf_text.lower()):
+        ntex = _INV_NTEX.search(pdf_text)
         if ntex:
             invoice_number = _usable_invoice_number(ntex.group(1))
-    if not invoice_number and ("tube supply" in vendor_l or "tubesupply" in blob_l):
-        tube = _INV_TUBE.search(text or "")
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number and ("tube supply" in vendor_l or "tubesupply" in pdf_text.lower()):
+        tube = _INV_TUBE.search(pdf_text)
         if tube:
             invoice_number = _usable_invoice_number(tube.group(1))
+            invoice_from_pdf = bool(invoice_number)
     if not invoice_number:
         msc_pair = re.search(
             r"Customer Number\s+Invoice Number\s+(\d{7,8})\s+(\d{7,8})",
-            text or "",
+            pdf_text,
             flags=re.I,
         )
         if msc_pair:
@@ -600,66 +631,98 @@ def parse_invoice_text(
             pick = second if first.upper() in _CUSTOMER_ACCOUNTS else first
             if pick.upper() not in _CUSTOMER_ACCOUNTS:
                 invoice_number = _usable_invoice_number(pick)
+                invoice_from_pdf = bool(invoice_number)
     if not invoice_number:
-        a1_stacked = _INV_A1_STACKED.search(text or "")
+        a1_stacked = _INV_A1_STACKED.search(pdf_text)
         if a1_stacked:
             invoice_number = _usable_invoice_number(a1_stacked.group(2))
+            invoice_from_pdf = bool(invoice_number)
     if not invoice_number:
-        psi = _INV_PSI.search(blob)
+        psi = _INV_PSI.search(pdf_text)
         if psi:
             invoice_number = _usable_invoice_number(psi.group(1))
+            invoice_from_pdf = bool(invoice_number)
     if not invoice_number:
         fastenal_hits = [
             tok.upper()
-            for tok in _INV_FASTENAL.findall(blob)
+            for tok in _INV_FASTENAL.findall(pdf_text)
             if tok.upper() not in _CUSTOMER_ACCOUNTS
         ]
         if fastenal_hits:
             invoice_number = fastenal_hits[0]
+            invoice_from_pdf = True
+    filename_only = False
+    subject_only = False
     if not invoice_number:
         filename_inv = _invoice_from_filename(filename)
         if filename_inv and filename_inv.upper() not in _CUSTOMER_ACCOUNTS:
             invoice_number = filename_inv
+            filename_only = True
     if not invoice_number:
         subject_inv = _invoice_from_subject(subject)
         if subject_inv and subject_inv.upper() not in _CUSTOMER_ACCOUNTS and "account #" not in (subject or "").lower():
             invoice_number = subject_inv
-    luxor = re.search(r"Invoice\s*#\s*\n\s*\d{1,2}/\d{1,2}/\d{2,4}\s+(\d{4,})", text or "", flags=re.I)
-    if luxor and not invoice_number:
+            subject_only = True
+    luxor = re.search(r"Invoice\s*#\s*\n\s*\d{1,2}/\d{1,2}/\d{2,4}\s+(\d{4,})", pdf_text, flags=re.I)
+    if luxor and (not invoice_number or filename_only or subject_only):
         invoice_number = _usable_invoice_number(luxor.group(1))
+        invoice_from_pdf = bool(invoice_number)
+        filename_only = False
+        subject_only = False
     if not invoice_number:
-        plain = re.search(r"\bInvoice\s+(\d{5,8})\b", text or "", flags=re.I)
+        plain = re.search(r"\bInvoice\s+(\d{5,8})\b", pdf_text, flags=re.I)
         if plain:
             invoice_number = _usable_invoice_number(plain.group(1))
+            invoice_from_pdf = bool(invoice_number)
     # O'Neal invoice numbers look like 15452509 and appear twice (filename is often the date).
-    oneal = re.findall(r"\b(15\d{6})\b", text or "")
-    if oneal and (not invoice_number or _looks_like_date_token(invoice_number) or re.fullmatch(r"8?\d{6,7}", invoice_number or "")):
+    oneal = re.findall(r"\b(15\d{6})\b", pdf_text)
+    if oneal and (not invoice_number or _looks_like_date_token(invoice_number) or re.fullmatch(r"8?\d{6,7}", invoice_number or "") or filename_only):
         if "oneal" in blob.lower() or "o'neal" in blob.lower() or "o_neal" in (filename or "").lower():
             invoice_number = oneal[0]
+            invoice_from_pdf = True
+            filename_only = False
+            subject_only = False
     if not invoice_number and "eastern metal" in (vendor or "").lower():
-        ems = re.findall(r"\b(8\d{5})\b", text or "")
+        ems = re.findall(r"\b(8\d{5})\b", pdf_text)
         if ems:
             invoice_number = _usable_invoice_number(ems[0])
-    invoice_number = printed_invoice_number(invoice_number, vendor=vendor, text=text or "")
+            invoice_from_pdf = bool(invoice_number)
+    printed = printed_invoice_number(invoice_number, vendor=vendor, text=pdf_text)
+    if printed and printed != invoice_number and printed in pdf_text:
+        invoice_from_pdf = True
+        filename_only = False
+        subject_only = False
+    invoice_number = printed
+    if invoice_from_pdf:
+        sources["invoice_number"] = "pdf-prefix" if known_invoice_prefix(vendor) and invoice_number and "-" in invoice_number else "pdf"
+    elif filename_only:
+        sources["invoice_number"] = "filename"
+    elif subject_only:
+        sources["invoice_number"] = "subject"
+    elif invoice_number:
+        sources["invoice_number"] = "pdf"
 
-    pos = extract_po_numbers(blob)
+    pos = extract_po_numbers(pdf_text)
+    if pos:
+        sources["po"] = "pdf"
     amount = None
-    due_label = _AMOUNT_DUE_LABEL.search(text or "") or _AMOUNT_DUE_LABEL.search(blob)
+    # Amount must come from vendor PDF text, never subject/filename (Gas 0040323616).
+    due_label = _AMOUNT_DUE_LABEL.search(pdf_text)
     if due_label:
         amount = parse_money(due_label.group(1))
         if amount == 0:
             amount = None
-    if amount is None and ("unifirst" in vendor_l or "unifirst" in blob_l):
-        usd_hits = [parse_money(m) for m in _AMOUNT_USD_PREFIX.findall(text or "")]
+    if amount is None and ("unifirst" in vendor_l or "unifirst" in pdf_text.lower()):
+        usd_hits = [parse_money(m) for m in _AMOUNT_USD_PREFIX.findall(pdf_text)]
         usd_hits = [a for a in usd_hits if a not in (None, 0, 0.0) and a < 20000]
         if usd_hits:
             amount = usd_hits[0]
-    bal = _AMOUNT_BALANCE.search(text or "") or _AMOUNT_BALANCE.search(blob)
+    bal = _AMOUNT_BALANCE.search(pdf_text)
     if amount is None and bal:
         amount = parse_money(bal.group(1))
         if amount == 0:
             amount = None
-    stacked_total = re.search(r"Invoice Total:\s*\n(.{0,240})", text or "", flags=re.I | re.S)
+    stacked_total = re.search(r"Invoice Total:\s*\n(.{0,240})", pdf_text, flags=re.I | re.S)
     if amount is None and stacked_total:
         nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", stacked_total.group(1))]
         nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
@@ -667,19 +730,19 @@ def parse_invoice_text(
             amount = max(nums)
     amt_match = None
     if amount is None:
-        amt_match = _AMOUNT_BEFORE.search(text or "") or _AMOUNT_LABEL.search(text or "") or _AMOUNT_LABEL.search(blob)
+        amt_match = _AMOUNT_BEFORE.search(pdf_text) or _AMOUNT_LABEL.search(pdf_text)
     if amt_match:
         amount = parse_money(amt_match.group(1))
         if amount == 0:
             amount = None
     if amount is None:
-        totals = [parse_money(m) for m in _TOTAL_MONEY.findall(text or "")]
+        totals = [parse_money(m) for m in _TOTAL_MONEY.findall(pdf_text)]
         totals = [a for a in totals if a not in (None, 0, 0.0)]
         if totals:
             amount = max(totals)
     if amount is None:
         usd_vals = []
-        for left, right in re.findall(r"USD\s*([\d,]+(?:\.\d{2}))|([\d,]+(?:\.\d{2}))\s+USD", text or "", flags=re.I):
+        for left, right in re.findall(r"USD\s*([\d,]+(?:\.\d{2}))|([\d,]+(?:\.\d{2}))\s+USD", pdf_text, flags=re.I):
             usd_vals.append(parse_money(left or right))
         usd_vals = [a for a in usd_vals if a not in (None, 0, 0.0)]
         if usd_vals:
@@ -687,23 +750,23 @@ def parse_invoice_text(
             if amount is None or best > amount:
                 amount = best
     if amount is None:
-        sub = re.search(r"\b(?:SUB-?TOTAL|AMOUNT DUE)\s*:?\s*([\d,]+(?:\.\d{2}))", text or "", flags=re.I)
+        sub = re.search(r"\b(?:SUB-?TOTAL|AMOUNT DUE)\s*:?\s*([\d,]+(?:\.\d{2}))", pdf_text, flags=re.I)
         if sub:
             amount = parse_money(sub.group(1))
             if amount == 0:
                 amount = None
     if amount is None:
-        due = _AMOUNT_USD_DUE.search(text or "") or _AMOUNT_USD_DUE.search(blob)
+        due = _AMOUNT_USD_DUE.search(pdf_text)
         if due:
             amount = parse_money(due.group(1))
     if amount is None:
-        stacked_total_amt = _TOTAL_STACKED.search(text or "")
+        stacked_total_amt = _TOTAL_STACKED.search(pdf_text)
         if stacked_total_amt:
             amount = parse_money(stacked_total_amt.group(1))
             if amount == 0:
                 amount = None
     if amount is None:
-        ext_block = re.search(r"Ext(?:ended)?\s*Price(.{0,400})", text or "", flags=re.I | re.S)
+        ext_block = re.search(r"Ext(?:ended)?\s*Price(.{0,400})", pdf_text, flags=re.I | re.S)
         if ext_block:
             ext_nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", ext_block.group(1))]
             ext_nums = [a for a in ext_nums if a not in (None, 0, 0.0) and a < 100000]
@@ -711,58 +774,63 @@ def parse_invoice_text(
                 amount = max(ext_nums)
     if amount is None:
         # Capital Machine prints a lone $1,067.50 on the last line.
-        trailing = re.findall(r"\$([\d,]+(?:\.\d{2}))", text or "")
+        trailing = re.findall(r"\$([\d,]+(?:\.\d{2}))", pdf_text)
         trailing_amt = [parse_money(m) for m in trailing]
         trailing_amt = [a for a in trailing_amt if a not in (None, 0, 0.0) and a < 100000]
         if trailing_amt:
             amount = trailing_amt[-1]
-    due_all = re.search(r"Total amount due:\s*\$?\s*([\d,]+(?:\.\d{2}))", text or "", flags=re.I)
+    due_all = re.search(r"Total amount due:\s*\$?\s*([\d,]+(?:\.\d{2}))", pdf_text, flags=re.I)
     if due_all:
         amount = parse_money(due_all.group(1)) or amount
     if "oneal" in vendor_l or "o'neal" in vendor_l or "o_neal" in blob_l:
-        oneal_totals = _oneal_totals(text or "")
+        oneal_totals = _oneal_totals(pdf_text)
         if oneal_totals:
             amount = oneal_totals[0]
     if amount is None:
         # UniFirst First Aid: Invoice Total: then Net / Tax / Total / Balance.
-        block = re.search(r"Invoice Total:(.{0,240})", text or "", flags=re.I | re.S)
+        block = re.search(r"Invoice Total:(.{0,240})", pdf_text, flags=re.I | re.S)
         if block:
             nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", block.group(1))]
             nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
             if nums:
                 amount = max(nums)
+    if amount not in (None, ""):
+        sources["amount"] = "pdf"
 
     # Printed invoice date only. Never subject "Dated:" or the email received day.
     invoice_date = None
-    date_match = _DATE_LABEL.search(text or "")
+    date_match = _DATE_LABEL.search(pdf_text)
     if date_match:
         invoice_date = parse_date_value(date_match.group(1))
     if not invoice_date:
         loose = re.search(
             r"(?:^|\n)\s*date\s*[:.\s]+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}-[A-Za-z]{3}-\d{2,4})",
-            text or "",
+            pdf_text,
             flags=re.I,
         )
         if loose:
             invoice_date = parse_date_value(loose.group(1))
     if not invoice_date:
-        for raw in _DATE_ANY.findall(text or ""):
+        for raw in _DATE_ANY.findall(pdf_text):
             parsed = parse_date_value(raw)
             if not parsed or parsed < "2025-01-01":
                 continue
             # MSC / Austin print Due Date before Invoice Date in the extracted text.
-            around = (text or "")
+            around = pdf_text
             idx = around.lower().find(raw.lower())
             window = around[max(0, idx - 24) : idx] if idx >= 0 else ""
             if re.search(r"\bdue\s*date\b", window, flags=re.I):
                 continue
             invoice_date = parsed
             break
+    if invoice_date:
+        sources["date"] = "pdf"
 
     check_stop = bool(_CHECK_STOP.search(blob))
-    fees = extract_fees(text)
-    lines = extract_invoice_lines(text)
+    fees = extract_fees(pdf_text)
+    lines = extract_invoice_lines(pdf_text)
     po = pos[0] if len(pos) == 1 else None
+    po_doc = is_purchase_order_document(text=pdf_text, filename=filename)
     return {
         "vendor": vendor,
         "invoice_number": invoice_number or "",
@@ -773,9 +841,17 @@ def parse_invoice_text(
         "fees": fees,
         "lines": lines,
         "check_stop": check_stop,
-        "hold_reason": "CHECK STOP" if check_stop else "",
+        "hold_reason": "CHECK STOP" if check_stop else ("parse-error" if po_doc else ""),
         "multi_po": len(pos) > 1,
-        "text_chars": len(text or ""),
+        "text_chars": len(pdf_text),
+        "field_sources": sources,
+        "is_purchase_order_doc": po_doc,
+        "parse_verified": bool(
+            sources.get("invoice_number") in {"pdf", "pdf-prefix"}
+            and sources.get("amount") == "pdf"
+            and sources.get("date") == "pdf"
+            and not po_doc
+        ),
     }
 
 

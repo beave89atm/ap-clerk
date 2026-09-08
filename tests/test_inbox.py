@@ -383,7 +383,7 @@ def test_live_missing_vendor_is_fail_and_no_outlook_flag():
     assert row["Flag status"] == "skipped-not-success"
 
 
-def test_po_not_on_target_still_creates_header():
+def test_printed_po_not_on_live_holds_not_misc():
     created = {"id": 77, "values": {"Invoice_Number": "ZZ-2"}}
 
     class FakeKimco:
@@ -423,9 +423,10 @@ def test_po_not_on_target_still_creates_header():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
-    assert row["KIMCO id"] == 77
-    assert "PO 59999" in row["Why"]
+    assert row["Result"] == "HOLD"
+    assert row["KIMCO id"] == ""
+    assert "po" in row["Why"].lower()
+    assert "Misc Type 4" in row["Why"]
     assert row["Flag in Outlook"] == "Yes"
 
 
@@ -487,8 +488,9 @@ def test_name_mismatch_uses_vendor_on_the_po():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
+    assert row["Result"] == "Incomplete"
     assert "vendor missing" not in row["Why"]
+    assert row["KIMCO id"] == 80
 
 
 def test_vendor_from_live_po_is_not_vendor_missing():
@@ -524,7 +526,7 @@ def test_vendor_from_live_po_is_not_vendor_missing():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
+    assert row["Result"] == "Incomplete"
     assert "vendor missing" not in row["Why"]
     assert row["KIMCO id"] == 80
 
@@ -547,7 +549,7 @@ def test_coherent_alias_1410_is_not_vendor_missing():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
+    assert row["Result"] == "Incomplete"
     assert "vendor missing" not in row["Why"]
 
 
@@ -625,7 +627,7 @@ def test_emj_small_ppv_is_recorded_signed():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
+    assert row["Result"] == "Incomplete"
     assert row["PPV"] == "-18.06"
     assert "Purchase Price Variance" in row["Why"]
 
@@ -649,7 +651,7 @@ def test_fastenal_receipt_slip_avoids_hold_no_receipts():
         pdf_dir=None,
         flag_outlook=False,
     )
-    assert row["Result"] == "Success"
+    assert row["Result"] == "Incomplete"
     assert "no receipts" not in row["Why"].lower()
 
 

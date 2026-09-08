@@ -18,8 +18,8 @@ FORBIDDEN_BATCH_IDS = {669}
 FORBIDDEN_BATCH_NAMES = {"Mark Brown 8/4/26"}
 FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
 def flag_in_outlook_for(result: str | None) -> str:
-    """Outlook category column. Yes for Success (Entered in AI) and HOLD/Fail (AI HOLD)."""
-    return "Yes" if (result or "").strip() in {"Success", "HOLD", "Fail"} else "No"
+    """Outlook category column. Yes for Success (Entered in AI) and Incomplete/HOLD/Fail (AI HOLD)."""
+    return "Yes" if (result or "").strip() in {"Success", "Incomplete", "HOLD", "Fail"} else "No"
 
 
 def comments_for(target: str) -> str:
@@ -39,6 +39,9 @@ HOLD_ONLY_REASONS = {
     "not-a-bill",
     "not a bill",
     "price does not match",
+    "parse-error",
+    "internal",
+    "internal mail",
 }
 
 # Kyle 2026-08-28: PPV is signed Additional Charge Purchase Price Variance.
@@ -650,6 +653,49 @@ def match_receipts(
                 found = True
                 break
 
+    # Second pass before HOLD-no-receipts (Capital 26167 / Fastenal TXFT499356):
+    # slip # = invoice #, part, qty, PO line, then all open receipts on that PO.
+    second_pass = False
+    if not found and not ambiguous and po_number:
+        open_on_po: list[dict[str, Any]] = []
+        for receipt in normalized:
+            if id(receipt) in used:
+                continue
+            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
+            if receipt_po == str(po_number):
+                open_on_po.append(receipt)
+        for receipt in list(open_on_po):
+            if slip_matches_invoice(str(receipt.get("slip") or receipt.get("name") or ""), invoice_number):
+                matched.append({"line": {"invoice_number": invoice_number}, "receipt": receipt, "score": 80, "pass": "second-slip"})
+                used.add(id(receipt))
+                found = True
+                second_pass = True
+        if not found:
+            for inv_line in lines:
+                scored = []
+                for receipt in open_on_po:
+                    if id(receipt) in used:
+                        continue
+                    score = _receipt_score(inv_line, receipt)
+                    if score >= 50:
+                        scored.append((score, receipt))
+                scored.sort(key=lambda pair: pair[0], reverse=True)
+                if scored:
+                    pick = scored[0][1]
+                    used.add(id(pick))
+                    matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "pass": "second-part"})
+                    found = True
+                    second_pass = True
+        if not found and open_on_po:
+            # Capital 26167: open receipts on the PO are enough to avoid a false HOLD.
+            for receipt in open_on_po:
+                if id(receipt) in used:
+                    continue
+                matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 55, "pass": "second-open-on-po"})
+                used.add(id(receipt))
+                found = True
+                second_pass = True
+
     hold_no_receipts = not found and not ambiguous
     return {
         "matched": matched,
@@ -657,12 +703,14 @@ def match_receipts(
         "ambiguous": ambiguous,
         "hold_no_receipts": hold_no_receipts,
         "found": found,
+        "second_pass": second_pass,
         "why": (
-            "HOLD: no receipts after slip # / part / qty / PO line search."
+            "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
             if hold_no_receipts
             else (
                 f"Select Receipts: {len(matched)} receipt(s) matched by part/PO-WO/slip "
                 f"(not first qty)."
+                + (" Second pass used open receipts on the PO." if second_pass else "")
                 + (f" {len(ambiguous)} ambiguous; will not guess." if ambiguous else "")
             )
         ),
@@ -773,14 +821,31 @@ STATEMENT_RE = re.compile(
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
+# Vendor invoices with a PDF must enter even when the subject is short (AQPC).
+KNOWN_BILL_VENDOR_RE = re.compile(
+    r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating",
+    flags=re.I,
+)
+INTERNAL_MAIL_RE = re.compile(
+    r"\b(internal\s+only|do\s+not\s+process|ap\s+clerk\s+test\s+mail)\b",
+    flags=re.I,
+)
 
 
 def classify_mail(*, subject: str = "", attachment_names: list[str] | None = None, preview: str = "") -> str:
-    """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', or 'not-a-bill'."""
+    """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', 'internal', or 'not-a-bill'."""
     names = " ".join(attachment_names or [])
     blob = f"{subject}\n{names}\n{preview}"
     if re.search(r"\bcheck\s*stop\b", blob, flags=re.I):
         return "check_stop"
+    if INTERNAL_MAIL_RE.search(blob):
+        return "internal"
+    if KNOWN_BILL_VENDOR_RE.search(blob):
+        if re.search(r"\bcheck\s*stop\b", blob, flags=re.I):
+            return "check_stop"
+        if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment)\b", blob, flags=re.I):
+            return "payment"
+        return "invoice"
     if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", blob, flags=re.I):
         return "payment"
     if POD_NAME_RE.search(blob) or re.search(r"\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|\bdelivery\s+receipt\b", blob, flags=re.I):

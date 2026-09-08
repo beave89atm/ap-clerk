@@ -97,7 +97,7 @@ def test_success_flags_source_message():
     assert status == FLAG_FLAGGED
     assert row["Flag status"] == FLAG_FLAGGED
     assert "Flag status=entered-in-ai" in row["Why"]
-    assert any((body.get("flag") or {}).get("flagStatus") == "flagged" for body in patches)
+    assert all("flag" not in (body or {}) for body in patches)
     assert any(body.get("categories") == [ENTERED_IN_AI_CATEGORY] for body in patches)
     assert all("AP Matched" not in (body.get("categories") or []) for body in patches)
 
@@ -212,10 +212,12 @@ def test_process_invoice_success_flags_and_hold_skips():
         pdf_dir=None,
         graph_client=graph,
     )
-    assert success_row["Result"] == "Success"
+    assert success_row["Result"] == "Incomplete"
     assert success_row["KIMCO id"] == 9508
-    assert success_row["Flag status"] == FLAG_FLAGGED
-    assert graph.flagged == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756")]
+    assert success_row["Flag status"] == FLAG_AI_HOLD
+    assert success_row["Flag status"] != "entered-in-ai"
+    assert graph.flagged == []
+    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756")]
 
     hold_inv = {
         "vendor": "Gas and Supply North Texas, LLC",
@@ -241,8 +243,8 @@ def test_process_invoice_success_flags_and_hold_skips():
     assert hold_row["Result"] == "HOLD"
     assert hold_row["KIMCO id"] == ""
     assert hold_row["Flag status"] == FLAG_AI_HOLD
-    assert graph.flagged == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756")]
-    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-check-stop")]
+    assert graph.flagged == []
+    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756"), (ALLOWED_MAILBOX, "AAMk-check-stop")]
     assert hold_row["Flag in Outlook"] == "Yes"
 
 
@@ -256,6 +258,7 @@ def test_graph_403_is_denied_and_keeps_flag_decision_helpers():
     assert decide_flag_status(result="Success", kimco_id=9499, message_id="") == FLAG_NO_MESSAGE_ID
     assert decide_flag_status(result="Fail", kimco_id=3854, message_id="AAMk") == FLAG_HOLD_ELIGIBLE
     assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == FLAG_HOLD_ELIGIBLE
+    assert decide_flag_status(result="Incomplete", kimco_id=9508, message_id="AAMk") == FLAG_HOLD_ELIGIBLE
     assert decide_flag_status(result="Success", kimco_id="", message_id="AAMk") == FLAG_SKIPPED
 
 

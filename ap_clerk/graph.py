@@ -149,7 +149,7 @@ def has_ai_hold(message: dict[str, Any] | None) -> bool:
 
 
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
-    """Success → Entered in AI. HOLD/Fail → AI HOLD. Never a follow-up flag."""
+    """Success → Entered in AI. Incomplete/HOLD/Fail → AI HOLD. Never a follow-up flag."""
     outcome = (result or "").strip()
     has_id = str(message_id or "").strip()
     if outcome == "Success":
@@ -158,7 +158,7 @@ def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | N
         if not has_id:
             return FLAG_NO_MESSAGE_ID
         return FLAG_ELIGIBLE
-    if outcome in {"HOLD", "Fail"}:
+    if outcome in {"HOLD", "Fail", "Incomplete"}:
         if not has_id:
             return FLAG_NO_MESSAGE_ID
         return FLAG_HOLD_ELIGIBLE
@@ -518,10 +518,7 @@ class GraphClient:
             return FLAG_DENIED
         categories = categories_for_status(message_categories(current), add=add)
         payload: dict[str, Any] = {"categories": categories}
-        # Success also sets the Outlook follow-up flag. HOLD/Fail/skip must not.
-        # Categories remain the process marker; flag is not used to decide the queue.
-        if add == ENTERED_IN_AI_CATEGORY:
-            payload["flag"] = {"flagStatus": "flagged"}
+        # Process marker is the category only. Do not set flag.flagStatus=flagged.
         response = self.request(
             "PATCH",
             self._messages_url(mailbox, message_id),
@@ -541,9 +538,8 @@ class GraphClient:
     def flag_matched(self, mailbox: str, message_id: str) -> str:
         """PATCH categories to include preexisting `Entered in AI`.
 
-        Removes `AI HOLD` and legacy `AP Matched`. Also sets
-        flag.flagStatus=flagged after a successful header create.
-        HOLD/Fail/skip must not be flagged. 403 is graph-denied.
+        Removes `AI HOLD` and legacy `AP Matched`. Does not set
+        flag.flagStatus. Incomplete/HOLD/Fail use AI HOLD. 403 is graph-denied.
         """
         return self._patch_process_category(mailbox, message_id, ENTERED_IN_AI_CATEGORY)
 
@@ -690,7 +686,7 @@ def apply_flag_after_match(
     *,
     mailbox: str = ALLOWED_MAILBOX,
 ) -> str:
-    """Set row['Flag status'] after enter. Success→Entered in AI; HOLD/Fail→AI HOLD."""
+    """Set row['Flag status'] after enter. Success→Entered in AI; Incomplete/HOLD/Fail→AI HOLD."""
     message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
     decision = decide_flag_status(
         result=str(row.get("Result") or ""),
