@@ -1,10 +1,10 @@
 {
   "mailbox": "accountspayable@kannonmfg.com",
   "start_from": "2026-07-28",
-  "last_receivedDateTime": "2026-08-12T01:41:44Z",
-  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAN225tEAAA=",
-  "last_run_date": "2026-09-07",
-  "last_batch": "API Agent - 9/7/26 (700)",
-  "processed_count": 324,
-  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-07 daily processed 30 bills + 20 skips through 2026-08-12T01:41:44Z (Air Products 436084799). Batch API Agent - 9/7/26 id 700. New headers 9888-9896. Next weekday continues AFTER this cursor. Do not restart at 7/28."
+  "last_receivedDateTime": "2026-08-14T21:19:47Z",
+  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaWAAA=",
+  "last_run_date": "2026-09-08",
+  "last_batch": "API Agent - 9/8/26 (701)",
+  "processed_count": 414,
+  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-08 daily processed 30 bills + 60 skips through 2026-08-14T21:19:47Z (Legacy PS-INV103976). Batch API Agent - 9/8/26 id 701. New headers 9897-9920. Next weekday continues AFTER this cursor. Do not restart at 7/28."
 }
