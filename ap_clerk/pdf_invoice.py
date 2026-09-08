@@ -38,6 +38,13 @@ _INV_TUBE = re.compile(r"\b(011\d{5})\b")
 _INV_MSC_REAL = re.compile(r"Invoice Number\s+(\d{7,8})\b", flags=re.I)
 _INV_GRM = re.compile(r"Invoice\s{2,}(\d{7,8})\b", flags=re.I)
 _INV_PS_INV = re.compile(r"\b(PS-INV\d{5,})\b", flags=re.I)
+_INV_LS = re.compile(r"\b(LS-\d{4,})\b", flags=re.I)
+_INV_BILL_HASH = re.compile(r"\bBill\s*#\s*(\d{5,})\b", flags=re.I)
+_INV_STACKED = re.compile(r"(?:^|\n)\s*INVOICE\s*\n\s*(\d{6,8})\b", flags=re.I)
+_INV_UNIFIRST = re.compile(
+    r"Invoice\s*#:\s*(?:\n[^\n]{0,80}){0,16}\n\s*(28\d{8}|\d{10})\b",
+    flags=re.I,
+)
 _INV_JVT = re.compile(r"\b(JVT\s+SI-\d{4,})\b", flags=re.I)
 _INV_TMC = re.compile(r"\b(TMC-\d{5,})\b", flags=re.I)
 _INV_A1_STACKED = re.compile(
@@ -165,6 +172,8 @@ DOMAIN_VENDORS = {
     "aft-corp.com": "Automated Finishing Technology",
     "morgansteel.net": "Morgan Steel",
     "pctsupport.com": "PCT Support",
+    "orthmanconveying.com": "Orthman Conveying Systems",
+    "spectrumvoip.com": "SpectrumVoIP",
     "xcaliberind.com": "Xcaliber Industrial LLC",
     "aqpowder.com": "American Quality Powder Coating",
     "americanqualitypowder.com": "American Quality Powder Coating",
@@ -227,6 +236,8 @@ SUBJECT_VENDORS = (
     (re.compile(r"hapeco", re.I), "Hapeco, Inc"),
     (re.compile(r"morgan steel", re.I), "Morgan Steel"),
     (re.compile(r"pct\s+support|pctsupport", re.I), "PCT Support"),
+    (re.compile(r"orthman", re.I), "Orthman Conveying Systems"),
+    (re.compile(r"spectrumvoip|spectrum\s*voip", re.I), "SpectrumVoIP"),
     (re.compile(r"xcaliber", re.I), "Xcaliber Industrial LLC"),
     (re.compile(r"american\s+quality\s+powder|aqpc", re.I), "American Quality Powder Coating"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
@@ -359,7 +370,16 @@ def extract_po_numbers(text: str) -> list[str]:
     your_po = re.findall(r"Your\s+PO\s+(\d{5,6})", text or "", flags=re.I)
     found.extend(your_po)
     # Live KIMCO POs are 57xxx–59xxx and often sit unlabeled on Tube Supply / Morgan PDFs.
-    found.extend(re.findall(r"\b(5[7-9]\d{3})\b", text or ""))
+    # UniFirst "SZ Prem Charge 58002" is a garment code, not a KIMCO PO.
+    blob = text or ""
+    if "unifirst" not in blob.lower():
+        found.extend(re.findall(r"\b(5[7-9]\d{3})\b", blob))
+    else:
+        for hit in re.finditer(r"\b(5[7-9]\d{3})\b", blob):
+            window = blob[max(0, hit.start() - 24) : hit.start()]
+            if re.search(r"prem(?:ium)?\s*charge|sz\s*prem", window, flags=re.I):
+                continue
+            found.append(hit.group(1))
     # Shoppas / UniFirst customer accounts like C109050 are not POs.
     cleaned: list[str] = []
     for number in _unique(found):
@@ -453,7 +473,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|xcaliber)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber)",
             stripped,
             re.I,
         ):
@@ -569,6 +589,41 @@ def expand_oneal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, A
     return bills
 
 
+_FASTENAL_BLOCK = re.compile(
+    r"Cust\.?\s*P\.?O\.?.{0,80}?TXFT\d+\s+(\d{5,6}).{0,400}?Invoice No\.\s+(TXFT\d{5,}).{0,120}?Invoice Total\s+([\d,]+\.\d{2})",
+    flags=re.I | re.S,
+)
+
+
+def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """One Fastenal email PDF can hold more than one TXFT invoice (each with its own PO)."""
+    vendor = str(parsed.get("vendor") or "")
+    if "fastenal" not in vendor.lower():
+        return [parsed]
+    blocks = list(_FASTENAL_BLOCK.finditer(text or ""))
+    if len(blocks) <= 1:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    for match in blocks:
+        po, number, total = match.group(1), match.group(2).upper(), parse_money(match.group(3))
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        bill["po"] = po
+        bill["pos"] = [po]
+        bill["multi_po"] = False
+        if total not in (None, 0, 0.0):
+            bill["amount"] = total
+        sources = dict(bill.get("field_sources") or {})
+        sources["invoice_number"] = "pdf"
+        sources["po"] = "pdf"
+        if total not in (None, 0, 0.0):
+            sources["amount"] = "pdf"
+        bill["field_sources"] = sources
+        bill.pop("siblings", None)
+        bills.append(bill)
+    return bills or [parsed]
+
+
 def parse_invoice_text(
     text: str,
     *,
@@ -588,7 +643,22 @@ def parse_invoice_text(
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
             invoice_from_pdf = bool(invoice_number)
-    for rx in (_INV_EMJ, _INV_PS_INV, _INV_TMC, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_LABEL, _INV_GAS):
+    for rx in (
+        _INV_EMJ,
+        _INV_PS_INV,
+        _INV_LS,
+        _INV_TMC,
+        _INV_JVT,
+        _INV_UNIFIRST,
+        _INV_COLON_NUM,
+        _INV_SV,
+        _INV_DASH_IN,
+        _INV_MSC_REAL,
+        _INV_GRM,
+        _INV_LABEL,
+        _INV_BILL_HASH,
+        _INV_GAS,
+    ):
         if invoice_number:
             break
         match = rx.search(pdf_text)
@@ -637,6 +707,13 @@ def parse_invoice_text(
         if a1_stacked:
             invoice_number = _usable_invoice_number(a1_stacked.group(2))
             invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        stacked_nums = [_usable_invoice_number(n) for n in _INV_STACKED.findall(pdf_text)]
+        stacked_nums = [n for n in stacked_nums if n]
+        if stacked_nums:
+            # RMP prints a form id then the real invoice under a second INVOICE heading.
+            invoice_number = stacked_nums[-1]
+            invoice_from_pdf = True
     if not invoice_number:
         psi = _INV_PSI.search(pdf_text)
         if psi:
@@ -871,6 +948,8 @@ def parse_invoice_pdf(
         filename=path.name,
     )
     bills = expand_oneal_invoices(text, parsed)
+    if len(bills) <= 1:
+        bills = expand_fastenal_invoices(text, parsed)
     parsed = bills[0]
     if len(bills) > 1:
         parsed["siblings"] = bills[1:]

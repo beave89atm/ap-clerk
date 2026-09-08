@@ -298,6 +298,10 @@ def test_known_vendor_ids_from_live_get():
     assert known_vendor_id("PCT Support") == 140
     assert known_vendor_id("Xcaliber Industrial LLC") == 339
     assert known_vendor_id("emily.keith@morgansteel.net") == 304
+    assert known_vendor_id("Orthman Conveying Systems") == 434
+    assert known_vendor_id("Cecilia Hulsey / Orthman") == 434
+    from ap_clerk.rules import KNOWN_VENDOR_SAMPLE_INVOICES
+    assert KNOWN_VENDOR_SAMPLE_INVOICES[434] == 9496
 
 
 def test_receipt_name_matches_even_when_invoice_line_was_synthesized():

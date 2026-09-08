@@ -73,6 +73,7 @@ from ap_clerk.rules import (
     invoice_type_for,
     kimco_datetime,
     known_vendor_id,
+    KNOWN_VENDOR_SAMPLE_INVOICES,
     lookup_id,
     lookup_text,
     match_receipts,
@@ -982,6 +983,31 @@ def _process_invoice(
     return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
 
+def _seed_known_vendor_sample(
+    client: KimcoClient,
+    samples: list[dict[str, Any]],
+    vendor_id: int,
+    po_text: str,
+) -> dict[str, Any] | None:
+    """GET a known live sample so remit/terms are copied, not invented."""
+    invoice_id = KNOWN_VENDOR_SAMPLE_INVOICES.get(int(vendor_id))
+    if not invoice_id:
+        return None
+    try:
+        item = client.get_item("ap_invoices", int(invoice_id))
+    except KimcoError:
+        return None
+    values = item.get("values") or {}
+    sample = {
+        "vendor_id": lookup_id(values.get("Vendor")) or int(vendor_id),
+        "vendor_text": lookup_text(values.get("Vendor")),
+        "invoice_id": item.get("id"),
+        "po_text": lookup_text(values.get("Purchase_Order")) or po_text,
+    }
+    samples.append(sample)
+    return sample
+
+
 def _sample_by_vendor_id(samples: list[dict[str, Any]], vendor_id: int | None) -> dict[str, Any] | None:
     if vendor_id is None:
         return None
@@ -1017,6 +1043,9 @@ def _resolve_vendor(
         aliased = _sample_by_vendor_id(samples, alias_id)
         if aliased:
             return aliased
+        seeded = _seed_known_vendor_sample(client, samples, int(alias_id), po_text)
+        if seeded:
+            return seeded
     if po_vendor_id:
         from_po = _sample_by_vendor_id(samples, int(po_vendor_id))
         if from_po:
