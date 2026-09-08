@@ -67,6 +67,7 @@ def test_email_subject_and_body_counts():
         [
             {"Result": "Success"},
             {"Result": "Success"},
+            {"Result": "Incomplete"},
             {"Result": "Fail"},
             {"Result": "HOLD"},
         ],
@@ -74,6 +75,7 @@ def test_email_subject_and_body_counts():
         as_of=date(2026, 8, 28),
     )
     assert "Success: 2" in body
+    assert "Incomplete: 1" in body
     assert "Fail: 1" in body
     assert "HOLD: 1" in body
     assert "API Agent - 8/28/26 (700)" in body

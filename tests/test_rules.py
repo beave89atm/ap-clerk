@@ -99,10 +99,14 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="Payment confirmation - thank you") == "payment"
     assert classify_mail(subject="CHECK STOP Gas and Supply") == "check_stop"
     assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
+    assert classify_mail(subject="American Quality Powder Coating job 4412") == "invoice"
+    assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"
+    assert classify_mail(subject="Internal only — do not process") == "internal"
 
 
-def test_flag_in_outlook_yes_for_success_hold_and_fail():
+def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
     assert flag_in_outlook_for("Success") == "Yes"
+    assert flag_in_outlook_for("Incomplete") == "Yes"
     assert flag_in_outlook_for("HOLD") == "Yes"
     assert flag_in_outlook_for("Fail") == "Yes"
     assert comments_for("live") == "API Agent"

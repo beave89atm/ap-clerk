@@ -1,6 +1,8 @@
 # Kannon AP Clerk
 
-Weekday 5:00am America/Chicago CLI that enters **header-only** AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
+Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
+
+**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. This build does **not** run a live 30 and does **not** Mail.Send to Treyce. The weekday routine stays paused until a supervised 10-invoice live dry run after merge.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
@@ -10,10 +12,32 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 
 1. Authenticates to KIMCO (`POST /api/v2/authenticate` with `{key, password}`, then Bearer token). Default host is prototype.
 2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
-3. Creates header-only AP invoices for real vendor bills. A missing PO is **not** a HOLD: the header is still created with Purchase Order left blank. Select Receipts is used only when a PO exists.
-4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. This VM has no inbox PDFs, so the run records `Attach status = no-pdf-on-vm`.
-5. After enter, writes an Outlook category on `accountspayable@kannonmfg.com` only. **Success** gets the preexisting category `Entered in AI` (capital E). **HOLD / Fail** (CHECK STOP, missing vendor, already-exists, not-a-bill, no receipts the CLI will not guess) get red category **`AI HOLD`**. Never both on the same message. Does **not** use the Outlook follow-up flag or `AP Matched`.
-6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`. The weekday daily run emails that workbook to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com`.
+3. Applies QUALITY V1.1 hard gates (below). Real vendor bills still get a header when gates allow. A missing PO is **not** a HOLD by itself; a PO printed on the invoice or findable on live by vendor + part/WO must be set (never Misc Type 4 in that case). Select Receipts is required when a PO exists.
+4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. Keep the live UI path for Select Receipts + PDF until API Editable.
+5. After enter, writes an Outlook category on `accountspayable@kannonmfg.com` only. **Success** (finished bill) gets the preexisting category `Entered in AI` (capital E). **Incomplete / HOLD / Fail** get red category **`AI HOLD`**. Never both on the same message. Does **not** set `flag.flagStatus=flagged` and does **not** use `AP Matched`.
+6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`. The weekday daily run emails that workbook to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` only after a real `--live` enter. This QUALITY V1.1 PR does not send that mail.
+
+## QUALITY V1.1 gates
+
+`Success` is returned only when **all** of the following are clear. Tests in `tests/test_gates.py` fail if `Success` is returned without attach + receipts (when a PO exists).
+
+| Result | Meaning | Outlook |
+| --- | --- | --- |
+| **Success** | Header created **and** (if PO: Select Receipts done) **and** vendor PDF attached on the header. | `Entered in AI` only |
+| **Incomplete** | Header created but attach is blocked-405 / missing **or** receipts not selected. Not a finished bill. | `AI HOLD` (never `entered-in-ai`) |
+| **HOLD** | Gate failed before a trustworthy finished bill. Why names the gate. | `AI HOLD` |
+| **Fail** | Already exists, vendor missing, or create HTTP error. | `AI HOLD` |
+
+**Why** must name which gate failed. The **Notes** column is left empty for Treyce.
+
+1. **Preflight parse** — invoice #, date, amount, and PO are taken from the **vendor PDF text**, not email subject/filename alone. If the PDF total cannot be verified: `HOLD parse-error (preflight-parse)`, no wrong-amount header. Reject `Purchase_Order_*.pdf` and any attachment that is a PO, not an invoice. Regressions: Gas `0040323616` wrong amount; MSC/McQueary invoice # from filename; Legacy `Purchase_Order_58861.pdf`.
+2. **PO** — never leave header Purchase Order blank when a PO is on the invoice **or** findable on live by vendor + part/WO. Multi-PO: header PO blank is OK; Select Receipts per PO is required. If the printed PO is wrong/missing, search live POs by vendor + part numbers before Misc Type 4. Regressions: RMP `1470159`; Willbanks `209663` / `209664` “not misc, has PO”.
+3. **Receipt** — before HOLD-no-receipts, second pass: slip # = invoice #, part, qty, PO line, then all open receipts on that PO. Match part/PO-WO lines (Modern Heat), not first qty. Regressions: Capital `26167`; Fastenal `TXFT499356`.
+4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Live UI path stays until API Editable.
+5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). Statements, payments, CHECK STOP, internal mail, and PODs stay HOLD. Noise does not count toward the 30-bill attempt quota; skips are replaced so 30 real bills are still attempted.
+6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
+
+**Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s ≤10% of invoice total **and** ≤$100 rule; else price-does-not-match HOLD + `@Shawn McKibben`. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410).
 
 ## Prototype (default)
 
@@ -35,7 +59,7 @@ If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimc
 
 `--live` or `KIMCO_TARGET=live` selects live. Default is still off. The CLI refuses that target unless `KIMCO_LIVE_API_KEY` and `KIMCO_LIVE_API_PASSWORD` are both present. It never uses prototype keys against live, and never uses live keys against prototype.
 
-If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` and `daily --live` authenticate and then create today's `API Agent - M/D/YY` batch plus invoice headers on live. Application `Mail.ReadWrite` is granted on the Kannon AP Clerk Entra app (admin consent 2026-08-28). After enter, the CLI PATCHes `Entered in AI` on Success and `AI HOLD` on HOLD/Fail, on `accountspayable@kannonmfg.com` only. It does not set `flag.flagStatus`.
+If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` and `daily --live` authenticate and then create today's `API Agent - M/D/YY` batch plus invoice headers on live. Application `Mail.ReadWrite` is granted on the Kannon AP Clerk Entra app (admin consent 2026-08-28). After enter, the CLI PATCHes `Entered in AI` on Success only and `AI HOLD` on Incomplete/HOLD/Fail, on `accountspayable@kannonmfg.com` only. It does not set `flag.flagStatus`. QUALITY V1.1 does not run that live 30.
 
 `enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` that are not already `Entered in AI` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first among those. It does not drain the mailbox.
 
@@ -213,7 +237,7 @@ Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid
 3. **Invoice date** = the date printed on the invoice, not the email received date (Telecom 17602 is 8/26 not 8/27).
 4. **Select Receipts:** match invoice **part numbers** and PO/WO lines, not the first qty that fits. Modern Heat 220804 was lines **6–7** (parts `625-5200-002` and `400-5200-001`), not lines 1–3.
 5. Search receipts harder before HOLD-no-receipts (Fastenal `TXFT499356` was findable). Try slip # = invoice #, then part, qty, PO line.
-6. Categories unchanged: Success = `Entered in AI`; HOLD/Fail = `AI HOLD`.
+6. Categories: Success = `Entered in AI`; Incomplete/HOLD/Fail = `AI HOLD`. Never set `flag.flagStatus=flagged`.
 
 ## Select Receipts
 
@@ -235,9 +259,9 @@ Matching (Treyce 2026-08-28): pick the receipt whose **part number** and **PO/WO
 
 `runs/AP-run-YYYY-MM-DD.xlsx` columns:
 
-Vendor, Invoice #, date, PO, Amount, Result (Success/Fail/HOLD), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook, Flag status.
+Vendor, Invoice #, date, PO, Amount, Result (Success/Incomplete/HOLD/Fail), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook, Flag status, Notes.
 
-**Flag in Outlook:** `Yes` when a process category is applied (Success, HOLD, or Fail). **Flag status** is `entered-in-ai` / `ai-hold` / skipped reasons (`no-message-id`, `graph-denied`, `skipped-not-success`). The Why column already has the HOLD/Fail details.
+**Flag in Outlook:** `Yes` when a process category is applied (Success, Incomplete, HOLD, or Fail). **Flag status** is `entered-in-ai` (Success only) / `ai-hold` (Incomplete/HOLD/Fail) / skipped reasons (`no-message-id`, `graph-denied`, `skipped-not-success`). Incomplete must not say `entered-in-ai`. **Notes** is left empty for Treyce. Why names the gate that failed.
 
 One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a category was attempted.
 
@@ -247,8 +271,8 @@ The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail wi
 
 When an invoice is pulled from that mailbox:
 
-- **Success** (header created): PATCH categories to include `Entered in AI` and **remove** `AI HOLD` if present.
-- **Unable to process** (HOLD, Fail, CHECK STOP, missing vendor, already-exists, no receipts the CLI will not guess, not-a-bill): PATCH categories to include exact string **`AI HOLD`** and **remove** `Entered in AI` if present.
+- **Success** (finished bill only): PATCH categories to include `Entered in AI` and **remove** `AI HOLD` if present.
+- **Unable to finish** (Incomplete, HOLD, Fail, CHECK STOP, missing vendor, already-exists, no receipts, not-a-bill, parse-error): PATCH categories to include exact string **`AI HOLD`** and **remove** `Entered in AI` if present.
 
 PATCH body is `{"categories":[<existing except AP Matched and the other process marker>, "<Entered in AI|AI HOLD>"]}`. It does **not** set `flag.flagStatus`. It does **not** add `AP Matched`. Never apply `AI HOLD` and `Entered in AI` on the same message.
 
@@ -276,3 +300,4 @@ Graph message id is kept on the run so the category is applied after match, not 
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
 - The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success and `AI HOLD` after HOLD/Fail. Never both. Never use the follow-up flag or `AP Matched` as the process marker.
 - `daily` requires `--live`. Do not add a GitHub Actions cron that posts live without Kyle.
+- QUALITY V1.1 does not run a live 30 and does not Mail.Send to Treyce. After merge, run a supervised 10-invoice live dry run before re-arming the weekday 2am routine.

@@ -24,6 +24,7 @@ COLUMNS = [
     "Attach status",
     "Flag in Outlook",
     "Flag status",
+    "Notes",
 ]
 
 
@@ -41,11 +42,12 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
         cell.alignment = Alignment(wrap_text=True)
     fills = {
         "Success": PatternFill("solid", fgColor="C6EFCE"),
+        "Incomplete": PatternFill("solid", fgColor="F8CBAD"),
         "Fail": PatternFill("solid", fgColor="FFC7CE"),
         "HOLD": PatternFill("solid", fgColor="FFEB9C"),
     }
     for row_idx, row in enumerate(rows, start=2):
-        values = [row.get(col, "") for col in COLUMNS]
+        values = ["" if col == "Notes" else row.get(col, "") for col in COLUMNS]
         for col, value in enumerate(values, start=1):
             cell = sheet.cell(row_idx, col, value)
             cell.alignment = Alignment(wrap_text=True, vertical="top")
@@ -53,7 +55,7 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
                 fill = fills.get(str(value))
                 if fill:
                     cell.fill = fill
-    widths = [28, 18, 12, 12, 12, 10, 55, 12, 22, 40, 10, 16, 18, 18]
+    widths = [28, 18, 12, 12, 12, 12, 55, 12, 22, 40, 10, 16, 18, 18, 18]
     for idx, width in enumerate(widths, start=1):
         sheet.column_dimensions[get_column_letter(idx)].width = width
     sheet.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{max(1, len(rows) + 1)}"
