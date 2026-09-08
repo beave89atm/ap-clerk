@@ -138,6 +138,11 @@ VENDOR_ID_ALIASES = {
     "orthman conveying": 434,
 }
 
+# Existing live invoices used only for remit/terms copy. Confirmed by GET.
+KNOWN_VENDOR_SAMPLE_INVOICES = {
+    434: 9496,  # Orthman 701599
+}
+
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for
 # these known vendor patterns. Do not invent a prefix for other vendors.
 VENDOR_INVOICE_PREFIXES = {
