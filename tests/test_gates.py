@@ -549,3 +549,90 @@ def test_process_invoice_cannot_return_success_without_finished_bill():
     assert row["Result"] != RESULT_SUCCESS
     assert row["Result"] == RESULT_INCOMPLETE
     assert row["Flag status"] != "entered-in-ai"
+
+
+def test_rmp_stacked_invoice_number_from_pdf_not_filename():
+    parsed = parse_invoice_text(
+        "INVOICE\n1475437\nInvoice Date Page\nINVOICE\n1471255\nORDER NUMBER\n"
+        "RMP Industrial Supply Inc\nAMOUNT DUE:\n67.49\n08/14/2026\n",
+        filename="Inv1471255.pdf",
+        from_name="RMP Industrial Supply Inc",
+    )
+    assert parsed["invoice_number"] == "1471255"
+    assert parsed["field_sources"]["invoice_number"] == "pdf"
+    ok, _why = preflight_parse_gate(parsed)
+    assert ok is True
+
+
+def test_unifirst_invoice_number_from_pdf_not_filename_and_not_prem_charge_po():
+    parsed = parse_invoice_text(
+        "Invoice #:\n USD 1,333.48\nN6440\nNet30\n1193268\n08/14/2026\n1193268\n"
+        "2810795106\nCustomer #:\nBill To #:\nInvoice Date:\nAmount Due:\n"
+        "Payment Terms:\nPurchase Order:\nCurrent Charges Due:\nUSD 1,333.48\n"
+        "UNIFIRST CORPORATION\nSZ Prem Charge 58002 0.15 1.90152731\n",
+        filename="DirectInvoice_2810795106.pdf",
+        from_address="invoices@unifirst.com",
+    )
+    assert parsed["invoice_number"] == "2810795106"
+    assert parsed["field_sources"]["invoice_number"] == "pdf"
+    assert parsed["po"] is None
+    assert 58002 not in (parsed.get("pos") or [])
+    ok, _why = preflight_parse_gate(parsed)
+    assert ok is True
+
+
+def test_pct_ls_8507_and_spectrum_bill_from_pdf():
+    pct = parse_invoice_text(
+        "PCT Support\nInvoice\nInvoice #: LS-8507\nInvoice Date: 8/15/2026\n"
+        "BALANCE DUE: $1,310.00\n",
+        filename="invoice-LS-8507.pdf",
+        from_address="billing@pctsupport.com",
+    )
+    assert pct["invoice_number"] == "LS-8507"
+    assert pct["field_sources"]["invoice_number"] == "pdf"
+    assert pct["amount"] == 1310.0
+
+    voip = parse_invoice_text(
+        "Due: Tue, Sep 1, 2026\nTotal: $33.39\nBill# 929030 Customer# 8174733899\n"
+        "SpectrumVoIP\nTotal Amount Due 33.39\n",
+        filename="Bill_929030.pdf",
+        from_name="SpectrumVoIP Billing",
+    )
+    assert voip["invoice_number"] == "929030"
+    assert voip["field_sources"]["invoice_number"] == "pdf"
+    assert voip["vendor"] == "SpectrumVoIP"
+
+
+def test_orthman_vendor_from_pdf_not_sender_name():
+    parsed = parse_invoice_text(
+        "Invoice\nDate\n8/14/2026\nInvoice #\n701684\nOrthman Conveying Systems\n"
+        "P.O. No.\n58636\nTotal $1,242.94\nBalance Due $1,242.94\n",
+        subject="Invoice 701684 from Orthman Conveying Systems",
+        from_name="Cecilia Hulsey",
+        from_address="cecilia@orthmanconveying.com",
+        filename="Inv_701684_from_Orthman_Conveying_Systems.pdf",
+    )
+    assert parsed["vendor"] == "Orthman Conveying Systems"
+    assert parsed["invoice_number"] == "701684"
+    assert parsed["po"] == "58636"
+    assert parsed["field_sources"]["invoice_number"] == "pdf"
+
+
+def test_fastenal_two_invoice_pdf_splits_siblings():
+    from ap_clerk.pdf_invoice import expand_fastenal_invoices
+
+    text = (
+        "Cust. P.O.\nJob No.\nSold To\nTXFT40601\n58904\nKANNON\n"
+        "Invoice No.\nTXFT4100045\nInvoice Total\n39.31 USD\nShipping & Handling 15.31\n"
+        "Cust. P.O.\nJob No.\nSold To\nTXFT40601\n58841\nKANNON\n"
+        "Invoice No.\nTXFT499945\nInvoice Total\n62.98 USD\nShipping & Handling 19.37\n"
+    )
+    first = parse_invoice_text(text, from_address="invoices@fastenal.com")
+    bills = expand_fastenal_invoices(text, first)
+    assert [b["invoice_number"] for b in bills] == ["TXFT4100045", "TXFT499945"]
+    assert bills[0]["po"] == "58904"
+    assert bills[0]["amount"] == 39.31
+    assert bills[1]["po"] == "58841"
+    assert bills[1]["amount"] == 62.98
+    assert bills[0]["multi_po"] is False
+    assert bills[1]["multi_po"] is False

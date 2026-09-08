@@ -133,6 +133,9 @@ VENDOR_ID_ALIASES = {
     "pctsupport": 140,
     "xcaliber": 339,
     "morgansteel": 304,
+    # Confirmed 2026-09-08 via GET of live invoice 9496 (Vendor.id, not invented).
+    "orthman": 434,
+    "orthman conveying": 434,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for

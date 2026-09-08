@@ -1,0 +1,525 @@
+{
+  "kind": "supervised-dry10",
+  "quality": "V1.1",
+  "mailbox": "accountspayable@kannonmfg.com",
+  "as_of": "2026-09-08",
+  "batch": "API Agent - 9/8/26 (701)",
+  "limit": 10,
+  "daily_30_ran": false,
+  "counts": {
+    "Success": 0,
+    "Incomplete": 5,
+    "Fail": 1,
+    "HOLD": 6,
+    "total": 12
+  },
+  "invoices": [
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice_number": "PS-INV103977",
+      "date": "2026-08-14",
+      "po": "58863",
+      "pos": [
+        "58863"
+      ],
+      "amount": 270.0,
+      "fees": [
+        {
+          "name": "Shipping Agent Code",
+          "amount": null
+        }
+      ],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-14_Sales_Invoice_PS-INV103977.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaXAAA=",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV103977",
+      "receivedDateTime": "2026-08-14T21:29:00Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice_number": "PS-INV103978",
+      "date": "2026-08-14",
+      "po": "58869",
+      "pos": [
+        "58869"
+      ],
+      "amount": 675.0,
+      "fees": [
+        {
+          "name": "Shipping Agent Code",
+          "amount": null
+        }
+      ],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-14_Sales_Invoice_PS-INV103978.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaYAAA=",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV103978",
+      "receivedDateTime": "2026-08-14T21:33:20Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Cecilia Hulsey",
+      "invoice_number": "701684",
+      "date": "2026-08-14",
+      "po": "58636",
+      "pos": [
+        "58636"
+      ],
+      "amount": 1242.94,
+      "fees": [],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-14_Inv_701684_from_Orthman_Conveying_Systems_124355_22616.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaZAAA=",
+      "subject": "Invoice 701684 from Orthman Conveying Systems",
+      "receivedDateTime": "2026-08-14T21:40:18Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT4100045",
+      "date": "2026-08-13",
+      "po": null,
+      "pos": [
+        "58904",
+        "58841"
+      ],
+      "amount": 39.31,
+      "fees": [
+        {
+          "name": "Shipping & Handling",
+          "amount": 15.31
+        }
+      ],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-14_fastenal-invoice.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYacAAA=",
+      "subject": "Fastenal Invoice Notice",
+      "receivedDateTime": "2026-08-14T22:45:39Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "RMP Industrial Supply Inc",
+      "invoice_number": "1471255",
+      "date": "2026-08-14",
+      "po": null,
+      "pos": [],
+      "amount": 67.49,
+      "fees": [],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-14_Inv1471255.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYadAAA=",
+      "subject": "RMP Industrial Supply Inc - Invoice# 1471255",
+      "receivedDateTime": "2026-08-14T23:01:55Z",
+      "field_sources": {
+        "invoice_number": "filename",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": ""
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "UniFirst Corporation",
+      "invoice_number": "2810795106",
+      "date": "2026-08-14",
+      "po": "58002",
+      "pos": [
+        "58002"
+      ],
+      "amount": 1333.48,
+      "fees": [
+        {
+          "name": "3.00Energy Surcharge 0.25 3.25ENER 3.0000",
+          "amount": 3.0
+        },
+        {
+          "name": "7.0492.21 99.25885 Garment Maintenance Protection (GMP)",
+          "amount": 99.25
+        },
+        {
+          "name": "2.9835.40 38.38885 Garment Setup Protection (GSP)",
+          "amount": 38.38
+        },
+        {
+          "name": "7.3887.51 94.89885 Garment Loss Protection (GLP)",
+          "amount": 94.89
+        },
+        {
+          "name": "2.2428.26 30.50471 Garment Emblem Protection (GEP)",
+          "amount": 30.5
+        }
+      ],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-15_DirectInvoice_2810795106.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaeAAA=",
+      "subject": "Invoice Number 2810795106 from UniFirst",
+      "receivedDateTime": "2026-08-15T00:18:31Z",
+      "field_sources": {
+        "invoice_number": "filename",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Air Products and Chemicals, Inc",
+      "invoice_number": "436150428",
+      "date": "2026-08-14",
+      "po": null,
+      "pos": [],
+      "amount": 1299.0,
+      "fees": [],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-15_Air_Products_Invoice_0436150428.PDF",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYafAAA=",
+      "subject": "Air Products Invoice 0436150428 (US10)",
+      "receivedDateTime": "2026-08-15T01:17:08Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": ""
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_number": "S813828432",
+      "date": "2026-08-14",
+      "po": "58927",
+      "pos": [
+        "58927"
+      ],
+      "amount": 421.2,
+      "fees": [
+        {
+          "name": "SHIPPING DATE 14-AUG-2026",
+          "amount": null
+        },
+        {
+          "name": "FREIGHT PAYMENT PREPAID",
+          "amount": null
+        }
+      ],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-15_Invoices.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYagAAA=",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 08/14/26",
+      "receivedDateTime": "2026-08-15T03:09:21Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "PCT Support",
+      "invoice_number": "",
+      "date": "2026-08-15",
+      "po": null,
+      "pos": [],
+      "amount": 1310.0,
+      "fees": [],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-15_invoice-LS-8507.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYahAAA=",
+      "subject": "Kannon Manufacturing Inc. - Fort Worth - Invoice # LS-8507 - Due 8/25/2026",
+      "receivedDateTime": "2026-08-15T08:32:13Z",
+      "field_sources": {
+        "invoice_number": "",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": ""
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "SpectrumVoIP Billing",
+      "invoice_number": "929030",
+      "date": "2026-09-01",
+      "po": null,
+      "pos": [],
+      "amount": 33.39,
+      "fees": [
+        {
+          "name": "Taxes and Surcharges",
+          "amount": 9.41
+        },
+        {
+          "name": "FEDERAL COST RECOVERY FEE .46",
+          "amount": null
+        }
+      ],
+      "lines": [],
+      "multi_po": false,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-15_Bill_929030.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaiAAA=",
+      "subject": "SpectrumVoIP Invoice 929030",
+      "receivedDateTime": "2026-08-15T11:29:07Z",
+      "field_sources": {
+        "invoice_number": "filename",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": ""
+      },
+      "is_purchase_order_doc": false
+    }
+  ],
+  "skipped": [
+    {
+      "subject": "Payment Submitted",
+      "class": "no-attachment",
+      "hold_reason": "not-a-bill",
+      "receivedDateTime": "2026-08-14T21:42:06Z",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaaAAA="
+    },
+    {
+      "subject": "Payment Submitted",
+      "class": "no-attachment",
+      "hold_reason": "not-a-bill",
+      "receivedDateTime": "2026-08-14T21:49:29Z",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYabAAA="
+    }
+  ],
+  "rows": [
+    {
+      "Vendor": "Legacy Wire Products",
+      "Invoice #": "PS-INV103977",
+      "date": "2026-08-14",
+      "PO": "58863",
+      "Amount": 270.0,
+      "Result": "Incomplete",
+      "Why": "Incomplete (finish): header created (id 9921). Select Receipts not posted (API not Editable; live UI path required). Do not type Add Item. PDF attach=blocked-405. Success requires the vendor PDF on the header. Not Entered in AI. Header PO set. Select Receipts via API not implemented without an Editable receipt action; do not type Add Item. Select Receipts: 1 receipt(s) matched by part/PO-WO/slip (not first qty). Attach status=blocked-405. Flag status=ai-hold.",
+      "KIMCO id": 9921,
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "Shipping Agent Code",
+      "PPV": "none",
+      "Attach status": "blocked-405",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Legacy Wire Products",
+      "Invoice #": "PS-INV103978",
+      "date": "2026-08-14",
+      "PO": "58869",
+      "Amount": 675.0,
+      "Result": "Incomplete",
+      "Why": "Incomplete (finish): header created (id 9922). Select Receipts not posted (API not Editable; live UI path required). Do not type Add Item. PDF attach=blocked-405. Success requires the vendor PDF on the header. Not Entered in AI. Header PO set. Select Receipts via API not implemented without an Editable receipt action; do not type Add Item. Select Receipts: 1 receipt(s) matched by part/PO-WO/slip (not first qty). Attach status=blocked-405. Flag status=ai-hold.",
+      "KIMCO id": 9922,
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "Shipping Agent Code",
+      "PPV": "none",
+      "Attach status": "blocked-405",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Cecilia Hulsey",
+      "Invoice #": "701684",
+      "date": "2026-08-14",
+      "PO": "58636",
+      "Amount": 1242.94,
+      "Result": "Fail",
+      "Why": "Fail: vendor missing on live for Cecilia Hulsey (PO 58636 exists as PO58636-Orthman Conveying). Will not invent a vendor/remit-to ID. Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Fastenal Company",
+      "Invoice #": "TXFT4100045",
+      "date": "2026-08-13",
+      "PO": "",
+      "Amount": 39.31,
+      "Result": "Incomplete",
+      "Why": "Incomplete (finish): header created (id 9924). Select Receipts not posted (API not Editable; live UI path required). Do not type Add Item. PDF attach=blocked-405. Success requires the vendor PDF on the header. Not Entered in AI. Multi-PO: header Purchase Order left blank; Select Receipts per PO required. Purchase Order left blank (no-PO or multi-PO). Do not type Add Item. HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO). Select Receipts: 1 receipt(s) matched by part/PO-WO/slip (not first qty). Attach status=blocked-405. Flag status=ai-hold.",
+      "KIMCO id": 9924,
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "Shipping & Handling 15.31",
+      "PPV": "none",
+      "Attach status": "blocked-405",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "RMP Industrial Supply Inc",
+      "Invoice #": "1471255",
+      "date": "2026-08-14",
+      "PO": "",
+      "Amount": 67.49,
+      "Result": "HOLD",
+      "Why": "HOLD parse-error (preflight-parse): invoice # must be taken from vendor PDF text, not email subject/filename alone (MSC/McQueary). Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "UniFirst Corporation",
+      "Invoice #": "2810795106",
+      "date": "2026-08-14",
+      "PO": "58002",
+      "Amount": 1333.48,
+      "Result": "HOLD",
+      "Why": "HOLD parse-error (preflight-parse): invoice # must be taken from vendor PDF text, not email subject/filename alone (MSC/McQueary). Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "3.00Energy Surcharge 0.25 3.25ENER 3.0000 3.00; 7.0492.21 99.25885 Garment Maintenance Protection (GMP) 99.25; 2.9835.40 38.38885 Garment Setup Protection (GSP) 38.38; 7.3887.51 94.89885 Garment Loss Protection (GLP) 94.89; 2.2428.26 30.50471 Garment Emblem Protection (GEP) 30.50",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Air Products and Chemicals, Inc",
+      "Invoice #": "436150428",
+      "date": "2026-08-14",
+      "PO": "",
+      "Amount": 1299.0,
+      "Result": "Incomplete",
+      "Why": "Incomplete (finish): header created (id 9925). PDF attach=blocked-405. Success requires the vendor PDF on the header. Not Entered in AI. Purchase Order left blank (no-PO or multi-PO). Do not type Add Item. Attach status=blocked-405. Flag status=ai-hold.",
+      "KIMCO id": 9925,
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "blocked-405",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Earle M. Jorgensen Co",
+      "Invoice #": "S813828432",
+      "date": "2026-08-14",
+      "PO": "58927",
+      "Amount": 421.2,
+      "Result": "Incomplete",
+      "Why": "Incomplete (finish): header created (id 9926). Select Receipts not posted (API not Editable; live UI path required). Do not type Add Item. PDF attach=blocked-405. Success requires the vendor PDF on the header. Not Entered in AI. Header PO set. Select Receipts via API not implemented without an Editable receipt action; do not type Add Item. Select Receipts: 1 receipt(s) matched by part/PO-WO/slip (not first qty). Attach status=blocked-405. Flag status=ai-hold.",
+      "KIMCO id": 9926,
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "SHIPPING DATE 14-AUG-2026; FREIGHT PAYMENT PREPAID",
+      "PPV": "none",
+      "Attach status": "blocked-405",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "PCT Support",
+      "Invoice #": "",
+      "date": "2026-08-15",
+      "PO": "",
+      "Amount": 1310.0,
+      "Result": "HOLD",
+      "Why": "HOLD parse-error (preflight-parse): invoice # must be taken from vendor PDF text, not email subject/filename alone (MSC/McQueary). Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "SpectrumVoIP Billing",
+      "Invoice #": "929030",
+      "date": "2026-09-01",
+      "PO": "",
+      "Amount": 33.39,
+      "Result": "HOLD",
+      "Why": "HOLD parse-error (preflight-parse): invoice # must be taken from vendor PDF text, not email subject/filename alone (MSC/McQueary). Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26 (701)",
+      "Fees and surcharges": "Taxes and Surcharges 9.41; FEDERAL COST RECOVERY FEE .46",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Globe Life",
+      "Invoice #": "",
+      "date": "2026-08-14",
+      "PO": "",
+      "Amount": "",
+      "Result": "HOLD",
+      "Why": "HOLD (bill-vs-noise): not-a-bill. Do not create a header. Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaaAAA=",
+      "receivedDateTime": "2026-08-14T21:42:06Z"
+    },
+    {
+      "Vendor": "Globe Life",
+      "Invoice #": "",
+      "date": "2026-08-14",
+      "PO": "",
+      "Amount": "",
+      "Result": "HOLD",
+      "Why": "HOLD (bill-vs-noise): not-a-bill. Do not create a header. Flag status=ai-hold.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/8/26",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYabAAA=",
+      "receivedDateTime": "2026-08-14T21:49:29Z"
+    }
+  ],
+  "ui_updates": [],
+  "cursor": {
+    "last_receivedDateTime": "2026-08-15T11:29:07Z",
+    "last_message_id_set": true,
+    "processed_count": 426
+  }
+}
