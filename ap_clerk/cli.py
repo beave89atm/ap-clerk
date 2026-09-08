@@ -941,16 +941,17 @@ def _process_invoice(
     )
     row["Result"] = result
     if po_info and not multi_po:
-        if "editable" in edit_hint:
+        if select_status == "selected":
             line_note = (
-                "Header PO set. Select Receipts via API not implemented without an Editable receipt action; "
+                "Header PO set. Select Receipts-equivalent posted on the invoice record; "
                 "do not type Add Item. "
             )
         else:
             line_note = (
                 f"Lines blocked ({edit_hint or select_status or 'blocked-405'}): "
-                "API cannot Select Receipts until Editable is on; "
-                "do not type Add Item. Live UI needed if PUT is 405. "
+                "Select Receipts-equivalent uses the record URL; "
+                "check Can Edit Items / Inline on the list. "
+                "Do not type Add Item. "
             )
     else:
         line_note = (
@@ -1168,6 +1169,12 @@ def _maybe_attach(
             size=len(content),
             content=content,
         )
+    except KimcoError as exc:
+        LOGGER.info("Attach attempt failed without raising run: %s", type(exc).__name__)
+        text = str(exc)
+        if "405" in text:
+            return text if "Can Edit Items" in text else f"blocked-405: {text}"
+        return "blocked-405"
     except Exception as exc:  # noqa: BLE001 - attach must not fail the run
         LOGGER.info("Attach attempt failed without raising run: %s", type(exc).__name__)
         return "blocked-405"

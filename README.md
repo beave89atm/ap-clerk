@@ -2,7 +2,7 @@
 
 Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
 
-**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. This build does **not** run a live 30 and does **not** Mail.Send to Treyce. The weekday routine stays paused until a supervised 10-invoice live dry run after merge.
+**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. This build does **not** run a live 30, does **not** Mail.Send to Treyce, and does **not** post live KIMCO writes. The weekday routine stays paused until a supervised 10-invoice live dry run after merge.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
@@ -13,7 +13,7 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 1. Authenticates to KIMCO (`POST /api/v2/authenticate` with `{key, password}`, then Bearer token). Default host is prototype.
 2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
 3. Applies QUALITY V1.1 hard gates (below). Real vendor bills still get a header when gates allow. A missing PO is **not** a HOLD by itself; a PO printed on the invoice or findable on live by vendor + part/WO must be set (never Misc Type 4 in that case). Select Receipts is required when a PO exists.
-4. Attempts official 7.7 PDF attach when a PDF is present (notify `POST .../{id}/attachments/upload` → upload to `uploadUrl` → complete `POST .../{id}/attachments`). On this AP list, upload notify is 405. Keep the live UI path for Select Receipts + PDF until API Editable.
+4. Attempts official 7.7 PDF attach on the **invoice record** when a PDF is present (notify `POST /api/v2/{AP_INVOICE_GUID}/{id}/attachments/upload` → upload to `uploadUrl` → complete `POST /api/v2/{AP_INVOICE_GUID}/{id}/attachments`). Updates, line additions, and Select Receipts-equivalent edits use the same record URL, never the bare list GUID. If those calls still return 405, check **Can Edit Items / Inline** on the AP Invoice list (Kyle enables in KIMCO admin). Until those four list checkboxes are on live, the finish gate may still be Incomplete.
 5. After enter, writes an Outlook category on `accountspayable@kannonmfg.com` only. **Success** (finished bill) gets the preexisting category `Entered in AI` (capital E). **Incomplete / HOLD / Fail** get red category **`AI HOLD`**. Never both on the same message. Does **not** set `flag.flagStatus=flagged` and does **not** use `AP Matched`.
 6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`. The weekday daily run emails that workbook to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` only after a real `--live` enter. This QUALITY V1.1 PR does not send that mail.
 
@@ -33,7 +33,7 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 1. **Preflight parse** — invoice #, date, amount, and PO are taken from the **vendor PDF text**, not email subject/filename alone. If the PDF total cannot be verified: `HOLD parse-error (preflight-parse)`, no wrong-amount header. Reject `Purchase_Order_*.pdf` and any attachment that is a PO, not an invoice. Regressions: Gas `0040323616` wrong amount; MSC/McQueary invoice # from filename; Legacy `Purchase_Order_58861.pdf`.
 2. **PO** — never leave header Purchase Order blank when a PO is on the invoice **or** findable on live by vendor + part/WO. Multi-PO: header PO blank is OK; Select Receipts per PO is required. If the printed PO is wrong/missing, search live POs by vendor + part numbers before Misc Type 4. Regressions: RMP `1470159`; Willbanks `209663` / `209664` “not misc, has PO”.
 3. **Receipt** — before HOLD-no-receipts, second pass: slip # = invoice #, part, qty, PO line, then all open receipts on that PO. Match part/PO-WO lines (Modern Heat), not first qty. Regressions: Capital `26167`; Fastenal `TXFT499356`.
-4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Live UI path stays until API Editable.
+4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Until Kyle enables the four AP Invoice list checkboxes on live, finish may still be Incomplete; once enabled, the API record path should complete Select-Receipts-equivalent edits and PDF attach without the KIMCO UI.
 5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). Statements, payments, CHECK STOP, internal mail, and PODs stay HOLD. Noise does not count toward the 30-bill attempt quota; skips are replaced so 30 real bills are still attempted.
 6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
 
@@ -54,6 +54,29 @@ Hard-coded prototype services (do not use live GUIDs on prototype):
 Auth: `POST https://prototype.kimcoerp.com/api/v2/authenticate`.
 
 If `KIMCO_PROTOTYPE_INSTANCE_URL` is unset, the CLI uses `https://prototype.kimcoerp.com`. Prototype target refuses any URL containing `live.kimcoerp.com`.
+
+## KIMCO AP Invoice list (Kyle / developer guidance)
+
+The AP Invoice list must have these four checkboxes enabled in **KIMCO admin** (Kyle enables; this repo does not open the KIMCO UI):
+
+1. **Can View Items**
+2. **Can Edit Items**
+3. **Quick Add**
+4. **Can Edit Items Inline**
+
+**Record-endpoint rule:**
+
+| Operation | Endpoint |
+| --- | --- |
+| Create header (POST) | List: `/api/v2/{AP_INVOICE_GUID}` |
+| Search / list (GET) | List: `/api/v2/{AP_INVOICE_GUID}` |
+| Update existing invoice (PUT/PATCH) | Record: `/api/v2/{AP_INVOICE_GUID}/{invoice_id}` |
+| Line additions / Select Receipts-equivalent | Record: `/api/v2/{AP_INVOICE_GUID}/{invoice_id}` |
+| PDF attach notify + complete | Record: `/api/v2/{AP_INVOICE_GUID}/{invoice_id}/attachments/upload` then `.../{invoice_id}/attachments` |
+
+Live host is `https://live.kimcoerp.com`; prototype uses the same path shape on `https://prototype.kimcoerp.com` with the prototype GUID. The client refuses PUT/PATCH (and attach POST) on the bare list GUID.
+
+A 405 **after** those record URLs means the list still is not editable: **check Can Edit Items / Inline on the list**. Until Kyle enables edit on live, the finish gate may still return Incomplete. Once enabled, the API path should complete Select-Receipts-equivalent edits and PDF attach without the KIMCO UI.
 
 ## Live (Kyle said go)
 
@@ -241,7 +264,7 @@ Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid
 
 ## Select Receipts
 
-Lines must be added in the KIMCO UI via **Select Receipts**, not typed **Add Item**, and **only when a PO exists**. No-PO headers leave Purchase Order blank and do not get invented PO lines. The API cannot Select Receipts until Editable is on. This AP list rejects PUT/edit and attach POST with 405 (`list does not allow items to be edited`). The CLI does **not** invent line POSTs that skip Select Receipts. Successful PO-bill header rows record lines as blocked/405 in the Excel **Why** column.
+Lines must come from **Select Receipts** (or the API record-endpoint equivalent), not typed **Add Item**, and **only when a PO exists**. No-PO headers leave Purchase Order blank and do not get invented PO lines. The client posts receipt ids to `/api/v2/{AP_INVOICE_GUID}/{invoice_id}` — never the list GUID, never invented merchandise Add Item POSTs. If that record call still returns 405, check **Can Edit Items / Inline** on the list. Until Kyle enables those checkboxes on live, PO-bill rows may still record lines as blocked-405 in the Excel **Why** column.
 
 Matching (Treyce 2026-08-28): pick the receipt whose **part number** and **PO/WO line** match the invoice line. Do not take the first leftover qty that fits. Search order before HOLD-no-receipts: **slip # = invoice #**, part, qty, PO line. Fastenal `TXFT499356` is findable that way. Modern Heat `8-220804` is PO lines 6–7, not 1–3. If receipts were searched and none match, HOLD / `AI HOLD` (no header). If receipts were not loaded, the CLI does not invent a HOLD-no-receipts.
 

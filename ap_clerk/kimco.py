@@ -2,6 +2,10 @@
 
 Default target is prototype. Live writes require target=live and live.kimcoerp.com.
 Kyle said go for live writes on 2026-08-28 (explicit --live + KIMCO_LIVE_* only).
+
+Record-endpoint rule: create/search use `/api/v2/{serviceId}`. Updates, line
+additions, Select Receipts-equivalent edits, and attachments use
+`/api/v2/{serviceId}/{id}` (prototype or live host).
 """
 
 from __future__ import annotations
@@ -35,6 +39,16 @@ LIVE_SERVICES = {
 # and the client target is live (never on the prototype target).
 LIVE_WRITE_BLOCKED = "Live writes are off until Kyle says go"
 LIVE_WRITES_ENABLED = True
+
+# Kyle / KIMCO admin: AP Invoice list must have these four checkboxes on.
+# Until they are enabled on live, record-scoped PUT/attach may still 405.
+LIST_EDIT_CHECKBOXES = (
+    "Can View Items",
+    "Can Edit Items",
+    "Quick Add",
+    "Can Edit Items Inline",
+)
+LIST_EDIT_PERMISSIONS_HINT = "check Can Edit Items / Inline on the list"
 
 
 def services_for(target: str) -> dict[str, str]:
@@ -92,14 +106,48 @@ class KimcoClient:
         LOGGER.info("Authenticated to %s (token present, not printed)", target)
         return cls(base_url, token, target=target)
 
-    def _url(self, service: str, item_id: int | str | None = None, suffix: str = "") -> str:
-        guid = self.services[service]
-        path = f"{self.base_url}/api/v2/{guid}"
-        if item_id is not None:
-            path = f"{path}/{item_id}"
+    def _list_url(self, service: str) -> str:
+        """List endpoint: create + search only. Never used for edit/attach."""
+        return f"{self.base_url}/api/v2/{self.services[service]}"
+
+    def _record_url(self, service: str, item_id: int | str, suffix: str = "") -> str:
+        """Record endpoint `/api/v2/{serviceId}/{id}` (+ optional suffix)."""
+        if item_id in (None, ""):
+            raise KimcoError(f"{service} record URL requires an item id")
+        path = f"{self.base_url}/api/v2/{self.services[service]}/{item_id}"
         if suffix:
-            path = f"{path}/{suffix.lstrip('/')}"
+            path = f"{path}/{str(suffix).lstrip('/')}"
         return path
+
+    def _url(self, service: str, item_id: int | str | None = None, suffix: str = "") -> str:
+        if suffix and item_id in (None, ""):
+            raise KimcoError(f"{service} suffix {suffix!r} requires a record id")
+        if item_id is not None:
+            return self._record_url(service, item_id, suffix)
+        return self._list_url(service)
+
+    def _looks_like_record_url(self, url: str) -> bool:
+        path = (url or "").split("?", 1)[0]
+        reserved = {"attachments", "items", "upload"}
+        for guid in self.services.values():
+            marker = f"/api/v2/{guid}/"
+            if marker not in path:
+                continue
+            rest = path.split(marker, 1)[1].strip("/")
+            if not rest:
+                return False
+            first = rest.split("/", 1)[0]
+            if first.lower() in reserved:
+                return False
+            return bool(first)
+        return False
+
+    def _blocked_405(self, action: str, item_id: int | str | None = None) -> str:
+        where = f" record {item_id}" if item_id not in (None, "") else ""
+        return (
+            f"blocked-405: {action}{where} returned 405 after using the record URL; "
+            f"{LIST_EDIT_PERMISSIONS_HINT}"
+        )
 
     def request(self, method: str, url: str, **kwargs) -> requests.Response:
         method_upper = (method or "").upper()
@@ -111,6 +159,16 @@ class KimcoClient:
             raise KimcoError("Refusing live.kimcoerp.com on prototype target")
         if method_upper not in {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}:
             raise KimcoError(f"Unsupported HTTP method {method_upper}")
+        if method_upper in {"PUT", "PATCH"} and not self._looks_like_record_url(url):
+            raise KimcoError(
+                "Refusing list-endpoint edit; updates use /api/v2/{serviceId}/{id}"
+            )
+        if method_upper == "POST" and "attachments" in (url or "").lower():
+            if not self._looks_like_record_url(url):
+                raise KimcoError(
+                    "Refusing list-endpoint attach; attachments use "
+                    "/api/v2/{serviceId}/{id}/attachments"
+                )
         response = self.session.request(method, url, timeout=self.timeout, **kwargs)
         return response
 
@@ -148,8 +206,8 @@ class KimcoClient:
         return items
 
     def create(self, service: str, values: dict[str, Any]) -> tuple[int | None, dict[str, Any], int, str]:
-        """POST a header. Returns (id, body, status, error_text)."""
-        response = self.request("POST", self._url(service), json=values)
+        """POST a header on the list endpoint only. Returns (id, body, status, error_text)."""
+        response = self.request("POST", self._list_url(service), json=values)
         status = response.status_code
         text = response.text
         body: dict[str, Any] = {}
@@ -160,11 +218,50 @@ class KimcoClient:
         except ValueError:
             parsed = None
         if status >= 400:
-            wrapped = self.request("POST", self._url(service), json={"values": values})
+            wrapped = self.request("POST", self._list_url(service), json={"values": values})
             if wrapped.status_code < 400:
                 return _created_id(wrapped.json()), wrapped.json(), wrapped.status_code, ""
             return None, body, status, text[:500]
         return _created_id(body), body, status, ""
+
+    def update(
+        self,
+        service: str,
+        item_id: int | str,
+        values: dict[str, Any],
+        *,
+        method: str = "PUT",
+    ) -> tuple[dict[str, Any], int, str]:
+        """PUT/PATCH an existing record. Never the list GUID."""
+        url = self._record_url(service, item_id)
+        verb = (method or "PUT").upper()
+        if verb not in {"PUT", "PATCH"}:
+            raise KimcoError(f"update requires PUT or PATCH, not {verb}")
+        response = self.request(verb, url, json=values)
+        if response.status_code >= 400:
+            wrapped = self.request(verb, url, json={"values": values})
+            if wrapped.status_code < 400:
+                return _json_dict(wrapped), wrapped.status_code, ""
+            if response.status_code == 405 or wrapped.status_code == 405:
+                raise KimcoError(self._blocked_405(f"{verb} {service}", item_id))
+            return {}, response.status_code, (response.text or "")[:500]
+        return _json_dict(response), response.status_code, ""
+
+    def add_invoice_lines(self, invoice_id: int | str, lines: list[dict[str, Any]]) -> str:
+        """Add lines on the invoice RECORD. Never POST to the bare list GUID."""
+        if invoice_id in (None, ""):
+            raise KimcoError("Line add requires an invoice record id")
+        url = self._record_url("ap_invoices", invoice_id)
+        payload = {"items": list(lines or [])}
+        response = self.request("POST", url, json=payload)
+        if response.status_code < 400:
+            return "added"
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "added"
+        if response.status_code == 405 or put.status_code == 405:
+            return self._blocked_405("line add", invoice_id)
+        return f"blocked-{put.status_code}"
 
     def options(self, service: str, item_id: int | None = None) -> tuple[int, str]:
         """Probe allowed methods. Returns (status, Allow header). Never prints bodies."""
@@ -173,16 +270,15 @@ class KimcoClient:
         return response.status_code, allow
 
     def try_put_probe_rejected(self, service: str, item_id: int) -> str:
-        """Read-only capability hint: GET then reject if the list is not editable.
-
-        Does not send a PUT of invented values. Uses a HEAD/OPTIONS probe first.
-        """
+        """Read-only capability hint against the record URL. No invented PUT body."""
         status, allow = self.options(service, item_id)
         allow_u = allow.upper()
         if "PUT" in allow_u or "PATCH" in allow_u:
             return f"editable-options-{status}:{allow}"
-        if status in {404, 405}:
-            return f"blocked-{status}"
+        if status == 405:
+            return self._blocked_405(f"OPTIONS {service}", item_id)
+        if status == 404:
+            return "blocked-404"
         return f"options-{status}:{allow or 'no-Allow'}"
 
     def try_official_attach(
@@ -194,14 +290,20 @@ class KimcoClient:
         size: int,
         content: bytes,
     ) -> str:
-        """Official 7.7 attach. On some AP lists, upload notify is 405."""
+        """Official 7.7 attach on the invoice RECORD (never the list GUID).
+
+        Notify `POST .../{id}/attachments/upload` → PUT uploadUrl →
+        complete `POST .../{id}/attachments`.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("PDF attach requires an invoice record id")
         notify = self.request(
             "POST",
-            self._url("ap_invoices", invoice_id, "attachments/upload"),
+            self._record_url("ap_invoices", invoice_id, "attachments/upload"),
             json={"name": name, "contentType": content_type, "size": size},
         )
         if notify.status_code == 405:
-            return "blocked-405"
+            return self._blocked_405("PDF attach notify", invoice_id)
         if notify.status_code >= 400:
             return f"blocked-{notify.status_code}"
         payload = notify.json()
@@ -219,27 +321,39 @@ class KimcoClient:
             return f"upload-failed-{upload.status_code}"
         complete = self.request(
             "POST",
-            self._url("ap_invoices", invoice_id, "attachments"),
+            self._record_url("ap_invoices", invoice_id, "attachments"),
             json={"fileId": file_id},
         )
+        if complete.status_code == 405:
+            return self._blocked_405("PDF attach complete", invoice_id)
         if complete.status_code >= 400:
             return f"complete-failed-{complete.status_code}"
         return "attached"
 
     def try_select_receipts(self, invoice_id: int, receipt_ids: list[Any] | None = None) -> str:
-        """Select Receipts only when the AP list is Editable. Never invent Add Item POSTs.
+        """Select Receipts-equivalent on the invoice RECORD.
 
-        Until a real receipt-select action exists, keep the live UI path.
+        Posts matched receipt ids as record line items. Never the list GUID.
+        Never invents typed Add Item merchandise lines.
         """
-        hint = self.try_put_probe_rejected("ap_invoices", invoice_id)
-        if "editable" not in hint:
-            return "blocked-405"
-        LOGGER.info(
-            "Select Receipts API action is not implemented; live UI required (invoice %s, %s receipt id(s))",
-            invoice_id,
-            len(receipt_ids or []),
-        )
-        return "blocked-no-receipt-action"
+        if invoice_id in (None, ""):
+            raise KimcoError("Select Receipts requires an invoice record id")
+        ids = [rid for rid in (receipt_ids or []) if rid not in (None, "")]
+        if not ids:
+            return "blocked-no-receipt-ids"
+        lines = [{"Receipt": {"id": rid}} for rid in ids]
+        status = self.add_invoice_lines(invoice_id, lines)
+        if status == "added":
+            return "selected"
+        return status
+
+
+def _json_dict(response: Any) -> dict[str, Any]:
+    try:
+        parsed = response.json()
+    except (ValueError, AttributeError):
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _created_id(body: Any) -> int | None:
