@@ -28,7 +28,10 @@ from ap_clerk.graph import (
 from ap_clerk.pdf_invoice import parse_invoice_pdf
 from ap_clerk.rules import classify_mail
 
-STATEMENT_FILE_RE = re.compile(r"statement|custstate|pastdue|past[_ -]?due|aging", flags=re.I)
+STATEMENT_FILE_RE = re.compile(
+    r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status|accountstatus",
+    flags=re.I,
+)
 # A vendor invoice email may also attach the customer's PO. Do not enter the PO PDF as a bill
 # (9/7 created Legacy 9888 / invoice # 58861 from Purchase_Order_58861.pdf).
 PO_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
@@ -248,20 +251,22 @@ def pull_recent_bills(
                 )
                 check_stopped = True
                 break
-            if parsed.get("pdf_text_empty") and parsed.get("amount") in (None, ""):
-                continue
-            if not parsed.get("invoice_number") and not parsed.get("amount"):
-                continue
-            parsed["pdf_path"] = str(dest)
-            parsed["graph_message_id"] = message_id
-            parsed["subject"] = subject
-            parsed["receivedDateTime"] = message.get("receivedDateTime")
-            parsed["from_name"] = from_name
-            parsed["action"] = "create"
-            parsed["id"] = message_id
-            chosen_bills.append(parsed)
-            if len(selected) + len(chosen_bills) >= limit:
-                break
+            extras = list(parsed.pop("siblings", []) or [])
+            for bill in [parsed, *extras]:
+                if bill.get("pdf_text_empty") and bill.get("amount") in (None, ""):
+                    continue
+                if not bill.get("invoice_number") and not bill.get("amount"):
+                    continue
+                bill["pdf_path"] = str(dest)
+                bill["graph_message_id"] = message_id
+                bill["subject"] = subject
+                bill["receivedDateTime"] = message.get("receivedDateTime")
+                bill["from_name"] = from_name
+                bill["action"] = "create"
+                bill["id"] = message_id
+                chosen_bills.append(bill)
+                if len(selected) + len(chosen_bills) >= limit:
+                    break
         if check_stopped:
             continue
         if not chosen_bills:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE, pull_recent_bills
-from ap_clerk.pdf_invoice import parse_invoice_text, vendor_from_context
+from ap_clerk.pdf_invoice import expand_oneal_invoices, parse_invoice_text, vendor_from_context
 from ap_clerk.cli import _process_invoice
 from ap_clerk.rules import PRICE_DOES_NOT_MATCH, is_fee_or_surcharge
 
@@ -15,6 +15,7 @@ def test_purchase_order_pdf_is_not_a_bill():
     assert PO_FILE_RE.search("packing-slip-926.pdf")
     assert not PO_FILE_RE.search("Sales Invoice PS-INV103969.pdf")
     assert STATEMENT_FILE_RE.search("Account_Statement.pdf")
+    assert STATEMENT_FILE_RE.search("08-13-26 IPFS AccountStatus.pdf")
 
 
 def test_vendor_from_email_domain_and_filename():
@@ -985,3 +986,81 @@ def test_parse_0907_tmc_unifirst_aft_hapeco_precision():
     assert austin["vendor"] == "Austin Hardware & Supply Inc."
     assert austin["invoice_number"] == "2489971"
     assert austin["amount"] == 293.70
+
+
+def test_parse_0908_morgan_gas_oneal_pct_xcaliber():
+    morgan = parse_invoice_text(
+        "128526INVOICE\nINVOICE 128526 1 08/10/2026\n58867 331797\nSUBTOTAL\n1,323.00\nTOTAL\n1,323.00",
+        from_name="Emily Keith",
+        from_address="emily.keith@morgansteel.net",
+        filename="Invoice00128526.PDF",
+    )
+    assert morgan["vendor"] == "Morgan Steel"
+    assert morgan["invoice_number"] == "128526"
+    assert morgan["po"] == "58867"
+    assert morgan["amount"] == 1323.00
+
+    gas = parse_invoice_text(
+        "ORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n"
+        "08/12/26   A3050      0040361574\nGas and Supply North Texas, LLC\n"
+        "CUS P/O #\n58890\nPLUG, LIGHTED ENDS (05-00364)\nAmount Due: 8,225.61",
+        from_address="billing@gasandsupply.com",
+        filename="billing01_A3050_c.pdf",
+    )
+    assert gas["vendor"] == "Gas and Supply North Texas, LLC"
+    assert gas["invoice_number"] == "0040361574"
+    assert gas["invoice_number"] != "05-00364"
+    assert gas["po"] == "58890"
+    assert gas["amount"] == 8225.61
+
+    pct = parse_invoice_text(
+        "PCT Support\nINVOICE # 23053\nDATE 08/12/2026\nBALANCE DUE $80.00\nTOTAL 80.00",
+        from_address="quickbooks@notification.intuit.com",
+        from_name="PCT Support",
+        filename="Invoice_23053_from_PCT_Support.pdf",
+    )
+    assert pct["vendor"] == "PCT Support"
+    assert pct["invoice_number"] == "23053"
+    assert pct["amount"] == 80.00
+    assert pct["po"] is None
+
+    xcaliber = parse_invoice_text(
+        "Xcaliber Industrial LLC\nINVOICE # WB4337861572\nDATE 08/12/2026\n"
+        "P.O. NO.\n58896\nFreight 1 48.67 48.67\nBALANCE DUE $1,128.67",
+        from_name="Xcaliber Industrial LLC",
+        filename="Invoice_WB4337861572_from_Xcaliber_Industrial_LLC.pdf",
+    )
+    assert xcaliber["vendor"] == "Xcaliber Industrial LLC"
+    assert xcaliber["invoice_number"] == "WB4337861572"
+    assert xcaliber["po"] == "58896"
+    assert xcaliber["amount"] == 1128.67
+
+    oneal_text = (
+        "O'NEAL STEEL - DALLAS (GP)\nINVOICE NO.\n15437565\nCustomer PO#         58906\n"
+        "LINE  3.000  TOTAL 3,255.50 USD\nTOTAL ORDER AMOUNT\nGoods covered\n"
+        "O'NEAL STEEL - DALLAS (GP)\n11,554.60\n.00\n11,554.60\n"
+    )
+    oneal = parse_invoice_text(
+        oneal_text,
+        from_address="vsanders@onealsteel.com",
+        filename="O'Neal Steel Invoice 8122026.pdf",
+    )
+    assert oneal["vendor"] == "O'Neal Steel - Dallas (GP)"
+    assert oneal["invoice_number"] == "15437565"
+    assert oneal["po"] == "58906"
+    assert oneal["amount"] == 11554.60
+
+    batch = (
+        "O'NEAL STEEL - DALLAS (GP)\n15439109\nCustomer PO#         58912\n"
+        "LINE  2.000  TOTAL 638.88 USD\nTOTAL ORDER AMOUNT\nO'NEAL STEEL - DALLAS (GP)\n"
+        "906.83\n.00\n906.83\n"
+        "15439230\nCustomer PO#         58920\nTOTAL ORDER AMOUNT\n"
+        "O'NEAL STEEL - DALLAS (GP)\n271.39\n.00\n271.39\n"
+    )
+    first = parse_invoice_text(batch, from_address="vsanders@onealsteel.com")
+    bills = expand_oneal_invoices(batch, first)
+    assert [b["invoice_number"] for b in bills] == ["15439109", "15439230"]
+    assert bills[0]["amount"] == 906.83
+    assert bills[0]["po"] == "58912"
+    assert bills[1]["amount"] == 271.39
+    assert bills[1]["po"] == "58920"

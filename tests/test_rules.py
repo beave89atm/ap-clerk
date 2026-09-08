@@ -91,6 +91,10 @@ def test_unifirst_vendors_do_not_collapse():
 
 def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="Monthly Account Statement") == "statement"
+    assert classify_mail(
+        subject="NOTICE OF REQUEST FOR REINSTATEMENT",
+        attachment_names=["08-13-26 IPFS AccountStatus.pdf"],
+    ) == "statement"
     assert classify_mail(subject="POD for shipment 123", attachment_names=["pod-123.pdf"]) == "pod"
     assert classify_mail(subject="Payment confirmation - thank you") == "payment"
     assert classify_mail(subject="CHECK STOP Gas and Supply") == "check_stop"
@@ -285,6 +289,11 @@ def test_known_vendor_ids_from_live_get():
     assert known_vendor_id("McMaster-Carr Supply Company") == 117
     assert known_vendor_id("Air Products and Chemicals, Inc") == 13
     assert known_vendor_id("Earle M. Jorgensen Co") == 208
+    assert known_vendor_id("O'Neal Steel - Dallas (GP)") == 137
+    assert known_vendor_id("ONEAL STEEL, LLC.") == 137
+    assert known_vendor_id("PCT Support") == 140
+    assert known_vendor_id("Xcaliber Industrial LLC") == 339
+    assert known_vendor_id("emily.keith@morgansteel.net") == 304
 
 
 def test_receipt_name_matches_even_when_invoice_line_was_synthesized():

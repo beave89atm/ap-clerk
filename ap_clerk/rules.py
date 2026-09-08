@@ -123,6 +123,13 @@ VENDOR_ID_ALIASES = {
     "air products": 13,
     "earle": 208,
     "emj": 208,
+    # Confirmed 2026-09-08 via GET of existing live invoices (API Vendor.id).
+    "oneal": 137,
+    "o neal": 137,
+    "pct support": 140,
+    "pctsupport": 140,
+    "xcaliber": 339,
+    "morgansteel": 304,
 }
 
 # Printed invoice-number prefixes. Learn from the PDF first; apply only for
@@ -259,7 +266,7 @@ def printed_invoice_number(
         if already and "-" in raw:
             return raw
     hits = re.findall(r"\b(\d-\d{5,8})\b", blob)
-    if hits:
+    if hits and known_invoice_prefix(vendor):
         if not raw:
             return hits[0]
         digits = re.sub(r"\D", "", raw)
@@ -760,7 +767,10 @@ NOT_A_BILL_SUBJECT_RE = re.compile(
     r"\bdelivery\s+receipt\b|\bpast\s+due\b|\bcollection\s+notice\b)",
     flags=re.I,
 )
-STATEMENT_RE = re.compile(r"\b(account\s+)?statement\b|\bpast\s+due\b|\bcollection\s+notice\b", flags=re.I)
+STATEMENT_RE = re.compile(
+    r"\b(account\s+)?statement\b|\bpast\s+due\b|\bcollection\s+notice\b|\baccount\s*status\b",
+    flags=re.I,
+)
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
 

@@ -144,6 +144,9 @@ DOMAIN_VENDORS = {
     "leecosteel.com": "Leeco Steel, LLC",
     "versalift.com": "Versalift National Parts Distribution Center",
     "aft-corp.com": "Automated Finishing Technology",
+    "morgansteel.net": "Morgan Steel",
+    "pctsupport.com": "PCT Support",
+    "xcaliberind.com": "Xcaliber Industrial LLC",
 }
 
 SUBJECT_VENDORS = (
@@ -201,6 +204,9 @@ SUBJECT_VENDORS = (
     (re.compile(r"automated finishing|aft industries", re.I), "Automated Finishing Technology"),
     (re.compile(r"polymer products", re.I), "Polymer Products"),
     (re.compile(r"hapeco", re.I), "Hapeco, Inc"),
+    (re.compile(r"morgan steel", re.I), "Morgan Steel"),
+    (re.compile(r"pct\s+support|pctsupport", re.I), "PCT Support"),
+    (re.compile(r"xcaliber", re.I), "Xcaliber Industrial LLC"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
@@ -425,7 +431,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|xcaliber)",
             stripped,
             re.I,
         ):
@@ -475,6 +481,72 @@ def _invoice_from_subject(subject: str) -> str | None:
     return None
 
 
+_ONEAL_INV = re.compile(r"\b(15\d{6})\b")
+_ONEAL_PO = re.compile(r"Customer\s+PO#\s+(\d{5})", flags=re.I)
+_ONEAL_TOTAL = re.compile(
+    r"TOTAL ORDER AMOUNT.{0,500}?([\d,]+\.\d{2})\s*\n\s*\.00\s*\n\s*([\d,]+\.\d{2})",
+    flags=re.I | re.S,
+)
+
+
+def _oneal_invoice_numbers(text: str) -> list[str]:
+    found: list[str] = []
+    for match in _ONEAL_INV.finditer(text or ""):
+        number = match.group(1)
+        if number not in found:
+            found.append(number)
+    return found
+
+
+def _oneal_totals(text: str) -> list[float]:
+    totals: list[float] = []
+    for match in _ONEAL_TOTAL.finditer(text or ""):
+        amount = parse_money(match.group(2))
+        if amount not in (None, 0, 0.0):
+            totals.append(amount)
+    return totals
+
+
+def expand_oneal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """Batched O'Neal PDFs can hold more than one 15xxxxxx invoice."""
+    vendor = str(parsed.get("vendor") or "")
+    if "oneal" not in vendor.lower() and "o'neal" not in vendor.lower():
+        return [parsed]
+    numbers = _oneal_invoice_numbers(text)
+    totals = _oneal_totals(text)
+    pos = _ONEAL_PO.findall(text or "")
+    parsed = dict(parsed)
+    if totals:
+        parsed["amount"] = totals[0]
+    if len(pos) == 1:
+        parsed["po"] = pos[0]
+        parsed["pos"] = pos
+        parsed["multi_po"] = False
+    if len(numbers) <= 1:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    for index, number in enumerate(numbers):
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        if index < len(totals):
+            bill["amount"] = totals[index]
+        if index < len(pos) and len(pos) == len(numbers):
+            bill["po"] = pos[index]
+            bill["pos"] = [pos[index]]
+            bill["multi_po"] = False
+        elif len(pos) == 1:
+            bill["po"] = pos[0]
+            bill["pos"] = pos
+            bill["multi_po"] = False
+        else:
+            bill["po"] = None
+            bill["pos"] = pos
+            bill["multi_po"] = len(pos) > 1
+        bill.pop("siblings", None)
+        bills.append(bill)
+    return bills
+
+
 def parse_invoice_text(
     text: str,
     *,
@@ -490,7 +562,7 @@ def parse_invoice_text(
         prefixed = _INV_PREFIXED.search(text or "")
         if prefixed:
             invoice_number = _usable_invoice_number(prefixed.group(1))
-    for rx in (_INV_EMJ, _INV_PS_INV, _INV_TMC, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_MCQUEARY, _INV_LABEL, _INV_GAS):
+    for rx in (_INV_EMJ, _INV_PS_INV, _INV_TMC, _INV_JVT, _INV_COLON_NUM, _INV_SV, _INV_DASH_IN, _INV_MSC_REAL, _INV_GRM, _INV_LABEL, _INV_GAS):
         if invoice_number:
             break
         match = rx.search(text or "")
@@ -501,6 +573,14 @@ def parse_invoice_text(
             invoice_number = None
     vendor_l = (vendor or "").lower()
     blob_l = blob.lower()
+    if not invoice_number and ("mcqueary" in vendor_l or "mcqueary" in blob_l):
+        mcq = _INV_MCQUEARY.search(text or "") or _INV_MCQUEARY.search(filename or "")
+        if mcq:
+            invoice_number = _usable_invoice_number(mcq.group(1))
+    if ("gas and supply" in vendor_l or "gasandsupply" in blob_l):
+        gas = _INV_GAS.search(text or "")
+        if gas:
+            invoice_number = _usable_invoice_number(gas.group(1))
     if not invoice_number and ("ntex" in vendor_l or "ntex" in blob_l):
         ntex = _INV_NTEX.search(text or "") or _INV_NTEX.search(filename or "")
         if ntex:
@@ -639,6 +719,10 @@ def parse_invoice_text(
     due_all = re.search(r"Total amount due:\s*\$?\s*([\d,]+(?:\.\d{2}))", text or "", flags=re.I)
     if due_all:
         amount = parse_money(due_all.group(1)) or amount
+    if "oneal" in vendor_l or "o'neal" in vendor_l or "o_neal" in blob_l:
+        oneal_totals = _oneal_totals(text or "")
+        if oneal_totals:
+            amount = oneal_totals[0]
     if amount is None:
         # UniFirst First Aid: Invoice Total: then Net / Tax / Total / Balance.
         block = re.search(r"Invoice Total:(.{0,240})", text or "", flags=re.I | re.S)
@@ -710,6 +794,10 @@ def parse_invoice_pdf(
         from_address=from_address,
         filename=path.name,
     )
+    bills = expand_oneal_invoices(text, parsed)
+    parsed = bills[0]
+    if len(bills) > 1:
+        parsed["siblings"] = bills[1:]
     parsed["pdf_path"] = str(path)
     parsed["pdf_text_empty"] = not (text or "").strip()
     return parsed
