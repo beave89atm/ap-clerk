@@ -183,7 +183,8 @@ def finish_gate(
     bits = [f"header created (id {kimco_id})." if kimco_id not in (None, "") else "header created."]
     if need_receipts and not receipts_selected:
         bits.append(
-            "Select Receipts not posted (API not Editable; live UI path required). "
+            "Select Receipts not posted on the invoice record "
+            "(check Can Edit Items / Inline on the list). "
             "Do not type Add Item."
         )
     if not attached:
