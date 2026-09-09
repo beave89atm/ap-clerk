@@ -45,6 +45,8 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
         "Incomplete": PatternFill("solid", fgColor="F8CBAD"),
         "Fail": PatternFill("solid", fgColor="FFC7CE"),
         "HOLD": PatternFill("solid", fgColor="FFEB9C"),
+        "Skipped": PatternFill("solid", fgColor="D9D9D9"),
+        "Noise": PatternFill("solid", fgColor="D9D9D9"),
     }
     for row_idx, row in enumerate(rows, start=2):
         values = ["" if col == "Notes" else row.get(col, "") for col in COLUMNS]

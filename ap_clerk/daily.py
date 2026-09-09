@@ -36,6 +36,7 @@ def email_body_for(rows: list[dict[str, Any]], *, batch_label: str, as_of: date)
         f"Incomplete: {counts.get('Incomplete', 0)}\n"
         f"Fail: {counts.get('Fail', 0)}\n"
         f"HOLD: {counts.get('HOLD', 0)}\n"
+        f"Skipped: {counts.get('Skipped', 0)}\n"
         f"Mailbox: {ALLOWED_MAILBOX}\n"
         f"Report attached.\n"
     )
@@ -48,6 +49,7 @@ def result_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
         "Incomplete": int(counts.get("Incomplete", 0)),
         "Fail": int(counts.get("Fail", 0)),
         "HOLD": int(counts.get("HOLD", 0)),
+        "Skipped": int(counts.get("Skipped", 0)) + int(counts.get("Noise", 0)),
         "total": len(rows),
     }
 

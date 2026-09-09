@@ -21,6 +21,7 @@ from ap_clerk.graph import (
     FLAG_DENIED,
     FLAG_FLAGGED,
     FLAG_HOLD_ELIGIBLE,
+    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     GraphClient,
@@ -125,9 +126,9 @@ def test_hold_applies_ai_hold_not_entered_in_ai():
     row = {
         "Result": "HOLD",
         "KIMCO id": "",
-        "Why": "HOLD: CHECK STOP. Do not create a header.",
+        "Why": "HOLD (price-does-not-match): price does not match. Do not create a header.",
     }
-    invoice = {"graph_message_id": "AAMk-hold", "check_stop": True, "hold_reason": "CHECK STOP"}
+    invoice = {"graph_message_id": "AAMk-hold", "hold_reason": "price does not match"}
     status = apply_flag_after_match(row, invoice, client)
     assert status == FLAG_AI_HOLD
     assert row["Flag status"] == FLAG_AI_HOLD
@@ -220,14 +221,13 @@ def test_process_invoice_success_flags_and_hold_skips():
     assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756")]
 
     hold_inv = {
-        "vendor": "Gas and Supply North Texas, LLC",
-        "invoice_number": "0040325801",
-        "date": "2026-07-31",
-        "po": None,
-        "amount": 418.93,
-        "check_stop": True,
-        "hold_reason": "CHECK STOP",
-        "graph_message_id": "AAMk-check-stop",
+        "vendor": "Earle M. Jorgensen Company",
+        "invoice_number": "S813859432",
+        "date": "2026-08-18",
+        "po": "58000",
+        "amount": 1164.32,
+        "hold_reason": "price does not match",
+        "graph_message_id": "AAMk-price-hold",
     }
     hold_row = _process_invoice(
         FakeKimco(),
@@ -244,7 +244,7 @@ def test_process_invoice_success_flags_and_hold_skips():
     assert hold_row["KIMCO id"] == ""
     assert hold_row["Flag status"] == FLAG_AI_HOLD
     assert graph.flagged == []
-    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756"), (ALLOWED_MAILBOX, "AAMk-check-stop")]
+    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756"), (ALLOWED_MAILBOX, "AAMk-price-hold")]
     assert hold_row["Flag in Outlook"] == "Yes"
 
 
@@ -260,6 +260,8 @@ def test_graph_403_is_denied_and_keeps_flag_decision_helpers():
     assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == FLAG_HOLD_ELIGIBLE
     assert decide_flag_status(result="Incomplete", kimco_id=9508, message_id="AAMk") == FLAG_HOLD_ELIGIBLE
     assert decide_flag_status(result="Success", kimco_id="", message_id="AAMk") == FLAG_SKIPPED
+    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_NONE
+    assert decide_flag_status(result="Noise", kimco_id="", message_id="AAMk") == FLAG_NONE
 
 
 def test_ensure_ai_hold_category_create_and_403():

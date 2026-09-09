@@ -275,6 +275,7 @@ def test_dry_email_names_api_finish_and_not_daily_30():
     assert "KIMCO UI was not opened" in body
     assert "Success: 1" in body
     assert "Incomplete: 1" in body
+    assert "Skipped:" in body
     assert "Finish-ups" in body
     assert "accountspayable@kannonmfg.com" in body
     from_body = dry_email_body(

@@ -2,7 +2,7 @@
 
 Mail without category `Entered in AI` is the work queue.
 `Entered in AI` is applied after a successful KIMCO header create, never after download alone.
-Unable-to-process (HOLD/Fail) gets red category `AI HOLD`. Never both on one message.
+Real bill HOLD/Fail/Incomplete gets red category `AI HOLD`. Mailbox noise is not stamped. Never both on one message.
 Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
 """
@@ -62,6 +62,7 @@ GRAPH_ENV_NAMES = (
 FLAG_FLAGGED = "entered-in-ai"
 FLAG_AI_HOLD = "ai-hold"
 FLAG_SKIPPED = "skipped-not-success"
+FLAG_NONE = "none"
 FLAG_DENIED = "graph-denied"
 FLAG_NO_MESSAGE_ID = "no-message-id"
 FLAG_ELIGIBLE = "eligible"
@@ -149,9 +150,11 @@ def has_ai_hold(message: dict[str, Any] | None) -> bool:
 
 
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
-    """Success → Entered in AI. Incomplete/HOLD/Fail → AI HOLD. Never a follow-up flag."""
+    """Success → Entered in AI. Bill Incomplete/HOLD/Fail → AI HOLD. Noise → none."""
     outcome = (result or "").strip()
     has_id = str(message_id or "").strip()
+    if outcome in {"Skipped", "Noise"}:
+        return FLAG_NONE
     if outcome == "Success":
         if kimco_id in (None, ""):
             return FLAG_SKIPPED
