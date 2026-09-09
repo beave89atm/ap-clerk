@@ -8,7 +8,7 @@
   "limit": 10,
   "daily_30_ran": false,
   "kimco_ui_opened": false,
-  "email_sent": false,
+  "email_sent": true,
   "finish_path": "api-record-put-and-attach",
   "counts": {
     "Success": 3,
@@ -987,5 +987,7 @@
     "last_receivedDateTime": "2026-08-19T16:59:12Z",
     "last_message_id_set": true,
     "processed_count": 488
-  }
+  },
+  "email_status": "email-sent",
+  "email_subject": "AP dry run 10 \u2014 from 2026-08-18"
 }
