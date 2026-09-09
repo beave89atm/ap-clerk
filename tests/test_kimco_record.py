@@ -12,6 +12,10 @@ from ap_clerk.kimco import (
     PROTOTYPE_SERVICES,
     KimcoClient,
     KimcoError,
+    invoice_lines_from_record,
+    receipt_ids_from_invoice_lines,
+    receipt_line_values_from_records,
+    select_receipts_payload,
 )
 
 LIVE_URL = "https://live.kimcoerp.com"
@@ -74,25 +78,126 @@ def test_update_put_refuses_missing_id() -> None:
 
 def test_add_invoice_lines_url_contains_id_after_service_guid() -> None:
     client = _live_client()
+    line = {
+        "Receipt": {"id": 44},
+        "Purchase_Order_Number": {"id": 6638},
+        "Purchase_Order_Line": {"id": 17666},
+        "Part_ID": {"id": 20560},
+        "Quantity": 24.0,
+        "Unit_Price": 54.0,
+        "Invoice_Number": {"id": INVOICE_ID},
+        "Vendor": {"id": 434},
+    }
     with patch.object(client.session, "request", return_value=FakeResp(200, {"ok": True})) as req:
-        status = client.add_invoice_lines(INVOICE_ID, [{"Receipt": {"id": 44}}])
+        status = client.add_invoice_lines(INVOICE_ID, [line])
     assert status == "added"
     url = req.call_args.args[1]
-    assert req.call_args.args[0] == "POST"
+    assert req.call_args.args[0] == "PUT"
     assert f"/{LIVE_GUID}/{INVOICE_ID}" in url
     assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+    assert req.call_args.kwargs.get("json") == select_receipts_payload([line], invoice_id=INVOICE_ID)
 
 
-def test_select_receipts_posts_record_url_not_list() -> None:
+def test_select_receipts_puts_record_lists_apinvoiceline() -> None:
     client = _live_client()
-    with patch.object(client.session, "request", return_value=FakeResp(200, {"ok": True})) as req:
-        status = client.try_select_receipts(INVOICE_ID, [44, 45])
+    invoice = {
+        "id": INVOICE_ID,
+        "values": {"Vendor": {"id": 434}, "Purchase_Order": {"id": 6638}},
+    }
+    receipt = {
+        "id": 23879,
+        "values": {
+            "PO_Item_Number": {"id": 17666},
+            "Part_Number": {"id": 20560},
+            "Quantity_Received": 24.0,
+            "PO_Item_Number_$_Unit_Price": 54.0,
+        },
+    }
+
+    def kimco_request(method, url, **kwargs):
+        if method == "GET" and url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}"):
+            return FakeResp(200, invoice)
+        if method == "GET" and url.endswith(f"/{LIVE_SERVICES['receipts']}/23879"):
+            return FakeResp(200, receipt)
+        if method == "PUT" and url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}"):
+            return FakeResp(200, {"ok": True})
+        raise AssertionError(f"unexpected {method} {url}")
+
+    with patch.object(client.session, "request", side_effect=kimco_request) as req:
+        status = client.try_select_receipts(INVOICE_ID, [23879])
     assert status == "selected"
     urls = _urls(req)
     assert urls
     for url in urls:
-        assert f"/{LIVE_GUID}/{INVOICE_ID}" in url
+        assert LIVE_GUID in url or LIVE_SERVICES["receipts"] in url
         assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+    put_calls = [c for c in req.call_args_list if c.args[0] == "PUT"]
+    assert put_calls
+    body = put_calls[0].kwargs.get("json")
+    assert body["id"] == INVOICE_ID
+    assert body["state"] == "Modified"
+    child = body["lists"]["APInvoiceLine"][0]
+    assert child["state"] == "Added"
+    assert child["values"]["Receipt"] == {"id": 23879}
+    assert child["values"]["Purchase_Order_Line"] == {"id": 17666}
+    assert child["values"]["Part_ID"] == {"id": 20560}
+    assert child["values"]["Quantity"] == 24.0
+
+
+def test_select_receipts_payload_requires_receipt_id() -> None:
+    payload = select_receipts_payload([23879], invoice_id=9931)
+    assert payload["id"] == 9931
+    assert payload["state"] == "Modified"
+    assert payload["lists"]["APInvoiceLine"] == [
+        {"state": "Added", "values": {"Receipt": {"id": 23879}}}
+    ]
+    with pytest.raises(KimcoError, match="Receipt.id"):
+        select_receipts_payload([{"Part_ID": {"id": 1}, "Quantity": 16}])
+
+
+def test_receipt_line_values_from_records_copies_po_part_qty() -> None:
+    values = receipt_line_values_from_records(
+        {"id": 9931, "values": {"Vendor": {"id": 434}, "Purchase_Order": {"id": 6638}}},
+        {
+            "id": 23879,
+            "values": {
+                "PO_Item_Number": {"id": 17666},
+                "Part_Number": {"id": 20560},
+                "Quantity_Received": 24.0,
+                "PO_Item_Number_$_Unit_Price": 54.0,
+            },
+        },
+    )
+    assert values["Receipt"] == {"id": 23879}
+    assert values["Invoice_Number"] == {"id": 9931}
+    assert values["Vendor"] == {"id": 434}
+    assert values["Purchase_Order_Number"] == {"id": 6638}
+    assert values["Purchase_Order_Line"] == {"id": 17666}
+    assert values["Part_ID"] == {"id": 20560}
+    assert values["Quantity"] == 24.0
+    assert values["Unit_Price"] == 54.0
+
+
+def test_invoice_lines_from_record_reads_lists_apinvoiceline() -> None:
+    record = {
+        "id": 9663,
+        "lists": {
+            "APInvoiceLine": [
+                {
+                    "id": 19771,
+                    "values": {
+                        "Receipt": {"id": 23228, "text": "PO58514-TPI - 2026/8/21"},
+                        "Quantity": 16.0,
+                    },
+                }
+            ]
+        },
+        "values": {"Lines_Count": 1},
+    }
+    lines = invoice_lines_from_record(record)
+    assert len(lines) == 1
+    assert receipt_ids_from_invoice_lines(lines) == [23228]
+    assert invoice_lines_from_record({"values": {"Lines_Count": 0}}) == []
 
 
 def test_attach_uses_record_attachments_endpoints() -> None:
