@@ -33,7 +33,7 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 1. **Preflight parse** — invoice #, date, amount, and PO are taken from the **vendor PDF text**, not email subject/filename alone. If the PDF total cannot be verified: `HOLD parse-error (preflight-parse)`, no wrong-amount header. Reject `Purchase_Order_*.pdf` and any attachment that is a PO, not an invoice. Regressions: Gas `0040323616` wrong amount; MSC/McQueary invoice # from filename; Legacy `Purchase_Order_58861.pdf`.
 2. **PO** — never leave header Purchase Order blank when a PO is on the invoice **or** findable on live by vendor + part/WO. Multi-PO: header PO blank is OK; Select Receipts per PO is required. If the printed PO is wrong/missing, search live POs by vendor + part numbers before Misc Type 4. Regressions: RMP `1470159`; Willbanks `209663` / `209664` “not misc, has PO”.
 3. **Receipt** — before HOLD-no-receipts, second pass: slip # = invoice #, part, qty, PO line, then all open receipts on that PO. Match part/PO-WO lines (Modern Heat), not first qty. Regressions: Capital `26167`; Fastenal `TXFT499356`.
-4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Live 2026-09-09 (after Kyle enabled the four list checkboxes): record GET/PUT/PDF attach work API-only. Select Receipts is a record **PUT** of `lists.APInvoiceLine` (see below). No-PO bills can finish API-only (header + PDF). Do not open the KIMCO UI for attach.
+4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Live 2026-09-09: record GET/PUT/PDF attach and Select Receipts (record PUT of `lists.APInvoiceLine`) work API-only. No-PO bills can finish API-only (header + PDF). Do not open the KIMCO UI for attach.
 5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). Statements, payments, CHECK STOP, internal mail, and PODs stay HOLD. Noise does not count toward the 30-bill attempt quota; skips are replaced so 30 real bills are still attempted.
 6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
 
@@ -283,29 +283,52 @@ Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid
 
 Lines must come from **Select Receipts** (or the API record-endpoint equivalent), not typed **Add Item**, and **only when a PO exists**. No-PO headers leave Purchase Order blank and do not get invented PO lines.
 
-**Record PUT (reverse-engineered 2026-09-09 from GET of UI-finished bills 9663 / 9670 / 9672):** invoice record GET returns child rows at `lists.APInvoiceLine`. Each line's `values.Receipt.id` is the **receipt LINE** id from `/api/v2/{RECEIPTS_GUID}/{id}` (not the parent `Receipt` header object on that row). OPTIONS on the invoice record is `Allow: DELETE, GET, PUT`. The client PUTs that same child shape — never the list GUID, never typed merchandise Add Item.
+**Record PUT (proven live 2026-09-09 on Orthman 9931):** invoice record GET returns child rows at `lists.APInvoiceLine`. Each line's `values.Receipt.id` is the **receipt LINE** id from `/api/v2/{RECEIPTS_GUID}/{id}` (not the parent receiving header). OPTIONS on the invoice record is `Allow: DELETE, GET, PUT`. Receipt-only children return **400** `APInvoiceLine: Some of the items in this list are not valid`. The working body copies PO/part/qty/price from the receipt GET and uses `state: Modified` / child `state: Added` — never the list GUID, never typed merchandise Add Item.
 
 ```http
-PUT /api/v2/bcca4094b6ec4564942b19f5d7bb255c/{invoice_id}
+PUT /api/v2/bcca4094b6ec4564942b19f5d7bb255c/9931
 ```
 
 ```json
 {
+  "id": 9931,
+  "state": "Modified",
   "lists": {
     "APInvoiceLine": [
-      {"values": {"Receipt": {"id": 23879}}}
+      {
+        "state": "Added",
+        "values": {
+          "Receipt": {"id": 23879},
+          "Purchase_Order_Number": {"id": 6638},
+          "Purchase_Order_Line": {"id": 17666},
+          "Part_ID": {"id": 20560},
+          "Quantity": 24.0,
+          "Unit_Price": 54.0,
+          "Invoice_Number": {"id": 9931},
+          "Vendor": {"id": 434}
+        }
+      }
     ]
   }
 }
 ```
 
-GET after a successful Select Receipts shows `values.Lines_Count` > 0 and `lists.APInvoiceLine[].values.Receipt.id` set, plus Quantity / Purchase_Order_Line / Part_ID filled by KIMCO (same as the UI). Example from live 9663 (Telecom 17601, already selected in the 2026-08-28 GUI pass): line id 19771, `Receipt.id` **23228** (slip 106620 qty 16, part A-04421-000), `Lines_Count` 1, `Total_Line_Net_Amounts` 1738.56.
+| Call | HTTP |
+| --- | --- |
+| GET 9931 before | **200** (`Lines_Count` 0, `lists.APInvoiceLine` empty) |
+| PUT Receipt-only / `$State: 1` | **400** (`APInvoiceLine` items not valid) |
+| PATCH | **405** (not in Allow) |
+| PUT proven body above | **200** |
+| GET 9931 after | **200** (`Lines_Count` 1, `Total_Line_Net_Amounts` 1296.00, line id **20296**, `Receipt.id` **23879**) |
+| GET receipt 23879 after | **200** (`Invoiced` true, `AP_Invoice_Number` 701684) |
 
-If that record PUT still returns 405, check **Can Edit Items / Inline** on the list.
+Invoice verification amount stays 1242.94 (PPV gap vs $1296 receipt; not posted). One bill only; no void/delete; no KIMCO UI.
+
+GET of a UI-finished bill (9663 Telecom 17601): line id 19771, `Receipt.id` **23228**, `Lines_Count` 1. If a later record PUT returns 405, check **Can Edit Items / Inline** on the list.
 
 Matching (Treyce 2026-08-28): pick the receipt whose **part number** and **PO/WO line** match the invoice line. Do not take the first leftover qty that fits. Search order before HOLD-no-receipts: **slip # = invoice #**, part, qty, PO line. Fastenal `TXFT499356` is findable that way. Modern Heat `8-220804` is PO lines 6–7, not 1–3. If receipts were searched and none match, HOLD / `AI HOLD` (no header). If receipts were not loaded, the CLI does not invent a HOLD-no-receipts.
 
-Live write target for the first API proof: Orthman Incomplete **9931** (invoice 701684, PO 58636). Open receipts on that PO net to receipt LINE **23879** (PO58636-06, part `1007038-1`, qty 24, slip 58636) — Shawn added PO line 6 for the difference. Slips 701599 on lines 01–05 are already invoiced on vendor invoice 701599. Do not type Add Item.
+Live write (one bill): Orthman Incomplete **9931** (invoice 701684, PO 58636). Open receipts on that PO net to receipt LINE **23879** (PO58636-06, part `1007038-1`, qty 24, slip 58636) — Shawn added PO line 6 for the difference. Slips 701599 on lines 01–05 are already invoiced on vendor invoice 701599. PUT **200**; subsequent GET shows line 20296 linked to receipt 23879. Do not type Add Item.
 
 ## HOLD rules
 
