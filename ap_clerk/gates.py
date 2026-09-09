@@ -21,7 +21,10 @@ RESULT_SUCCESS = "Success"
 RESULT_INCOMPLETE = "Incomplete"
 RESULT_HOLD = "HOLD"
 RESULT_FAIL = "Fail"
+# Bill-attempt outcomes only. Mailbox noise is RESULT_SKIPPED and does not count toward N.
 RESULT_VALUES = (RESULT_SUCCESS, RESULT_INCOMPLETE, RESULT_HOLD, RESULT_FAIL)
+RESULT_SKIPPED = "Skipped"
+RESULT_NOISE_ALIASES = frozenset({RESULT_SKIPPED, "Noise"})
 
 GATE_PREFLIGHT = "preflight-parse"
 GATE_PO = "po"
@@ -79,12 +82,27 @@ def drop_fee_disguised_as_ppv(
     return value
 
 
+def is_bill_attempt_result(result: str | None) -> bool:
+    """Cap = Success + Incomplete + real bill HOLD + Fail. Noise does not count."""
+    return (result or "").strip() in RESULT_VALUES
+
+
+def is_noise_result(result: str | None) -> bool:
+    return (result or "").strip() in RESULT_NOISE_ALIASES
+
+
 def why_hold(gate: str, detail: str) -> str:
     clean = (detail or "").strip()
     if gate == GATE_PREFLIGHT:
         prefix = "HOLD parse-error (preflight-parse)"
         return f"{prefix}: {clean}" if clean else f"{prefix}."
     return f"HOLD ({gate}): {clean}" if clean else f"HOLD ({gate})."
+
+
+def why_skipped(gate: str, detail: str) -> str:
+    """Sheet Why for walked-past noise. Not a bill HOLD."""
+    clean = (detail or "").strip()
+    return f"Skipped ({gate}): {clean}" if clean else f"Skipped ({gate})."
 
 
 def why_incomplete(detail: str) -> str:

@@ -109,6 +109,8 @@ def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
     assert flag_in_outlook_for("Incomplete") == "Yes"
     assert flag_in_outlook_for("HOLD") == "Yes"
     assert flag_in_outlook_for("Fail") == "Yes"
+    assert flag_in_outlook_for("Skipped") == "No"
+    assert flag_in_outlook_for("Noise") == "No"
     assert comments_for("live") == "API Agent"
     assert "prototype" in comments_for("prototype").lower()
 

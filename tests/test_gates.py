@@ -10,6 +10,7 @@ from ap_clerk.cli import _process_invoice
 from ap_clerk.gates import (
     RESULT_FAIL,
     RESULT_HOLD,
+    RESULT_SKIPPED,
     RESULT_INCOMPLETE,
     RESULT_SUCCESS,
     RESULT_VALUES,
@@ -430,14 +431,18 @@ def test_noise_skip_rows_name_bill_vs_noise_gate():
                 "vendor": "Bank",
                 "class": "statement",
                 "hold_reason": "statement",
+                "subject": "Monthly Account Statement",
                 "receivedDateTime": "2026-08-01T12:00:00Z",
                 "Flag status": "ai-hold",
             }
         ],
         "API Agent - 9/8/26",
     )
-    assert rows[0]["Result"] == RESULT_HOLD
+    assert rows[0]["Result"] == RESULT_SKIPPED
+    assert rows[0]["Flag in Outlook"] == "No"
+    assert rows[0]["Flag status"] == "none"
     assert "bill-vs-noise" in rows[0]["Why"]
+    assert "Monthly Account Statement" in rows[0]["Why"]
     assert rows[0]["Notes"] == ""
 
 

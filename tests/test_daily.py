@@ -19,7 +19,7 @@ from ap_clerk.cursor import (
     save_cursor,
     should_skip_already_seen,
 )
-from ap_clerk.daily import DEFAULT_DAILY_LIMIT, email_body_for, email_subject_for
+from ap_clerk.daily import DEFAULT_DAILY_LIMIT, email_body_for, email_subject_for, result_counts
 from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, ENTERED_IN_AI_CATEGORY, default_report_to
 from ap_clerk.inbox import fifo_start_datetime, pull_recent_bills
 
@@ -78,8 +78,21 @@ def test_email_subject_and_body_counts():
     assert "Incomplete: 1" in body
     assert "Fail: 1" in body
     assert "HOLD: 1" in body
+    assert "Skipped: 0" in body
     assert "API Agent - 8/28/26 (700)" in body
     assert "accountspayable@kannonmfg.com" in body
+    counts = result_counts(
+        [
+            {"Result": "Success"},
+            {"Result": "HOLD"},
+            {"Result": "Skipped"},
+            {"Result": "Noise"},
+        ]
+    )
+    assert counts["Success"] == 1
+    assert counts["HOLD"] == 1
+    assert counts["Skipped"] == 2
+    assert counts["total"] == 4
 
 
 class _FakeGraph:
@@ -212,7 +225,8 @@ def test_daily_fifo_from_july_28_skips_entered_in_ai_and_replaces_not_a_bill(tmp
     assert "NEWEST" not in [inv["invoice_number"] for inv in selected]
     assert "DONE1" not in [inv["invoice_number"] for inv in selected]
     assert any(s.get("class") == "statement" for s in skipped)
-    assert "m-statement" in graph.held
+    assert "m-statement" not in graph.held
+    assert graph.held == []
     assert str(selected[0]["receivedDateTime"]) < str(selected[1]["receivedDateTime"])
 
 

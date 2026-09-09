@@ -16,6 +16,7 @@ from ap_clerk.gates import (
     RESULT_INCOMPLETE,
     RESULT_SUCCESS,
     finish_gate,
+    is_noise_result,
     receipts_required,
     why_incomplete,
 )
@@ -23,6 +24,7 @@ from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     FLAG_AI_HOLD,
     FLAG_FLAGGED,
+    FLAG_NONE,
     GraphClient,
     GraphError,
     MailboxRejected,
@@ -78,11 +80,13 @@ def dry_email_body(
         f"Incomplete: {counts['Incomplete']}\n"
         f"HOLD: {counts['HOLD']}\n"
         f"Fail: {counts['Fail']}\n"
+        f"Skipped: {counts.get('Skipped', 0)}\n"
         f"Finish-ups (paused dry-run Incomplete headers): {len(finish_ups)}\n"
         f"New FIFO bills this pass: {len(new_bills)}\n"
         f"Mailbox: {ALLOWED_MAILBOX}\n"
         "Success = finished bill (header + Select Receipts when PO + PDF attached).\n"
-        "Incomplete / HOLD / Fail stay AI HOLD, not Entered in AI.\n"
+        "Bill Incomplete / HOLD / Fail stay AI HOLD, not Entered in AI.\n"
+        "Skipped noise is sheet-noted only (no Outlook AI HOLD; does not consume the bill cap).\n"
         "Report attached.\n"
     )
 
@@ -356,21 +360,31 @@ def apply_grouped_outlook_flags(
         by_message.setdefault(message_id, []).append(row)
 
     for message_id, group in by_message.items():
-        outcome = RESULT_SUCCESS if {str(row.get("Result") or "") for row in group} == {RESULT_SUCCESS} else RESULT_INCOMPLETE
-        if any(str(row.get("Result") or "") in {"HOLD", "Fail"} for row in group) and outcome != RESULT_SUCCESS:
+        bills = [row for row in group if not is_noise_result(str(row.get("Result") or ""))]
+        if not bills:
+            for row in group:
+                row["Flag status"] = FLAG_NONE
+                row["Flag in Outlook"] = "No"
+            continue
+        outcome = RESULT_SUCCESS if {str(row.get("Result") or "") for row in bills} == {RESULT_SUCCESS} else RESULT_INCOMPLETE
+        if any(str(row.get("Result") or "") in {"HOLD", "Fail"} for row in bills) and outcome != RESULT_SUCCESS:
             outcome = next(
                 str(row.get("Result") or "")
-                for row in group
+                for row in bills
                 if str(row.get("Result") or "") in {"HOLD", "Fail", RESULT_INCOMPLETE}
             )
         dummy = {
             "Result": outcome,
-            "KIMCO id": group[0].get("KIMCO id") or 1,
+            "KIMCO id": bills[0].get("KIMCO id") or 1,
             "Why": "",
         }
         apply_flag_after_match(dummy, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
         status = dummy.get("Flag status")
         for row in group:
+            if is_noise_result(str(row.get("Result") or "")):
+                row["Flag status"] = FLAG_NONE
+                row["Flag in Outlook"] = "No"
+                continue
             row["Flag status"] = status
             row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or ""))
             why = str(row.get("Why") or "").rstrip()
@@ -384,8 +398,14 @@ def apply_grouped_outlook_flags(
 
 
 def grouped_flag_status_for_message(rows: list[dict[str, Any]]) -> str:
-    """Return entered-in-ai only when every row on the message is Success."""
-    results = {str(row.get("Result") or "") for row in rows}
+    """Return entered-in-ai only when every bill row on the message is Success.
+
+    Noise / Skipped rows are ignored so they cannot force AI HOLD.
+    """
+    bills = [row for row in rows if not is_noise_result(str(row.get("Result") or ""))]
+    if not bills:
+        return FLAG_NONE
+    results = {str(row.get("Result") or "") for row in bills}
     if results == {RESULT_SUCCESS}:
         return FLAG_FLAGGED
     return FLAG_AI_HOLD

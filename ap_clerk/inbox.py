@@ -2,9 +2,10 @@
 
 Daily FIFO starts 2026-07-28 America/Chicago and walks toward today.
 Mail categorized `Entered in AI` is already processed and is skipped.
-Not-a-bill / CHECK STOP / statement / POD skips are replaced so a real-bill
-limit can still be filled; those skips get `AI HOLD` when Graph can write.
-Does not use the Outlook follow-up flag.
+Not-a-bill / CHECK STOP / statement / POD / payment / duplicate skips are
+walked past so a real-bill limit can still be filled. Those skips are
+sheet-noted as Skipped; they do not get Outlook `AI HOLD` and do not
+consume the bill-attempt cap. Does not use the Outlook follow-up flag.
 """
 
 from __future__ import annotations
@@ -16,10 +17,10 @@ from pathlib import Path
 from typing import Any
 
 from ap_clerk.cursor import DailyCursor, daily_floor_datetime, should_skip_already_seen
+from ap_clerk.gates import GATE_BILL_VS_NOISE, RESULT_SKIPPED, why_skipped
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
-    FLAG_AI_HOLD,
-    FLAG_DENIED,
+    FLAG_NONE,
     GraphClient,
     assert_allowed_mailbox,
     has_ai_hold,
@@ -104,26 +105,9 @@ def _safe_filename(name: str) -> str:
     return cleaned[:120] or "invoice.pdf"
 
 
-def _mark_skip_hold(
-    graph: GraphClient,
-    mailbox: str,
-    message: dict[str, Any],
-    *,
-    mark_skips: bool,
-) -> str:
-    """Apply AI HOLD on unable-to-process mail. Does not set follow-up flag."""
-    if not mark_skips:
-        return "skipped-not-success"
-    message_id = str(message.get("id") or "")
-    if not message_id:
-        return "no-message-id"
-    if has_entered_in_ai(message):
-        return "entered-in-ai"
-    try:
-        return graph.flag_hold(mailbox, message_id)
-    except Exception:  # noqa: BLE001 - skip mark must not fail the run
-        LOGGER.info("AI HOLD on skip failed without raising run")
-        return FLAG_DENIED
+def _skip_flag_status(_message: dict[str, Any] | None = None) -> str:
+    """Noise is sheet-noted only. Never stamp Outlook AI HOLD."""
+    return FLAG_NONE
 
 
 def pull_recent_bills(
@@ -144,8 +128,9 @@ def pull_recent_bills(
 
     Default (fifo=False): most-recent `limit` real bills, then oldest-first.
     Daily FIFO (fifo=True): from 2026-07-28 or the persisted cursor, oldest
-    received first, toward today. Skip `Entered in AI`. Replace not-a-bill
-    skips so `limit` real bills are still attempted when possible.
+    received first, toward today. Skip `Entered in AI`. Walk past not-a-bill
+    / statement / CHECK STOP / payment / POD so `limit` real bills are still
+    attempted. Noise is sheet-noted only — never Outlook AI HOLD.
     """
     mailbox = assert_allowed_mailbox(mailbox)
     pdf_dir.mkdir(parents=True, exist_ok=True)
@@ -209,7 +194,7 @@ def pull_recent_bills(
         else:
             klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
         if klass in CLEAR_SKIP_CLASSES:
-            flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+            flag_status = _skip_flag_status(message)
             skipped.append(
                 {
                     "subject": subject,
@@ -225,7 +210,7 @@ def pull_recent_bills(
             LOGGER.info("Skipping %s mail: %s", klass, subject[:80])
             continue
         if not message.get("hasAttachments"):
-            flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+            flag_status = _skip_flag_status(message)
             skipped.append(
                 {
                     "subject": subject,
@@ -241,7 +226,7 @@ def pull_recent_bills(
             continue
         pdfs = graph.download_pdf_attachments(mailbox, message_id)
         if not pdfs:
-            flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+            flag_status = _skip_flag_status(message)
             skipped.append(
                 {
                     "subject": subject,
@@ -271,7 +256,7 @@ def pull_recent_bills(
                 LOGGER.info("Skipping PO-not-invoice attachment %s", filename)
                 continue
             if parsed.get("check_stop"):
-                flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+                flag_status = _skip_flag_status(message)
                 skipped.append(
                     {
                         "subject": subject,
@@ -307,7 +292,7 @@ def pull_recent_bills(
         if check_stopped:
             continue
         if not chosen_bills:
-            flag_status = _mark_skip_hold(graph, mailbox, message, mark_skips=mark_skips)
+            flag_status = _skip_flag_status(message)
             skipped.append(
                 {
                     "subject": subject,
@@ -341,25 +326,27 @@ def pull_recent_bills(
 
 
 def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list[dict[str, Any]]:
-    """Excel HOLD rows for inbox skips that received AI HOLD (or a skip reason)."""
+    """Excel Skipped rows for inbox noise. Never Flag in Outlook / AI HOLD."""
     rows = []
     for item in skipped:
         if item.get("class") not in HOLD_SKIP_CLASSES and item.get("hold_reason") not in HOLD_SKIP_CLASSES:
             continue
         reason = item.get("hold_reason") or item.get("class") or "not-a-bill"
-        flag_status = item.get("Flag status") or FLAG_AI_HOLD
-        why = f"HOLD (bill-vs-noise): {reason}. Do not create a header."
-        if flag_status:
-            why = f"{why} Flag status={flag_status}."
+        flag_status = FLAG_NONE
+        subject = str(item.get("subject") or "")
+        detail = f"{reason}. Do not create a header."
+        if subject:
+            detail = f"{reason}. Subject: {subject}. Do not create a header."
+        why = why_skipped(GATE_BILL_VS_NOISE, detail)
         received = str(item.get("receivedDateTime") or "")
         rows.append(
             {
-                "Vendor": item.get("vendor") or "",
+                "Vendor": item.get("vendor") or subject,
                 "Invoice #": item.get("invoice_number") or "",
                 "date": received[:10],
                 "PO": "",
                 "Amount": "",
-                "Result": "HOLD",
+                "Result": RESULT_SKIPPED,
                 "Why": why,
                 "KIMCO id": "",
                 "Batch": batch_name,
@@ -367,10 +354,11 @@ def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list
                 "PPV": "none",
                 "Attach status": "no-pdf-on-vm",
                 "Flag status": flag_status,
-                "Flag in Outlook": "Yes",
+                "Flag in Outlook": "No",
                 "Notes": "",
                 "graph_message_id": item.get("graph_message_id") or "",
                 "receivedDateTime": received,
+                "subject": item.get("subject") or "",
             }
         )
     return rows

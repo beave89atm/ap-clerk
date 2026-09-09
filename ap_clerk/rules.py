@@ -18,7 +18,11 @@ FORBIDDEN_BATCH_IDS = {669}
 FORBIDDEN_BATCH_NAMES = {"Mark Brown 8/4/26"}
 FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
 def flag_in_outlook_for(result: str | None) -> str:
-    """Outlook category column. Yes for Success (Entered in AI) and Incomplete/HOLD/Fail (AI HOLD)."""
+    """Yes only when a process category is applied.
+
+    Success → Entered in AI. Incomplete / bill HOLD / Fail → AI HOLD.
+    Skipped / Noise → No (sheet-noted only; never Outlook AI HOLD).
+    """
     return "Yes" if (result or "").strip() in {"Success", "Incomplete", "HOLD", "Fail"} else "No"
 
 
@@ -29,20 +33,39 @@ def comments_for(target: str) -> str:
     return COMMENTS
 
 
-HOLD_ONLY_REASONS = {
+# Mailbox noise: walk past, sheet-note, do not stamp AI HOLD, do not consume the bill cap.
+NOISE_REASONS = {
     "check stop",
+    "check_stop",
     "statement",
     "pod",
+    "payment",
     "payment letter",
     "dup",
     "duplicate",
     "not-a-bill",
     "not a bill",
-    "price does not match",
-    "parse-error",
     "internal",
     "internal mail",
+    "unreadable-or-not-a-bill",
+    "no-attachment",
+    "no-pdf",
 }
+# Real bill HOLDs that could not finish. These consume the cap and get AI HOLD.
+BILL_HOLD_REASONS = {
+    "price does not match",
+    "parse-error",
+}
+HOLD_ONLY_REASONS = NOISE_REASONS | BILL_HOLD_REASONS
+
+
+def is_noise_reason(reason: str | None) -> bool:
+    """True for bill-vs-noise skips (statement, CHECK STOP, POD, payment, dup, not-a-bill)."""
+    key = (reason or "").strip().lower()
+    if not key:
+        return False
+    collapsed = key.replace("_", " ")
+    return key in NOISE_REASONS or collapsed in {item.replace("_", " ") for item in NOISE_REASONS}
 
 # Kyle 2026-08-28: PPV is signed Additional Charge Purchase Price Variance.
 # Post only when |line variance| <= 10% of invoice total AND |bill PPV| <= $100.

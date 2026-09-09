@@ -21,6 +21,7 @@ from ap_clerk.daily import (
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
+    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     REPORT_TO,
@@ -37,12 +38,14 @@ from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
+    GATE_BILL_VS_NOISE,
     GATE_PO,
     GATE_PREFLIGHT,
     GATE_PRICE,
     GATE_RECEIPT,
     RESULT_FAIL,
     RESULT_HOLD,
+    RESULT_SKIPPED,
     RESULT_SUCCESS,
     drop_fee_disguised_as_ppv,
     find_live_po,
@@ -52,6 +55,7 @@ from ap_clerk.gates import (
     preflight_parse_gate,
     why_fail,
     why_hold,
+    why_skipped,
 )
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
@@ -70,6 +74,7 @@ from ap_clerk.rules import (
     format_fees,
     format_ppv,
     invoice_number_key,
+    is_noise_reason,
     invoice_type_for,
     kimco_datetime,
     known_vendor_id,
@@ -217,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"Inbox selected {len(invoices)} bill(s) from {args.mailbox} "
             f"({start.isoformat()} to {end.isoformat()}); skipped {len(skipped)} non-bill(s). "
-            "Success→Entered in AI; unable-to-process→AI HOLD.",
+            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→sheet only.",
             flush=True,
         )
         if not invoices:
@@ -718,6 +723,12 @@ def _process_invoice(
 
     create_ok, hold_reason = should_create_header(inv)
     if not create_ok:
+        if is_noise_reason(hold_reason):
+            row["Result"] = RESULT_SKIPPED
+            row["Why"] = why_skipped(GATE_BILL_VS_NOISE, f"{hold_reason}. Do not create a header.")
+            row["Flag in Outlook"] = "No"
+            row["Flag status"] = FLAG_NONE
+            return row
         row["Why"] = why_hold(GATE_PREFLIGHT if str(hold_reason).lower() == "parse-error" else "bill-vs-noise", f"{hold_reason}. Do not create a header.")
         if str(hold_reason).lower() == "price does not match":
             row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}. Do not create a header.")
@@ -1477,7 +1488,7 @@ def _email_daily_report(
     print(
         f"Email status={status} to={to} subject={subject} "
         f"Success={counts['Success']} Incomplete={counts.get('Incomplete', 0)} "
-        f"Fail={counts['Fail']} HOLD={counts['HOLD']}",
+        f"Fail={counts['Fail']} HOLD={counts['HOLD']} Skipped={counts.get('Skipped', 0)}",
         flush=True,
     )
     return status
