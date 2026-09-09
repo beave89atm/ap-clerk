@@ -21,7 +21,7 @@ from ap_clerk.cursor import (
 )
 from ap_clerk.daily import DEFAULT_DAILY_LIMIT, email_body_for, email_subject_for
 from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, ENTERED_IN_AI_CATEGORY, default_report_to
-from ap_clerk.inbox import pull_recent_bills
+from ap_clerk.inbox import fifo_start_datetime, pull_recent_bills
 
 
 def test_daily_floor_is_july_28_2026_chicago():
@@ -214,6 +214,26 @@ def test_daily_fifo_from_july_28_skips_entered_in_ai_and_replaces_not_a_bill(tmp
     assert any(s.get("class") == "statement" for s in skipped)
     assert "m-statement" in graph.held
     assert str(selected[0]["receivedDateTime"]) < str(selected[1]["receivedDateTime"])
+
+
+def test_fifo_from_date_816_overrides_earlier_cursor():
+    from datetime import date
+
+    from ap_clerk.rules import CHICAGO
+
+    cursor = DailyCursor(
+        last_receivedDateTime="2026-08-15T11:29:07Z",
+        last_message_id="AAMk-aug15",
+        processed_count=426,
+    )
+    start = fifo_start_datetime(received_from=date(2026, 8, 16), cursor=cursor)
+    assert start.tzinfo is not None
+    assert start.astimezone(CHICAGO).date() == date(2026, 8, 16)
+    assert start.astimezone(CHICAGO).hour == 0
+    earlier = fifo_start_datetime(received_from=date(2026, 8, 10), cursor=cursor)
+    assert earlier == cursor.after_received()
+    floor_only = fifo_start_datetime()
+    assert floor_only.date() == date(2026, 7, 28)
 
 
 def test_cursor_continues_after_previous_thirty(tmp_path: Path):
@@ -431,6 +451,119 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
     assert "token" not in out.lower() or "token not printed" in out.lower()
     loaded = load_cursor(cursor)
     assert loaded.last_message_id == "AAMk-1"
+
+
+def test_pull_from_date_816_sets_graph_floor_after_aug15_cursor(tmp_path: Path):
+    from datetime import date
+
+    from ap_clerk.rules import CHICAGO
+
+    messages = [
+        {
+            "id": "m-aug15",
+            "subject": "Invoice AUG15",
+            "receivedDateTime": "2026-08-15T16:00:00Z",
+            "hasAttachments": True,
+            "categories": [],
+            "from": {"emailAddress": {"name": "Old Co", "address": "ap@old.com"}},
+        },
+        {
+            "id": "m-aug16",
+            "subject": "Invoice AUG16",
+            "receivedDateTime": "2026-08-16T14:00:00Z",
+            "hasAttachments": True,
+            "categories": [],
+            "from": {"emailAddress": {"name": "Next Co", "address": "ap@next.com"}},
+        },
+    ]
+    graph = _FakeGraph(
+        messages,
+        {
+            "m-aug15": {"names": ["Invoice-AUG15.pdf"], "pdfs": [("Invoice-AUG15.pdf", b"%PDF")]},
+            "m-aug16": {"names": ["Invoice-AUG16.pdf"], "pdfs": [("Invoice-AUG16.pdf", b"%PDF")]},
+        },
+    )
+
+    def fake_parse(path, *, subject="", from_name="", from_address=""):
+        number = "AUG16" if "AUG16" in path.name or "AUG16" in subject else "AUG15"
+        return {
+            "vendor": from_name or "Vendor",
+            "invoice_number": number,
+            "date": "2026-08-16",
+            "po": None,
+            "pos": [],
+            "amount": 10.0,
+            "fees": [],
+            "check_stop": False,
+            "pdf_text_empty": False,
+        }
+
+    from ap_clerk import inbox as inbox_mod
+
+    orig = inbox_mod.parse_invoice_pdf
+    inbox_mod.parse_invoice_pdf = fake_parse
+    try:
+        selected, _skipped = pull_recent_bills(
+            graph,
+            limit=2,
+            pdf_dir=tmp_path / "pdfs",
+            received_from=date(2026, 8, 16),
+            fifo=True,
+            unprocessed_only=True,
+            cursor=DailyCursor(last_receivedDateTime="2026-08-15T11:29:07Z", last_message_id="AAMk-aug15"),
+        )
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+    start = graph.list_kwargs.get("received_from")
+    assert start is not None
+    assert start.astimezone(CHICAGO).date() == date(2026, 8, 16)
+    assert [inv["invoice_number"] for inv in selected] == ["AUG16"]
+
+
+def test_dry10_email_only_refuses_second_send(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "supervised_dry10",
+        Path(__file__).resolve().parent.parent / "scripts" / "supervised_dry10.py",
+    )
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    dry10_main = module.main
+
+    report = tmp_path / "AP-run-2026-09-09.xlsx"
+    report.write_bytes(b"xlsx")
+    sidecar = tmp_path / "AP-run-2026-09-09.json"
+    sidecar.write_text(
+        json.dumps(
+            {
+                "batch": "API Agent - 9/9/26 (1)",
+                "from_date": "2026-08-16",
+                "email_sent": True,
+                "email_status": "email-sent",
+                "rows": [{"Result": "Success"}],
+            }
+        )
+        + "\n"
+    )
+    code = dry10_main(
+        [
+            "--live",
+            "--email-only",
+            "--from-date",
+            "2026-08-16",
+            "--report",
+            str(report),
+            "--sidecar",
+            str(sidecar),
+            "--cursor",
+            str(tmp_path / "daily-cursor.json"),
+        ]
+    )
+    assert code == 2
+    out = capsys.readouterr().out
+    assert "Will not send twice" in out
 
 
 def test_cursor_from_run_keeps_prior_position_and_accumulates():

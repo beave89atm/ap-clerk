@@ -1,8 +1,9 @@
 """Supervised 10-invoice LIVE dry run (QUALITY V1.1, API finish).
 
-Finishes paused Incomplete headers on today's API Agent batch first.
-Does not open the KIMCO UI. Does not launch the daily 30.
-Never prints secrets.
+`--from-date` starts FIFO at that America/Chicago day (Kyle: 2026-08-16)
+and skips already-finished paused headers. Does not open the KIMCO UI.
+Does not launch the daily 30. Mail.Send is off unless `--email` /
+`--email-only` after the spreadsheet is locked. Never prints secrets.
 """
 
 from __future__ import annotations
@@ -23,12 +24,12 @@ from ap_clerk.cli import ROOT as CLI_ROOT, _optional_graph_client, _print_summar
 from ap_clerk.cursor import DEFAULT_CURSOR_PATH, DailyCursor, load_cursor, save_cursor
 from ap_clerk.daily import cursor_from_run, result_counts, write_email_sidecar
 from ap_clerk.finish import (
-    DRY_SUBJECT,
     KIND_FINISH_UP,
     KIND_NEW,
     KIND_PRIOR,
     apply_grouped_outlook_flags,
     dry_email_body,
+    dry_subject_for,
     finish_existing_header,
 )
 from ap_clerk.graph import (
@@ -121,14 +122,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--as-of", default=None)
     parser.add_argument("--sidecar", default=None)
     parser.add_argument(
+        "--from-date",
+        default=None,
+        help="FIFO start YYYY-MM-DD America/Chicago (Kyle: 2026-08-16). Skips paused finish-ups.",
+    )
+    parser.add_argument(
         "--paused-sidecar",
         default=str(CLI_ROOT / "runs" / "AP-run-2026-09-08-dry10-paused.json"),
         help="Paused dry-run sidecar with Incomplete headers to finish first.",
     )
     parser.add_argument(
+        "--skip-paused",
+        action="store_true",
+        help="Do not API-finish paused Incomplete headers; FIFO new bills only.",
+    )
+    parser.add_argument(
         "--finish-paused-only",
         action="store_true",
         help="Only API-finish paused Incomplete headers; do not FIFO new bills.",
+    )
+    parser.add_argument(
+        "--email-only",
+        action="store_true",
+        help="Send the locked spreadsheet once. Refuses if already emailed. No KIMCO writes.",
     )
     args = parser.parse_args(argv)
 
@@ -142,12 +158,24 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    from_date = parse_iso_date(args.from_date) if args.from_date else None
+    skip_paused = bool(args.skip_paused or from_date is not None)
     batch_name = batch_name_for(as_of)
     report_path = Path(args.report) if args.report else dry_report_path(as_of)
     sidecar_path = Path(args.sidecar) if args.sidecar else report_path.with_suffix(".json")
     cursor_path = Path(args.cursor)
     cursor = load_cursor(cursor_path)
     paused_path = Path(args.paused_sidecar)
+    email_subject = dry_subject_for(from_date)
+
+    if args.email_only:
+        return _send_email_only(
+            report_path=report_path,
+            sidecar_path=sidecar_path,
+            to=args.email_to,
+            subject=email_subject,
+            from_date=from_date,
+        )
 
     target = resolve_target(live_flag=True)
     creds = load_credentials(target=target)
@@ -156,9 +184,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
         f"Supervised dry run {args.limit} (QUALITY V1.1 API finish). "
+        f"FIFO from={from_date.isoformat() if from_date else 'cursor'} "
         f"Cursor last_received={cursor.last_receivedDateTime or 'none'} "
         f"last_message_id={'set' if cursor.last_message_id else 'none'}. "
-        "Finish paused Incomplete first. Skip Entered in AI. Do not restart at 7/28. No daily 30. No KIMCO UI.",
+        f"{'Skip paused finish-ups. ' if skip_paused else 'Finish paused Incomplete first. '}"
+        "Skip Entered in AI. Do not restart at 7/28. No daily 30. No KIMCO UI. "
+        "Email is off unless --email after the spreadsheet is locked.",
         flush=True,
     )
 
@@ -176,23 +207,28 @@ def main(argv: list[str] | None = None) -> int:
         print(creds.error or "Live credentials not ready.", flush=True)
         return 2
 
-    if not paused_path.exists():
-        print(f"Paused sidecar missing: {paused_path}", flush=True)
-        return 2
-    paused = json.loads(paused_path.read_text())
-    paused_invoices = list(paused.get("invoices") or [])
-    paused_rows = list(paused.get("rows") or [])
-    incomplete = [row for row in paused_rows if str(row.get("Result") or "") == "Incomplete" and row.get("KIMCO id")]
-    prior_rows = [row for row in paused_rows if str(row.get("Result") or "") != "Incomplete"]
-    for row in prior_rows:
-        row.setdefault("kind", KIND_PRIOR)
-        row["Notes"] = ""
-
-    print(
-        f"Paused dry-run Incomplete headers to finish: {len(incomplete)}. "
-        f"Prior Fail/HOLD rows kept: {len(prior_rows)}.",
-        flush=True,
-    )
+    paused: dict[str, Any] = {}
+    paused_invoices: list[dict[str, Any]] = []
+    incomplete: list[dict[str, Any]] = []
+    prior_rows: list[dict[str, Any]] = []
+    if skip_paused:
+        print("Skipping paused finish-ups. New FIFO bills only.", flush=True)
+    elif not paused_path.exists():
+        print(f"Paused sidecar missing: {paused_path}. FIFO new bills only.", flush=True)
+    else:
+        paused = json.loads(paused_path.read_text())
+        paused_invoices = list(paused.get("invoices") or [])
+        paused_rows = list(paused.get("rows") or [])
+        incomplete = [row for row in paused_rows if str(row.get("Result") or "") == "Incomplete" and row.get("KIMCO id")]
+        prior_rows = [row for row in paused_rows if str(row.get("Result") or "") != "Incomplete"]
+        for row in prior_rows:
+            row.setdefault("kind", KIND_PRIOR)
+            row["Notes"] = ""
+        print(
+            f"Paused dry-run Incomplete headers to finish: {len(incomplete)}. "
+            f"Prior Fail/HOLD rows kept: {len(prior_rows)}.",
+            flush=True,
+        )
 
     try:
         client = KimcoClient.authenticate(
@@ -250,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
             graph_client,
             mailbox=mailbox,
             limit=need,
-            received_from=None,
+            received_from=from_date,
             received_to=as_of,
             pdf_dir=pdf_dir,
             max_messages=max(400, need * 20),
@@ -309,8 +345,9 @@ def main(argv: list[str] | None = None) -> int:
             )
     else:
         advanced = cursor_from_run(new_invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor)
+    start_note = from_date.isoformat() if from_date else "2026-07-28"
     notes = (
-        "FIFO from 2026-07-28 America/Chicago toward today. "
+        f"FIFO from {start_note} America/Chicago toward today. "
         f"{as_of.isoformat()} supervised dry10 API-finished {len(finished)} paused Incomplete header(s) "
         f"on {batch_label}; {len(new_invoices)} new FIFO bill(s). "
         "Next weekday continues AFTER this cursor. Do not restart at 7/28."
@@ -322,10 +359,12 @@ def main(argv: list[str] | None = None) -> int:
         "quality": "V1.1",
         "mailbox": mailbox,
         "as_of": as_of.isoformat(),
+        "from_date": from_date.isoformat() if from_date else None,
         "batch": batch_label,
         "limit": int(args.limit),
         "daily_30_ran": False,
         "kimco_ui_opened": False,
+        "email_sent": False,
         "finish_path": "api-record-put-and-attach",
         "counts": result_counts(rows),
         "finish_ups": [
@@ -365,8 +404,17 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Advanced cursor to {advanced.last_receivedDateTime} (message id not printed).", flush=True)
     _print_summary(rows)
     if args.email:
-        return _send_email(graph_client, report_path, rows, batch_label=batch_label, to=args.email_to)
-    print("Email not sent (pass --email after the API finish).", flush=True)
+        return _send_email(
+            graph_client,
+            report_path,
+            rows,
+            batch_label=batch_label,
+            to=args.email_to,
+            subject=email_subject,
+            from_date=from_date,
+            sidecar_path=sidecar_path,
+        )
+    print("Email not sent (pass --email or --email-only after the spreadsheet is locked).", flush=True)
     return 0
 
 
@@ -377,8 +425,91 @@ def persist_dry10_cursor(cursor: DailyCursor, cursor_path: Path, notes: str) -> 
     cursor_path.write_text(json.dumps(payload, indent=2) + "\n")
 
 
-def _send_email(graph_client, report_path: Path, rows: list[dict[str, Any]], *, batch_label: str, to: str) -> int:
-    body = dry_email_body(rows, batch_label=batch_label)
+def _mark_sidecar_email(sidecar_path: Path, status: str, subject: str) -> None:
+    if not sidecar_path.exists():
+        return
+    try:
+        payload = json.loads(sidecar_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return
+    if not isinstance(payload, dict):
+        return
+    payload["email_sent"] = status == EMAIL_SENT
+    payload["email_status"] = status
+    payload["email_subject"] = subject
+    sidecar_path.write_text(json.dumps(payload, indent=2, default=str) + "\n")
+
+
+def _send_email_only(
+    *,
+    report_path: Path,
+    sidecar_path: Path,
+    to: str,
+    subject: str,
+    from_date,
+) -> int:
+    if not report_path.exists():
+        print(f"Email-only refused: locked spreadsheet missing ({report_path}).", flush=True)
+        return 2
+    if sidecar_path.exists():
+        try:
+            payload = json.loads(sidecar_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+        if payload.get("email_sent") or payload.get("email_status") == EMAIL_SENT:
+            print("Email-only refused: Mail.Send already recorded. Will not send twice.", flush=True)
+            return 2
+        rows = list(payload.get("rows") or [])
+        batch_label = str(payload.get("batch") or "")
+        if payload.get("from_date") and from_date is None:
+            from_date = parse_iso_date(str(payload["from_date"]))
+            subject = dry_subject_for(from_date)
+    else:
+        rows = []
+        batch_label = ""
+    email_sidecar = report_path.with_suffix(report_path.suffix + ".email.json")
+    if email_sidecar.exists():
+        try:
+            prior = json.loads(email_sidecar.read_text())
+        except (OSError, json.JSONDecodeError):
+            prior = {}
+        if prior.get("status") == EMAIL_SENT:
+            print("Email-only refused: Mail.Send already recorded. Will not send twice.", flush=True)
+            return 2
+    graph_client = _optional_graph_client()
+    return _send_email(
+        graph_client,
+        report_path,
+        rows,
+        batch_label=batch_label,
+        to=to,
+        subject=subject,
+        from_date=from_date,
+        sidecar_path=sidecar_path,
+    )
+
+
+def _send_email(
+    graph_client,
+    report_path: Path,
+    rows: list[dict[str, Any]],
+    *,
+    batch_label: str,
+    to: str,
+    subject: str | None = None,
+    from_date=None,
+    sidecar_path: Path | None = None,
+) -> int:
+    subject = subject or dry_subject_for(from_date)
+    if sidecar_path and sidecar_path.exists():
+        try:
+            payload = json.loads(sidecar_path.read_text())
+        except (OSError, json.JSONDecodeError):
+            payload = {}
+        if payload.get("email_sent") or payload.get("email_status") == EMAIL_SENT:
+            print("Mail.Send refused: already recorded. Will not send twice.", flush=True)
+            return 2
+    body = dry_email_body(rows, batch_label=batch_label, from_date=from_date)
     if graph_client is None:
         status = EMAIL_DENIED
     else:
@@ -386,7 +517,7 @@ def _send_email(graph_client, report_path: Path, rows: list[dict[str, Any]], *, 
             status = graph_client.send_run_report(
                 ALLOWED_MAILBOX,
                 to=to,
-                subject=DRY_SUBJECT,
+                subject=subject,
                 body=body,
                 attachment_path=report_path,
             )
@@ -394,10 +525,12 @@ def _send_email(graph_client, report_path: Path, rows: list[dict[str, Any]], *, 
             raise
         except GraphError:
             status = EMAIL_DENIED
-    write_email_sidecar(report_path, status, subject=DRY_SUBJECT, to=to)
+    write_email_sidecar(report_path, status, subject=subject, to=to)
+    if sidecar_path is not None:
+        _mark_sidecar_email(sidecar_path, status, subject)
     counts = result_counts(rows)
     print(
-        f"Email status={status} to={to} subject={DRY_SUBJECT} "
+        f"Email status={status} to={to} subject={subject} "
         f"Success={counts['Success']} Incomplete={counts['Incomplete']} "
         f"Fail={counts['Fail']} HOLD={counts['HOLD']}",
         flush=True,

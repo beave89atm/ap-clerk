@@ -26,7 +26,7 @@ from ap_clerk.graph import (
     has_entered_in_ai,
 )
 from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
-from ap_clerk.rules import classify_mail
+from ap_clerk.rules import CHICAGO, classify_mail
 
 STATEMENT_FILE_RE = re.compile(
     r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status|accountstatus",
@@ -50,6 +50,37 @@ HOLD_SKIP_CLASSES = {
 }
 # Clear noise can skip before PDF download. Vague not-a-bill still inspects vendor PDFs (AQPC).
 CLEAR_SKIP_CLASSES = {"statement", "pod", "payment", "check_stop", "internal"}
+
+
+def _as_start_datetime(value: date | datetime | None) -> datetime | None:
+    """Normalize a FIFO floor to an aware datetime (America/Chicago for dates)."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=CHICAGO)
+        return value
+    return datetime.combine(value, datetime.min.time(), tzinfo=CHICAGO)
+
+
+def fifo_start_datetime(
+    *,
+    received_from: date | datetime | None = None,
+    cursor: DailyCursor | None = None,
+) -> datetime:
+    """Oldest FIFO start: max(7/28 floor, persisted cursor, explicit from-date).
+
+    An explicit later date (Kyle: start 2026-08-16) wins over an earlier cursor
+    so the next 10 does not restart at 7/28 or re-walk 8/15 leftovers.
+    """
+    candidates = [daily_floor_datetime()]
+    cursor_dt = (cursor or DailyCursor()).after_received()
+    if cursor_dt is not None:
+        candidates.append(cursor_dt)
+    explicit = _as_start_datetime(received_from)
+    if explicit is not None:
+        candidates.append(explicit)
+    return max(candidates)
 
 
 def sender_name(message: dict[str, Any]) -> str:
@@ -121,16 +152,7 @@ def pull_recent_bills(
     start = received_from
     after = cursor or DailyCursor()
     if fifo:
-        floor = daily_floor_datetime()
-        cursor_dt = after.after_received()
-        if cursor_dt is not None and cursor_dt > floor:
-            start = cursor_dt
-        elif start is None:
-            start = floor
-        elif isinstance(start, date) and not isinstance(start, datetime):
-            start = datetime.combine(start, datetime.min.time(), tzinfo=floor.tzinfo)
-            if start < floor:
-                start = floor
+        start = fifo_start_datetime(received_from=received_from, cursor=after)
         if unprocessed_only is False:
             unprocessed_only = True
     messages = graph.list_messages(
@@ -159,7 +181,8 @@ def pull_recent_bills(
                 received_dt = datetime.fromisoformat(received.replace("Z", "+00:00"))
             except ValueError:
                 received_dt = None
-            if received_dt is not None and received_dt < daily_floor_datetime():
+            floor = start if isinstance(start, datetime) else daily_floor_datetime()
+            if received_dt is not None and received_dt < floor:
                 continue
         if unprocessed_only and (has_entered_in_ai(message) or has_ai_hold(message)):
             skipped.append(
