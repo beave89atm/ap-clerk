@@ -4,11 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from datetime import date
+
 from ap_clerk.finish import (
     DRY_SUBJECT,
     KIND_FINISH_UP,
     apply_grouped_outlook_flags,
     dry_email_body,
+    dry_subject_for,
     finish_existing_header,
     grouped_flag_status_for_message,
 )
@@ -265,6 +268,8 @@ def test_dry_email_names_api_finish_and_not_daily_30():
         batch_label="API Agent - 9/8/26 (701)",
     )
     assert DRY_SUBJECT.startswith("AP dry run 10")
+    assert dry_subject_for(date(2026, 8, 16)) == "AP dry run 10 — from 2026-08-16"
+    assert dry_subject_for(None) == DRY_SUBJECT
     assert "not the weekday daily 30" in body
     assert "API-only finish" in body
     assert "KIMCO UI was not opened" in body
@@ -272,3 +277,10 @@ def test_dry_email_names_api_finish_and_not_daily_30():
     assert "Incomplete: 1" in body
     assert "Finish-ups" in body
     assert "accountspayable@kannonmfg.com" in body
+    from_body = dry_email_body(
+        [{"Result": "Success", "kind": "new"}],
+        batch_label="API Agent - 9/9/26 (702)",
+        from_date=date(2026, 8, 16),
+    )
+    assert "2026-08-16" in from_body
+    assert "do not restart at 7/28" in from_body

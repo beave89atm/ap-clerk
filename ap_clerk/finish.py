@@ -7,6 +7,7 @@ Never prints secrets.
 from __future__ import annotations
 
 import logging
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -45,13 +46,31 @@ KIND_NEW = "new"
 KIND_PRIOR = "prior"
 
 
-def dry_email_body(rows: list[dict[str, Any]], *, batch_label: str) -> str:
+def dry_subject_for(from_date: date | None = None) -> str:
+    """One Mail.Send subject. Kyle's 8/16 follow-up uses the from-date form."""
+    if from_date is not None:
+        return f"AP dry run 10 — from {from_date.isoformat()}"
+    return DRY_SUBJECT
+
+
+def dry_email_body(
+    rows: list[dict[str, Any]],
+    *,
+    batch_label: str,
+    from_date: date | None = None,
+) -> str:
     counts = result_counts(rows)
     finish_ups = [row for row in rows if row.get("kind") == KIND_FINISH_UP]
     new_bills = [row for row in rows if row.get("kind") == KIND_NEW]
+    start_line = (
+        f"FIFO start: {from_date.isoformat()} America/Chicago (do not restart at 7/28).\n"
+        if from_date is not None
+        else ""
+    )
     return (
         "Supervised 10-invoice LIVE dry run for Treyce / Kyle review (QUALITY V1.1).\n"
         "This is a supervised dry run, not the weekday daily 30, and does not re-arm that routine.\n"
+        f"{start_line}"
         "API-only finish (record PUT Select Receipts + record attach with x-ms-blob-type BlockBlob).\n"
         "KIMCO UI was not opened.\n"
         f"Batch: {batch_label}\n"
