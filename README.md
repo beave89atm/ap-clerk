@@ -2,7 +2,7 @@
 
 Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
 
-**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. This build does **not** run a live 30 and does **not** Mail.Send to Treyce. The weekday routine stays paused until a supervised 10-invoice live dry run after merge. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
+**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run (2026-09-08 America/Chicago, API finish) is recorded below. This build does **not** re-arm the weekday daily 30. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
@@ -134,6 +134,8 @@ python3 -m ap_clerk probe
 ```
 
 Creates (or records 403 for) master category `AI HOLD`, then creates and deletes a draft on `accountspayable@kannonmfg.com` only. It never calls `sendMail`.
+
+**Supervised dry run 10 (2026-09-08 America/Chicago, API finish):** finished the paused QUALITY V1.1 Incomplete headers on batch `API Agent - 9/8/26` id **701**. No new FIFO bills (10 finish-ups filled the quota). **10 Success** (9921, 9922, 9931, 9924, 9930, 9927, 9928, 9925, 9926, 9929), **0 Incomplete**, **1 Fail** (SpectrumVoIP 929030 vendor-missing), **2 HOLD** (Globe Life not-a-bill). Live GET after finish: PO bills have receipt-linked `lists.APInvoiceLine` + PDF; no-PO bills have header + PDF. Outlook: Success → `Entered in AI` (stale Graph ids 404'd; resolved by invoice-number search); Fail/HOLD → `AI HOLD`. No follow-up flag. Mail.Send to Treyce: **email-sent**, subject `AP dry run 10 — quality V1.1 (API finish)`. Cursor: `runs/daily-cursor.json` last_received **2026-08-15T11:29:07Z** (processed_count 426). Report: `runs/AP-run-2026-09-08-dry10.xlsx`. KIMCO UI was not opened. Next weekday continues AFTER this cursor.
 
 **Weekday FIFO 30 (2026-09-08 America/Chicago):** continued after the 9/7 Air Products cursor (`2026-08-12T01:41:44Z`, processed_count 324). Batch `API Agent - 9/8/26` id **701**. 30 bills attempted (60 statement/payment/not-a-bill skips replaced; O'Neal 15439109 + 15439230 from one batched PDF). **24 Success** headers **9897–9920**, **3 Fail** (already-exists: Clear Kut V009928/V009914, Capital 25641), **3 HOLD** bills (JP Steel 124747, Austin 2490201, EMJ S813605432 price-does-not-match) plus skip HOLD rows. Success got `Entered in AI` + `flag.flagStatus=flagged`. Mail.Send to Treyce: **email-sent**. Cursor: `runs/daily-cursor.json` last_received **2026-08-14T21:19:47Z**. Report: `runs/AP-run-2026-09-08.xlsx`. Attach notify still **405**. Vendor ids from live GET: O'Neal=137, PCT Support=140, Xcaliber=339, Morgan Steel=304. Note: Hapeco 6114659/6114660 headers left Purchase Order blank (PO 58562/58563 exist on live purchase lines but were not indexed without a PO id). Xcaliber freight $48.67 is Fees and surcharges; Excel also recorded it as PPV (API does not post Additional Charge).
 
@@ -385,4 +387,4 @@ Graph message id is kept on the run so the category is applied after match, not 
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
 - The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success and `AI HOLD` after HOLD/Fail. Never both. Never use the follow-up flag or `AP Matched` as the process marker.
 - `daily` requires `--live`. Do not add a GitHub Actions cron that posts live without Kyle.
-- QUALITY V1.1 does not run a live 30 and does not Mail.Send to Treyce. After merge, run a supervised 10-invoice live dry run before re-arming the weekday 2am routine.
+- QUALITY V1.1 does not run a live 30 by itself. The supervised 10-invoice API-finish dry run is recorded above. Do not re-arm the weekday daily 30 until Kyle says so.

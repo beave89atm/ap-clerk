@@ -195,6 +195,9 @@ def test_grouped_flags_shared_message_stays_hold_unless_all_success():
             self.held.append(message_id)
             return FLAG_AI_HOLD
 
+        def get_message(self, mailbox, message_id, select="id"):
+            return {"id": message_id, "categories": []}
+
     mixed = [
         {"Invoice #": "TXFT4100045", "Result": RESULT_SUCCESS, "KIMCO id": 9924, "Why": ""},
         {"Invoice #": "TXFT499945", "Result": RESULT_INCOMPLETE, "KIMCO id": 9930, "Why": ""},
@@ -218,6 +221,37 @@ def test_grouped_flags_shared_message_stays_hold_unless_all_success():
     apply_grouped_outlook_flags(both_ok, invoices, graph2)
     assert graph2.matched == ["AAMk-fastenal"]
     assert grouped_flag_status_for_message(both_ok) == FLAG_FLAGGED
+
+
+def test_resolve_message_id_searches_when_stored_id_404s():
+    from ap_clerk.finish import resolve_message_id
+    from ap_clerk.graph import GraphError
+
+    class FakeGraph:
+        def get_message(self, mailbox, message_id, select="id"):
+            raise GraphError("Graph GET message HTTP 404")
+
+        def search_messages(self, mailbox, needle, top=8):
+            assert needle == "701684"
+            return [
+                {"id": "AAMk-report", "subject": "AP dry run 10 — quality V1.1 (API finish)"},
+                {
+                    "id": "AAMk-live",
+                    "subject": "Invoice 701684 from Orthman Conveying Systems",
+                    "bodyPreview": "",
+                    "attachment_names": [],
+                },
+            ]
+
+    found = resolve_message_id(
+        FakeGraph(),
+        {
+            "invoice_number": "701684",
+            "vendor": "Orthman Conveying Systems",
+            "graph_message_id": "AAMk-stale",
+        },
+    )
+    assert found == "AAMk-live"
 
 
 def test_dry_email_names_api_finish_and_not_daily_30():

@@ -26,6 +26,7 @@ from ap_clerk.graph import (
     GraphError,
     MailboxRejected,
     apply_flag_after_match,
+    score_message_for_invoice,
 )
 from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE
 from ap_clerk.kimco import (
@@ -240,6 +241,67 @@ def finish_existing_header(
     return out
 
 
+def resolve_message_id(
+    graph_client: GraphClient | None,
+    inv: dict[str, Any],
+    *,
+    mailbox: str = ALLOWED_MAILBOX,
+) -> str:
+    """Use the stored Graph id, or search the AP mailbox when that id 404s.
+
+    Immutable ids from an earlier run can ErrorItemNotFound. Search by invoice #
+    and skip the dry-run report email. Never logs the id value.
+    """
+    if graph_client is None:
+        return str(inv.get("graph_message_id") or "").strip()
+    stored = str(inv.get("graph_message_id") or inv.get("graphMessageId") or "").strip()
+    if stored:
+        try:
+            graph_client.get_message(mailbox, stored, select="id,categories")
+            return stored
+        except (GraphError, MailboxRejected):
+            LOGGER.info("Stored Graph message id not found; searching mailbox by invoice #")
+    number = str(inv.get("invoice_number") or "").strip()
+    if not number:
+        return ""
+    try:
+        hits = graph_client.search_messages(mailbox, number, top=8)
+    except (GraphError, MailboxRejected):
+        return ""
+    usable = []
+    for message in hits:
+        subject = str(message.get("subject") or "")
+        if subject.startswith("AP dry run") or subject.startswith("AP run "):
+            continue
+        if STATEMENT_FILE_RE.search(subject) and "invoice" not in subject.lower():
+            continue
+        score = score_message_for_invoice(message, inv)
+        if number.lower() in subject.lower():
+            score = max(score, 40)
+        elif score <= 0:
+            # Graph $search already matched the invoice # in the body.
+            score = 25
+        usable.append((score, message))
+    usable.sort(key=lambda pair: pair[0], reverse=True)
+    if not usable:
+        return ""
+    if len(usable) > 1 and usable[0][0] < usable[1][0] + 20:
+        # Prefer the vendor invoice over a leftover statement when scores are close.
+        vendor = str(inv.get("vendor") or "").lower()
+        vendor_hits = [
+            pair
+            for pair in usable
+            if vendor and vendor.split()[0] in str(pair[1].get("subject") or "").lower()
+        ]
+        if len(vendor_hits) == 1:
+            return str(vendor_hits[0][1].get("id") or "")
+        invoice_hits = [pair for pair in usable if "invoice" in str(pair[1].get("subject") or "").lower()]
+        if len(invoice_hits) == 1:
+            return str(invoice_hits[0][1].get("id") or "")
+        return ""
+    return str(usable[0][1].get("id") or "")
+
+
 def apply_grouped_outlook_flags(
     rows: list[dict[str, Any]],
     invoices: list[dict[str, Any]],
@@ -258,10 +320,17 @@ def apply_grouped_outlook_flags(
     by_message: dict[str, list[dict[str, Any]]] = {}
     orphans: list[tuple[dict[str, Any], dict[str, Any]]] = []
     for row in rows:
-        inv = inv_by_number.get(str(row.get("Invoice #") or "")) or {}
-        message_id = str(
-            inv.get("graph_message_id") or row.get("graph_message_id") or ""
-        ).strip()
+        inv = dict(inv_by_number.get(str(row.get("Invoice #") or "")) or {})
+        if not inv:
+            inv = {
+                "invoice_number": row.get("Invoice #"),
+                "vendor": row.get("Vendor"),
+                "graph_message_id": row.get("graph_message_id"),
+            }
+        message_id = resolve_message_id(graph_client, inv, mailbox=mailbox)
+        if message_id:
+            inv["graph_message_id"] = message_id
+            inv_by_number[str(row.get("Invoice #") or "")] = inv
         if not message_id:
             orphans.append((row, inv))
             continue
