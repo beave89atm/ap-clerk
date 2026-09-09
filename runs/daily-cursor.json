@@ -1,10 +1,10 @@
 {
   "mailbox": "accountspayable@kannonmfg.com",
   "start_from": "2026-07-28",
-  "last_receivedDateTime": "2026-08-15T11:29:07Z",
-  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOEyYaiAAA=",
-  "last_run_date": "2026-09-08",
-  "last_batch": "API Agent - 9/8/26 (701)",
-  "processed_count": 426,
-  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-08 supervised dry10 API-finished 10 paused Incomplete header(s) on API Agent - 9/8/26 (701); 0 new FIFO bill(s). Next weekday continues AFTER this cursor. Do not restart at 7/28."
+  "last_receivedDateTime": "2026-08-18T13:00:12Z",
+  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5YgAAA=",
+  "last_run_date": "2026-09-09",
+  "last_batch": "API Agent - 9/9/26 (703)",
+  "processed_count": 456,
+  "notes": "FIFO from 2026-08-16 America/Chicago toward today. 2026-09-09 supervised dry10 API-finished 0 paused Incomplete header(s) on API Agent - 9/9/26 (703); 10 new FIFO bill(s). Next weekday continues AFTER this cursor. Do not restart at 7/28."
 }

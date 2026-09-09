@@ -2,7 +2,7 @@
 
 Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
 
-**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run (2026-09-08 America/Chicago, API finish) is recorded below. This build does **not** re-arm the weekday daily 30. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
+**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run from **2026-08-16** (2026-09-09 America/Chicago, API finish) is recorded below. This build does **not** re-arm the weekday daily 30. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
@@ -134,6 +134,8 @@ python3 -m ap_clerk probe
 ```
 
 Creates (or records 403 for) master category `AI HOLD`, then creates and deletes a draft on `accountspayable@kannonmfg.com` only. It never calls `sendMail`.
+
+**Supervised dry run 10 (2026-09-09 America/Chicago, from 2026-08-16):** Kyle asked for another 10 starting on date 8/16. FIFO from **2026-08-16** America/Chicago (did not restart at 7/28; skipped already-Success 9/8 finish-ups). Batch `API Agent - 9/9/26` id **703**. 10 real bills attempted (statement/payment/CHECK STOP/not-a-bill skips replaced). **5 Success** headers **9948–9952**, **0 Incomplete**, **0 Fail**, **5 HOLD** bills (Insight 1809 ×2 and Rob Brown/MSC 191471 preflight-parse — invoice # from filename; EMJ S813859432 price-does-not-match 17.1% / $199.32; Toyota Commercial Finance 3320056 PO 55483 not on live) plus skip HOLD rows. Live GET after finish: PO Success bills have receipt-linked `lists.APInvoiceLine` + PDF; Purvis no-PO **9950** has header + PDF. Outlook: Success → `Entered in AI`; HOLD → `AI HOLD`. No follow-up flag. Mail.Send to Treyce: pending lock then **exactly one** send, subject `AP dry run 10 — from 2026-08-16`. Cursor: `runs/daily-cursor.json` last_received **2026-08-18T13:00:12Z** (processed_count 456). Report: `runs/AP-run-2026-09-09.xlsx`. KIMCO UI was not opened. Later runs continue AFTER this cursor.
 
 **Supervised dry run 10 (2026-09-08 America/Chicago, API finish):** finished the paused QUALITY V1.1 Incomplete headers on batch `API Agent - 9/8/26` id **701**. No new FIFO bills (10 finish-ups filled the quota). **10 Success** (9921, 9922, 9931, 9924, 9930, 9927, 9928, 9925, 9926, 9929), **0 Incomplete**, **1 Fail** (SpectrumVoIP 929030 vendor-missing), **2 HOLD** (Globe Life not-a-bill). Live GET after finish: PO bills have receipt-linked `lists.APInvoiceLine` + PDF; no-PO bills have header + PDF. Outlook: Success → `Entered in AI` (stale Graph ids 404'd; resolved by invoice-number search); Fail/HOLD → `AI HOLD`. No follow-up flag. Mail.Send to Treyce: **email-sent**, subject `AP dry run 10 — quality V1.1 (API finish)`. Cursor: `runs/daily-cursor.json` last_received **2026-08-15T11:29:07Z** (processed_count 426). Report: `runs/AP-run-2026-09-08-dry10.xlsx`. KIMCO UI was not opened. Next weekday continues AFTER this cursor.
 
