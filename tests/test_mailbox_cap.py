@@ -79,9 +79,9 @@ def test_cap_walks_past_noise_and_fills_n_bill_attempts(tmp_path: Path):
         _msg("m-payment", "Payment confirmation — thank you", "2026-08-16T13:00:00Z", name="PayCo"),
         _msg("m-check", "CHECK STOP Gas and Supply", "2026-08-16T14:00:00Z", name="Gas and Supply"),
         _msg("m-pod", "POD for shipment 99", "2026-08-16T15:00:00Z", name="ShipCo"),
+        _msg("m-not-a-bill", "Internal only — do not process", "2026-08-16T15:30:00Z", name="IT"),
         _msg("m-bill-ok", "Invoice FIRST", "2026-08-16T16:00:00Z", name="Fastenal Company"),
         _msg("m-bill-hold", "Invoice SECOND", "2026-08-16T17:00:00Z", name="EMJ"),
-        _msg("m-not-a-bill", "Internal only — do not process", "2026-08-16T18:00:00Z", name="IT"),
         _msg("m-bill-three", "Invoice THIRD", "2026-08-16T19:00:00Z", name="McMaster-Carr"),
     ]
     graph = _FakeGraph(
