@@ -253,6 +253,28 @@ class KimcoClient:
         """Child APInvoiceLine rows from a record GET (`lists.APInvoiceLine`)."""
         return invoice_lines_from_record(self.get_item("ap_invoices", int(invoice_id)))
 
+    def list_attachments(self, invoice_id: int | str) -> list[dict[str, Any]]:
+        """GET attachments on the invoice RECORD. Never the list GUID."""
+        if invoice_id in (None, ""):
+            raise KimcoError("Attachment list requires an invoice record id")
+        response = self.request(
+            "GET",
+            self._record_url("ap_invoices", invoice_id, "attachments"),
+        )
+        if response.status_code != 200:
+            LOGGER.info("GET attachments HTTP %s for record %s", response.status_code, invoice_id)
+            return []
+        try:
+            payload = response.json()
+        except ValueError:
+            return []
+        if isinstance(payload, list):
+            return [item for item in payload if isinstance(item, dict)]
+        if not isinstance(payload, dict):
+            return []
+        items = payload.get("items") or payload.get("attachments") or payload.get("value") or []
+        return [item for item in items if isinstance(item, dict)] if isinstance(items, list) else []
+
     def add_invoice_lines(self, invoice_id: int | str, lines: list[dict[str, Any]]) -> str:
         """Select Receipts-equivalent lines on the invoice RECORD.
 

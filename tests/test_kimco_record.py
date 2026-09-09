@@ -328,3 +328,15 @@ def test_record_url_helper_and_suffix() -> None:
     assert listed == f"{LIVE_URL}/api/v2/{LIVE_GUID}"
     with pytest.raises(KimcoError, match="record id"):
         client._url("ap_invoices", suffix="attachments")
+
+
+def test_list_attachments_uses_record_url() -> None:
+    client = _live_client()
+    payload = {"items": [{"id": "file-1", "name": "701684.pdf"}]}
+    with patch.object(client.session, "request", return_value=FakeResp(200, payload)) as req:
+        items = client.list_attachments(INVOICE_ID)
+    assert len(items) == 1
+    url = req.call_args.args[1]
+    assert req.call_args.args[0] == "GET"
+    assert url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}/attachments")
+    assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
