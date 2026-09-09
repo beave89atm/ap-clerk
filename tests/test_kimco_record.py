@@ -128,6 +128,9 @@ def test_attach_uses_record_attachments_endpoints() -> None:
         assert f"/{LIVE_GUID}/{INVOICE_ID}" in url
         assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
     assert put.call_args.args[0] == "https://files.example.test/upload"
+    headers = put.call_args.kwargs.get("headers") or {}
+    assert headers.get("x-ms-blob-type") == "BlockBlob"
+    assert headers.get("Content-Type") == "application/pdf"
 
 
 def test_attach_405_mentions_can_edit_items_inline() -> None:

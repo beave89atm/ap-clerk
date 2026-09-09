@@ -40,8 +40,9 @@ LIVE_SERVICES = {
 LIVE_WRITE_BLOCKED = "Live writes are off until Kyle says go"
 LIVE_WRITES_ENABLED = True
 
-# Kyle / KIMCO admin: AP Invoice list must have these four checkboxes on.
-# Until they are enabled on live, record-scoped PUT/attach may still 405.
+# Kyle / KIMCO admin: AP Invoice list needs these four checkboxes on.
+# Live probe 2026-09-09 (Orthman 9931): record GET/PUT/attach succeeded after
+# Kyle enabled them. A 405 after a record URL still means check these.
 LIST_EDIT_CHECKBOXES = (
     "Can View Items",
     "Can Edit Items",
@@ -294,6 +295,9 @@ class KimcoClient:
 
         Notify `POST .../{id}/attachments/upload` → PUT uploadUrl →
         complete `POST .../{id}/attachments`.
+
+        Azure Blob uploadUrl requires `x-ms-blob-type: BlockBlob` (live probe
+        2026-09-09: PUT without it returned 400 MissingRequiredHeader).
         """
         if invoice_id in (None, ""):
             raise KimcoError("PDF attach requires an invoice record id")
@@ -314,7 +318,10 @@ class KimcoClient:
         upload = requests.put(
             upload_url,
             data=content,
-            headers={"Content-Type": content_type},
+            headers={
+                "Content-Type": content_type,
+                "x-ms-blob-type": "BlockBlob",
+            },
             timeout=self.timeout,
         )
         if upload.status_code >= 400:
