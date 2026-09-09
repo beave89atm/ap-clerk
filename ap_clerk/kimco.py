@@ -5,7 +5,8 @@ Kyle said go for live writes on 2026-08-28 (explicit --live + KIMCO_LIVE_* only)
 
 Record-endpoint rule: create/search use `/api/v2/{serviceId}`. Updates, line
 additions, Select Receipts-equivalent edits, and attachments use
-`/api/v2/{serviceId}/{id}` (prototype or live host).
+`/api/v2/{serviceId}/{id}` (prototype or live host). Select Receipts is a
+record PUT of `lists.APInvoiceLine` with `values.Receipt.id` (receipt LINE id).
 """
 
 from __future__ import annotations
@@ -248,19 +249,33 @@ class KimcoClient:
             return {}, response.status_code, (response.text or "")[:500]
         return _json_dict(response), response.status_code, ""
 
+    def get_invoice_lines(self, invoice_id: int | str) -> list[dict[str, Any]]:
+        """Child APInvoiceLine rows from a record GET (`lists.APInvoiceLine`)."""
+        return invoice_lines_from_record(self.get_item("ap_invoices", int(invoice_id)))
+
     def add_invoice_lines(self, invoice_id: int | str, lines: list[dict[str, Any]]) -> str:
-        """Add lines on the invoice RECORD. Never POST to the bare list GUID."""
+        """Select Receipts-equivalent lines on the invoice RECORD.
+
+        Live GET of bills that already had UI Select Receipts (9663 / 9670 / 9672)
+        returns children at `lists.APInvoiceLine[].values.Receipt.id` (receipt
+        LINE id, not the parent receiving header). PUT that same shape. OPTIONS
+        on the record allows DELETE, GET, PUT — not POST. Never the list GUID.
+        Never typed Add Item merchandise (Receipt.id is required).
+        """
         if invoice_id in (None, ""):
             raise KimcoError("Line add requires an invoice record id")
+        payload = select_receipts_payload(lines)
         url = self._record_url("ap_invoices", invoice_id)
-        payload = {"items": list(lines or [])}
-        response = self.request("POST", url, json=payload)
-        if response.status_code < 400:
-            return "added"
         put = self.request("PUT", url, json=payload)
         if put.status_code < 400:
             return "added"
-        if response.status_code == 405 or put.status_code == 405:
+        patch = self.request("PATCH", url, json=payload)
+        if patch.status_code < 400:
+            return "added"
+        post = self.request("POST", url, json=payload)
+        if post.status_code < 400:
+            return "added"
+        if put.status_code == 405 or patch.status_code == 405 or post.status_code == 405:
             return self._blocked_405("line add", invoice_id)
         return f"blocked-{put.status_code}"
 
@@ -340,8 +355,8 @@ class KimcoClient:
     def try_select_receipts(self, invoice_id: int, receipt_ids: list[Any] | None = None) -> str:
         """Select Receipts-equivalent on the invoice RECORD.
 
-        Posts matched receipt ids as record line items. Never the list GUID.
-        Never invents typed Add Item merchandise lines.
+        PUTs matched receipt LINE ids as `lists.APInvoiceLine` children.
+        Never the list GUID. Never invents typed Add Item merchandise lines.
         """
         if invoice_id in (None, ""):
             raise KimcoError("Select Receipts requires an invoice record id")
@@ -353,6 +368,52 @@ class KimcoClient:
         if status == "added":
             return "selected"
         return status
+
+
+def select_receipts_payload(lines_or_ids: list[Any]) -> dict[str, Any]:
+    """Record PUT body that mirrors GET `lists.APInvoiceLine` on finished bills.
+
+    Each child is `{"values": {"Receipt": {"id": <receipt_line_id>}}}`.
+    Receipt.id is required so this cannot invent typed Add Item rows.
+    """
+    items: list[dict[str, Any]] = []
+    for raw in lines_or_ids or []:
+        receipt_id = _receipt_id_from_line(raw)
+        if receipt_id in (None, ""):
+            raise KimcoError("Select Receipts lines must include Receipt.id; do not type Add Item")
+        items.append({"values": {"Receipt": {"id": receipt_id}}})
+    if not items:
+        raise KimcoError("Select Receipts requires at least one Receipt.id")
+    return {"lists": {"APInvoiceLine": items}}
+
+
+def invoice_lines_from_record(record: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not isinstance(record, dict):
+        return []
+    lists = record.get("lists") if isinstance(record.get("lists"), dict) else {}
+    items = lists.get("APInvoiceLine") or []
+    return list(items) if isinstance(items, list) else []
+
+
+def receipt_ids_from_invoice_lines(lines: list[dict[str, Any]] | None) -> list[Any]:
+    ids: list[Any] = []
+    for line in lines or []:
+        rid = _receipt_id_from_line(line)
+        if rid not in (None, ""):
+            ids.append(rid)
+    return ids
+
+
+def _receipt_id_from_line(raw: Any) -> Any:
+    if isinstance(raw, (int, str)) and raw not in (None, ""):
+        return raw
+    if not isinstance(raw, dict):
+        return None
+    values = raw.get("values") if isinstance(raw.get("values"), dict) else raw
+    receipt = values.get("Receipt") if isinstance(values, dict) else None
+    if isinstance(receipt, dict):
+        return receipt.get("id")
+    return None
 
 
 def _json_dict(response: Any) -> dict[str, Any]:

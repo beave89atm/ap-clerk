@@ -12,6 +12,9 @@ from ap_clerk.kimco import (
     PROTOTYPE_SERVICES,
     KimcoClient,
     KimcoError,
+    invoice_lines_from_record,
+    receipt_ids_from_invoice_lines,
+    select_receipts_payload,
 )
 
 LIVE_URL = "https://live.kimcoerp.com"
@@ -78,12 +81,14 @@ def test_add_invoice_lines_url_contains_id_after_service_guid() -> None:
         status = client.add_invoice_lines(INVOICE_ID, [{"Receipt": {"id": 44}}])
     assert status == "added"
     url = req.call_args.args[1]
-    assert req.call_args.args[0] == "POST"
+    assert req.call_args.args[0] == "PUT"
     assert f"/{LIVE_GUID}/{INVOICE_ID}" in url
     assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+    body = req.call_args.kwargs.get("json")
+    assert body == {"lists": {"APInvoiceLine": [{"values": {"Receipt": {"id": 44}}}]}}
 
 
-def test_select_receipts_posts_record_url_not_list() -> None:
+def test_select_receipts_puts_record_lists_apinvoiceline() -> None:
     client = _live_client()
     with patch.object(client.session, "request", return_value=FakeResp(200, {"ok": True})) as req:
         status = client.try_select_receipts(INVOICE_ID, [44, 45])
@@ -93,6 +98,41 @@ def test_select_receipts_posts_record_url_not_list() -> None:
     for url in urls:
         assert f"/{LIVE_GUID}/{INVOICE_ID}" in url
         assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+    assert req.call_args.args[0] == "PUT"
+    assert req.call_args.kwargs.get("json") == select_receipts_payload([44, 45])
+
+
+def test_select_receipts_payload_requires_receipt_id() -> None:
+    assert select_receipts_payload([23879]) == {
+        "lists": {"APInvoiceLine": [{"values": {"Receipt": {"id": 23879}}}]}
+    }
+    assert select_receipts_payload([{"values": {"Receipt": {"id": 23228}}}]) == {
+        "lists": {"APInvoiceLine": [{"values": {"Receipt": {"id": 23228}}}]}
+    }
+    with pytest.raises(KimcoError, match="Receipt.id"):
+        select_receipts_payload([{"Part_ID": {"id": 1}, "Quantity": 16}])
+
+
+def test_invoice_lines_from_record_reads_lists_apinvoiceline() -> None:
+    record = {
+        "id": 9663,
+        "lists": {
+            "APInvoiceLine": [
+                {
+                    "id": 19771,
+                    "values": {
+                        "Receipt": {"id": 23228, "text": "PO58514-TPI - 2026/8/21"},
+                        "Quantity": 16.0,
+                    },
+                }
+            ]
+        },
+        "values": {"Lines_Count": 1},
+    }
+    lines = invoice_lines_from_record(record)
+    assert len(lines) == 1
+    assert receipt_ids_from_invoice_lines(lines) == [23228]
+    assert invoice_lines_from_record({"values": {"Lines_Count": 0}}) == []
 
 
 def test_attach_uses_record_attachments_endpoints() -> None:
