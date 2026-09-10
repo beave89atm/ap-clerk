@@ -16,7 +16,7 @@ from ap_clerk.finish import (
     grouped_flag_status_for_message,
 )
 from ap_clerk.gates import RESULT_INCOMPLETE, RESULT_SUCCESS
-from ap_clerk.graph import FLAG_AI_HOLD, FLAG_FLAGGED
+from ap_clerk.graph import FLAG_AI_HOLD, FLAG_ENTERED_WITH_ISSUES, FLAG_FLAGGED
 from ap_clerk.kimco import KimcoError
 
 
@@ -198,6 +198,10 @@ def test_grouped_flags_shared_message_stays_hold_unless_all_success():
             self.held.append(message_id)
             return FLAG_AI_HOLD
 
+        def flag_issues(self, mailbox, message_id):
+            self.held.append(message_id)
+            return FLAG_ENTERED_WITH_ISSUES
+
         def get_message(self, mailbox, message_id, select="id"):
             return {"id": message_id, "categories": []}
 
@@ -213,8 +217,8 @@ def test_grouped_flags_shared_message_stays_hold_unless_all_success():
     apply_grouped_outlook_flags(mixed, invoices, graph)
     assert graph.held == ["AAMk-fastenal"]
     assert graph.matched == []
-    assert mixed[0]["Flag status"] == FLAG_AI_HOLD
-    assert grouped_flag_status_for_message(mixed) == FLAG_AI_HOLD
+    assert mixed[0]["Flag status"] == FLAG_ENTERED_WITH_ISSUES
+    assert grouped_flag_status_for_message(mixed) == FLAG_ENTERED_WITH_ISSUES
 
     both_ok = [
         {"Invoice #": "TXFT4100045", "Result": RESULT_SUCCESS, "KIMCO id": 9924, "Why": ""},

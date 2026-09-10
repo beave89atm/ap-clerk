@@ -20,7 +20,9 @@ FORBIDDEN_INVOICE_IDS = set(range(9474, 9479)) | set(range(9481, 9500))
 def flag_in_outlook_for(result: str | None) -> str:
     """Yes only when a process category is applied.
 
-    Success → Entered in AI. Incomplete / bill HOLD / Fail → AI HOLD.
+    Success → Entered in AI.
+    Header+PDF entered but unfinished (price/qty HOLD, Incomplete) → Entered with issues.
+    Real bill unprocessable without a header → AI HOLD.
     Skipped / Noise → No (sheet-noted only; never Outlook AI HOLD).
     """
     return "Yes" if (result or "").strip() in {"Success", "Incomplete", "HOLD", "Fail"} else "No"
@@ -51,12 +53,26 @@ NOISE_REASONS = {
     "no-attachment",
     "no-pdf",
 }
-# Real bill HOLDs that could not finish. These consume the cap and get AI HOLD.
+# Real bill HOLDs that could not finish. These consume the cap.
+# price / qty HOLDs still create a header + attach PDF (Entered with issues).
+# parse-error / auto-pay / pdf-behind-link do not create a header (AI HOLD).
 BILL_HOLD_REASONS = {
     "price does not match",
     "parse-error",
+    "auto-pay",
+    "auto pay",
+    "pdf-behind-link",
+    "qty-does-not-match",
+    "qty does not match",
+}
+# HOLD reasons that still get a KIMCO header + vendor PDF (Treyce 2026-09-10).
+CREATE_HEADER_ON_HOLD = {
+    "price does not match",
+    "qty-does-not-match",
+    "qty does not match",
 }
 HOLD_ONLY_REASONS = NOISE_REASONS | BILL_HOLD_REASONS
+GAS_AND_SUPPLY_MISC_ITEM = "Shop Supplies - G&S"
 
 
 def is_noise_reason(reason: str | None) -> bool:
@@ -193,6 +209,11 @@ FEE_KEYWORDS = (
     "settlement",
     "taxes/fees",
     "pass-through",
+    "misc",
+    "miscellaneous",
+    "supplies",
+    "misc charge",
+    "additional charge",
 )
 
 _SUFFIXES = {
@@ -293,11 +314,16 @@ def printed_invoice_number(
     raw = (number or "").strip()
     blob = text or ""
     if raw:
+        # Techni-Tool style: keep the printed suffix (S1387370.001 not S1387370).
+        if "." not in raw:
+            suffixed = re.search(rf"\b({re.escape(raw)}\.\d{{3}})\b", blob)
+            if suffixed:
+                return suffixed.group(1)
         prefixed = re.search(rf"\b(\d-{re.escape(raw)})\b", blob)
         if prefixed:
             return prefixed.group(1)
         already = re.search(rf"\b({re.escape(raw)})\b", blob)
-        if already and "-" in raw:
+        if already and ("-" in raw or "." in raw):
             return raw
     hits = re.findall(r"\b(\d-\d{5,8})\b", blob)
     if hits and known_invoice_prefix(vendor):
@@ -520,11 +546,78 @@ def _same_qty(left: Any, right: Any) -> bool:
     return a is not None and b is not None and a == b
 
 
+_DESC_STOP = {
+    "the",
+    "and",
+    "of",
+    "for",
+    "a",
+    "an",
+    "to",
+    "in",
+    "on",
+    "with",
+    "from",
+    "inc",
+    "llc",
+    "qty",
+    "ea",
+    "each",
+    "pcs",
+    "pc",
+    "item",
+}
+
+
+def description_tokens(value: Any) -> set[str]:
+    """Tokens for O'Neal-style part matching (PIPE A500 SCH 40 ↔ P-1.00 SCH 40-A500)."""
+    text = re.sub(r"[^A-Z0-9.]+", " ", str(value or "").upper())
+    raw = [tok for tok in text.split() if tok and tok.lower() not in _DESC_STOP]
+    tokens: set[str] = set()
+    for tok in raw:
+        compact = tok.replace(".", "")
+        if len(compact) >= 2:
+            tokens.add(compact)
+    for index, tok in enumerate(raw):
+        nxt = raw[index + 1] if index + 1 < len(raw) else ""
+        if tok in {"SCH", "SCHEDULE"} and nxt:
+            tokens.add("SCH" + nxt.replace(".", ""))
+    return tokens
+
+
+def description_match_score(left: Any, right: Any) -> int:
+    """Score overlapping description/part tokens. Qty-only is not enough."""
+    overlap = description_tokens(left) & description_tokens(right)
+    if not overlap:
+        return 0
+    score = 0
+    for tok in overlap:
+        if re.search(r"[A-Z]\d|\d[A-Z]", tok) or len(tok) >= 5:
+            score += 25
+        elif len(tok) >= 3:
+            score += 15
+        else:
+            score += 5
+    return min(score, 80)
+
+
+def _line_description(line: dict[str, Any]) -> str:
+    return str(
+        line.get("description")
+        or line.get("label")
+        or line.get("name")
+        or line.get("part")
+        or line.get("item")
+        or ""
+    )
+
+
 def _line_match_score(invoice_line: dict[str, Any], other: dict[str, Any]) -> int:
-    """Part and PO/WO line beat qty. Qty-only is not enough to pick a receipt."""
+    """Part, description, and PO/WO line beat qty. Qty-only is not a pick."""
     score = 0
     if _same_part(invoice_line.get("part") or invoice_line.get("item"), other.get("part") or other.get("item")):
         score += 100
+    score += description_match_score(_line_description(invoice_line), _line_description(other))
     if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), other.get("po_line") or other.get("line") or other.get("line_no")):
         score += 50
     wo_left = invoice_line.get("wo") or invoice_line.get("work_order")
@@ -560,6 +653,14 @@ def normalize_receipt(item: dict[str, Any]) -> dict[str, Any]:
         "Receiver",
     )
     part = receipt_field(item, "PO_Item_Number", "Item_Number", "Item", "Part", "Part_Number")
+    description = receipt_field(
+        item,
+        "Description",
+        "Item_Description",
+        "PO_Item_Description",
+        "Part_Description",
+        "Name",
+    )
     qty = receipt_field(item, "Quantity_Received", "Quantity", "Qty", "qty")
     po_line = receipt_field(item, "Purchase_Line_Number", "PO_Line", "Line_Number", "Line")
     po_number = receipt_field(item, "Purchase_Order_Number", "Purchase_Order", "PO")
@@ -568,6 +669,8 @@ def normalize_receipt(item: dict[str, Any]) -> dict[str, Any]:
         "id": item.get("id"),
         "slip": str(slip or "").strip(),
         "part": str(part or "").strip(),
+        "description": str(description or "").strip(),
+        "label": str(description or part or "").strip(),
         "qty": money(qty),
         "po_line": po_line,
         "line": po_line,
@@ -833,10 +936,80 @@ def invoice_number_key(value: str | None) -> str:
 
 
 def invoice_type_for(po: Any) -> int:
-    """PO bills use type 3. Existing prototype no-PO bills use type 4, not 3."""
+    """PO bills use type 3. Existing prototype no-PO bills use type 4, not 3.
+
+    Never return Type 4 when a PO number is present (Purvis 32625214 / 58926).
+    """
     if po is None or str(po).strip() in {"", "None", "null"}:
         return INVOICE_TYPE_NO_PO
     return INVOICE_TYPE_PO
+
+
+def misc_purchase_item_for(vendor: str | None) -> str | None:
+    """Gas & Supply Misc invoices use Shop Supplies - G&S, not CHECK STOP."""
+    norm = normalize_name(vendor)
+    if "gas and supply" in (norm or "") or "gasandsupply" in (norm or "").replace(" ", ""):
+        return GAS_AND_SUPPLY_MISC_ITEM
+    return None
+
+
+def qty_discrepancy(
+    invoice_lines: list[dict[str, Any]] | None,
+    other_lines: list[dict[str, Any]] | None,
+) -> dict[str, Any]:
+    """HOLD when invoice qty ≠ matched PO/receipt qty (Capital 26764: 2 vs 2.5)."""
+    result: dict[str, Any] = {"hold": False, "why": "", "items": []}
+    inv_lines = [dict(line) for line in (invoice_lines or []) if line]
+    others = [dict(line) for line in (other_lines or []) if line]
+    if not inv_lines or not others:
+        return result
+    used: set[int] = set()
+    mismatches: list[str] = []
+    for inv in inv_lines:
+        if is_fee_or_surcharge(_line_description(inv)) or inv.get("fee"):
+            continue
+        matched = _match_po_line(inv, others, used)
+        if matched is None:
+            continue
+        used.add(id(matched))
+        inv_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+        other_qty = money(matched.get("qty") if matched.get("qty") is not None else matched.get("quantity"))
+        if inv_qty is None or other_qty is None:
+            continue
+        if inv_qty != other_qty:
+            label = _line_description(inv) or str(inv.get("part") or "")
+            mismatches.append(f"{label or 'line'} invoice qty {inv_qty} vs PO/receipt qty {other_qty}")
+            result["items"].append({"label": label, "invoice_qty": inv_qty, "other_qty": other_qty})
+    if mismatches:
+        result["hold"] = True
+        result["why"] = (
+            "invoice qty does not match PO/receipt qty ("
+            + "; ".join(mismatches)
+            + "). HOLD so a buyer can comment/tag. Do not claim Success."
+        )
+    return result
+
+
+AUTO_PAY_RE = re.compile(
+    r"toyota\s+commercial\s+finance|\bauto[\s-]?pay\b|\bautopay\b",
+    flags=re.I,
+)
+MELODY_CHANNELL_RE = re.compile(r"melody\s+channell", flags=re.I)
+GAS_AND_SUPPLY_RE = re.compile(r"gas\s*(?:and|&)\s*supply|gasandsupply", flags=re.I)
+
+
+def is_auto_pay(*, vendor: str = "", subject: str = "", preview: str = "", text: str = "") -> bool:
+    """Toyota Commercial Finance / auto-pay: HOLD, do not enter in ERP."""
+    blob = f"{vendor}\n{subject}\n{preview}\n{text}"
+    return bool(AUTO_PAY_RE.search(blob))
+
+
+def is_gas_and_supply(value: str | None) -> bool:
+    return bool(GAS_AND_SUPPLY_RE.search(value or ""))
+
+
+def is_melody_channell(value: str | None) -> bool:
+    return bool(MELODY_CHANNELL_RE.search(value or ""))
 
 
 NOT_A_BILL_SUBJECT_RE = re.compile(
@@ -852,9 +1025,15 @@ STATEMENT_RE = re.compile(
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
-# Vendor invoices with a PDF must enter even when the subject is short (AQPC).
+# Vendor invoices with a PDF must enter even when the subject is short (AQPC, Melody).
 KNOWN_BILL_VENDOR_RE = re.compile(
-    r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating",
+    r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|"
+    r"melody\s+channell",
+    flags=re.I,
+)
+# AQPC often links a PDF instead of attaching it.
+LINK_DOWNLOAD_VENDOR_RE = re.compile(
+    r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|aqpowder",
     flags=re.I,
 )
 INTERNAL_MAIL_RE = re.compile(
@@ -864,16 +1043,20 @@ INTERNAL_MAIL_RE = re.compile(
 
 
 def classify_mail(*, subject: str = "", attachment_names: list[str] | None = None, preview: str = "") -> str:
-    """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', 'internal', or 'not-a-bill'."""
+    """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', 'internal', 'auto-pay', or 'not-a-bill'."""
     names = " ".join(attachment_names or [])
     blob = f"{subject}\n{names}\n{preview}"
+    if is_auto_pay(subject=subject, preview=preview):
+        return "auto-pay"
+    # Gas & Supply: subject CHECK STOP is not enough — inbox must read the PDF
+    # (0040367887 had 5 Misc invoices). Other CHECK STOP subjects stay noise.
     if re.search(r"\bcheck\s*stop\b", blob, flags=re.I):
+        if is_gas_and_supply(blob):
+            return "invoice"
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
-    if KNOWN_BILL_VENDOR_RE.search(blob):
-        if re.search(r"\bcheck\s*stop\b", blob, flags=re.I):
-            return "check_stop"
+    if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob):
         if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment)\b", blob, flags=re.I):
             return "payment"
         return "invoice"
@@ -891,11 +1074,24 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
 
 
 def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:
-    """Real vendor bills get a header even with no PO. HOLD is not for missing PO alone."""
+    """Real vendor bills get a header even with no PO. HOLD is not for missing PO alone.
+
+    Price-does-not-match and qty HOLD still create header + attach PDF.
+    Auto-pay / Toyota and pdf-behind-link do not enter in ERP.
+    """
+    if is_auto_pay(
+        vendor=str(inv.get("vendor") or ""),
+        subject=str(inv.get("subject") or ""),
+        preview=str(inv.get("bodyPreview") or inv.get("preview") or ""),
+        text=str(inv.get("text") or ""),
+    ) or str(inv.get("hold_reason") or "").strip().lower() in {"auto-pay", "auto pay"}:
+        return False, "auto-pay"
     if inv.get("check_stop") or str(inv.get("hold_reason") or "").strip().upper() == "CHECK STOP":
         return False, "CHECK STOP"
     reason = str(inv.get("hold_reason") or "").strip()
     reason_key = reason.lower()
+    if reason_key in CREATE_HEADER_ON_HOLD:
+        return True, ""
     if reason_key in HOLD_ONLY_REASONS:
         return False, reason or reason_key
     if inv.get("action") == "hold" and reason_key and reason_key not in {"no-po", "no po", "nopo"}:

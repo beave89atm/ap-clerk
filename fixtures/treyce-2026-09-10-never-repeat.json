@@ -1,0 +1,63 @@
+{
+  "quality": "V1.2",
+  "source": "Treyce 2026-09-10 notes on the 8/16 dry-10 sheet",
+  "notes": {
+    "NOTE-01": {
+      "insight_pdf_text": "Insight Controller Services\nInvoice Number: 1809\nInvoice Date: 08/16/2026\nAmount Due: $412.00\n",
+      "insight_filename": "insight-unknown.pdf",
+      "msc_pdf_text": "MSC INDUSTRIAL SUPPLY CO.\nInvoice Number 5157357\nCustomer Number 191471\nYour PO 58842\nInvoice Date 08/16/2026\nAmount Due $88.40\n",
+      "msc_filename": "191471.pdf",
+      "msc_subject": "Rob Brown invoice 191471"
+    },
+    "NOTE-02": {
+      "techni_pdf_text": "Techni-Tool\nInvoice Number: S1387370.001\nInvoice Date: 08/16/2026\nShop supplies / misc surcharge 46.20\nAmount Due: $246.20\n",
+      "bare_number": "S1387370",
+      "suffix_number": "S1387370.001",
+      "fee_amount": 46.2
+    },
+    "NOTE-03": {
+      "invoice_number": "26764",
+      "vendor": "Capital Machine Technologies, Inc",
+      "po": "58634",
+      "invoice_qty": 2.5,
+      "po_qty": 2.0,
+      "fee_amount": 25.0
+    },
+    "NOTE-04": {
+      "purvis_pdf_text": "Purvis Industries\nInvoice 32625214\nInvoice Date 08/16/2026\nCustomer PO 58926\nAmount Due $150.00\n",
+      "invoice_number": "32625214",
+      "po": "58926"
+    },
+    "NOTE-05": {
+      "invoice_description": "PIPE A500 B BARE 1 SCH 40",
+      "po_line_3": "P-1.00 SCH 40-A500",
+      "wrong_line_1": "ANGLE 2X2X1/4 A36",
+      "rounding": 0.03
+    },
+    "NOTE-06": {
+      "invoice_number": "S813859432",
+      "vendor": "Earle M. Jorgensen Co",
+      "amount": 1164.32,
+      "po_amount": 965.0
+    },
+    "NOTE-07": {
+      "vendor": "Toyota Commercial Finance",
+      "subject": "Toyota Commercial Finance auto-pay 3320056"
+    },
+    "NOTE-08": {
+      "from_name": "Melody Channell",
+      "subject": "Invoices for this week",
+      "attachment_names": ["MC-inv-1.pdf", "MC-inv-2.pdf", "MC-inv-3.pdf", "MC-inv-4.pdf"]
+    },
+    "NOTE-09": {
+      "body": "Please download your invoice: https://aqpowder.example.com/files/4412.pdf",
+      "vendor": "American Quality Powder Coating"
+    },
+    "NOTE-10": {
+      "misc_pdf_text": "Gas and Supply North Texas, LLC\nORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/16/26 A3050 0040367887\nAmount Due: 88.00\n",
+      "notice_pdf_text": "CHECK STOP\nDo not process this payment.\nGas and Supply North Texas",
+      "multi_pdf_text": "Gas and Supply\nInvoice Date 08/16/2026\nInvoice 0040367881 Amount Due 10.00\nInvoice 0040367882 Amount Due 10.00\nInvoice 0040367883 Amount Due 10.00\nInvoice 0040367884 Amount Due 10.00\nInvoice 0040367885 Amount Due 10.00\nTotal 50.00\n",
+      "misc_item": "Shop Supplies - G&S"
+    }
+  }
+}

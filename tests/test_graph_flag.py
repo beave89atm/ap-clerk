@@ -17,10 +17,13 @@ from ap_clerk.graph import (
     EMAIL_DRAFT_OK,
     EMAIL_SENT,
     ENTERED_IN_AI_CATEGORY,
+    ENTERED_WITH_ISSUES_CATEGORY,
     FLAG_AI_HOLD,
     FLAG_DENIED,
+    FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_HOLD_ELIGIBLE,
+    FLAG_ISSUES_ELIGIBLE,
     FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
@@ -154,6 +157,10 @@ def test_never_both_process_categories():
     assert mixed == ["Solved!", AI_HOLD_CATEGORY]
     success = categories_for_status([AI_HOLD_CATEGORY, "Investigating"], add=ENTERED_IN_AI_CATEGORY)
     assert success == ["Investigating", ENTERED_IN_AI_CATEGORY]
+    issues = categories_for_status([ENTERED_IN_AI_CATEGORY, AI_HOLD_CATEGORY, "Solved!"], add=ENTERED_WITH_ISSUES_CATEGORY)
+    assert issues == ["Solved!", ENTERED_WITH_ISSUES_CATEGORY]
+    assert ENTERED_IN_AI_CATEGORY not in issues
+    assert AI_HOLD_CATEGORY not in issues
 
 
 def test_process_invoice_success_flags_and_hold_skips():
@@ -192,6 +199,11 @@ def test_process_invoice_success_flags_and_hold_skips():
             self.held.append((mailbox, message_id))
             return FLAG_AI_HOLD
 
+        def flag_issues(self, mailbox, message_id):
+            assert mailbox == ALLOWED_MAILBOX
+            self.held.append(("issues", message_id))
+            return FLAG_ENTERED_WITH_ISSUES
+
     graph = FakeGraph()
     success_inv = {
         "vendor": "Crosslink Powder Coating of TX, LLC",
@@ -215,10 +227,10 @@ def test_process_invoice_success_flags_and_hold_skips():
     )
     assert success_row["Result"] == "Incomplete"
     assert success_row["KIMCO id"] == 9508
-    assert success_row["Flag status"] == FLAG_AI_HOLD
+    assert success_row["Flag status"] == FLAG_ENTERED_WITH_ISSUES
     assert success_row["Flag status"] != "entered-in-ai"
     assert graph.flagged == []
-    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756")]
+    assert graph.held == [("issues", "AAMk-crosslink-27756")]
 
     hold_inv = {
         "vendor": "Earle M. Jorgensen Company",
@@ -244,7 +256,8 @@ def test_process_invoice_success_flags_and_hold_skips():
     assert hold_row["KIMCO id"] == ""
     assert hold_row["Flag status"] == FLAG_AI_HOLD
     assert graph.flagged == []
-    assert graph.held == [(ALLOWED_MAILBOX, "AAMk-crosslink-27756"), (ALLOWED_MAILBOX, "AAMk-price-hold")]
+    # Incomplete + header → Entered with issues. HOLD without a header → AI HOLD.
+    assert graph.held == [("issues", "AAMk-crosslink-27756"), (ALLOWED_MAILBOX, "AAMk-price-hold")]
     assert hold_row["Flag in Outlook"] == "Yes"
 
 
@@ -258,7 +271,8 @@ def test_graph_403_is_denied_and_keeps_flag_decision_helpers():
     assert decide_flag_status(result="Success", kimco_id=9499, message_id="") == FLAG_NO_MESSAGE_ID
     assert decide_flag_status(result="Fail", kimco_id=3854, message_id="AAMk") == FLAG_HOLD_ELIGIBLE
     assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == FLAG_HOLD_ELIGIBLE
-    assert decide_flag_status(result="Incomplete", kimco_id=9508, message_id="AAMk") == FLAG_HOLD_ELIGIBLE
+    assert decide_flag_status(result="Incomplete", kimco_id=9508, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
+    assert decide_flag_status(result="HOLD", kimco_id=9953, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
     assert decide_flag_status(result="Success", kimco_id="", message_id="AAMk") == FLAG_SKIPPED
     assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_NONE
     assert decide_flag_status(result="Noise", kimco_id="", message_id="AAMk") == FLAG_NONE

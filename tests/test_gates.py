@@ -22,7 +22,7 @@ from ap_clerk.gates import (
     preflight_parse_gate,
     success_is_legal,
 )
-from ap_clerk.graph import FLAG_AI_HOLD, FLAG_FLAGGED
+from ap_clerk.graph import FLAG_AI_HOLD, FLAG_ENTERED_WITH_ISSUES, FLAG_FLAGGED
 from ap_clerk.inbox import PO_FILE_RE, skip_rows_for_report
 from ap_clerk.pdf_invoice import is_purchase_order_document, parse_invoice_text
 from ap_clerk.report import write_report
@@ -152,11 +152,12 @@ def test_header_only_blocked_attach_is_incomplete_not_success(tmp_path: Path):
     assert row["Notes"] == ""
 
 
-def test_incomplete_gets_ai_hold_not_entered_in_ai():
+def test_incomplete_gets_entered_with_issues_not_entered_in_ai():
     class FakeGraph:
         def __init__(self):
             self.held = []
             self.matched = []
+            self.issues = []
 
         def flag_hold(self, mailbox, message_id):
             self.held.append(message_id)
@@ -165,6 +166,10 @@ def test_incomplete_gets_ai_hold_not_entered_in_ai():
         def flag_matched(self, mailbox, message_id):
             self.matched.append(message_id)
             return FLAG_FLAGGED
+
+        def flag_issues(self, mailbox, message_id):
+            self.issues.append(message_id)
+            return FLAG_ENTERED_WITH_ISSUES
 
     graph = FakeGraph()
     row = _process_invoice(
@@ -188,10 +193,12 @@ def test_incomplete_gets_ai_hold_not_entered_in_ai():
         flag_outlook=True,
     )
     assert row["Result"] == RESULT_INCOMPLETE
-    assert row["Flag status"] == FLAG_AI_HOLD
+    assert row["Flag status"] == FLAG_ENTERED_WITH_ISSUES
     assert row["Flag status"] != "entered-in-ai"
-    assert graph.held == ["AAMk-incomplete"]
+    assert row["Flag status"] != FLAG_AI_HOLD
+    assert graph.issues == ["AAMk-incomplete"]
     assert graph.matched == []
+    assert graph.held == []
 
 
 def test_gas_0040323616_amount_from_pdf_not_subject():
