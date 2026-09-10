@@ -97,7 +97,11 @@ def test_classify_mail_skips_not_a_bill():
     ) == "statement"
     assert classify_mail(subject="POD for shipment 123", attachment_names=["pod-123.pdf"]) == "pod"
     assert classify_mail(subject="Payment confirmation - thank you") == "payment"
-    assert classify_mail(subject="CHECK STOP Gas and Supply") == "check_stop"
+    assert classify_mail(subject="CHECK STOP notice — bank") == "check_stop"
+    # Gas & Supply subject CHECK STOP is not a blanket skip (Misc invoices possible).
+    assert classify_mail(subject="CHECK STOP Gas and Supply") == "invoice"
+    assert classify_mail(subject="Melody Channell invoices") == "invoice"
+    assert classify_mail(subject="Toyota Commercial Finance auto-pay") == "auto-pay"
     assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
     assert classify_mail(subject="American Quality Powder Coating job 4412") == "invoice"
     assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"

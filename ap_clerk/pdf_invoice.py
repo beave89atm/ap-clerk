@@ -21,7 +21,16 @@ from ap_clerk.rules import (
 LOGGER = logging.getLogger("ap_clerk")
 
 _INV_LABEL = re.compile(
-    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#]*([A-Z]{0,8}\d-?\d{3,}[A-Z0-9/_-]*)",
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#]*([A-Z]{0,8}\d-?\d{3,}(?:\.\d{3})?[A-Z0-9/_-]*)",
+    flags=re.I,
+)
+_INV_TECHNI = re.compile(r"\b(S\d{6,}\.\d{3})\b")
+_INV_INSIGHT = re.compile(
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#?)\s*[:.\s]*\n?\s*(\d{4,5})\b",
+    flags=re.I,
+)
+_INV_STACKED_SHORT = re.compile(
+    r"(?:^|\n)\s*(?:INVOICE(?:\s*(?:NUMBER|NO\.?|#))?)\s*\n\s*(\d{4,8})\b",
     flags=re.I,
 )
 _INV_PREFIXED = re.compile(r"\b(\d-\d{5,8})\b")
@@ -177,6 +186,10 @@ DOMAIN_VENDORS = {
     "xcaliberind.com": "Xcaliber Industrial LLC",
     "aqpowder.com": "American Quality Powder Coating",
     "americanqualitypowder.com": "American Quality Powder Coating",
+    "insightcontrollerservices.com": "Insight Controller Services",
+    "techni-tool.com": "Techni-Tool",
+    "technitool.com": "Techni-Tool",
+    "toyota.com": "Toyota Commercial Finance",
 }
 
 SUBJECT_VENDORS = (
@@ -240,6 +253,10 @@ SUBJECT_VENDORS = (
     (re.compile(r"spectrumvoip|spectrum\s*voip", re.I), "SpectrumVoIP"),
     (re.compile(r"xcaliber", re.I), "Xcaliber Industrial LLC"),
     (re.compile(r"american\s+quality\s+powder|aqpc", re.I), "American Quality Powder Coating"),
+    (re.compile(r"insight\s+controller", re.I), "Insight Controller Services"),
+    (re.compile(r"techni[\s-]?tool", re.I), "Techni-Tool"),
+    (re.compile(r"toyota\s+commercial\s+finance|toyota\s+financial", re.I), "Toyota Commercial Finance"),
+    (re.compile(r"melody\s+channell", re.I), "Melody Channell"),
     (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
@@ -426,7 +443,8 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
         if not stripped:
             continue
         parts = _PART_NUMBER.findall(stripped)
-        if not parts:
+        desc_only = bool(not parts and re.search(r"\b(?:SCH(?:EDULE)?\s*\d+|A500|PIPE)\b", stripped, flags=re.I))
+        if not parts and not desc_only:
             continue
         amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
         amounts = [a for a in amounts if a is not None and a < 100000]
@@ -453,8 +471,29 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                     "po_line": po_line,
                     "wo": wo_match.group(1) if wo_match else None,
                     "label": stripped[:80],
+                    "description": stripped[:120],
                 }
             )
+        # O'Neal / mill descriptions without XXX-XXXX-XXX part numbers.
+        if desc_only:
+            key = re.sub(r"\s+", " ", stripped.upper())[:48]
+            if key not in seen:
+                seen.add(key)
+                if qty is None:
+                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", stripped, flags=re.I)
+                    if bare_qty:
+                        qty = parse_money(bare_qty.group(1))
+                lines.append(
+                    {
+                        "part": "",
+                        "qty": qty,
+                        "amount": amounts[-1] if amounts else None,
+                        "po_line": po_line,
+                        "wo": wo_match.group(1) if wo_match else None,
+                        "label": stripped[:80],
+                        "description": stripped[:120],
+                    }
+                )
     return lines[:40]
 
 
@@ -473,7 +512,7 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell)",
             stripped,
             re.I,
         ):
@@ -624,6 +663,43 @@ def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
     return bills or [parsed]
 
 
+def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """Gas & Supply PDFs can hold several Misc 00xxxxxxxx invoices (0040367887 notes: 5).
+
+    When amounts cannot be split per number, mark gas_misc_ambiguous so the
+    enter path HOLDs instead of inventing Type 4 amounts.
+    """
+    vendor = str(parsed.get("vendor") or "")
+    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
+        return [parsed]
+    numbers = []
+    for hit in _INV_GAS.findall(text or ""):
+        token = _usable_invoice_number(hit)
+        if token and token not in numbers:
+            numbers.append(token)
+    if len(numbers) <= 1:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    for number in numbers:
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        bill["po"] = None
+        bill["pos"] = []
+        bill["multi_po"] = False
+        bill["gas_misc"] = True
+        bill["misc_item"] = "Shop Supplies - G&S"
+        sources = dict(bill.get("field_sources") or {})
+        sources["invoice_number"] = "pdf"
+        bill["field_sources"] = sources
+        bill.pop("siblings", None)
+        bills.append(bill)
+    # One shared total cannot be trusted as each Misc invoice amount.
+    if parsed.get("amount") not in (None, "") and len(bills) > 1:
+        for bill in bills:
+            bill["gas_misc_ambiguous"] = True
+    return bills or [parsed]
+
+
 def parse_invoice_text(
     text: str,
     *,
@@ -644,6 +720,7 @@ def parse_invoice_text(
             invoice_number = _usable_invoice_number(prefixed.group(1))
             invoice_from_pdf = bool(invoice_number)
     for rx in (
+        _INV_TECHNI,
         _INV_EMJ,
         _INV_PS_INV,
         _INV_LS,
@@ -714,6 +791,23 @@ def parse_invoice_text(
             # RMP prints a form id then the real invoice under a second INVOICE heading.
             invoice_number = stacked_nums[-1]
             invoice_from_pdf = True
+    if not invoice_number:
+        short_stacked = [_usable_invoice_number(n) for n in _INV_STACKED_SHORT.findall(pdf_text)]
+        short_stacked = [n for n in short_stacked if n]
+        if short_stacked:
+            invoice_number = short_stacked[-1]
+            invoice_from_pdf = True
+    if not invoice_number and (
+        "insight" in vendor_l
+        or "insight" in pdf_text.lower()
+        or "melody" in vendor_l
+        or "melody channell" in pdf_text.lower()
+        or re.search(r"\binvoice\s*(?:number|no\.?|#)\s*[:.\s]*\d{4}\b", pdf_text, flags=re.I)
+    ):
+        insight = _INV_INSIGHT.search(pdf_text)
+        if insight:
+            invoice_number = _usable_invoice_number(insight.group(1))
+            invoice_from_pdf = bool(invoice_number)
     if not invoice_number:
         psi = _INV_PSI.search(pdf_text)
         if psi:
@@ -903,11 +997,28 @@ def parse_invoice_text(
     if invoice_date:
         sources["date"] = "pdf"
 
-    check_stop = bool(_CHECK_STOP.search(blob))
+    # CHECK STOP on the subject/filename is not enough when the PDF has invoice pages
+    # (Gas & Supply 0040367887: 5 Misc invoices). Real notices have no invoice to enter.
+    po_doc = is_purchase_order_document(text=pdf_text, filename=filename)
+    check_stop_in_pdf = bool(_CHECK_STOP.search(pdf_text))
+    check_stop_in_subject = bool(_CHECK_STOP.search(f"{subject}\n{filename}"))
+    has_invoice_pages = bool(
+        invoice_from_pdf and invoice_number and amount not in (None, "") and not po_doc
+    )
+    if has_invoice_pages:
+        check_stop = False
+    else:
+        check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
     fees = extract_fees(pdf_text)
     lines = extract_invoice_lines(pdf_text)
     po = pos[0] if len(pos) == 1 else None
-    po_doc = is_purchase_order_document(text=pdf_text, filename=filename)
+    pdf_text_empty = not (pdf_text or "").strip()
+    if invoice_number and pdf_text and invoice_number in pdf_text:
+        sources["invoice_number"] = (
+            "pdf-prefix" if known_invoice_prefix(vendor) and "-" in invoice_number else "pdf"
+        )
+        filename_only = False
+        subject_only = False
     return {
         "vendor": vendor,
         "invoice_number": invoice_number or "",
@@ -923,6 +1034,8 @@ def parse_invoice_text(
         "text_chars": len(pdf_text),
         "field_sources": sources,
         "is_purchase_order_doc": po_doc,
+        "pdf_text_empty": pdf_text_empty,
+        "pdf_unavailable": pdf_text_empty,
         "parse_verified": bool(
             sources.get("invoice_number") in {"pdf", "pdf-prefix"}
             and sources.get("amount") == "pdf"
@@ -950,6 +1063,8 @@ def parse_invoice_pdf(
     bills = expand_oneal_invoices(text, parsed)
     if len(bills) <= 1:
         bills = expand_fastenal_invoices(text, parsed)
+    if len(bills) <= 1:
+        bills = expand_gas_misc_invoices(text, parsed)
     parsed = bills[0]
     if len(bills) > 1:
         parsed["siblings"] = bills[1:]

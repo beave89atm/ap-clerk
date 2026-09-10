@@ -18,11 +18,13 @@ from ap_clerk.gates import (
     finish_gate,
     is_noise_result,
     receipts_required,
+    selfcheck_payload,
     why_incomplete,
 )
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     FLAG_AI_HOLD,
+    FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_NONE,
     GraphClient,
@@ -31,6 +33,7 @@ from ap_clerk.graph import (
     apply_flag_after_match,
     score_message_for_invoice,
 )
+from ap_clerk.gates import header_created_with_issues
 from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE
 from ap_clerk.kimco import (
     KimcoClient,
@@ -85,8 +88,8 @@ def dry_email_body(
         f"New FIFO bills this pass: {len(new_bills)}\n"
         f"Mailbox: {ALLOWED_MAILBOX}\n"
         "Success = finished bill (header + Select Receipts when PO + PDF attached).\n"
-        "Bill Incomplete / HOLD / Fail stay AI HOLD, not Entered in AI.\n"
-        "Skipped noise is sheet-noted only (no Outlook AI HOLD; does not consume the bill cap).\n"
+        "Success = Entered in AI. Header+PDF unfinished = Entered with issues.\n"
+        "Real bill with no header = AI HOLD. Skipped noise is sheet-noted only.\n"
         "Report attached.\n"
     )
 
@@ -242,6 +245,7 @@ def finish_existing_header(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=invoice_id,
+        selfcheck=selfcheck_payload(inv, po=po, multi_po=multi_po),
     )
     out["Result"] = result
     out["Attach status"] = attach_status
@@ -366,16 +370,21 @@ def apply_grouped_outlook_flags(
                 row["Flag status"] = FLAG_NONE
                 row["Flag in Outlook"] = "No"
             continue
-        outcome = RESULT_SUCCESS if {str(row.get("Result") or "") for row in bills} == {RESULT_SUCCESS} else RESULT_INCOMPLETE
+        results = {str(row.get("Result") or "") for row in bills}
+        outcome = RESULT_SUCCESS if results == {RESULT_SUCCESS} else RESULT_INCOMPLETE
         if any(str(row.get("Result") or "") in {"HOLD", "Fail"} for row in bills) and outcome != RESULT_SUCCESS:
             outcome = next(
                 str(row.get("Result") or "")
                 for row in bills
                 if str(row.get("Result") or "") in {"HOLD", "Fail", RESULT_INCOMPLETE}
             )
+        # Prefer a real header id so grouped flags can choose Entered with issues.
+        kimco_id = next((row.get("KIMCO id") for row in bills if row.get("KIMCO id") not in (None, "")), None)
+        if outcome != RESULT_SUCCESS and kimco_id in (None, ""):
+            kimco_id = ""
         dummy = {
             "Result": outcome,
-            "KIMCO id": bills[0].get("KIMCO id") or 1,
+            "KIMCO id": kimco_id if outcome != RESULT_SUCCESS else (bills[0].get("KIMCO id") or 1),
             "Why": "",
         }
         apply_flag_after_match(dummy, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
@@ -408,4 +417,7 @@ def grouped_flag_status_for_message(rows: list[dict[str, Any]]) -> str:
     results = {str(row.get("Result") or "") for row in bills}
     if results == {RESULT_SUCCESS}:
         return FLAG_FLAGGED
+    if any(header_created_with_issues(result=str(row.get("Result") or ""), kimco_id=row.get("KIMCO id")) for row in bills):
+        if all(row.get("KIMCO id") not in (None, "") or str(row.get("Result") or "") == RESULT_SUCCESS for row in bills):
+            return FLAG_ENTERED_WITH_ISSUES
     return FLAG_AI_HOLD

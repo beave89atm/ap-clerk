@@ -152,9 +152,18 @@ def test_does_not_invent_invoice_prefix_for_other_vendors():
 
 
 def test_parse_invoice_text_check_stop():
-    text = "Gas and Supply\nInvoice #: 0040325801\nPO: CHECK STOP\nAmount Due $418.93"
-    parsed = parse_invoice_text(text, subject="CHECK STOP invoice")
+    notice = "CHECK STOP\nDo not process this payment.\nGas and Supply North Texas"
+    parsed = parse_invoice_text(notice, subject="CHECK STOP Gas and Supply")
     assert parsed["check_stop"] is True
+    # Subject CHECK STOP + real invoice pages → Misc invoice, not a notice.
+    pages = (
+        "Gas and Supply North Texas, LLC\nORIGINAL INVOICE\n"
+        "INVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/01/26 A3050 0040367887\n"
+        "Amount Due: 88.00\n"
+    )
+    misc = parse_invoice_text(pages, subject="CHECK STOP Gas and Supply", from_address="billing@gasandsupply.com")
+    assert misc["check_stop"] is False
+    assert misc["invoice_number"] == "0040367887"
 
 
 def test_parse_multi_po_leaves_header_po_blank():
@@ -553,12 +562,15 @@ def test_coherent_alias_1410_is_not_vendor_missing():
     assert "vendor missing" not in row["Why"]
 
 
-def test_price_mismatch_holds_and_does_not_create():
-    class NoCreate:
+def test_price_mismatch_holds_but_still_creates_header():
+    created = []
+
+    class CreateOnHold:
         target = "live"
 
-        def create(self, *args, **kwargs):
-            raise AssertionError("must not create a header when price does not match")
+        def create(self, service, values):
+            created.append(values)
+            return 8801, {"id": 8801, "values": values}, 200, ""
 
         def get_item(self, service, item_id):
             return {
@@ -569,8 +581,11 @@ def test_price_mismatch_holds_and_does_not_create():
                 },
             }
 
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
     row = _process_invoice(
-        NoCreate(),
+        CreateOnHold(),
         {
             "vendor": "Earle M. Jorgensen Co",
             "invoice_number": "S-BIG",
@@ -578,6 +593,7 @@ def test_price_mismatch_holds_and_does_not_create():
             "po": "58984",
             "amount": 2000.0,
             "lines": [{"part": "STEEL", "amount": 1880.0}],
+            "pdf_path": None,
         },
         batch={"id": 1},
         batch_label="API Agent - 8/28/26 (1)",
@@ -597,7 +613,8 @@ def test_price_mismatch_holds_and_does_not_create():
     assert row["Result"] == "HOLD"
     assert PRICE_DOES_NOT_MATCH in row["Why"]
     assert row["PPV"] == "none"
-    assert row["KIMCO id"] == ""
+    assert row["KIMCO id"] == 8801
+    assert created
     assert "@Shawn McKibben" in row["Why"]
 
 

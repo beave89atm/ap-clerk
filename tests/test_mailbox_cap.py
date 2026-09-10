@@ -19,6 +19,7 @@ from ap_clerk.gates import (
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     FLAG_AI_HOLD,
+    FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_NONE,
     apply_flag_after_match,
@@ -54,6 +55,11 @@ class _FakeGraph:
         assert mailbox == ALLOWED_MAILBOX
         self.matched.append(message_id)
         return FLAG_FLAGGED
+
+    def flag_issues(self, mailbox, message_id):
+        assert mailbox == ALLOWED_MAILBOX
+        self.held.append(f"issues:{message_id}")
+        return FLAG_ENTERED_WITH_ISSUES
 
     def get_message(self, mailbox, message_id, select="id"):
         return {"id": message_id, "categories": []}
@@ -241,23 +247,42 @@ def test_check_stop_enter_path_is_skipped_without_outlook_hold():
     assert not is_bill_attempt_result(row["Result"])
 
 
-def test_price_mismatch_still_holds_and_is_outlook_ai_hold():
+def test_price_mismatch_still_holds_and_is_outlook_entered_with_issues():
+    created = []
+
     class FakeKimco:
         target = "live"
 
-        def create(self, *args, **kwargs):
-            raise AssertionError("price-does-not-match must not create a header")
+        def create(self, service, values):
+            created.append(values)
+            return 9953, {"id": 9953, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
 
     class FakeGraph:
         def __init__(self):
             self.held = []
+            self.issues = []
 
         def flag_hold(self, mailbox, message_id):
-            self.held.append(message_id)
-            return FLAG_AI_HOLD
+            raise AssertionError("header+PDF price HOLD must not get AI HOLD")
 
         def flag_matched(self, mailbox, message_id):
             raise AssertionError("bill HOLD must not get Entered in AI")
+
+        def flag_issues(self, mailbox, message_id):
+            self.issues.append(message_id)
+            return FLAG_ENTERED_WITH_ISSUES
 
     graph = FakeGraph()
     row = _process_invoice(
@@ -268,22 +293,32 @@ def test_price_mismatch_still_holds_and_is_outlook_ai_hold():
             "date": "2026-08-18",
             "po": "58000",
             "amount": 1164.32,
-            "hold_reason": "price does not match",
+            "lines": [{"part": "STEEL", "amount": 965.00}],
             "graph_message_id": "AAMk-emj",
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
         },
         batch={"id": 703},
         batch_label="API Agent - 9/9/26 (703)",
         invoice_by_number={},
-        vendor_samples=[],
-        po_index={},
+        vendor_samples=[{"vendor_id": 208, "vendor_text": "EMJ", "invoice_id": 9, "po_text": ""}],
+        po_index={
+            "58000": {
+                "id": 4,
+                "text": "58000-EMJ",
+                "vendor_id": 208,
+                "lines": [{"part": "STEEL", "amount": 1164.32, "unit_price": 1164.32, "qty": 1}],
+            }
+        },
         pdf_dir=None,
         graph_client=graph,
         flag_outlook=True,
     )
     assert row["Result"] == RESULT_HOLD
+    assert row["KIMCO id"] == 9953
+    assert created
     assert row["Flag in Outlook"] == "Yes"
-    assert row["Flag status"] == FLAG_AI_HOLD
-    assert graph.held == ["AAMk-emj"]
+    assert row["Flag status"] == FLAG_ENTERED_WITH_ISSUES
+    assert graph.issues == ["AAMk-emj"]
     assert is_bill_attempt_result(row["Result"])
 
 

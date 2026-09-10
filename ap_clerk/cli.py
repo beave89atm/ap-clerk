@@ -38,10 +38,13 @@ from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
+    GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
+    GATE_PDF_LINK,
     GATE_PO,
     GATE_PREFLIGHT,
     GATE_PRICE,
+    GATE_QTY,
     GATE_RECEIPT,
     RESULT_FAIL,
     RESULT_HOLD,
@@ -51,8 +54,10 @@ from ap_clerk.gates import (
     find_live_po,
     finish_gate,
     merchandise_amount,
+    selfcheck_payload,
     po_gate_decision,
     preflight_parse_gate,
+    qty_gate,
     why_fail,
     why_hold,
     why_skipped,
@@ -81,6 +86,7 @@ from ap_clerk.rules import (
     lookup_id,
     lookup_text,
     match_receipts,
+    misc_purchase_item_for,
     money,
     names_match,
     normalize_receipt,
@@ -200,7 +206,9 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         try:
             category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+            issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
             print(f"AI HOLD master category: {category_status}", flush=True)
+            print(f"Entered with issues master category: {issues_status}", flush=True)
         except (GraphError, MailboxRejected):
             print("AI HOLD master category: category-denied", flush=True)
         from datetime import timedelta
@@ -238,7 +246,9 @@ def main(argv: list[str] | None = None) -> int:
         if graph_client is not None:
             try:
                 category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+                issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
                 print(f"AI HOLD master category: {category_status}", flush=True)
+                print(f"Entered with issues master category: {issues_status}", flush=True)
             except (GraphError, MailboxRejected):
                 print("AI HOLD master category: category-denied", flush=True)
         if args.match_inbox:
@@ -557,12 +567,20 @@ def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, A
         if amount is None and unit_price is not None and qty is not None:
             amount = round(unit_price * qty, 2)
         wo = lookup_text(values.get("Work_Order") or values.get("WO"))
+        description = lookup_text(
+            values.get("Description")
+            or values.get("Item_Description")
+            or values.get("PO_Item_Description")
+            or values.get("Part_Description")
+        )
         line_row = {
             "id": item.get("id"),
             "line_no": line_no,
             "po_line": line_no,
             "line": line_no,
             "part": str(part or "").strip(),
+            "description": str(description or part or "").strip(),
+            "label": str(description or part or "").strip(),
             "qty": qty,
             "quantity": qty,
             "unit_price": unit_price,
@@ -668,7 +686,14 @@ def _finish_row(
     *,
     flag_outlook: bool,
 ) -> dict[str, Any]:
-    row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or ""))
+    result = str(row.get("Result") or "")
+    why = str(row.get("Why") or "").strip()
+    if result != RESULT_SUCCESS and not why:
+        row["Why"] = (
+            f"{result}: Treyce must review this bill (gate not named). "
+            "Do not treat as finished."
+        )
+    row["Flag in Outlook"] = flag_in_outlook_for(result)
     if flag_outlook:
         apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
     else:
@@ -729,9 +754,30 @@ def _process_invoice(
             row["Flag in Outlook"] = "No"
             row["Flag status"] = FLAG_NONE
             return row
-        row["Why"] = why_hold(GATE_PREFLIGHT if str(hold_reason).lower() == "parse-error" else "bill-vs-noise", f"{hold_reason}. Do not create a header.")
-        if str(hold_reason).lower() == "price does not match":
-            row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}. Do not create a header.")
+        reason_l = str(hold_reason).lower()
+        if reason_l in {"auto-pay", "auto pay"}:
+            row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
+        elif reason_l == "pdf-behind-link":
+            row["Why"] = why_hold(
+                GATE_PDF_LINK,
+                "vendor PDF is behind a download link (auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
+            )
+        elif reason_l == "price does not match":
+            row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}.")
+        else:
+            row["Why"] = why_hold(
+                GATE_PREFLIGHT if reason_l == "parse-error" else "bill-vs-noise",
+                f"{hold_reason}. Do not create a header.",
+            )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if inv.get("gas_misc_ambiguous"):
+        row["Why"] = why_hold(
+            GATE_PREFLIGHT,
+            "Gas & Supply PDF has multiple Misc invoices but amounts could not be split. "
+            f"When entering, use Invoice_Type 4 and miscellaneous purchase item {misc_purchase_item_for(vendor) or 'Shop Supplies - G&S'}. "
+            "HOLD when ambiguous rather than inventing amounts.",
+        )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     existing = _find_existing_invoice(invoice_by_number, number, vendor)
@@ -840,17 +886,27 @@ def _process_invoice(
     if not invoice_lines and po_lines and len(po_lines) == 1 and merch not in (None, ""):
         invoice_lines = [{"amount": merch, "qty": po_lines[0].get("qty"), "part": po_lines[0].get("part"), "po_line": po_lines[0].get("po_line")}]
     price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
-    if price["hold"]:
-        row["Result"] = RESULT_HOLD
+    issue_hold: tuple[str, str] | None = None
+    preset_hold = str(inv.get("hold_reason") or "").strip().lower()
+    if price["hold"] or preset_hold == "price does not match":
         row["PPV"] = "none"
-        row["Why"] = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
-        if PRICE_MISMATCH_PO_COMMENT not in row["Why"]:
-            row["Why"] = f"{row['Why']} {PRICE_MISMATCH_PO_COMMENT}"
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
-    ppv_value = drop_fee_disguised_as_ppv(price.get("ppv_total") or 0.0, inv.get("fees"))
-    price["ppv_total"] = ppv_value
-    if ppv_value:
-        row["PPV"] = format_ppv(ppv_value)
+        issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
+        if PRICE_MISMATCH_PO_COMMENT not in issue_why:
+            issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
+        issue_why += " Create KIMCO header and attach PDF; do not finish the bill."
+        issue_hold = (GATE_PRICE, issue_why)
+    else:
+        ppv_value = drop_fee_disguised_as_ppv(price.get("ppv_total") or 0.0, inv.get("fees"))
+        price["ppv_total"] = ppv_value
+        if ppv_value:
+            row["PPV"] = format_ppv(ppv_value)
+    qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
+    if not qty_ok:
+        extra = qty_why
+        if issue_hold:
+            issue_hold = (issue_hold[0], f"{issue_hold[1]} {extra}")
+        else:
+            issue_hold = (GATE_QTY, extra + " Create KIMCO header and attach PDF; do not claim Success.")
 
     receipt_note = ""
     receipt_result: dict[str, Any] | None = None
@@ -871,7 +927,7 @@ def _process_invoice(
             if not one["hold_no_receipts"]:
                 hold_all = False
         receipt_result = {"hold_no_receipts": hold_all, "matched": combined_matched, "why": " ".join(notes)}
-        if hold_all and (po_info or multi_po):
+        if hold_all and (po_info or multi_po) and issue_hold is None:
             row["Result"] = RESULT_HOLD
             row["Why"] = why_hold(
                 GATE_RECEIPT,
@@ -880,10 +936,27 @@ def _process_invoice(
             )
             return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        if receipt_result and issue_hold is None:
+            matched_receipts = [
+                {
+                    "part": (hit.get("receipt") or {}).get("part"),
+                    "qty": (hit.get("receipt") or {}).get("qty"),
+                    "description": (hit.get("receipt") or {}).get("description")
+                    or (hit.get("receipt") or {}).get("part"),
+                    "label": (hit.get("line") or {}).get("label") or (hit.get("receipt") or {}).get("part"),
+                }
+                for hit in (receipt_result.get("matched") or [])
+            ]
+            rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
+            if not rec_ok:
+                issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
-    invoice_type = invoice_type_for(po if po_info else None)
+    # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
+    invoice_type = invoice_type_for(po if (po_info or po) else None)
+    if invoice_type == 4 and po_info:
+        invoice_type = invoice_type_for(po)
     currency = sample_values.get("Currency")
     currency_id = lookup_id(currency) or CURRENCY_USD_ID
     payload: dict[str, Any] = {
@@ -921,7 +994,10 @@ def _process_invoice(
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
     receipts_selected = False
     select_status = ""
-    if po_info or multi_po:
+    if issue_hold:
+        # Price / qty HOLD: header + PDF only. Do not finish Select Receipts as Success.
+        select_status = "held-unfinished"
+    elif po_info or multi_po:
         selector = getattr(client, "try_select_receipts", None)
         receipt_ids = [hit.get("receipt", {}).get("id") for hit in (receipt_result or {}).get("matched") or []]
         receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
@@ -942,6 +1018,18 @@ def _process_invoice(
             edit_hint = "options-failed"
     row["KIMCO id"] = created_id
     row["Attach status"] = pdf_status
+    if issue_hold:
+        row["Result"] = RESULT_HOLD
+        misc_note = ""
+        misc_item = misc_purchase_item_for(vendor)
+        if misc_item and invoice_type == 4:
+            misc_note = f" Misc purchase item {misc_item}."
+        row["Why"] = (
+            f"{issue_hold[1]} Header created (id {created_id}). Attach status={pdf_status}.{misc_note} "
+            "Outlook Entered with issues (not Entered in AI)."
+        ).strip()
+        LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=HOLD-with-header", number, created_id, vendor, po, invoice_type)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
     result, finish_why = finish_gate(
         header_created=True,
         attach_status=pdf_status,
@@ -949,6 +1037,15 @@ def _process_invoice(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=created_id,
+        selfcheck=selfcheck_payload(
+            inv,
+            invoice_type=invoice_type,
+            po=po if po_info else None,
+            multi_po=multi_po,
+            price=price,
+            qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
+            receipt_result=receipt_result,
+        ),
     )
     row["Result"] = result
     if po_info and not multi_po:
@@ -978,12 +1075,16 @@ def _process_invoice(
         for item in price.get("items") or []:
             if item.get("reason") and item.get("action") == "ppv":
                 ppv_note += item["reason"] + " "
+    misc_note = ""
+    misc_item = misc_purchase_item_for(vendor)
+    if misc_item and invoice_type == 4:
+        misc_note = f" Miscellaneous purchase item {misc_item}."
     if result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
             f"{ppv_note}"
             "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
-            f"Attach status={pdf_status}."
+            f"{misc_note}Attach status={pdf_status}."
         )
     else:
         row["Why"] = (
@@ -1266,6 +1367,7 @@ def _run_probe(args: argparse.Namespace) -> int:
             graph_creds.client_secret or "",
         )
         category_status = client.ensure_ai_hold_category(mailbox)
+        issues_status = client.ensure_entered_with_issues_category(mailbox)
         probe = client.probe_send_authorization(mailbox)
     except MailboxRejected as exc:
         print(str(exc), flush=True)
@@ -1283,6 +1385,7 @@ def _run_probe(args: argparse.Namespace) -> int:
         "send_mail_invoked": False,
         "mail_sent_to_anyone": False,
         "ai_hold_category": category_status,
+        "entered_with_issues_category": issues_status,
         "probe": probe,
         "notes": (
             "Draft created on the AP mailbox and deleted. sendMail was not called. "
@@ -1349,9 +1452,12 @@ def _run_daily(args: argparse.Namespace) -> int:
     category_status = "not-attempted"
     try:
         category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+        issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
     except (GraphError, MailboxRejected):
         category_status = "category-denied"
+        issues_status = "category-denied"
     print(f"AI HOLD master category: {category_status}", flush=True)
+    print(f"Entered with issues master category: {issues_status}", flush=True)
 
     pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
     try:

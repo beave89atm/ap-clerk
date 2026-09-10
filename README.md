@@ -2,7 +2,9 @@
 
 Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
 
-**QUALITY V1.1:** `Success` means a **finished bill**, not a header create. Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run from **2026-08-16** (2026-09-09 America/Chicago, API finish) is recorded below. This build does **not** re-arm the weekday daily 30. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
+**QUALITY V1.2** (Treyce 2026-09-10 notes on the 8/16 dry-10): `Success` means a **finished bill Treyce would not need to rework**, not a header create. See **[QUALITY.md](QUALITY.md)** for the fix-before-complete checklist, Outlook `Entered with issues`, and never-repeat regressions. This build does **not** run a live KIMCO/mailbox job and does **not** re-arm the weekday daily 30. Pause further dry runs until Kyle reviews.
+
+**QUALITY V1.1** (still in force underneath): Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run from **2026-08-16** (2026-09-09 America/Chicago, API finish) is recorded below. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
 
@@ -14,8 +16,21 @@ This repository is the AP Clerk only. It does not depend on deer-intelligence, C
 2. Finds or creates today's AP invoice batch named exactly `API Agent - M/D/YY` in `America/Chicago` (example: `API Agent - 8/27/26`).
 3. Applies QUALITY V1.1 hard gates (below). Real vendor bills still get a header when gates allow. A missing PO is **not** a HOLD by itself; a PO printed on the invoice or findable on live by vendor + part/WO must be set (never Misc Type 4 in that case). Select Receipts is required when a PO exists.
 4. Attempts official 7.7 PDF attach on the **invoice record** when a PDF is present (notify `POST /api/v2/{AP_INVOICE_GUID}/{id}/attachments/upload` → PUT `uploadUrl` with `x-ms-blob-type: BlockBlob` → complete `POST /api/v2/{AP_INVOICE_GUID}/{id}/attachments`). Updates, line additions, and Select Receipts-equivalent edits use the same record URL, never the bare list GUID. Live probe 2026-09-09: record GET/PUT/attach returned 200 after Kyle enabled the four list checkboxes. A later 405 still means check **Can Edit Items / Inline**.
-5. After enter, writes an Outlook category on `accountspayable@kannonmfg.com` only. **Success** (finished bill) gets the preexisting category `Entered in AI` (capital E). **Incomplete / bill HOLD / Fail** get red category **`AI HOLD`**. **Noise** (not-a-bill, statement, CHECK STOP, payment, POD, duplicate) is sheet-noted as `Skipped` and does **not** get `AI HOLD`. Never both process categories on the same message. Does **not** set `flag.flagStatus=flagged` and does **not** use `AP Matched`.
-6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`. The weekday daily run emails that workbook to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` only after a real `--live` enter. This QUALITY V1.1 PR does not send that mail.
+5. After enter, writes an Outlook category on `accountspayable@kannonmfg.com` only. **Success** (finished bill Treyce would not rework) gets `Entered in AI`. **Header+PDF entered but unfinished** (price-does-not-match, qty HOLD, Incomplete) gets **`Entered with issues`**. **Real bill with no header** gets red **`AI HOLD`**. **Noise** is sheet-noted as `Skipped` and does **not** get `AI HOLD`. Never two process categories on the same message. Does **not** set `flag.flagStatus=flagged` and does **not** use `AP Matched`. Kyle may need to create the Outlook category named exactly `Entered with issues` on accountspayable@ if it does not exist yet.
+6. Writes `runs/AP-run-YYYY-MM-DD.xlsx`. The weekday daily run emails that workbook to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` only after a real `--live` enter. This QUALITY V1.2 PR does not send that mail and does not process live invoices.
+
+## QUALITY V1.2 gates
+
+Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-load checklist: **[QUALITY.md](QUALITY.md)**. Tests: `tests/test_quality_v12.py` (one named test per Note). `Success` is illegal if she would still fix the bill.
+
+| Result | Meaning | Outlook |
+| --- | --- | --- |
+| **Success** | Finished bill: header + (Select Receipts when PO) + PDF + self-check (invoice # from PDF, PO not Type 4, right receipt line, qty match, Fees ≠ PPV, PPV in rule). | `Entered in AI` only |
+| **Incomplete** | Header created but attach missing or receipts not selected. | `Entered with issues` |
+| **HOLD** (with header) | Price-does-not-match or qty HOLD after header+PDF. | `Entered with issues` |
+| **HOLD** (no header) | Parse-error / no-pdf, auto-pay, pdf-behind-link, printed PO not on live. | `AI HOLD` |
+| **Fail** | Already exists, vendor missing, or create HTTP error. | `AI HOLD` |
+| **Skipped** | Mailbox noise. | No / `none` |
 
 ## QUALITY V1.1 gates
 
@@ -351,21 +366,22 @@ Live write (one bill): Orthman Incomplete **9931** (invoice 701684, PO 58636). O
 
 Vendor, Invoice #, date, PO, Amount, Result (Success/Incomplete/HOLD/Fail/Skipped), Why, KIMCO id, Batch, Fees and surcharges, PPV, Attach status, Flag in Outlook, Flag status, Notes.
 
-**Flag in Outlook:** `Yes` when a process category is applied (Success, Incomplete, bill HOLD, or Fail). **Flag status** is `entered-in-ai` (Success only) / `ai-hold` (Incomplete/bill HOLD/Fail) / `none` (Skipped noise) / other skip reasons (`no-message-id`, `graph-denied`, `skipped-not-success`). Incomplete must not say `entered-in-ai`. Noise must not say `ai-hold`. **Notes** is left empty for Treyce. Why names the gate that failed (or the noise class + subject).
+**Flag in Outlook:** `Yes` when a process category is applied (Success, Incomplete, bill HOLD, or Fail). **Flag status** is `entered-in-ai` (Success only) / `entered-with-issues` (header+PDF but unfinished) / `ai-hold` (real bill, no header / Fail) / `none` (Skipped noise) / other skip reasons (`no-message-id`, `graph-denied`, `skipped-not-success`). Incomplete and price/qty HOLD with a header must not say `entered-in-ai`. Noise must not say `ai-hold`. **Notes** is left empty for Treyce. Why names the gate that failed (or the noise class + subject) so she is not hunting.
 
 One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag status=...` when a category was attempted.
 
 ## Outlook categories after match
 
-The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail without category `Entered in AI` is the work queue; that category means already processed. `AI HOLD` means this run could not finish a **real bill**.
+The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail without a process category (`Entered in AI`, `Entered with issues`, `AI HOLD`) is the work queue.
 
 When an invoice is pulled from that mailbox:
 
-- **Success** (finished bill only): PATCH categories to include `Entered in AI` and **remove** `AI HOLD` if present.
-- **Unable to finish a real bill** (Incomplete, price-does-not-match / missing-PO / parse-error HOLD, Fail, missing vendor, already-exists, no receipts): PATCH categories to include exact string **`AI HOLD`** and **remove** `Entered in AI` if present.
-- **Noise** (not-a-bill, statement, CHECK STOP, payment, POD, duplicate): do **not** PATCH `AI HOLD`. Note the skip on the Excel sheet as `Skipped`.
+- **Success** (finished bill Treyce would not rework): PATCH categories to include `Entered in AI` and **remove** the other two process markers.
+- **Header + PDF entered but unfinished** (price-does-not-match, qty HOLD, Incomplete finish): PATCH exact string **`Entered with issues`** and remove `Entered in AI` / `AI HOLD`. Kyle may need to create that master category on accountspayable@.
+- **Real bill with no header** (parse-error / no-pdf, auto-pay, pdf-behind-link, Fail): PATCH exact string **`AI HOLD`** and remove `Entered in AI` / `Entered with issues`.
+- **Noise** (not-a-bill, statement, CHECK STOP notice, payment, POD, duplicate): do **not** PATCH a process category. Note the skip on the Excel sheet as `Skipped`.
 
-PATCH body is `{"categories":[<existing except AP Matched and the other process marker>, "<Entered in AI|AI HOLD>"]}`. It does **not** set `flag.flagStatus`. It does **not** add `AP Matched`. Never apply `AI HOLD` and `Entered in AI` on the same message.
+PATCH body is `{"categories":[<existing except AP Matched and the other process markers>, "<Entered in AI|Entered with issues|AI HOLD>"]}`. It does **not** set `flag.flagStatus`. It does **not** add `AP Matched`. Never two process categories on the same message.
 
 Graph message id is kept on the run so the category is applied after match, not after download/`pull` alone.
 
@@ -389,6 +405,6 @@ Graph message id is kept on the run so the category is applied after match, not 
 - Secret values are never printed.
 - No invoice is deleted or voided.
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
-- The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success and `AI HOLD` after bill HOLD/Fail/Incomplete. Never stamp `AI HOLD` on noise. Never both process categories. Never use the follow-up flag or `AP Matched` as the process marker.
+- The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success, `Entered with issues` after header+PDF unfinished, and `AI HOLD` after a real bill with no header / Fail. Never stamp `AI HOLD` on noise. Never two process categories. Never use the follow-up flag or `AP Matched` as the process marker.
 - `daily` requires `--live`. Do not add a GitHub Actions cron that posts live without Kyle.
 - QUALITY V1.1 does not run a live 30 by itself. The supervised 10-invoice API-finish dry run is recorded above. Do not re-arm the weekday daily 30 until Kyle says so.

@@ -1,8 +1,10 @@
 """Microsoft Graph mailbox client for accountspayable@kannonmfg.com only.
 
 Mail without category `Entered in AI` is the work queue.
-`Entered in AI` is applied after a successful KIMCO header create, never after download alone.
-Real bill HOLD/Fail/Incomplete gets red category `AI HOLD`. Mailbox noise is not stamped. Never both on one message.
+`Entered in AI` is applied after a finished Success bill, never after download alone.
+Header+PDF entered but unfinished (price/qty HOLD, Incomplete) gets `Entered with issues`.
+Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise is not stamped.
+Never two process categories on one message.
 Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
 """
@@ -31,8 +33,13 @@ ENTERED_IN_AI_CATEGORY = "Entered in AI"
 # Unable-to-process marker. Color preset0 is Red. Create may 403 without MailboxSettings.ReadWrite.
 AI_HOLD_CATEGORY = "AI HOLD"
 AI_HOLD_COLOR = "preset0"
+# Header + PDF entered but the bill cannot be finished (Treyce 2026-09-10). Exact name.
+# Kyle may need to create this master category on accountspayable@ if it does not exist.
+ENTERED_WITH_ISSUES_CATEGORY = "Entered with issues"
+ENTERED_WITH_ISSUES_COLOR = "preset1"
 LEGACY_AP_MATCHED_CATEGORY = "AP Matched"
-PROCESS_CATEGORIES = (ENTERED_IN_AI_CATEGORY, AI_HOLD_CATEGORY)
+PROCESS_CATEGORIES = (ENTERED_IN_AI_CATEGORY, AI_HOLD_CATEGORY, ENTERED_WITH_ISSUES_CATEGORY)
+CATEGORY_MISSING = "category-missing"
 # Recipient local-part + domain are split so the commit scanner does not
 # treat the daily report address as the KIMCO_*_USERNAME secret value.
 _REPORT_LOCAL = "treyce"
@@ -61,6 +68,8 @@ GRAPH_ENV_NAMES = (
 
 FLAG_FLAGGED = "entered-in-ai"
 FLAG_AI_HOLD = "ai-hold"
+FLAG_ENTERED_WITH_ISSUES = "entered-with-issues"
+FLAG_ISSUES_ELIGIBLE = "issues-eligible"
 FLAG_SKIPPED = "skipped-not-success"
 FLAG_NONE = "none"
 FLAG_DENIED = "graph-denied"
@@ -149,8 +158,20 @@ def has_ai_hold(message: dict[str, Any] | None) -> bool:
     return AI_HOLD_CATEGORY in message_categories(message)
 
 
+def has_entered_with_issues(message: dict[str, Any] | None) -> bool:
+    return ENTERED_WITH_ISSUES_CATEGORY in message_categories(message)
+
+
+def has_process_category(message: dict[str, Any] | None) -> bool:
+    cats = set(message_categories(message))
+    return bool(cats & set(PROCESS_CATEGORIES))
+
+
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
-    """Success → Entered in AI. Bill Incomplete/HOLD/Fail → AI HOLD. Noise → none."""
+    """Success → Entered in AI. Header+PDF unfinished → Entered with issues.
+
+    Real bill with no header → AI HOLD. Noise → none.
+    """
     outcome = (result or "").strip()
     has_id = str(message_id or "").strip()
     if outcome in {"Skipped", "Noise"}:
@@ -161,6 +182,10 @@ def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | N
         if not has_id:
             return FLAG_NO_MESSAGE_ID
         return FLAG_ELIGIBLE
+    if outcome in {"HOLD", "Incomplete"} and kimco_id not in (None, ""):
+        if not has_id:
+            return FLAG_NO_MESSAGE_ID
+        return FLAG_ISSUES_ELIGIBLE
     if outcome in {"HOLD", "Fail", "Incomplete"}:
         if not has_id:
             return FLAG_NO_MESSAGE_ID
@@ -536,6 +561,8 @@ class GraphClient:
             return FLAG_DENIED
         if add == AI_HOLD_CATEGORY:
             return FLAG_AI_HOLD
+        if add == ENTERED_WITH_ISSUES_CATEGORY:
+            return FLAG_ENTERED_WITH_ISSUES
         return FLAG_FLAGGED
 
     def flag_matched(self, mailbox: str, message_id: str) -> str:
@@ -549,6 +576,45 @@ class GraphClient:
     def flag_hold(self, mailbox: str, message_id: str) -> str:
         """PATCH categories to include `AI HOLD`. Removes `Entered in AI`."""
         return self._patch_process_category(mailbox, message_id, AI_HOLD_CATEGORY)
+
+    def flag_issues(self, mailbox: str, message_id: str) -> str:
+        """PATCH categories to include exact `Entered with issues`.
+
+        Removes Entered in AI and AI HOLD. If the master category does not
+        exist, Graph may still accept the string; a 4xx is recorded as
+        category-missing so Kyle can create it on accountspayable@.
+        """
+        return self._patch_process_category(mailbox, message_id, ENTERED_WITH_ISSUES_CATEGORY)
+
+    def ensure_entered_with_issues_category(self, mailbox: str = ALLOWED_MAILBOX) -> str:
+        """POST master category `Entered with issues` (preset1 Orange).
+
+        403 is category-denied (MailboxSettings.ReadWrite). Callers still
+        PATCH the exact string. Kyle may need to create this category once
+        on accountspayable@ if apply fails.
+        """
+        mailbox = assert_allowed_mailbox(mailbox)
+        response = self.request(
+            "POST",
+            self._user_url(mailbox, "outlook/masterCategories"),
+            json={"displayName": ENTERED_WITH_ISSUES_CATEGORY, "color": ENTERED_WITH_ISSUES_COLOR},
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code in {200, 201}:
+            LOGGER.info("Created Outlook master category Entered with issues (preset1)")
+            return CATEGORY_CREATED
+        if response.status_code in {409, 400}:
+            LOGGER.info("Outlook master category Entered with issues already present HTTP %s", response.status_code)
+            return CATEGORY_EXISTS
+        if response.status_code == 403:
+            LOGGER.info(
+                "Outlook masterCategories POST HTTP 403 for Entered with issues "
+                "(MailboxSettings.ReadWrite missing). Kyle may need to create "
+                "the category named exactly 'Entered with issues' on accountspayable@."
+            )
+            return CATEGORY_DENIED
+        LOGGER.info("Outlook masterCategories POST HTTP %s for Entered with issues", response.status_code)
+        return CATEGORY_DENIED
 
     def send_run_report(
         self,
@@ -689,21 +755,35 @@ def apply_flag_after_match(
     *,
     mailbox: str = ALLOWED_MAILBOX,
 ) -> str:
-    """Set row['Flag status'] after enter. Success→Entered in AI; Incomplete/HOLD/Fail→AI HOLD."""
+    """Set row['Flag status'] after enter.
+
+    Success→Entered in AI. Header+PDF unfinished→Entered with issues.
+    Real bill with no header→AI HOLD. Noise→none.
+    """
     message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
     decision = decide_flag_status(
         result=str(row.get("Result") or ""),
         kimco_id=row.get("KIMCO id"),
         message_id=message_id,
     )
-    if decision not in {FLAG_ELIGIBLE, FLAG_HOLD_ELIGIBLE}:
+    if decision not in {FLAG_ELIGIBLE, FLAG_HOLD_ELIGIBLE, FLAG_ISSUES_ELIGIBLE}:
         row["Flag status"] = decision
         return decision
     if graph_client is None:
         row["Flag status"] = FLAG_DENIED
         return FLAG_DENIED
     try:
-        if decision == FLAG_HOLD_ELIGIBLE:
+        if decision == FLAG_ISSUES_ELIGIBLE:
+            status = graph_client.flag_issues(mailbox, message_id)
+            if status == FLAG_DENIED:
+                why = str(row.get("Why") or "").rstrip()
+                missing = (
+                    "Outlook category 'Entered with issues' missing or Graph denied apply. "
+                    "Kyle must create the category named exactly Entered with issues "
+                    "on accountspayable@ if it does not exist."
+                )
+                row["Why"] = f"{why} {missing}".strip() if why else missing
+        elif decision == FLAG_HOLD_ELIGIBLE:
             status = graph_client.flag_hold(mailbox, message_id)
         else:
             status = graph_client.flag_matched(mailbox, message_id)
@@ -711,8 +791,17 @@ def apply_flag_after_match(
         raise
     except GraphError:
         status = FLAG_DENIED
+        if decision == FLAG_ISSUES_ELIGIBLE:
+            why = str(row.get("Why") or "").rstrip()
+            missing = (
+                "Outlook category 'Entered with issues' missing or Graph denied apply. "
+                "Kyle must create the category named exactly Entered with issues "
+                "on accountspayable@ if it does not exist."
+            )
+            row["Why"] = f"{why} {missing}".strip() if why else missing
     row["Flag status"] = status
     why = str(row.get("Why") or "").rstrip()
     note = f"Flag status={status}."
-    row["Why"] = f"{why} {note}".strip() if why else note
+    if "Flag status=" not in why:
+        row["Why"] = f"{why} {note}".strip() if why else note
     return status

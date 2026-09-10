@@ -324,6 +324,10 @@ def test_probe_cli_writes_json_and_never_sends(
             assert mailbox == ALLOWED_MAILBOX
             return "category-created"
 
+        def ensure_entered_with_issues_category(self, mailbox):
+            assert mailbox == ALLOWED_MAILBOX
+            return "category-created"
+
         def probe_send_authorization(self, mailbox):
             assert mailbox == ALLOWED_MAILBOX
             return {
@@ -349,6 +353,7 @@ def test_probe_cli_writes_json_and_never_sends(
     assert payload["send_mail_invoked"] is False
     assert payload["mail_sent_to_anyone"] is False
     assert payload["ai_hold_category"] == "category-created"
+    assert payload["entered_with_issues_category"] == "category-created"
 
 
 def test_daily_refuses_without_live(capsys: pytest.CaptureFixture[str]) -> None:
@@ -390,6 +395,9 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
     class FakeGraph:
         def ensure_ai_hold_category(self, mailbox):
             assert mailbox == ALLOWED_MAILBOX
+            return "category-denied"
+
+        def ensure_entered_with_issues_category(self, mailbox):
             return "category-denied"
 
         def send_run_report(self, mailbox, **kwargs):

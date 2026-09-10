@@ -23,11 +23,16 @@ from ap_clerk.graph import (
     FLAG_NONE,
     GraphClient,
     assert_allowed_mailbox,
-    has_ai_hold,
-    has_entered_in_ai,
+    has_process_category,
 )
 from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
-from ap_clerk.rules import CHICAGO, classify_mail
+from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_public_pdf
+from ap_clerk.rules import (
+    CHICAGO,
+    LINK_DOWNLOAD_VENDOR_RE,
+    classify_mail,
+    is_melody_channell,
+)
 
 STATEMENT_FILE_RE = re.compile(
     r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status|accountstatus",
@@ -169,7 +174,7 @@ def pull_recent_bills(
             floor = start if isinstance(start, datetime) else daily_floor_datetime()
             if received_dt is not None and received_dt < floor:
                 continue
-        if unprocessed_only and (has_entered_in_ai(message) or has_ai_hold(message)):
+        if unprocessed_only and has_process_category(message):
             skipped.append(
                 {
                     "subject": str(message.get("subject") or ""),
@@ -193,6 +198,25 @@ def pull_recent_bills(
             klass = "statement"
         else:
             klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
+        if klass == "auto-pay":
+            selected.append(
+                {
+                    "vendor": sender_name(message) or "Toyota Commercial Finance",
+                    "invoice_number": "",
+                    "date": None,
+                    "po": None,
+                    "amount": None,
+                    "hold_reason": "auto-pay",
+                    "action": "hold",
+                    "graph_message_id": message_id,
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "from_name": sender_name(message),
+                    "field_sources": {},
+                }
+            )
+            LOGGER.info("HOLD auto-pay (do not enter): %s", subject[:80])
+            continue
         if klass in CLEAR_SKIP_CLASSES:
             flag_status = _skip_flag_status(message)
             skipped.append(
@@ -209,7 +233,10 @@ def pull_recent_bills(
             )
             LOGGER.info("Skipping %s mail: %s", klass, subject[:80])
             continue
-        if not message.get("hasAttachments"):
+        from_name = sender_name(message)
+        link_blob = f"{from_name}\n{subject}\n{preview}"
+        wants_link = bool(LINK_DOWNLOAD_VENDOR_RE.search(link_blob))
+        if not message.get("hasAttachments") and not wants_link:
             flag_status = _skip_flag_status(message)
             skipped.append(
                 {
@@ -218,13 +245,35 @@ def pull_recent_bills(
                     "class": "no-attachment",
                     "attachment_names": names,
                     "graph_message_id": message_id,
-                    "vendor": sender_name(message),
+                    "vendor": from_name,
                     "Flag status": flag_status,
                     "hold_reason": "not-a-bill",
                 }
             )
             continue
-        pdfs = graph.download_pdf_attachments(mailbox, message_id)
+        pdfs = graph.download_pdf_attachments(mailbox, message_id) if message.get("hasAttachments") else []
+        if not pdfs and wants_link:
+            pdfs, link_hold = _pdfs_from_body_link(graph, mailbox, message_id, preview)
+            if link_hold:
+                selected.append(
+                    {
+                        "vendor": from_name or "American Quality Powder Coating",
+                        "invoice_number": "",
+                        "date": None,
+                        "po": None,
+                        "amount": None,
+                        "hold_reason": "pdf-behind-link",
+                        "pdf_behind_link": True,
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {},
+                    }
+                )
+                LOGGER.info("HOLD pdf-behind-link: %s", subject[:80])
+                continue
         if not pdfs:
             flag_status = _skip_flag_status(message)
             skipped.append(
@@ -240,7 +289,6 @@ def pull_recent_bills(
                 }
             )
             continue
-        from_name = sender_name(message)
         from_addr = sender_address(message)
         chosen_bills: list[dict[str, Any]] = []
         check_stopped = False
@@ -292,6 +340,25 @@ def pull_recent_bills(
         if check_stopped:
             continue
         if not chosen_bills:
+            if is_melody_channell(f"{from_name} {subject} {preview}") or is_melody_channell(from_addr):
+                selected.append(
+                    {
+                        "vendor": from_name or "Melody Channell",
+                        "invoice_number": "",
+                        "date": None,
+                        "po": None,
+                        "amount": None,
+                        "hold_reason": "parse-error",
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {},
+                        "pdf_unavailable": True,
+                    }
+                )
+                continue
             flag_status = _skip_flag_status(message)
             skipped.append(
                 {
@@ -323,6 +390,41 @@ def pull_recent_bills(
         # Process oldest-first among the most-recent `limit`
         selected.sort(key=lambda inv: str(inv.get("receivedDateTime") or ""))
     return selected, skipped
+
+
+def _pdfs_from_body_link(
+    graph: GraphClient,
+    mailbox: str,
+    message_id: str,
+    preview: str,
+) -> tuple[list[tuple[str, bytes]], bool]:
+    """Best-effort AQPC-style https PDF download. Auth wall → ( [], True )."""
+    body_text = preview or ""
+    getter = getattr(graph, "get_message", None)
+    if callable(getter):
+        try:
+            detail = getter(mailbox, message_id, select="id,bodyPreview,body")
+        except Exception:  # noqa: BLE001 - body fetch must not crash inbox
+            detail = {}
+        body = (detail or {}).get("body") or {}
+        if isinstance(body, dict):
+            body_text = str(body.get("content") or body_text)
+        body_text = body_text or str((detail or {}).get("bodyPreview") or preview or "")
+    downloader = getattr(graph, "download_public_pdf_from_text", None)
+    if callable(downloader):
+        result = downloader(body_text)
+    else:
+        result = download_first_public_pdf(body_text)
+    if result.get("ok") and result.get("content"):
+        return [("download.pdf", result["content"])], False
+    if result.get("reason") == REASON_PDF_BEHIND_LINK:
+        return [], True
+    return [], True if wants_hold_without_pdf(body_text) else ([], False)
+
+
+def wants_hold_without_pdf(text: str) -> bool:
+    """If the body has an https link we tried, treat failure as pdf-behind-link."""
+    return "https://" in (text or "").lower()
 
 
 def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list[dict[str, Any]]:
