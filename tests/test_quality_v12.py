@@ -52,7 +52,12 @@ from ap_clerk.pdf_invoice import (
     prefer_after_tax_amount,
     vendor_from_context,
 )
-from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, classify_download, extract_https_links
+from ap_clerk.pdf_links import (
+    REASON_PDF_BEHIND_LINK,
+    classify_download,
+    download_first_public_pdf,
+    extract_https_links,
+)
 from ap_clerk.quality_v12 import (
     TREYCE_FINISH_CHECKLIST,
     TREYCE_NOTES_V12,
@@ -1727,14 +1732,33 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     n = NOTES["NOTE-21"]
     assert classify_mail(subject=n["subject"]) == "invoice"
     assert classify_mail(subject=n["subject_10918"]) == "invoice"
+    assert classify_mail(subject=n["subject"]) != "payment"
     assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
+    assert extract_subject_invoice_number(n["subject_10918"]) == "10918"
     assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"], preview=n["body"])
+    links = extract_https_links(n["body"])
+    assert links and n["link_host"] in links[0]
+    fetched: list[str] = []
 
-    class Graph:
+    class Resp:
+        status_code = 200
+        content = b"%PDF-1.4 AMERICAN QUALITY POWDER COATING Invoice Number 10917 Amount Due 125.00"
+        headers = {"Content-Type": "application/pdf"}
+        text = ""
+
+    def getter(url, **kwargs):
+        fetched.append(url)
+        return Resp()
+
+    fetched_ok = download_first_public_pdf(n["body"], getter=getter)
+    assert fetched_ok.get("ok") is True
+    assert fetched == [f"https://{n['link_host']}/invoices/10917"]
+
+    class FetchGraph:
         def list_messages(self, mailbox, **kwargs):
             return [
                 {
-                    "id": "m-aqpc",
+                    "id": "m-aqpc-ok",
                     "subject": n["subject"],
                     "receivedDateTime": "2026-08-18T12:00:00Z",
                     "hasAttachments": False,
@@ -1755,24 +1779,63 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
         def download_public_pdf_from_text(self, text):
             assert "https://" in text
             return {
+                "ok": True,
+                "content": Resp.content,
+                "reason": "ok",
+                "url": f"https://{n['link_host']}/invoices/10917",
+            }
+
+    selected_ok, skipped_ok = pull_recent_bills(FetchGraph(), limit=1, pdf_dir=tmp_path / "pdfs-ok")
+    skip_noise_ok = [row for row in skipped_ok if row.get("class") != "already-flagged"]
+    assert not skip_noise_ok
+    assert selected_ok
+    fetched_bill = selected_ok[0]
+    assert fetched_bill.get("invoice_number") == n["invoice_number"]
+    assert fetched_bill.get("hold_reason") != "not-a-bill"
+    assert fetched_bill.get("pdf_path")
+    assert Path(fetched_bill["pdf_path"]).is_file()
+    assert "10917" in Path(fetched_bill["pdf_path"]).name
+    ok_row, _ = _row(fetched_bill)
+    assert ok_row["Result"] != RESULT_SKIPPED
+    assert "no-pdf-on-vm" not in ok_row["Why"]
+    assert "no-pdf-on-vm" not in str(ok_row.get("Attach status") or "")
+
+    class AuthGraph(FetchGraph):
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc",
+                    "subject": n["subject_10918"],
+                    "receivedDateTime": "2026-08-18T12:05:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["body"].replace("10917", "10918"),
+                    "from": {"emailAddress": {"name": n["vendor"], "address": "billing@aqpowder.com"}},
+                }
+            ]
+
+        def download_public_pdf_from_text(self, text):
+            assert "https://" in text
+            return {
                 "ok": False,
                 "content": None,
                 "reason": REASON_PDF_BEHIND_LINK,
-                "url": "https://pay.aqpowder.com/invoices/10917",
+                "url": f"https://{n['link_host']}/invoices/10918",
             }
 
-    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
-    assert not skipped
+    selected, skipped = pull_recent_bills(AuthGraph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
     assert selected
     bill = selected[0]
     assert bill.get("hold_reason") == "pdf-behind-link"
-    assert bill.get("invoice_number") == n["invoice_number"]
+    assert bill.get("invoice_number") == "10918"
     assert n["link_host"] in str(bill.get("pdf_link_host") or "")
     row, _ = _row(bill)
     assert row["Result"] == RESULT_HOLD
     assert_never_success(row["Result"], note_id="NOTE-21", detail=row["Why"])
     assert "pdf-behind-link" in row["Why"]
-    assert n["invoice_number"] in row["Why"]
+    assert "10918" in row["Why"]
+    assert n["vendor"].split()[0] in row["Why"] or "Quality" in row["Why"]
     assert n["link_host"] in row["Why"] or "aqpowder" in row["Why"].lower()
     assert "not-a-bill" not in row["Why"].lower() or "pdf-behind-link" in row["Why"]
     assert row["Result"] != RESULT_SKIPPED

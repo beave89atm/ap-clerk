@@ -322,7 +322,9 @@ def pull_recent_bills(
             continue
         pdfs = graph.download_pdf_attachments(mailbox, message_id) if message.get("hasAttachments") else []
         if not pdfs and wants_link:
-            pdfs, link_hold = _pdfs_from_body_link(graph, mailbox, message_id, preview)
+            pdfs, link_hold = _pdfs_from_body_link(
+                graph, mailbox, message_id, preview, subject=subject
+            )
             if link_hold:
                 inv_no = extract_subject_invoice_number(subject) or ""
                 selected.append(
@@ -414,9 +416,24 @@ def pull_recent_bills(
                 break
             extras = list(parsed.pop("siblings", []) or [])
             for bill in [parsed, *extras]:
-                if bill.get("pdf_text_empty") and bill.get("amount") in (None, ""):
+                inv_no = bill.get("invoice_number") or extract_subject_invoice_number(subject)
+                if inv_no and not bill.get("invoice_number"):
+                    bill["invoice_number"] = inv_no
+                    sources = dict(bill.get("field_sources") or {})
+                    sources.setdefault("invoice_number", "subject")
+                    bill["field_sources"] = sources
+                # Link-downloaded / known-bill PDFs stay even when pypdf extract is empty
+                # (AQPC 10917: fetch the invoice, attach, continue — never drop as not-a-bill).
+                empty_unusable = (
+                    bill.get("pdf_text_empty")
+                    and bill.get("amount") in (None, "")
+                    and not inv_no
+                    and not known_bill
+                    and not wants_link
+                )
+                if empty_unusable:
                     continue
-                if not bill.get("invoice_number") and not bill.get("amount"):
+                if not bill.get("invoice_number") and not bill.get("amount") and not known_bill and not wants_link:
                     continue
                 # Prefer a page-range slice from parse_invoice_pdf; else the full pack.
                 split_path = str(bill.get("pdf_path") or "").strip()
@@ -493,6 +510,8 @@ def _pdfs_from_body_link(
     mailbox: str,
     message_id: str,
     preview: str,
+    *,
+    subject: str = "",
 ) -> tuple[list[tuple[str, bytes]], dict[str, Any] | None]:
     """Best-effort AQPC-style https PDF download. Auth wall → ( [], hold-meta )."""
     body_text = preview or ""
@@ -515,7 +534,9 @@ def _pdfs_from_body_link(
     host = urlparse(url).netloc if url else ""
     hold = {"url": url, "host": host, "reason": str(result.get("reason") or "")}
     if result.get("ok") and result.get("content"):
-        return [("download.pdf", result["content"])], None
+        inv_no = extract_subject_invoice_number(subject) or extract_subject_invoice_number(body_text) or ""
+        name = f"invoice-{inv_no}.pdf" if inv_no else "download.pdf"
+        return [(name, result["content"])], None
     if result.get("reason") == REASON_PDF_BEHIND_LINK:
         return [], hold
     if wants_hold_without_pdf(body_text):

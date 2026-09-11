@@ -316,9 +316,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Powder Coating payment-request emails (invoice behind a link)."
         ),
         "expected": (
-            "AQPC is an invoice. Extract the https payment-request link and "
-            "download the PDF. Auth wall → HOLD pdf-behind-link naming vendor, "
-            "invoice #, and link host. Never Skipped noise."
+            "AQPC / American Quality Powder Coating is an invoice (never Skipped). "
+            "Extract the https payment-request link and GET the PDF (unauth, follow "
+            "redirects). Success → header + attach + PDF-is-truth. Auth wall → HOLD "
+            "pdf-behind-link naming vendor, invoice #, and link host. Never no-pdf-on-vm "
+            "after a fetched file."
         ),
         "never_success": True,
         "deferred": "Authenticated vendor portals stay HOLD pdf-behind-link.",
