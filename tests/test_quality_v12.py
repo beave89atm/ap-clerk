@@ -622,11 +622,16 @@ def test_never_repeat_nova_258145(tmp_path: Path):
     }
     ok, why = preflight_parse_gate(sidecar)
     assert ok is True, why
-    row, _ = _row(sidecar)
+    row, client = _row(sidecar)
     assert row["Vendor"] == "Nova Alloys"
     assert row["Vendor"] != n["buggy_vendor"]
     assert "preflight-parse" not in (row["Why"] or "")
+    assert "McQueary" not in (row["Why"] or "")
+    assert "MSC" not in (row["Why"] or "")
     assert row["Attach status"] != "no-pdf-on-vm"
+    assert row["KIMCO id"] not in (None, "")
+    assert row["Attach status"] == "attached"
+    assert client.created
     # 8/18 miss was Erica Barrett + parse HOLD. That pairing is the never-repeat.
     assert not (
         row["Vendor"] == n["buggy_vendor"]
@@ -646,6 +651,9 @@ def test_never_repeat_nova_258145(tmp_path: Path):
     buggy_ok, buggy_why = preflight_parse_gate(buggy)
     assert buggy_ok is False
     assert GATE_PREFLIGHT in buggy_why or "parse-error" in buggy_why
+    assert "McQueary" not in buggy_why
+    assert "MSC" not in buggy_why
+    assert "Nova" in buggy_why or "258145" in buggy_why
     assert n["buggy_vendor"] != vendor
 
     from ap_clerk import pdf_invoice as pdf_mod
@@ -859,21 +867,36 @@ def test_never_repeat_crosslink_27943(tmp_path: Path):
     assert invoice_number_matches_subject_or_filename(sidecar)
     ok, why = preflight_parse_gate(sidecar)
     assert ok is True, why
-    row, _ = _row(sidecar)
+    row, client = _row(
+        sidecar,
+        po_index={
+            bill["po"]: {
+                "id": 22,
+                "text": f"{bill['po']}-CROSSLINK",
+                "vendor_id": 278,
+                "vendor_text": n["vendor"],
+                "lines": [{"part": "COAT", "po_line": 1, "qty": 1, "amount": parsed["amount"], "unit_price": parsed["amount"]}],
+            }
+        },
+        samples=[{"vendor_id": 278, "vendor_text": n["vendor"], "invoice_id": 100, "po_text": bill["po"]}],
+    )
     assert "preflight-parse" not in (row["Why"] or "")
+    assert "McQueary" not in (row["Why"] or "")
+    assert "MSC" not in (row["Why"] or "")
     assert row["Attach status"] != "no-pdf-on-vm"
     assert row["Invoice #"] == "27943"
+    assert row["KIMCO id"] not in (None, "")
+    assert row["Attach status"] == "attached"
+    assert client.created
     # False 8/18 pairing: filename HOLD + no-pdf-on-vm while the file exists.
     assert not (
         row["Result"] == RESULT_HOLD
         and "preflight-parse" in (row["Why"] or "")
         and row["Attach status"] == "no-pdf-on-vm"
     )
-    assert_never_success(
-        RESULT_HOLD if row["Attach status"] == "no-pdf-on-vm" else row["Result"],
-        note_id="NOTE-13",
-        detail=row["Why"],
-    )
+    # False 8/18 pairing is the never-repeat — a finished header+PDF is allowed.
+    if row["Attach status"] == "no-pdf-on-vm" or "preflight-parse" in (row["Why"] or ""):
+        assert_never_success(row["Result"], note_id="NOTE-13", detail=row["Why"])
 
     for extra in n["bills"]:
         extra_path = tmp_path / extra["filename"]
@@ -910,4 +933,10 @@ def test_never_repeat_crosslink_27943(tmp_path: Path):
     missing_ok, missing_why = preflight_parse_gate(missing)
     assert missing_ok is False
     assert GATE_PREFLIGHT in missing_why or "parse-error" in missing_why
+    assert "McQueary" not in missing_why
+    assert "MSC" not in missing_why
+    assert "Crosslink" in missing_why or "invoice-27943" in missing_why
+    assert "filename" in missing_why.lower()
+    assert "27943" in missing_why
+    assert "no-pdf-on-vm" not in missing_why or "missing" in missing_why.lower()
     assert_never_success(RESULT_HOLD, note_id="NOTE-13")

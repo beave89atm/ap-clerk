@@ -590,19 +590,14 @@ def company_from_subject_or_text(*, subject: str = "", text: str = "") -> str:
     return ""
 
 
-def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
-    addr = (from_address or "").lower()
-    if "firstaid" in addr or "first aid" in (from_name or "").lower() or "firstaid" in (subject or "").lower():
-        return "UniFirst First Aid & Safety"
-    if "@" in addr:
-        domain = addr.split("@", 1)[1]
-        if domain in DOMAIN_VENDORS:
-            return DOMAIN_VENDORS[domain]
-    blob = f"{subject}\n{from_name}\n{from_address}\n{text or ''}"
+def _vendor_from_pdf_text(text: str) -> str:
+    """Company printed on the vendor PDF. Subject/From are hints only."""
+    if not (text or "").strip():
+        return ""
     for pattern, vendor in SUBJECT_VENDORS:
-        if pattern.search(blob):
+        if pattern.search(text):
             return vendor
-    for line in (text or "").splitlines():
+    for line in text.splitlines():
         stripped = line.strip()
         if re.match(
             r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell|nova alloys)",
@@ -610,7 +605,26 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
             re.I,
         ):
             return stripped[:80]
-    company = company_from_subject_or_text(subject=subject, text=text)
+    return company_from_subject_or_text(subject="", text=text)
+
+
+def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
+    # PDF is the version of the truth for vendor when the invoice text names a company.
+    pdf_vendor = _vendor_from_pdf_text(text)
+    if pdf_vendor:
+        return pdf_vendor
+    addr = (from_address or "").lower()
+    if "firstaid" in addr or "first aid" in (from_name or "").lower() or "firstaid" in (subject or "").lower():
+        return "UniFirst First Aid & Safety"
+    if "@" in addr:
+        domain = addr.split("@", 1)[1]
+        if domain in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[domain]
+    blob = f"{subject}\n{from_name}\n{from_address}"
+    for pattern, vendor in SUBJECT_VENDORS:
+        if pattern.search(blob):
+            return vendor
+    company = company_from_subject_or_text(subject=subject, text="")
     if company:
         return company[:80]
     if from_name and "@" not in from_name and not _looks_like_person_name(from_name):

@@ -50,6 +50,7 @@ from ap_clerk.gates import (
     RESULT_HOLD,
     RESULT_SKIPPED,
     RESULT_SUCCESS,
+    attach_presence_status,
     drop_fee_disguised_as_ppv,
     find_live_po,
     finish_gate,
@@ -62,6 +63,7 @@ from ap_clerk.gates import (
     vendor_confirmation_gate,
     why_fail,
     why_hold,
+    why_preflight_this_invoice,
     why_skipped,
 )
 from ap_clerk.rules import (
@@ -390,7 +392,7 @@ def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, An
         "Batch": batch_name,
         "Fees and surcharges": format_fees(inv.get("fees")),
         "PPV": "none",
-        "Attach status": "no-pdf-on-vm",
+        "Attach status": attach_presence_status(inv),
         "Flag status": FLAG_SKIPPED,
         "Flag in Outlook": flag_in_outlook_for(result),
         "Notes": "",
@@ -735,7 +737,7 @@ def _process_invoice(
     po_display = "" if po is None else str(po)
     amount = inv.get("amount")
     fees = format_fees(inv.get("fees"))
-    attach = "pdf-on-vm" if pdf_file_present(inv) else "no-pdf-on-vm"
+    attach = attach_presence_status(inv)
     row = {
         "Vendor": vendor,
         "Invoice #": number,
@@ -788,12 +790,7 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     if inv.get("gas_misc_ambiguous"):
-        row["Why"] = why_hold(
-            GATE_PREFLIGHT,
-            "Gas & Supply PDF has multiple Misc invoices but amounts could not be split. "
-            f"When entering, use Invoice_Type 4 and miscellaneous purchase item {misc_purchase_item_for(vendor) or 'Shop Supplies - G&S'}. "
-            "HOLD when ambiguous rather than inventing amounts.",
-        )
+        row["Why"] = why_hold(GATE_PREFLIGHT, why_preflight_this_invoice(inv, "gas_ambiguous"))
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     existing = _find_existing_invoice(invoice_by_number, number, vendor)
