@@ -53,7 +53,9 @@ from ap_clerk.kimco import (
 )
 from ap_clerk.rules import (
     flag_in_outlook_for,
+    format_unmatched_lines,
     invoice_qty_evidence,
+    is_fee_or_surcharge,
     match_receipts,
     merchandise_qty,
     money,
@@ -229,6 +231,19 @@ def finish_existing_header(
         invoice_qty = invoice_qty_evidence(list(inv.get("lines") or []))
     merch = merchandise_amount(inv.get("amount") or out.get("Amount"), inv.get("fees"))
     receipt_qty_mismatch = False
+    unmatched_for_check: list[dict[str, Any]] = []
+    merch_inv_lines = [
+        line
+        for line in list(inv.get("lines") or [])
+        if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or line.get("description") or ""))
+    ]
+    if receipts_selected and merch_inv_lines and existing_receipt_ids:
+        if len(existing_receipt_ids) < len(merch_inv_lines):
+            unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
+            receipt_note = (
+                f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
     if receipts_selected and invoice_qty is not None:
         posted_qty = receipt_qty_from_invoice_lines(lines)
         if posted_qty is not None and posted_qty != invoice_qty:
@@ -256,6 +271,7 @@ def finish_existing_header(
                 if one.get("ambiguous") and not one.get("matched"):
                     receipt_note = str(one.get("why") or "")
                 combined.extend(one.get("matched") or [])
+                unmatched_for_check.extend(one.get("unmatched_lines") or [])
             if not receipt_note:
                 receipt_note = " ".join(n for n in notes if n)
         receipt_ids = [
@@ -316,6 +332,7 @@ def finish_existing_header(
         multi_po=multi_po,
         fees_posted=fees_posted,
         receipt_qty_mismatch=receipt_qty_mismatch,
+        receipt_result={"matched": [], "unmatched_lines": unmatched_for_check},
     )
     check["parsed_vendor"] = str(inv.get("vendor") or out.get("Vendor") or "")
     check["posted_vendor"] = posted_name

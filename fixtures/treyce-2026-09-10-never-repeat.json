@@ -123,6 +123,22 @@
       "fee_name": "Shipping & Handling",
       "fee_amount": 63.98,
       "date": "2026-08-18"
+    },
+    "NOTE-15": {
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_number": "Z250725432",
+      "po": "58913",
+      "kimco_id": 9969,
+      "amount": 896.86,
+      "date": "2026-08-18",
+      "pdf_text": "EARLE M. JORGENSEN COMPANY\nINVOICE NUMBER Z250725432\nINVOICE DATE 18-AUG-2026\nCUSTOMER PO 58913\nSHIP DATE 18-AUG-2026\nPREPAID\n1  HR FLT 1/4 X 4 A36  20.167  FT  12.45  251.08\n2  HR FLT 3/8 X 6 A36  40.000  FT  16.1445  645.78\nINVOICE TOTAL $ 896.86\n",
+      "line1_desc": "HR FLT 1/4 X 4 A36",
+      "line2_desc": "HR FLT 3/8 X 6 A36",
+      "line1_qty": 20.167,
+      "line2_qty": 40.0,
+      "line1_amount": 251.08,
+      "line2_amount": 645.78,
+      "po_line1_amount": 249.00
     }
   }
 }

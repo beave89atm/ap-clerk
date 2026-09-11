@@ -57,6 +57,10 @@ def test_fees_are_not_ppv():
     assert is_fee_or_surcharge("FUEL SURCHARGE")
     assert format_fees([{"name": "Shipping", "amount": 42.17}]) == "Shipping 42.17"
     assert format_fees([]) == "none"
+    assert format_fees([{"name": "SHIP DATE 18-AUG-2026", "amount": None}]) == "none"
+    assert is_fee_or_surcharge("Shipping & Handling")
+    assert not is_fee_or_surcharge("SHIP DATE 18-AUG-2026")
+    assert not is_fee_or_surcharge("PREPAID")
 
 
 def test_extract_po_number():

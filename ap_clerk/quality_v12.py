@@ -198,6 +198,26 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-15",
+        "slug": "emj-z250725432-two-lines",
+        "gate": GATE_RECEIPT,
+        "cases": ("EMJ Z250725432 / PO 58913 / KIMCO 9969",),
+        "9_11_bug": (
+            "Invoice had two merchandise lines; PDF line parse left lines:[]; "
+            "runner Select Receipts’d one open PO receipt and claimed Success. "
+            "Sheet did not name the skipped line. Small random-length price gap "
+            "was not posted as PPV."
+        ),
+        "expected": (
+            "Parse all merchandise lines from the PDF. Select Receipts for each "
+            "matching line; do not stop after one. Unmatched lines → not Success "
+            "and Why names the skipped line(s). Random-length unit gap that "
+            "passes ≤10% / ≤$100 is PPV, not Fees. Prepaid/shipping-date with "
+            "null amount is not a fee."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -240,6 +260,13 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "select-receipts-when-po",
         "check": "Select Receipts posted when the PO / Select Receipts path applies.",
+    },
+    {
+        "id": "all-invoice-lines-selected",
+        "check": (
+            "Every merchandise invoice line has a Select Receipts match. "
+            "Unmatched lines are named on Why and never silent Success (EMJ Z250725432)."
+        ),
     },
     {
         "id": "posted-vendor-matches-parsed",

@@ -93,8 +93,10 @@ _AMOUNT_DUE_LABEL = re.compile(
     flags=re.I,
 )
 _EXT_PRICE = re.compile(r"Ext(?:ended)?\s*Price.{0,120}?([\d,]+\.\d{2})", flags=re.I | re.S)
+# Same line only. Do not let a merchandise line amount sitting on the
+# previous row steal "INVOICE TOTAL $ 896.86" (EMJ Z250725432 → 645.78).
 _AMOUNT_BEFORE = re.compile(
-    r"\$?\s*([\d,]+(?:\.\d{2}))\s*(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
+    r"\$?\s*([\d,]+(?:\.\d{2}))[ \t]+(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
     flags=re.I,
 )
 _CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440", "02627782"}
@@ -453,11 +455,14 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
             continue
         amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
         amounts = [a for a in amounts if a is not None and a < 100000]
+        if not amounts:
+            # Prepaid / shipping-date text with a null amount is not a fee.
+            continue
         name = re.sub(r"\s+\$?[\d,]+\.\d{2}\s*$", "", stripped)
         name = re.sub(r"\s{2,}", " ", name).strip(" :-")
         if not name:
             name = next((k for k in FEE_KEYWORDS if k in stripped.lower()), "fee")
-        fees.append({"name": name[:80], "amount": amounts[-1] if amounts else None})
+        fees.append({"name": name[:80], "amount": amounts[-1]})
     dedup: list[dict[str, Any]] = []
     seen: set[str] = set()
     for fee in fees:
@@ -469,31 +474,81 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
     return dedup[:8]
 
 
+_STEEL_LINE_RE = re.compile(
+    r"\b(?:SCH(?:EDULE)?\s*\d+|A500|A36|A572|PIPE|HR\s+(?:FLT|FLAT|RND|ROUND|RECT)|"
+    r"FLAT\s+BAR|ANGLE|BEAM|PLATE|TUBE|RECT\s+TUBE|SQ\s+TUBE)\b",
+    flags=re.I,
+)
+_EMJ_NUMBERED_LINE = re.compile(
+    r"^\s*(\d{1,3})\s+(?:(\d{5,8})\s+)?(.{6,80}?)\s+(\d+(?:\.\d+)?)\s+"
+    r"(FT|LF|PC|PCS|EA|LB|CWT|IN)\b.*?([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+_LINE_SKIP_RE = re.compile(
+    r"invoice\s+total|amount\s+due|customer\s+po|invoice\s+(?:number|date)|"
+    r"ship(?:ping)?\s+date|prepaid|page\s+\d|bill\s+to|ship\s+to",
+    flags=re.I,
+)
+
+
 def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
-    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts."""
+    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts.
+
+    EMJ / mill invoices (Z250725432) print steel descriptions (HR FLT A36)
+    without XXX-XXXX-XXX parts — those must still become merchandise lines.
+    """
     lines: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for raw_line in (text or "").splitlines():
-        stripped = raw_line.strip()
-        if not stripped:
+    raw_rows = [raw.strip() for raw in (text or "").splitlines() if raw.strip()]
+    for index, stripped in enumerate(raw_rows):
+        if _LINE_SKIP_RE.search(stripped) and not _STEEL_LINE_RE.search(stripped):
+            continue
+        emj = _EMJ_NUMBERED_LINE.match(stripped)
+        if emj:
+            po_line = int(emj.group(1))
+            item_no = emj.group(2) or ""
+            desc = re.sub(r"\s{2,}", " ", emj.group(3)).strip()
+            qty = parse_money(emj.group(4))
+            amount = parse_money(emj.group(6))
+            key = f"emj-{po_line}-{desc.upper()[:40]}"
+            if key not in seen:
+                seen.add(key)
+                lines.append(
+                    {
+                        "part": item_no or desc,
+                        "qty": qty,
+                        "amount": amount,
+                        "po_line": po_line,
+                        "wo": None,
+                        "label": desc[:80] or stripped[:80],
+                        "description": desc[:120] or stripped[:120],
+                    }
+                )
             continue
         parts = _PART_NUMBER.findall(stripped)
-        desc_only = bool(not parts and re.search(r"\b(?:SCH(?:EDULE)?\s*\d+|A500|PIPE)\b", stripped, flags=re.I))
+        desc_only = bool(not parts and _STEEL_LINE_RE.search(stripped))
         if not parts and not desc_only:
             continue
-        amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
+        blob = stripped
+        nxt = raw_rows[index + 1] if index + 1 < len(raw_rows) else ""
+        if nxt and not _LINE_SKIP_RE.search(nxt) and not _PART_NUMBER.findall(nxt) and not _STEEL_LINE_RE.search(nxt):
+            blob = f"{stripped} {nxt}"
+        amounts = [parse_money(m) for m in _MONEY.findall(blob)]
         amounts = [a for a in amounts if a is not None and a < 100000]
         qty = None
-        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", stripped, flags=re.I)
+        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", blob, flags=re.I)
+        um_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:FT|LF|PC|PCS|EA|LB|CWT)\b", blob, flags=re.I)
         if qty_match:
             qty = parse_money(qty_match.group(1))
+        elif um_qty:
+            qty = parse_money(um_qty.group(1))
         elif amounts and len(amounts) >= 2:
             qty = amounts[0]
         po_line = None
-        line_match = re.search(r"\b(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
+        line_match = re.search(r"^\s*(\d{1,3})\s+|(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
         if line_match:
-            po_line = int(line_match.group(1))
-        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", stripped, flags=re.I)
+            po_line = int(line_match.group(1) or line_match.group(2))
+        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", blob, flags=re.I)
         for part in parts:
             if part in seen:
                 continue
@@ -509,13 +564,13 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                     "description": stripped[:120],
                 }
             )
-        # O'Neal / mill descriptions without XXX-XXXX-XXX part numbers.
+        # O'Neal / EMJ mill descriptions without XXX-XXXX-XXX part numbers.
         if desc_only:
             key = re.sub(r"\s+", " ", stripped.upper())[:48]
             if key not in seen:
                 seen.add(key)
                 if qty is None:
-                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", stripped, flags=re.I)
+                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", blob, flags=re.I)
                     if bare_qty:
                         qty = parse_money(bare_qty.group(1))
                 lines.append(
@@ -526,7 +581,7 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                         "po_line": po_line,
                         "wo": wo_match.group(1) if wo_match else None,
                         "label": stripped[:80],
-                        "description": stripped[:120],
+                        "description": (desc_only and stripped[:120]) or blob[:120],
                     }
                 )
     return lines[:40]
@@ -1025,7 +1080,9 @@ def parse_invoice_text(
             amount = max(nums)
     amt_match = None
     if amount is None:
-        amt_match = _AMOUNT_BEFORE.search(pdf_text) or _AMOUNT_LABEL.search(pdf_text)
+        # Label-then-amount (INVOICE TOTAL $ 896.86) beats a line amount
+        # immediately before the total label (645.78\nINVOICE TOTAL).
+        amt_match = _AMOUNT_LABEL.search(pdf_text) or _AMOUNT_BEFORE.search(pdf_text)
     if amt_match:
         amount = parse_money(amt_match.group(1))
         if amount == 0:

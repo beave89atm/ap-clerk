@@ -21,6 +21,7 @@ from ap_clerk.rules import (
     names_match,
     normalize_part,
     qty_discrepancy,
+    format_unmatched_lines,
     vendor_match_score,
     vendors_strictly_match,
 )
@@ -733,6 +734,14 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "(Fastenal TXFT4100079 Shipping & Handling). "
             "Sheet Fees column is not enough. Fix: post F-Fees & Surcharges before Success."
         )
+    unmatched_lines = check.get("unmatched_invoice_lines") or []
+    if unmatched_lines:
+        labels = format_unmatched_lines(unmatched_lines)
+        failures.append(
+            f"Unmatched invoice line(s): {labels or 'unspecified'} "
+            "(EMJ Z250725432). Fix: Select Receipts for each merchandise line. "
+            "Do not stop after one. Never silent Success."
+        )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),
@@ -800,6 +809,7 @@ def selfcheck_payload(
         "receipt_qty_mismatch": receipt_qty_mismatch,
         "fees_required": fees_required(parsed_fees),
         "fees_posted": bool(fees_posted),
+        "unmatched_invoice_lines": list((receipt_result or {}).get("unmatched_lines") or []),
         "require_pdf_number": bool(inv.get("field_sources")),
         "pdf_path": inv.get("pdf_path"),
         "pdf_on_disk": inv.get("pdf_on_disk"),

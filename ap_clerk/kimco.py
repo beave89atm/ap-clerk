@@ -24,6 +24,8 @@ LOGGER = logging.getLogger("ap_clerk")
 # GUI Additional Charge type. Record PUT of lists.APInvoiceAdditionalCharge.
 FEE_CHARGE_TYPE = "Fees and surcharges"
 FEE_CHARGE_CODE = "F-Fees & Surcharges"
+PPV_CHARGE_TYPE = "Purchase Price Variance"
+PPV_CHARGE_CODE = "Purchase Price Variance"
 ADDITIONAL_CHARGE_LIST = "APInvoiceAdditionalCharge"
 ADDITIONAL_CHARGE_LISTS = (
     "APInvoiceAdditionalCharge",
@@ -424,6 +426,26 @@ class KimcoClient:
             return self._blocked_405("Additional Charge Fees", invoice_id)
         return f"blocked-{put.status_code}"
 
+    def try_post_ppv(self, invoice_id: int, amount: float | None) -> str:
+        """Post Additional Charge Purchase Price Variance on the invoice RECORD.
+
+        Signed; not Fees. Random-length mill extras that pass Kyle's ≤10% /
+        ≤$100 rule use this (EMJ Z250725432), never F-Fees & Surcharges.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("PPV post requires an invoice record id")
+        value = money(amount)
+        if value is None or value == 0:
+            return "none"
+        payload = ppv_payload(value, invoice_id=invoice_id)
+        url = self._record_url("ap_invoices", invoice_id)
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "posted"
+        if put.status_code == 405:
+            return self._blocked_405("Additional Charge PPV", invoice_id)
+        return f"blocked-{put.status_code}"
+
 
 def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     """Parsed fees that have a numeric amount (the ones that must be posted)."""
@@ -461,6 +483,32 @@ def fees_payload(fees: list[dict[str, Any]], *, invoice_id: int | str | None = N
     if not items:
         raise KimcoError("Fee post requires at least one fee amount")
     payload: dict[str, Any] = {"state": "Modified", "lists": {ADDITIONAL_CHARGE_LIST: items}}
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
+
+
+def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[str, Any]:
+    """Record PUT body for Additional Charge Purchase Price Variance."""
+    value = money(amount)
+    if value is None or value == 0:
+        raise KimcoError("PPV post requires a non-zero amount")
+    payload: dict[str, Any] = {
+        "state": "Modified",
+        "lists": {
+            ADDITIONAL_CHARGE_LIST: [
+                {
+                    "state": "Added",
+                    "values": {
+                        "Additional_Charge": PPV_CHARGE_CODE,
+                        "Charge_Type": PPV_CHARGE_TYPE,
+                        "Amount": value,
+                        "Description": PPV_CHARGE_TYPE,
+                    },
+                }
+            ]
+        },
+    }
     if invoice_id not in (None, ""):
         payload["id"] = int(invoice_id)
     return payload

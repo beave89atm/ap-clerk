@@ -36,6 +36,8 @@ from ap_clerk.graph import (
 )
 from ap_clerk.pdf_invoice import (
     expand_gas_misc_invoices,
+    extract_invoice_lines,
+    extract_fees,
     parse_invoice_text,
     vendor_from_context,
 )
@@ -60,6 +62,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     is_noise_reason,
     known_vendor_id,
+    format_unmatched_lines,
     match_receipts,
     merchandise_qty,
     misc_purchase_item_for,
@@ -127,9 +130,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 15))
-    assert len(TREYCE_NOTES_V12) == 14
-    assert len(TREYCE_FINISH_CHECKLIST) == 10
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 16))
+    assert len(TREYCE_NOTES_V12) == 15
+    assert len(TREYCE_FINISH_CHECKLIST) == 11
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
         "insight-msc-pdf-invoice-number",
@@ -146,6 +149,7 @@ def test_v12_registry_covers_all_notes():
         "msc-70762501-not-rmp",
         "crosslink-27943-filename-pdf-on-disk",
         "fastenal-txft4100079-qty-and-fees",
+        "emj-z250725432-two-lines",
     }
 
 
@@ -554,6 +558,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "ppv-within-rule",
         "pdf-attached",
         "select-receipts-when-po",
+        "all-invoice-lines-selected",
         "posted-vendor-matches-parsed",
     ]
     ok, why = treyce_finish_selfcheck(
@@ -1120,3 +1125,186 @@ def test_never_repeat_fastenal_txft4100079(tmp_path: Path):
     assert result != RESULT_SUCCESS
     assert result == RESULT_INCOMPLETE
     assert "Fees" in finish_why or "surcharge" in finish_why.lower()
+
+
+def test_never_repeat_emj_z250725432_two_lines(tmp_path: Path):
+    """NOTE-15: EMJ Z250725432 two lines — parse both; never silent one-receipt Success."""
+    n = NOTES["NOTE-15"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name="Earle M. Jorgensen Co",
+        from_address="EMJCreditSouth@emjmetals.com",
+        filename="Z250725432.pdf",
+    )
+    assert parsed["invoice_number"] == n["invoice_number"]
+    assert parsed["po"] == n["po"]
+    assert parsed["amount"] == n["amount"]
+    assert len(parsed["lines"]) >= 2
+    labels = " ".join(
+        f"{line.get('label') or ''} {line.get('description') or ''}" for line in parsed["lines"]
+    )
+    assert n["line1_desc"] in labels
+    assert n["line2_desc"] in labels
+    assert all(line.get("amount") for line in parsed["lines"][:2])
+    fees = extract_fees(n["pdf_text"])
+    assert fees == []
+    assert not any("SHIP" in str(f.get("name") or "").upper() for f in parsed.get("fees") or [])
+    assert not any("PREPAID" in str(f.get("name") or "").upper() for f in parsed.get("fees") or [])
+    assert extract_invoice_lines(n["pdf_text"])
+
+    receipts = [
+        {
+            "id": 101,
+            "po": n["po"],
+            "po_line": 1,
+            "part": n["line1_desc"],
+            "description": n["line1_desc"],
+            "label": n["line1_desc"],
+            "qty": n["line1_qty"],
+            "amount": n["po_line1_amount"],
+            "unit_price": 12.45,
+        },
+        {
+            "id": 102,
+            "po": n["po"],
+            "po_line": 2,
+            "part": n["line2_desc"],
+            "description": n["line2_desc"],
+            "label": n["line2_desc"],
+            "qty": n["line2_qty"],
+            "amount": n["line2_amount"],
+            "unit_price": 16.1445,
+        },
+    ]
+    picked = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=parsed["lines"],
+        receipts=receipts,
+        po_number=n["po"],
+    )
+    assert picked["found"] is True
+    assert len(picked["matched"]) == 2
+    assert not picked["unmatched_lines"]
+    assert {hit["receipt"]["id"] for hit in picked["matched"]} == {101, 102}
+
+    bill = evaluate_bill_price_variance(
+        parsed["lines"],
+        [
+            {"part": n["line1_desc"], "description": n["line1_desc"], "amount": n["po_line1_amount"], "qty": 20.0, "po_line": 1},
+            {"part": n["line2_desc"], "description": n["line2_desc"], "amount": n["line2_amount"], "qty": 40.0, "po_line": 2},
+        ],
+        invoice_total=n["amount"],
+    )
+    assert bill["hold"] is False
+    assert bill["ppv_total"] != 0
+    assert abs(bill["ppv_total"] - (n["line1_amount"] - n["po_line1_amount"])) < 0.02
+    assert all(item.get("action") != "fee" for item in bill["items"] if item.get("action") == "ppv")
+
+    missing_one = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=parsed["lines"],
+        receipts=receipts[:1],
+        po_number=n["po"],
+    )
+    assert missing_one["unmatched_lines"]
+    assert len(missing_one["matched"]) == 1
+    assert n["line2_desc"] in format_unmatched_lines(missing_one["unmatched_lines"]) or "HR FLT 3/8" in missing_one["why"]
+    ok, why = treyce_finish_selfcheck(
+        {
+            "require_pdf_number": False,
+            "unmatched_invoice_lines": missing_one["unmatched_lines"],
+        }
+    )
+    assert ok is False
+    assert "Unmatched" in why or "unmatched" in why.lower()
+    assert_never_success(RESULT_HOLD, note_id="NOTE-15", detail=why)
+
+    class RecordingPpv:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+            self.ppv = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9969, {"id": 9969, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 208, "text": "Earle M. Jorgensen Co"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+        def try_post_ppv(self, invoice_id, amount):
+            self.ppv.append((invoice_id, amount))
+            return "posted"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    pdf_path = tmp_path / "Z250725432.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 emj Z250725432")
+    sidecar = {
+        **parsed,
+        "qty": None,
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    po_index = {
+        n["po"]: {
+            "id": 58913,
+            "text": f"{n['po']}-EMJ",
+            "vendor_id": 208,
+            "vendor_text": "Earle M. Jorgensen Co",
+            "lines": [
+                {"part": n["line1_desc"], "description": n["line1_desc"], "qty": n["line1_qty"], "amount": n["po_line1_amount"], "unit_price": 12.45, "po_line": 1},
+                {"part": n["line2_desc"], "description": n["line2_desc"], "qty": 40.0, "amount": n["line2_amount"], "unit_price": 16.1445, "po_line": 2},
+            ],
+        }
+    }
+    samples = [{"vendor_id": 208, "vendor_text": "Earle M. Jorgensen Co", "invoice_id": 9, "po_text": ""}]
+    row, client = _row(
+        sidecar,
+        kimco=RecordingPpv(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert len(client.selected[0][1]) == 2
+    assert set(client.selected[0][1]) == {101, 102}
+    assert row["Result"] == RESULT_SUCCESS
+    assert row["PPV"] != "none"
+    assert "Fees" not in row["PPV"]
+    assert client.ppv
+    assert abs(float(client.ppv[0][1]) - (n["line1_amount"] - n["po_line1_amount"])) < 0.05
+
+    skipped, skipped_client = _row(
+        sidecar,
+        kimco=RecordingPpv(),
+        po_index=po_index,
+        receipts=receipts[:1],
+        samples=samples,
+    )
+    assert skipped["Result"] != RESULT_SUCCESS
+    assert_never_success(skipped["Result"], note_id="NOTE-15", detail=skipped["Why"])
+    assert "Unmatched" in skipped["Why"] or "unmatched" in skipped["Why"].lower()
+    assert n["line2_desc"][:12] in skipped["Why"] or "3/8" in skipped["Why"] or "line" in skipped["Why"].lower()
+    assert skipped_client.selected
+    assert skipped_client.selected[0][1] == [101]

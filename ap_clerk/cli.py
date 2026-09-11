@@ -90,6 +90,7 @@ from ap_clerk.rules import (
     known_vendor_id,
     lookup_id,
     lookup_text,
+    format_unmatched_lines,
     invoice_qty_evidence,
     match_receipts,
     merchandise_qty,
@@ -942,6 +943,7 @@ def _process_invoice(
         hold_all = True
         notes = []
         combined_matched: list[dict[str, Any]] = []
+        combined_unmatched: list[dict[str, Any]] = []
         for search_po in search_pos or [None]:
             one = match_receipts(
                 invoice_number=number,
@@ -953,6 +955,7 @@ def _process_invoice(
             )
             notes.append(one["why"])
             combined_matched.extend(one.get("matched") or [])
+            combined_unmatched.extend(one.get("unmatched_lines") or [])
             if one.get("ambiguous") and not one.get("matched"):
                 hold_all = False
                 if issue_hold is None:
@@ -969,13 +972,25 @@ def _process_invoice(
                     )
             if not one["hold_no_receipts"]:
                 hold_all = False
-        receipt_result = {"hold_no_receipts": hold_all, "matched": combined_matched, "why": " ".join(notes)}
+        receipt_result = {
+            "hold_no_receipts": hold_all,
+            "matched": combined_matched,
+            "unmatched_lines": combined_unmatched,
+            "why": " ".join(notes),
+        }
         if hold_all and (po_info or multi_po) and issue_hold is None:
+            unmatched_txt = format_unmatched_lines(combined_unmatched)
+            extra = (
+                f" Unmatched invoice line(s): {unmatched_txt}. "
+                "Select Receipts for each invoice line; do not stop after one."
+                if unmatched_txt
+                else ""
+            )
             row["Result"] = RESULT_HOLD
             row["Why"] = why_hold(
                 GATE_RECEIPT,
                 f"no receipts after second pass slip # / part / qty / PO line / open receipts on PO "
-                f"(invoice {number}). Will not guess a qty-only slip.",
+                f"(invoice {number}). Will not guess a qty-only slip.{extra}",
             )
             return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
@@ -991,9 +1006,13 @@ def _process_invoice(
                 for hit in (receipt_result.get("matched") or [])
             ]
             rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
+            unmatched_now = list(receipt_result.get("unmatched_lines") or [])
             if not rec_ok:
                 issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
-            elif invoice_qty is not None:
+            elif invoice_qty is not None and not unmatched_now:
+                # Aggregate qty is Fastenal 35-vs-36. When some invoice lines
+                # are unmatched (EMJ Z250725432), still Select Receipts for the
+                # matches; selfcheck names the skipped line and blocks Success.
                 picked_qty = merchandise_qty(matched_receipts)
                 if picked_qty is not None and picked_qty != invoice_qty:
                     issue_hold = (
@@ -1079,6 +1098,16 @@ def _process_invoice(
         else:
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
+    ppv_status = "none"
+    if not issue_hold and price.get("ppv_total"):
+        poster_ppv = getattr(client, "try_post_ppv", None)
+        if poster_ppv:
+            try:
+                ppv_status = poster_ppv(created_id, price["ppv_total"])
+            except KimcoError:
+                ppv_status = "blocked-405"
+        else:
+            ppv_status = "not-posted-api"
     edit_hint = ""
     probe = getattr(client, "try_put_probe_rejected", None)
     if probe:
@@ -1154,9 +1183,10 @@ def _process_invoice(
         )
     ppv_note = ""
     if price["ppv_total"]:
+        posted_bit = "Posted" if ppv_status == "posted" else "Post"
         ppv_note = (
-            f"Post Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
-            "(signed; negative allowed). "
+            f"{posted_bit} Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
+            f"(signed; negative allowed; not Fees; status={ppv_status}). "
         )
         for item in price.get("items") or []:
             if item.get("reason") and item.get("action") == "ppv":

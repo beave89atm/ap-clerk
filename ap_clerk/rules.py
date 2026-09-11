@@ -1141,7 +1141,9 @@ def match_receipts(
             found = bool(matched)
 
     # Synthesized / named-for-PO receipts (McMaster PO58808, Ryerson PO58789).
-    if not found and po_number and not ambiguous:
+    # Never a single PO-receipt Success when the invoice has multiple merchandise lines
+    # (EMJ Z250725432: two lines, runner selected one).
+    if not found and po_number and not ambiguous and len(lines) <= 1:
         pool = _open_on_po()
         if pool:
             _apply_qty_cost_pick(pool, score=65, pass_name="named-po")
@@ -1176,9 +1178,9 @@ def match_receipts(
                     hows.append("part/PO-WO/slip")
                     found = True
                     second_pass = True
-        if not found and open_on_po:
+        if not found and open_on_po and len(lines) <= 1:
             # Capital 26167: a single open receipt on the PO is enough.
-            # Multiple that differ in qty/cost require invoice evidence or HOLD.
+            # Multiple invoice lines must each match; do not stop after one.
             if _apply_qty_cost_pick(open_on_po, score=55, pass_name="second-open-on-po"):
                 found = True
                 second_pass = True
@@ -1191,6 +1193,11 @@ def match_receipts(
             unique_hows.append(how)
     if hold_no_receipts:
         why = "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
+        if unmatched:
+            why += (
+                f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
     elif ambiguous and not matched:
         why = (
             f"HOLD: {len(ambiguous)} ambiguous open receipt set(s) on the PO "
@@ -1212,6 +1219,11 @@ def match_receipts(
             why += " Second pass used open receipts on the PO (qty/cost checked)."
         if ambiguous:
             why += f" {len(ambiguous)} ambiguous; will not guess."
+        if unmatched:
+            why += (
+                f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
     return {
         "matched": matched,
         "unmatched_lines": unmatched,
@@ -1231,14 +1243,40 @@ def format_fees(fees: list[dict[str, Any]] | None) -> str:
         name = str(fee.get("name") or "").strip()
         amount = fee.get("amount")
         if amount is None or amount == "":
-            parts.append(name or "fee")
-        else:
-            parts.append(f"{name} {float(amount):.2f}")
+            continue
+        parts.append(f"{name} {float(amount):.2f}")
     return "; ".join(parts) if parts else "none"
+
+
+def invoice_line_label(line: dict[str, Any] | None) -> str:
+    if not isinstance(line, dict):
+        return "line"
+    return str(
+        line.get("label")
+        or line.get("description")
+        or line.get("part")
+        or (f"line {line.get('po_line')}" if line.get("po_line") not in (None, "") else "")
+        or "line"
+    ).strip()[:80] or "line"
+
+
+def format_unmatched_lines(lines: list[dict[str, Any]] | None) -> str:
+    labels = [invoice_line_label(line) for line in (lines or []) if line]
+    return "; ".join(labels) if labels else ""
+
+
+_NOT_A_FEE = re.compile(
+    r"shipping\s*date|ship(?:ping)?\s*date|prepaid|pre-?paid|shipped\s+via",
+    flags=re.I,
+)
 
 
 def is_fee_or_surcharge(label: str) -> bool:
     text = (label or "").strip().lower()
+    if not text:
+        return False
+    if _NOT_A_FEE.search(text):
+        return False
     return any(key in text for key in FEE_KEYWORDS)
 
 

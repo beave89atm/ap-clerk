@@ -118,7 +118,7 @@ The vendor PDF is the version of the truth. Subject line and filename are
 - HOLD parse / no-pdf only when the PDF is **truly missing**, or extract+OCR
   of that PDF failed.
 
-## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink + 9/11 Fastenal)
+## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink + 9/11 Fastenal / EMJ)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
@@ -138,6 +138,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
 | **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | PDF-is-truth: filename # + PDF on disk is not a parse HOLD; create header+attach; Why describes THIS Crosslink bill (no MSC/McQueary); no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
 | **NOTE-14** Fastenal TXFT4100079 / PO 58692 / KIMCO 9968 (Kyle 2026-09-11) | Select Receipts qty **36** (first open on PO) vs invoice **35**; Why said “not first qty”; Shipping & Handling 63.98 Excel-only, never Additional Charge | Verify qty/cost; pick 35 not 36; never first-open / second-open-on-po Success when open receipts differ; post F-Fees & Surcharges 63.98 before Success or Incomplete / Entered with issues | `test_never_repeat_fastenal_txft4100079` |
+| **NOTE-15** EMJ Z250725432 / PO 58913 / KIMCO 9969 (Kyle 2026-09-11) | Two invoice lines; `lines:[]` then one PO receipt; Success; skipped line not on sheet; random-length gap not PPV | Parse both lines; Select Receipts per line; unmatched → not Success + Why names the skipped line; small length variance is PPV (≤10% / ≤$100), not Fees; prepaid/ship-date null amount is not a fee | `test_never_repeat_emj_z250725432_two_lines` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
