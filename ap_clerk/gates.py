@@ -692,6 +692,12 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
                 f"PO {printed_pos[0]} is on the PDF but header would be blank Type 4 (Purvis 32625214). "
                 "Fix: set Purchase Order and Invoice_Type 3; Select Receipts."
             )
+    if multi_po and invoice_type is not None and int(invoice_type) == 4:
+        failures.append(
+            "Multi-PO bill would be Misc Type 4 (3P 142041). "
+            "Fix: Invoice_Type 3, header Purchase Order blank, Select Receipts per PO. "
+            "Do not type Add Item."
+        )
     if check.get("qty_hold"):
         failures.append(
             "Invoice qty ≠ PO/receipt qty (Capital 26764). "

@@ -116,6 +116,7 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"
     assert classify_mail(subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917") == "invoice"
     assert classify_mail(subject="INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844") == "invoice"
+    assert classify_mail(subject="INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844", preview="Rachel Bailey") == "invoice"
     assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
     assert classify_mail(subject="Internal only — do not process") == "internal"
 

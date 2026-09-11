@@ -281,10 +281,12 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "3P is a real receipt-type multi-PO vendor."
         ),
         "expected": (
-            "Never classify 3P / Rachel Bailey as not-a-bill. Receipt-type. "
+            "Never classify 3P / Rachel Bailey INV#+PO# (142041–142044) as not-a-bill. "
+            "Receipt-type Invoice_Type 3, not Misc Type 4. "
             "Multi-PO: header Purchase Order blank; Select Receipts per PO; "
-            "sheet lists every PO. Unmatched PO → not Success and Why names it. "
-            "Outlook is bill categories, not AI Skipped."
+            "sheet lists every PO and selected receipt ids. Unmatched PO/line → "
+            "not Success and Why names it. Outlook is Entered in AI / AI HOLD / "
+            "Entered with issues — never AI Skipped."
         ),
         "never_success": True,
     },

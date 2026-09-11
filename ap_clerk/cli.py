@@ -96,8 +96,10 @@ from ap_clerk.rules import (
     known_vendor_id,
     lookup_id,
     lookup_text,
+    format_selected_receipts,
     format_unmatched_lines,
     format_unmatched_pos,
+    INVOICE_TYPE_PO,
     extract_subject_invoice_number,
     invoice_qty_evidence,
     match_receipts,
@@ -1067,6 +1069,9 @@ def _process_invoice(
                 f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
                 "Select Receipts per PO; do not skip a PO silently. "
             )
+        selected_txt = format_selected_receipts((receipt_result or {}).get("matched"))
+        if selected_txt:
+            receipt_note += f"Selected receipts: {selected_txt}. "
         if receipt_result and issue_hold is None:
             matched_receipts = [
                 {
@@ -1101,9 +1106,13 @@ def _process_invoice(
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
     # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
-    invoice_type = invoice_type_for(po if (po_info or po) else None)
-    if invoice_type == 4 and po_info:
-        invoice_type = invoice_type_for(po)
+    # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
+    if multi_po:
+        invoice_type = INVOICE_TYPE_PO
+    else:
+        invoice_type = invoice_type_for(po if (po_info or po) else None)
+        if invoice_type == 4 and po_info:
+            invoice_type = invoice_type_for(po)
     currency = sample_values.get("Currency")
     currency_id = lookup_id(currency) or CURRENCY_USD_ID
     payload: dict[str, Any] = {

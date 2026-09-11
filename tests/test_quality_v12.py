@@ -33,7 +33,10 @@ from ap_clerk.graph import (
     AI_SKIPPED_CATEGORY,
     ENTERED_WITH_ISSUES_CATEGORY,
     FLAG_AI_SKIPPED,
+    FLAG_ELIGIBLE,
     FLAG_ENTERED_WITH_ISSUES,
+    FLAG_HOLD_ELIGIBLE,
+    FLAG_ISSUES_ELIGIBLE,
     FLAG_SKIP_ELIGIBLE,
     apply_flag_after_match,
     categories_for_status,
@@ -1563,10 +1566,19 @@ def test_never_repeat_3p_rachel_bailey_not_noise():
     """NOTE-19: Rachel Bailey INV#+PO# is a 3P invoice, not Skipped not-a-bill."""
     n = NOTES["NOTE-19"]
     assert classify_mail(subject=n["subject"], preview=n["from_name"]) == "invoice"
+    assert classify_mail(subject=n["subject"], preview="Rachel Bailey") == "invoice"
     assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["from_name"])
     assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
     assert extract_subject_pos(n["subject"]) == n["pos"]
     assert classify_mail(subject=n["subject"]) != "not-a-bill"
+    for sibling in n["sibling_subjects"]:
+        assert classify_mail(subject=sibling, preview=n["from_name"]) == "invoice"
+        assert classify_mail(subject=sibling) != "not-a-bill"
+        assert extract_subject_pos(sibling) == n["pos"]
+    assert decide_flag_status(result="Success", kimco_id=9971, message_id="AAMk") == FLAG_ELIGIBLE
+    assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == FLAG_HOLD_ELIGIBLE
+    assert decide_flag_status(result="Incomplete", kimco_id=9971, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
+    assert decide_flag_status(result="Success", kimco_id=9971, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-19")
 
 
@@ -1632,16 +1644,21 @@ def test_3p_multi_po_select_receipts(tmp_path: Path):
 
     all_row, all_client = _row(sidecar, kimco=Recording(), receipts=receipts, samples=samples)
     assert "Purchase_Order" not in all_client.created[0]
+    assert all_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
     assert set(all_client.selected[0][1]) == {11, 12, 13}
     assert all_row["PO"] == "58766, 58767, 58844"
     assert all_row["Result"] == RESULT_SUCCESS
+    assert "Selected receipts: 11 on PO 58766, 12 on PO 58767, 13 on PO 58844" in all_row["Why"]
+    assert "AI Skipped" not in all_row["Why"]
 
     missing, missing_client = _row(sidecar, kimco=Recording(), receipts=receipts[:2], samples=samples)
     assert missing["Result"] != RESULT_SUCCESS
     assert_never_success(missing["Result"], note_id="NOTE-19", detail=missing["Why"])
     assert "58844" in missing["Why"]
     assert "Unmatched PO" in missing["Why"]
+    assert "Selected receipts: 11 on PO 58766, 12 on PO 58767" in missing["Why"]
     assert "Purchase_Order" not in missing_client.created[0]
+    assert missing_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
     assert set(missing_client.selected[0][1]) == {11, 12}
     assert missing["PO"] == "58766, 58767, 58844"
 

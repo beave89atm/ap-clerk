@@ -1575,7 +1575,7 @@ def extract_subject_pos(subject: str) -> list[str]:
     match = _PO_HASH_LIST.search(subject or "")
     if not match:
         return []
-    found = [n for n in re.findall(r"\d{5,6}", match.group(1)) if re.fullmatch(r"5[7-9]\d{3}", n)]
+    found = [n for n in re.findall(r"\d{5,6}", match.group(1))]
     return list(dict.fromkeys(found))
 
 
@@ -1591,6 +1591,26 @@ def extract_subject_invoice_number(subject: str) -> str | None:
 
 def format_unmatched_pos(pos: list[str] | None) -> str:
     return ", ".join(str(p) for p in (pos or []) if p)
+
+
+def format_selected_receipts(matched: list[dict[str, Any]] | None) -> str:
+    """Sheet notation: receipt id on each PO (3P multi-PO Select Receipts)."""
+    bits: list[str] = []
+    seen: set[str] = set()
+    for hit in matched or []:
+        rec = hit.get("receipt") if isinstance(hit, dict) else None
+        if not isinstance(rec, dict):
+            continue
+        rid = rec.get("id")
+        if rid in (None, ""):
+            continue
+        po = rec.get("po")
+        label = f"{rid} on PO {po}" if po not in (None, "") else str(rid)
+        if label in seen:
+            continue
+        seen.add(label)
+        bits.append(label)
+    return ", ".join(bits)
 
 
 def is_known_kimco_vendor(*parts: str) -> bool:

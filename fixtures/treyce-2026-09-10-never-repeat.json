@@ -169,7 +169,12 @@
       "invoice_number": "142041",
       "pos": ["58766", "58767", "58844"],
       "amount": 250.00,
-      "date": "2026-08-18"
+      "date": "2026-08-18",
+      "sibling_subjects": [
+        "INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844",
+        "INV # 142043 / CPL # 76661 / PO # 58766, 58767, 58844",
+        "INV # 142044 / CPL # 76662 / PO # 58766, 58767, 58844"
+      ]
     },
     "NOTE-20": {
       "vendor": "Eastern Metal Supply of Texas",
