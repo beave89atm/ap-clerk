@@ -4,6 +4,18 @@ Treyce’s 2026-09-10 notes on the 8/16 dry-10 sheet, plus Kyle’s never-repeat
 **Treyce-load / fix-before-complete** rules. Code + unit tests only. **Do not**
 run a live KIMCO or mailbox job until Kyle reviews.
 
+**Hard email cap 10 until further notice (Kyle 2026-09-11).** Cap = mailbox
+messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after
+10 emails. Do **not** walk past noise to fill N bill attempts. Bill-attempt mode
+is suspended until Kyle lifts this. Weekday/daily `--limit 30` is hard-clamped
+to 10. Still note each of those ≤10 on the sheet with Why.
+
+**Skip already-flagged (Kyle 2026-09-11).** Leave alone — do not reprocess, do
+not re-stamp categories — if the message already has Outlook `Entered in AI`,
+`AI HOLD`, `Entered with issues`, or Graph `flag.flagStatus=flagged`. Those
+messages do **not** consume the 10-email touch cap. Only unflagged /
+uncategorized (by those AP markers) messages count.
+
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
 
@@ -64,7 +76,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
 ## Unchanged (Kyle / prior PRs)
 
-- Cap = N **bill attempts**. Noise is Excel `Skipped` without Outlook `AI HOLD` (PR #19).
+- **Hard email cap 10 until further notice (Kyle 2026-09-11)** — replaces “cap = N bill attempts / walk past noise” (PR #19). Noise is still Excel `Skipped` without Outlook `AI HOLD`, but noise **consumes** the 10-email touch cap.
+- **Skip already-flagged** — `Entered in AI` / `AI HOLD` / `Entered with issues` / `flag.flagStatus=flagged` are walked past without touching and do not consume the cap.
 - One Mail.Send per run after the final sheet only.
 - No auto-pay. No auto-close batch. Payments human-gated.
 - Shawn McKibben comments on price-does-not-match.

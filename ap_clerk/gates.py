@@ -27,7 +27,8 @@ RESULT_SUCCESS = "Success"
 RESULT_INCOMPLETE = "Incomplete"
 RESULT_HOLD = "HOLD"
 RESULT_FAIL = "Fail"
-# Bill-attempt outcomes only. Mailbox noise is RESULT_SKIPPED and does not count toward N.
+# Bill-attempt outcomes. The run cap is mailbox messages touched (Kyle 2026-09-11),
+# not N bill attempts. Noise is RESULT_SKIPPED and still consumes the email cap.
 RESULT_VALUES = (RESULT_SUCCESS, RESULT_INCOMPLETE, RESULT_HOLD, RESULT_FAIL)
 RESULT_SKIPPED = "Skipped"
 RESULT_NOISE_ALIASES = frozenset({RESULT_SKIPPED, "Noise"})
@@ -92,12 +93,18 @@ def drop_fee_disguised_as_ppv(
 
 
 def is_bill_attempt_result(result: str | None) -> bool:
-    """Cap = Success + Incomplete + real bill HOLD + Fail. Noise does not count."""
+    """True for Success / Incomplete / HOLD / Fail. Not the run cap."""
     return (result or "").strip() in RESULT_VALUES
 
 
 def is_noise_result(result: str | None) -> bool:
     return (result or "").strip() in RESULT_NOISE_ALIASES
+
+
+def counts_toward_email_cap(result: str | None) -> bool:
+    """Kyle 2026-09-11: any processed outcome consumes the 10-email touch cap."""
+    value = (result or "").strip()
+    return value in RESULT_VALUES or value in RESULT_NOISE_ALIASES
 
 
 def why_hold(gate: str, detail: str) -> str:

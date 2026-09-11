@@ -35,7 +35,7 @@ def comments_for(target: str) -> str:
     return COMMENTS
 
 
-# Mailbox noise: walk past, sheet-note, do not stamp AI HOLD, do not consume the bill cap.
+# Mailbox noise: sheet-note, do not stamp AI HOLD. Consumes the 10-email touch cap.
 NOISE_REASONS = {
     "check stop",
     "check_stop",
@@ -53,7 +53,7 @@ NOISE_REASONS = {
     "no-attachment",
     "no-pdf",
 }
-# Real bill HOLDs that could not finish. These consume the cap.
+# Real bill HOLDs that could not finish. These consume the email cap (as do noise skips).
 # price / qty HOLDs still create a header + attach PDF (Entered with issues).
 # parse-error / auto-pay / pdf-behind-link do not create a header (AI HOLD).
 BILL_HOLD_REASONS = {

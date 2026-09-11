@@ -167,6 +167,27 @@ def has_process_category(message: dict[str, Any] | None) -> bool:
     return bool(cats & set(PROCESS_CATEGORIES))
 
 
+def followup_flag_status(message: dict[str, Any] | None) -> str:
+    flag = ((message or {}).get("flag") or {})
+    if not isinstance(flag, dict):
+        return ""
+    return str(flag.get("flagStatus") or "").strip()
+
+
+def has_followup_flagged(message: dict[str, Any] | None) -> bool:
+    """True when Graph flag.flagStatus is flagged (legacy follow-up flag)."""
+    return followup_flag_status(message).lower() == "flagged"
+
+
+def is_already_flagged(message: dict[str, Any] | None) -> bool:
+    """Leave alone: AP process category or follow-up flag already present.
+
+    Kyle 2026-09-11: do not reprocess or re-stamp. Does not consume the
+    10-email touch cap.
+    """
+    return has_process_category(message) or has_followup_flagged(message)
+
+
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
     """Success → Entered in AI. Header+PDF unfinished → Entered with issues.
 
@@ -393,11 +414,7 @@ class GraphClient:
             url = payload.get("@odata.nextLink")
             LOGGER.info("Listed Graph messages got=%s total=%s", len(chunk), len(messages))
         if unflagged_only:
-            messages = [
-                message
-                for message in messages
-                if ENTERED_IN_AI_CATEGORY not in [str(c) for c in (message.get("categories") or []) if c]
-            ]
+            messages = [message for message in messages if not is_already_flagged(message)]
         if include_attachment_names:
             for message in messages:
                 message["attachment_names"] = self.list_attachment_names(mailbox, message.get("id") or "")

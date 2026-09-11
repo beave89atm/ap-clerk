@@ -200,7 +200,8 @@ def test_pull_recent_bills_skips_and_returns_oldest_first(tmp_path: Path):
         writer.write(path)
         return path.read_bytes()
 
-    # Newest-first feed: statement, then three bills. Limit 2 => most recent two bills, oldest-first.
+    # Newest-first feed: statement, then three bills. Limit 2 => two emails touched
+    # (statement consumes a slot). Selected bills then oldest-first.
     messages = [
         {
             "id": "m-statement",
@@ -272,8 +273,8 @@ def test_pull_recent_bills_skips_and_returns_oldest_first(tmp_path: Path):
     finally:
         inbox_mod.parse_invoice_pdf = orig
     assert [s["class"] for s in skipped if s.get("class") == "statement"]
-    assert [inv["invoice_number"] for inv in selected] == ["MID2", "NEW1"]
-    assert str(selected[0]["receivedDateTime"]) < str(selected[1]["receivedDateTime"])
+    assert [inv["invoice_number"] for inv in selected] == ["NEW1"]
+    assert "MID2" not in [inv["invoice_number"] for inv in selected]
 
 
 def test_inbox_does_not_copy_email_received_date_onto_invoice(tmp_path: Path):

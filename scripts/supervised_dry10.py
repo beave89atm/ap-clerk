@@ -1,4 +1,8 @@
-"""Supervised 10-invoice LIVE dry run (QUALITY V1.1, API finish).
+"""Supervised 10-email LIVE dry run (QUALITY V1.1, API finish).
+
+Hard email cap 10 until further notice (Kyle 2026-09-11). Cap is mailbox
+messages touched, not bill attempts. Bill-attempt mode is suspended.
+Already-flagged mail is walked past and does not consume the cap.
 
 `--from-date` starts FIFO at that America/Chicago day (Kyle: 2026-08-16)
 and skips already-finished paused headers. Does not open the KIMCO UI.
@@ -41,13 +45,13 @@ from ap_clerk.graph import (
     MailboxRejected,
     assert_allowed_mailbox,
 )
-from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
+from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.rules import batch_name_for, chicago_today, normalize_receipt, parse_iso_date
 
 LOGGER = logging.getLogger("ap_clerk.dry10")
-DRY_LIMIT = 10
+DRY_LIMIT = HARD_EMAIL_CAP
 
 
 def dry_report_path(as_of) -> Path:
@@ -152,7 +156,8 @@ def main(argv: list[str] | None = None) -> int:
     mailbox = assert_allowed_mailbox(args.mailbox)
     if int(args.limit) > DRY_LIMIT:
         print(
-            f"Refusing limit {args.limit}. Supervised dry run is {DRY_LIMIT} bills, not the daily 30.",
+            f"Refusing limit {args.limit}. Supervised dry run is {DRY_LIMIT} emails max "
+            "(Kyle 2026-09-11 hard email cap). Bill-attempt mode is suspended.",
             flush=True,
         )
         return 2
@@ -183,12 +188,13 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Target: {creds.target}", flush=True)
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
-        f"Supervised dry run {args.limit} (QUALITY V1.1 API finish). "
+        f"Supervised dry run {args.limit} emails (QUALITY V1.1 API finish). "
+        f"Hard email cap {HARD_EMAIL_CAP} until further notice (Kyle 2026-09-11). "
         f"FIFO from={from_date.isoformat() if from_date else 'cursor'} "
         f"Cursor last_received={cursor.last_receivedDateTime or 'none'} "
         f"last_message_id={'set' if cursor.last_message_id else 'none'}. "
         f"{'Skip paused finish-ups. ' if skip_paused else 'Finish paused Incomplete first. '}"
-        "Skip Entered in AI. Do not restart at 7/28. No daily 30. No KIMCO UI. "
+        "Skip already-flagged. Do not restart at 7/28. No daily 30. No KIMCO UI. "
         "Email is off unless --email after the spreadsheet is locked.",
         flush=True,
     )
@@ -273,15 +279,15 @@ def main(argv: list[str] | None = None) -> int:
     skipped: list[dict[str, Any]] = []
     batch_label = str((finished[0].get("Batch") if finished else None) or paused.get("batch") or batch_name)
 
-    # Globe Life skip HOLDs do not count toward the 10-bill quota.
-    real_prior_fails = [row for row in prior_rows if str(row.get("Result") or "") == "Fail"]
-    attempted = len(finished) + len(real_prior_fails)
-    need = max(0, int(args.limit) - attempted)
-    if args.finish_paused_only:
-        need = 0
+    # Bill-attempt fill is suspended (Kyle 2026-09-11). FIFO is a hard email cap.
+    email_limit = 0 if args.finish_paused_only else clamp_email_limit(args.limit)
+    need = email_limit
 
     if need:
-        print(f"Filling {need} new FIFO bill(s) after finish-ups to reach {args.limit}.", flush=True)
+        print(
+            f"FIFO up to {need} mailbox message(s) (hard email cap; noise consumes the slot).",
+            flush=True,
+        )
         new_invoices, skipped = pull_recent_bills(
             graph_client,
             mailbox=mailbox,
@@ -289,7 +295,7 @@ def main(argv: list[str] | None = None) -> int:
             received_from=from_date,
             received_to=as_of,
             pdf_dir=pdf_dir,
-            max_messages=max(400, need * 20),
+            max_messages=max(80, HARD_EMAIL_CAP * 8),
             fifo=True,
             unprocessed_only=True,
             cursor=cursor,
@@ -317,7 +323,7 @@ def main(argv: list[str] | None = None) -> int:
         rows.extend(skip_rows)
     else:
         print(
-            f"Already have {attempted} real-bill attempt(s) from the paused dry run. No new FIFO fill.",
+            "No new FIFO fill (finish-paused-only, or email cap already applied).",
             flush=True,
         )
 

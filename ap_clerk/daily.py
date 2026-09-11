@@ -1,8 +1,12 @@
-"""Weekday 5:00am America/Chicago daily run of 30 unprocessed AP bills.
+"""Weekday 5:00am America/Chicago daily run.
 
 Invoked by the Grok Bot routine (or a human) as:
 
     python -m ap_clerk daily --live --limit 30
+
+Hard email cap 10 until further notice (Kyle 2026-09-11). `--limit 30` is
+hard-clamped to 10 mailbox messages touched. Bill-attempt mode is suspended.
+Already-flagged mail is walked past and does not consume the cap.
 
 Requires `--live` and live KIMCO creds. Does not register a GitHub Actions
 cron that would post live from CI. FIFO from 2026-07-28 toward today with a
@@ -18,8 +22,9 @@ from typing import Any
 
 from ap_clerk.cursor import DailyCursor, cursor_after_messages
 from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, REPORT_TO
+from ap_clerk.inbox import HARD_EMAIL_CAP
 
-DEFAULT_DAILY_LIMIT = 30
+DEFAULT_DAILY_LIMIT = HARD_EMAIL_CAP
 GROK_BOT_LAUNCH = "python -m ap_clerk daily --live --limit 30"
 
 

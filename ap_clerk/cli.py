@@ -34,7 +34,7 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
-from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
+from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills, skip_rows_for_report
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
         help=(
             "enter: fixture or inbox invoices as header-only AP bills. "
             "pull: list unflagged AP mailbox messages (no category write). "
-            "daily: weekday 5am America/Chicago FIFO of 30 from 2026-07-28 (requires --live). "
+            "daily: weekday 5am America/Chicago FIFO (requires --live; hard-clamped to 10 emails). "
             "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail)."
         ),
     )
@@ -129,7 +129,11 @@ def main(argv: list[str] | None = None) -> int:
         "--limit",
         type=int,
         default=None,
-        help="Bills to attempt. enter --from-inbox default 20 (most recent). daily default 30 (FIFO from cursor).",
+        help=(
+            "Mailbox messages to touch (any outcome). Hard-capped at 10 until further notice "
+            f"(Kyle 2026-09-11). enter --from-inbox and daily default {HARD_EMAIL_CAP}. "
+            "Bill-attempt mode is suspended. daily --limit 30 is clamped to 10."
+        ),
     )
     parser.add_argument(
         "--cursor",
@@ -219,7 +223,7 @@ def main(argv: list[str] | None = None) -> int:
         invoices, skipped = pull_recent_bills(
             graph_client,
             mailbox=args.mailbox,
-            limit=max(1, int(args.limit or 20)),
+            limit=clamp_email_limit(args.limit),
             received_from=start,
             received_to=end,
             pdf_dir=pdf_dir,
@@ -228,8 +232,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         inbox_skip_rows = skip_rows_for_report(skipped, batch_name)
         print(
-            f"Inbox selected {len(invoices)} bill(s) from {args.mailbox} "
-            f"({start.isoformat()} to {end.isoformat()}); skipped {len(skipped)} non-bill(s). "
+            f"Inbox touched up to {HARD_EMAIL_CAP} email(s) from {args.mailbox} "
+            f"({start.isoformat()} to {end.isoformat()}); selected {len(invoices)} bill(s); "
+            f"skipped {len(skipped)} (already-flagged walked past; noise consumes the cap). "
             "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→sheet only.",
             flush=True,
         )
@@ -1406,7 +1411,7 @@ def _run_probe(args: argparse.Namespace) -> int:
 
 
 def _run_daily(args: argparse.Namespace) -> int:
-    """Weekday 5am America/Chicago FIFO of 30. Requires --live. Does not start a CI cron."""
+    """Weekday 5am America/Chicago FIFO. Requires --live. Hard-clamped to 10 emails."""
     if not args.live:
         print(
             "daily requires --live (live KIMCO + live creds). "
@@ -1425,7 +1430,9 @@ def _run_daily(args: argparse.Namespace) -> int:
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
         "Daily FIFO from 2026-07-28 America/Chicago toward today. "
-        "Skip Entered in AI. Replace not-a-bill. Cursor persists. "
+        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / flag.flagStatus=flagged). "
+        "Hard email cap 10 until further notice (Kyle 2026-09-11). "
+        "Noise consumes the cap. Cursor persists. "
         "Success→Entered in AI only; Incomplete/HOLD/Fail→AI HOLD. No flag.flagStatus.",
         flush=True,
     )
@@ -1433,7 +1440,16 @@ def _run_daily(args: argparse.Namespace) -> int:
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
     batch_name = batch_name_for(as_of)
     report_path = Path(args.report) if args.report else ROOT / "runs" / f"AP-run-{as_of.isoformat()}.xlsx"
-    limit = max(1, int(args.limit or DEFAULT_DAILY_LIMIT))
+    requested = DEFAULT_DAILY_LIMIT if args.limit is None else int(args.limit)
+    limit = clamp_email_limit(requested, default=DEFAULT_DAILY_LIMIT)
+    if requested > HARD_EMAIL_CAP:
+        print(
+            f"Hard email cap {HARD_EMAIL_CAP} until further notice (Kyle 2026-09-11). "
+            f"Clamped --limit {requested} to {limit} mailbox messages. "
+            "Bill-attempt mode is suspended; noise consumes the cap. "
+            "Already-flagged mail is walked past and does not count.",
+            flush=True,
+        )
     cursor_path = Path(args.cursor)
     cursor = load_cursor(cursor_path)
     print(
@@ -1468,7 +1484,7 @@ def _run_daily(args: argparse.Namespace) -> int:
             received_from=None,
             received_to=as_of,
             pdf_dir=pdf_dir,
-            max_messages=max(400, limit * 20),
+            max_messages=max(80, HARD_EMAIL_CAP * 8),
             fifo=True,
             unprocessed_only=True,
             cursor=cursor,
@@ -1484,8 +1500,9 @@ def _run_daily(args: argparse.Namespace) -> int:
         return 1
 
     print(
-        f"Daily selected {len(invoices)} bill(s) from {args.mailbox} "
-        f"(FIFO from 2026-07-28 / cursor; skipped {len(skipped)} non-bill(s)).",
+        f"Daily touched up to {limit} email(s) from {args.mailbox} "
+        f"(hard cap {HARD_EMAIL_CAP}; selected {len(invoices)} bill(s); "
+        f"skipped {len(skipped)} including already-flagged walked past).",
         flush=True,
     )
 

@@ -4,6 +4,10 @@ Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIM
 
 **QUALITY V1.2** (Treyce 2026-09-10 notes on the 8/16 dry-10): `Success` means a **finished bill Treyce would not need to rework**, not a header create. See **[QUALITY.md](QUALITY.md)** for the fix-before-complete checklist, Outlook `Entered with issues`, and never-repeat regressions. This build does **not** run a live KIMCO/mailbox job and does **not** re-arm the weekday daily 30. Pause further dry runs until Kyle reviews.
 
+**Hard email cap 10 until further notice (Kyle 2026-09-11).** Do not touch more than 10 emails per run. Cap = mailbox messages processed (any outcome: Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after 10. Do **not** walk past noise to fill N bill attempts. Bill-attempt mode is suspended until Kyle lifts this. If daily is invoked with `--limit 30`, hard-clamp to 10 emails.
+
+**Skip already-flagged (Kyle 2026-09-11).** Do not touch an email that already has Outlook `Entered in AI`, `AI HOLD`, `Entered with issues`, or Graph `flag.flagStatus=flagged`. Leave it alone — no reprocess, no re-stamp. Already-flagged messages do **not** count toward the 10-email touch cap.
+
 **QUALITY V1.1** (still in force underneath): Header-only (blocked-405 attach or Select Receipts not posted) is **Incomplete**. Supervised 10-invoice LIVE dry run from **2026-08-16** (2026-09-09 America/Chicago, API finish) is recorded below. Live 2026-09-09 probe (one existing header) proved record GET/PUT/attach; see below.
 
 **Live writes require `--live` (or `KIMCO_TARGET=live`) plus `KIMCO_LIVE_*`.** Kyle said go for the first live 20-invoice test on 2026-08-28. Default target remains prototype. Never use prototype keys against live.
@@ -42,7 +46,7 @@ Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-
 | **Incomplete** | Header created but attach is blocked-405 / missing **or** receipts not selected. Not a finished bill. | `AI HOLD` (never `entered-in-ai`) |
 | **HOLD** | Real bill gate failed before a trustworthy finished bill (price-does-not-match, missing PO, parse-error on a real invoice PDF, no receipts). Why names the gate. | `AI HOLD` |
 | **Fail** | Already exists, vendor missing, or create HTTP error. | `AI HOLD` |
-| **Skipped** | Mailbox noise walked past while filling the bill-attempt cap (not-a-bill, statement, CHECK STOP, payment, POD, duplicate). Noted on the sheet only. | No / `none` — never `AI HOLD` |
+| **Skipped** | Mailbox noise among the ≤10 emails touched (not-a-bill, statement, CHECK STOP, payment, POD, duplicate). Noted on the sheet only. Consumes the email cap. | No / `none` — never `AI HOLD` |
 
 **Why** must name which gate failed. The **Notes** column is left empty for Treyce.
 
@@ -50,7 +54,7 @@ Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-
 2. **PO** — never leave header Purchase Order blank when a PO is on the invoice **or** findable on live by vendor + part/WO. Multi-PO: header PO blank is OK; Select Receipts per PO is required. If the printed PO is wrong/missing, search live POs by vendor + part numbers before Misc Type 4. Regressions: RMP `1470159`; Willbanks `209663` / `209664` “not misc, has PO”.
 3. **Receipt** — before HOLD-no-receipts, second pass: slip # = invoice #, part, qty, PO line, then all open receipts on that PO. Match part/PO-WO lines (Modern Heat), not first qty. Regressions: Capital `26167`; Fastenal `TXFT499356`.
 4. **Finish** — `Success` requires header + (Select Receipts when PO) + PDF attached. Header-only with blocked-405 attach or receipts not selected = **Incomplete**, not Success, not Entered in AI. Live 2026-09-09: record GET/PUT/PDF attach and Select Receipts (record PUT of `lists.APInvoiceLine`) work API-only. No-PO bills can finish API-only (header + PDF). Do not open the KIMCO UI for attach.
-5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). While filling the cap, walk past statements, payments, CHECK STOP, internal mail, PODs, and other not-a-bill noise. **Cap = N bill attempts** (Success + real bill HOLD/Fail/Incomplete), **not** N mailbox messages. Noise does not consume the counter. Note skipped noise on the Excel sheet (`Skipped`, vendor/subject/date/Why). Do **not** stamp Outlook `AI HOLD` on noise.
+5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). **Hard email cap 10 until further notice (Kyle 2026-09-11):** stop after 10 mailbox messages touched (Success + HOLD + Incomplete + Fail + Skipped/noise). Do **not** walk past noise to fill N bill attempts. Bill-attempt mode is suspended. Note each of those ≤10 on the Excel sheet with Why. Noise may still be `Skipped` without Outlook `AI HOLD` — but it **consumes** the cap. **Skip already-flagged:** leave alone (no reprocess, no re-stamp) if the message already has `Entered in AI`, `AI HOLD`, `Entered with issues`, or `flag.flagStatus=flagged`; those do **not** consume the cap.
 6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
 
 **Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s ≤10% of invoice total **and** ≤$100 rule; else price-does-not-match HOLD + `@Shawn McKibben`. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410).
@@ -117,19 +121,19 @@ Before those list checkboxes: list-GUID attach notify was **405**. After: record
 
 If `KIMCO_LIVE_INSTANCE_URL` is unset, the live target uses `https://live.kimcoerp.com`. After Kyle said go, `enter --live` and `daily --live` authenticate and then create today's `API Agent - M/D/YY` batch plus invoice headers on live. Application `Mail.ReadWrite` is granted on the Kannon AP Clerk Entra app (admin consent 2026-08-28). After enter, the CLI PATCHes `Entered in AI` on Success only and `AI HOLD` on bill Incomplete/HOLD/Fail, on `accountspayable@kannonmfg.com` only. Skipped noise is not categorized. It does not set `flag.flagStatus`. QUALITY V1.1 does not run that live 30.
 
-`enter --live --from-inbox --limit 20` pulls the 20 most recent vendor-invoice PDFs from `accountspayable@kannonmfg.com` that are not already `Entered in AI` (skips statements/PODs/CHECK STOP/payment confirmations and replaces them so 20 real bills are still attempted), then processes oldest-first among those. It does not drain the mailbox.
+`enter --live --from-inbox --limit 10` touches at most **10** mailbox messages from `accountspayable@kannonmfg.com` (hard email cap; Kyle 2026-09-11). Already-flagged mail (`Entered in AI`, `AI HOLD`, `Entered with issues`, or `flag.flagStatus=flagged`) is walked past and does not consume the cap. Noise among those 10 is sheet-noted as `Skipped` and **does** consume the cap. Bill-attempt / walk-past-noise mode is suspended. It does not drain the mailbox.
 
-## Weekday 5:00am daily run of 30
+## Weekday 5:00am daily run (hard-clamped to 10 emails)
 
-Kyle wants this scheduled. Every weekday at **5:00am America/Chicago**, process **30** unprocessed vendor invoices from `accountspayable@kannonmfg.com` only.
+Routine is paused. If daily is invoked: **hard-clamp to 10 emails** (Kyle 2026-09-11). Do not process 30 under this rule. `--limit 30` is clamped to 10 mailbox messages touched.
 
-**Queue (FIFO toward today, not newest-30, not mailbox-oldest):**
+**Queue (FIFO toward today):**
 
 - Start at received/invoice date **2026-07-28** inclusive (`America/Chicago`).
 - Work **forward toward the most current**.
-- Skip messages already categorized `Entered in AI`.
-- Still skip not-a-bill / statement / POD / CHECK STOP / payment and **replace** so 30 real bills are attempted when possible. Those skips are Excel `Skipped` rows (Flag in Outlook = No). They do **not** get `AI HOLD`.
-- Persist `runs/daily-cursor.json` (last processed `receivedDateTime` + message id). The next weekday **continues after the previous 30**. It does not restart at 7/28 every morning.
+- **Skip already-flagged** (`Entered in AI`, `AI HOLD`, `Entered with issues`, `flag.flagStatus=flagged`) without touching or consuming the cap.
+- Noise among the ≤10 touched emails is Excel `Skipped` (Flag in Outlook = No). It **consumes** the email cap. Do **not** walk past noise to fill 10 bills.
+- Persist `runs/daily-cursor.json` (last processed `receivedDateTime` + message id). The next weekday continues after the previous run. It does not restart at 7/28 every morning.
 
 **Enter on LIVE KIMCO (`--live`):** batch `API Agent - M/D/YY` America/Chicago. Same header rules as the 8/27 live test, plus Treyce 8/28 / Kyle PPV: no-PO still gets a header; Select Receipts when a PO exists (part + PO/WO line, slip # = invoice # before HOLD-no-receipts); fees and surcharges vs signed PPV (10% of invoice total **and** ≤ $100, else price-does-not-match HOLD); invoice # as printed; invoice date from the PDF not the email; vendor from the live PO / aliases 1386 and 1410; PDF attach; HOLD also for CHECK STOP / statements / PODs / dups / not-a-bill / price does not match.
 
@@ -353,7 +357,8 @@ Live write (one bill): Orthman Incomplete **9931** (invoice 701684, PO 58636). O
 ## HOLD rules
 
 - Real vendor bills with no PO: **create the header**. Do not HOLD just because there is no PO.
-- CHECK STOP, statements, PODs, payment letters, dups, and not-a-bill are **noise**: walk past them, sheet-note as `Skipped`, do not stamp `AI HOLD`, do not consume the bill-attempt cap.
+- CHECK STOP, statements, PODs, payment letters, dups, and not-a-bill are **noise**: sheet-note as `Skipped`, do not stamp `AI HOLD`. They **consume** the 10-email touch cap (Kyle 2026-09-11). Do not walk past them to hunt more bills.
+- Already-flagged mail (`Entered in AI`, `AI HOLD`, `Entered with issues`, `flag.flagStatus=flagged`) is left alone and does **not** consume the cap.
 - **Price does not match** (Kyle 2026-08-28): HOLD / `AI HOLD` when the merchandise line gap is over 10% of invoice total or over $100, or when the PO unit price is $0. Do not post PPV. Purchasing unreceives, changes the PO price, and re-receives. Comment **@Shawn McKibben**. Do not change GI receipt unit price.
 - HOLD-no-receipts only after a thorough search (slip # = invoice #, part, qty, PO line) finds nothing. Fastenal `TXFT499356` was findable and must not HOLD for that reason.
 - Gas and Supply `0040325801`: CHECK STOP, HOLD, no header.
@@ -408,3 +413,4 @@ Graph message id is kept on the run so the category is applied after match, not 
 - The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success, `Entered with issues` after header+PDF unfinished, and `AI HOLD` after a real bill with no header / Fail. Never stamp `AI HOLD` on noise. Never two process categories. Never use the follow-up flag or `AP Matched` as the process marker.
 - `daily` requires `--live`. Do not add a GitHub Actions cron that posts live without Kyle.
 - QUALITY V1.1 does not run a live 30 by itself. The supervised 10-invoice API-finish dry run is recorded above. Do not re-arm the weekday daily 30 until Kyle says so.
+- **Hard email cap 10 until further notice (Kyle 2026-09-11).** Daily `--limit 30` is clamped to 10 emails. Already-flagged messages are not touched and do not count.
