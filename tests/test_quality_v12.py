@@ -1663,15 +1663,60 @@ def test_3p_multi_po_select_receipts(tmp_path: Path):
     assert missing["PO"] == "58766, 58767, 58844"
 
 
-def test_never_repeat_eastern_metal_818600_not_noise():
+def test_never_repeat_eastern_metal_818600_not_noise(tmp_path: Path):
     """NOTE-20: Eastern Metal Invoice : 818600 is a bill, never Skipped."""
+    from ap_clerk.inbox import pull_recent_bills
+    from ap_clerk.rules import has_invoice_hint
+
     n = NOTES["NOTE-20"]
     assert classify_mail(subject=n["subject"]) == "invoice"
     assert classify_mail(subject=n["subject_818601"]) == "invoice"
     assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
+    assert extract_subject_invoice_number(n["subject_818601"]) == "818601"
     assert known_vendor_id(n["vendor"]) == 64
+    assert known_vendor_id("EASTERN METAL SUPPLY of TEXAS, INC.") == 64
     assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"])
     assert classify_mail(subject=n["subject"]) != "not-a-bill"
+    assert has_invoice_hint(subject=n["subject"])
+    assert classify_mail(
+        subject="Please see attached",
+        attachment_names=["Invoice-818600.pdf"],
+        preview="EASTERN METAL SUPPLY",
+    ) == "invoice"
+    assert classify_mail(
+        subject="Remittance advice",
+        attachment_names=["Invoice-818601.pdf"],
+    ) != "not-a-bill"
+    assert decide_flag_status(result="Success", kimco_id=64, message_id="AAMk") == FLAG_ELIGIBLE
+    assert decide_flag_status(result="Success", kimco_id=64, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-em-818600",
+                    "subject": n["subject"],
+                    "receivedDateTime": "2026-08-18T12:00:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["vendor"],
+                    "from": {"emailAddress": {"name": n["vendor"], "address": "ar@easternmetal.com"}},
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return []
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return []
+
+    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    assert selected[0].get("invoice_number") == n["invoice_number"]
+    assert selected[0].get("hold_reason") != "not-a-bill"
+    row, _ = _row(selected[0])
+    assert row["Result"] != RESULT_SKIPPED
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-20")
 
 

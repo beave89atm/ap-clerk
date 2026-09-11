@@ -1501,6 +1501,27 @@ STATEMENT_RE = re.compile(
     flags=re.I,
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
+
+
+def has_invoice_hint(
+    *,
+    subject: str = "",
+    attachment_names: list[str] | None = None,
+    preview: str = "",
+) -> bool:
+    """Invoice/INV # on the subject, preview, or an invoice-like PDF name.
+
+    Kyle: invoice hint or a PDF invoice attached is never not-a-bill
+    (Eastern Metal 818600 / 3P 142041 class).
+    """
+    names = " ".join(str(n or "") for n in (attachment_names or []))
+    if INVOICE_HINT_RE.search(subject or "") or INVOICE_HINT_RE.search(names) or INVOICE_HINT_RE.search(preview or ""):
+        return True
+    if extract_subject_invoice_number(subject):
+        return True
+    return False
+
+
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
 # Vendor invoices with a PDF must enter even when the subject is short (AQPC, Melody).
 KNOWN_BILL_VENDOR_RE = re.compile(
@@ -1553,19 +1574,19 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
         ) and not INVOICE_HINT_RE.search(subject):
             return "payment"
         return "invoice"
-    if INVOICE_HINT_RE.search(subject):
+    if has_invoice_hint(subject=subject, attachment_names=attachment_names, preview=preview):
         if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", subject, flags=re.I):
             return "payment"
         return "invoice"
     if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", blob, flags=re.I):
         return "payment"
     if POD_NAME_RE.search(blob) or re.search(r"\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|\bdelivery\s+receipt\b", blob, flags=re.I):
-        if INVOICE_HINT_RE.search(subject) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
+        if has_invoice_hint(subject=subject, attachment_names=attachment_names) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
             return "invoice"
         return "pod"
-    if STATEMENT_RE.search(blob) and not INVOICE_HINT_RE.search(subject) and not INVOICE_HINT_RE.search(names):
+    if STATEMENT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names):
         return "statement"
-    if NOT_A_BILL_SUBJECT_RE.search(blob) and not INVOICE_HINT_RE.search(subject):
+    if NOT_A_BILL_SUBJECT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names, preview=preview):
         return "not-a-bill"
     return "invoice"
 
@@ -1651,9 +1672,7 @@ def never_skip_vendor_invoice(
     ) and not INVOICE_HINT_RE.search(subject):
         return False
     has_invoice = bool(
-        INVOICE_HINT_RE.search(subject)
-        or INVOICE_HINT_RE.search(preview)
-        or extract_subject_invoice_number(subject)
+        has_invoice_hint(subject=subject, attachment_names=names, preview=preview)
         or any(str(n or "").lower().endswith(".pdf") for n in names)
         or LINK_DOWNLOAD_VENDOR_RE.search(blob)
     )

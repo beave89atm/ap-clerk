@@ -38,12 +38,12 @@ from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
 from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_public_pdf
 from ap_clerk.rules import (
     CHICAGO,
-    INVOICE_HINT_RE,
     KNOWN_BILL_VENDOR_RE,
     LINK_DOWNLOAD_VENDOR_RE,
     classify_mail,
     extract_subject_invoice_number,
     extract_subject_pos,
+    has_invoice_hint,
     flag_in_outlook_for,
     is_melody_channell,
     never_skip_vendor_invoice,
@@ -281,7 +281,7 @@ def pull_recent_bills(
             preview=preview,
             attachment_names=names,
         ) or bool(
-            INVOICE_HINT_RE.search(subject)
+            has_invoice_hint(subject=subject, attachment_names=names, preview=preview)
             or KNOWN_BILL_VENDOR_RE.search(link_blob)
             or is_melody_channell(f"{from_name} {subject} {preview}")
         )

@@ -300,8 +300,9 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "EASTERN METAL SUPPLY of TEXAS, INC."
         ),
         "expected": (
-            "Invoice + Eastern Metal is a bill (alias 64). Invoice hint or PDF "
-            "attached is never not-a-bill. Enter or HOLD with real Why."
+            "Invoice + Eastern Metal / EASTERN METAL SUPPLY is a bill (alias 64). "
+            "Invoice/INV subject or a PDF invoice attached is never not-a-bill. "
+            "Enter or HOLD with real Why. Never AI Skipped."
         ),
         "never_success": True,
     },
