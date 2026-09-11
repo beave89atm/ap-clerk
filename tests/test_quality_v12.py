@@ -1501,7 +1501,14 @@ def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
                     "Invoice_Number": "1809",
                     "Vendor": {"id": 1, "text": n["vendor"]},
                 },
-            }
+            },
+            {
+                "id": 9951,
+                "values": {
+                    "Invoice_Number": "1809",
+                    "Vendor": {"id": 1, "text": n["vendor"]},
+                },
+            },
         ]
     }
     sidecar = {
@@ -1518,8 +1525,10 @@ def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
     assert n["vendor"].split()[0] in why
     assert "1809" in why
     assert str(n["kimco_id"]) in why or str(row["KIMCO id"]) == str(n["kimco_id"])
+    assert "9951" in why
     assert "McQueary" not in why
     assert "MSC" not in why
+    assert "preflight-parse" not in why
     assert "no-pdf-on-vm" not in why
     assert row["Attach status"] == "pdf-on-vm"
 

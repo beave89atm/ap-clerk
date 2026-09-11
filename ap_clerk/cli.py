@@ -430,26 +430,36 @@ def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any
     return index
 
 
+def _matching_existing_invoices(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    vendor: str,
+) -> list[dict[str, Any]]:
+    """Same vendor + invoice # on live or this run. Unique # is a dup even when
+    the mailbox sender name does not match (NoreplyMV / Leeco). Two vendors
+    sharing a number are not treated as the same bill.
+    """
+    items = invoice_by_number.get(invoice_number_key(number)) or []
+    if not items:
+        return []
+    if not vendor or len(items) == 1:
+        return list(items)
+    matched: list[dict[str, Any]] = []
+    for item in items:
+        values = item.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            matched.append(item)
+    return matched
+
+
 def _find_existing_invoice(
     invoice_by_number: dict[str, list[dict[str, Any]]],
     number: str,
     vendor: str,
 ) -> dict[str, Any] | None:
-    """Match same vendor + invoice #. A unique invoice # on live is already-exists
-    even when the mailbox sender name does not match (NoreplyMV / Leeco).
-    Do not treat a different vendor as a dup when two vendors share a number.
-    """
-    items = invoice_by_number.get(invoice_number_key(number)) or []
-    if not items:
-        return None
-    if not vendor or len(items) == 1:
-        return items[0]
-    for item in items:
-        values = item.get("values") or {}
-        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
-        if names_match(vendor, text) or vendor_match_score(vendor, text):
-            return item
-    return None
+    found = _matching_existing_invoices(invoice_by_number, number, vendor)
+    return found[0] if found else None
 
 
 def _remember_invoice(
@@ -781,14 +791,16 @@ def _process_invoice(
         "Notes": "",
     }
 
-    existing = _find_existing_invoice(invoice_by_number, number, vendor)
-    if existing and number:
-        existing_id = existing.get("id")
+    existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
+    if existing_hits and number:
+        existing_ids = [hit.get("id") for hit in existing_hits if hit.get("id") not in (None, "")]
+        existing_id = existing_ids[0] if existing_ids else existing_hits[0].get("id")
+        id_txt = ", ".join(str(i) for i in existing_ids) if existing_ids else str(existing_id)
         row["KIMCO id"] = existing_id
         row["Result"] = RESULT_HOLD
         row["Why"] = why_hold(
             GATE_ALREADY_ENTERED,
-            f"{vendor} invoice #{number} is already entered as KIMCO id {existing_id}. "
+            f"{vendor} invoice #{number} is already entered as KIMCO id(s) {id_txt}. "
             "Duplicate / already-entered. Will not create another header.",
         )
         if pdf_file_present(inv):
