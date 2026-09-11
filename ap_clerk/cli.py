@@ -735,7 +735,7 @@ def _process_invoice(
     po_display = "" if po is None else str(po)
     amount = inv.get("amount")
     fees = format_fees(inv.get("fees"))
-    attach = "no-pdf-on-vm"
+    attach = "pdf-on-vm" if pdf_file_present(inv) else "no-pdf-on-vm"
     row = {
         "Vendor": vendor,
         "Invoice #": number,

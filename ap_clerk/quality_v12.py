@@ -154,6 +154,28 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-13",
+        "slug": "crosslink-27943-filename-pdf-on-disk",
+        "gate": GATE_PREFLIGHT,
+        "cases": (
+            "Crosslink 27943 / PO 58888",
+            "Crosslink 27944 / PO 58909",
+            "Crosslink 27946 / PO 58741",
+        ),
+        "8_18_bug": (
+            "Same false preflight-parse HOLD as Nova 258145: invoice # tagged filename "
+            "(invoice-27943.pdf) while date/amount/po came from PDF; Attach no-pdf-on-vm "
+            "though the PDF was on disk. Fees Packaging/Shop Supplies; Recovery."
+        ),
+        "expected": (
+            "PDF on disk + same # on subject or filename is not a parse HOLD. "
+            "Invoice # may be confirmed from PDF text; filename/subject matching the PDF is OK. "
+            "no-pdf-on-vm forbidden when pdf_path exists. Same for 27944/58909 and 27946/58741. "
+            "Never Success-as-false-parse-HOLD."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

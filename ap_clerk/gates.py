@@ -179,12 +179,31 @@ def pdf_file_present(inv: dict[str, Any] | None) -> bool:
         return False
 
 
+def invoice_number_matches_subject_or_filename(inv: dict[str, Any] | None) -> bool:
+    """True when the invoice # also appears on the subject, filename, or pdf_path name.
+
+    8/18: Nova 258145 (subject) and Crosslink 27943 (invoice-27943.pdf).
+    """
+    data = inv or {}
+    number = str(data.get("invoice_number") or "").strip()
+    if not number:
+        return False
+    haystacks = (
+        str(data.get("subject") or ""),
+        str(data.get("filename") or ""),
+        Path(str(data.get("pdf_path") or "")).name,
+    )
+    needle = number.lower()
+    return any(needle in part.lower() for part in haystacks if part)
+
+
 def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     """Invoice #, date, amount, and PO must come from vendor PDF text.
 
     Filename/subject alone is not enough when the PDF is truly missing.
     If the PDF is on disk, do not HOLD parse-error / no-pdf-on-vm — a subject
-    # that matches is OK (Nova Alloys 258145 / 8/18). Insight 1809 / MSC 5157357
+    # that matches is OK (Nova Alloys 258145 / 8/18) and a filename # that
+    matches is OK (Crosslink 27943 / 27944 / 27946). Insight 1809 / MSC 5157357
     still HOLD when there is no file and the # came from filename/subject.
     """
     if is_auto_pay(
@@ -238,7 +257,8 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
         date_src = str(sources.get("date") or "")
         po_src = str(sources.get("po") or "")
         number_from_pdf = number_src in PDF_FIELD_SOURCES
-        # 8/18 Nova 258145: PDF on disk + subject # is not a parse HOLD.
+        # 8/18 Nova 258145 (subject) / Crosslink 27943 (filename): PDF on disk
+        # + the same # on subject/filename is not a parse HOLD.
         if not number:
             return False, why_hold(
                 GATE_PREFLIGHT,

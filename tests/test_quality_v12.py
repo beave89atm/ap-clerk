@@ -21,6 +21,7 @@ from ap_clerk.gates import (
     RESULT_SKIPPED,
     RESULT_SUCCESS,
     finish_gate,
+    invoice_number_matches_subject_or_filename,
     never_type_4_when_po,
     preflight_parse_gate,
     qty_gate,
@@ -121,8 +122,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 13))
-    assert len(TREYCE_NOTES_V12) == 12
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 14))
+    assert len(TREYCE_NOTES_V12) == 13
     assert len(TREYCE_FINISH_CHECKLIST) == 9
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
@@ -138,6 +139,7 @@ def test_v12_registry_covers_all_notes():
         "gas-supply-misc-vs-check-stop",
         "nova-258145-from-person-not-vendor",
         "msc-70762501-not-rmp",
+        "crosslink-27943-filename-pdf-on-disk",
     }
 
 
@@ -803,3 +805,109 @@ def test_never_repeat_msc_70762501_not_rmp(tmp_path: Path):
     assert kimco.created
     assert kimco.created[0]["Vendor"]["id"] == 128
     assert kimco.created[0]["Vendor"]["id"] != n["posted_lookup_id"]
+
+
+def test_never_repeat_crosslink_27943(tmp_path: Path):
+    """NOTE-13: 8/18 Crosslink 27943 — filename-sourced # + PDF on disk is not a parse HOLD.
+
+    Same bug as Nova NOTE-11 (subject tag). Also covers 27944 / 58909 and 27946 / 58741.
+    """
+    n = NOTES["NOTE-13"]
+    fee_label = n["fee_label"]
+    assert is_fee_or_surcharge(fee_label)
+
+    # Named case: 27943 reconstructs the 8/18 sidecar (filename tag + file on disk).
+    bill = n["bills"][0]
+    assert bill["invoice_number"] == "27943"
+    assert bill["po"] == "58888"
+    assert bill["filename"] == "invoice-27943.pdf"
+    parsed = parse_invoice_text(
+        bill["pdf_text"],
+        subject=bill["subject"],
+        from_name="Crosslink Powder Coating",
+        filename=bill["filename"],
+    )
+    assert parsed["invoice_number"] == "27943"
+    assert parsed["po"] == "58888"
+    assert parsed["field_sources"]["invoice_number"] in {"pdf", "pdf-prefix"}
+    assert "Crosslink" in (parsed.get("vendor") or "")
+    ok, why = preflight_parse_gate(parsed)
+    assert ok is True, why
+
+    pdf_path = tmp_path / bill["filename"]
+    pdf_path.write_bytes(b"%PDF-1.4 crosslink 27943")
+    sidecar = {
+        "vendor": n["vendor"],
+        "invoice_number": bill["invoice_number"],
+        "date": n["date"],
+        "amount": parsed["amount"],
+        "po": bill["po"],
+        "pos": [bill["po"]],
+        "subject": bill["subject"],
+        "filename": bill["filename"],
+        "fees": [{"name": fee_label, "amount": 12.50}],
+        "field_sources": {
+            "invoice_number": n["buggy_number_source"],
+            "date": "pdf",
+            "amount": "pdf",
+            "po": "pdf",
+        },
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+        "pdf_unavailable": False,
+    }
+    assert invoice_number_matches_subject_or_filename(sidecar)
+    ok, why = preflight_parse_gate(sidecar)
+    assert ok is True, why
+    row, _ = _row(sidecar)
+    assert "preflight-parse" not in (row["Why"] or "")
+    assert row["Attach status"] != "no-pdf-on-vm"
+    assert row["Invoice #"] == "27943"
+    # False 8/18 pairing: filename HOLD + no-pdf-on-vm while the file exists.
+    assert not (
+        row["Result"] == RESULT_HOLD
+        and "preflight-parse" in (row["Why"] or "")
+        and row["Attach status"] == "no-pdf-on-vm"
+    )
+    assert_never_success(
+        RESULT_HOLD if row["Attach status"] == "no-pdf-on-vm" else row["Result"],
+        note_id="NOTE-13",
+        detail=row["Why"],
+    )
+
+    for extra in n["bills"]:
+        extra_path = tmp_path / extra["filename"]
+        if not extra_path.exists():
+            extra_path.write_bytes(f"%PDF-1.4 crosslink {extra['invoice_number']}".encode())
+        extra_sidecar = {
+            "vendor": n["vendor"],
+            "invoice_number": extra["invoice_number"],
+            "date": n["date"],
+            "amount": 100.0,
+            "po": extra["po"],
+            "subject": extra["subject"],
+            "filename": extra["filename"],
+            "field_sources": {
+                "invoice_number": "filename",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+            "pdf_path": str(extra_path),
+            "pdf_on_disk": True,
+        }
+        extra_ok, extra_why = preflight_parse_gate(extra_sidecar)
+        assert extra_ok is True, extra_why
+        assert invoice_number_matches_subject_or_filename(extra_sidecar)
+
+    missing = {
+        **sidecar,
+        "pdf_path": "",
+        "pdf_on_disk": False,
+        "pdf_unavailable": True,
+        "pdf_text_empty": True,
+    }
+    missing_ok, missing_why = preflight_parse_gate(missing)
+    assert missing_ok is False
+    assert GATE_PREFLIGHT in missing_why or "parse-error" in missing_why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-13")

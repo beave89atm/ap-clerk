@@ -958,6 +958,16 @@ def parse_invoice_text(
         if ems:
             invoice_number = _usable_invoice_number(ems[0])
             invoice_from_pdf = bool(invoice_number)
+    # Filename/subject # that also appears in PDF text is PDF-confirmed
+    # (Crosslink invoice-27943.pdf; Nova subject 258145).
+    if (
+        invoice_number
+        and pdf_text
+        and re.search(rf"\b{re.escape(str(invoice_number))}\b", pdf_text, flags=re.I)
+    ):
+        invoice_from_pdf = True
+        filename_only = False
+        subject_only = False
     printed = printed_invoice_number(invoice_number, vendor=vendor, text=pdf_text)
     if printed and printed != invoice_number and printed in pdf_text:
         invoice_from_pdf = True
