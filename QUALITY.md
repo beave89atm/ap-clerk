@@ -17,11 +17,12 @@ messages do **not** consume the 10-email touch cap. Only unflagged /
 uncategorized (by those AP markers) messages count.
 
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
-company on the subject/PDF (`Nova Alloys`), never the From person’s name
-(`Erica Barrett`). Invoice # from PDF text; the same # on the subject is OK
-when the PDF is on disk — do not HOLD preflight-parse for a `subject` tag.
-Do not report `no-pdf-on-vm` when the file exists; OCR/retry if text extract
-fails. Only HOLD no-pdf if the PDF is truly missing.
+company on the PDF (`Nova Alloys`), never the From person’s name
+(`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
+do not HOLD preflight-parse for a `subject` tag when the PDF is on disk;
+create the header and attach. Do not report `no-pdf-on-vm` when the file
+exists; OCR/retry if text extract fails. Only HOLD no-pdf if the PDF is
+truly missing or extract+OCR failed. **Why-must-be-true** for leftover HOLDs.
 
 **NOTE-12 MSC 70762501 posted as RMP (8/18 dry-10).** Parsed vendor
 `MSC Industrial Supply` must not `names_match` `RMP INDUSTRIAL SUPPLY` (generic
@@ -35,11 +36,12 @@ as `1320-RMP INDUSTRIAL SUPPLY` type 4.
 **NOTE-13 Crosslink 27943 / 27944 / 27946 (8/18 dry-10).** Same false
 preflight-parse HOLD as Nova 258145, but the invoice # was tagged `filename`
 (`invoice-27943.pdf`) while date/amount/PO came from the PDF. Subject
-`Invoice #27943 for 58888 (#8221) from Crosslink Powder Coating`. Do not HOLD
-preflight-parse when the PDF is on disk and the subject or filename contains
-the same invoice #. Confirming the # from PDF text is OK. `no-pdf-on-vm` is
-forbidden when `pdf_path` exists. Same for 27944 / PO 58909 and 27946 / PO 58741.
-Fees `Packaging/Shop Supplies; Recovery` stay Fees, not PPV.
+`Invoice #27943 for 58888 (#8221) from Crosslink Powder Coating`. **PDF-is-truth:**
+do not HOLD preflight-parse when the PDF is on disk and the subject or filename
+contains the same invoice # — create header, attach, continue. Why must name
+Crosslink / 27943 / filename / PDF-on-disk, never `(MSC/McQueary)`.
+`no-pdf-on-vm` is forbidden when `pdf_path` exists. Same for 27944 / PO 58909
+and 27946 / PO 58741. Fees `Packaging/Shop Supplies; Recovery` stay Fees, not PPV.
 
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
@@ -77,6 +79,39 @@ If Treyce would still fix header, lines, or charges → **HOLD**, **Incomplete**
 
 Every non-Success **Why** must name the gate and the next action so she is not hunting.
 
+## Why-must-be-true
+
+Sheet **Why** must be true for **this** invoice. Treyce cannot tell what failed
+when Crosslink / Nova / Telecom / Insight HOLDs reuse an MSC/McQueary slogan.
+
+Every parse HOLD Why includes:
+
+1. **Vendor** on this bill
+2. **Invoice #** on this bill
+3. **Source of the #** — `pdf` / `subject` / `filename`
+4. **Whether the PDF path existed** on the VM (`PDF on disk` vs `PDF path missing`)
+5. **Next action** (obtain the PDF, retry OCR, read Amount Due from the PDF, …)
+
+Never append `(MSC/McQueary)` or any other historical case name unless this
+invoice is actually that vendor. If the PDF is on disk, Attach status and Why
+must not say `no-pdf-on-vm`. Leftover preflight Why strings after the
+NOTE-11/13 parse-HOLD relaxation still follow this rewrite (true missing PDF,
+OCR failed after retry, unverified PDF total).
+
+## PDF-is-truth
+
+The vendor PDF is the version of the truth. Subject line and filename are
+**hints only**.
+
+- PDF wins for vendor, invoice #, date, PO, amounts, fees, and lines.
+- If a PDF is attached / on disk, do **not** HOLD `preflight-parse` just
+  because the # was also on the subject or filename, or because
+  `field_sources` tagged `subject` / `filename`.
+- With a PDF present: create the header, attach the PDF, and continue Select
+  Receipts / finish gates as usual.
+- HOLD parse / no-pdf only when the PDF is **truly missing**, or extract+OCR
+  of that PDF failed.
+
 ## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
@@ -93,9 +128,9 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-08** Melody Channell invoices | Junk not-a-bill skip | Bill, not noise Skipped; never Success-as-skip | `test_note08_melody_channell_not_noise` |
 | **NOTE-09** AQPC link-download PDF | Silent not-a-bill | Best-effort https GET; auth → `pdf-behind-link` HOLD; never Success | `test_note09_aqpc_pdf_behind_link` |
 | **NOTE-10** Gas & Supply Misc vs CHECK STOP | Blanket CHECK STOP | Invoice pages → Type 4 `Shop Supplies - G&S`; notice skip; ambiguous HOLD; never Success | `test_note10_gas_supply_misc_vs_check_stop` |
-| **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | Vendor=Nova Alloys from subject/PDF, never the From person; same # on subject is OK when PDF exists; only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
+| **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | PDF-is-truth: Vendor=Nova Alloys; same # on subject is OK; create header+attach; Why describes THIS bill (no MSC/McQueary); only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
 | **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
-| **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | Same gate as Nova NOTE-11: PDF on disk + same # on subject/filename is not a parse HOLD; no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
+| **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | PDF-is-truth: filename # + PDF on disk is not a parse HOLD; create header+attach; Why describes THIS Crosslink bill (no MSC/McQueary); no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

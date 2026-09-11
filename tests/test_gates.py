@@ -255,6 +255,9 @@ def test_preflight_holds_when_pdf_total_missing():
     assert ok is False
     assert "parse-error" in why
     assert "preflight-parse" in why
+    assert "0040323616" in why
+    assert "McQueary" not in why
+    assert "(MSC/McQueary)" not in why
     row = _row({**parsed, "vendor": "Gas and Supply North Texas, LLC"})
     assert row["Result"] == RESULT_HOLD
     assert row["KIMCO id"] == ""

@@ -129,9 +129,10 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "was on disk."
         ),
         "expected": (
-            "Vendor=Nova Alloys from subject/PDF, never the From person. Invoice # from PDF "
-            "or same # on subject when PDF exists — not a parse HOLD. Only HOLD no-pdf if "
-            "the file is truly missing. Never Success-as-Erica-Barrett-HOLD."
+            "Vendor=Nova Alloys from PDF/subject, never the From person. PDF is truth: "
+            "same # on subject is a hint, not a parse HOLD. Create header + attach. "
+            "Why describes THIS bill (no MSC/McQueary slogan). Only HOLD no-pdf if "
+            "the file is truly missing or OCR failed. Never Success-as-Erica-Barrett-HOLD."
         ),
         "never_success": True,
     },
@@ -169,9 +170,10 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "though the PDF was on disk. Fees Packaging/Shop Supplies; Recovery."
         ),
         "expected": (
-            "PDF on disk + same # on subject or filename is not a parse HOLD. "
-            "Invoice # may be confirmed from PDF text; filename/subject matching the PDF is OK. "
-            "no-pdf-on-vm forbidden when pdf_path exists. Same for 27944/58909 and 27946/58741. "
+            "PDF is truth: on disk + same # on subject/filename is not a parse HOLD. "
+            "Create header, attach PDF, continue finish gates. Why describes THIS "
+            "Crosslink bill (no MSC/McQueary slogan). no-pdf-on-vm forbidden when "
+            "pdf_path exists. Same for 27944/58909 and 27946/58741. "
             "Never Success-as-false-parse-HOLD."
         ),
         "never_success": True,

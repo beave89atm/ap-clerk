@@ -179,6 +179,160 @@ def pdf_file_present(inv: dict[str, Any] | None) -> bool:
         return False
 
 
+def attach_presence_status(inv: dict[str, Any] | None) -> str:
+    """Sheet Attach status from disk presence. Never no-pdf-on-vm when the file exists."""
+    return "pdf-on-vm" if pdf_file_present(inv) else "no-pdf-on-vm"
+
+
+def invoice_number_source(inv: dict[str, Any] | None) -> str:
+    """Where this invoice # was tagged: pdf / pdf-prefix / subject / filename / unknown."""
+    data = inv or {}
+    sources = data.get("field_sources") or {}
+    tagged = str(sources.get("invoice_number") or "").strip().lower()
+    if tagged:
+        return tagged
+    number = str(data.get("invoice_number") or "").strip()
+    if not number:
+        return "unknown"
+    needle = number.lower()
+    filename = str(data.get("filename") or "") or Path(str(data.get("pdf_path") or "")).name
+    if needle and needle in filename.lower():
+        return "filename"
+    if needle and needle in str(data.get("subject") or "").lower():
+        return "subject"
+    if pdf_file_present(data):
+        return "pdf"
+    return "unknown"
+
+
+def pdf_extract_or_ocr_failed(inv: dict[str, Any] | None) -> bool:
+    """True when a file is on disk but extract+OCR produced no usable PDF fields."""
+    data = inv or {}
+    if not pdf_file_present(data):
+        return False
+    if data.get("ocr_failed") or data.get("pdf_extract_failed"):
+        return True
+    sources = data.get("field_sources") or {}
+    if any(str(sources.get(key) or "") in PDF_FIELD_SOURCES for key in ("invoice_number", "date", "amount", "po")):
+        return False
+    return bool(data.get("pdf_text_empty"))
+
+
+def this_invoice_facts(inv: dict[str, Any] | None) -> dict[str, Any]:
+    """Facts Why must state for THIS bill — not a prior case."""
+    data = inv or {}
+    filename = str(data.get("filename") or "").strip() or Path(str(data.get("pdf_path") or "")).name
+    on_disk = pdf_file_present(data)
+    return {
+        "vendor": str(data.get("vendor") or "").strip() or "unknown vendor",
+        "invoice_number": str(data.get("invoice_number") or "").strip() or "unknown",
+        "number_source": invoice_number_source(data),
+        "pdf_on_disk": on_disk,
+        "filename": filename,
+        "pdf_path": str(data.get("pdf_path") or "").strip(),
+    }
+
+
+def why_has_foreign_history(why: str, inv: dict[str, Any] | None) -> list[str]:
+    """Historical case names in Why that are not this invoice's vendor/subject/filename/#."""
+    data = inv or {}
+    own = " ".join(
+        str(data.get(key) or "")
+        for key in ("vendor", "subject", "filename", "invoice_number", "from_name", "pdf_path")
+    ).lower()
+    why_l = (why or "").lower()
+    hits: list[str] = []
+    for token, own_key in (
+        ("mcqueary", "mcqueary"),
+        ("msc", "msc"),
+        ("insight", "insight"),
+        ("rob brown", "rob brown"),
+        ("erica barrett", "erica"),
+    ):
+        if token in why_l and own_key not in own:
+            hits.append(token)
+    return hits
+
+
+def why_preflight_this_invoice(inv: dict[str, Any] | None, kind: str) -> str:
+    """HOLD detail that is true for THIS invoice: vendor, #, source, PDF presence, next action.
+
+    Never append (MSC/McQueary) or any other historical case name unless this bill
+    is that vendor. Never say no-pdf-on-vm when the file is on disk.
+    """
+    facts = this_invoice_facts(inv)
+    vendor = facts["vendor"]
+    number = facts["invoice_number"]
+    source = facts["number_source"]
+    filename = facts["filename"]
+    on_disk = facts["pdf_on_disk"]
+    if on_disk:
+        pdf_bit = f"PDF on disk ({filename})" if filename else "PDF on disk"
+    elif filename:
+        pdf_bit = f"PDF path missing on VM (filename {filename})"
+    else:
+        pdf_bit = "PDF path missing on VM"
+    head = f"{vendor} invoice #{number} sourced from {source}; {pdf_bit}."
+    if kind == "pdf_missing":
+        next_action = (
+            "Next: obtain the vendor PDF and read invoice #, date, and amount from PDF text."
+        )
+        if on_disk:
+            next_action = (
+                "Next: read invoice #, date, and amount from the vendor PDF already on disk."
+            )
+        return f"{head} {next_action}"
+    if kind == "ocr_failed":
+        return (
+            f"{head} Extract+OCR failed after retry. "
+            "Next: retry OCR or attach a readable vendor PDF. "
+            "Do not invent fields from subject/filename."
+        )
+    if kind == "number_missing":
+        return f"{head} Invoice # missing from PDF text. Next: read the invoice # from the vendor PDF."
+    if kind == "number_not_from_pdf":
+        return (
+            f"{head} Invoice # is from {source}, not vendor PDF text. "
+            "Next: obtain the vendor PDF and take invoice # from PDF text, not subject/filename alone."
+        )
+    if kind == "amount_unverified":
+        return (
+            f"{head} PDF total could not be verified. "
+            "Next: read Amount Due from the vendor PDF. Do not use the email subject amount."
+        )
+    if kind == "date_missing":
+        return (
+            f"{head} Invoice date missing from PDF text. "
+            "Next: read the invoice date from the vendor PDF, not the email received date."
+        )
+    if kind == "po_not_from_pdf":
+        return (
+            f"{head} Printed PO was not taken from vendor PDF text. "
+            "Next: read the PO from the vendor PDF."
+        )
+    if kind == "po_document":
+        name = filename or "attachment"
+        return (
+            f"{head} Attachment {name} is a purchase order, not an invoice. "
+            "Next: skip; do not create a header."
+        )
+    if kind == "gas_ambiguous":
+        item = misc_purchase_item_for(str((inv or {}).get("vendor") or "")) or "Shop Supplies - G&S"
+        return (
+            f"{head} PDF has multiple Misc invoices but amounts could not be split. "
+            f"When entering, use Invoice_Type 4 and miscellaneous purchase item {item}. "
+            "Next: HOLD; do not invent per-invoice amounts."
+        )
+    return f"{head} Next: Treyce must review this parse HOLD."
+
+
+def _preflight_hold(inv: dict[str, Any] | None, kind: str) -> str:
+    detail = why_preflight_this_invoice(inv, kind)
+    if pdf_file_present(inv):
+        detail = detail.replace("no-pdf-on-vm", "PDF on disk")
+    return why_hold(GATE_PREFLIGHT, detail)
+
+
 def invoice_number_matches_subject_or_filename(inv: dict[str, Any] | None) -> bool:
     """True when the invoice # also appears on the subject, filename, or pdf_path name.
 
@@ -198,13 +352,14 @@ def invoice_number_matches_subject_or_filename(inv: dict[str, Any] | None) -> bo
 
 
 def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
-    """Invoice #, date, amount, and PO must come from vendor PDF text.
+    """PDF is the version of the truth. Subject/filename are hints only.
 
-    Filename/subject alone is not enough when the PDF is truly missing.
-    If the PDF is on disk, do not HOLD parse-error / no-pdf-on-vm — a subject
-    # that matches is OK (Nova Alloys 258145 / 8/18) and a filename # that
-    matches is OK (Crosslink 27943 / 27944 / 27946). Insight 1809 / MSC 5157357
-    still HOLD when there is no file and the # came from filename/subject.
+    Do not HOLD preflight-parse because the # was also on the subject or
+    filename, or because field_sources tagged subject/filename, when a PDF
+    is on disk. Create the header, attach the PDF, and continue finish gates.
+
+    HOLD parse / no-pdf only when the PDF is truly missing, or extract+OCR
+    of that PDF failed. Why always describes THIS invoice.
     """
     if is_auto_pay(
         vendor=str(inv.get("vendor") or ""),
@@ -223,83 +378,54 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
         # Real notices are mailbox noise (Skipped), not a fake parse-error HOLD.
         return True, ""
     if inv.get("gas_misc_ambiguous"):
-        item = misc_purchase_item_for(str(inv.get("vendor") or "")) or "Shop Supplies - G&S"
-        return False, why_hold(
-            GATE_PREFLIGHT,
-            "Gas & Supply PDF has multiple Misc invoices but amounts could not be split. "
-            f"When entering, use Invoice_Type 4 and miscellaneous purchase item {item}. "
-            "HOLD when ambiguous rather than inventing amounts.",
-        )
+        return False, _preflight_hold(inv, "gas_ambiguous")
     if inv.get("is_purchase_order_doc") or inv.get("is_po_document"):
-        return False, why_hold(
-            GATE_PREFLIGHT,
-            "attachment is a purchase order, not an invoice. Legacy Purchase_Order_*.pdf and any PO-not-invoice stay skipped.",
-        )
+        return False, _preflight_hold(inv, "po_document")
     number = str(inv.get("invoice_number") or "").strip()
     amount = inv.get("amount")
     invoice_date = inv.get("date")
     sources = inv.get("field_sources") or {}
     has_sources = bool(sources)
     on_disk = pdf_file_present(inv)
-    pdf_missing = (not on_disk) and bool(inv.get("pdf_unavailable") or inv.get("pdf_text_empty"))
+    number_src = str(sources.get("invoice_number") or "")
+    amount_src = str(sources.get("amount") or "")
+    date_src = str(sources.get("date") or "")
+    po_src = str(sources.get("po") or "")
+    number_from_pdf = number_src in PDF_FIELD_SOURCES
+    pdf_missing = (not on_disk) and bool(
+        inv.get("pdf_unavailable") or inv.get("pdf_text_empty") or (has_sources and not number_from_pdf)
+    )
 
-    if pdf_missing and (not has_sources or str(sources.get("invoice_number") or "") not in PDF_FIELD_SOURCES):
-        return False, why_hold(
-            GATE_PREFLIGHT,
-            "PDF could not be obtained (no-pdf-on-vm / not reading PDF). "
-            "Will not invent invoice # from filename/subject. "
-            "If the vendor PDF text has the number (Insight 1809, MSC 5157357), read the PDF.",
-        )
+    # Truly missing PDF: HOLD. Why names this vendor / # / source — not a prior case.
+    if pdf_missing:
+        return False, _preflight_hold(inv, "pdf_missing")
+
+    # File exists but extract+OCR failed: HOLD. Do not invent from subject/filename.
+    if pdf_extract_or_ocr_failed(inv):
+        return False, _preflight_hold(inv, "ocr_failed")
 
     if has_sources:
-        number_src = str(sources.get("invoice_number") or "")
-        amount_src = str(sources.get("amount") or "")
-        date_src = str(sources.get("date") or "")
-        po_src = str(sources.get("po") or "")
-        number_from_pdf = number_src in PDF_FIELD_SOURCES
-        # 8/18 Nova 258145 (subject) / Crosslink 27943 (filename): PDF on disk
-        # + the same # on subject/filename is not a parse HOLD.
+        # PDF on disk + subject/filename # is a hint, not a parse HOLD
+        # (Nova 258145 subject; Crosslink 27943 filename).
         if not number:
-            return False, why_hold(
-                GATE_PREFLIGHT,
-                "invoice # missing from PDF text.",
-            )
+            return False, _preflight_hold(inv, "number_missing")
         if not number_from_pdf and not on_disk:
-            return False, why_hold(
-                GATE_PREFLIGHT,
-                "invoice # must be taken from vendor PDF text, not email subject/filename alone "
-                "(MSC/Rob Brown 5157357 vs filename 191471; Insight 1809).",
-            )
-        if amount in (None, "") or amount_src not in PDF_FIELD_SOURCES:
-            return False, why_hold(
-                GATE_PREFLIGHT,
-                "PDF total could not be verified; will not create a wrong-amount header (Gas 0040323616).",
-            )
-        if not invoice_date or date_src not in PDF_FIELD_SOURCES:
-            return False, why_hold(
-                GATE_PREFLIGHT,
-                "invoice date must be taken from vendor PDF text, not the email received date.",
-            )
-        if inv.get("po") and po_src and po_src not in PDF_FIELD_SOURCES:
-            return False, why_hold(
-                GATE_PREFLIGHT,
-                "printed PO must be taken from vendor PDF text, not filename/subject alone.",
-            )
+            return False, _preflight_hold(inv, "number_not_from_pdf")
+        if amount in (None, "") or (amount_src and amount_src not in PDF_FIELD_SOURCES):
+            return False, _preflight_hold(inv, "amount_unverified")
+        if not invoice_date or (date_src and date_src not in PDF_FIELD_SOURCES):
+            return False, _preflight_hold(inv, "date_missing")
+        if inv.get("po") and po_src and po_src not in PDF_FIELD_SOURCES and not on_disk:
+            return False, _preflight_hold(inv, "po_not_from_pdf")
         return True, ""
 
     # Fixtures without provenance still cannot invent a total or number.
     if not number:
-        return False, why_hold(GATE_PREFLIGHT, "invoice # missing from PDF text.")
+        return False, _preflight_hold(inv, "number_missing")
     if amount in (None, ""):
-        return False, why_hold(
-            GATE_PREFLIGHT,
-            "PDF total could not be verified; will not create a wrong-amount header.",
-        )
+        return False, _preflight_hold(inv, "amount_unverified")
     if not invoice_date:
-        return False, why_hold(
-            GATE_PREFLIGHT,
-            "invoice date missing from PDF text; will not use the email received date.",
-        )
+        return False, _preflight_hold(inv, "date_missing")
     return True, ""
 
 
