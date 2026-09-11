@@ -114,6 +114,9 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
     assert classify_mail(subject="American Quality Powder Coating job 4412") == "invoice"
     assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"
+    assert classify_mail(subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917") == "invoice"
+    assert classify_mail(subject="INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844") == "invoice"
+    assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
     assert classify_mail(subject="Internal only — do not process") == "internal"
 
 
@@ -122,8 +125,8 @@ def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
     assert flag_in_outlook_for("Incomplete") == "Yes"
     assert flag_in_outlook_for("HOLD") == "Yes"
     assert flag_in_outlook_for("Fail") == "Yes"
-    assert flag_in_outlook_for("Skipped") == "No"
-    assert flag_in_outlook_for("Noise") == "No"
+    assert flag_in_outlook_for("Skipped") == "Yes"
+    assert flag_in_outlook_for("Noise") == "Yes"
     assert comments_for("live") == "API Agent"
     assert "prototype" in comments_for("prototype").lower()
 

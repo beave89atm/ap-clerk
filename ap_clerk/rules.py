@@ -23,9 +23,16 @@ def flag_in_outlook_for(result: str | None) -> str:
     Success → Entered in AI.
     Header+PDF entered but unfinished (price/qty HOLD, Incomplete) → Entered with issues.
     Real bill unprocessable without a header → AI HOLD.
-    Skipped / Noise → No (sheet-noted only; never Outlook AI HOLD).
+    Skipped / Noise → Yes (`AI Skipped`). Never AI HOLD for noise.
     """
-    return "Yes" if (result or "").strip() in {"Success", "Incomplete", "HOLD", "Fail"} else "No"
+    return "Yes" if (result or "").strip() in {
+        "Success",
+        "Incomplete",
+        "HOLD",
+        "Fail",
+        "Skipped",
+        "Noise",
+    } else "No"
 
 
 def comments_for(target: str) -> str:
@@ -1498,9 +1505,15 @@ POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.
 # Vendor invoices with a PDF must enter even when the subject is short (AQPC, Melody).
 KNOWN_BILL_VENDOR_RE = re.compile(
     r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|"
-    r"melody\s+channell",
+    r"melody\s+channell|"
+    r"\b3p\b|rachel\s+bailey|"
+    r"eastern\s+metal",
     flags=re.I,
 )
+THREE_P_RE = re.compile(r"\b3p\b|rachel\s+bailey", flags=re.I)
+EASTERN_METAL_RE = re.compile(r"eastern\s+metal", flags=re.I)
+_PO_HASH_LIST = re.compile(r"\bPO\s*#\s*([0-9,\s]+)", flags=re.I)
+_INV_HASH = re.compile(r"\bINV(?:OICE)?\s*#?\s*[:.]?\s*(\d{5,8})\b", flags=re.I)
 # AQPC often links a PDF instead of attaching it.
 LINK_DOWNLOAD_VENDOR_RE = re.compile(
     r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|aqpowder",
@@ -1526,8 +1539,22 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
-    if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob):
+    if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob) or THREE_P_RE.search(blob):
         if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment)\b", blob, flags=re.I):
+            return "payment"
+        return "invoice"
+    if never_skip_vendor_invoice(
+        subject=subject, from_name="", preview=preview, attachment_names=attachment_names
+    ):
+        if re.search(
+            r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
+            subject,
+            flags=re.I,
+        ) and not INVOICE_HINT_RE.search(subject):
+            return "payment"
+        return "invoice"
+    if INVOICE_HINT_RE.search(subject):
+        if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", subject, flags=re.I):
             return "payment"
         return "invoice"
     if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", blob, flags=re.I):
@@ -1541,6 +1568,86 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
     if NOT_A_BILL_SUBJECT_RE.search(blob) and not INVOICE_HINT_RE.search(subject):
         return "not-a-bill"
     return "invoice"
+
+
+def extract_subject_pos(subject: str) -> list[str]:
+    """PO # 58766, 58767, 58844 from a 3P / Rachel Bailey subject."""
+    match = _PO_HASH_LIST.search(subject or "")
+    if not match:
+        return []
+    found = [n for n in re.findall(r"\d{5,6}", match.group(1)) if re.fullmatch(r"5[7-9]\d{3}", n)]
+    return list(dict.fromkeys(found))
+
+
+def extract_subject_invoice_number(subject: str) -> str | None:
+    match = _INV_HASH.search(subject or "")
+    if match:
+        return match.group(1)
+    loose = re.search(r"\binvoice\b[^0-9]{0,12}(\d{4,8})\b", subject or "", flags=re.I)
+    if loose:
+        return loose.group(1)
+    return None
+
+
+def format_unmatched_pos(pos: list[str] | None) -> str:
+    return ", ".join(str(p) for p in (pos or []) if p)
+
+
+def is_known_kimco_vendor(*parts: str) -> bool:
+    """True when sender/subject/text matches a listed KIMCO vendor alias."""
+    blob = " ".join(str(p or "") for p in parts).strip()
+    if not blob:
+        return False
+    if known_vendor_id(blob) is not None:
+        return True
+    norm = normalize_name(blob)
+    if not norm:
+        return False
+    for key in VENDOR_ID_ALIASES:
+        if len(key) >= 4 and key in norm:
+            return True
+    return False
+
+
+def never_skip_vendor_invoice(
+    *,
+    subject: str = "",
+    from_name: str = "",
+    preview: str = "",
+    attachment_names: list[str] | None = None,
+) -> bool:
+    """KIMCO / known-bill vendor + invoice evidence is never not-a-bill/Skipped.
+
+    Kyle: if a supplier is listed in KIMCO and provides an invoice (PDF,
+    link-PDF, or Invoice/INV subject), enter or HOLD with a real Why.
+    AI Skipped is only for true non-vendor noise.
+    """
+    names = list(attachment_names or [])
+    blob = f"{from_name}\n{subject}\n{preview}\n{' '.join(names)}"
+    if re.search(
+        r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
+        blob,
+        flags=re.I,
+    ) and not INVOICE_HINT_RE.search(subject):
+        return False
+    has_invoice = bool(
+        INVOICE_HINT_RE.search(subject)
+        or INVOICE_HINT_RE.search(preview)
+        or extract_subject_invoice_number(subject)
+        or any(str(n or "").lower().endswith(".pdf") for n in names)
+        or LINK_DOWNLOAD_VENDOR_RE.search(blob)
+    )
+    if not has_invoice:
+        return False
+    return bool(
+        is_known_kimco_vendor(from_name, subject, preview)
+        or KNOWN_BILL_VENDOR_RE.search(blob)
+        or THREE_P_RE.search(blob)
+        or EASTERN_METAL_RE.search(blob)
+        or MELODY_CHANNELL_RE.search(blob)
+        or LINK_DOWNLOAD_VENDOR_RE.search(blob)
+        or INVOICE_HINT_RE.search(subject)
+    )
 
 
 def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:

@@ -493,8 +493,8 @@ def test_noise_skip_rows_name_bill_vs_noise_gate():
         "API Agent - 9/8/26",
     )
     assert rows[0]["Result"] == RESULT_SKIPPED
-    assert rows[0]["Flag in Outlook"] == "No"
-    assert rows[0]["Flag status"] == "none"
+    assert rows[0]["Flag in Outlook"] == "Yes"
+    assert rows[0]["Flag status"] == "skip-eligible"
     assert "bill-vs-noise" in rows[0]["Why"]
     assert "Monthly Account Statement" in rows[0]["Why"]
     assert rows[0]["Notes"] == ""

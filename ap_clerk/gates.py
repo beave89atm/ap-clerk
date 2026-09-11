@@ -22,6 +22,7 @@ from ap_clerk.rules import (
     normalize_part,
     qty_discrepancy,
     format_unmatched_lines,
+    format_unmatched_pos,
     vendor_match_score,
     vendors_strictly_match,
 )
@@ -371,10 +372,14 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     ) or str(inv.get("hold_reason") or "").strip().lower() in {"auto-pay", "auto pay"}:
         return False, why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
     if str(inv.get("hold_reason") or "").strip().lower() == GATE_PDF_LINK or inv.get("pdf_behind_link"):
+        vendor = str(inv.get("vendor") or "vendor")
+        number = str(inv.get("invoice_number") or "").strip() or "unknown"
+        host = str(inv.get("pdf_link_host") or "")
+        host_bit = f" host {host}" if host else ""
         return False, why_hold(
             GATE_PDF_LINK,
-            "vendor PDF is behind a download link that needs auth or failed unauthenticated GET. "
-            "Not a silent not-a-bill.",
+            f"{vendor} invoice #{number} PDF is behind a download link{host_bit} "
+            "(auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
         )
     if inv.get("check_stop") or str(inv.get("hold_reason") or "").strip().upper() == "CHECK STOP":
         # Real notices are mailbox noise (Skipped), not a fake parse-error HOLD.
@@ -743,6 +748,12 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "(EMJ Z250725432). Fix: Select Receipts for each merchandise line. "
             "Do not stop after one. Never silent Success."
         )
+    unmatched_pos = [str(p) for p in (check.get("unmatched_pos") or []) if p]
+    if unmatched_pos:
+        failures.append(
+            f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)} "
+            "(3P multi-PO). Fix: Select Receipts per PO. Never silent Success."
+        )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),
@@ -811,6 +822,7 @@ def selfcheck_payload(
         "fees_required": fees_required(parsed_fees),
         "fees_posted": bool(fees_posted),
         "unmatched_invoice_lines": list((receipt_result or {}).get("unmatched_lines") or []),
+        "unmatched_pos": list((receipt_result or {}).get("unmatched_pos") or []),
         "require_pdf_number": bool(inv.get("field_sources")),
         "pdf_path": inv.get("pdf_path"),
         "pdf_on_disk": inv.get("pdf_on_disk"),

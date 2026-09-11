@@ -13,6 +13,8 @@ from pypdf import PdfReader
 from ap_clerk.rules import (
     FEE_KEYWORDS,
     extract_po_number,
+    extract_subject_invoice_number,
+    extract_subject_pos,
     is_fee_or_surcharge,
     known_invoice_prefix,
     printed_invoice_number,
@@ -227,6 +229,7 @@ SUBJECT_VENDORS = (
     (re.compile(r"unifirst", re.I), "UniFirst Corporation"),
     (re.compile(r"shoppa", re.I), "Shoppa's Material Handling"),
     (re.compile(r"eastern metal", re.I), "Eastern Metal Supply of Texas"),
+    (re.compile(r"\b3p\b|rachel\s+bailey", re.I), "3P"),
     (re.compile(r"green valley compressor", re.I), "Green Valley Compressor LLC"),
     (re.compile(r"purvis", re.I), "Purvis Industries"),
     (re.compile(r"ntex", re.I), "NTEX Electric Inc."),
@@ -719,6 +722,9 @@ def _invoice_from_filename(filename: str) -> str | None:
 
 
 def _invoice_from_subject(subject: str) -> str | None:
+    hashed = extract_subject_invoice_number(subject)
+    if hashed:
+        return hashed
     for pattern in (
         r"Invoice\s*(?:Number|#|No\.?)?\s*[-:#]?\s*([A-Z]{0,8}\d{4,})",
         r"\b(TXFT\d{5,})\b",
@@ -1172,6 +1178,13 @@ def parse_invoice_text(
     pos = extract_po_numbers(pdf_text)
     if pos:
         sources["po"] = "pdf"
+    extra_pos = extract_subject_pos(subject)
+    if extra_pos:
+        for number in extra_pos:
+            if number not in pos:
+                pos.append(number)
+        if not sources.get("po"):
+            sources["po"] = "subject"
     amount = None
     # Amount must come from vendor PDF text, never subject/filename (Gas 0040323616).
     due_label = _AMOUNT_DUE_LABEL.search(pdf_text)

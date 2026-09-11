@@ -141,6 +141,11 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-15** EMJ Z250725432 / PO 58913 / KIMCO 9969 (Kyle 2026-09-11) | Two invoice lines; `lines:[]` then one PO receipt; Success; skipped line not on sheet; random-length gap not PPV | Parse both lines; Select Receipts per line; unmatched → not Success + Why names the skipped line; small length variance is PPV (≤10% / ≤$100), not Fees; prepaid/ship-date null amount is not a fee | `test_never_repeat_emj_z250725432_two_lines` |
 | **NOTE-16** Gas `billing01_A3050_c.pdf` / 0040370068 / KIMCO 9970 (Kyle 2026-09-11) | 6 invoices collapsed to one # + multi-PO Incomplete; amount 322 was before tax | Split to 6 bills; after-tax Amount Due; Why `multi-invoice-pdf page X–Y of N`; email still 1 touch; never Success/Incomplete a collapsed pack | `test_never_repeat_gas_multi_invoice_pdf` |
 | **NOTE-17** Insight 1809 already entered (Kyle 2026-09-11) | HOLD preflight-parse MSC/McQueary + `no-pdf-on-vm`; never said already-entered | Duplicate check before parse-HOLD; HOLD `already-entered` names vendor / # / KIMCO id; no McQueary; no `no-pdf-on-vm` when PDF is on disk | `test_never_repeat_insight_1809_already_entered` |
+| **NOTE-18** Outlook `AI Skipped` for noise (Kyle 2026-09-11) | Noise was sheet-only; no Outlook category; already-flagged ignored `AI Skipped` | Stamp exact `AI Skipped` (never `AI HOLD`); Why `outlook-category-missing: AI Skipped` if Graph cannot apply; already-flagged includes `AI Skipped` | `test_never_repeat_ai_skipped_noise` |
+| **NOTE-19** 3P / Rachel Bailey INV# 142041 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; header PO blank; Select Receipts per PO; unmatched PO named on Why; never silent Success | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
+| **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | Invoice + Eastern Metal (alias 64) is a bill; invoice hint or PDF → never not-a-bill | `test_never_repeat_eastern_metal_818600_not_noise` |
+| **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18) | Skipped not-a-bill + `no-pdf-on-vm` | Download https invoice link; auth wall → HOLD `pdf-behind-link` names vendor / # / host | `test_never_repeat_aqpc_10917_link_download` |
+| **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO vendor + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD; AI Skipped only for true noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -151,8 +156,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
 ## Unchanged (Kyle / prior PRs)
 
-- **Hard email cap 10 until further notice (Kyle 2026-09-11)** — replaces “cap = N bill attempts / walk past noise” (PR #19). Noise is still Excel `Skipped` without Outlook `AI HOLD`, but noise **consumes** the 10-email touch cap.
-- **Skip already-flagged** — `Entered in AI` / `AI HOLD` / `Entered with issues` / `flag.flagStatus=flagged` are walked past without touching and do not consume the cap.
+- **Hard email cap 10 until further notice (Kyle 2026-09-11)** — replaces “cap = N bill attempts / walk past noise” (PR #19). Noise is Excel `Skipped` with Outlook **`AI Skipped`** (never `AI HOLD`) and **consumes** the 10-email touch cap.
+- **Skip already-flagged** — `Entered in AI` / `AI HOLD` / `Entered with issues` / `AI Skipped` / `flag.flagStatus=flagged` are walked past without touching and do not consume the cap.
 - One Mail.Send per run after the final sheet only.
 - No auto-pay. No auto-close batch. Payments human-gated.
 - Shawn McKibben comments on price-does-not-match.

@@ -254,6 +254,89 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-18",
+        "slug": "outlook-ai-skipped-noise",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Mailbox noise / Skipped → Outlook AI Skipped",),
+        "9_11_bug": (
+            "Noise Skipped rows were sheet-only with no Outlook category. "
+            "Skip-already-flagged did not treat AI Skipped as already-touched."
+        ),
+        "expected": (
+            "Noise gets Outlook category exactly AI Skipped (never AI HOLD). "
+            "Sheet Result stays Skipped. Graph missing category → Why "
+            "outlook-category-missing: AI Skipped. Already-flagged includes "
+            "AI Skipped (no reprocess, no email-cap consume)."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-19",
+        "slug": "3p-rachel-bailey-multi-po",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("3P / Rachel Bailey INV # 142041 / PO # 58766, 58767, 58844",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill for Rachel Bailey INV#+PO# subjects. "
+            "3P is a real receipt-type multi-PO vendor."
+        ),
+        "expected": (
+            "Never classify 3P / Rachel Bailey as not-a-bill. Receipt-type. "
+            "Multi-PO: header Purchase Order blank; Select Receipts per PO; "
+            "sheet lists every PO. Unmatched PO → not Success and Why names it. "
+            "Outlook is bill categories, not AI Skipped."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-20",
+        "slug": "eastern-metal-818600-not-noise",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Eastern Metal Supply 818600 / 818601",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill for Invoice : 818600 / 818601 from "
+            "EASTERN METAL SUPPLY of TEXAS, INC."
+        ),
+        "expected": (
+            "Invoice + Eastern Metal is a bill (alias 64). Invoice hint or PDF "
+            "attached is never not-a-bill. Enter or HOLD with real Why."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-21",
+        "slug": "aqpc-10917-link-download",
+        "gate": GATE_PDF_LINK,
+        "cases": ("AQPC payment request invoice 10917 / 10918",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill + no-pdf-on-vm for American Quality "
+            "Powder Coating payment-request emails (invoice behind a link)."
+        ),
+        "expected": (
+            "AQPC is an invoice. Extract the https payment-request link and "
+            "download the PDF. Auth wall → HOLD pdf-behind-link naming vendor, "
+            "invoice #, and link host. Never Skipped noise."
+        ),
+        "never_success": True,
+        "deferred": "Authenticated vendor portals stay HOLD pdf-behind-link.",
+    },
+    {
+        "id": "NOTE-22",
+        "slug": "kimco-vendor-invoice-never-skip",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Any KIMCO-listed vendor that sends an invoice",),
+        "9_11_bug": (
+            "Listed KIMCO vendors with Invoice/INV subjects were Skipped as "
+            "not-a-bill (Eastern Metal, 3P, AQPC)."
+        ),
+        "expected": (
+            "If the supplier is listed in KIMCO and provides an invoice "
+            "(PDF, link-PDF, or Invoice/INV subject), never Skipped / AI Skipped "
+            "/ not-a-bill. Enter or HOLD with a real Why. AI Skipped is only "
+            "for true non-vendor noise."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -310,6 +393,13 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "GET after header create: posted KIMCO vendor name/id matches the parsed "
             "vendor (or a known alias for that same vendor). Else HOLD vendor-mismatch, "
             "never Success. Do not void."
+        ),
+    },
+    {
+        "id": "all-pos-selected",
+        "check": (
+            "Multi-PO bills Select Receipts per PO. Unmatched POs are named on Why "
+            "and never silent Success (3P 142041)."
         ),
     },
 )

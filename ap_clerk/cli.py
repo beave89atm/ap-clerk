@@ -21,7 +21,6 @@ from ap_clerk.daily import (
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
-    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     REPORT_TO,
@@ -34,7 +33,13 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
-from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills, skip_rows_for_report
+from ap_clerk.inbox import (
+    HARD_EMAIL_CAP,
+    apply_skip_outlook_flags,
+    clamp_email_limit,
+    pull_recent_bills,
+    skip_rows_for_report,
+)
 from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
@@ -92,6 +97,8 @@ from ap_clerk.rules import (
     lookup_id,
     lookup_text,
     format_unmatched_lines,
+    format_unmatched_pos,
+    extract_subject_invoice_number,
     invoice_qty_evidence,
     match_receipts,
     merchandise_qty,
@@ -133,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--from-inbox",
         action="store_true",
-        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; HOLD/Fail/skips→AI HOLD.",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; bill HOLD/Fail→AI HOLD; noise→AI Skipped.",
     )
     parser.add_argument(
         "--limit",
@@ -201,6 +208,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "Live target. Kyle said go. Writes use live host + live GUIDs only. "
             "Success (finished bill) gets Entered in AI; Incomplete/HOLD/Fail get AI HOLD. "
+            "Noise Skipped gets AI Skipped. "
             "No follow-up flag.",
             flush=True,
         )
@@ -221,8 +229,10 @@ def main(argv: list[str] | None = None) -> int:
         try:
             category_status = graph_client.ensure_ai_hold_category(args.mailbox)
             issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+            skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
             print(f"AI HOLD master category: {category_status}", flush=True)
             print(f"Entered with issues master category: {issues_status}", flush=True)
+            print(f"AI Skipped master category: {skipped_status}", flush=True)
         except (GraphError, MailboxRejected):
             print("AI HOLD master category: category-denied", flush=True)
         from datetime import timedelta
@@ -240,12 +250,16 @@ def main(argv: list[str] | None = None) -> int:
             unprocessed_only=True,
             mark_skips=True,
         )
-        inbox_skip_rows = skip_rows_for_report(skipped, batch_name)
+        inbox_skip_rows = apply_skip_outlook_flags(
+            skip_rows_for_report(skipped, batch_name),
+            graph_client,
+            mailbox=args.mailbox,
+        )
         print(
             f"Inbox touched up to {HARD_EMAIL_CAP} email(s) from {args.mailbox} "
             f"({start.isoformat()} to {end.isoformat()}); selected {len(invoices)} bill(s); "
             f"skipped {len(skipped)} (already-flagged walked past; noise consumes the cap). "
-            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→sheet only.",
+            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→AI Skipped.",
             flush=True,
         )
         if not invoices:
@@ -262,8 +276,10 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 category_status = graph_client.ensure_ai_hold_category(args.mailbox)
                 issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+                skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
                 print(f"AI HOLD master category: {category_status}", flush=True)
                 print(f"Entered with issues master category: {issues_status}", flush=True)
+                print(f"AI Skipped master category: {skipped_status}", flush=True)
             except (GraphError, MailboxRejected):
                 print("AI HOLD master category: category-denied", flush=True)
         if args.match_inbox:
@@ -791,17 +807,23 @@ def _process_invoice(
     if not create_ok:
         if is_noise_reason(hold_reason):
             row["Result"] = RESULT_SKIPPED
-            row["Why"] = why_skipped(GATE_BILL_VS_NOISE, f"{hold_reason}. Do not create a header.")
-            row["Flag in Outlook"] = "No"
-            row["Flag status"] = FLAG_NONE
-            return row
+            row["Why"] = why_skipped(
+                GATE_BILL_VS_NOISE,
+                f"{hold_reason}. Do not create a header. Outlook AI Skipped (not AI HOLD).",
+            )
+            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         reason_l = str(hold_reason).lower()
         if reason_l in {"auto-pay", "auto pay"}:
             row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
         elif reason_l == "pdf-behind-link":
+            inv_no = number or extract_subject_invoice_number(str(inv.get("subject") or ""))
+            host = str(inv.get("pdf_link_host") or "")
+            host_bit = f" host {host}" if host else ""
+            row["Invoice #"] = inv_no or row.get("Invoice #") or ""
             row["Why"] = why_hold(
                 GATE_PDF_LINK,
-                "vendor PDF is behind a download link (auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
+                f"{vendor} invoice #{inv_no or 'unknown'} PDF is behind a download link{host_bit} "
+                "(auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
             )
         elif reason_l == "price does not match":
             row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}.")
@@ -832,6 +854,8 @@ def _process_invoice(
 
     pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
     multi_po = bool(inv.get("multi_po")) or len(pos) > 1
+    if multi_po:
+        row["PO"] = ", ".join(pos)
     invoice_lines = list(inv.get("lines") or [])
     parts = [str(line.get("part") or "") for line in invoice_lines if line.get("part")]
     wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
@@ -966,6 +990,7 @@ def _process_invoice(
         notes = []
         combined_matched: list[dict[str, Any]] = []
         combined_unmatched: list[dict[str, Any]] = []
+        unmatched_pos: list[str] = []
         for search_po in search_pos or [None]:
             one = match_receipts(
                 invoice_number=number,
@@ -978,6 +1003,8 @@ def _process_invoice(
             notes.append(one["why"])
             combined_matched.extend(one.get("matched") or [])
             combined_unmatched.extend(one.get("unmatched_lines") or [])
+            if one.get("hold_no_receipts") and search_po:
+                unmatched_pos.append(str(search_po))
             if one.get("ambiguous") and not one.get("matched"):
                 hold_all = False
                 if issue_hold is None:
@@ -998,16 +1025,23 @@ def _process_invoice(
             "hold_no_receipts": hold_all,
             "matched": combined_matched,
             "unmatched_lines": combined_unmatched,
+            "unmatched_pos": unmatched_pos,
             "why": " ".join(notes),
         }
         if hold_all and (po_info or multi_po) and issue_hold is None:
             unmatched_txt = format_unmatched_lines(combined_unmatched)
-            extra = (
-                f" Unmatched invoice line(s): {unmatched_txt}. "
-                "Select Receipts for each invoice line; do not stop after one."
-                if unmatched_txt
-                else ""
-            )
+            unmatched_po_txt = format_unmatched_pos(unmatched_pos)
+            extra = ""
+            if unmatched_txt:
+                extra += (
+                    f" Unmatched invoice line(s): {unmatched_txt}. "
+                    "Select Receipts for each invoice line; do not stop after one."
+                )
+            if unmatched_po_txt:
+                extra += (
+                    f" Unmatched PO(s): {unmatched_po_txt}. "
+                    "Select Receipts per PO; do not skip a PO silently."
+                )
             row["Result"] = RESULT_HOLD
             row["Why"] = why_hold(
                 GATE_RECEIPT,
@@ -1016,6 +1050,11 @@ def _process_invoice(
             )
             return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        if unmatched_pos:
+            receipt_note += (
+                f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
+                "Select Receipts per PO; do not skip a PO silently. "
+            )
         if receipt_result and issue_hold is None:
             matched_receipts = [
                 {
@@ -1599,6 +1638,7 @@ def _run_probe(args: argparse.Namespace) -> int:
         )
         category_status = client.ensure_ai_hold_category(mailbox)
         issues_status = client.ensure_entered_with_issues_category(mailbox)
+        skipped_status = client.ensure_ai_skipped_category(mailbox)
         probe = client.probe_send_authorization(mailbox)
     except MailboxRejected as exc:
         print(str(exc), flush=True)
@@ -1617,6 +1657,7 @@ def _run_probe(args: argparse.Namespace) -> int:
         "mail_sent_to_anyone": False,
         "ai_hold_category": category_status,
         "entered_with_issues_category": issues_status,
+        "ai_skipped_category": skipped_status,
         "probe": probe,
         "notes": (
             "Draft created on the AP mailbox and deleted. sendMail was not called. "
@@ -1626,6 +1667,8 @@ def _run_probe(args: argparse.Namespace) -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"AI HOLD master category: {category_status}", flush=True)
+    print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped master category: {skipped_status}", flush=True)
     print(
         f"Mail.Send role={'present' if probe.get('mail_send_role') else 'absent'} "
         f"draft={probe.get('draft_status')} draft_http={probe.get('draft_http')} "
@@ -1656,10 +1699,10 @@ def _run_daily(args: argparse.Namespace) -> int:
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
         "Daily FIFO from 2026-07-28 America/Chicago toward today. "
-        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / flag.flagStatus=flagged). "
+        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / AI Skipped / flag.flagStatus=flagged). "
         "Hard email cap 10 until further notice (Kyle 2026-09-11). "
         "Noise consumes the cap. Cursor persists. "
-        "Success→Entered in AI only; Incomplete/HOLD/Fail→AI HOLD. No flag.flagStatus.",
+        "Success→Entered in AI only; bill Incomplete/HOLD/Fail→AI HOLD; noise→AI Skipped. No flag.flagStatus.",
         flush=True,
     )
 
@@ -1695,11 +1738,14 @@ def _run_daily(args: argparse.Namespace) -> int:
     try:
         category_status = graph_client.ensure_ai_hold_category(args.mailbox)
         issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+        skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
     except (GraphError, MailboxRejected):
         category_status = "category-denied"
         issues_status = "category-denied"
+        skipped_status = "category-denied"
     print(f"AI HOLD master category: {category_status}", flush=True)
     print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped master category: {skipped_status}", flush=True)
 
     pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
     try:
@@ -1732,7 +1778,11 @@ def _run_daily(args: argparse.Namespace) -> int:
         flush=True,
     )
 
-    skip_rows = skip_rows_for_report(skipped, batch_name)
+    skip_rows = apply_skip_outlook_flags(
+        skip_rows_for_report(skipped, batch_name),
+        graph_client,
+        mailbox=args.mailbox,
+    )
     rows: list[dict[str, Any]] = []
     batch_label = batch_name
 

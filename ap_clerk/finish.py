@@ -34,6 +34,7 @@ from ap_clerk.graph import (
     FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_NONE,
+    FLAG_SKIP_ELIGIBLE,
     GraphClient,
     GraphError,
     MailboxRejected,
@@ -487,9 +488,16 @@ def apply_grouped_outlook_flags(
     for message_id, group in by_message.items():
         bills = [row for row in group if not is_noise_result(str(row.get("Result") or ""))]
         if not bills:
+            dummy = {"Result": "Skipped", "KIMCO id": "", "Why": str(group[0].get("Why") or "")}
+            apply_flag_after_match(dummy, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
+            status = dummy.get("Flag status") or FLAG_SKIP_ELIGIBLE
             for row in group:
-                row["Flag status"] = FLAG_NONE
-                row["Flag in Outlook"] = "No"
+                row["Flag status"] = status
+                row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or "Skipped"))
+                why = str(row.get("Why") or "").rstrip()
+                extra = str(dummy.get("Why") or "")
+                if extra and extra not in why:
+                    row["Why"] = extra
             continue
         results = {str(row.get("Result") or "") for row in bills}
         outcome = RESULT_SUCCESS if results == {RESULT_SUCCESS} else RESULT_INCOMPLETE
@@ -534,7 +542,7 @@ def grouped_flag_status_for_message(rows: list[dict[str, Any]]) -> str:
     """
     bills = [row for row in rows if not is_noise_result(str(row.get("Result") or ""))]
     if not bills:
-        return FLAG_NONE
+        return FLAG_SKIP_ELIGIBLE
     results = {str(row.get("Result") or "") for row in bills}
     if results == {RESULT_SUCCESS}:
         return FLAG_FLAGGED

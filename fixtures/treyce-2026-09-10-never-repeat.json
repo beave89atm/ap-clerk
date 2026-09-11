@@ -157,6 +157,37 @@
       "amount": 412.00,
       "date": "2026-08-16",
       "pdf_text": "Insight Controller Services\nInvoice Number: 1809\nInvoice Date: 08/16/2026\nAmount Due: $412.00\n"
+    },
+    "NOTE-18": {
+      "category": "AI Skipped",
+      "result": "Skipped"
+    },
+    "NOTE-19": {
+      "vendor": "3P",
+      "from_name": "Rachel Bailey",
+      "subject": "INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844",
+      "invoice_number": "142041",
+      "pos": ["58766", "58767", "58844"],
+      "amount": 250.00,
+      "date": "2026-08-18"
+    },
+    "NOTE-20": {
+      "vendor": "Eastern Metal Supply of Texas",
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "invoice_number": "818600",
+      "subject_818601": "Invoice : 818601 from EASTERN METAL SUPPLY of TEXAS, INC."
+    },
+    "NOTE-21": {
+      "vendor": "American Quality Powder Coating",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917",
+      "invoice_number": "10917",
+      "subject_10918": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10918",
+      "body": "Please download your invoice: https://pay.aqpowder.com/invoices/10917",
+      "link_host": "pay.aqpowder.com"
+    },
+    "NOTE-22": {
+      "vendor": "Eastern Metal Supply of Texas",
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC."
     }
   }
 }
