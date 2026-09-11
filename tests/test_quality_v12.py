@@ -1841,13 +1841,69 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     assert row["Result"] != RESULT_SKIPPED
 
 
-def test_never_repeat_kimco_vendor_invoice_never_skip():
-    """NOTE-22: KIMCO-listed vendor + Invoice subject is never Skipped."""
+def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):
+    """NOTE-22: KIMCO-listed vendor + invoice is never Skipped / AI Skipped."""
+    from ap_clerk.inbox import pull_recent_bills
+    from ap_clerk.rules import has_invoice_link
+
     n = NOTES["NOTE-22"]
     assert known_vendor_id("Eastern Metal Supply of Texas") == 64
+    assert known_vendor_id(n["msc_from"]) == 128
     assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"])
+    assert never_skip_vendor_invoice(subject=n["msc_subject"], from_name=n["msc_from"])
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        attachment_names=[n["msc_pdf"]],
+    )
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        preview=n["msc_link_body"],
+    )
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["fastenal_from"],
+        attachment_names=["TXFT4100079.pdf"],
+    )
+    assert has_invoice_link(preview=n["msc_link_body"])
     assert classify_mail(subject=n["subject"], preview=n["vendor"]) == "invoice"
-    assert classify_mail(subject="Invoice 70762501 from MSC Industrial Supply") == "invoice"
+    assert classify_mail(subject=n["msc_subject"]) == "invoice"
+    assert classify_mail(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        attachment_names=[n["msc_pdf"]],
+    ) == "invoice"
     assert classify_mail(subject="Monthly Account Statement") == "statement"
     assert not never_skip_vendor_invoice(subject="Monthly Account Statement", from_name="Bank")
+    assert decide_flag_status(result="Success", kimco_id=9968, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+    assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-kimco-inv",
+                    "subject": n["msc_subject"],
+                    "receivedDateTime": "2026-08-18T14:00:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["msc_from"],
+                    "from": {"emailAddress": {"name": n["msc_from"], "address": "billing@mscdirect.com"}},
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return []
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return []
+
+    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    assert selected[0].get("hold_reason") != "not-a-bill"
+    row, _ = _row(selected[0])
+    assert row["Result"] != RESULT_SKIPPED
+    assert "AI Skipped" not in row["Why"]
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-22")

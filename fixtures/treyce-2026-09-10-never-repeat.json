@@ -192,7 +192,12 @@
     },
     "NOTE-22": {
       "vendor": "Eastern Metal Supply of Texas",
-      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC."
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "msc_from": "MSC Industrial Supply",
+      "msc_subject": "Invoice 70762501 from MSC Industrial Supply",
+      "msc_pdf": "Invoice-70762501.pdf",
+      "msc_link_body": "Download your invoice: https://www.mscdirect.com/invoices/70762501.pdf",
+      "fastenal_from": "Fastenal Company"
     }
   }
 }

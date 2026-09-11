@@ -335,10 +335,10 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "not-a-bill (Eastern Metal, 3P, AQPC)."
         ),
         "expected": (
-            "If the supplier is listed in KIMCO and provides an invoice "
-            "(PDF, link-PDF, or Invoice/INV subject), never Skipped / AI Skipped "
-            "/ not-a-bill. Enter or HOLD with a real Why. AI Skipped is only "
-            "for true non-vendor noise."
+            "If the supplier is listed in KIMCO (From or subject) and provides "
+            "an invoice (PDF, link-PDF, or Invoice/INV subject), never Skipped / "
+            "AI Skipped / not-a-bill. Enter or HOLD with a real Why. AI Skipped "
+            "is only for true non-vendor noise (statements, payments, PODs)."
         ),
         "never_success": True,
     },

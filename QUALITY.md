@@ -145,7 +145,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO; sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
 | **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
 | **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request URL, unauth GET (follow redirects), then header + attach. Auth wall → HOLD `pdf-behind-link` names vendor / # / host — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
-| **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO vendor + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD; AI Skipped only for true noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
+| **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped`. `AI Skipped` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

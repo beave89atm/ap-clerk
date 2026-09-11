@@ -184,6 +184,10 @@ VENDOR_ID_ALIASES = {
     "orthman conveying": 434,
 }
 
+# Listed KIMCO vendors that are recognized for never-skip without inventing a Vendor.id.
+# Fastenal is live-entered often (TXFT… / KIMCO 9968) but has no alias row yet.
+KNOWN_KIMCO_VENDOR_NAMES = frozenset({"fastenal"})
+
 # Existing live invoices used only for remit/terms copy. Confirmed by GET.
 KNOWN_VENDOR_SAMPLE_INVOICES = {
     434: 9496,  # Orthman 701599
@@ -1501,6 +1505,11 @@ STATEMENT_RE = re.compile(
     flags=re.I,
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
+# Link-PDF: https invoice / download / .pdf (AQPC payment-request, vendor portals).
+HTTPS_INVOICE_LINK_RE = re.compile(
+    r"https://[^\s<>\"']*(?:invoice|inv[#/?]|download|payment.?request|\.pdf|pay\.)[^\s<>\"']*",
+    flags=re.I,
+)
 
 
 def has_invoice_hint(
@@ -1520,6 +1529,11 @@ def has_invoice_hint(
     if extract_subject_invoice_number(subject):
         return True
     return False
+
+
+def has_invoice_link(*, subject: str = "", preview: str = "") -> bool:
+    """True when the body/subject has an https invoice / download / PDF link."""
+    return bool(HTTPS_INVOICE_LINK_RE.search(f"{subject}\n{preview}"))
 
 
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
@@ -1546,10 +1560,16 @@ INTERNAL_MAIL_RE = re.compile(
 )
 
 
-def classify_mail(*, subject: str = "", attachment_names: list[str] | None = None, preview: str = "") -> str:
+def classify_mail(
+    *,
+    subject: str = "",
+    attachment_names: list[str] | None = None,
+    preview: str = "",
+    from_name: str = "",
+) -> str:
     """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', 'internal', 'auto-pay', or 'not-a-bill'."""
     names = " ".join(attachment_names or [])
-    blob = f"{subject}\n{names}\n{preview}"
+    blob = f"{from_name}\n{subject}\n{names}\n{preview}"
     if is_auto_pay(subject=subject, preview=preview):
         return "auto-pay"
     # Gas & Supply: subject CHECK STOP is not enough — inbox must read the PDF
@@ -1565,7 +1585,7 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
             return "payment"
         return "invoice"
     if never_skip_vendor_invoice(
-        subject=subject, from_name="", preview=preview, attachment_names=attachment_names
+        subject=subject, from_name=from_name, preview=preview, attachment_names=attachment_names
     ):
         if re.search(
             r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
@@ -1647,6 +1667,9 @@ def is_known_kimco_vendor(*parts: str) -> bool:
     for key in VENDOR_ID_ALIASES:
         if len(key) >= 4 and key in norm:
             return True
+    for token in KNOWN_KIMCO_VENDOR_NAMES:
+        if len(token) >= 4 and token in norm:
+            return True
     return False
 
 
@@ -1673,6 +1696,7 @@ def never_skip_vendor_invoice(
         return False
     has_invoice = bool(
         has_invoice_hint(subject=subject, attachment_names=names, preview=preview)
+        or has_invoice_link(subject=subject, preview=preview)
         or any(str(n or "").lower().endswith(".pdf") for n in names)
         or LINK_DOWNLOAD_VENDOR_RE.search(blob)
     )

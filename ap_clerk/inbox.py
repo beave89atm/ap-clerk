@@ -44,7 +44,9 @@ from ap_clerk.rules import (
     extract_subject_invoice_number,
     extract_subject_pos,
     has_invoice_hint,
+    has_invoice_link,
     flag_in_outlook_for,
+    is_known_kimco_vendor,
     is_melody_channell,
     never_skip_vendor_invoice,
 )
@@ -233,10 +235,13 @@ def pull_recent_bills(
         names = graph.list_attachment_names(mailbox, message_id) if message.get("hasAttachments") else []
         message["attachment_names"] = names
         examined.append(message)
+        from_name = sender_name(message)
         if any(STATEMENT_FILE_RE.search(n or "") for n in names):
             klass = "statement"
         else:
-            klass = classify_mail(subject=subject, attachment_names=names, preview=preview)
+            klass = classify_mail(
+                subject=subject, attachment_names=names, preview=preview, from_name=from_name
+            )
         if klass == "auto-pay":
             selected.append(
                 {
@@ -272,9 +277,11 @@ def pull_recent_bills(
             )
             LOGGER.info("Skipping %s mail: %s", klass, subject[:80])
             continue
-        from_name = sender_name(message)
         link_blob = f"{from_name}\n{subject}\n{preview}"
-        wants_link = bool(LINK_DOWNLOAD_VENDOR_RE.search(link_blob))
+        wants_link = bool(LINK_DOWNLOAD_VENDOR_RE.search(link_blob)) or (
+            is_known_kimco_vendor(from_name, subject, preview)
+            and has_invoice_link(subject=subject, preview=preview)
+        )
         known_bill = never_skip_vendor_invoice(
             subject=subject,
             from_name=from_name,
