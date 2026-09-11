@@ -409,6 +409,21 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     },
 )
 
+# Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
+# regress as false Skip or false Success. Tests stay unit-only until that job.
+MONDAY_LIVE10_BASICS: tuple[dict[str, str], ...] = (
+    {"id": "kimco-vendor-never-skip", "note": "NOTE-22", "test": "test_never_repeat_kimco_vendor_invoice_never_skip"},
+    {"id": "pdf-is-truth-accurate-why", "note": "NOTE-11", "test": "test_never_repeat_nova_258145"},
+    {"id": "qty-cost-receipt-and-fees", "note": "NOTE-14", "test": "test_never_repeat_fastenal_txft4100079"},
+    {"id": "all-lines-or-named-skip", "note": "NOTE-15", "test": "test_never_repeat_emj_z250725432_two_lines"},
+    {"id": "gas-split-after-tax", "note": "NOTE-16", "test": "test_never_repeat_gas_multi_invoice_pdf"},
+    {"id": "3p-multi-po-select-receipts", "note": "NOTE-19", "test": "test_3p_multi_po_select_receipts"},
+    {"id": "aqpc-link-download", "note": "NOTE-21", "test": "test_never_repeat_aqpc_10917_link_download"},
+    {"id": "eastern-metal-not-noise", "note": "NOTE-20", "test": "test_never_repeat_eastern_metal_818600_not_noise"},
+    {"id": "already-entered-why", "note": "NOTE-17", "test": "test_never_repeat_insight_1809_already_entered"},
+    {"id": "ai-skipped-true-noise-only", "note": "NOTE-18", "test": "test_never_repeat_ai_skipped_noise"},
+)
+
 
 def note_ids() -> tuple[str, ...]:
     return tuple(str(note["id"]) for note in TREYCE_NOTES_V12)

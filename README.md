@@ -2,7 +2,7 @@
 
 Weekday America/Chicago CLI that enters AP invoices. Default target is the **KIMCO prototype**. The scheduled 30-invoice run is **live** and requires `--live`.
 
-**QUALITY V1.2** (Treyce 2026-09-10 notes on the 8/16 dry-10): `Success` means a **finished bill Treyce would not need to rework**, not a header create. See **[QUALITY.md](QUALITY.md)** for the fix-before-complete checklist, Outlook `Entered with issues`, and never-repeat regressions. This build does **not** run a live KIMCO/mailbox job and does **not** re-arm the weekday daily 30. Pause further dry runs until Kyle reviews.
+**QUALITY V1.2** (Treyce 2026-09-10 notes on the 8/16 dry-10): `Success` means a **finished bill Treyce would not need to rework**, not a header create. See **[QUALITY.md](QUALITY.md)** for the fix-before-complete checklist, Outlook `Entered with issues`, and never-repeat regressions. This build does **not** run a live KIMCO/mailbox job and does **not** re-arm the weekday daily 30. Next live touch is the scheduled **Monday 2026-09-14 2:00am America/Chicago** 10-email run.
 
 **Hard email cap 10 until further notice (Kyle 2026-09-11).** Do not touch more than 10 emails per run. Cap = mailbox messages processed (any outcome: Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after 10. Do **not** walk past noise to fill N bill attempts. Bill-attempt mode is suspended until Kyle lifts this. If daily is invoked with `--limit 30`, hard-clamp to 10 emails.
 

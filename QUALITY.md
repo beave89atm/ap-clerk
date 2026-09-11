@@ -2,7 +2,8 @@
 
 Treyce’s 2026-09-10 notes on the 8/16 dry-10 sheet, plus Kyle’s never-repeat and
 **Treyce-load / fix-before-complete** rules. Code + unit tests only. **Do not**
-run a live KIMCO or mailbox job until Kyle reviews.
+run a live KIMCO or mailbox job until the scheduled **Monday 2026-09-14 2:00am
+America/Chicago** live 10-email run.
 
 **Hard email cap 10 until further notice (Kyle 2026-09-11).** Cap = mailbox
 messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after
@@ -163,4 +164,37 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 - Shawn McKibben comments on price-does-not-match.
 - Success = finished bill only (now also: Treyce would not rework it).
 
-Pause further dry runs until Kyle reviews this V1.2 PR.
+## Monday 2026-09-14 2:00am America/Chicago — live 10
+
+Scheduled job: `daily --live --limit 30` (hard-clamped to **10 emails**). No
+mailbox/KIMCO run from this PR before that job. Goal: ~90% without the false
+Skip / false Success class of errors.
+
+| # | Basic | Note / test |
+| --- | --- | --- |
+| 1 | Never skip KIMCO vendor invoices | NOTE-22 `test_never_repeat_kimco_vendor_invoice_never_skip` |
+| 2 | PDF-is-truth + accurate Why | NOTE-11 / 13 + Why-must-be-true |
+| 3 | Qty/cost receipt verify + post fees | NOTE-14 Fastenal TXFT4100079 |
+| 4 | All invoice lines or explicit skip note | NOTE-15 EMJ Z250725432 |
+| 5 | Multi-invoice PDF split + after-tax total | NOTE-16 Gas 0040370068 |
+| 6 | 3P multi-PO Select Receipts | NOTE-19 |
+| 7 | AQPC link download | NOTE-21 |
+| 8 | Eastern Metal not noise | NOTE-20 |
+| 9 | Duplicate / already-entered Why | NOTE-17 Insight 1809 |
+| 10 | `AI Skipped` for true noise only | NOTE-18 |
+
+### Blockers / failing-safe (not silent Skip or Success)
+
+- **Outlook master categories** `Entered with issues` and **`AI Skipped`** may
+  need to be created on `accountspayable@` (Graph masterCategories POST is often
+  403). Code still PATCHes the exact strings. Missing `AI Skipped` → Why
+  `outlook-category-missing: AI Skipped`; sheet stays Skipped.
+- **AQPC login-cookie portals** (NOTE-09): HOLD `pdf-behind-link` with vendor / #
+  / host. Unauth GET is implemented.
+- **Gas shared-total-only packs** (NOTE-10): HOLD `preflight-parse` /
+  `gas_misc_ambiguous` — never invent per-invoice amounts.
+- **Fastenal** has no confirmed `Vendor.id` alias row (never-skip uses the name
+  token; header vendor still comes from PO / samples). Do not invent an id.
+- **3P** has no KIMCO vendor id — do not invent one.
+
+Pause further ad-hoc dry runs. Next live touch is Monday’s scheduled 10.

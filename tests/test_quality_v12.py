@@ -59,6 +59,7 @@ from ap_clerk.pdf_links import (
     extract_https_links,
 )
 from ap_clerk.quality_v12 import (
+    MONDAY_LIVE10_BASICS,
     TREYCE_FINISH_CHECKLIST,
     TREYCE_NOTES_V12,
     assert_never_success,
@@ -153,6 +154,8 @@ def test_v12_registry_covers_all_notes():
     assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 23))
     assert len(TREYCE_NOTES_V12) == 22
     assert len(TREYCE_FINISH_CHECKLIST) == 12
+    assert len(MONDAY_LIVE10_BASICS) == 10
+    assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
         "insight-msc-pdf-invoice-number",
