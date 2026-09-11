@@ -16,9 +16,11 @@ from ap_clerk.gates import (
     RESULT_INCOMPLETE,
     RESULT_SUCCESS,
     finish_gate,
+    header_created_with_issues,
     is_noise_result,
     receipts_required,
     selfcheck_payload,
+    vendor_confirmation_gate,
     why_incomplete,
 )
 from ap_clerk.graph import (
@@ -33,7 +35,6 @@ from ap_clerk.graph import (
     apply_flag_after_match,
     score_message_for_invoice,
 )
-from ap_clerk.gates import header_created_with_issues
 from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE
 from ap_clerk.kimco import (
     KimcoClient,
@@ -41,7 +42,7 @@ from ap_clerk.kimco import (
     invoice_lines_from_record,
     receipt_ids_from_invoice_lines,
 )
-from ap_clerk.rules import flag_in_outlook_for, match_receipts
+from ap_clerk.rules import flag_in_outlook_for, match_receipts, posted_vendor_fields
 
 LOGGER = logging.getLogger("ap_clerk.finish")
 
@@ -238,6 +239,17 @@ def finish_existing_header(
             select_status = "blocked-no-receipt-ids"
             receipts_selected = False
 
+    posted_name, posted_id = posted_vendor_fields(record)
+    vendor_ok, _vendor_why = vendor_confirmation_gate(
+        parsed_vendor=str(inv.get("vendor") or out.get("Vendor") or ""),
+        posted_name=posted_name or None,
+        posted_id=posted_id,
+    )
+    check = selfcheck_payload(inv, po=po, multi_po=multi_po)
+    check["parsed_vendor"] = str(inv.get("vendor") or out.get("Vendor") or "")
+    check["posted_vendor"] = posted_name
+    check["posted_vendor_id"] = posted_id
+    check["vendor_mismatch"] = not vendor_ok
     result, finish_why = finish_gate(
         header_created=True,
         attach_status=attach_status,
@@ -245,7 +257,7 @@ def finish_existing_header(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=invoice_id,
-        selfcheck=selfcheck_payload(inv, po=po, multi_po=multi_po),
+        selfcheck=check,
     )
     out["Result"] = result
     out["Attach status"] = attach_status

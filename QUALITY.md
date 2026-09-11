@@ -23,6 +23,24 @@ when the PDF is on disk — do not HOLD preflight-parse for a `subject` tag.
 Do not report `no-pdf-on-vm` when the file exists; OCR/retry if text extract
 fails. Only HOLD no-pdf if the PDF is truly missing.
 
+**NOTE-12 MSC 70762501 posted as RMP (8/18 dry-10).** Parsed vendor
+`MSC Industrial Supply` must not `names_match` `RMP INDUSTRIAL SUPPLY` (generic
+tokens `industrial`/`supply` are not enough). Prefer known alias MSC→128 over
+fuzzy sample seeding. After header create, GET the invoice: if the posted
+vendor name/id is not the parsed vendor (or a known alias for that same
+vendor), Result is **not Success** — HOLD / Entered with issues, Why
+`vendor-mismatch` (parsed X, posted Y). Do not void. 8/18 wrote KIMCO **9967**
+as `1320-RMP INDUSTRIAL SUPPLY` type 4.
+
+**NOTE-13 Crosslink 27943 / 27944 / 27946 (8/18 dry-10).** Same false
+preflight-parse HOLD as Nova 258145, but the invoice # was tagged `filename`
+(`invoice-27943.pdf`) while date/amount/PO came from the PDF. Subject
+`Invoice #27943 for 58888 (#8221) from Crosslink Powder Coating`. Do not HOLD
+preflight-parse when the PDF is on disk and the subject or filename contains
+the same invoice #. Confirming the # from PDF text is OK. `no-pdf-on-vm` is
+forbidden when `pdf_path` exists. Same for 27944 / PO 58909 and 27946 / PO 58741.
+Fees `Packaging/Shop Supplies; Recovery` stay Fees, not PPV.
+
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
 
@@ -52,12 +70,14 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
 6. **PPV only** for unit-price gaps vs PO, and only if ≤10% of invoice total **and** ≤$100; else price-does-not-match HOLD + `@Shawn McKibben`.
 7. **Vendor PDF attached** on the header.
 8. **Select Receipts posted** when the PO path applies.
+9. **Posted vendor matches parsed** — GET after create; posted name/id is the
+   parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
 
 If Treyce would still fix header, lines, or charges → **HOLD**, **Incomplete**, or **Entered with issues**. Never `Success`.
 
 Every non-Success **Why** must name the gate and the next action so she is not hunting.
 
-## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova)
+## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
@@ -74,6 +94,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-09** AQPC link-download PDF | Silent not-a-bill | Best-effort https GET; auth → `pdf-behind-link` HOLD; never Success | `test_note09_aqpc_pdf_behind_link` |
 | **NOTE-10** Gas & Supply Misc vs CHECK STOP | Blanket CHECK STOP | Invoice pages → Type 4 `Shop Supplies - G&S`; notice skip; ambiguous HOLD; never Success | `test_note10_gas_supply_misc_vs_check_stop` |
 | **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | Vendor=Nova Alloys from subject/PDF, never the From person; same # on subject is OK when PDF exists; only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
+| **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
+| **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | Same gate as Nova NOTE-11: PDF on disk + same # on subject/filename is not a parse HOLD; no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

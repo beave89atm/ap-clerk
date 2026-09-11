@@ -43,6 +43,10 @@ def test_vendor_name_matching():
     assert names_match("Fastenal Company", "FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601")
     assert names_match("Crosslink Powder Coating of TX, LLC", "1276-Crosslink Powder Coating")
     assert names_match("Capital Machine Technologies, Inc", "CAPITAL MACHINE TECHNOLOGIES")
+    # Generic industrial/supply overlap is not a match (8/18 MSC 70762501 ≠ RMP).
+    assert not names_match("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY")
+    assert not names_match("MSC Industrial Supply", "1320-RMP INDUSTRIAL SUPPLY")
+    assert vendor_match_score("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY") == 0
 
 
 def test_fees_are_not_ppv():
@@ -185,6 +189,7 @@ def test_vendor_aliases_nsa_and_coherent():
     assert known_vendor_id("Coherent") == 1410
     assert known_vendor_id("Priority 1") == 145
     assert known_vendor_id("MSC Industrial Supply") == 128
+    assert known_vendor_id("RMP Industrial Supply") == 322
     assert known_vendor_id("Metal Supermarkets") == 121
     assert known_vendor_id("Marmon/Keystone") == 115
     assert known_vendor_id("Amada America") == 18

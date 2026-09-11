@@ -22,6 +22,7 @@ from ap_clerk.rules import (
     normalize_part,
     qty_discrepancy,
     vendor_match_score,
+    vendors_strictly_match,
 )
 
 RESULT_SUCCESS = "Success"
@@ -43,6 +44,7 @@ GATE_PRICE = "price-does-not-match"
 GATE_QTY = "qty-does-not-match"
 GATE_AUTO_PAY = "auto-pay"
 GATE_PDF_LINK = "pdf-behind-link"
+GATE_VENDOR = "vendor-mismatch"
 
 ATTACH_OK = frozenset({"attached"})
 PDF_FIELD_SOURCES = frozenset({"pdf", "pdf-prefix"})
@@ -134,6 +136,35 @@ def why_fail(detail: str) -> str:
     return f"Fail: {clean}" if clean else "Fail."
 
 
+def vendor_confirmation_gate(
+    *,
+    parsed_vendor: str | None = None,
+    posted_name: str | None = None,
+    posted_id: int | None = None,
+    forced_mismatch: bool = False,
+) -> tuple[bool, str]:
+    """GET-after-create: posted KIMCO vendor must be the parsed vendor (or alias).
+
+    Missing posted fields (test mocks / remit-only GET) do not fail — there is
+    nothing to contradict. A posted RMP on a parsed MSC is never Success.
+    Do not void the header.
+    """
+    posted_label = (posted_name or "").strip() or (
+        f"id {posted_id}" if posted_id is not None else ""
+    )
+    parsed_label = (parsed_vendor or "").strip() or "unknown"
+    if forced_mismatch or (
+        (posted_label or posted_id is not None)
+        and not vendors_strictly_match(parsed_vendor, posted_name, posted_id)
+    ):
+        detail = (
+            f"parsed {parsed_label}, posted {posted_label or 'unknown'}. "
+            "Do not void. Treyce must correct the vendor."
+        )
+        return False, why_hold(GATE_VENDOR, detail)
+    return True, ""
+
+
 def pdf_file_present(inv: dict[str, Any] | None) -> bool:
     """True when the vendor PDF is on disk. Empty extract ≠ missing file (Nova 258145)."""
     data = inv or {}
@@ -148,12 +179,31 @@ def pdf_file_present(inv: dict[str, Any] | None) -> bool:
         return False
 
 
+def invoice_number_matches_subject_or_filename(inv: dict[str, Any] | None) -> bool:
+    """True when the invoice # also appears on the subject, filename, or pdf_path name.
+
+    8/18: Nova 258145 (subject) and Crosslink 27943 (invoice-27943.pdf).
+    """
+    data = inv or {}
+    number = str(data.get("invoice_number") or "").strip()
+    if not number:
+        return False
+    haystacks = (
+        str(data.get("subject") or ""),
+        str(data.get("filename") or ""),
+        Path(str(data.get("pdf_path") or "")).name,
+    )
+    needle = number.lower()
+    return any(needle in part.lower() for part in haystacks if part)
+
+
 def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     """Invoice #, date, amount, and PO must come from vendor PDF text.
 
     Filename/subject alone is not enough when the PDF is truly missing.
     If the PDF is on disk, do not HOLD parse-error / no-pdf-on-vm — a subject
-    # that matches is OK (Nova Alloys 258145 / 8/18). Insight 1809 / MSC 5157357
+    # that matches is OK (Nova Alloys 258145 / 8/18) and a filename # that
+    matches is OK (Crosslink 27943 / 27944 / 27946). Insight 1809 / MSC 5157357
     still HOLD when there is no file and the # came from filename/subject.
     """
     if is_auto_pay(
@@ -207,7 +257,8 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
         date_src = str(sources.get("date") or "")
         po_src = str(sources.get("po") or "")
         number_from_pdf = number_src in PDF_FIELD_SOURCES
-        # 8/18 Nova 258145: PDF on disk + subject # is not a parse HOLD.
+        # 8/18 Nova 258145 (subject) / Crosslink 27943 (filename): PDF on disk
+        # + the same # on subject/filename is not a parse HOLD.
         if not number:
             return False, why_hold(
                 GATE_PREFLIGHT,
@@ -523,6 +574,14 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "Select Receipts was not posted on a PO-path bill. "
             "Fix: post Select Receipts. Treyce would still select receipts."
         )
+    vendor_ok, vendor_why = vendor_confirmation_gate(
+        parsed_vendor=check.get("parsed_vendor"),
+        posted_name=check.get("posted_vendor"),
+        posted_id=check.get("posted_vendor_id"),
+        forced_mismatch=bool(check.get("vendor_mismatch")),
+    )
+    if not vendor_ok:
+        failures.append(vendor_why)
     if not failures:
         return True, ""
     return False, why_hold(
@@ -574,4 +633,5 @@ def selfcheck_payload(
         "require_pdf_number": bool(inv.get("field_sources")),
         "pdf_path": inv.get("pdf_path"),
         "pdf_on_disk": inv.get("pdf_on_disk"),
+        "parsed_vendor": inv.get("vendor"),
     }

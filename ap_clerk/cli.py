@@ -59,6 +59,7 @@ from ap_clerk.gates import (
     po_gate_decision,
     preflight_parse_gate,
     qty_gate,
+    vendor_confirmation_gate,
     why_fail,
     why_hold,
     why_skipped,
@@ -91,6 +92,7 @@ from ap_clerk.rules import (
     money,
     names_match,
     normalize_receipt,
+    posted_vendor_fields,
     should_create_header,
     vendor_match_score,
     parse_iso_date,
@@ -470,10 +472,15 @@ def _seed_vendor_samples(
     for inv in invoices:
         if not should_create_header(inv)[0]:
             continue
-        if _best_vendor_sample(inv.get("vendor") or "", "", samples):
+        vendor_name = inv.get("vendor") or ""
+        alias_id = known_vendor_id(vendor_name)
+        # Prefer a known alias sample (MSC → 128) over fuzzy industrial/supply hits.
+        if alias_id and _sample_matching_alias(samples, alias_id, vendor_name):
             continue
-        alias_id = known_vendor_id(inv.get("vendor") or "")
-        if alias_id and _sample_by_vendor_id(samples, alias_id):
+        if alias_id:
+            needed.append(inv)
+            continue
+        if _best_vendor_sample(vendor_name, "", samples):
             continue
         needed.append(inv)
     if not needed:
@@ -728,7 +735,7 @@ def _process_invoice(
     po_display = "" if po is None else str(po)
     amount = inv.get("amount")
     fees = format_fees(inv.get("fees"))
-    attach = "no-pdf-on-vm"
+    attach = "pdf-on-vm" if pdf_file_present(inv) else "no-pdf-on-vm"
     row = {
         "Vendor": vendor,
         "Invoice #": number,
@@ -1027,6 +1034,13 @@ def _process_invoice(
             edit_hint = "options-failed"
     row["KIMCO id"] = created_id
     row["Attach status"] = pdf_status
+    posted = _confirm_posted_vendor(client, created_id)
+    vendor_ok, _vendor_why = vendor_confirmation_gate(
+        parsed_vendor=vendor,
+        posted_name=posted["name"] or None,
+        posted_id=posted["id"],
+        forced_mismatch=not posted["got"],
+    )
     if issue_hold:
         row["Result"] = RESULT_HOLD
         misc_note = ""
@@ -1046,14 +1060,19 @@ def _process_invoice(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=created_id,
-        selfcheck=selfcheck_payload(
-            inv,
-            invoice_type=invoice_type,
-            po=po if po_info else None,
-            multi_po=multi_po,
-            price=price,
-            qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
-            receipt_result=receipt_result,
+        selfcheck=_selfcheck_with_posted_vendor(
+            selfcheck_payload(
+                inv,
+                invoice_type=invoice_type,
+                po=po if po_info else None,
+                multi_po=multi_po,
+                price=price,
+                qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
+                receipt_result=receipt_result,
+            ),
+            parsed_vendor=vendor,
+            posted=posted,
+            vendor_ok=vendor_ok,
         ),
     )
     row["Result"] = result
@@ -1113,6 +1132,56 @@ def _sample_by_vendor_id(samples: list[dict[str, Any]], vendor_id: int | None) -
     return None
 
 
+def _sample_matching_alias(
+    samples: list[dict[str, Any]],
+    alias_id: int,
+    fixture_vendor: str,
+) -> dict[str, Any] | None:
+    """Find a remit/terms sample for a known API Vendor.id (MSC=128).
+
+    Invoice Vendor lookup-ids can differ from Vendor.id (1320-RMP ≠ 322).
+    Never return a sample whose name aliases to a different vendor.
+    Create posts the alias id, not a fuzzy lookup-id.
+    """
+    by_id = _sample_by_vendor_id(samples, alias_id)
+    if by_id:
+        return {**by_id, "vendor_id": int(alias_id)}
+    for sample in samples:
+        text = str(sample.get("vendor_text") or "")
+        sample_alias = known_vendor_id(text)
+        if sample_alias == alias_id:
+            return {**sample, "vendor_id": int(alias_id)}
+        if names_match(fixture_vendor, text) and sample_alias in {None, alias_id}:
+            return {**sample, "vendor_id": int(alias_id)}
+    return None
+
+
+def _confirm_posted_vendor(client: KimcoClient, invoice_id: int) -> dict[str, Any]:
+    """GET the header after create. Missing Vendor key is not a GET failure."""
+    try:
+        record = client.get_item("ap_invoices", int(invoice_id))
+    except KimcoError:
+        LOGGER.info("Could not GET invoice %s to confirm posted vendor", invoice_id)
+        return {"name": "", "id": None, "got": False}
+    name, vendor_id = posted_vendor_fields(record)
+    return {"name": name, "id": vendor_id, "got": True}
+
+
+def _selfcheck_with_posted_vendor(
+    payload: dict[str, Any],
+    *,
+    parsed_vendor: str,
+    posted: dict[str, Any],
+    vendor_ok: bool,
+) -> dict[str, Any]:
+    out = dict(payload)
+    out["parsed_vendor"] = parsed_vendor
+    out["posted_vendor"] = posted.get("name") or ""
+    out["posted_vendor_id"] = posted.get("id")
+    out["vendor_mismatch"] = not vendor_ok
+    return out
+
+
 def _resolve_vendor(
     client: KimcoClient,
     fixture_vendor: str,
@@ -1122,21 +1191,53 @@ def _resolve_vendor(
     invoice_by_number: dict[str, dict[str, Any]],
     invoice_number: str,
 ) -> dict[str, Any] | None:
-    """Name match, then known alias, then the vendor on the live PO.
+    """Known alias for the parsed name first, then name match, then the live PO.
 
     Do not Fail vendor-missing when the PO has a vendor (Treyce 2026-08-28).
-    Aliases: National Specialty Alloys=1386, Coherent Corp.=1410.
+    Prefer MSC → 128 over fuzzy sample seeding (8/18 70762501 posted as 1320-RMP).
+    Aliases: National Specialty Alloys=1386, Coherent Corp.=1410, MSC=128, RMP=322.
     """
     po_text = (po_info or {}).get("text") or ""
     po_vendor_id = (po_info or {}).get("vendor_id")
     po_vendor_text = (po_info or {}).get("vendor_text") or ""
-    alias_id = known_vendor_id(fixture_vendor) or known_vendor_id(po_vendor_text)
+    parsed_alias = known_vendor_id(fixture_vendor)
+    alias_id = parsed_alias or known_vendor_id(po_vendor_text)
+
+    if parsed_alias:
+        aliased = _sample_matching_alias(samples, parsed_alias, fixture_vendor)
+        if aliased:
+            return aliased
 
     match = _best_vendor_sample(fixture_vendor, po_text, samples)
-    if match:
+    if match and (not parsed_alias or known_vendor_id(match.get("vendor_text")) in {None, parsed_alias}):
+        if parsed_alias:
+            return {**match, "vendor_id": int(parsed_alias)}
         return match
+    if parsed_alias:
+        discovered = _discover_vendor_from_invoices(
+            client,
+            fixture_vendor,
+            samples,
+            invoice_by_number=invoice_by_number,
+            invoice_number=invoice_number,
+            prefer_vendor_id=parsed_alias,
+        )
+        if discovered and (
+            discovered.get("vendor_id") == parsed_alias
+            or known_vendor_id(discovered.get("vendor_text")) == parsed_alias
+            or names_match(fixture_vendor, discovered.get("vendor_text"))
+        ):
+            return {**discovered, "vendor_id": int(parsed_alias)}
+        return {
+            "vendor_id": int(parsed_alias),
+            "vendor_text": fixture_vendor,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_alias": True,
+        }
+
     if alias_id:
-        aliased = _sample_by_vendor_id(samples, alias_id)
+        aliased = _sample_matching_alias(samples, alias_id, fixture_vendor or po_vendor_text)
         if aliased:
             return aliased
     if po_vendor_id:

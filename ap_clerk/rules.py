@@ -239,6 +239,32 @@ _SUFFIXES = {
     "north",
 }
 
+# Generic tokens must not be enough for a vendor name match (MSC ≠ RMP).
+# Distinctive tokens (msc vs rmp) must agree. Kept out of normalize_name so
+# alias keys like "msc industrial" still substring-match the full name.
+GENERIC_VENDOR_TOKENS = frozenset(
+    {
+        "industrial",
+        "supply",
+        "steel",
+        "metal",
+        "metals",
+        "company",
+        "corp",
+        "inc",
+        "llc",
+        "co",
+        "services",
+        "service",
+        "products",
+        "product",
+        "manufacturing",
+        "and",
+        "industries",
+        "industry",
+    }
+)
+
 
 def chicago_today(now: datetime | None = None) -> date:
     current = now or datetime.now(tz=CHICAGO)
@@ -882,27 +908,87 @@ def _compact(value: str) -> str:
     return re.sub(r"[^a-z0-9]", "", value)
 
 
+def distinctive_vendor_tokens(value: str | None) -> list[str]:
+    """Tokens that identify a vendor after suffixes and generic industry words.
+
+    MSC Industrial Supply → [msc]. RMP INDUSTRIAL SUPPLY → [rmp].
+    Earle M. Jorgensen → [earle, jorgensen]. Single-letter leftovers are dropped.
+    """
+    tokens = []
+    for token in normalize_name(value).split():
+        if token in GENERIC_VENDOR_TOKENS or len(token) <= 1:
+            continue
+        tokens.append(token)
+    return tokens
+
+
+def _shorter_has_distinctive(left: str, right: str) -> bool:
+    shorter = left if len(left) <= len(right) else right
+    return bool(distinctive_vendor_tokens(shorter))
+
+
 def names_match(left: str | None, right: str | None) -> bool:
+    """True when two vendor strings are the same company.
+
+    Generic overlap ({industrial, supply}) is not a match. Distinctive tokens
+    must agree — first significant token or shared unique tokens after stopwords.
+    MSC Industrial Supply must not match RMP INDUSTRIAL SUPPLY.
+    """
     a = normalize_name(left)
     b = normalize_name(right)
     if not a or not b:
         return False
     if a == b:
         return True
-    if a in b or b in a:
+    if (a in b or b in a) and _shorter_has_distinctive(a, b):
         return True
     compact_a, compact_b = _compact(a), _compact(b)
     if compact_a and compact_b and (compact_a == compact_b or compact_a in compact_b or compact_b in compact_a):
-        return True
-    a_tokens = set(a.split())
-    b_tokens = set(b.split())
-    if not a_tokens or not b_tokens:
+        if _shorter_has_distinctive(a, b):
+            return True
+    a_dist = distinctive_vendor_tokens(left)
+    b_dist = distinctive_vendor_tokens(right)
+    if not a_dist or not b_dist:
         return False
-    overlap = a_tokens & b_tokens
-    shorter = min(len(a_tokens), len(b_tokens))
-    return len(overlap) >= max(2, shorter - 1) or (
-        len(overlap) >= 1 and (a.split()[0] == b.split()[0]) and shorter <= 2
-    )
+    if a_dist[0] == b_dist[0]:
+        return True
+    return bool(set(a_dist) & set(b_dist))
+
+
+def vendors_strictly_match(
+    parsed: str | None,
+    posted_name: str | None = None,
+    posted_id: int | None = None,
+) -> bool:
+    """True when the posted KIMCO vendor is the parsed vendor or a known alias.
+
+    Alias ids are API Vendor.id (MSC=128, RMP=322). A lookup-id like 1320-RMP
+    is not an alias for MSC even if names once fuzzy-matched.
+    """
+    if not (parsed or "").strip():
+        return False
+    parsed_alias = known_vendor_id(parsed)
+    posted_alias = known_vendor_id(posted_name)
+    if parsed_alias is not None and posted_id is not None and int(parsed_alias) == int(posted_id):
+        return True
+    if parsed_alias is not None and posted_alias is not None and int(parsed_alias) == int(posted_alias):
+        return True
+    if posted_id is not None and posted_alias is not None and int(posted_id) != int(posted_alias):
+        # Posted lookup-id ≠ API Vendor.id. Name/alias must still agree.
+        if parsed_alias is not None and int(parsed_alias) == int(posted_alias):
+            return True
+    if not names_match(parsed, posted_name):
+        return False
+    if parsed_alias is not None and posted_alias is not None and int(parsed_alias) != int(posted_alias):
+        return False
+    return True
+
+
+def posted_vendor_fields(record: Any) -> tuple[str, int | None]:
+    """Vendor text and lookup/id from a KIMCO invoice GET body."""
+    values = (record or {}).get("values") or {}
+    vendor = values.get("Vendor") or values.get("Vendor_$_Display_Name")
+    return lookup_text(vendor), lookup_id(vendor)
 
 
 def parse_iso_date(value: str) -> date:

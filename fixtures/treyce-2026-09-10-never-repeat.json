@@ -70,6 +70,46 @@
       "pdf_text": "NOVA ALLOYS, INC.\nInvoice 258145\nInvoice Date 08/18/2026\nAmount Due $25.00\n",
       "buggy_vendor": "Erica Barrett",
       "buggy_number_source": "subject"
+    },
+    "NOTE-12": {
+      "vendor": "MSC Industrial Supply",
+      "invoice_number": "70762501",
+      "kimco_id": 9967,
+      "posted_vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "posted_lookup_id": 1320,
+      "msc_alias_id": 128,
+      "rmp_alias_id": 322,
+      "date": "2026-08-18",
+      "buggy_result": "Success"
+    },
+    "NOTE-13": {
+      "vendor": "Crosslink Powder Coating",
+      "fee_label": "Packaging/Shop Supplies; Recovery",
+      "buggy_number_source": "filename",
+      "date": "2026-08-18",
+      "bills": [
+        {
+          "invoice_number": "27943",
+          "po": "58888",
+          "subject": "Invoice #27943 for 58888 (#8221) from Crosslink Powder Coating",
+          "filename": "invoice-27943.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27943\nInvoice Date 08/18/2026\nCustomer PO 58888\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $412.00\n"
+        },
+        {
+          "invoice_number": "27944",
+          "po": "58909",
+          "subject": "Invoice #27944 for 58909 (#8222) from Crosslink Powder Coating",
+          "filename": "invoice-27944.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27944\nInvoice Date 08/18/2026\nCustomer PO 58909\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $388.00\n"
+        },
+        {
+          "invoice_number": "27946",
+          "po": "58741",
+          "subject": "Invoice #27946 for 58741 (#8223) from Crosslink Powder Coating",
+          "filename": "invoice-27946.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27946\nInvoice Date 08/18/2026\nCustomer PO 58741\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $255.00\n"
+        }
+      ]
     }
   }
 }
