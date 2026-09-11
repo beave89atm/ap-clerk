@@ -851,15 +851,35 @@ _BEFORE_TAX_LABEL = re.compile(
 )
 
 
+def _bare_grand_totals(text: str) -> list[float]:
+    """Line-start Total 348.57 — not Subtotal / Merchandise / Before Tax."""
+    found: list[float] = []
+    for match in re.finditer(r"(?m)^[ \t]*(total\b[^\n]{0,48})", text or "", flags=re.I):
+        line = match.group(1)
+        if re.search(r"sub[\s-]*total|merchandise|taxable|before\s+tax|due\s+date|order\s+amount", line, flags=re.I):
+            continue
+        money = re.search(r"\$?\s*([\d,]+(?:\.\d{2}))", line)
+        if not money:
+            continue
+        amount = parse_money(money.group(1))
+        if amount not in (None, 0, 0.0):
+            found.append(amount)
+    return found
+
+
 def prefer_after_tax_amount(text: str, current: float | None = None) -> float | None:
     """Final total / amount due after tax. Never a subtotal when a grand total exists.
 
     Gas 0040370068: sheet took 322 before tax; Amount Due after tax must win.
+    Prefer Amount Due / Invoice Total / Total Due / Balance Due / Total when
+    that Total is the grand total. Reject Subtotal / Merchandise / Taxable /
+    Before Tax when a higher grand total is on the same section.
     Do not replace an already-chosen grand total with the first Invoice Total
     line of a stacked block (UniFirst).
     """
     after = [parse_money(m) for m in _AFTER_TAX_LABEL.findall(text or "")]
     after = [a for a in after if a not in (None, 0, 0.0)]
+    after.extend(_bare_grand_totals(text))
     before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
     before = [a for a in before if a not in (None, 0, 0.0)]
     grand = [a for a in after if a not in before]

@@ -46,6 +46,7 @@ from ap_clerk.pdf_invoice import (
     extract_invoice_lines,
     extract_fees,
     parse_invoice_text,
+    prefer_after_tax_amount,
     vendor_from_context,
 )
 from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, classify_download, extract_https_links
@@ -1434,6 +1435,52 @@ def test_gas_page_range_pdf_split_when_feasible(tmp_path: Path):
     assign_split_pdfs(single, fallback)
     assert fallback[0]["pdf_path"] == str(single)
     assert fallback[0].get("pdf_split") is False
+
+
+def test_never_repeat_gas_after_tax_amount():
+    """NOTE-16: Gas amount is after-tax Amount Due / Total, never Subtotal 322."""
+    n = NOTES["NOTE-16"]
+    section = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\n"
+        "INVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370068\n"
+        "CUSTOMER PO 58920\nMerchandise 300.00\nSubtotal 322.00\nTax 26.57\n"
+        "Amount Due: 348.57\n"
+    )
+    parsed = parse_invoice_text(
+        section,
+        from_name=n["vendor"],
+        from_address="billing@gasandsupply.com",
+        filename=n["filename"],
+    )
+    assert parsed["amount"] == n["amount_after_tax"]
+    assert parsed["amount"] != n["amount_before_tax"]
+    assert prefer_after_tax_amount(section, n["amount_before_tax"]) == n["amount_after_tax"]
+    assert prefer_after_tax_amount(
+        "Merchandise 300.00\nSubtotal 322.00\nTax 26.57\nTotal 348.57\n",
+        n["amount_before_tax"],
+    ) == n["amount_after_tax"]
+
+    bills = expand_gas_misc_invoices(n["pdf_text"], {**parsed, "vendor": n["vendor"]})
+    target = next(bill for bill in bills if bill["invoice_number"] == n["invoice_number"])
+    assert target["amount"] == n["amount_after_tax"]
+    samples = [{"vendor_id": 71, "vendor_text": n["vendor"], "invoice_id": 9, "po_text": ""}]
+    row, _ = _row(
+        {
+            **target,
+            "field_sources": target.get("field_sources")
+            or {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        samples=samples,
+    )
+    assert row["Amount"] == n["amount_after_tax"]
+    assert row["Amount"] != n["amount_before_tax"]
+    if row["Result"] in {RESULT_SUCCESS, RESULT_INCOMPLETE}:
+        assert row["Amount"] != n["amount_before_tax"]
+    assert_never_success(
+        RESULT_SUCCESS if row["Amount"] == n["amount_before_tax"] else row["Result"],
+        note_id="NOTE-16",
+        detail=f"pre-tax amount {n['amount_before_tax']} used",
+    )
 
 
 def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
