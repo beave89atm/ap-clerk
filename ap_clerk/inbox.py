@@ -148,10 +148,12 @@ def pull_recent_bills(
     """Return (bills, skipped).
 
     `limit` is mailbox messages touched, not bill attempts. Hard-clamped
-    to HARD_EMAIL_CAP (10) until Kyle lifts the 2026-09-11 rule. Noise,
-    HOLD, Incomplete, Fail, and Success each consume one slot. Already
-    flagged (process category or follow-up flag), already-seen, and
-    pre-floor messages are walked past and do not consume the cap.
+    to HARD_EMAIL_CAP (10) until Kyle lifts the 2026-09-11 rule. One
+    email with a multi-invoice PDF (Gas billing pack) is still one touch;
+    the N invoices become separate bill rows. Noise, HOLD, Incomplete,
+    Fail, and Success each consume one slot. Already flagged (process
+    category or follow-up flag), already-seen, and pre-floor messages
+    are walked past and do not consume the cap.
 
     Default (fifo=False): most-recent emails first, then oldest-first among
     selected bills. Daily FIFO (fifo=True): from 2026-07-28 or the persisted

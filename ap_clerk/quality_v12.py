@@ -16,6 +16,7 @@ from ap_clerk.gates import (
     GATE_PRICE,
     GATE_QTY,
     GATE_RECEIPT,
+    GATE_ALREADY_ENTERED,
     GATE_VENDOR,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
@@ -116,7 +117,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "8_16_bug": "Blanket CHECK STOP / noise. Misc invoices were not entered.",
         "expected": "Invoice pages → Misc Type 4 item Shop Supplies - G&S. Notice → Skipped/HOLD. Ambiguous amounts → HOLD. Never Success.",
         "never_success": True,
-        "deferred": "Live 0040367887 page-accurate 5-way amount split needs that PDF; heuristic HOLDs when ambiguous.",
+        "deferred": "Shared-total-only Gas packs (no per-invoice Amount Due) still HOLD gas_misc_ambiguous.",
     },
     {
         "id": "NOTE-11",
@@ -215,6 +216,41 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "and Why names the skipped line(s). Random-length unit gap that "
             "passes ≤10% / ≤$100 is PPV, not Fees. Prepaid/shipping-date with "
             "null amount is not a fee."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-16",
+        "slug": "gas-multi-invoice-pdf-after-tax",
+        "gate": GATE_PREFLIGHT,
+        "cases": ("Gas billing01_A3050_c.pdf / 0040370068 pack / KIMCO 9970",),
+        "9_11_bug": (
+            "One Gas PDF held 6 invoices; runner collapsed to invoice 0040370068 "
+            "plus multi-PO Incomplete 9970. Amount 322 was merchandise/before tax, "
+            "not Amount Due after tax."
+        ),
+        "expected": (
+            "Split to 6 bill rows (one invoice # each). Per-section amount is "
+            "after-tax Amount Due, never Subtotal. Email still counts as 1 touch. "
+            "Why notes multi-invoice-pdf page X–Y of N. Do not Success/Incomplete "
+            "a single collapsed invoice when N>1 numbers are present."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-17",
+        "slug": "insight-1809-already-entered",
+        "gate": GATE_ALREADY_ENTERED,
+        "cases": ("Insight Controller Services 1809 already on live",),
+        "9_11_bug": (
+            "Sheet HOLD preflight-parse with MSC/McQueary slogan and no-pdf-on-vm. "
+            "1809 was already entered; the false parse gate fired first."
+        ),
+        "expected": (
+            "Before parse-HOLD / create: look up vendor + invoice #. Already "
+            "present → HOLD already-entered / duplicate. Why names vendor, "
+            "invoice #, existing KIMCO id(s). No McQueary slogan. No no-pdf-on-vm "
+            "when the PDF is on disk."
         ),
         "never_success": True,
     },

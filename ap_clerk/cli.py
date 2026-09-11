@@ -38,6 +38,7 @@ from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills,
 from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
+    GATE_ALREADY_ENTERED,
     GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
     GATE_PDF_LINK,
@@ -707,6 +708,10 @@ def _finish_row(
 ) -> dict[str, Any]:
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
+    note = str(inv.get("multi_invoice_note") or "").strip()
+    if note and note not in why:
+        why = f"{why} {note}".strip() if why else note
+        row["Why"] = why
     if result != RESULT_SUCCESS and not why:
         row["Why"] = (
             f"{result}: Treyce must review this bill (gate not named). "
@@ -760,6 +765,20 @@ def _process_invoice(
         "Notes": "",
     }
 
+    existing = _find_existing_invoice(invoice_by_number, number, vendor)
+    if existing and number:
+        existing_id = existing.get("id")
+        row["KIMCO id"] = existing_id
+        row["Result"] = RESULT_HOLD
+        row["Why"] = why_hold(
+            GATE_ALREADY_ENTERED,
+            f"{vendor} invoice #{number} is already entered as KIMCO id {existing_id}. "
+            "Duplicate / already-entered. Will not create another header.",
+        )
+        if pdf_file_present(inv):
+            row["Attach status"] = "pdf-on-vm"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
     parse_ok, parse_why = preflight_parse_gate(inv)
     if not parse_ok:
         row["Why"] = parse_why
@@ -797,15 +816,18 @@ def _process_invoice(
         row["Why"] = why_hold(GATE_PREFLIGHT, why_preflight_this_invoice(inv, "gas_ambiguous"))
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    existing = _find_existing_invoice(invoice_by_number, number, vendor)
-    if existing:
-        existing_id = existing.get("id")
-        row["KIMCO id"] = existing_id
-        row["Result"] = RESULT_FAIL
-        if existing_id in FORBIDDEN_INVOICE_IDS:
-            row["Why"] = why_fail(f"already exists (do not recreate id {existing_id})")
-        else:
-            row["Why"] = why_fail(f"already exists (id {existing_id})")
+    packed = list(inv.get("invoice_numbers_in_pdf") or [])
+    if (
+        not inv.get("gas_split")
+        and len(packed) > 1
+        and ("gas and supply" in vendor.lower() or "gasandsupply" in vendor.lower())
+    ):
+        row["Why"] = why_hold(
+            GATE_PREFLIGHT,
+            f"{vendor} PDF has {len(packed)} invoice numbers ({', '.join(packed)}). "
+            "Expand to one bill per invoice # before enter. "
+            "Do not collapse to a single invoice / multi-PO Incomplete.",
+        )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]

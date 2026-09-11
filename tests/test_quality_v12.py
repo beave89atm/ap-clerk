@@ -111,14 +111,14 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
     return K()
 
 
-def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=None):
+def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=None, invoice_by_number=None):
     client = kimco or _kimco()
     return _process_invoice(
         client,
         inv,
         batch={"id": 1},
         batch_label="API Agent - 9/10/26 (1)",
-        invoice_by_number={},
+        invoice_by_number=invoice_by_number or {},
         vendor_samples=samples
         or [{"vendor_id": 9, "vendor_text": inv.get("vendor") or "Vendor", "invoice_id": 100, "po_text": ""}],
         po_index=po_index or {},
@@ -130,8 +130,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 16))
-    assert len(TREYCE_NOTES_V12) == 15
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 18))
+    assert len(TREYCE_NOTES_V12) == 17
     assert len(TREYCE_FINISH_CHECKLIST) == 11
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
@@ -150,6 +150,8 @@ def test_v12_registry_covers_all_notes():
         "crosslink-27943-filename-pdf-on-disk",
         "fastenal-txft4100079-qty-and-fees",
         "emj-z250725432-two-lines",
+        "gas-multi-invoice-pdf-after-tax",
+        "insight-1809-already-entered",
     }
 
 
@@ -531,10 +533,16 @@ def test_note10_gas_supply_misc_vs_check_stop():
     first = parse_invoice_text(n["multi_pdf_text"], from_address="billing@gasandsupply.com")
     bills = expand_gas_misc_invoices(n["multi_pdf_text"], first)
     assert len(bills) >= 5
-    assert all(b.get("gas_misc_ambiguous") for b in bills)
+    assert all(b.get("amount") == 10.0 for b in bills)
+    assert not any(b.get("gas_misc_ambiguous") for b in bills)
+    shared = "Gas and Supply\nInvoice 0040367881\nInvoice 0040367882\nTotal 50.00\n"
+    shared_first = parse_invoice_text(shared, from_address="billing@gasandsupply.com")
+    shared_bills = expand_gas_misc_invoices(shared, shared_first)
+    assert len(shared_bills) >= 2
+    assert any(b.get("gas_misc_ambiguous") for b in shared_bills)
     amb, _ = _row(
         {
-            **bills[0],
+            **shared_bills[0],
             "gas_misc_ambiguous": True,
             "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": ""},
         }
@@ -1308,3 +1316,102 @@ def test_never_repeat_emj_z250725432_two_lines(tmp_path: Path):
     assert n["line2_desc"][:12] in skipped["Why"] or "3/8" in skipped["Why"] or "line" in skipped["Why"].lower()
     assert skipped_client.selected
     assert skipped_client.selected[0][1] == [101]
+
+
+def test_never_repeat_gas_multi_invoice_pdf():
+    """NOTE-16: Gas billing pack → 6 bills, after-tax amount, not one collapsed Incomplete."""
+    n = NOTES["NOTE-16"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name="Gas and Supply North Texas, LLC",
+        from_address="billing@gasandsupply.com",
+        filename=n["filename"],
+    )
+    bills = expand_gas_misc_invoices(n["pdf_text"], parsed)
+    assert len(bills) == n["invoice_count"] == 6
+    numbers = [bill["invoice_number"] for bill in bills]
+    assert n["invoice_number"] in numbers
+    assert len(set(numbers)) == 6
+    assert all(bill.get("gas_split") for bill in bills)
+    assert not any(bill.get("gas_misc_ambiguous") for bill in bills)
+    assert not (len(bills) == 1 and parsed.get("multi_po"))
+    target = next(bill for bill in bills if bill["invoice_number"] == n["invoice_number"])
+    assert target["amount"] == n["amount_after_tax"]
+    assert target["amount"] != n["amount_before_tax"]
+    assert target.get("multi_invoice_pdf") is True
+    assert "multi-invoice-pdf page" in str(target.get("multi_invoice_note") or "")
+    assert " of 6" in str(target.get("multi_invoice_note") or "")
+    from ap_clerk.inbox import HARD_EMAIL_CAP
+
+    assert HARD_EMAIL_CAP == 10
+    # One email touch; N invoices are separate bill rows from that touch.
+    assert len(bills) > 1
+
+    collapsed = {
+        **parsed,
+        "invoice_number": n["invoice_number"],
+        "invoice_numbers_in_pdf": numbers,
+        "multi_po": True,
+        "gas_split": False,
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "vendor": n["vendor"],
+    }
+    hold_row, _ = _row(collapsed)
+    assert hold_row["Result"] != RESULT_SUCCESS
+    assert hold_row["Result"] != RESULT_INCOMPLETE
+    assert_never_success(hold_row["Result"], note_id="NOTE-16", detail=hold_row["Why"])
+    assert "invoice numbers" in hold_row["Why"].lower() or "expand" in hold_row["Why"].lower()
+
+    samples = [{"vendor_id": 71, "vendor_text": n["vendor"], "invoice_id": 9, "po_text": ""}]
+    row, _ = _row(
+        {
+            **target,
+            "field_sources": target.get("field_sources")
+            or {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        samples=samples,
+    )
+    assert row["Invoice #"] == n["invoice_number"]
+    assert row["Amount"] == n["amount_after_tax"]
+    assert "multi-invoice-pdf page" in row["Why"]
+
+
+def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
+    """NOTE-17: Insight 1809 already on live → HOLD already-entered, not McQueary parse."""
+    n = NOTES["NOTE-17"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name=n["vendor"],
+        filename="Invoice_1809.pdf",
+    )
+    pdf_path = tmp_path / "Invoice_1809.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 insight 1809")
+    existing = {
+        "1809": [
+            {
+                "id": n["kimco_id"],
+                "values": {
+                    "Invoice_Number": "1809",
+                    "Vendor": {"id": 1, "text": n["vendor"]},
+                },
+            }
+        ]
+    }
+    sidecar = {
+        **parsed,
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+        "field_sources": {"invoice_number": "subject", "date": "", "amount": "", "po": ""},
+    }
+    row, _ = _row(sidecar, invoice_by_number=existing)
+    assert row["Result"] == RESULT_HOLD
+    assert_never_success(row["Result"], note_id="NOTE-17", detail=row["Why"])
+    why = row["Why"]
+    assert "already-entered" in why or "already entered" in why.lower() or "duplicate" in why.lower()
+    assert n["vendor"].split()[0] in why
+    assert "1809" in why
+    assert str(n["kimco_id"]) in why or str(row["KIMCO id"]) == str(n["kimco_id"])
+    assert "McQueary" not in why
+    assert "MSC" not in why
+    assert "no-pdf-on-vm" not in why
+    assert row["Attach status"] == "pdf-on-vm"

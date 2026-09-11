@@ -139,6 +139,24 @@
       "line1_amount": 251.08,
       "line2_amount": 645.78,
       "po_line1_amount": 249.00
+    },
+    "NOTE-16": {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "invoice_number": "0040370068",
+      "filename": "billing01_A3050_c.pdf",
+      "kimco_id": 9970,
+      "amount_before_tax": 322.00,
+      "amount_after_tax": 348.57,
+      "invoice_count": 6,
+      "pdf_text": "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370068\nCUSTOMER PO 58920\nMerchandise 300.00\nSubtotal 322.00\nTax 26.57\nAmount Due: 348.57\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370069\nAmount Due: 88.00\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370070\nAmount Due: 41.20\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370071\nCUSTOMER PO 58921\nAmount Due: 19.45\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370072\nAmount Due: 12.00\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370073\nAmount Due: 7.50\n"
+    },
+    "NOTE-17": {
+      "vendor": "Insight Controller Services",
+      "invoice_number": "1809",
+      "kimco_id": 9948,
+      "amount": 412.00,
+      "date": "2026-08-16",
+      "pdf_text": "Insight Controller Services\nInvoice Number: 1809\nInvoice Date: 08/16/2026\nAmount Due: $412.00\n"
     }
   }
 }

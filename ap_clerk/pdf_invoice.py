@@ -832,40 +832,157 @@ def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
     return bills or [parsed]
 
 
-def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
-    """Gas & Supply PDFs can hold several Misc 00xxxxxxxx invoices (0040367887 notes: 5).
+_AFTER_TAX_LABEL = re.compile(
+    r"(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|grand\s+total|"
+    r"total\s+to\s+be\s+paid|total\s+this\s+invoice|total\s+amount\s+due|"
+    r"please\s+pay\s+this\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_BEFORE_TAX_LABEL = re.compile(
+    r"(?:sub[\s-]*total|merchandise(?:\s+total)?|taxable(?:\s+amount)?|"
+    r"before\s+tax|total\s+before\s+tax|net\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
 
-    When amounts cannot be split per number, mark gas_misc_ambiguous so the
-    enter path HOLDs instead of inventing Type 4 amounts.
+
+def prefer_after_tax_amount(text: str, current: float | None = None) -> float | None:
+    """Final total / amount due after tax. Never a subtotal when a grand total exists.
+
+    Gas 0040370068: sheet took 322 before tax; Amount Due after tax must win.
+    Do not replace an already-chosen grand total with the first Invoice Total
+    line of a stacked block (UniFirst).
     """
-    vendor = str(parsed.get("vendor") or "")
-    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
-        return [parsed]
-    numbers = []
+    after = [parse_money(m) for m in _AFTER_TAX_LABEL.findall(text or "")]
+    after = [a for a in after if a not in (None, 0, 0.0)]
+    before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
+    before = [a for a in before if a not in (None, 0, 0.0)]
+    grand = [a for a in after if a not in before]
+    if current in before:
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return None
+    if current in (None, 0, 0.0):
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return current
+    return current
+
+
+def gas_invoice_numbers(text: str) -> list[str]:
+    """Distinct Gas & Supply 00xxxxxxxx invoice numbers in PDF order."""
+    numbers: list[str] = []
     for hit in _INV_GAS.findall(text or ""):
         token = _usable_invoice_number(hit)
         if token and token not in numbers:
             numbers.append(token)
+    return numbers
+
+
+def _gas_section_pages(text: str, start: int, end: int, *, index: int, count: int) -> tuple[int, int]:
+    """Best-effort page range for one invoice section. Form-feed or 1-based index."""
+    blob = text or ""
+    prefix = blob[:start]
+    section = blob[start:end]
+    breaks_before = prefix.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", prefix, flags=re.I))
+    breaks_in = section.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", section, flags=re.I))
+    if breaks_before or breaks_in:
+        page0 = breaks_before + 1
+        page1 = page0 + max(breaks_in, 0)
+        return page0, max(page1, page0)
+    return index, index
+
+
+def _split_gas_invoice_sections(text: str, numbers: list[str]) -> list[tuple[str, str, int, int]]:
+    """[(invoice_number, section_text, page_start, page_end), ...]"""
+    blob = text or ""
+    hits: list[tuple[int, str]] = []
+    for number in numbers:
+        match = re.search(rf"\b{re.escape(number)}\b", blob)
+        if match:
+            hits.append((match.start(), number))
+    hits.sort()
+    sections: list[tuple[str, str, int, int]] = []
+    for index, (start, number) in enumerate(hits):
+        end = hits[index + 1][0] if index + 1 < len(hits) else len(blob)
+        if index == 0:
+            header = blob.rfind("ORIGINAL INVOICE", 0, start)
+            window_start = header if header >= 0 else 0
+        else:
+            line_start = blob.rfind("\n", 0, start)
+            window_start = line_start + 1 if line_start >= 0 else start
+        page0, page1 = _gas_section_pages(blob, window_start, end, index=index + 1, count=len(hits))
+        sections.append((number, blob[window_start:end], page0, page1))
+    return sections
+
+
+def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """One Gas billing PDF → one bill per invoice # (0040370068 pack: 6, not 1).
+
+    Parse amount/date/PO/lines per section. After-tax Amount Due wins over
+    Subtotal. Only mark gas_misc_ambiguous when a section has no amount.
+    Never collapse N>1 numbers into one invoice + multi-PO Incomplete.
+    """
+    vendor = str(parsed.get("vendor") or "")
+    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
+        return [parsed]
+    numbers = gas_invoice_numbers(text)
     if len(numbers) <= 1:
+        out = dict(parsed)
+        corrected = prefer_after_tax_amount(text, out.get("amount"))
+        if corrected not in (None, ""):
+            out["amount"] = corrected
+            sources = dict(out.get("field_sources") or {})
+            sources["amount"] = "pdf"
+            out["field_sources"] = sources
+        return [out]
+    sections = _split_gas_invoice_sections(text, numbers)
+    if not sections:
         return [parsed]
     bills: list[dict[str, Any]] = []
-    for number in numbers:
+    count = len(sections)
+    for index, (number, section, page0, page1) in enumerate(sections):
+        section_parsed = parse_invoice_text(
+            section,
+            from_name=str(parsed.get("vendor") or vendor),
+            from_address="billing@gasandsupply.com",
+        )
+        pos = extract_po_numbers(section)
+        amount = prefer_after_tax_amount(section, section_parsed.get("amount"))
         bill = dict(parsed)
         bill["invoice_number"] = number
-        bill["po"] = None
-        bill["pos"] = []
-        bill["multi_po"] = False
+        bill["amount"] = amount
+        bill["date"] = section_parsed.get("date") or parsed.get("date")
+        bill["po"] = pos[0] if len(pos) == 1 else None
+        bill["pos"] = pos
+        bill["multi_po"] = len(pos) > 1
+        bill["lines"] = extract_invoice_lines(section)
+        bill["fees"] = extract_fees(section)
         bill["gas_misc"] = True
+        bill["gas_split"] = True
         bill["misc_item"] = "Shop Supplies - G&S"
+        bill["multi_invoice_pdf"] = True
+        bill["multi_invoice_count"] = count
+        bill["multi_invoice_index"] = index + 1
+        bill["multi_invoice_note"] = f"multi-invoice-pdf page {page0}–{page1} of {count}"
         sources = dict(bill.get("field_sources") or {})
         sources["invoice_number"] = "pdf"
+        if amount not in (None, ""):
+            sources["amount"] = "pdf"
+        if bill.get("date"):
+            sources["date"] = "pdf"
+        if pos:
+            sources["po"] = "pdf"
         bill["field_sources"] = sources
+        if amount in (None, ""):
+            bill["gas_misc_ambiguous"] = True
+        else:
+            bill.pop("gas_misc_ambiguous", None)
         bill.pop("siblings", None)
         bills.append(bill)
-    # One shared total cannot be trusted as each Misc invoice amount.
-    if parsed.get("amount") not in (None, "") and len(bills) > 1:
-        for bill in bills:
-            bill["gas_misc_ambiguous"] = True
     return bills or [parsed]
 
 
@@ -1146,6 +1263,9 @@ def parse_invoice_text(
             nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
             if nums:
                 amount = max(nums)
+    after_tax = prefer_after_tax_amount(pdf_text, amount)
+    if after_tax not in (None, ""):
+        amount = after_tax
     if amount not in (None, ""):
         sources["amount"] = "pdf"
 
@@ -1222,6 +1342,11 @@ def parse_invoice_text(
             and sources.get("amount") == "pdf"
             and sources.get("date") == "pdf"
             and not po_doc
+        ),
+        "invoice_numbers_in_pdf": (
+            gas_invoice_numbers(pdf_text)
+            if "gas and supply" in (vendor or "").lower() or "gasandsupply" in (vendor or "").lower()
+            else []
         ),
     }
 

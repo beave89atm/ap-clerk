@@ -46,6 +46,7 @@ GATE_QTY = "qty-does-not-match"
 GATE_AUTO_PAY = "auto-pay"
 GATE_PDF_LINK = "pdf-behind-link"
 GATE_VENDOR = "vendor-mismatch"
+GATE_ALREADY_ENTERED = "already-entered"
 
 ATTACH_OK = frozenset({"attached"})
 PDF_FIELD_SOURCES = frozenset({"pdf", "pdf-prefix"})
