@@ -41,6 +41,7 @@ from ap_clerk.graph import (
     is_already_flagged,
 )
 from ap_clerk.pdf_invoice import (
+    assign_split_pdfs,
     expand_gas_misc_invoices,
     extract_invoice_lines,
     extract_fees,
@@ -1390,6 +1391,49 @@ def test_never_repeat_gas_multi_invoice_pdf():
     assert row["Invoice #"] == n["invoice_number"]
     assert row["Amount"] == n["amount_after_tax"]
     assert "multi-invoice-pdf page" in row["Why"]
+    assert target.get("multi_invoice_page_start")
+    assert target.get("multi_invoice_page_end")
+
+
+def test_gas_page_range_pdf_split_when_feasible(tmp_path: Path):
+    """NOTE-16: prefer a page-range PDF per invoice when the pack has pages."""
+    from pypdf import PdfReader, PdfWriter
+
+    n = NOTES["NOTE-16"]
+    source = tmp_path / n["filename"]
+    writer = PdfWriter()
+    for _ in range(n["invoice_count"]):
+        writer.add_blank_page(width=72, height=72)
+    with source.open("wb") as handle:
+        writer.write(handle)
+    bills = [
+        {
+            "invoice_number": f"004037006{index}",
+            "multi_invoice_page_start": index,
+            "multi_invoice_page_end": index,
+            "multi_invoice_count": n["invoice_count"],
+        }
+        for index in range(1, n["invoice_count"] + 1)
+    ]
+    bills[0]["invoice_number"] = n["invoice_number"]
+    assign_split_pdfs(source, bills)
+    paths = [bill["pdf_path"] for bill in bills]
+    assert len(set(paths)) == n["invoice_count"]
+    for bill in bills:
+        assert bill.get("pdf_split") is True
+        path = Path(bill["pdf_path"])
+        assert path.is_file()
+        assert bill["invoice_number"] in path.name
+        assert len(PdfReader(str(path)).pages) == 1
+    single = tmp_path / "one-page.pdf"
+    one = PdfWriter()
+    one.add_blank_page(width=72, height=72)
+    with single.open("wb") as handle:
+        one.write(handle)
+    fallback = [{"invoice_number": "0040370068", "multi_invoice_page_start": 1, "multi_invoice_page_end": 1}]
+    assign_split_pdfs(single, fallback)
+    assert fallback[0]["pdf_path"] == str(single)
+    assert fallback[0].get("pdf_split") is False
 
 
 def test_never_repeat_insight_1809_already_entered(tmp_path: Path):

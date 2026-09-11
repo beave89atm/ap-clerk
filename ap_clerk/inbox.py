@@ -418,8 +418,10 @@ def pull_recent_bills(
                     continue
                 if not bill.get("invoice_number") and not bill.get("amount"):
                     continue
-                # Vendor invoices with a verified PDF must enter (AQPC).
-                bill["pdf_path"] = str(dest)
+                # Prefer a page-range slice from parse_invoice_pdf; else the full pack.
+                split_path = str(bill.get("pdf_path") or "").strip()
+                if not split_path or not Path(split_path).is_file():
+                    bill["pdf_path"] = str(dest)
                 bill["graph_message_id"] = message_id
                 bill["subject"] = subject
                 bill["receivedDateTime"] = message.get("receivedDateTime")

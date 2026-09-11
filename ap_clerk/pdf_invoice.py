@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
 
 from ap_clerk.rules import (
     FEE_KEYWORDS,
@@ -293,7 +293,7 @@ def _extract_pypdf_text(path: Path) -> str:
             pages.append(page.extract_text() or "")
         except Exception:  # noqa: BLE001 - one bad page must not kill the invoice
             pages.append("")
-    return "\n".join(pages)
+    return "\n\f".join(pages)
 
 
 def _ocr_pdf_text(path: Path) -> str:
@@ -973,6 +973,8 @@ def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
         bill["multi_invoice_pdf"] = True
         bill["multi_invoice_count"] = count
         bill["multi_invoice_index"] = index + 1
+        bill["multi_invoice_page_start"] = page0
+        bill["multi_invoice_page_end"] = page1
         bill["multi_invoice_note"] = f"multi-invoice-pdf page {page0}–{page1} of {count}"
         sources = dict(bill.get("field_sources") or {})
         sources["invoice_number"] = "pdf"
@@ -1364,6 +1366,49 @@ def parse_invoice_text(
     }
 
 
+def write_page_range_pdf(source: Path, dest: Path, page_start: int, page_end: int) -> Path | None:
+    """Write a 1-based inclusive page slice. None when split is not feasible."""
+    try:
+        reader = PdfReader(str(source))
+    except Exception:  # noqa: BLE001 - keep the full PDF
+        return None
+    total = len(reader.pages)
+    if total <= 1:
+        return None
+    start = max(0, int(page_start) - 1)
+    end = min(total, int(page_end))
+    if start >= end or (start == 0 and end == total):
+        return None
+    try:
+        writer = PdfWriter()
+        for index in range(start, end):
+            writer.add_page(reader.pages[index])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with dest.open("wb") as handle:
+            writer.write(handle)
+    except Exception:  # noqa: BLE001 - attach the full pack instead
+        return None
+    return dest if dest.is_file() else None
+
+
+def assign_split_pdfs(source: Path, bills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prefer a page-range PDF per invoice. Else keep the full pack on each bill."""
+    source = Path(source)
+    for bill in bills:
+        page0 = int(bill.get("multi_invoice_page_start") or 0)
+        page1 = int(bill.get("multi_invoice_page_end") or page0)
+        number = str(bill.get("invoice_number") or "invoice")
+        dest = source.with_name(f"{source.stem}_{number}_p{page0}-{page1}{source.suffix}")
+        sliced = write_page_range_pdf(source, dest, page0, page1) if page0 and page1 else None
+        bill["pdf_path"] = str(sliced or source)
+        bill["pdf_on_disk"] = Path(bill["pdf_path"]).is_file()
+        if sliced is None:
+            bill["pdf_split"] = False
+        else:
+            bill["pdf_split"] = True
+    return bills
+
+
 def parse_invoice_pdf(
     path: Path,
     *,
@@ -1384,10 +1429,13 @@ def parse_invoice_pdf(
         bills = expand_fastenal_invoices(text, parsed)
     if len(bills) <= 1:
         bills = expand_gas_misc_invoices(text, parsed)
-    parsed = bills[0]
     if len(bills) > 1:
+        assign_split_pdfs(path, bills)
+        parsed = bills[0]
         parsed["siblings"] = bills[1:]
-    parsed["pdf_path"] = str(path)
+    else:
+        parsed = bills[0]
+        parsed["pdf_path"] = str(path)
     parsed["pdf_on_disk"] = path.is_file()
     parsed["pdf_text_empty"] = not (text or "").strip()
     # File on disk is never "unavailable" — empty extract means OCR/retry, not no-pdf-on-vm.
