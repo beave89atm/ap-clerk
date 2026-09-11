@@ -9,6 +9,7 @@ import pytest
 from ap_clerk.cli import _process_invoice, main
 from ap_clerk.graph import (
     AI_HOLD_CATEGORY,
+    AI_SKIPPED_CATEGORY,
     ALLOWED_MAILBOX,
     CATEGORY_CREATED,
     CATEGORY_DENIED,
@@ -26,6 +27,7 @@ from ap_clerk.graph import (
     FLAG_ISSUES_ELIGIBLE,
     FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
+    FLAG_SKIP_ELIGIBLE,
     FLAG_SKIPPED,
     GraphClient,
     MailboxRejected,
@@ -274,8 +276,8 @@ def test_graph_403_is_denied_and_keeps_flag_decision_helpers():
     assert decide_flag_status(result="Incomplete", kimco_id=9508, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
     assert decide_flag_status(result="HOLD", kimco_id=9953, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
     assert decide_flag_status(result="Success", kimco_id="", message_id="AAMk") == FLAG_SKIPPED
-    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_NONE
-    assert decide_flag_status(result="Noise", kimco_id="", message_id="AAMk") == FLAG_NONE
+    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_SKIP_ELIGIBLE
+    assert decide_flag_status(result="Noise", kimco_id="", message_id="AAMk") == FLAG_SKIP_ELIGIBLE
 
 
 def test_ensure_ai_hold_category_create_and_403():
@@ -293,6 +295,21 @@ def test_ensure_ai_hold_category_create_and_403():
     denied.status_code = 403
     client.request = Mock(return_value=denied)
     assert client.ensure_ai_hold_category(ALLOWED_MAILBOX) == CATEGORY_DENIED
+
+
+def test_ensure_ai_skipped_category_create_and_403():
+    client = GraphClient("token-not-printed")
+    created = Mock()
+    created.status_code = 201
+    client.request = Mock(return_value=created)
+    assert client.ensure_ai_skipped_category(ALLOWED_MAILBOX) == CATEGORY_CREATED
+    args, kwargs = client.request.call_args
+    assert kwargs["json"] == {"displayName": AI_SKIPPED_CATEGORY, "color": "preset8"}
+
+    denied = Mock()
+    denied.status_code = 403
+    client.request = Mock(return_value=denied)
+    assert client.ensure_ai_skipped_category(ALLOWED_MAILBOX) == CATEGORY_DENIED
 
 
 def test_send_run_report_sent_and_403_does_not_raise(tmp_path):

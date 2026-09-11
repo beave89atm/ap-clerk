@@ -21,7 +21,6 @@ from ap_clerk.daily import (
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
-    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     REPORT_TO,
@@ -34,10 +33,17 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
-from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills, skip_rows_for_report
-from ap_clerk.kimco import KimcoClient, KimcoError
+from ap_clerk.inbox import (
+    HARD_EMAIL_CAP,
+    apply_skip_outlook_flags,
+    clamp_email_limit,
+    pull_recent_bills,
+    skip_rows_for_report,
+)
+from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
+    GATE_ALREADY_ENTERED,
     GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
     GATE_PDF_LINK,
@@ -52,6 +58,7 @@ from ap_clerk.gates import (
     RESULT_SUCCESS,
     attach_presence_status,
     drop_fee_disguised_as_ppv,
+    fees_required,
     find_live_po,
     finish_gate,
     merchandise_amount,
@@ -89,7 +96,14 @@ from ap_clerk.rules import (
     known_vendor_id,
     lookup_id,
     lookup_text,
+    format_selected_receipts,
+    format_unmatched_lines,
+    format_unmatched_pos,
+    INVOICE_TYPE_PO,
+    extract_subject_invoice_number,
+    invoice_qty_evidence,
     match_receipts,
+    merchandise_qty,
     misc_purchase_item_for,
     money,
     names_match,
@@ -128,7 +142,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--from-inbox",
         action="store_true",
-        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; HOLD/Fail/skips→AI HOLD.",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; bill HOLD/Fail→AI HOLD; noise→AI Skipped.",
     )
     parser.add_argument(
         "--limit",
@@ -196,6 +210,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "Live target. Kyle said go. Writes use live host + live GUIDs only. "
             "Success (finished bill) gets Entered in AI; Incomplete/HOLD/Fail get AI HOLD. "
+            "Noise Skipped gets AI Skipped. "
             "No follow-up flag.",
             flush=True,
         )
@@ -216,8 +231,10 @@ def main(argv: list[str] | None = None) -> int:
         try:
             category_status = graph_client.ensure_ai_hold_category(args.mailbox)
             issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+            skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
             print(f"AI HOLD master category: {category_status}", flush=True)
             print(f"Entered with issues master category: {issues_status}", flush=True)
+            print(f"AI Skipped master category: {skipped_status}", flush=True)
         except (GraphError, MailboxRejected):
             print("AI HOLD master category: category-denied", flush=True)
         from datetime import timedelta
@@ -235,12 +252,16 @@ def main(argv: list[str] | None = None) -> int:
             unprocessed_only=True,
             mark_skips=True,
         )
-        inbox_skip_rows = skip_rows_for_report(skipped, batch_name)
+        inbox_skip_rows = apply_skip_outlook_flags(
+            skip_rows_for_report(skipped, batch_name),
+            graph_client,
+            mailbox=args.mailbox,
+        )
         print(
             f"Inbox touched up to {HARD_EMAIL_CAP} email(s) from {args.mailbox} "
             f"({start.isoformat()} to {end.isoformat()}); selected {len(invoices)} bill(s); "
             f"skipped {len(skipped)} (already-flagged walked past; noise consumes the cap). "
-            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→sheet only.",
+            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→AI Skipped.",
             flush=True,
         )
         if not invoices:
@@ -257,8 +278,10 @@ def main(argv: list[str] | None = None) -> int:
             try:
                 category_status = graph_client.ensure_ai_hold_category(args.mailbox)
                 issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+                skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
                 print(f"AI HOLD master category: {category_status}", flush=True)
                 print(f"Entered with issues master category: {issues_status}", flush=True)
+                print(f"AI Skipped master category: {skipped_status}", flush=True)
             except (GraphError, MailboxRejected):
                 print("AI HOLD master category: category-denied", flush=True)
         if args.match_inbox:
@@ -409,26 +432,36 @@ def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any
     return index
 
 
+def _matching_existing_invoices(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    vendor: str,
+) -> list[dict[str, Any]]:
+    """Same vendor + invoice # on live or this run. Unique # is a dup even when
+    the mailbox sender name does not match (NoreplyMV / Leeco). Two vendors
+    sharing a number are not treated as the same bill.
+    """
+    items = invoice_by_number.get(invoice_number_key(number)) or []
+    if not items:
+        return []
+    if not vendor or len(items) == 1:
+        return list(items)
+    matched: list[dict[str, Any]] = []
+    for item in items:
+        values = item.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            matched.append(item)
+    return matched
+
+
 def _find_existing_invoice(
     invoice_by_number: dict[str, list[dict[str, Any]]],
     number: str,
     vendor: str,
 ) -> dict[str, Any] | None:
-    """Match same vendor + invoice #. A unique invoice # on live is already-exists
-    even when the mailbox sender name does not match (NoreplyMV / Leeco).
-    Do not treat a different vendor as a dup when two vendors share a number.
-    """
-    items = invoice_by_number.get(invoice_number_key(number)) or []
-    if not items:
-        return None
-    if not vendor or len(items) == 1:
-        return items[0]
-    for item in items:
-        values = item.get("values") or {}
-        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
-        if names_match(vendor, text) or vendor_match_score(vendor, text):
-            return item
-    return None
+    found = _matching_existing_invoices(invoice_by_number, number, vendor)
+    return found[0] if found else None
 
 
 def _remember_invoice(
@@ -703,6 +736,10 @@ def _finish_row(
 ) -> dict[str, Any]:
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
+    note = str(inv.get("multi_invoice_note") or "").strip()
+    if note and note not in why:
+        why = f"{why} {note}".strip() if why else note
+        row["Why"] = why
     if result != RESULT_SUCCESS and not why:
         row["Why"] = (
             f"{result}: Treyce must review this bill (gate not named). "
@@ -756,6 +793,22 @@ def _process_invoice(
         "Notes": "",
     }
 
+    existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
+    if existing_hits and number:
+        existing_ids = [hit.get("id") for hit in existing_hits if hit.get("id") not in (None, "")]
+        existing_id = existing_ids[0] if existing_ids else existing_hits[0].get("id")
+        id_txt = ", ".join(str(i) for i in existing_ids) if existing_ids else str(existing_id)
+        row["KIMCO id"] = existing_id
+        row["Result"] = RESULT_HOLD
+        row["Why"] = why_hold(
+            GATE_ALREADY_ENTERED,
+            f"{vendor} invoice #{number} is already entered as KIMCO id(s) {id_txt}. "
+            "Duplicate / already-entered. Will not create another header.",
+        )
+        if pdf_file_present(inv):
+            row["Attach status"] = "pdf-on-vm"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
     parse_ok, parse_why = preflight_parse_gate(inv)
     if not parse_ok:
         row["Why"] = parse_why
@@ -768,17 +821,23 @@ def _process_invoice(
     if not create_ok:
         if is_noise_reason(hold_reason):
             row["Result"] = RESULT_SKIPPED
-            row["Why"] = why_skipped(GATE_BILL_VS_NOISE, f"{hold_reason}. Do not create a header.")
-            row["Flag in Outlook"] = "No"
-            row["Flag status"] = FLAG_NONE
-            return row
+            row["Why"] = why_skipped(
+                GATE_BILL_VS_NOISE,
+                f"{hold_reason}. Do not create a header. Outlook AI Skipped (not AI HOLD).",
+            )
+            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         reason_l = str(hold_reason).lower()
         if reason_l in {"auto-pay", "auto pay"}:
             row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
         elif reason_l == "pdf-behind-link":
+            inv_no = number or extract_subject_invoice_number(str(inv.get("subject") or ""))
+            host = str(inv.get("pdf_link_host") or "")
+            host_bit = f" host {host}" if host else ""
+            row["Invoice #"] = inv_no or row.get("Invoice #") or ""
             row["Why"] = why_hold(
                 GATE_PDF_LINK,
-                "vendor PDF is behind a download link (auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
+                f"{vendor} invoice #{inv_no or 'unknown'} PDF is behind a download link{host_bit} "
+                "(auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
             )
         elif reason_l == "price does not match":
             row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}.")
@@ -793,19 +852,24 @@ def _process_invoice(
         row["Why"] = why_hold(GATE_PREFLIGHT, why_preflight_this_invoice(inv, "gas_ambiguous"))
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    existing = _find_existing_invoice(invoice_by_number, number, vendor)
-    if existing:
-        existing_id = existing.get("id")
-        row["KIMCO id"] = existing_id
-        row["Result"] = RESULT_FAIL
-        if existing_id in FORBIDDEN_INVOICE_IDS:
-            row["Why"] = why_fail(f"already exists (do not recreate id {existing_id})")
-        else:
-            row["Why"] = why_fail(f"already exists (id {existing_id})")
+    packed = list(inv.get("invoice_numbers_in_pdf") or [])
+    if (
+        not inv.get("gas_split")
+        and len(packed) > 1
+        and ("gas and supply" in vendor.lower() or "gasandsupply" in vendor.lower())
+    ):
+        row["Why"] = why_hold(
+            GATE_PREFLIGHT,
+            f"{vendor} PDF has {len(packed)} invoice numbers ({', '.join(packed)}). "
+            "Expand to one bill per invoice # before enter. "
+            "Do not collapse to a single invoice / multi-PO Incomplete.",
+        )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
     multi_po = bool(inv.get("multi_po")) or len(pos) > 1
+    if multi_po:
+        row["PO"] = ", ".join(pos)
     invoice_lines = list(inv.get("lines") or [])
     parts = [str(line.get("part") or "") for line in invoice_lines if line.get("part")]
     wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
@@ -895,9 +959,20 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     merch = merchandise_amount(amount, inv.get("fees"))
+    invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
     po_lines = list((po_info or {}).get("lines") or [])
     if not invoice_lines and po_lines and len(po_lines) == 1 and merch not in (None, ""):
-        invoice_lines = [{"amount": merch, "qty": po_lines[0].get("qty"), "part": po_lines[0].get("part"), "po_line": po_lines[0].get("po_line")}]
+        # Do not copy PO qty onto the invoice (Fastenal TXFT4100079: PO/receipt 36 ≠ invoice 35).
+        synth: dict[str, Any] = {
+            "amount": merch,
+            "part": po_lines[0].get("part"),
+            "po_line": po_lines[0].get("po_line"),
+        }
+        if invoice_qty is not None:
+            synth["qty"] = invoice_qty
+        invoice_lines = [synth]
+    if invoice_qty is None:
+        invoice_qty = invoice_qty_evidence(invoice_lines)
     price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
     issue_hold: tuple[str, str] | None = None
     preset_hold = str(inv.get("hold_reason") or "").strip().lower()
@@ -928,27 +1003,75 @@ def _process_invoice(
         hold_all = True
         notes = []
         combined_matched: list[dict[str, Any]] = []
+        combined_unmatched: list[dict[str, Any]] = []
+        unmatched_pos: list[str] = []
         for search_po in search_pos or [None]:
             one = match_receipts(
                 invoice_number=number,
                 invoice_lines=invoice_lines,
                 receipts=receipts,
                 po_number=str(search_po) if search_po else None,
+                invoice_qty=invoice_qty,
+                invoice_amount=merch,
             )
             notes.append(one["why"])
             combined_matched.extend(one.get("matched") or [])
+            combined_unmatched.extend(one.get("unmatched_lines") or [])
+            if one.get("hold_no_receipts") and search_po:
+                unmatched_pos.append(str(search_po))
+            if one.get("ambiguous") and not one.get("matched"):
+                hold_all = False
+                if issue_hold is None:
+                    amb_why = str((one.get("ambiguous") or [{}])[0].get("why") or one.get("why") or "")
+                    issue_hold = (
+                        GATE_RECEIPT,
+                        why_hold(
+                            GATE_RECEIPT,
+                            amb_why
+                            or "multiple open receipts on the PO differ in qty/cost. "
+                            "Will not guess first-open / second-open-on-po.",
+                        )
+                        + " Create KIMCO header and attach PDF; do not claim Success.",
+                    )
             if not one["hold_no_receipts"]:
                 hold_all = False
-        receipt_result = {"hold_no_receipts": hold_all, "matched": combined_matched, "why": " ".join(notes)}
+        receipt_result = {
+            "hold_no_receipts": hold_all,
+            "matched": combined_matched,
+            "unmatched_lines": combined_unmatched,
+            "unmatched_pos": unmatched_pos,
+            "why": " ".join(notes),
+        }
         if hold_all and (po_info or multi_po) and issue_hold is None:
+            unmatched_txt = format_unmatched_lines(combined_unmatched)
+            unmatched_po_txt = format_unmatched_pos(unmatched_pos)
+            extra = ""
+            if unmatched_txt:
+                extra += (
+                    f" Unmatched invoice line(s): {unmatched_txt}. "
+                    "Select Receipts for each invoice line; do not stop after one."
+                )
+            if unmatched_po_txt:
+                extra += (
+                    f" Unmatched PO(s): {unmatched_po_txt}. "
+                    "Select Receipts per PO; do not skip a PO silently."
+                )
             row["Result"] = RESULT_HOLD
             row["Why"] = why_hold(
                 GATE_RECEIPT,
                 f"no receipts after second pass slip # / part / qty / PO line / open receipts on PO "
-                f"(invoice {number}). Will not guess a qty-only slip.",
+                f"(invoice {number}). Will not guess a qty-only slip.{extra}",
             )
             return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        if unmatched_pos:
+            receipt_note += (
+                f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
+                "Select Receipts per PO; do not skip a PO silently. "
+            )
+        selected_txt = format_selected_receipts((receipt_result or {}).get("matched"))
+        if selected_txt:
+            receipt_note += f"Selected receipts: {selected_txt}. "
         if receipt_result and issue_hold is None:
             matched_receipts = [
                 {
@@ -961,15 +1084,35 @@ def _process_invoice(
                 for hit in (receipt_result.get("matched") or [])
             ]
             rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
+            unmatched_now = list(receipt_result.get("unmatched_lines") or [])
             if not rec_ok:
                 issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
+            elif invoice_qty is not None and not unmatched_now:
+                # Aggregate qty is Fastenal 35-vs-36. When some invoice lines
+                # are unmatched (EMJ Z250725432), still Select Receipts for the
+                # matches; selfcheck names the skipped line and blocks Success.
+                picked_qty = merchandise_qty(matched_receipts)
+                if picked_qty is not None and picked_qty != invoice_qty:
+                    issue_hold = (
+                        GATE_QTY,
+                        why_hold(
+                            GATE_QTY,
+                            f"invoice qty {invoice_qty:g} ≠ selected receipt qty {picked_qty:g} "
+                            f"(Fastenal TXFT4100079 class). Do not take the first open receipt.",
+                        )
+                        + " Create KIMCO header and attach PDF; do not claim Success.",
+                    )
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
     # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
-    invoice_type = invoice_type_for(po if (po_info or po) else None)
-    if invoice_type == 4 and po_info:
-        invoice_type = invoice_type_for(po)
+    # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
+    if multi_po:
+        invoice_type = INVOICE_TYPE_PO
+    else:
+        invoice_type = invoice_type_for(po if (po_info or po) else None)
+        if invoice_type == 4 and po_info:
+            invoice_type = invoice_type_for(po)
     currency = sample_values.get("Currency")
     currency_id = lookup_id(currency) or CURRENCY_USD_ID
     payload: dict[str, Any] = {
@@ -1022,6 +1165,31 @@ def _process_invoice(
         else:
             select_status = "blocked-405"
         receipts_selected = select_status == "selected"
+    fees_posted = False
+    fee_status = "none"
+    parsed_fees = list(inv.get("fees") or [])
+    if issue_hold:
+        fee_status = "held-unfinished"
+    elif fees_required(parsed_fees):
+        poster = getattr(client, "try_post_fees", None)
+        if poster:
+            try:
+                fee_status = poster(created_id, fees_with_amounts(parsed_fees))
+            except KimcoError:
+                fee_status = "blocked-405"
+        else:
+            fee_status = "blocked-no-fee-api"
+        fees_posted = fee_status == "posted"
+    ppv_status = "none"
+    if not issue_hold and price.get("ppv_total"):
+        poster_ppv = getattr(client, "try_post_ppv", None)
+        if poster_ppv:
+            try:
+                ppv_status = poster_ppv(created_id, price["ppv_total"])
+            except KimcoError:
+                ppv_status = "blocked-405"
+        else:
+            ppv_status = "not-posted-api"
     edit_hint = ""
     probe = getattr(client, "try_put_probe_rejected", None)
     if probe:
@@ -1057,6 +1225,8 @@ def _process_invoice(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=created_id,
+        fees=parsed_fees,
+        fees_posted=fees_posted,
         selfcheck=_selfcheck_with_posted_vendor(
             selfcheck_payload(
                 inv,
@@ -1066,6 +1236,8 @@ def _process_invoice(
                 price=price,
                 qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
                 receipt_result=receipt_result,
+                fees_posted=fees_posted,
+                receipt_qty_mismatch=bool(issue_hold and issue_hold[0] == GATE_QTY),
             ),
             parsed_vendor=vendor,
             posted=posted,
@@ -1093,9 +1265,10 @@ def _process_invoice(
         )
     ppv_note = ""
     if price["ppv_total"]:
+        posted_bit = "Posted" if ppv_status == "posted" else "Post"
         ppv_note = (
-            f"Post Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
-            "(signed; negative allowed). "
+            f"{posted_bit} Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
+            f"(signed; negative allowed; not Fees; status={ppv_status}). "
         )
         for item in price.get("items") or []:
             if item.get("reason") and item.get("action") == "ppv":
@@ -1104,16 +1277,27 @@ def _process_invoice(
     misc_item = misc_purchase_item_for(vendor)
     if misc_item and invoice_type == 4:
         misc_note = f" Miscellaneous purchase item {misc_item}."
+    fee_note = ""
+    if fees_required(parsed_fees):
+        if fees_posted:
+            fee_note = (
+                f"Posted Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                f"({format_fees(parsed_fees)}; not PPV). "
+            )
+        else:
+            fee_note = (
+                f"Fees {format_fees(parsed_fees)} were parsed but not posted "
+                f"({fee_status}); sheet column is not enough. "
+            )
     if result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
-            f"{ppv_note}"
-            "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
+            f"{ppv_note}{fee_note}"
             f"{misc_note}Attach status={pdf_status}."
         )
     else:
         row["Why"] = (
-            f"{finish_why} {po_missing_note}{line_note}{receipt_note}{ppv_note}"
+            f"{finish_why} {po_missing_note}{line_note}{receipt_note}{ppv_note}{fee_note}"
             f"Attach status={pdf_status}."
         ).strip()
     LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=%s", number, created_id, vendor, po, invoice_type, result)
@@ -1475,6 +1659,7 @@ def _run_probe(args: argparse.Namespace) -> int:
         )
         category_status = client.ensure_ai_hold_category(mailbox)
         issues_status = client.ensure_entered_with_issues_category(mailbox)
+        skipped_status = client.ensure_ai_skipped_category(mailbox)
         probe = client.probe_send_authorization(mailbox)
     except MailboxRejected as exc:
         print(str(exc), flush=True)
@@ -1493,6 +1678,7 @@ def _run_probe(args: argparse.Namespace) -> int:
         "mail_sent_to_anyone": False,
         "ai_hold_category": category_status,
         "entered_with_issues_category": issues_status,
+        "ai_skipped_category": skipped_status,
         "probe": probe,
         "notes": (
             "Draft created on the AP mailbox and deleted. sendMail was not called. "
@@ -1502,6 +1688,8 @@ def _run_probe(args: argparse.Namespace) -> int:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"AI HOLD master category: {category_status}", flush=True)
+    print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped master category: {skipped_status}", flush=True)
     print(
         f"Mail.Send role={'present' if probe.get('mail_send_role') else 'absent'} "
         f"draft={probe.get('draft_status')} draft_http={probe.get('draft_http')} "
@@ -1532,10 +1720,10 @@ def _run_daily(args: argparse.Namespace) -> int:
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
         "Daily FIFO from 2026-07-28 America/Chicago toward today. "
-        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / flag.flagStatus=flagged). "
+        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / AI Skipped / flag.flagStatus=flagged). "
         "Hard email cap 10 until further notice (Kyle 2026-09-11). "
         "Noise consumes the cap. Cursor persists. "
-        "Success→Entered in AI only; Incomplete/HOLD/Fail→AI HOLD. No flag.flagStatus.",
+        "Success→Entered in AI only; bill Incomplete/HOLD/Fail→AI HOLD; noise→AI Skipped. No flag.flagStatus.",
         flush=True,
     )
 
@@ -1571,11 +1759,14 @@ def _run_daily(args: argparse.Namespace) -> int:
     try:
         category_status = graph_client.ensure_ai_hold_category(args.mailbox)
         issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+        skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
     except (GraphError, MailboxRejected):
         category_status = "category-denied"
         issues_status = "category-denied"
+        skipped_status = "category-denied"
     print(f"AI HOLD master category: {category_status}", flush=True)
     print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped master category: {skipped_status}", flush=True)
 
     pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
     try:
@@ -1608,7 +1799,11 @@ def _run_daily(args: argparse.Namespace) -> int:
         flush=True,
     )
 
-    skip_rows = skip_rows_for_report(skipped, batch_name)
+    skip_rows = apply_skip_outlook_flags(
+        skip_rows_for_report(skipped, batch_name),
+        graph_client,
+        mailbox=args.mailbox,
+    )
     rows: list[dict[str, Any]] = []
     batch_label = batch_name
 

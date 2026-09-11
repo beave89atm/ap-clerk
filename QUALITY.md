@@ -2,7 +2,8 @@
 
 Treyce’s 2026-09-10 notes on the 8/16 dry-10 sheet, plus Kyle’s never-repeat and
 **Treyce-load / fix-before-complete** rules. Code + unit tests only. **Do not**
-run a live KIMCO or mailbox job until Kyle reviews.
+run a live KIMCO or mailbox job until the scheduled **Monday 2026-09-14 2:00am
+America/Chicago** live 10-email run.
 
 **Hard email cap 10 until further notice (Kyle 2026-09-11).** Cap = mailbox
 messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after
@@ -12,9 +13,9 @@ to 10. Still note each of those ≤10 on the sheet with Why.
 
 **Skip already-flagged (Kyle 2026-09-11).** Leave alone — do not reprocess, do
 not re-stamp categories — if the message already has Outlook `Entered in AI`,
-`AI HOLD`, `Entered with issues`, or Graph `flag.flagStatus=flagged`. Those
-messages do **not** consume the 10-email touch cap. Only unflagged /
-uncategorized (by those AP markers) messages count.
+`AI HOLD`, `Entered with issues`, `AI Skipped`, or Graph
+`flag.flagStatus=flagged`. Those messages do **not** consume the 10-email
+touch cap. Only unflagged / uncategorized (by those AP markers) messages count.
 
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
@@ -46,18 +47,18 @@ and 27946 / PO 58741. Fees `Packaging/Shop Supplies; Recovery` stay Fees, not PP
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
 
-## Outlook categories (exactly three)
+## Outlook categories (exactly four)
 
 | Result | Outlook |
 | --- | --- |
 | **Success** (finished; Treyce would not rework) | `Entered in AI` |
 | Header + PDF entered but bill cannot be finished (price-does-not-match, qty HOLD, Incomplete finish) | `Entered with issues` |
 | Real bill unprocessable **without** a header (parse-error / no-pdf, auto-pay, pdf-behind-link, Fail) | `AI HOLD` |
-| Noise (not-a-bill, statement, CHECK STOP notice, payment, POD, duplicate) | none — Excel `Skipped` only (PR #19) |
+| Noise (not-a-bill, statement, CHECK STOP notice, payment, POD, duplicate) | **`AI Skipped`** — sheet Result stays `Skipped` with Why |
 
-**Kyle action:** create the Outlook master category named exactly `Entered with issues` on `accountspayable@kannonmfg.com` if it does not exist. Code POSTs the category and PATCHes the exact string; a deny/missing apply is recorded with a clear Why.
+**Kyle action:** create the Outlook master categories named exactly `Entered with issues` and **`AI Skipped`** on `accountspayable@kannonmfg.com` if they do not exist. Code POSTs each category and PATCHes the exact string. If Graph cannot find/create `AI Skipped`, Why is `outlook-category-missing: AI Skipped` and the sheet row stays `Skipped`.
 
-Never a fourth process-category name. Never `Entered in AI` + another process marker on the same message.
+Never a fifth process-category name. Never two process markers on the same message. Do **not** leave noise uncategorized. Do **not** use `AI HOLD` for noise.
 
 ## Treyce-load: fix-before-complete checklist
 
@@ -69,9 +70,15 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
 3. **Receipt line by part/description** — not the first leftover qty (O’Neal SCH 40 A500).
 4. **Qty invoice vs PO/receipt equal** — else HOLD for the buyer (Capital 26764).
 5. **Fees/surcharges → Fees and surcharges** — never PPV (Techni-Tool $46.20).
+   Parsed fee amounts must be **posted** as Additional Charge Fees and
+   surcharges / F-Fees & Surcharges before Success (Fastenal TXFT4100079
+   Shipping & Handling 63.98). Sheet Fees column is not a post.
 6. **PPV only** for unit-price gaps vs PO, and only if ≤10% of invoice total **and** ≤$100; else price-does-not-match HOLD + `@Shawn McKibben`.
 7. **Vendor PDF attached** on the header.
-8. **Select Receipts posted** when the PO path applies.
+8. **Select Receipts posted** when the PO path applies. Receipt qty and
+   merchandise cost must match the invoice. Never first-open /
+   second-open-on-po when multiple open receipts differ (Fastenal
+   TXFT4100079 qty 36 vs invoice 35).
 9. **Posted vendor matches parsed** — GET after create; posted name/id is the
    parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
 
@@ -112,7 +119,7 @@ The vendor PDF is the version of the truth. Subject line and filename are
 - HOLD parse / no-pdf only when the PDF is **truly missing**, or extract+OCR
   of that PDF failed.
 
-## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink)
+## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink + 9/11 Fastenal / EMJ)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
@@ -131,21 +138,63 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | PDF-is-truth: Vendor=Nova Alloys; same # on subject is OK; create header+attach; Why describes THIS bill (no MSC/McQueary); only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
 | **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
 | **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | PDF-is-truth: filename # + PDF on disk is not a parse HOLD; create header+attach; Why describes THIS Crosslink bill (no MSC/McQueary); no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
+| **NOTE-14** Fastenal TXFT4100079 / PO 58692 / KIMCO 9968 (Kyle 2026-09-11) | Select Receipts qty **36** (first open on PO) vs invoice **35**; Why said “not first qty”; Shipping & Handling 63.98 Excel-only, never Additional Charge | Verify qty/cost; pick 35 not 36; never first-open / second-open-on-po Success when open receipts differ; post F-Fees & Surcharges 63.98 before Success or Incomplete / Entered with issues | `test_never_repeat_fastenal_txft4100079` |
+| **NOTE-15** EMJ Z250725432 / PO 58913 / KIMCO 9969 (Kyle 2026-09-11) | Two invoice lines; `lines:[]` then one PO receipt; Success; skipped line not on sheet; random-length gap not PPV | Parse both lines; Select Receipts per line; unmatched → not Success + Why names the skipped line; small length variance is PPV (≤10% / ≤$100), not Fees; prepaid/ship-date null amount is not a fee | `test_never_repeat_emj_z250725432_two_lines` |
+| **NOTE-16** Gas `billing01_A3050_c.pdf` / 0040370068 / KIMCO 9970 (Kyle 2026-09-11) | 6 invoices collapsed to one # + multi-PO Incomplete; amount 322 was before tax | Split to 6 bills; after-tax Amount Due (never Subtotal/Merchandise); page-range PDF per invoice when feasible else full pack + Why `multi-invoice-pdf page X–Y of N`; email still 1 touch; never Success/Incomplete a collapsed pack or a pre-tax amount | `test_never_repeat_gas_multi_invoice_pdf` / `test_never_repeat_gas_after_tax_amount` |
+| **NOTE-17** Insight 1809 already entered (Kyle 2026-09-11) | HOLD preflight-parse MSC/McQueary + `no-pdf-on-vm`; never said already-entered | Duplicate check before parse-HOLD; HOLD `already-entered` names vendor / # / existing KIMCO id(s); no McQueary; no `no-pdf-on-vm` when PDF is on disk | `test_never_repeat_insight_1809_already_entered` |
+| **NOTE-18** Outlook `AI Skipped` for noise (Kyle 2026-09-11) | Noise was sheet-only; no Outlook category; already-flagged ignored `AI Skipped` | Stamp exact `AI Skipped` (never `AI HOLD`); Why `outlook-category-missing: AI Skipped` if Graph cannot apply; already-flagged includes `AI Skipped` | `test_never_repeat_ai_skipped_noise` |
+| **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO; sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
+| **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
+| **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request URL, unauth GET (follow redirects), then header + attach. Auth wall → HOLD `pdf-behind-link` names vendor / # / host — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
+| **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped`. `AI Skipped` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
 | Note | Limitation | Gate if we cannot finish |
 | --- | --- | --- |
 | NOTE-09 | Vendor portal / login cookie download is not implemented | HOLD `pdf-behind-link` with Why |
-| NOTE-10 | Live `0040367887` 5-invoice amount split needs that PDF | HOLD `preflight-parse` when `gas_misc_ambiguous` |
+| NOTE-10 | Shared-total-only Gas packs (no per-invoice Amount Due) | HOLD `preflight-parse` when `gas_misc_ambiguous` |
 
 ## Unchanged (Kyle / prior PRs)
 
-- **Hard email cap 10 until further notice (Kyle 2026-09-11)** — replaces “cap = N bill attempts / walk past noise” (PR #19). Noise is still Excel `Skipped` without Outlook `AI HOLD`, but noise **consumes** the 10-email touch cap.
-- **Skip already-flagged** — `Entered in AI` / `AI HOLD` / `Entered with issues` / `flag.flagStatus=flagged` are walked past without touching and do not consume the cap.
+- **Hard email cap 10 until further notice (Kyle 2026-09-11)** — replaces “cap = N bill attempts / walk past noise” (PR #19). Noise is Excel `Skipped` with Outlook **`AI Skipped`** (never `AI HOLD`) and **consumes** the 10-email touch cap.
+- **Skip already-flagged** — `Entered in AI` / `AI HOLD` / `Entered with issues` / `AI Skipped` / `flag.flagStatus=flagged` are walked past without touching and do not consume the cap.
 - One Mail.Send per run after the final sheet only.
 - No auto-pay. No auto-close batch. Payments human-gated.
 - Shawn McKibben comments on price-does-not-match.
 - Success = finished bill only (now also: Treyce would not rework it).
 
-Pause further dry runs until Kyle reviews this V1.2 PR.
+## Monday 2026-09-14 2:00am America/Chicago — live 10
+
+Scheduled job: `daily --live --limit 30` (hard-clamped to **10 emails**). No
+mailbox/KIMCO run from this PR before that job. Goal: ~90% without the false
+Skip / false Success class of errors.
+
+| # | Basic | Note / test |
+| --- | --- | --- |
+| 1 | Never skip KIMCO vendor invoices | NOTE-22 `test_never_repeat_kimco_vendor_invoice_never_skip` |
+| 2 | PDF-is-truth + accurate Why | NOTE-11 / 13 + Why-must-be-true |
+| 3 | Qty/cost receipt verify + post fees | NOTE-14 Fastenal TXFT4100079 |
+| 4 | All invoice lines or explicit skip note | NOTE-15 EMJ Z250725432 |
+| 5 | Multi-invoice PDF split + after-tax total | NOTE-16 Gas 0040370068 |
+| 6 | 3P multi-PO Select Receipts | NOTE-19 |
+| 7 | AQPC link download | NOTE-21 |
+| 8 | Eastern Metal not noise | NOTE-20 |
+| 9 | Duplicate / already-entered Why | NOTE-17 Insight 1809 |
+| 10 | `AI Skipped` for true noise only | NOTE-18 |
+
+### Blockers / failing-safe (not silent Skip or Success)
+
+- **Outlook master categories** `Entered with issues` and **`AI Skipped`** may
+  need to be created on `accountspayable@` (Graph masterCategories POST is often
+  403). Code still PATCHes the exact strings. Missing `AI Skipped` → Why
+  `outlook-category-missing: AI Skipped`; sheet stays Skipped.
+- **AQPC login-cookie portals** (NOTE-09): HOLD `pdf-behind-link` with vendor / #
+  / host. Unauth GET is implemented.
+- **Gas shared-total-only packs** (NOTE-10): HOLD `preflight-parse` /
+  `gas_misc_ambiguous` — never invent per-invoice amounts.
+- **Fastenal** has no confirmed `Vendor.id` alias row (never-skip uses the name
+  token; header vendor still comes from PO / samples). Do not invent an id.
+- **3P** has no KIMCO vendor id — do not invent one.
+
+Pause further ad-hoc dry runs. Next live touch is Monday’s scheduled 10.

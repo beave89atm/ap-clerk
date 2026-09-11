@@ -23,9 +23,16 @@ def flag_in_outlook_for(result: str | None) -> str:
     Success → Entered in AI.
     Header+PDF entered but unfinished (price/qty HOLD, Incomplete) → Entered with issues.
     Real bill unprocessable without a header → AI HOLD.
-    Skipped / Noise → No (sheet-noted only; never Outlook AI HOLD).
+    Skipped / Noise → Yes (`AI Skipped`). Never AI HOLD for noise.
     """
-    return "Yes" if (result or "").strip() in {"Success", "Incomplete", "HOLD", "Fail"} else "No"
+    return "Yes" if (result or "").strip() in {
+        "Success",
+        "Incomplete",
+        "HOLD",
+        "Fail",
+        "Skipped",
+        "Noise",
+    } else "No"
 
 
 def comments_for(target: str) -> str:
@@ -35,7 +42,7 @@ def comments_for(target: str) -> str:
     return COMMENTS
 
 
-# Mailbox noise: sheet-note, do not stamp AI HOLD. Consumes the 10-email touch cap.
+# Mailbox noise: sheet-note Skipped + Outlook AI Skipped (never AI HOLD). Consumes the 10-email touch cap.
 NOISE_REASONS = {
     "check stop",
     "check_stop",
@@ -176,6 +183,10 @@ VENDOR_ID_ALIASES = {
     "orthman": 434,
     "orthman conveying": 434,
 }
+
+# Listed KIMCO vendors that are recognized for never-skip without inventing a Vendor.id.
+# Fastenal is live-entered often (TXFT… / KIMCO 9968) but has no alias row yet.
+KNOWN_KIMCO_VENDOR_NAMES = frozenset({"fastenal"})
 
 # Existing live invoices used only for remit/terms copy. Confirmed by GET.
 KNOWN_VENDOR_SAMPLE_INVOICES = {
@@ -691,13 +702,40 @@ def normalize_receipt(item: dict[str, Any]) -> dict[str, Any]:
     po_line = receipt_field(item, "Purchase_Line_Number", "PO_Line", "Line_Number", "Line")
     po_number = receipt_field(item, "Purchase_Order_Number", "Purchase_Order", "PO")
     wo = receipt_field(item, "Work_Order", "WO", "Work_Order_Number")
+    unit_price = receipt_field(
+        item,
+        "PO_Item_Number_$_Unit_Price",
+        "Unit_Price",
+        "Unit_Cost",
+        "Purchase_Cost",
+        "Price",
+        "unit_price",
+        "cost",
+    )
+    amount = receipt_field(
+        item,
+        "Amount",
+        "Line_Amount",
+        "Extended_Price",
+        "Extended_Cost",
+        "Purchase_Amount",
+        "amount",
+    )
+    qty_n = money(qty)
+    unit_n = money(unit_price)
+    amount_n = money(amount)
+    if amount_n is None and qty_n is not None and unit_n is not None:
+        amount_n = round(qty_n * unit_n, 2)
     return {
         "id": item.get("id"),
         "slip": str(slip or "").strip(),
         "part": str(part or "").strip(),
         "description": str(description or "").strip(),
         "label": str(description or part or "").strip(),
-        "qty": money(qty),
+        "qty": qty_n,
+        "unit_price": unit_n,
+        "amount": amount_n,
+        "cost": amount_n,
         "po_line": po_line,
         "line": po_line,
         "line_no": po_line,
@@ -720,17 +758,273 @@ def slip_matches_invoice(slip: str | None, invoice_number: str | None) -> bool:
     return a == b or a in b or b in a
 
 
+# Two-cent rounding: merchandise amount vs receipt extended cost.
+COST_ALIGN_TOLERANCE = 0.02
+
+
+def receipt_cost(receipt: dict[str, Any] | None) -> float | None:
+    """Extended receipt cost: amount, else qty × unit price."""
+    if not isinstance(receipt, dict):
+        return None
+    amount = money(
+        receipt.get("amount")
+        if receipt.get("amount") is not None
+        else receipt.get("cost")
+        if receipt.get("cost") is not None
+        else receipt.get("line_amount")
+        if receipt.get("line_amount") is not None
+        else receipt.get("extended")
+    )
+    if amount is not None:
+        return amount
+    qty = money(receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity"))
+    unit = money(
+        receipt.get("unit_price")
+        if receipt.get("unit_price") is not None
+        else receipt.get("unit_cost")
+        if receipt.get("unit_cost") is not None
+        else receipt.get("purchase_cost")
+    )
+    if qty is not None and unit is not None:
+        return round(qty * unit, 2)
+    return None
+
+
+def costs_align(left: Any, right: Any, *, tolerance: float = COST_ALIGN_TOLERANCE) -> bool:
+    a, b = money(left), money(right)
+    if a is None or b is None:
+        return False
+    return abs(a - b) <= tolerance
+
+
+def merchandise_qty(invoice_lines: list[dict[str, Any]] | None) -> float | None:
+    """Sum merchandise (non-fee) line quantities. None if no qty evidence."""
+    total = 0.0
+    found = False
+    for line in invoice_lines or []:
+        if not line:
+            continue
+        if is_fee_or_surcharge(_line_description(line)) or line.get("fee"):
+            continue
+        qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+        if qty is None:
+            continue
+        total = round(total + qty, 2)
+        found = True
+    return total if found else None
+
+
+def invoice_qty_evidence(
+    invoice_lines: list[dict[str, Any]] | None = None,
+    invoice_qty: Any = None,
+) -> float | None:
+    """Invoice merchandise qty: explicit invoice-level qty, else sum of lines."""
+    explicit = money(invoice_qty)
+    if explicit is not None:
+        return explicit
+    return merchandise_qty(invoice_lines)
+
+
+def _receipt_aligns(
+    receipt: dict[str, Any],
+    invoice_qty: float | None,
+    invoice_amount: float | None,
+    *,
+    allow_missing: bool = True,
+    qty_already_ok: bool = False,
+) -> tuple[bool, str]:
+    """True when receipt qty/cost do not conflict with invoice evidence."""
+    if invoice_qty is not None and not qty_already_ok:
+        rq = money(receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity"))
+        if rq is not None and not _same_qty(rq, invoice_qty):
+            return False, f"receipt qty {rq} ≠ invoice qty {invoice_qty}"
+        if rq is None and not allow_missing:
+            return False, "receipt qty missing"
+    if invoice_amount is not None:
+        rc = receipt_cost(receipt)
+        if rc is not None and not costs_align(rc, invoice_amount):
+            return False, f"receipt cost {rc:.2f} ≠ invoice merchandise {invoice_amount:.2f}"
+        if rc is None and not allow_missing:
+            return False, "receipt cost missing"
+    return True, ""
+
+
+def pick_receipts_by_qty_cost(
+    candidates: list[dict[str, Any]],
+    *,
+    invoice_qty: float | None = None,
+    invoice_amount: float | None = None,
+    invoice_number: str | None = None,
+) -> dict[str, Any]:
+    """Choose open PO receipts by invoice qty, then merchandise cost.
+
+    Prefer exact qty match (35 vs 36 → 35). If remaining candidates still
+    differ in cost, require cost alignment within rounding or HOLD ambiguous.
+    Never first-open / second-open-on-po Success when multiple open receipts
+    differ in qty/cost.
+    """
+    empty = {"picked": [], "ambiguous": None, "how": "", "why": ""}
+    if not candidates:
+        return empty
+
+    slip_hits = [
+        r
+        for r in candidates
+        if slip_matches_invoice(str(r.get("slip") or r.get("name") or ""), invoice_number)
+    ]
+    if len(slip_hits) == 1:
+        ok, reason = _receipt_aligns(slip_hits[0], invoice_qty, invoice_amount)
+        if ok:
+            return {
+                "picked": slip_hits,
+                "ambiguous": None,
+                "how": "slip # = invoice # (qty/cost checked)",
+                "why": "",
+            }
+        if invoice_qty is not None or invoice_amount is not None:
+            return {
+                "picked": [],
+                "ambiguous": {"candidates": slip_hits, "why": reason},
+                "how": "",
+                "why": reason,
+            }
+
+    if len(candidates) == 1:
+        ok, reason = _receipt_aligns(candidates[0], invoice_qty, invoice_amount, allow_missing=True)
+        if ok:
+            return {
+                "picked": candidates,
+                "ambiguous": None,
+                "how": "single open receipt on PO",
+                "why": "",
+            }
+        if invoice_qty is not None or invoice_amount is not None:
+            return {
+                "picked": [],
+                "ambiguous": {"candidates": candidates, "why": reason},
+                "how": "",
+                "why": reason,
+            }
+        return {
+            "picked": candidates,
+            "ambiguous": None,
+            "how": "single open receipt on PO",
+            "why": "",
+        }
+
+    qtys = {money(r.get("qty") if r.get("qty") is not None else r.get("quantity")) for r in candidates}
+    costs = {receipt_cost(r) for r in candidates}
+    differ = len(qtys - {None}) > 1 or len(costs - {None}) > 1
+
+    if invoice_qty is not None:
+        qty_hits = [
+            r
+            for r in candidates
+            if _same_qty(r.get("qty") if r.get("qty") is not None else r.get("quantity"), invoice_qty)
+        ]
+        if len(qty_hits) == 1:
+            ok, reason = _receipt_aligns(
+                qty_hits[0], invoice_qty, invoice_amount, qty_already_ok=True
+            )
+            if ok:
+                return {
+                    "picked": qty_hits,
+                    "ambiguous": None,
+                    "how": f"invoice qty {invoice_qty:g}",
+                    "why": "",
+                }
+            return {
+                "picked": [],
+                "ambiguous": {"candidates": qty_hits, "why": reason},
+                "how": "",
+                "why": reason,
+            }
+        if len(qty_hits) > 1:
+            if invoice_amount is not None:
+                cost_hits = [r for r in qty_hits if costs_align(receipt_cost(r), invoice_amount)]
+                if len(cost_hits) == 1:
+                    return {
+                        "picked": cost_hits,
+                        "ambiguous": None,
+                        "how": f"invoice qty {invoice_qty:g} and merchandise cost",
+                        "why": "",
+                    }
+            why = (
+                f"multiple open receipts qty {invoice_qty:g}; "
+                "cost does not uniquely align. HOLD ambiguous (will not guess)."
+            )
+            return {
+                "picked": [],
+                "ambiguous": {"candidates": qty_hits, "why": why},
+                "how": "",
+                "why": why,
+            }
+        why = (
+            f"no open receipt qty matches invoice qty {invoice_qty:g} "
+            "(will not take first-open / second-open-on-po)."
+        )
+        return {
+            "picked": [],
+            "ambiguous": {"candidates": candidates, "why": why},
+            "how": "",
+            "why": why,
+        }
+
+    if invoice_amount is not None:
+        cost_hits = [r for r in candidates if costs_align(receipt_cost(r), invoice_amount)]
+        if len(cost_hits) == 1:
+            return {
+                "picked": cost_hits,
+                "ambiguous": None,
+                "how": "invoice merchandise cost",
+                "why": "",
+            }
+        why = (
+            "multiple open receipts on the PO; merchandise cost does not uniquely align. "
+            "HOLD ambiguous (will not guess first-open / second-open-on-po)."
+        )
+        return {
+            "picked": [],
+            "ambiguous": {"candidates": candidates, "why": why},
+            "how": "",
+            "why": why,
+        }
+
+    if differ:
+        why = (
+            "multiple open receipts on the PO differ in qty/cost and invoice "
+            "qty/cost evidence is missing. HOLD ambiguous (will not guess "
+            "first-open / second-open-on-po)."
+        )
+        return {
+            "picked": [],
+            "ambiguous": {"candidates": candidates, "why": why},
+            "how": "",
+            "why": why,
+        }
+    return {
+        "picked": [candidates[0]],
+        "ambiguous": None,
+        "how": "open receipts on PO agree in qty/cost",
+        "why": "",
+    }
+
+
 def match_receipts(
     *,
     invoice_number: str | None,
     invoice_lines: list[dict[str, Any]] | None,
     receipts: list[dict[str, Any]],
     po_number: str | None = None,
+    invoice_qty: Any = None,
+    invoice_amount: Any = None,
 ) -> dict[str, Any]:
-    """Select Receipts: part + PO/WO line, then slip # = invoice #. Not first qty.
+    """Select Receipts: part + PO/WO line, then slip # = invoice #.
 
-    Search order before HOLD-no-receipts: slip #, part, qty, PO line.
-    Fastenal TXFT499356 is findable via slip # = invoice #.
+    When invoice lines are empty, verify qty and merchandise cost against
+    open receipts on the PO. Prefer exact qty (35 vs 36 → 35). Never Success
+    via first-open / second-open-on-po when multiple open receipts differ in
+    qty/cost. Fastenal TXFT499356 is findable via slip # = invoice #.
     Modern Heat 220804 must take lines 6–7 (parts 625-5200-002 / 400-5200-001),
     not lines 1–3 that merely have a fitting qty.
     """
@@ -743,11 +1037,25 @@ def match_receipts(
         cleaned.append(normalize_receipt(row))
     normalized = cleaned
     lines = [dict(line) for line in (invoice_lines or []) if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or ""))]
+    qty_ev = invoice_qty_evidence(lines, invoice_qty)
+    amount_ev = money(invoice_amount)
+    if amount_ev is None:
+        summed = 0.0
+        found_amt = False
+        for line in lines:
+            amt = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+            if amt is None:
+                continue
+            summed = round(summed + amt, 2)
+            found_amt = True
+        if found_amt:
+            amount_ev = summed
 
     matched: list[dict[str, Any]] = []
     used: set[int] = set()
     unmatched: list[dict[str, Any]] = []
     ambiguous: list[dict[str, Any]] = []
+    hows: list[str] = []
 
     def _receipt_score(inv_line: dict[str, Any], receipt: dict[str, Any]) -> int:
         score = _line_match_score(inv_line, receipt)
@@ -756,6 +1064,49 @@ def match_receipts(
         if po_number and str(receipt.get("po") or "") == str(po_number):
             score += 15
         return score
+
+    def _open_on_po() -> list[dict[str, Any]]:
+        open_rows: list[dict[str, Any]] = []
+        for receipt in normalized:
+            if id(receipt) in used:
+                continue
+            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
+            if po_number and receipt_po == str(po_number):
+                open_rows.append(receipt)
+        return open_rows
+
+    def _apply_qty_cost_pick(
+        candidates: list[dict[str, Any]],
+        *,
+        score: int,
+        pass_name: str,
+        line: dict[str, Any] | None = None,
+    ) -> bool:
+        pick = pick_receipts_by_qty_cost(
+            candidates,
+            invoice_qty=qty_ev,
+            invoice_amount=amount_ev,
+            invoice_number=invoice_number,
+        )
+        if pick.get("ambiguous") and not pick.get("picked"):
+            ambiguous.append(pick["ambiguous"])
+            return False
+        for receipt in pick.get("picked") or []:
+            if id(receipt) in used:
+                continue
+            used.add(id(receipt))
+            matched.append(
+                {
+                    "line": line or ({"invoice_number": invoice_number} if invoice_number else {"po": po_number}),
+                    "receipt": receipt,
+                    "score": score,
+                    "pass": pass_name,
+                    "how": pick.get("how") or pass_name,
+                }
+            )
+            if pick.get("how"):
+                hows.append(str(pick["how"]))
+        return bool(pick.get("picked"))
 
     for inv_line in lines:
         scored: list[tuple[int, dict[str, Any]]] = []
@@ -771,11 +1122,18 @@ def match_receipts(
             unmatched.append(inv_line)
             continue
         if len(scored) > 1 and scored[0][0] < scored[1][0] + 10:
+            # Same part/score: break ties with invoice qty, then cost.
+            tied = [r for s, r in scored if s >= scored[0][0] - 5]
+            if len(tied) > 1 and (qty_ev is not None or amount_ev is not None):
+                if _apply_qty_cost_pick(tied, score=scored[0][0], pass_name="qty-cost-tiebreak", line=inv_line):
+                    hows.append("part/PO-WO + invoice qty/cost")
+                    continue
             ambiguous.append({"line": inv_line, "candidates": [r for _s, r in scored[:3]]})
             continue
         pick = scored[0][1]
         used.add(id(pick))
-        matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0]})
+        matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "how": "part/PO-WO/slip"})
+        hows.append("part/PO-WO/slip")
 
     slip_hits = [
         r
@@ -783,53 +1141,37 @@ def match_receipts(
         if id(r) not in used and slip_matches_invoice(str(r.get("slip") or r.get("name") or ""), invoice_number)
     ]
     if not lines and slip_hits:
-        matched.append({"line": {"invoice_number": invoice_number}, "receipt": slip_hits[0], "score": 80})
-        used.add(id(slip_hits[0]))
+        _apply_qty_cost_pick(slip_hits, score=80, pass_name="slip")
 
-    found = bool(matched) or bool(slip_hits)
-    if not found and not lines:
-        # Last pass: slip / part / qty / PO line against the invoice number and PO.
-        for receipt in normalized:
-            if slip_matches_invoice(str(receipt.get("slip") or receipt.get("name") or ""), invoice_number):
-                matched.append({"line": {"invoice_number": invoice_number}, "receipt": receipt, "score": 80})
-                found = True
-                break
-            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
-            if po_number and receipt_po == str(po_number):
-                # PO on the receipt name (PO58808-MCMASTER-CARR - 2026/7/31) is enough.
-                # Do not fall back to first leftover qty.
-                matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 65})
-                found = True
-                break
+    found = bool(matched)
+    if not found and not lines and not ambiguous:
+        # Empty invoice lines (Fastenal TXFT4100079): never first-open on PO.
+        pool = _open_on_po() if po_number else list(normalized)
+        if pool:
+            _apply_qty_cost_pick(pool, score=65, pass_name="qty-cost-on-po")
+            found = bool(matched)
 
-    # Synthesized single-PO-line invoices still match a receipt named for that PO.
-    if not found and po_number:
-        for receipt in normalized:
-            if id(receipt) in used:
-                continue
-            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
-            if receipt_po == str(po_number):
-                matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 65})
-                found = True
-                break
+    # Synthesized / named-for-PO receipts (McMaster PO58808, Ryerson PO58789).
+    # Never a single PO-receipt Success when the invoice has multiple merchandise lines
+    # (EMJ Z250725432: two lines, runner selected one).
+    if not found and po_number and not ambiguous and len(lines) <= 1:
+        pool = _open_on_po()
+        if pool:
+            _apply_qty_cost_pick(pool, score=65, pass_name="named-po")
+            found = bool(matched)
 
     # Second pass before HOLD-no-receipts (Capital 26167 / Fastenal TXFT499356):
-    # slip # = invoice #, part, qty, PO line, then all open receipts on that PO.
+    # slip # = invoice #, part, qty, PO line, then qty/cost among open receipts.
     second_pass = False
     if not found and not ambiguous and po_number:
-        open_on_po: list[dict[str, Any]] = []
-        for receipt in normalized:
-            if id(receipt) in used:
-                continue
-            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
-            if receipt_po == str(po_number):
-                open_on_po.append(receipt)
-        for receipt in list(open_on_po):
-            if slip_matches_invoice(str(receipt.get("slip") or receipt.get("name") or ""), invoice_number):
-                matched.append({"line": {"invoice_number": invoice_number}, "receipt": receipt, "score": 80, "pass": "second-slip"})
-                used.add(id(receipt))
-                found = True
-                second_pass = True
+        open_on_po = _open_on_po()
+        if _apply_qty_cost_pick(
+            [r for r in open_on_po if slip_matches_invoice(str(r.get("slip") or r.get("name") or ""), invoice_number)],
+            score=80,
+            pass_name="second-slip",
+        ):
+            found = True
+            second_pass = True
         if not found:
             for inv_line in lines:
                 scored = []
@@ -843,20 +1185,56 @@ def match_receipts(
                 if scored:
                     pick = scored[0][1]
                     used.add(id(pick))
-                    matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "pass": "second-part"})
+                    matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "pass": "second-part", "how": "second-part"})
+                    hows.append("part/PO-WO/slip")
                     found = True
                     second_pass = True
-        if not found and open_on_po:
-            # Capital 26167: open receipts on the PO are enough to avoid a false HOLD.
-            for receipt in open_on_po:
-                if id(receipt) in used:
-                    continue
-                matched.append({"line": {"po": po_number}, "receipt": receipt, "score": 55, "pass": "second-open-on-po"})
-                used.add(id(receipt))
+        if not found and open_on_po and len(lines) <= 1:
+            # Capital 26167: a single open receipt on the PO is enough.
+            # Multiple invoice lines must each match; do not stop after one.
+            if _apply_qty_cost_pick(open_on_po, score=55, pass_name="second-open-on-po"):
                 found = True
                 second_pass = True
 
+    found = bool(matched)
     hold_no_receipts = not found and not ambiguous
+    unique_hows: list[str] = []
+    for how in hows:
+        if how and how not in unique_hows:
+            unique_hows.append(how)
+    if hold_no_receipts:
+        why = "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
+        if unmatched:
+            why += (
+                f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
+    elif ambiguous and not matched:
+        why = (
+            f"HOLD: {len(ambiguous)} ambiguous open receipt set(s) on the PO "
+            "(qty/cost differ; will not guess first-open / second-open-on-po)."
+        )
+        if ambiguous[0].get("why"):
+            why = f"HOLD: {ambiguous[0]['why']}"
+    else:
+        how_txt = ", ".join(unique_hows) if unique_hows else "part/PO-WO/slip"
+        verified = any("qty" in h or "cost" in h or "merchandise" in h for h in unique_hows)
+        why = f"Select Receipts: {len(matched)} receipt(s) matched by {how_txt}"
+        if verified:
+            why += " (invoice qty/cost verified; not first open receipt on the PO)."
+        elif "part/PO-WO/slip" in unique_hows or "second-part" in unique_hows:
+            why += " (part/PO-WO/slip; not first leftover qty)."
+        else:
+            why += "."
+        if second_pass:
+            why += " Second pass used open receipts on the PO (qty/cost checked)."
+        if ambiguous:
+            why += f" {len(ambiguous)} ambiguous; will not guess."
+        if unmatched:
+            why += (
+                f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
     return {
         "matched": matched,
         "unmatched_lines": unmatched,
@@ -864,16 +1242,7 @@ def match_receipts(
         "hold_no_receipts": hold_no_receipts,
         "found": found,
         "second_pass": second_pass,
-        "why": (
-            "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
-            if hold_no_receipts
-            else (
-                f"Select Receipts: {len(matched)} receipt(s) matched by part/PO-WO/slip "
-                f"(not first qty)."
-                + (" Second pass used open receipts on the PO." if second_pass else "")
-                + (f" {len(ambiguous)} ambiguous; will not guess." if ambiguous else "")
-            )
-        ),
+        "why": why,
     }
 
 
@@ -885,14 +1254,40 @@ def format_fees(fees: list[dict[str, Any]] | None) -> str:
         name = str(fee.get("name") or "").strip()
         amount = fee.get("amount")
         if amount is None or amount == "":
-            parts.append(name or "fee")
-        else:
-            parts.append(f"{name} {float(amount):.2f}")
+            continue
+        parts.append(f"{name} {float(amount):.2f}")
     return "; ".join(parts) if parts else "none"
+
+
+def invoice_line_label(line: dict[str, Any] | None) -> str:
+    if not isinstance(line, dict):
+        return "line"
+    return str(
+        line.get("label")
+        or line.get("description")
+        or line.get("part")
+        or (f"line {line.get('po_line')}" if line.get("po_line") not in (None, "") else "")
+        or "line"
+    ).strip()[:80] or "line"
+
+
+def format_unmatched_lines(lines: list[dict[str, Any]] | None) -> str:
+    labels = [invoice_line_label(line) for line in (lines or []) if line]
+    return "; ".join(labels) if labels else ""
+
+
+_NOT_A_FEE = re.compile(
+    r"shipping\s*date|ship(?:ping)?\s*date|prepaid|pre-?paid|shipped\s+via",
+    flags=re.I,
+)
 
 
 def is_fee_or_surcharge(label: str) -> bool:
     text = (label or "").strip().lower()
+    if not text:
+        return False
+    if _NOT_A_FEE.search(text):
+        return False
     return any(key in text for key in FEE_KEYWORDS)
 
 
@@ -1110,13 +1505,50 @@ STATEMENT_RE = re.compile(
     flags=re.I,
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
+# Link-PDF: https invoice / download / .pdf (AQPC payment-request, vendor portals).
+HTTPS_INVOICE_LINK_RE = re.compile(
+    r"https://[^\s<>\"']*(?:invoice|inv[#/?]|download|payment.?request|\.pdf|pay\.)[^\s<>\"']*",
+    flags=re.I,
+)
+
+
+def has_invoice_hint(
+    *,
+    subject: str = "",
+    attachment_names: list[str] | None = None,
+    preview: str = "",
+) -> bool:
+    """Invoice/INV # on the subject, preview, or an invoice-like PDF name.
+
+    Kyle: invoice hint or a PDF invoice attached is never not-a-bill
+    (Eastern Metal 818600 / 3P 142041 class).
+    """
+    names = " ".join(str(n or "") for n in (attachment_names or []))
+    if INVOICE_HINT_RE.search(subject or "") or INVOICE_HINT_RE.search(names) or INVOICE_HINT_RE.search(preview or ""):
+        return True
+    if extract_subject_invoice_number(subject):
+        return True
+    return False
+
+
+def has_invoice_link(*, subject: str = "", preview: str = "") -> bool:
+    """True when the body/subject has an https invoice / download / PDF link."""
+    return bool(HTTPS_INVOICE_LINK_RE.search(f"{subject}\n{preview}"))
+
+
 POD_NAME_RE = re.compile(r"(^|[^a-z])pod([^a-z]|$)|proof.of.delivery", flags=re.I)
 # Vendor invoices with a PDF must enter even when the subject is short (AQPC, Melody).
 KNOWN_BILL_VENDOR_RE = re.compile(
     r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|"
-    r"melody\s+channell",
+    r"melody\s+channell|"
+    r"\b3p\b|rachel\s+bailey|"
+    r"eastern\s+metal",
     flags=re.I,
 )
+THREE_P_RE = re.compile(r"\b3p\b|rachel\s+bailey", flags=re.I)
+EASTERN_METAL_RE = re.compile(r"eastern\s+metal", flags=re.I)
+_PO_HASH_LIST = re.compile(r"\bPO\s*#\s*([0-9,\s]+)", flags=re.I)
+_INV_HASH = re.compile(r"\bINV(?:OICE)?\s*#?\s*[:.]?\s*(\d{5,8})\b", flags=re.I)
 # AQPC often links a PDF instead of attaching it.
 LINK_DOWNLOAD_VENDOR_RE = re.compile(
     r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|aqpowder",
@@ -1128,10 +1560,16 @@ INTERNAL_MAIL_RE = re.compile(
 )
 
 
-def classify_mail(*, subject: str = "", attachment_names: list[str] | None = None, preview: str = "") -> str:
+def classify_mail(
+    *,
+    subject: str = "",
+    attachment_names: list[str] | None = None,
+    preview: str = "",
+    from_name: str = "",
+) -> str:
     """Return 'invoice', 'check_stop', 'statement', 'pod', 'payment', 'internal', 'auto-pay', or 'not-a-bill'."""
     names = " ".join(attachment_names or [])
-    blob = f"{subject}\n{names}\n{preview}"
+    blob = f"{from_name}\n{subject}\n{names}\n{preview}"
     if is_auto_pay(subject=subject, preview=preview):
         return "auto-pay"
     # Gas & Supply: subject CHECK STOP is not enough — inbox must read the PDF
@@ -1142,21 +1580,137 @@ def classify_mail(*, subject: str = "", attachment_names: list[str] | None = Non
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
-    if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob):
+    if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob) or THREE_P_RE.search(blob):
         if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment)\b", blob, flags=re.I):
+            return "payment"
+        return "invoice"
+    if never_skip_vendor_invoice(
+        subject=subject, from_name=from_name, preview=preview, attachment_names=attachment_names
+    ):
+        if re.search(
+            r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
+            subject,
+            flags=re.I,
+        ) and not INVOICE_HINT_RE.search(subject):
+            return "payment"
+        return "invoice"
+    if has_invoice_hint(subject=subject, attachment_names=attachment_names, preview=preview):
+        if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", subject, flags=re.I):
             return "payment"
         return "invoice"
     if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b", blob, flags=re.I):
         return "payment"
     if POD_NAME_RE.search(blob) or re.search(r"\bproof\s+of\s+delivery\b|\bpacking\s+(list|slip)\b|\bdelivery\s+receipt\b", blob, flags=re.I):
-        if INVOICE_HINT_RE.search(subject) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
+        if has_invoice_hint(subject=subject, attachment_names=attachment_names) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
             return "invoice"
         return "pod"
-    if STATEMENT_RE.search(blob) and not INVOICE_HINT_RE.search(subject) and not INVOICE_HINT_RE.search(names):
+    if STATEMENT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names):
         return "statement"
-    if NOT_A_BILL_SUBJECT_RE.search(blob) and not INVOICE_HINT_RE.search(subject):
+    if NOT_A_BILL_SUBJECT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names, preview=preview):
         return "not-a-bill"
     return "invoice"
+
+
+def extract_subject_pos(subject: str) -> list[str]:
+    """PO # 58766, 58767, 58844 from a 3P / Rachel Bailey subject."""
+    match = _PO_HASH_LIST.search(subject or "")
+    if not match:
+        return []
+    found = [n for n in re.findall(r"\d{5,6}", match.group(1))]
+    return list(dict.fromkeys(found))
+
+
+def extract_subject_invoice_number(subject: str) -> str | None:
+    match = _INV_HASH.search(subject or "")
+    if match:
+        return match.group(1)
+    loose = re.search(r"\binvoice\b[^0-9]{0,12}(\d{4,8})\b", subject or "", flags=re.I)
+    if loose:
+        return loose.group(1)
+    return None
+
+
+def format_unmatched_pos(pos: list[str] | None) -> str:
+    return ", ".join(str(p) for p in (pos or []) if p)
+
+
+def format_selected_receipts(matched: list[dict[str, Any]] | None) -> str:
+    """Sheet notation: receipt id on each PO (3P multi-PO Select Receipts)."""
+    bits: list[str] = []
+    seen: set[str] = set()
+    for hit in matched or []:
+        rec = hit.get("receipt") if isinstance(hit, dict) else None
+        if not isinstance(rec, dict):
+            continue
+        rid = rec.get("id")
+        if rid in (None, ""):
+            continue
+        po = rec.get("po")
+        label = f"{rid} on PO {po}" if po not in (None, "") else str(rid)
+        if label in seen:
+            continue
+        seen.add(label)
+        bits.append(label)
+    return ", ".join(bits)
+
+
+def is_known_kimco_vendor(*parts: str) -> bool:
+    """True when sender/subject/text matches a listed KIMCO vendor alias."""
+    blob = " ".join(str(p or "") for p in parts).strip()
+    if not blob:
+        return False
+    if known_vendor_id(blob) is not None:
+        return True
+    norm = normalize_name(blob)
+    if not norm:
+        return False
+    for key in VENDOR_ID_ALIASES:
+        if len(key) >= 4 and key in norm:
+            return True
+    for token in KNOWN_KIMCO_VENDOR_NAMES:
+        if len(token) >= 4 and token in norm:
+            return True
+    return False
+
+
+def never_skip_vendor_invoice(
+    *,
+    subject: str = "",
+    from_name: str = "",
+    preview: str = "",
+    attachment_names: list[str] | None = None,
+) -> bool:
+    """KIMCO / known-bill vendor + invoice evidence is never not-a-bill/Skipped.
+
+    Kyle: if a supplier is listed in KIMCO and provides an invoice (PDF,
+    link-PDF, or Invoice/INV subject), enter or HOLD with a real Why.
+    AI Skipped is only for true non-vendor noise.
+    """
+    names = list(attachment_names or [])
+    blob = f"{from_name}\n{subject}\n{preview}\n{' '.join(names)}"
+    if re.search(
+        r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
+        blob,
+        flags=re.I,
+    ) and not INVOICE_HINT_RE.search(subject):
+        return False
+    has_invoice = bool(
+        has_invoice_hint(subject=subject, attachment_names=names, preview=preview)
+        or has_invoice_link(subject=subject, preview=preview)
+        or any(str(n or "").lower().endswith(".pdf") for n in names)
+        or LINK_DOWNLOAD_VENDOR_RE.search(blob)
+    )
+    if not has_invoice:
+        return False
+    return bool(
+        is_known_kimco_vendor(from_name, subject, preview)
+        or KNOWN_BILL_VENDOR_RE.search(blob)
+        or THREE_P_RE.search(blob)
+        or EASTERN_METAL_RE.search(blob)
+        or MELODY_CHANNELL_RE.search(blob)
+        or LINK_DOWNLOAD_VENDOR_RE.search(blob)
+        or INVOICE_HINT_RE.search(subject)
+    )
 
 
 def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:

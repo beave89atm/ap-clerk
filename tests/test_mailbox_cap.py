@@ -23,10 +23,14 @@ from ap_clerk.graph import (
     ALLOWED_MAILBOX,
     ENTERED_IN_AI_CATEGORY,
     ENTERED_WITH_ISSUES_CATEGORY,
+    AI_SKIPPED_CATEGORY,
     FLAG_AI_HOLD,
+    FLAG_AI_SKIPPED,
+    FLAG_DENIED,
     FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_NONE,
+    FLAG_SKIP_ELIGIBLE,
     apply_flag_after_match,
     decide_flag_status,
     has_followup_flagged,
@@ -76,6 +80,11 @@ class _FakeGraph:
         assert mailbox == ALLOWED_MAILBOX
         self.held.append(f"issues:{message_id}")
         return FLAG_ENTERED_WITH_ISSUES
+
+    def flag_skipped(self, mailbox, message_id):
+        assert mailbox == ALLOWED_MAILBOX
+        self.held.append(f"skipped:{message_id}")
+        return FLAG_AI_SKIPPED
 
     def get_message(self, mailbox, message_id, select="id"):
         return {"id": message_id, "categories": []}
@@ -254,7 +263,7 @@ def test_hard_email_cap_stops_after_10_messages_mix_of_noise_and_bills(tmp_path:
     skip_rows = skip_rows_for_report(skipped, "API Agent - 9/11/26")
     assert skip_rows
     assert all(row["Result"] == RESULT_SKIPPED for row in skip_rows)
-    assert all(row["Flag in Outlook"] == "No" for row in skip_rows)
+    assert all(row["Flag in Outlook"] == "Yes" for row in skip_rows)
     assert all(counts_toward_email_cap(row["Result"]) for row in skip_rows)
     assert all(is_noise_result(row["Result"]) for row in skip_rows)
     assert any("Monthly Account Statement" in row["Why"] for row in skip_rows)
@@ -292,6 +301,13 @@ def test_already_flagged_walked_past_without_consuming_cap(tmp_path: Path):
             name="Flag Co",
             flag_status="flagged",
         ),
+        _msg(
+            "m-skipped",
+            "Already AI Skipped statement",
+            "2026-08-16T10:40:00Z",
+            name="Bank",
+            categories=[AI_SKIPPED_CATEGORY],
+        ),
         _msg("m-noise", "Monthly Account Statement", "2026-08-16T11:00:00Z", name="Bank"),
         _msg("m-bill", "Invoice FIRST", "2026-08-16T12:00:00Z", name="Fastenal Company"),
         _msg("m-extra", "Invoice EXTRA", "2026-08-16T13:00:00Z", name="EMJ"),
@@ -303,6 +319,7 @@ def test_already_flagged_walked_past_without_consuming_cap(tmp_path: Path):
             "m-hold": {"names": ["Invoice-DONE-HOLD.pdf"], "pdfs": [("Invoice-DONE-HOLD.pdf", b"%PDF")]},
             "m-issues": {"names": ["Invoice-DONE-ISSUES.pdf"], "pdfs": [("Invoice-DONE-ISSUES.pdf", b"%PDF")]},
             "m-followup": {"names": ["Invoice-DONE-FLAG.pdf"], "pdfs": [("Invoice-DONE-FLAG.pdf", b"%PDF")]},
+            "m-skipped": {"names": ["statement-old.pdf"], "pdfs": [("statement-old.pdf", b"%PDF")]},
             "m-noise": {"names": ["statement.pdf"], "pdfs": [("statement.pdf", b"%PDF")]},
             "m-bill": {"names": ["Invoice-FIRST.pdf"], "pdfs": [("Invoice-FIRST.pdf", b"%PDF")]},
             "m-extra": {"names": ["Invoice-EXTRA.pdf"], "pdfs": [("Invoice-EXTRA.pdf", b"%PDF")]},
@@ -331,9 +348,10 @@ def test_already_flagged_walked_past_without_consuming_cap(tmp_path: Path):
         "m-hold",
         "m-issues",
         "m-followup",
+        "m-skipped",
     }
     assert graph.held == []
-    for mid in ("m-entered", "m-hold", "m-issues", "m-followup"):
+    for mid in ("m-entered", "m-hold", "m-issues", "m-followup", "m-skipped"):
         assert mid not in graph.named
         assert mid not in graph.downloaded
     skip_rows = skip_rows_for_report(skipped, "API Agent - 9/11/26")
@@ -345,6 +363,7 @@ def test_is_already_flagged_helpers():
     assert is_already_flagged({"categories": [ENTERED_IN_AI_CATEGORY]})
     assert is_already_flagged({"categories": [AI_HOLD_CATEGORY]})
     assert is_already_flagged({"categories": [ENTERED_WITH_ISSUES_CATEGORY]})
+    assert is_already_flagged({"categories": [AI_SKIPPED_CATEGORY]})
     assert is_already_flagged({"flag": {"flagStatus": "flagged"}})
     assert is_already_flagged({"flag": {"flagStatus": "Flagged"}})
     assert not is_already_flagged({"categories": [], "flag": {"flagStatus": "notFlagged"}})
@@ -384,19 +403,19 @@ def test_grouped_flags_stamp_bill_hold_not_noise():
         {"invoice_number": "S1387370", "graph_message_id": "AAMk-success"},
     ]
     apply_grouped_outlook_flags(rows, invoices, graph)
-    assert graph.held == ["AAMk-bill-hold"]
+    assert graph.held == ["AAMk-bill-hold", "skipped:AAMk-statement"]
     assert graph.matched == ["AAMk-success"]
     assert rows[0]["Flag status"] == FLAG_AI_HOLD
     assert rows[0]["Flag in Outlook"] == "Yes"
-    assert rows[1]["Flag status"] == FLAG_NONE
-    assert rows[1]["Flag in Outlook"] == "No"
+    assert rows[1]["Flag status"] == FLAG_AI_SKIPPED
+    assert rows[1]["Flag in Outlook"] == "Yes"
     assert rows[2]["Flag status"] == FLAG_FLAGGED
     assert rows[2]["Flag in Outlook"] == "Yes"
 
 
 def test_grouped_flag_helper_ignores_noise_rows():
     noise_only = [{"Result": RESULT_SKIPPED}, {"Result": "Noise"}]
-    assert grouped_flag_status_for_message(noise_only) == FLAG_NONE
+    assert grouped_flag_status_for_message(noise_only) == FLAG_SKIP_ELIGIBLE
     mixed = [{"Result": RESULT_SUCCESS}, {"Result": RESULT_SKIPPED}]
     assert grouped_flag_status_for_message(mixed) == FLAG_FLAGGED
     hold_plus_noise = [{"Result": RESULT_HOLD}, {"Result": RESULT_SKIPPED}]
@@ -416,6 +435,9 @@ def test_check_stop_enter_path_is_skipped_without_outlook_hold():
 
         def flag_matched(self, mailbox, message_id):
             raise AssertionError("noise must not get Entered in AI")
+
+        def flag_skipped(self, mailbox, message_id):
+            return FLAG_AI_SKIPPED
 
     row = _process_invoice(
         FakeKimco(),
@@ -440,8 +462,8 @@ def test_check_stop_enter_path_is_skipped_without_outlook_hold():
     )
     assert row["Result"] == RESULT_SKIPPED
     assert row["KIMCO id"] == ""
-    assert row["Flag in Outlook"] == "No"
-    assert row["Flag status"] == FLAG_NONE
+    assert row["Flag in Outlook"] == "Yes"
+    assert row["Flag status"] == FLAG_AI_SKIPPED
     assert "bill-vs-noise" in row["Why"]
     assert not is_bill_attempt_result(row["Result"])
 
@@ -522,17 +544,18 @@ def test_price_mismatch_still_holds_and_is_outlook_entered_with_issues():
 
 
 def test_flag_helpers_for_skipped_vs_bill_hold():
-    assert flag_in_outlook_for("Skipped") == "No"
-    assert flag_in_outlook_for("Noise") == "No"
+    assert flag_in_outlook_for("Skipped") == "Yes"
+    assert flag_in_outlook_for("Noise") == "Yes"
     assert flag_in_outlook_for("HOLD") == "Yes"
     assert flag_in_outlook_for("Success") == "Yes"
-    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_NONE
+    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_SKIP_ELIGIBLE
     assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == "hold-eligible"
     assert decide_flag_status(result="Success", kimco_id=9948, message_id="AAMk") == "eligible"
     row = {"Result": "Skipped", "KIMCO id": "", "Why": "Skipped (bill-vs-noise): statement."}
     status = apply_flag_after_match(row, {"graph_message_id": "AAMk-noise"}, None)
-    assert status == FLAG_NONE
-    assert row["Flag status"] == FLAG_NONE
+    assert status == FLAG_DENIED
+    assert row["Flag status"] == FLAG_DENIED
+    assert "outlook-category-missing: AI Skipped" in row["Why"]
     assert is_noise_reason("CHECK STOP")
     assert is_noise_reason("statement")
     assert is_noise_reason("not-a-bill")

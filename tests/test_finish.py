@@ -58,6 +58,11 @@ class FakeKimco:
         self.selected.append((invoice_id, list(receipt_ids or [])))
         return self.select
 
+    def try_post_fees(self, invoice_id, fees=None):
+        self.fees = getattr(self, "fees", [])
+        self.fees.append((invoice_id, list(fees or [])))
+        return getattr(self, "fee_status", "posted")
+
 
 def _incomplete_row(**overrides):
     row = {
@@ -150,6 +155,44 @@ def test_blocked_attach_stays_incomplete_not_success(tmp_path: Path):
     assert row["Result"] == RESULT_INCOMPLETE
     assert row["Result"] != RESULT_SUCCESS
     assert "finish" in row["Why"]
+
+
+def test_parsed_fees_must_be_posted_for_finish_success(tmp_path: Path):
+    pdf = tmp_path / "TXFT4100079.pdf"
+    pdf.write_bytes(b"%PDF-1.4 fees")
+    kimco = FakeKimco(lines=[], attachments=[], attach="attached", select="selected")
+    kimco.fee_status = "blocked-405"
+    row = finish_existing_header(
+        kimco,
+        _incomplete_row(
+            Vendor="Fastenal Company",
+            **{"Invoice #": "TXFT4100079"},
+            PO="58692",
+            Amount=1148.63,
+            **{"KIMCO id": 9968},
+            **{"Fees and surcharges": "Shipping & Handling 63.98"},
+        ),
+        _inv(
+            vendor="Fastenal Company",
+            invoice_number="TXFT4100079",
+            po="58692",
+            pos=["58692"],
+            amount=1148.63,
+            qty=35,
+            lines=[],
+            fees=[{"name": "Shipping & Handling", "amount": 63.98}],
+            pdf_path=str(pdf),
+        ),
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        pdf_dir=tmp_path,
+        flag_outlook=False,
+    )
+    assert row["Result"] != RESULT_SUCCESS
+    assert row["Result"] == RESULT_INCOMPLETE
+    assert kimco.selected == [(9968, [35])]
 
 
 def test_nopo_header_succeeds_with_pdf_only(tmp_path: Path):

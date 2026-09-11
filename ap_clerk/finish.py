@@ -13,14 +13,19 @@ from typing import Any
 
 from ap_clerk.daily import result_counts
 from ap_clerk.gates import (
+    GATE_QTY,
+    RESULT_HOLD,
     RESULT_INCOMPLETE,
     RESULT_SUCCESS,
+    fees_required,
     finish_gate,
     header_created_with_issues,
     is_noise_result,
+    merchandise_amount,
     receipts_required,
     selfcheck_payload,
     vendor_confirmation_gate,
+    why_hold,
     why_incomplete,
 )
 from ap_clerk.graph import (
@@ -29,6 +34,7 @@ from ap_clerk.graph import (
     FLAG_ENTERED_WITH_ISSUES,
     FLAG_FLAGGED,
     FLAG_NONE,
+    FLAG_SKIP_ELIGIBLE,
     GraphClient,
     GraphError,
     MailboxRejected,
@@ -39,10 +45,23 @@ from ap_clerk.inbox import PO_FILE_RE, STATEMENT_FILE_RE
 from ap_clerk.kimco import (
     KimcoClient,
     KimcoError,
+    fee_amounts_from_record,
+    fees_posted_cover_parsed,
+    fees_with_amounts,
     invoice_lines_from_record,
     receipt_ids_from_invoice_lines,
+    receipt_qty_from_invoice_lines,
 )
-from ap_clerk.rules import flag_in_outlook_for, match_receipts, posted_vendor_fields
+from ap_clerk.rules import (
+    flag_in_outlook_for,
+    format_unmatched_lines,
+    invoice_qty_evidence,
+    is_fee_or_surcharge,
+    match_receipts,
+    merchandise_qty,
+    money,
+    posted_vendor_fields,
+)
 
 LOGGER = logging.getLogger("ap_clerk.finish")
 
@@ -90,7 +109,7 @@ def dry_email_body(
         f"Mailbox: {ALLOWED_MAILBOX}\n"
         "Success = finished bill (header + Select Receipts when PO + PDF attached).\n"
         "Success = Entered in AI. Header+PDF unfinished = Entered with issues.\n"
-        "Real bill with no header = AI HOLD. Skipped noise is sheet-noted only.\n"
+        "Real bill with no header = AI HOLD. Skipped noise = Outlook AI Skipped.\n"
         "Report attached.\n"
     )
 
@@ -208,6 +227,32 @@ def finish_existing_header(
     multi_po = bool(inv.get("multi_po")) or len([p for p in (inv.get("pos") or []) if p]) > 1
     need_receipts = receipts_required(po=po, multi_po=multi_po)
     receipt_note = ""
+    invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+    if invoice_qty is None:
+        invoice_qty = invoice_qty_evidence(list(inv.get("lines") or []))
+    merch = merchandise_amount(inv.get("amount") or out.get("Amount"), inv.get("fees"))
+    receipt_qty_mismatch = False
+    unmatched_for_check: list[dict[str, Any]] = []
+    merch_inv_lines = [
+        line
+        for line in list(inv.get("lines") or [])
+        if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or line.get("description") or ""))
+    ]
+    if receipts_selected and merch_inv_lines and existing_receipt_ids:
+        if len(existing_receipt_ids) < len(merch_inv_lines):
+            unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
+            receipt_note = (
+                f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
+                "Select Receipts for each invoice line; do not stop after one."
+            )
+    if receipts_selected and invoice_qty is not None:
+        posted_qty = receipt_qty_from_invoice_lines(lines)
+        if posted_qty is not None and posted_qty != invoice_qty:
+            receipt_qty_mismatch = True
+            receipt_note = (
+                f"Posted receipt qty {posted_qty:g} ≠ invoice qty {invoice_qty:g} "
+                "(will not claim Success on first-open / second-open-on-po)."
+            )
     if need_receipts and not receipts_selected:
         invoice_lines = list(inv.get("lines") or [])
         search_pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
@@ -220,15 +265,33 @@ def finish_existing_header(
                     invoice_lines=invoice_lines,
                     receipts=receipts,
                     po_number=str(search_po) if search_po else None,
+                    invoice_qty=invoice_qty,
+                    invoice_amount=merch,
                 )
                 notes.append(str(one.get("why") or ""))
+                if one.get("ambiguous") and not one.get("matched"):
+                    receipt_note = str(one.get("why") or "")
                 combined.extend(one.get("matched") or [])
-            receipt_note = " ".join(n for n in notes if n)
+                unmatched_for_check.extend(one.get("unmatched_lines") or [])
+            if not receipt_note:
+                receipt_note = " ".join(n for n in notes if n)
         receipt_ids = [
             hit.get("receipt", {}).get("id") if isinstance(hit.get("receipt"), dict) else None
             for hit in combined
         ]
         receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
+        picked_qty = merchandise_qty(
+            [
+                {
+                    "qty": (hit.get("receipt") or {}).get("qty"),
+                    "quantity": (hit.get("receipt") or {}).get("quantity"),
+                }
+                for hit in combined
+            ]
+        )
+        if invoice_qty is not None and picked_qty is not None and picked_qty != invoice_qty:
+            receipt_qty_mismatch = True
+            receipt_ids = []
         if receipt_ids:
             try:
                 select_status = client.try_select_receipts(int(invoice_id), receipt_ids)
@@ -239,17 +302,57 @@ def finish_existing_header(
             select_status = "blocked-no-receipt-ids"
             receipts_selected = False
 
+    parsed_fees = list(inv.get("fees") or [])
+    fees_posted = False
+    fee_status = "none"
+    if fees_required(parsed_fees):
+        already = fees_posted_cover_parsed(fee_amounts_from_record(record), parsed_fees)
+        if already:
+            fee_status = "already-posted"
+            fees_posted = True
+        else:
+            poster = getattr(client, "try_post_fees", None)
+            if poster:
+                try:
+                    fee_status = poster(int(invoice_id), fees_with_amounts(parsed_fees))
+                except KimcoError:
+                    fee_status = "blocked-405"
+            else:
+                fee_status = "blocked-no-fee-api"
+            fees_posted = fee_status == "posted"
+
     posted_name, posted_id = posted_vendor_fields(record)
     vendor_ok, _vendor_why = vendor_confirmation_gate(
         parsed_vendor=str(inv.get("vendor") or out.get("Vendor") or ""),
         posted_name=posted_name or None,
         posted_id=posted_id,
     )
-    check = selfcheck_payload(inv, po=po, multi_po=multi_po)
+    check = selfcheck_payload(
+        inv,
+        po=po,
+        multi_po=multi_po,
+        fees_posted=fees_posted,
+        receipt_qty_mismatch=receipt_qty_mismatch,
+        receipt_result={"matched": [], "unmatched_lines": unmatched_for_check},
+    )
     check["parsed_vendor"] = str(inv.get("vendor") or out.get("Vendor") or "")
     check["posted_vendor"] = posted_name
     check["posted_vendor_id"] = posted_id
     check["vendor_mismatch"] = not vendor_ok
+    if receipt_qty_mismatch:
+        out["Result"] = RESULT_HOLD
+        out["Attach status"] = attach_status
+        out["Flag in Outlook"] = flag_in_outlook_for(RESULT_HOLD)
+        out["Why"] = (
+            why_hold(
+                GATE_QTY,
+                receipt_note
+                or "selected receipt qty does not match invoice qty. "
+                "Do not claim Success.",
+            )
+            + f" API finish of paused dry-run header {invoice_id}."
+        )
+        return out
     result, finish_why = finish_gate(
         header_created=True,
         attach_status=attach_status,
@@ -258,6 +361,8 @@ def finish_existing_header(
         receipts_selected=receipts_selected,
         kimco_id=invoice_id,
         selfcheck=check,
+        fees=parsed_fees,
+        fees_posted=fees_posted,
     )
     out["Result"] = result
     out["Attach status"] = attach_status
@@ -266,16 +371,21 @@ def finish_existing_header(
         f"Select Receipts={select_status or ('selected' if receipts_selected else 'not-posted')}. "
         "API record PUT of lists.APInvoiceLine; do not type Add Item. "
     )
+    fee_note = ""
+    if fees_required(parsed_fees):
+        fee_note = (
+            f" Fees={fee_status} (Additional Charge Fees and surcharges / F-Fees & Surcharges)."
+        )
     if result == RESULT_SUCCESS:
         out["Why"] = (
             f"Finished bill via API finish of paused dry-run header {invoice_id} (QUALITY V1.1). "
-            f"{line_note}{receipt_note} "
+            f"{line_note}{receipt_note}{fee_note} "
             f"Attach status={attach_status}."
         ).strip()
     else:
         out["Why"] = (
             f"{finish_why} API finish of paused dry-run header {invoice_id}. "
-            f"{line_note}{receipt_note} Attach status={attach_status}."
+            f"{line_note}{receipt_note}{fee_note} Attach status={attach_status}."
         ).strip()
     return out
 
@@ -378,9 +488,16 @@ def apply_grouped_outlook_flags(
     for message_id, group in by_message.items():
         bills = [row for row in group if not is_noise_result(str(row.get("Result") or ""))]
         if not bills:
+            dummy = {"Result": "Skipped", "KIMCO id": "", "Why": str(group[0].get("Why") or "")}
+            apply_flag_after_match(dummy, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
+            status = dummy.get("Flag status") or FLAG_SKIP_ELIGIBLE
             for row in group:
-                row["Flag status"] = FLAG_NONE
-                row["Flag in Outlook"] = "No"
+                row["Flag status"] = status
+                row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or "Skipped"))
+                why = str(row.get("Why") or "").rstrip()
+                extra = str(dummy.get("Why") or "")
+                if extra and extra not in why:
+                    row["Why"] = extra
             continue
         results = {str(row.get("Result") or "") for row in bills}
         outcome = RESULT_SUCCESS if results == {RESULT_SUCCESS} else RESULT_INCOMPLETE
@@ -425,7 +542,7 @@ def grouped_flag_status_for_message(rows: list[dict[str, Any]]) -> str:
     """
     bills = [row for row in rows if not is_noise_result(str(row.get("Result") or ""))]
     if not bills:
-        return FLAG_NONE
+        return FLAG_SKIP_ELIGIBLE
     results = {str(row.get("Result") or "") for row in bills}
     if results == {RESULT_SUCCESS}:
         return FLAG_FLAGGED

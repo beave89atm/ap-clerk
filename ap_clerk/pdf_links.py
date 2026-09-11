@@ -40,10 +40,15 @@ def extract_https_links(text: str | None) -> list[str]:
 
 
 def prefer_pdf_links(links: list[str]) -> list[str]:
-    """PDF-looking paths first, then remaining https links."""
+    """PDF-looking paths first, then payment-request / invoice hosts, then the rest."""
     pdfs = [u for u in links if PDF_PATH_RE.search(urlparse(u).path or "")]
-    rest = [u for u in links if u not in pdfs]
-    return pdfs + rest
+    pay = [
+        u
+        for u in links
+        if u not in pdfs and re.search(r"invoice|payment|pay\.|download|aqpowder", u, flags=re.I)
+    ]
+    rest = [u for u in links if u not in pdfs and u not in pay]
+    return pdfs + pay + rest
 
 
 def classify_download(*, status_code: int, content: bytes | None, content_type: str = "", text: str = "") -> str:

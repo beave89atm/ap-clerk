@@ -78,6 +78,7 @@ def test_email_subject_and_body_counts():
     assert "Incomplete: 1" in body
     assert "Fail: 1" in body
     assert "HOLD: 1" in body
+    assert "Additional Charge Fees" in body
     assert "Skipped: 0" in body
     assert "API Agent - 8/28/26 (700)" in body
     assert "accountspayable@kannonmfg.com" in body
@@ -330,6 +331,10 @@ def test_probe_cli_writes_json_and_never_sends(
             assert mailbox == ALLOWED_MAILBOX
             return "category-created"
 
+        def ensure_ai_skipped_category(self, mailbox):
+            assert mailbox == ALLOWED_MAILBOX
+            return "category-created"
+
         def probe_send_authorization(self, mailbox):
             assert mailbox == ALLOWED_MAILBOX
             return {
@@ -400,6 +405,9 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
             return "category-denied"
 
         def ensure_entered_with_issues_category(self, mailbox):
+            return "category-denied"
+
+        def ensure_ai_skipped_category(self, mailbox):
             return "category-denied"
 
         def send_run_report(self, mailbox, **kwargs):

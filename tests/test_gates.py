@@ -62,6 +62,9 @@ class RecordingKimco:
         self.selected.append((invoice_id, receipt_ids or []))
         return self.select
 
+    def try_post_fees(self, invoice_id, fees=None):
+        return "posted"
+
     def try_put_probe_rejected(self, service, item_id):
         return "blocked-405"
 
@@ -119,6 +122,19 @@ def test_success_is_illegal_without_attach_and_receipts_when_po():
         po="58634",
         receipts_selected=False,
     ) is False
+    result, why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po="58692",
+        receipts_selected=True,
+        kimco_id=9968,
+        fees=[{"name": "Shipping & Handling", "amount": 63.98}],
+        fees_posted=False,
+    )
+    assert result == RESULT_INCOMPLETE
+    assert result != RESULT_SUCCESS
+    assert "Fees" in why
+
     result, why = finish_gate(
         header_created=True,
         attach_status="blocked-405",
@@ -477,8 +493,8 @@ def test_noise_skip_rows_name_bill_vs_noise_gate():
         "API Agent - 9/8/26",
     )
     assert rows[0]["Result"] == RESULT_SKIPPED
-    assert rows[0]["Flag in Outlook"] == "No"
-    assert rows[0]["Flag status"] == "none"
+    assert rows[0]["Flag in Outlook"] == "Yes"
+    assert rows[0]["Flag status"] == "skip-eligible"
     assert "bill-vs-noise" in rows[0]["Why"]
     assert "Monthly Account Statement" in rows[0]["Why"]
     assert rows[0]["Notes"] == ""

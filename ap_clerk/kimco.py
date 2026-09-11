@@ -17,8 +17,21 @@ from typing import Any
 import requests
 
 from ap_clerk.auth import LIVE_HOST
+from ap_clerk.rules import is_fee_or_surcharge, money
 
 LOGGER = logging.getLogger("ap_clerk")
+
+# GUI Additional Charge type. Record PUT of lists.APInvoiceAdditionalCharge.
+FEE_CHARGE_TYPE = "Fees and surcharges"
+FEE_CHARGE_CODE = "F-Fees & Surcharges"
+PPV_CHARGE_TYPE = "Purchase Price Variance"
+PPV_CHARGE_CODE = "Purchase Price Variance"
+ADDITIONAL_CHARGE_LIST = "APInvoiceAdditionalCharge"
+ADDITIONAL_CHARGE_LISTS = (
+    "APInvoiceAdditionalCharge",
+    "Additional_Charge",
+    "APAdditionalCharge",
+)
 
 PROTOTYPE_SERVICES = {
     "ap_invoices": "4898fd433bff417daa1689dece54b840",
@@ -391,6 +404,201 @@ class KimcoClient:
         if status == "added":
             return "selected"
         return status
+
+    def try_post_fees(self, invoice_id: int, fees: list[dict[str, Any]] | None = None) -> str:
+        """Post Additional Charge Fees and surcharges on the invoice RECORD.
+
+        GUI equivalent: Additional Charge → Fees and surcharges /
+        F-Fees & Surcharges. Record PUT of lists.APInvoiceAdditionalCharge.
+        Never the list GUID. Sheet Fees column is not a post.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("Fee post requires an invoice record id")
+        needed = fees_with_amounts(fees)
+        if not needed:
+            return "none"
+        payload = fees_payload(needed, invoice_id=invoice_id)
+        url = self._record_url("ap_invoices", invoice_id)
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "posted"
+        if put.status_code == 405:
+            return self._blocked_405("Additional Charge Fees", invoice_id)
+        return f"blocked-{put.status_code}"
+
+    def try_post_ppv(self, invoice_id: int, amount: float | None) -> str:
+        """Post Additional Charge Purchase Price Variance on the invoice RECORD.
+
+        Signed; not Fees. Random-length mill extras that pass Kyle's ≤10% /
+        ≤$100 rule use this (EMJ Z250725432), never F-Fees & Surcharges.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("PPV post requires an invoice record id")
+        value = money(amount)
+        if value is None or value == 0:
+            return "none"
+        payload = ppv_payload(value, invoice_id=invoice_id)
+        url = self._record_url("ap_invoices", invoice_id)
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "posted"
+        if put.status_code == 405:
+            return self._blocked_405("Additional Charge PPV", invoice_id)
+        return f"blocked-{put.status_code}"
+
+
+def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Parsed fees that have a numeric amount (the ones that must be posted)."""
+    out: list[dict[str, Any]] = []
+    for fee in fees or []:
+        if not isinstance(fee, dict):
+            continue
+        amount = money(fee.get("amount"))
+        if amount is None:
+            continue
+        out.append({**fee, "amount": amount})
+    return out
+
+
+def fees_payload(fees: list[dict[str, Any]], *, invoice_id: int | str | None = None) -> dict[str, Any]:
+    """Record PUT body for Additional Charge Fees and surcharges.
+
+    Parent: `{id, state: "Modified"}`.
+    Each child: `{state: "Added", values: {Additional_Charge, Amount, Description}}`.
+    """
+    items: list[dict[str, Any]] = []
+    for fee in fees_with_amounts(fees):
+        name = str(fee.get("name") or fee.get("label") or FEE_CHARGE_TYPE).strip()
+        items.append(
+            {
+                "state": "Added",
+                "values": {
+                    "Additional_Charge": FEE_CHARGE_CODE,
+                    "Charge_Type": FEE_CHARGE_TYPE,
+                    "Amount": fee["amount"],
+                    "Description": name,
+                },
+            }
+        )
+    if not items:
+        raise KimcoError("Fee post requires at least one fee amount")
+    payload: dict[str, Any] = {"state": "Modified", "lists": {ADDITIONAL_CHARGE_LIST: items}}
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
+
+
+def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[str, Any]:
+    """Record PUT body for Additional Charge Purchase Price Variance."""
+    value = money(amount)
+    if value is None or value == 0:
+        raise KimcoError("PPV post requires a non-zero amount")
+    payload: dict[str, Any] = {
+        "state": "Modified",
+        "lists": {
+            ADDITIONAL_CHARGE_LIST: [
+                {
+                    "state": "Added",
+                    "values": {
+                        "Additional_Charge": PPV_CHARGE_CODE,
+                        "Charge_Type": PPV_CHARGE_TYPE,
+                        "Amount": value,
+                        "Description": PPV_CHARGE_TYPE,
+                    },
+                }
+            ]
+        },
+    }
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
+
+
+def fee_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
+    """Amounts already on the bill as Fees and surcharges (or fee-labeled lines)."""
+    if not isinstance(record, dict):
+        return []
+    amounts: list[float] = []
+    lists = record.get("lists") if isinstance(record.get("lists"), dict) else {}
+    for key in ADDITIONAL_CHARGE_LISTS:
+        for item in lists.get(key) or []:
+            if not isinstance(item, dict):
+                continue
+            values = item.get("values") if isinstance(item.get("values"), dict) else item
+            kind = str(
+                values.get("Additional_Charge")
+                or values.get("Charge_Type")
+                or values.get("Description")
+                or ""
+            )
+            if kind and not (
+                is_fee_or_surcharge(str(kind))
+                or FEE_CHARGE_CODE.lower() in kind.lower()
+                or FEE_CHARGE_TYPE.lower() in kind.lower()
+            ):
+                continue
+            amount = money(values.get("Amount") or values.get("Charge_Amount"))
+            if amount is not None:
+                amounts.append(amount)
+    for line in invoice_lines_from_record(record):
+        values = line.get("values") if isinstance(line, dict) and isinstance(line.get("values"), dict) else line
+        if not isinstance(values, dict):
+            continue
+        desc = str(
+            values.get("Description")
+            or values.get("Additional_Charge")
+            or values.get("Charge_Type")
+            or values.get("Name")
+            or ""
+        )
+        if not is_fee_or_surcharge(desc) and FEE_CHARGE_CODE.lower() not in desc.lower():
+            continue
+        amount = money(values.get("Amount") or values.get("Charge_Amount") or values.get("Unit_Price"))
+        if amount is not None:
+            amounts.append(amount)
+    return amounts
+
+
+def fees_posted_cover_parsed(
+    posted_amounts: list[float] | None,
+    parsed_fees: list[dict[str, Any]] | None,
+    *,
+    tolerance: float = 0.02,
+) -> bool:
+    """True when every parsed fee amount is present on the bill (order-independent)."""
+    needed = [fee["amount"] for fee in fees_with_amounts(parsed_fees)]
+    if not needed:
+        return True
+    remaining = [money(a) for a in (posted_amounts or []) if money(a) is not None]
+    for need in needed:
+        found_at = None
+        for index, have in enumerate(remaining):
+            if have is not None and abs(have - need) <= tolerance:
+                found_at = index
+                break
+        if found_at is None:
+            return False
+        remaining.pop(found_at)
+    return True
+
+
+def receipt_qty_from_invoice_lines(lines: list[dict[str, Any]] | None) -> float | None:
+    """Sum Quantity on posted Select Receipts lines (merchandise only)."""
+    total = 0.0
+    found = False
+    for line in lines or []:
+        values = line.get("values") if isinstance(line, dict) and isinstance(line.get("values"), dict) else line
+        if not isinstance(values, dict):
+            continue
+        desc = str(values.get("Description") or values.get("Additional_Charge") or values.get("Name") or "")
+        if is_fee_or_surcharge(desc):
+            continue
+        qty = money(values.get("Quantity") or values.get("Qty") or values.get("qty"))
+        if qty is None:
+            continue
+        total = round(total + qty, 2)
+        found = True
+    return total if found else None
 
 
 def select_receipts_payload(lines_or_ids: list[Any], *, invoice_id: int | str | None = None) -> dict[str, Any]:

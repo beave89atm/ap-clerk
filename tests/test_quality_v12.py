@@ -18,6 +18,7 @@ from ap_clerk.gates import (
     GATE_QTY,
     GATE_VENDOR,
     RESULT_HOLD,
+    RESULT_INCOMPLETE,
     RESULT_SKIPPED,
     RESULT_SUCCESS,
     finish_gate,
@@ -29,17 +30,36 @@ from ap_clerk.gates import (
     vendor_confirmation_gate,
 )
 from ap_clerk.graph import (
+    AI_SKIPPED_CATEGORY,
     ENTERED_WITH_ISSUES_CATEGORY,
+    FLAG_AI_SKIPPED,
+    FLAG_ELIGIBLE,
     FLAG_ENTERED_WITH_ISSUES,
+    FLAG_HOLD_ELIGIBLE,
+    FLAG_ISSUES_ELIGIBLE,
+    FLAG_SKIP_ELIGIBLE,
+    apply_flag_after_match,
     categories_for_status,
+    decide_flag_status,
+    is_already_flagged,
 )
 from ap_clerk.pdf_invoice import (
+    assign_split_pdfs,
     expand_gas_misc_invoices,
+    extract_invoice_lines,
+    extract_fees,
     parse_invoice_text,
+    prefer_after_tax_amount,
     vendor_from_context,
 )
-from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, classify_download, extract_https_links
+from ap_clerk.pdf_links import (
+    REASON_PDF_BEHIND_LINK,
+    classify_download,
+    download_first_public_pdf,
+    extract_https_links,
+)
 from ap_clerk.quality_v12 import (
+    MONDAY_LIVE10_BASICS,
     TREYCE_FINISH_CHECKLIST,
     TREYCE_NOTES_V12,
     assert_never_success,
@@ -52,14 +72,20 @@ from ap_clerk.rules import (
     PRICE_DOES_NOT_MATCH,
     classify_mail,
     decide_ppv,
+    extract_subject_invoice_number,
+    extract_subject_pos,
+    flag_in_outlook_for,
+    known_vendor_id,
+    never_skip_vendor_invoice,
     description_match_score,
     evaluate_bill_price_variance,
     invoice_type_for,
     is_auto_pay,
     is_fee_or_surcharge,
     is_noise_reason,
-    known_vendor_id,
+    format_unmatched_lines,
     match_receipts,
+    merchandise_qty,
     misc_purchase_item_for,
     names_match,
     printed_invoice_number,
@@ -97,20 +123,23 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
         def try_select_receipts(self, *args, **kwargs):
             return select
 
+        def try_post_fees(self, *args, **kwargs):
+            return "posted"
+
         def try_put_probe_rejected(self, *args, **kwargs):
             return ""
 
     return K()
 
 
-def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=None):
+def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=None, invoice_by_number=None):
     client = kimco or _kimco()
     return _process_invoice(
         client,
         inv,
         batch={"id": 1},
         batch_label="API Agent - 9/10/26 (1)",
-        invoice_by_number={},
+        invoice_by_number=invoice_by_number or {},
         vendor_samples=samples
         or [{"vendor_id": 9, "vendor_text": inv.get("vendor") or "Vendor", "invoice_id": 100, "po_text": ""}],
         po_index=po_index or {},
@@ -122,9 +151,11 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 14))
-    assert len(TREYCE_NOTES_V12) == 13
-    assert len(TREYCE_FINISH_CHECKLIST) == 9
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 23))
+    assert len(TREYCE_NOTES_V12) == 22
+    assert len(TREYCE_FINISH_CHECKLIST) == 12
+    assert len(MONDAY_LIVE10_BASICS) == 10
+    assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
         "insight-msc-pdf-invoice-number",
@@ -140,6 +171,15 @@ def test_v12_registry_covers_all_notes():
         "nova-258145-from-person-not-vendor",
         "msc-70762501-not-rmp",
         "crosslink-27943-filename-pdf-on-disk",
+        "fastenal-txft4100079-qty-and-fees",
+        "emj-z250725432-two-lines",
+        "gas-multi-invoice-pdf-after-tax",
+        "insight-1809-already-entered",
+        "outlook-ai-skipped-noise",
+        "3p-rachel-bailey-multi-po",
+        "eastern-metal-818600-not-noise",
+        "aqpc-10917-link-download",
+        "kimco-vendor-invoice-never-skip",
     }
 
 
@@ -521,10 +561,16 @@ def test_note10_gas_supply_misc_vs_check_stop():
     first = parse_invoice_text(n["multi_pdf_text"], from_address="billing@gasandsupply.com")
     bills = expand_gas_misc_invoices(n["multi_pdf_text"], first)
     assert len(bills) >= 5
-    assert all(b.get("gas_misc_ambiguous") for b in bills)
+    assert all(b.get("amount") == 10.0 for b in bills)
+    assert not any(b.get("gas_misc_ambiguous") for b in bills)
+    shared = "Gas and Supply\nInvoice 0040367881\nInvoice 0040367882\nTotal 50.00\n"
+    shared_first = parse_invoice_text(shared, from_address="billing@gasandsupply.com")
+    shared_bills = expand_gas_misc_invoices(shared, shared_first)
+    assert len(shared_bills) >= 2
+    assert any(b.get("gas_misc_ambiguous") for b in shared_bills)
     amb, _ = _row(
         {
-            **bills[0],
+            **shared_bills[0],
             "gas_misc_ambiguous": True,
             "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": ""},
         }
@@ -544,10 +590,13 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "receipt-match-by-description",
         "qty-matches",
         "fees-not-ppv",
+        "fees-posted-on-bill",
         "ppv-within-rule",
         "pdf-attached",
         "select-receipts-when-po",
+        "all-invoice-lines-selected",
         "posted-vendor-matches-parsed",
+        "all-pos-selected",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -940,3 +989,924 @@ def test_never_repeat_crosslink_27943(tmp_path: Path):
     assert "27943" in missing_why
     assert "no-pdf-on-vm" not in missing_why or "missing" in missing_why.lower()
     assert_never_success(RESULT_HOLD, note_id="NOTE-13")
+
+
+def test_never_repeat_fastenal_txft4100079(tmp_path: Path):
+    """NOTE-14: TXFT4100079 empty lines + qty 35 vs 36; fees must be posted."""
+    n = NOTES["NOTE-14"]
+    pdf_path = tmp_path / "TXFT4100079.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 fastenal TXFT4100079")
+    receipts = [
+        {
+            "id": 3601,
+            "po": n["po"],
+            "slip": "RECV-36",
+            "part": "FAST-A",
+            "qty": n["wrong_receipt_qty"],
+            "amount": 1115.64,
+            "unit_price": 30.99,
+        },
+        {
+            "id": 3501,
+            "po": n["po"],
+            "slip": "RECV-35",
+            "part": "FAST-A",
+            "qty": n["invoice_qty"],
+            "amount": n["merchandise"],
+            "unit_price": 30.99,
+        },
+    ]
+    picked = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=[],
+        receipts=receipts,
+        po_number=n["po"],
+        invoice_qty=n["invoice_qty"],
+        invoice_amount=n["merchandise"],
+    )
+    assert picked["found"] is True
+    assert picked["hold_no_receipts"] is False
+    assert not picked["ambiguous"]
+    assert picked["matched"][0]["receipt"]["qty"] == n["invoice_qty"]
+    assert picked["matched"][0]["receipt"]["id"] == 3501
+    assert picked["matched"][0]["receipt"]["qty"] != n["wrong_receipt_qty"]
+    assert "not first qty" not in picked["why"] or "qty" in picked["why"].lower()
+    assert "first open" not in picked["why"].lower() or "not first" in picked["why"].lower()
+
+    # No invoice evidence + differing open receipts → HOLD ambiguous, not first-open Success.
+    blind = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=[],
+        receipts=receipts,
+        po_number=n["po"],
+    )
+    assert blind["found"] is False
+    assert blind["ambiguous"]
+    assert_never_success(RESULT_HOLD, note_id="NOTE-14")
+
+    class RecordingFees:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+            self.fees = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9968, {"id": 9968, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "Fastenal Company"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, invoice_id, fees=None):
+            self.fees.append((invoice_id, list(fees or [])))
+            return "posted"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    sidecar = {
+        "vendor": n["vendor"],
+        "invoice_number": n["invoice_number"],
+        "date": n["date"],
+        "po": n["po"],
+        "pos": [n["po"]],
+        "amount": n["amount"],
+        "qty": n["invoice_qty"],
+        "lines": [],
+        "fees": [{"name": n["fee_name"], "amount": n["fee_amount"]}],
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    po_index = {
+        n["po"]: {
+            "id": 58692,
+            "text": f"{n['po']}-FASTENAL",
+            "vendor_id": 9,
+            "vendor_text": "Fastenal Company",
+            "lines": [],
+        }
+    }
+    samples = [{"vendor_id": 9, "vendor_text": "Fastenal Company", "invoice_id": 100, "po_text": ""}]
+    row, client = _row(
+        sidecar,
+        kimco=RecordingFees(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert client.selected
+    assert client.selected[0][1] == [3501]
+    assert client.fees
+    assert client.fees[0][1][0]["amount"] == n["fee_amount"]
+    assert n["fee_name"] in (client.fees[0][1][0].get("name") or "")
+    assert row["Result"] == RESULT_SUCCESS
+    assert n["fee_amount"] == 63.98
+    assert "63.98" in row["Fees and surcharges"] or n["fee_name"] in row["Fees and surcharges"]
+    assert "Posted Additional Charge" in row["Why"] or "F-Fees" in row["Why"]
+    assert merchandise_qty([{"qty": hit["receipt"]["qty"]} for hit in picked["matched"]]) == n["invoice_qty"]
+
+    class NoFeePost(RecordingFees):
+        def try_post_fees(self, invoice_id, fees=None):
+            self.fees.append((invoice_id, list(fees or [])))
+            return "blocked-405"
+
+    blocked, _ = _row(
+        sidecar,
+        kimco=NoFeePost(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert blocked["Result"] != RESULT_SUCCESS
+    assert_never_success(blocked["Result"], note_id="NOTE-14", detail=blocked["Why"])
+    assert blocked["Result"] == RESULT_INCOMPLETE or "Fees" in (blocked["Why"] or "")
+
+    ok, why = treyce_finish_selfcheck(
+        {
+            "require_pdf_number": False,
+            "fees_required": True,
+            "fees_posted": False,
+            "receipt_qty_mismatch": True,
+        }
+    )
+    assert ok is False
+    assert "Fees" in why or "qty" in why.lower()
+    assert_never_success(RESULT_HOLD, note_id="NOTE-14", detail=why)
+
+    result, finish_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=n["po"],
+        receipts_selected=True,
+        kimco_id=n["kimco_id"],
+        fees=[{"name": n["fee_name"], "amount": n["fee_amount"]}],
+        fees_posted=False,
+    )
+    assert result != RESULT_SUCCESS
+    assert result == RESULT_INCOMPLETE
+    assert "Fees" in finish_why or "surcharge" in finish_why.lower()
+
+
+def test_never_repeat_emj_z250725432_two_lines(tmp_path: Path):
+    """NOTE-15: EMJ Z250725432 two lines — parse both; never silent one-receipt Success."""
+    n = NOTES["NOTE-15"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name="Earle M. Jorgensen Co",
+        from_address="EMJCreditSouth@emjmetals.com",
+        filename="Z250725432.pdf",
+    )
+    assert parsed["invoice_number"] == n["invoice_number"]
+    assert parsed["po"] == n["po"]
+    assert parsed["amount"] == n["amount"]
+    assert len(parsed["lines"]) >= 2
+    labels = " ".join(
+        f"{line.get('label') or ''} {line.get('description') or ''}" for line in parsed["lines"]
+    )
+    assert n["line1_desc"] in labels
+    assert n["line2_desc"] in labels
+    assert all(line.get("amount") for line in parsed["lines"][:2])
+    fees = extract_fees(n["pdf_text"])
+    assert fees == []
+    assert not any("SHIP" in str(f.get("name") or "").upper() for f in parsed.get("fees") or [])
+    assert not any("PREPAID" in str(f.get("name") or "").upper() for f in parsed.get("fees") or [])
+    assert extract_invoice_lines(n["pdf_text"])
+
+    receipts = [
+        {
+            "id": 101,
+            "po": n["po"],
+            "po_line": 1,
+            "part": n["line1_desc"],
+            "description": n["line1_desc"],
+            "label": n["line1_desc"],
+            "qty": n["line1_qty"],
+            "amount": n["po_line1_amount"],
+            "unit_price": 12.45,
+        },
+        {
+            "id": 102,
+            "po": n["po"],
+            "po_line": 2,
+            "part": n["line2_desc"],
+            "description": n["line2_desc"],
+            "label": n["line2_desc"],
+            "qty": n["line2_qty"],
+            "amount": n["line2_amount"],
+            "unit_price": 16.1445,
+        },
+    ]
+    picked = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=parsed["lines"],
+        receipts=receipts,
+        po_number=n["po"],
+    )
+    assert picked["found"] is True
+    assert len(picked["matched"]) == 2
+    assert not picked["unmatched_lines"]
+    assert {hit["receipt"]["id"] for hit in picked["matched"]} == {101, 102}
+
+    bill = evaluate_bill_price_variance(
+        parsed["lines"],
+        [
+            {"part": n["line1_desc"], "description": n["line1_desc"], "amount": n["po_line1_amount"], "qty": 20.0, "po_line": 1},
+            {"part": n["line2_desc"], "description": n["line2_desc"], "amount": n["line2_amount"], "qty": 40.0, "po_line": 2},
+        ],
+        invoice_total=n["amount"],
+    )
+    assert bill["hold"] is False
+    assert bill["ppv_total"] != 0
+    assert abs(bill["ppv_total"] - (n["line1_amount"] - n["po_line1_amount"])) < 0.02
+    assert all(item.get("action") != "fee" for item in bill["items"] if item.get("action") == "ppv")
+
+    missing_one = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=parsed["lines"],
+        receipts=receipts[:1],
+        po_number=n["po"],
+    )
+    assert missing_one["unmatched_lines"]
+    assert len(missing_one["matched"]) == 1
+    assert n["line2_desc"] in format_unmatched_lines(missing_one["unmatched_lines"]) or "HR FLT 3/8" in missing_one["why"]
+    ok, why = treyce_finish_selfcheck(
+        {
+            "require_pdf_number": False,
+            "unmatched_invoice_lines": missing_one["unmatched_lines"],
+        }
+    )
+    assert ok is False
+    assert "Unmatched" in why or "unmatched" in why.lower()
+    assert_never_success(RESULT_HOLD, note_id="NOTE-15", detail=why)
+
+    class RecordingPpv:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+            self.ppv = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9969, {"id": 9969, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 208, "text": "Earle M. Jorgensen Co"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+        def try_post_ppv(self, invoice_id, amount):
+            self.ppv.append((invoice_id, amount))
+            return "posted"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    pdf_path = tmp_path / "Z250725432.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 emj Z250725432")
+    sidecar = {
+        **parsed,
+        "qty": None,
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    po_index = {
+        n["po"]: {
+            "id": 58913,
+            "text": f"{n['po']}-EMJ",
+            "vendor_id": 208,
+            "vendor_text": "Earle M. Jorgensen Co",
+            "lines": [
+                {"part": n["line1_desc"], "description": n["line1_desc"], "qty": n["line1_qty"], "amount": n["po_line1_amount"], "unit_price": 12.45, "po_line": 1},
+                {"part": n["line2_desc"], "description": n["line2_desc"], "qty": 40.0, "amount": n["line2_amount"], "unit_price": 16.1445, "po_line": 2},
+            ],
+        }
+    }
+    samples = [{"vendor_id": 208, "vendor_text": "Earle M. Jorgensen Co", "invoice_id": 9, "po_text": ""}]
+    row, client = _row(
+        sidecar,
+        kimco=RecordingPpv(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert len(client.selected[0][1]) == 2
+    assert set(client.selected[0][1]) == {101, 102}
+    assert row["Result"] == RESULT_SUCCESS
+    assert row["PPV"] != "none"
+    assert "Fees" not in row["PPV"]
+    assert client.ppv
+    assert abs(float(client.ppv[0][1]) - (n["line1_amount"] - n["po_line1_amount"])) < 0.05
+
+    skipped, skipped_client = _row(
+        sidecar,
+        kimco=RecordingPpv(),
+        po_index=po_index,
+        receipts=receipts[:1],
+        samples=samples,
+    )
+    assert skipped["Result"] != RESULT_SUCCESS
+    assert_never_success(skipped["Result"], note_id="NOTE-15", detail=skipped["Why"])
+    assert "Unmatched" in skipped["Why"] or "unmatched" in skipped["Why"].lower()
+    assert n["line2_desc"][:12] in skipped["Why"] or "3/8" in skipped["Why"] or "line" in skipped["Why"].lower()
+    assert skipped_client.selected
+    assert skipped_client.selected[0][1] == [101]
+
+
+def test_never_repeat_gas_multi_invoice_pdf():
+    """NOTE-16: Gas billing pack → 6 bills, after-tax amount, not one collapsed Incomplete."""
+    n = NOTES["NOTE-16"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name="Gas and Supply North Texas, LLC",
+        from_address="billing@gasandsupply.com",
+        filename=n["filename"],
+    )
+    bills = expand_gas_misc_invoices(n["pdf_text"], parsed)
+    assert len(bills) == n["invoice_count"] == 6
+    numbers = [bill["invoice_number"] for bill in bills]
+    assert n["invoice_number"] in numbers
+    assert len(set(numbers)) == 6
+    assert all(bill.get("gas_split") for bill in bills)
+    assert not any(bill.get("gas_misc_ambiguous") for bill in bills)
+    assert not (len(bills) == 1 and parsed.get("multi_po"))
+    target = next(bill for bill in bills if bill["invoice_number"] == n["invoice_number"])
+    assert target["amount"] == n["amount_after_tax"]
+    assert target["amount"] != n["amount_before_tax"]
+    assert target.get("multi_invoice_pdf") is True
+    assert "multi-invoice-pdf page" in str(target.get("multi_invoice_note") or "")
+    assert " of 6" in str(target.get("multi_invoice_note") or "")
+    from ap_clerk.inbox import HARD_EMAIL_CAP
+
+    assert HARD_EMAIL_CAP == 10
+    # One email touch; N invoices are separate bill rows from that touch.
+    assert len(bills) > 1
+
+    collapsed = {
+        **parsed,
+        "invoice_number": n["invoice_number"],
+        "invoice_numbers_in_pdf": numbers,
+        "multi_po": True,
+        "gas_split": False,
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "vendor": n["vendor"],
+    }
+    hold_row, _ = _row(collapsed)
+    assert hold_row["Result"] != RESULT_SUCCESS
+    assert hold_row["Result"] != RESULT_INCOMPLETE
+    assert_never_success(hold_row["Result"], note_id="NOTE-16", detail=hold_row["Why"])
+    assert "invoice numbers" in hold_row["Why"].lower() or "expand" in hold_row["Why"].lower()
+
+    samples = [{"vendor_id": 71, "vendor_text": n["vendor"], "invoice_id": 9, "po_text": ""}]
+    row, _ = _row(
+        {
+            **target,
+            "field_sources": target.get("field_sources")
+            or {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        samples=samples,
+    )
+    assert row["Invoice #"] == n["invoice_number"]
+    assert row["Amount"] == n["amount_after_tax"]
+    assert "multi-invoice-pdf page" in row["Why"]
+    assert target.get("multi_invoice_page_start")
+    assert target.get("multi_invoice_page_end")
+
+
+def test_gas_page_range_pdf_split_when_feasible(tmp_path: Path):
+    """NOTE-16: prefer a page-range PDF per invoice when the pack has pages."""
+    from pypdf import PdfReader, PdfWriter
+
+    n = NOTES["NOTE-16"]
+    source = tmp_path / n["filename"]
+    writer = PdfWriter()
+    for _ in range(n["invoice_count"]):
+        writer.add_blank_page(width=72, height=72)
+    with source.open("wb") as handle:
+        writer.write(handle)
+    bills = [
+        {
+            "invoice_number": f"004037006{index}",
+            "multi_invoice_page_start": index,
+            "multi_invoice_page_end": index,
+            "multi_invoice_count": n["invoice_count"],
+        }
+        for index in range(1, n["invoice_count"] + 1)
+    ]
+    bills[0]["invoice_number"] = n["invoice_number"]
+    assign_split_pdfs(source, bills)
+    paths = [bill["pdf_path"] for bill in bills]
+    assert len(set(paths)) == n["invoice_count"]
+    for bill in bills:
+        assert bill.get("pdf_split") is True
+        path = Path(bill["pdf_path"])
+        assert path.is_file()
+        assert bill["invoice_number"] in path.name
+        assert len(PdfReader(str(path)).pages) == 1
+    single = tmp_path / "one-page.pdf"
+    one = PdfWriter()
+    one.add_blank_page(width=72, height=72)
+    with single.open("wb") as handle:
+        one.write(handle)
+    fallback = [{"invoice_number": "0040370068", "multi_invoice_page_start": 1, "multi_invoice_page_end": 1}]
+    assign_split_pdfs(single, fallback)
+    assert fallback[0]["pdf_path"] == str(single)
+    assert fallback[0].get("pdf_split") is False
+
+
+def test_never_repeat_gas_after_tax_amount():
+    """NOTE-16: Gas amount is after-tax Amount Due / Total, never Subtotal 322."""
+    n = NOTES["NOTE-16"]
+    section = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\n"
+        "INVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370068\n"
+        "CUSTOMER PO 58920\nMerchandise 300.00\nSubtotal 322.00\nTax 26.57\n"
+        "Amount Due: 348.57\n"
+    )
+    parsed = parse_invoice_text(
+        section,
+        from_name=n["vendor"],
+        from_address="billing@gasandsupply.com",
+        filename=n["filename"],
+    )
+    assert parsed["amount"] == n["amount_after_tax"]
+    assert parsed["amount"] != n["amount_before_tax"]
+    assert prefer_after_tax_amount(section, n["amount_before_tax"]) == n["amount_after_tax"]
+    assert prefer_after_tax_amount(
+        "Merchandise 300.00\nSubtotal 322.00\nTax 26.57\nTotal 348.57\n",
+        n["amount_before_tax"],
+    ) == n["amount_after_tax"]
+
+    bills = expand_gas_misc_invoices(n["pdf_text"], {**parsed, "vendor": n["vendor"]})
+    target = next(bill for bill in bills if bill["invoice_number"] == n["invoice_number"])
+    assert target["amount"] == n["amount_after_tax"]
+    samples = [{"vendor_id": 71, "vendor_text": n["vendor"], "invoice_id": 9, "po_text": ""}]
+    row, _ = _row(
+        {
+            **target,
+            "field_sources": target.get("field_sources")
+            or {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        samples=samples,
+    )
+    assert row["Amount"] == n["amount_after_tax"]
+    assert row["Amount"] != n["amount_before_tax"]
+    if row["Result"] in {RESULT_SUCCESS, RESULT_INCOMPLETE}:
+        assert row["Amount"] != n["amount_before_tax"]
+    assert_never_success(
+        RESULT_SUCCESS if row["Amount"] == n["amount_before_tax"] else row["Result"],
+        note_id="NOTE-16",
+        detail=f"pre-tax amount {n['amount_before_tax']} used",
+    )
+
+
+def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
+    """NOTE-17: Insight 1809 already on live → HOLD already-entered, not McQueary parse."""
+    n = NOTES["NOTE-17"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        from_name=n["vendor"],
+        filename="Invoice_1809.pdf",
+    )
+    pdf_path = tmp_path / "Invoice_1809.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 insight 1809")
+    existing = {
+        "1809": [
+            {
+                "id": n["kimco_id"],
+                "values": {
+                    "Invoice_Number": "1809",
+                    "Vendor": {"id": 1, "text": n["vendor"]},
+                },
+            },
+            {
+                "id": 9951,
+                "values": {
+                    "Invoice_Number": "1809",
+                    "Vendor": {"id": 1, "text": n["vendor"]},
+                },
+            },
+        ]
+    }
+    sidecar = {
+        **parsed,
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+        "field_sources": {"invoice_number": "subject", "date": "", "amount": "", "po": ""},
+    }
+    row, _ = _row(sidecar, invoice_by_number=existing)
+    assert row["Result"] == RESULT_HOLD
+    assert_never_success(row["Result"], note_id="NOTE-17", detail=row["Why"])
+    why = row["Why"]
+    assert "already-entered" in why or "already entered" in why.lower() or "duplicate" in why.lower()
+    assert n["vendor"].split()[0] in why
+    assert "1809" in why
+    assert str(n["kimco_id"]) in why or str(row["KIMCO id"]) == str(n["kimco_id"])
+    assert "9951" in why
+    assert "McQueary" not in why
+    assert "MSC" not in why
+    assert "preflight-parse" not in why
+    assert "no-pdf-on-vm" not in why
+    assert row["Attach status"] == "pdf-on-vm"
+
+
+def test_never_repeat_ai_skipped_noise():
+    """NOTE-18: noise → Outlook AI Skipped, never AI HOLD; already-flagged includes it."""
+    n = NOTES["NOTE-18"]
+    assert n["category"] == AI_SKIPPED_CATEGORY
+    assert flag_in_outlook_for("Skipped") == "Yes"
+    assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_SKIP_ELIGIBLE
+    assert is_already_flagged({"categories": [AI_SKIPPED_CATEGORY]})
+    row = {"Result": RESULT_SKIPPED, "KIMCO id": "", "Why": "Skipped (bill-vs-noise): statement."}
+
+    class Graph:
+        def flag_skipped(self, mailbox, message_id):
+            return FLAG_AI_SKIPPED
+
+        def flag_hold(self, mailbox, message_id):
+            raise AssertionError("noise must not get AI HOLD")
+
+    status = apply_flag_after_match(row, {"graph_message_id": "AAMk-noise"}, Graph())
+    assert status == FLAG_AI_SKIPPED
+    assert row["Flag status"] == FLAG_AI_SKIPPED
+    missing = {"Result": RESULT_SKIPPED, "KIMCO id": "", "Why": "Skipped (bill-vs-noise): statement."}
+    denied = apply_flag_after_match(missing, {"graph_message_id": "AAMk-noise"}, None)
+    assert denied == "graph-denied"
+    assert "outlook-category-missing: AI Skipped" in missing["Why"]
+    assert_never_success(RESULT_SKIPPED, note_id="NOTE-18")
+
+
+def test_never_repeat_3p_rachel_bailey_not_noise():
+    """NOTE-19: Rachel Bailey INV#+PO# is a 3P invoice, not Skipped not-a-bill."""
+    n = NOTES["NOTE-19"]
+    assert classify_mail(subject=n["subject"], preview=n["from_name"]) == "invoice"
+    assert classify_mail(subject=n["subject"], preview="Rachel Bailey") == "invoice"
+    assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["from_name"])
+    assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
+    assert extract_subject_pos(n["subject"]) == n["pos"]
+    assert classify_mail(subject=n["subject"]) != "not-a-bill"
+    for sibling in n["sibling_subjects"]:
+        assert classify_mail(subject=sibling, preview=n["from_name"]) == "invoice"
+        assert classify_mail(subject=sibling) != "not-a-bill"
+        assert extract_subject_pos(sibling) == n["pos"]
+    assert decide_flag_status(result="Success", kimco_id=9971, message_id="AAMk") == FLAG_ELIGIBLE
+    assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") == FLAG_HOLD_ELIGIBLE
+    assert decide_flag_status(result="Incomplete", kimco_id=9971, message_id="AAMk") == FLAG_ISSUES_ELIGIBLE
+    assert decide_flag_status(result="Success", kimco_id=9971, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+    assert_never_success(RESULT_SKIPPED, note_id="NOTE-19")
+
+
+def test_3p_multi_po_select_receipts(tmp_path: Path):
+    """NOTE-19: multi-PO 3P → blank header PO, Select Receipts per PO, name unmatched."""
+    n = NOTES["NOTE-19"]
+    pdf_path = tmp_path / "142041.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 3P 142041")
+    sidecar = {
+        "vendor": n["vendor"],
+        "invoice_number": n["invoice_number"],
+        "date": n["date"],
+        "po": None,
+        "pos": n["pos"],
+        "multi_po": True,
+        "amount": n["amount"],
+        "lines": [],
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf"},
+        "subject": n["subject"],
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    receipts = [
+        {"id": 11, "po": "58766", "qty": 1, "part": "A"},
+        {"id": 12, "po": "58767", "qty": 1, "part": "B"},
+        {"id": 13, "po": "58844", "qty": 1, "part": "C"},
+    ]
+    samples = [{"vendor_id": 9, "vendor_text": "3P", "invoice_id": 100, "po_text": ""}]
+
+    class Recording:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9971, {"id": 9971, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "3P"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    all_row, all_client = _row(sidecar, kimco=Recording(), receipts=receipts, samples=samples)
+    assert "Purchase_Order" not in all_client.created[0]
+    assert all_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
+    assert set(all_client.selected[0][1]) == {11, 12, 13}
+    assert all_row["PO"] == "58766, 58767, 58844"
+    assert all_row["Result"] == RESULT_SUCCESS
+    assert "Selected receipts: 11 on PO 58766, 12 on PO 58767, 13 on PO 58844" in all_row["Why"]
+    assert "AI Skipped" not in all_row["Why"]
+
+    missing, missing_client = _row(sidecar, kimco=Recording(), receipts=receipts[:2], samples=samples)
+    assert missing["Result"] != RESULT_SUCCESS
+    assert_never_success(missing["Result"], note_id="NOTE-19", detail=missing["Why"])
+    assert "58844" in missing["Why"]
+    assert "Unmatched PO" in missing["Why"]
+    assert "Selected receipts: 11 on PO 58766, 12 on PO 58767" in missing["Why"]
+    assert "Purchase_Order" not in missing_client.created[0]
+    assert missing_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
+    assert set(missing_client.selected[0][1]) == {11, 12}
+    assert missing["PO"] == "58766, 58767, 58844"
+
+
+def test_never_repeat_eastern_metal_818600_not_noise(tmp_path: Path):
+    """NOTE-20: Eastern Metal Invoice : 818600 is a bill, never Skipped."""
+    from ap_clerk.inbox import pull_recent_bills
+    from ap_clerk.rules import has_invoice_hint
+
+    n = NOTES["NOTE-20"]
+    assert classify_mail(subject=n["subject"]) == "invoice"
+    assert classify_mail(subject=n["subject_818601"]) == "invoice"
+    assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
+    assert extract_subject_invoice_number(n["subject_818601"]) == "818601"
+    assert known_vendor_id(n["vendor"]) == 64
+    assert known_vendor_id("EASTERN METAL SUPPLY of TEXAS, INC.") == 64
+    assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"])
+    assert classify_mail(subject=n["subject"]) != "not-a-bill"
+    assert has_invoice_hint(subject=n["subject"])
+    assert classify_mail(
+        subject="Please see attached",
+        attachment_names=["Invoice-818600.pdf"],
+        preview="EASTERN METAL SUPPLY",
+    ) == "invoice"
+    assert classify_mail(
+        subject="Remittance advice",
+        attachment_names=["Invoice-818601.pdf"],
+    ) != "not-a-bill"
+    assert decide_flag_status(result="Success", kimco_id=64, message_id="AAMk") == FLAG_ELIGIBLE
+    assert decide_flag_status(result="Success", kimco_id=64, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-em-818600",
+                    "subject": n["subject"],
+                    "receivedDateTime": "2026-08-18T12:00:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["vendor"],
+                    "from": {"emailAddress": {"name": n["vendor"], "address": "ar@easternmetal.com"}},
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return []
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return []
+
+    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    assert selected[0].get("invoice_number") == n["invoice_number"]
+    assert selected[0].get("hold_reason") != "not-a-bill"
+    row, _ = _row(selected[0])
+    assert row["Result"] != RESULT_SKIPPED
+    assert_never_success(RESULT_SKIPPED, note_id="NOTE-20")
+
+
+def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
+    """NOTE-21: AQPC payment-request + invoice # is not Skipped; attempts link download."""
+    from ap_clerk.inbox import pull_recent_bills
+
+    n = NOTES["NOTE-21"]
+    assert classify_mail(subject=n["subject"]) == "invoice"
+    assert classify_mail(subject=n["subject_10918"]) == "invoice"
+    assert classify_mail(subject=n["subject"]) != "payment"
+    assert extract_subject_invoice_number(n["subject"]) == n["invoice_number"]
+    assert extract_subject_invoice_number(n["subject_10918"]) == "10918"
+    assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"], preview=n["body"])
+    links = extract_https_links(n["body"])
+    assert links and n["link_host"] in links[0]
+    fetched: list[str] = []
+
+    class Resp:
+        status_code = 200
+        content = b"%PDF-1.4 AMERICAN QUALITY POWDER COATING Invoice Number 10917 Amount Due 125.00"
+        headers = {"Content-Type": "application/pdf"}
+        text = ""
+
+    def getter(url, **kwargs):
+        fetched.append(url)
+        return Resp()
+
+    fetched_ok = download_first_public_pdf(n["body"], getter=getter)
+    assert fetched_ok.get("ok") is True
+    assert fetched == [f"https://{n['link_host']}/invoices/10917"]
+
+    class FetchGraph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc-ok",
+                    "subject": n["subject"],
+                    "receivedDateTime": "2026-08-18T12:00:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["body"],
+                    "from": {"emailAddress": {"name": n["vendor"], "address": "billing@aqpowder.com"}},
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return []
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return []
+
+        def get_message(self, mailbox, message_id, select="id"):
+            return {"id": message_id, "bodyPreview": n["body"], "body": {"content": n["body"]}}
+
+        def download_public_pdf_from_text(self, text):
+            assert "https://" in text
+            return {
+                "ok": True,
+                "content": Resp.content,
+                "reason": "ok",
+                "url": f"https://{n['link_host']}/invoices/10917",
+            }
+
+    selected_ok, skipped_ok = pull_recent_bills(FetchGraph(), limit=1, pdf_dir=tmp_path / "pdfs-ok")
+    skip_noise_ok = [row for row in skipped_ok if row.get("class") != "already-flagged"]
+    assert not skip_noise_ok
+    assert selected_ok
+    fetched_bill = selected_ok[0]
+    assert fetched_bill.get("invoice_number") == n["invoice_number"]
+    assert fetched_bill.get("hold_reason") != "not-a-bill"
+    assert fetched_bill.get("pdf_path")
+    assert Path(fetched_bill["pdf_path"]).is_file()
+    assert "10917" in Path(fetched_bill["pdf_path"]).name
+    ok_row, _ = _row(fetched_bill)
+    assert ok_row["Result"] != RESULT_SKIPPED
+    assert "no-pdf-on-vm" not in ok_row["Why"]
+    assert "no-pdf-on-vm" not in str(ok_row.get("Attach status") or "")
+
+    class AuthGraph(FetchGraph):
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc",
+                    "subject": n["subject_10918"],
+                    "receivedDateTime": "2026-08-18T12:05:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["body"].replace("10917", "10918"),
+                    "from": {"emailAddress": {"name": n["vendor"], "address": "billing@aqpowder.com"}},
+                }
+            ]
+
+        def download_public_pdf_from_text(self, text):
+            assert "https://" in text
+            return {
+                "ok": False,
+                "content": None,
+                "reason": REASON_PDF_BEHIND_LINK,
+                "url": f"https://{n['link_host']}/invoices/10918",
+            }
+
+    selected, skipped = pull_recent_bills(AuthGraph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    bill = selected[0]
+    assert bill.get("hold_reason") == "pdf-behind-link"
+    assert bill.get("invoice_number") == "10918"
+    assert n["link_host"] in str(bill.get("pdf_link_host") or "")
+    row, _ = _row(bill)
+    assert row["Result"] == RESULT_HOLD
+    assert_never_success(row["Result"], note_id="NOTE-21", detail=row["Why"])
+    assert "pdf-behind-link" in row["Why"]
+    assert "10918" in row["Why"]
+    assert n["vendor"].split()[0] in row["Why"] or "Quality" in row["Why"]
+    assert n["link_host"] in row["Why"] or "aqpowder" in row["Why"].lower()
+    assert "not-a-bill" not in row["Why"].lower() or "pdf-behind-link" in row["Why"]
+    assert row["Result"] != RESULT_SKIPPED
+
+
+def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):
+    """NOTE-22: KIMCO-listed vendor + invoice is never Skipped / AI Skipped."""
+    from ap_clerk.inbox import pull_recent_bills
+    from ap_clerk.rules import has_invoice_link
+
+    n = NOTES["NOTE-22"]
+    assert known_vendor_id("Eastern Metal Supply of Texas") == 64
+    assert known_vendor_id(n["msc_from"]) == 128
+    assert never_skip_vendor_invoice(subject=n["subject"], from_name=n["vendor"])
+    assert never_skip_vendor_invoice(subject=n["msc_subject"], from_name=n["msc_from"])
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        attachment_names=[n["msc_pdf"]],
+    )
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        preview=n["msc_link_body"],
+    )
+    assert never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["fastenal_from"],
+        attachment_names=["TXFT4100079.pdf"],
+    )
+    assert has_invoice_link(preview=n["msc_link_body"])
+    assert classify_mail(subject=n["subject"], preview=n["vendor"]) == "invoice"
+    assert classify_mail(subject=n["msc_subject"]) == "invoice"
+    assert classify_mail(
+        subject="Documents ready",
+        from_name=n["msc_from"],
+        attachment_names=[n["msc_pdf"]],
+    ) == "invoice"
+    assert classify_mail(subject="Monthly Account Statement") == "statement"
+    assert not never_skip_vendor_invoice(subject="Monthly Account Statement", from_name="Bank")
+    assert decide_flag_status(result="Success", kimco_id=9968, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+    assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") != FLAG_SKIP_ELIGIBLE
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-kimco-inv",
+                    "subject": n["msc_subject"],
+                    "receivedDateTime": "2026-08-18T14:00:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["msc_from"],
+                    "from": {"emailAddress": {"name": n["msc_from"], "address": "billing@mscdirect.com"}},
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return []
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return []
+
+    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [row for row in skipped if row.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    assert selected[0].get("hold_reason") != "not-a-bill"
+    row, _ = _row(selected[0])
+    assert row["Result"] != RESULT_SKIPPED
+    assert "AI Skipped" not in row["Why"]
+    assert_never_success(RESULT_SKIPPED, note_id="NOTE-22")

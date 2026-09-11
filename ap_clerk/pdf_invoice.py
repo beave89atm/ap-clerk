@@ -8,11 +8,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from pypdf import PdfReader
+from pypdf import PdfReader, PdfWriter
 
 from ap_clerk.rules import (
     FEE_KEYWORDS,
     extract_po_number,
+    extract_subject_invoice_number,
+    extract_subject_pos,
     is_fee_or_surcharge,
     known_invoice_prefix,
     printed_invoice_number,
@@ -93,8 +95,10 @@ _AMOUNT_DUE_LABEL = re.compile(
     flags=re.I,
 )
 _EXT_PRICE = re.compile(r"Ext(?:ended)?\s*Price.{0,120}?([\d,]+\.\d{2})", flags=re.I | re.S)
+# Same line only. Do not let a merchandise line amount sitting on the
+# previous row steal "INVOICE TOTAL $ 896.86" (EMJ Z250725432 → 645.78).
 _AMOUNT_BEFORE = re.compile(
-    r"\$?\s*([\d,]+(?:\.\d{2}))\s*(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
+    r"\$?\s*([\d,]+(?:\.\d{2}))[ \t]+(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
     flags=re.I,
 )
 _CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440", "02627782"}
@@ -225,6 +229,7 @@ SUBJECT_VENDORS = (
     (re.compile(r"unifirst", re.I), "UniFirst Corporation"),
     (re.compile(r"shoppa", re.I), "Shoppa's Material Handling"),
     (re.compile(r"eastern metal", re.I), "Eastern Metal Supply of Texas"),
+    (re.compile(r"\b3p\b|rachel\s+bailey", re.I), "3P"),
     (re.compile(r"green valley compressor", re.I), "Green Valley Compressor LLC"),
     (re.compile(r"purvis", re.I), "Purvis Industries"),
     (re.compile(r"ntex", re.I), "NTEX Electric Inc."),
@@ -288,7 +293,7 @@ def _extract_pypdf_text(path: Path) -> str:
             pages.append(page.extract_text() or "")
         except Exception:  # noqa: BLE001 - one bad page must not kill the invoice
             pages.append("")
-    return "\n".join(pages)
+    return "\n\f".join(pages)
 
 
 def _ocr_pdf_text(path: Path) -> str:
@@ -453,11 +458,14 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
             continue
         amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
         amounts = [a for a in amounts if a is not None and a < 100000]
+        if not amounts:
+            # Prepaid / shipping-date text with a null amount is not a fee.
+            continue
         name = re.sub(r"\s+\$?[\d,]+\.\d{2}\s*$", "", stripped)
         name = re.sub(r"\s{2,}", " ", name).strip(" :-")
         if not name:
             name = next((k for k in FEE_KEYWORDS if k in stripped.lower()), "fee")
-        fees.append({"name": name[:80], "amount": amounts[-1] if amounts else None})
+        fees.append({"name": name[:80], "amount": amounts[-1]})
     dedup: list[dict[str, Any]] = []
     seen: set[str] = set()
     for fee in fees:
@@ -469,31 +477,81 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
     return dedup[:8]
 
 
+_STEEL_LINE_RE = re.compile(
+    r"\b(?:SCH(?:EDULE)?\s*\d+|A500|A36|A572|PIPE|HR\s+(?:FLT|FLAT|RND|ROUND|RECT)|"
+    r"FLAT\s+BAR|ANGLE|BEAM|PLATE|TUBE|RECT\s+TUBE|SQ\s+TUBE)\b",
+    flags=re.I,
+)
+_EMJ_NUMBERED_LINE = re.compile(
+    r"^\s*(\d{1,3})\s+(?:(\d{5,8})\s+)?(.{6,80}?)\s+(\d+(?:\.\d+)?)\s+"
+    r"(FT|LF|PC|PCS|EA|LB|CWT|IN)\b.*?([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+_LINE_SKIP_RE = re.compile(
+    r"invoice\s+total|amount\s+due|customer\s+po|invoice\s+(?:number|date)|"
+    r"ship(?:ping)?\s+date|prepaid|page\s+\d|bill\s+to|ship\s+to",
+    flags=re.I,
+)
+
+
 def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
-    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts."""
+    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts.
+
+    EMJ / mill invoices (Z250725432) print steel descriptions (HR FLT A36)
+    without XXX-XXXX-XXX parts — those must still become merchandise lines.
+    """
     lines: list[dict[str, Any]] = []
     seen: set[str] = set()
-    for raw_line in (text or "").splitlines():
-        stripped = raw_line.strip()
-        if not stripped:
+    raw_rows = [raw.strip() for raw in (text or "").splitlines() if raw.strip()]
+    for index, stripped in enumerate(raw_rows):
+        if _LINE_SKIP_RE.search(stripped) and not _STEEL_LINE_RE.search(stripped):
+            continue
+        emj = _EMJ_NUMBERED_LINE.match(stripped)
+        if emj:
+            po_line = int(emj.group(1))
+            item_no = emj.group(2) or ""
+            desc = re.sub(r"\s{2,}", " ", emj.group(3)).strip()
+            qty = parse_money(emj.group(4))
+            amount = parse_money(emj.group(6))
+            key = f"emj-{po_line}-{desc.upper()[:40]}"
+            if key not in seen:
+                seen.add(key)
+                lines.append(
+                    {
+                        "part": item_no or desc,
+                        "qty": qty,
+                        "amount": amount,
+                        "po_line": po_line,
+                        "wo": None,
+                        "label": desc[:80] or stripped[:80],
+                        "description": desc[:120] or stripped[:120],
+                    }
+                )
             continue
         parts = _PART_NUMBER.findall(stripped)
-        desc_only = bool(not parts and re.search(r"\b(?:SCH(?:EDULE)?\s*\d+|A500|PIPE)\b", stripped, flags=re.I))
+        desc_only = bool(not parts and _STEEL_LINE_RE.search(stripped))
         if not parts and not desc_only:
             continue
-        amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
+        blob = stripped
+        nxt = raw_rows[index + 1] if index + 1 < len(raw_rows) else ""
+        if nxt and not _LINE_SKIP_RE.search(nxt) and not _PART_NUMBER.findall(nxt) and not _STEEL_LINE_RE.search(nxt):
+            blob = f"{stripped} {nxt}"
+        amounts = [parse_money(m) for m in _MONEY.findall(blob)]
         amounts = [a for a in amounts if a is not None and a < 100000]
         qty = None
-        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", stripped, flags=re.I)
+        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", blob, flags=re.I)
+        um_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:FT|LF|PC|PCS|EA|LB|CWT)\b", blob, flags=re.I)
         if qty_match:
             qty = parse_money(qty_match.group(1))
+        elif um_qty:
+            qty = parse_money(um_qty.group(1))
         elif amounts and len(amounts) >= 2:
             qty = amounts[0]
         po_line = None
-        line_match = re.search(r"\b(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
+        line_match = re.search(r"^\s*(\d{1,3})\s+|(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
         if line_match:
-            po_line = int(line_match.group(1))
-        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", stripped, flags=re.I)
+            po_line = int(line_match.group(1) or line_match.group(2))
+        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", blob, flags=re.I)
         for part in parts:
             if part in seen:
                 continue
@@ -509,13 +567,13 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                     "description": stripped[:120],
                 }
             )
-        # O'Neal / mill descriptions without XXX-XXXX-XXX part numbers.
+        # O'Neal / EMJ mill descriptions without XXX-XXXX-XXX part numbers.
         if desc_only:
             key = re.sub(r"\s+", " ", stripped.upper())[:48]
             if key not in seen:
                 seen.add(key)
                 if qty is None:
-                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", stripped, flags=re.I)
+                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", blob, flags=re.I)
                     if bare_qty:
                         qty = parse_money(bare_qty.group(1))
                 lines.append(
@@ -526,7 +584,7 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                         "po_line": po_line,
                         "wo": wo_match.group(1) if wo_match else None,
                         "label": stripped[:80],
-                        "description": stripped[:120],
+                        "description": (desc_only and stripped[:120]) or blob[:120],
                     }
                 )
     return lines[:40]
@@ -664,6 +722,9 @@ def _invoice_from_filename(filename: str) -> str | None:
 
 
 def _invoice_from_subject(subject: str) -> str | None:
+    hashed = extract_subject_invoice_number(subject)
+    if hashed:
+        return hashed
     for pattern in (
         r"Invoice\s*(?:Number|#|No\.?)?\s*[-:#]?\s*([A-Z]{0,8}\d{4,})",
         r"\b(TXFT\d{5,})\b",
@@ -777,40 +838,179 @@ def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
     return bills or [parsed]
 
 
-def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
-    """Gas & Supply PDFs can hold several Misc 00xxxxxxxx invoices (0040367887 notes: 5).
+_AFTER_TAX_LABEL = re.compile(
+    r"(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|grand\s+total|"
+    r"total\s+to\s+be\s+paid|total\s+this\s+invoice|total\s+amount\s+due|"
+    r"please\s+pay\s+this\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_BEFORE_TAX_LABEL = re.compile(
+    r"(?:sub[\s-]*total|merchandise(?:\s+total)?|taxable(?:\s+amount)?|"
+    r"before\s+tax|total\s+before\s+tax|net\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
 
-    When amounts cannot be split per number, mark gas_misc_ambiguous so the
-    enter path HOLDs instead of inventing Type 4 amounts.
+
+def _bare_grand_totals(text: str) -> list[float]:
+    """Line-start Total 348.57 — not Subtotal / Merchandise / Before Tax."""
+    found: list[float] = []
+    for match in re.finditer(r"(?m)^[ \t]*(total\b[^\n]{0,48})", text or "", flags=re.I):
+        line = match.group(1)
+        if re.search(r"sub[\s-]*total|merchandise|taxable|before\s+tax|due\s+date|order\s+amount", line, flags=re.I):
+            continue
+        money = re.search(r"\$?\s*([\d,]+(?:\.\d{2}))", line)
+        if not money:
+            continue
+        amount = parse_money(money.group(1))
+        if amount not in (None, 0, 0.0):
+            found.append(amount)
+    return found
+
+
+def prefer_after_tax_amount(text: str, current: float | None = None) -> float | None:
+    """Final total / amount due after tax. Never a subtotal when a grand total exists.
+
+    Gas 0040370068: sheet took 322 before tax; Amount Due after tax must win.
+    Prefer Amount Due / Invoice Total / Total Due / Balance Due / Total when
+    that Total is the grand total. Reject Subtotal / Merchandise / Taxable /
+    Before Tax when a higher grand total is on the same section.
+    Do not replace an already-chosen grand total with the first Invoice Total
+    line of a stacked block (UniFirst).
     """
-    vendor = str(parsed.get("vendor") or "")
-    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
-        return [parsed]
-    numbers = []
+    after = [parse_money(m) for m in _AFTER_TAX_LABEL.findall(text or "")]
+    after = [a for a in after if a not in (None, 0, 0.0)]
+    after.extend(_bare_grand_totals(text))
+    before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
+    before = [a for a in before if a not in (None, 0, 0.0)]
+    grand = [a for a in after if a not in before]
+    if current in before:
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return None
+    if current in (None, 0, 0.0):
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return current
+    return current
+
+
+def gas_invoice_numbers(text: str) -> list[str]:
+    """Distinct Gas & Supply 00xxxxxxxx invoice numbers in PDF order."""
+    numbers: list[str] = []
     for hit in _INV_GAS.findall(text or ""):
         token = _usable_invoice_number(hit)
         if token and token not in numbers:
             numbers.append(token)
+    return numbers
+
+
+def _gas_section_pages(text: str, start: int, end: int, *, index: int, count: int) -> tuple[int, int]:
+    """Best-effort page range for one invoice section. Form-feed or 1-based index."""
+    blob = text or ""
+    prefix = blob[:start]
+    section = blob[start:end]
+    breaks_before = prefix.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", prefix, flags=re.I))
+    breaks_in = section.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", section, flags=re.I))
+    if breaks_before or breaks_in:
+        page0 = breaks_before + 1
+        page1 = page0 + max(breaks_in, 0)
+        return page0, max(page1, page0)
+    return index, index
+
+
+def _split_gas_invoice_sections(text: str, numbers: list[str]) -> list[tuple[str, str, int, int]]:
+    """[(invoice_number, section_text, page_start, page_end), ...]"""
+    blob = text or ""
+    hits: list[tuple[int, str]] = []
+    for number in numbers:
+        match = re.search(rf"\b{re.escape(number)}\b", blob)
+        if match:
+            hits.append((match.start(), number))
+    hits.sort()
+    sections: list[tuple[str, str, int, int]] = []
+    for index, (start, number) in enumerate(hits):
+        end = hits[index + 1][0] if index + 1 < len(hits) else len(blob)
+        if index == 0:
+            header = blob.rfind("ORIGINAL INVOICE", 0, start)
+            window_start = header if header >= 0 else 0
+        else:
+            line_start = blob.rfind("\n", 0, start)
+            window_start = line_start + 1 if line_start >= 0 else start
+        page0, page1 = _gas_section_pages(blob, window_start, end, index=index + 1, count=len(hits))
+        sections.append((number, blob[window_start:end], page0, page1))
+    return sections
+
+
+def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """One Gas billing PDF → one bill per invoice # (0040370068 pack: 6, not 1).
+
+    Parse amount/date/PO/lines per section. After-tax Amount Due wins over
+    Subtotal. Only mark gas_misc_ambiguous when a section has no amount.
+    Never collapse N>1 numbers into one invoice + multi-PO Incomplete.
+    """
+    vendor = str(parsed.get("vendor") or "")
+    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
+        return [parsed]
+    numbers = gas_invoice_numbers(text)
     if len(numbers) <= 1:
+        out = dict(parsed)
+        corrected = prefer_after_tax_amount(text, out.get("amount"))
+        if corrected not in (None, ""):
+            out["amount"] = corrected
+            sources = dict(out.get("field_sources") or {})
+            sources["amount"] = "pdf"
+            out["field_sources"] = sources
+        return [out]
+    sections = _split_gas_invoice_sections(text, numbers)
+    if not sections:
         return [parsed]
     bills: list[dict[str, Any]] = []
-    for number in numbers:
+    count = len(sections)
+    for index, (number, section, page0, page1) in enumerate(sections):
+        section_parsed = parse_invoice_text(
+            section,
+            from_name=str(parsed.get("vendor") or vendor),
+            from_address="billing@gasandsupply.com",
+        )
+        pos = extract_po_numbers(section)
+        amount = prefer_after_tax_amount(section, section_parsed.get("amount"))
         bill = dict(parsed)
         bill["invoice_number"] = number
-        bill["po"] = None
-        bill["pos"] = []
-        bill["multi_po"] = False
+        bill["amount"] = amount
+        bill["date"] = section_parsed.get("date") or parsed.get("date")
+        bill["po"] = pos[0] if len(pos) == 1 else None
+        bill["pos"] = pos
+        bill["multi_po"] = len(pos) > 1
+        bill["lines"] = extract_invoice_lines(section)
+        bill["fees"] = extract_fees(section)
         bill["gas_misc"] = True
+        bill["gas_split"] = True
         bill["misc_item"] = "Shop Supplies - G&S"
+        bill["multi_invoice_pdf"] = True
+        bill["multi_invoice_count"] = count
+        bill["multi_invoice_index"] = index + 1
+        bill["multi_invoice_page_start"] = page0
+        bill["multi_invoice_page_end"] = page1
+        bill["multi_invoice_note"] = f"multi-invoice-pdf page {page0}–{page1} of {count}"
         sources = dict(bill.get("field_sources") or {})
         sources["invoice_number"] = "pdf"
+        if amount not in (None, ""):
+            sources["amount"] = "pdf"
+        if bill.get("date"):
+            sources["date"] = "pdf"
+        if pos:
+            sources["po"] = "pdf"
         bill["field_sources"] = sources
+        if amount in (None, ""):
+            bill["gas_misc_ambiguous"] = True
+        else:
+            bill.pop("gas_misc_ambiguous", None)
         bill.pop("siblings", None)
         bills.append(bill)
-    # One shared total cannot be trusted as each Misc invoice amount.
-    if parsed.get("amount") not in (None, "") and len(bills) > 1:
-        for bill in bills:
-            bill["gas_misc_ambiguous"] = True
     return bills or [parsed]
 
 
@@ -1000,6 +1200,13 @@ def parse_invoice_text(
     pos = extract_po_numbers(pdf_text)
     if pos:
         sources["po"] = "pdf"
+    extra_pos = extract_subject_pos(subject)
+    if extra_pos:
+        for number in extra_pos:
+            if number not in pos:
+                pos.append(number)
+        if not sources.get("po"):
+            sources["po"] = "subject"
     amount = None
     # Amount must come from vendor PDF text, never subject/filename (Gas 0040323616).
     due_label = _AMOUNT_DUE_LABEL.search(pdf_text)
@@ -1025,7 +1232,9 @@ def parse_invoice_text(
             amount = max(nums)
     amt_match = None
     if amount is None:
-        amt_match = _AMOUNT_BEFORE.search(pdf_text) or _AMOUNT_LABEL.search(pdf_text)
+        # Label-then-amount (INVOICE TOTAL $ 896.86) beats a line amount
+        # immediately before the total label (645.78\nINVOICE TOTAL).
+        amt_match = _AMOUNT_LABEL.search(pdf_text) or _AMOUNT_BEFORE.search(pdf_text)
     if amt_match:
         amount = parse_money(amt_match.group(1))
         if amount == 0:
@@ -1089,6 +1298,9 @@ def parse_invoice_text(
             nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
             if nums:
                 amount = max(nums)
+    after_tax = prefer_after_tax_amount(pdf_text, amount)
+    if after_tax not in (None, ""):
+        amount = after_tax
     if amount not in (None, ""):
         sources["amount"] = "pdf"
 
@@ -1166,7 +1378,55 @@ def parse_invoice_text(
             and sources.get("date") == "pdf"
             and not po_doc
         ),
+        "invoice_numbers_in_pdf": (
+            gas_invoice_numbers(pdf_text)
+            if "gas and supply" in (vendor or "").lower() or "gasandsupply" in (vendor or "").lower()
+            else []
+        ),
     }
+
+
+def write_page_range_pdf(source: Path, dest: Path, page_start: int, page_end: int) -> Path | None:
+    """Write a 1-based inclusive page slice. None when split is not feasible."""
+    try:
+        reader = PdfReader(str(source))
+    except Exception:  # noqa: BLE001 - keep the full PDF
+        return None
+    total = len(reader.pages)
+    if total <= 1:
+        return None
+    start = max(0, int(page_start) - 1)
+    end = min(total, int(page_end))
+    if start >= end or (start == 0 and end == total):
+        return None
+    try:
+        writer = PdfWriter()
+        for index in range(start, end):
+            writer.add_page(reader.pages[index])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with dest.open("wb") as handle:
+            writer.write(handle)
+    except Exception:  # noqa: BLE001 - attach the full pack instead
+        return None
+    return dest if dest.is_file() else None
+
+
+def assign_split_pdfs(source: Path, bills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prefer a page-range PDF per invoice. Else keep the full pack on each bill."""
+    source = Path(source)
+    for bill in bills:
+        page0 = int(bill.get("multi_invoice_page_start") or 0)
+        page1 = int(bill.get("multi_invoice_page_end") or page0)
+        number = str(bill.get("invoice_number") or "invoice")
+        dest = source.with_name(f"{source.stem}_{number}_p{page0}-{page1}{source.suffix}")
+        sliced = write_page_range_pdf(source, dest, page0, page1) if page0 and page1 else None
+        bill["pdf_path"] = str(sliced or source)
+        bill["pdf_on_disk"] = Path(bill["pdf_path"]).is_file()
+        if sliced is None:
+            bill["pdf_split"] = False
+        else:
+            bill["pdf_split"] = True
+    return bills
 
 
 def parse_invoice_pdf(
@@ -1189,10 +1449,13 @@ def parse_invoice_pdf(
         bills = expand_fastenal_invoices(text, parsed)
     if len(bills) <= 1:
         bills = expand_gas_misc_invoices(text, parsed)
-    parsed = bills[0]
     if len(bills) > 1:
+        assign_split_pdfs(path, bills)
+        parsed = bills[0]
         parsed["siblings"] = bills[1:]
-    parsed["pdf_path"] = str(path)
+    else:
+        parsed = bills[0]
+        parsed["pdf_path"] = str(path)
     parsed["pdf_on_disk"] = path.is_file()
     parsed["pdf_text_empty"] = not (text or "").strip()
     # File on disk is never "unavailable" — empty extract means OCR/retry, not no-pdf-on-vm.

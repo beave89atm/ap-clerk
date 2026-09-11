@@ -19,6 +19,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     known_vendor_id,
     match_receipts,
+    pick_receipts_by_qty_cost,
     names_match,
     printed_invoice_number,
     should_create_header,
@@ -56,6 +57,10 @@ def test_fees_are_not_ppv():
     assert is_fee_or_surcharge("FUEL SURCHARGE")
     assert format_fees([{"name": "Shipping", "amount": 42.17}]) == "Shipping 42.17"
     assert format_fees([]) == "none"
+    assert format_fees([{"name": "SHIP DATE 18-AUG-2026", "amount": None}]) == "none"
+    assert is_fee_or_surcharge("Shipping & Handling")
+    assert not is_fee_or_surcharge("SHIP DATE 18-AUG-2026")
+    assert not is_fee_or_surcharge("PREPAID")
 
 
 def test_extract_po_number():
@@ -109,6 +114,10 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
     assert classify_mail(subject="American Quality Powder Coating job 4412") == "invoice"
     assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"
+    assert classify_mail(subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917") == "invoice"
+    assert classify_mail(subject="INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844") == "invoice"
+    assert classify_mail(subject="INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844", preview="Rachel Bailey") == "invoice"
+    assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
     assert classify_mail(subject="Internal only — do not process") == "internal"
 
 
@@ -117,8 +126,8 @@ def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
     assert flag_in_outlook_for("Incomplete") == "Yes"
     assert flag_in_outlook_for("HOLD") == "Yes"
     assert flag_in_outlook_for("Fail") == "Yes"
-    assert flag_in_outlook_for("Skipped") == "No"
-    assert flag_in_outlook_for("Noise") == "No"
+    assert flag_in_outlook_for("Skipped") == "Yes"
+    assert flag_in_outlook_for("Noise") == "Yes"
     assert comments_for("live") == "API Agent"
     assert "prototype" in comments_for("prototype").lower()
 
@@ -339,3 +348,44 @@ def test_receipt_name_carries_po_for_select_receipts():
     )
     assert result["found"] is True
     assert result["hold_no_receipts"] is False
+
+
+def test_empty_lines_picks_invoice_qty_not_first_open_receipt():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert result["found"] is True
+    assert result["matched"][0]["receipt"]["id"] == 35
+    assert "second-open-on-po" not in (result["matched"][0].get("pass") or "") or result["matched"][0]["receipt"]["qty"] == 35
+
+
+def test_differing_open_receipts_without_evidence_are_ambiguous():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+    )
+    assert result["found"] is False
+    assert result["ambiguous"]
+    assert result["hold_no_receipts"] is False
+    pick = pick_receipts_by_qty_cost(
+        [
+            {"id": 36, "qty": 36, "amount": 1115.64},
+            {"id": 35, "qty": 35, "amount": 1084.65},
+        ],
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert pick["picked"][0]["id"] == 35

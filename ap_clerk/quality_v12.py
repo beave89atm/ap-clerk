@@ -16,6 +16,7 @@ from ap_clerk.gates import (
     GATE_PRICE,
     GATE_QTY,
     GATE_RECEIPT,
+    GATE_ALREADY_ENTERED,
     GATE_VENDOR,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
@@ -116,7 +117,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "8_16_bug": "Blanket CHECK STOP / noise. Misc invoices were not entered.",
         "expected": "Invoice pages → Misc Type 4 item Shop Supplies - G&S. Notice → Skipped/HOLD. Ambiguous amounts → HOLD. Never Success.",
         "never_success": True,
-        "deferred": "Live 0040367887 page-accurate 5-way amount split needs that PDF; heuristic HOLDs when ambiguous.",
+        "deferred": "Shared-total-only Gas packs (no per-invoice Amount Due) still HOLD gas_misc_ambiguous.",
     },
     {
         "id": "NOTE-11",
@@ -178,6 +179,169 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-14",
+        "slug": "fastenal-txft4100079-qty-and-fees",
+        "gate": GATE_RECEIPT,
+        "cases": ("Fastenal TXFT4100079 / PO 58692 / KIMCO 9968",),
+        "9_11_bug": (
+            "8/18-class Success: empty invoice lines → first open receipt on PO "
+            "(qty 36) while invoice qty was 35; Why said 'not first qty'. "
+            "Shipping & Handling 63.98 was Excel-only; Additional Charge Fees "
+            "were never posted. KIMCO 9968."
+        ),
+        "expected": (
+            "Verify receipt qty and merchandise cost against the invoice. "
+            "Qty 35 vs 36 → pick 35. Never first-open / second-open-on-po "
+            "Success when open receipts differ. Post Additional Charge "
+            "Fees and surcharges / F-Fees & Surcharges (63.98) before Success; "
+            "sheet Fees column is not enough. Else Incomplete / Entered with issues."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-15",
+        "slug": "emj-z250725432-two-lines",
+        "gate": GATE_RECEIPT,
+        "cases": ("EMJ Z250725432 / PO 58913 / KIMCO 9969",),
+        "9_11_bug": (
+            "Invoice had two merchandise lines; PDF line parse left lines:[]; "
+            "runner Select Receipts’d one open PO receipt and claimed Success. "
+            "Sheet did not name the skipped line. Small random-length price gap "
+            "was not posted as PPV."
+        ),
+        "expected": (
+            "Parse all merchandise lines from the PDF. Select Receipts for each "
+            "matching line; do not stop after one. Unmatched lines → not Success "
+            "and Why names the skipped line(s). Random-length unit gap that "
+            "passes ≤10% / ≤$100 is PPV, not Fees. Prepaid/shipping-date with "
+            "null amount is not a fee."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-16",
+        "slug": "gas-multi-invoice-pdf-after-tax",
+        "gate": GATE_PREFLIGHT,
+        "cases": ("Gas billing01_A3050_c.pdf / 0040370068 pack / KIMCO 9970",),
+        "9_11_bug": (
+            "One Gas PDF held 6 invoices; runner collapsed to invoice 0040370068 "
+            "plus multi-PO Incomplete 9970. Amount 322 was merchandise/before tax, "
+            "not Amount Due after tax."
+        ),
+        "expected": (
+            "Split to 6 bill rows (one invoice # each). Per-section amount is "
+            "after-tax Amount Due, never Subtotal. Email still counts as 1 touch. "
+            "Why notes multi-invoice-pdf page X–Y of N. Do not Success/Incomplete "
+            "a single collapsed invoice when N>1 numbers are present."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-17",
+        "slug": "insight-1809-already-entered",
+        "gate": GATE_ALREADY_ENTERED,
+        "cases": ("Insight Controller Services 1809 already on live",),
+        "9_11_bug": (
+            "Sheet HOLD preflight-parse with MSC/McQueary slogan and no-pdf-on-vm. "
+            "1809 was already entered; the false parse gate fired first."
+        ),
+        "expected": (
+            "Before parse-HOLD / create: look up vendor + invoice #. Already "
+            "present → HOLD already-entered / duplicate. Why names vendor, "
+            "invoice #, existing KIMCO id(s). No McQueary slogan. No no-pdf-on-vm "
+            "when the PDF is on disk."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-18",
+        "slug": "outlook-ai-skipped-noise",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Mailbox noise / Skipped → Outlook AI Skipped",),
+        "9_11_bug": (
+            "Noise Skipped rows were sheet-only with no Outlook category. "
+            "Skip-already-flagged did not treat AI Skipped as already-touched."
+        ),
+        "expected": (
+            "Noise gets Outlook category exactly AI Skipped (never AI HOLD). "
+            "Sheet Result stays Skipped. Graph missing category → Why "
+            "outlook-category-missing: AI Skipped. Already-flagged includes "
+            "AI Skipped (no reprocess, no email-cap consume)."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-19",
+        "slug": "3p-rachel-bailey-multi-po",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("3P / Rachel Bailey INV # 142041 / PO # 58766, 58767, 58844",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill for Rachel Bailey INV#+PO# subjects. "
+            "3P is a real receipt-type multi-PO vendor."
+        ),
+        "expected": (
+            "Never classify 3P / Rachel Bailey INV#+PO# (142041–142044) as not-a-bill. "
+            "Receipt-type Invoice_Type 3, not Misc Type 4. "
+            "Multi-PO: header Purchase Order blank; Select Receipts per PO; "
+            "sheet lists every PO and selected receipt ids. Unmatched PO/line → "
+            "not Success and Why names it. Outlook is Entered in AI / AI HOLD / "
+            "Entered with issues — never AI Skipped."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-20",
+        "slug": "eastern-metal-818600-not-noise",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Eastern Metal Supply 818600 / 818601",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill for Invoice : 818600 / 818601 from "
+            "EASTERN METAL SUPPLY of TEXAS, INC."
+        ),
+        "expected": (
+            "Invoice + Eastern Metal / EASTERN METAL SUPPLY is a bill (alias 64). "
+            "Invoice/INV subject or a PDF invoice attached is never not-a-bill. "
+            "Enter or HOLD with real Why. Never AI Skipped."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-21",
+        "slug": "aqpc-10917-link-download",
+        "gate": GATE_PDF_LINK,
+        "cases": ("AQPC payment request invoice 10917 / 10918",),
+        "9_11_bug": (
+            "8/18 dry-10 Skipped not-a-bill + no-pdf-on-vm for American Quality "
+            "Powder Coating payment-request emails (invoice behind a link)."
+        ),
+        "expected": (
+            "AQPC / American Quality Powder Coating is an invoice (never Skipped). "
+            "Extract the https payment-request link and GET the PDF (unauth, follow "
+            "redirects). Success → header + attach + PDF-is-truth. Auth wall → HOLD "
+            "pdf-behind-link naming vendor, invoice #, and link host. Never no-pdf-on-vm "
+            "after a fetched file."
+        ),
+        "never_success": True,
+        "deferred": "Authenticated vendor portals stay HOLD pdf-behind-link.",
+    },
+    {
+        "id": "NOTE-22",
+        "slug": "kimco-vendor-invoice-never-skip",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": ("Any KIMCO-listed vendor that sends an invoice",),
+        "9_11_bug": (
+            "Listed KIMCO vendors with Invoice/INV subjects were Skipped as "
+            "not-a-bill (Eastern Metal, 3P, AQPC)."
+        ),
+        "expected": (
+            "If the supplier is listed in KIMCO (From or subject) and provides "
+            "an invoice (PDF, link-PDF, or Invoice/INV subject), never Skipped / "
+            "AI Skipped / not-a-bill. Enter or HOLD with a real Why. AI Skipped "
+            "is only for true non-vendor noise (statements, payments, PODs)."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -202,6 +366,14 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
         "check": "Supply/fee/surcharge amounts are Additional Charge Fees and surcharges, never PPV.",
     },
     {
+        "id": "fees-posted-on-bill",
+        "check": (
+            "Parsed fee amounts are posted as Additional Charge Fees and surcharges "
+            "(F-Fees & Surcharges) on the bill before Success. Sheet column is not enough "
+            "(Fastenal TXFT4100079)."
+        ),
+    },
+    {
         "id": "ppv-within-rule",
         "check": "PPV only for unit-price gaps vs PO, and only if ≤10% of invoice total AND ≤$100.",
     },
@@ -214,6 +386,13 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
         "check": "Select Receipts posted when the PO / Select Receipts path applies.",
     },
     {
+        "id": "all-invoice-lines-selected",
+        "check": (
+            "Every merchandise invoice line has a Select Receipts match. "
+            "Unmatched lines are named on Why and never silent Success (EMJ Z250725432)."
+        ),
+    },
+    {
         "id": "posted-vendor-matches-parsed",
         "check": (
             "GET after header create: posted KIMCO vendor name/id matches the parsed "
@@ -221,6 +400,28 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "never Success. Do not void."
         ),
     },
+    {
+        "id": "all-pos-selected",
+        "check": (
+            "Multi-PO bills Select Receipts per PO. Unmatched POs are named on Why "
+            "and never silent Success (3P 142041)."
+        ),
+    },
+)
+
+# Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
+# regress as false Skip or false Success. Tests stay unit-only until that job.
+MONDAY_LIVE10_BASICS: tuple[dict[str, str], ...] = (
+    {"id": "kimco-vendor-never-skip", "note": "NOTE-22", "test": "test_never_repeat_kimco_vendor_invoice_never_skip"},
+    {"id": "pdf-is-truth-accurate-why", "note": "NOTE-11", "test": "test_never_repeat_nova_258145"},
+    {"id": "qty-cost-receipt-and-fees", "note": "NOTE-14", "test": "test_never_repeat_fastenal_txft4100079"},
+    {"id": "all-lines-or-named-skip", "note": "NOTE-15", "test": "test_never_repeat_emj_z250725432_two_lines"},
+    {"id": "gas-split-after-tax", "note": "NOTE-16", "test": "test_never_repeat_gas_multi_invoice_pdf"},
+    {"id": "3p-multi-po-select-receipts", "note": "NOTE-19", "test": "test_3p_multi_po_select_receipts"},
+    {"id": "aqpc-link-download", "note": "NOTE-21", "test": "test_never_repeat_aqpc_10917_link_download"},
+    {"id": "eastern-metal-not-noise", "note": "NOTE-20", "test": "test_never_repeat_eastern_metal_818600_not_noise"},
+    {"id": "already-entered-why", "note": "NOTE-17", "test": "test_never_repeat_insight_1809_already_entered"},
+    {"id": "ai-skipped-true-noise-only", "note": "NOTE-18", "test": "test_never_repeat_ai_skipped_noise"},
 )
 
 
