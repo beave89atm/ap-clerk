@@ -42,7 +42,7 @@ def comments_for(target: str) -> str:
     return COMMENTS
 
 
-# Mailbox noise: sheet-note, do not stamp AI HOLD. Consumes the 10-email touch cap.
+# Mailbox noise: sheet-note Skipped + Outlook AI Skipped (never AI HOLD). Consumes the 10-email touch cap.
 NOISE_REASONS = {
     "check stop",
     "check_stop",

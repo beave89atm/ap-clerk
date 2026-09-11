@@ -12,9 +12,9 @@ to 10. Still note each of those ≤10 on the sheet with Why.
 
 **Skip already-flagged (Kyle 2026-09-11).** Leave alone — do not reprocess, do
 not re-stamp categories — if the message already has Outlook `Entered in AI`,
-`AI HOLD`, `Entered with issues`, or Graph `flag.flagStatus=flagged`. Those
-messages do **not** consume the 10-email touch cap. Only unflagged /
-uncategorized (by those AP markers) messages count.
+`AI HOLD`, `Entered with issues`, `AI Skipped`, or Graph
+`flag.flagStatus=flagged`. Those messages do **not** consume the 10-email
+touch cap. Only unflagged / uncategorized (by those AP markers) messages count.
 
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
@@ -46,18 +46,18 @@ and 27946 / PO 58741. Fees `Packaging/Shop Supplies; Recovery` stay Fees, not PP
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
 
-## Outlook categories (exactly three)
+## Outlook categories (exactly four)
 
 | Result | Outlook |
 | --- | --- |
 | **Success** (finished; Treyce would not rework) | `Entered in AI` |
 | Header + PDF entered but bill cannot be finished (price-does-not-match, qty HOLD, Incomplete finish) | `Entered with issues` |
 | Real bill unprocessable **without** a header (parse-error / no-pdf, auto-pay, pdf-behind-link, Fail) | `AI HOLD` |
-| Noise (not-a-bill, statement, CHECK STOP notice, payment, POD, duplicate) | none — Excel `Skipped` only (PR #19) |
+| Noise (not-a-bill, statement, CHECK STOP notice, payment, POD, duplicate) | **`AI Skipped`** — sheet Result stays `Skipped` with Why |
 
-**Kyle action:** create the Outlook master category named exactly `Entered with issues` on `accountspayable@kannonmfg.com` if it does not exist. Code POSTs the category and PATCHes the exact string; a deny/missing apply is recorded with a clear Why.
+**Kyle action:** create the Outlook master categories named exactly `Entered with issues` and **`AI Skipped`** on `accountspayable@kannonmfg.com` if they do not exist. Code POSTs each category and PATCHes the exact string. If Graph cannot find/create `AI Skipped`, Why is `outlook-category-missing: AI Skipped` and the sheet row stays `Skipped`.
 
-Never a fourth process-category name. Never `Entered in AI` + another process marker on the same message.
+Never a fifth process-category name. Never two process markers on the same message. Do **not** leave noise uncategorized. Do **not** use `AI HOLD` for noise.
 
 ## Treyce-load: fix-before-complete checklist
 

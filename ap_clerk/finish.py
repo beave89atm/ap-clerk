@@ -109,7 +109,7 @@ def dry_email_body(
         f"Mailbox: {ALLOWED_MAILBOX}\n"
         "Success = finished bill (header + Select Receipts when PO + PDF attached).\n"
         "Success = Entered in AI. Header+PDF unfinished = Entered with issues.\n"
-        "Real bill with no header = AI HOLD. Skipped noise is sheet-noted only.\n"
+        "Real bill with no header = AI HOLD. Skipped noise = Outlook AI Skipped.\n"
         "Report attached.\n"
     )
 

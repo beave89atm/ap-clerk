@@ -166,8 +166,8 @@ def pull_recent_bills(
 
     Default (fifo=False): most-recent emails first, then oldest-first among
     selected bills. Daily FIFO (fifo=True): from 2026-07-28 or the persisted
-    cursor, oldest received first, toward today. Noise is sheet-noted only
-    — never Outlook AI HOLD.
+    cursor, oldest received first, toward today. Noise is sheet-noted as
+    Skipped and stamped Outlook `AI Skipped` — never AI HOLD.
     """
     mailbox = assert_allowed_mailbox(mailbox)
     limit = clamp_email_limit(limit)
