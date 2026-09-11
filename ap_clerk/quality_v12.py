@@ -16,6 +16,7 @@ from ap_clerk.gates import (
     GATE_PRICE,
     GATE_QTY,
     GATE_RECEIPT,
+    GATE_VENDOR,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
     RESULT_SKIPPED,
@@ -134,6 +135,25 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-12",
+        "slug": "msc-70762501-not-rmp",
+        "gate": GATE_VENDOR,
+        "cases": ("MSC Industrial Supply 70762501 / KIMCO 9967 posted as RMP",),
+        "8_18_bug": (
+            "8/18 dry-10: parsed MSC Industrial Supply invoice 70762501, sheet Result "
+            "Success, KIMCO id 9967. Live GET: vendor=1320-RMP INDUSTRIAL SUPPLY type 4. "
+            "names_match treated {industrial, supply} overlap as a match; seed/lookup "
+            "posted RMP lookup-id 1320 instead of MSC alias 128."
+        ),
+        "expected": (
+            "MSC does not names_match RMP. Prefer alias MSC→128 over fuzzy sample seeding. "
+            "GET after create: posted vendor must strictly match parsed (or known alias). "
+            "Else HOLD/Entered with issues vendor-mismatch (parsed X, posted Y). Never Success. "
+            "Do not void."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -168,6 +188,14 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "select-receipts-when-po",
         "check": "Select Receipts posted when the PO / Select Receipts path applies.",
+    },
+    {
+        "id": "posted-vendor-matches-parsed",
+        "check": (
+            "GET after header create: posted KIMCO vendor name/id matches the parsed "
+            "vendor (or a known alias for that same vendor). Else HOLD vendor-mismatch, "
+            "never Success. Do not void."
+        ),
     },
 )
 

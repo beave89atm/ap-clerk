@@ -29,7 +29,7 @@ Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-
 
 | Result | Meaning | Outlook |
 | --- | --- | --- |
-| **Success** | Finished bill: header + (Select Receipts when PO) + PDF + self-check (invoice # from PDF, PO not Type 4, right receipt line, qty match, Fees ≠ PPV, PPV in rule). | `Entered in AI` only |
+| **Success** | Finished bill: header + (Select Receipts when PO) + PDF + self-check (invoice # from PDF, PO not Type 4, right receipt line, qty match, Fees ≠ PPV, PPV in rule, posted vendor matches parsed). | `Entered in AI` only |
 | **Incomplete** | Header created but attach missing or receipts not selected. | `Entered with issues` |
 | **HOLD** (with header) | Price-does-not-match or qty HOLD after header+PDF. | `Entered with issues` |
 | **HOLD** (no header) | Parse-error / no-pdf, auto-pay, pdf-behind-link, printed PO not on live. | `AI HOLD` |
@@ -57,7 +57,7 @@ Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-
 5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). **Hard email cap 10 until further notice (Kyle 2026-09-11):** stop after 10 mailbox messages touched (Success + HOLD + Incomplete + Fail + Skipped/noise). Do **not** walk past noise to fill N bill attempts. Bill-attempt mode is suspended. Note each of those ≤10 on the Excel sheet with Why. Noise may still be `Skipped` without Outlook `AI HOLD` — but it **consumes** the cap. **Skip already-flagged:** leave alone (no reprocess, no re-stamp) if the message already has `Entered in AI`, `AI HOLD`, `Entered with issues`, or `flag.flagStatus=flagged`; those do **not** consume the cap.
 6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
 
-**Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s ≤10% of invoice total **and** ≤$100 rule; else price-does-not-match HOLD + `@Shawn McKibben`. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410).
+**Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s ≤10% of invoice total **and** ≤$100 rule; else price-does-not-match HOLD + `@Shawn McKibben`. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410, MSC 128). Known alias beats fuzzy sample seeding. `names_match` requires distinctive tokens — generic words (`industrial`, `supply`, `steel`, …) are not enough (MSC ≠ RMP). After header create, GET the invoice: posted vendor must match parsed (or alias) or Result is HOLD `vendor-mismatch`, never Success.
 
 ## Prototype (default)
 

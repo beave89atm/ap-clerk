@@ -8,6 +8,7 @@ from openpyxl import load_workbook
 
 from ap_clerk.cli import _process_invoice
 from ap_clerk.gates import (
+    GATE_VENDOR,
     RESULT_FAIL,
     RESULT_HOLD,
     RESULT_SKIPPED,
@@ -21,6 +22,7 @@ from ap_clerk.gates import (
     merchandise_amount,
     preflight_parse_gate,
     success_is_legal,
+    vendor_confirmation_gate,
 )
 from ap_clerk.graph import FLAG_AI_HOLD, FLAG_ENTERED_WITH_ISSUES, FLAG_FLAGGED
 from ap_clerk.inbox import PO_FILE_RE, skip_rows_for_report
@@ -82,6 +84,32 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, pdf_dir
 
 def test_result_values_are_success_incomplete_hold_fail():
     assert RESULT_VALUES == (RESULT_SUCCESS, RESULT_INCOMPLETE, RESULT_HOLD, RESULT_FAIL)
+
+
+def test_posted_rmp_on_parsed_msc_is_not_success():
+    ok, why = vendor_confirmation_gate(
+        parsed_vendor="MSC Industrial Supply",
+        posted_name="1320-RMP INDUSTRIAL SUPPLY",
+        posted_id=1320,
+    )
+    assert ok is False
+    assert GATE_VENDOR in why
+    result, finish_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        kimco_id=9967,
+        selfcheck={
+            "parsed_vendor": "MSC Industrial Supply",
+            "posted_vendor": "1320-RMP INDUSTRIAL SUPPLY",
+            "posted_vendor_id": 1320,
+            "require_pdf_number": False,
+        },
+    )
+    assert result == RESULT_HOLD
+    assert result != RESULT_SUCCESS
+    assert GATE_VENDOR in finish_why
 
 
 def test_success_is_illegal_without_attach_and_receipts_when_po():

@@ -9,20 +9,23 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ap_clerk.cli import _process_invoice
+from ap_clerk.cli import _process_invoice, _resolve_vendor
 from ap_clerk.gates import (
     GATE_AUTO_PAY,
     GATE_PDF_LINK,
     GATE_PREFLIGHT,
     GATE_PRICE,
     GATE_QTY,
+    GATE_VENDOR,
     RESULT_HOLD,
     RESULT_SKIPPED,
     RESULT_SUCCESS,
+    finish_gate,
     never_type_4_when_po,
     preflight_parse_gate,
     qty_gate,
     treyce_finish_selfcheck,
+    vendor_confirmation_gate,
 )
 from ap_clerk.graph import (
     ENTERED_WITH_ISSUES_CATEGORY,
@@ -54,10 +57,13 @@ from ap_clerk.rules import (
     is_auto_pay,
     is_fee_or_surcharge,
     is_noise_reason,
+    known_vendor_id,
     match_receipts,
     misc_purchase_item_for,
+    names_match,
     printed_invoice_number,
     should_create_header,
+    vendor_match_score,
 )
 
 FIXTURE = json.loads(Path("fixtures/treyce-2026-09-10-never-repeat.json").read_text())
@@ -115,9 +121,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 12))
-    assert len(TREYCE_NOTES_V12) == 11
-    assert len(TREYCE_FINISH_CHECKLIST) == 8
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 13))
+    assert len(TREYCE_NOTES_V12) == 12
+    assert len(TREYCE_FINISH_CHECKLIST) == 9
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
         "insight-msc-pdf-invoice-number",
@@ -131,6 +137,7 @@ def test_v12_registry_covers_all_notes():
         "aqpc-pdf-behind-link",
         "gas-supply-misc-vs-check-stop",
         "nova-258145-from-person-not-vendor",
+        "msc-70762501-not-rmp",
     }
 
 
@@ -538,6 +545,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "ppv-within-rule",
         "pdf-attached",
         "select-receipts-when-po",
+        "posted-vendor-matches-parsed",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -657,3 +665,141 @@ def test_never_repeat_nova_258145(tmp_path: Path):
         pdf_mod._ocr_pdf_text = orig_ocr
     assert ocr_called["n"] == 1
     assert "258145" in text
+
+
+def test_never_repeat_msc_70762501_not_rmp(tmp_path: Path):
+    """NOTE-12: 8/18 MSC 70762501 must not names_match RMP or Success as 1320-RMP."""
+    n = NOTES["NOTE-12"]
+    parsed = n["vendor"]
+    posted = n["posted_vendor"]
+    assert parsed == "MSC Industrial Supply"
+    assert posted == "1320-RMP INDUSTRIAL SUPPLY"
+    assert not names_match(parsed, "RMP INDUSTRIAL SUPPLY")
+    assert not names_match(parsed, posted)
+    assert vendor_match_score(parsed, "RMP INDUSTRIAL SUPPLY") == 0
+    assert vendor_match_score(parsed, posted) == 0
+    assert known_vendor_id(parsed) == n["msc_alias_id"] == 128
+    assert known_vendor_id("RMP INDUSTRIAL SUPPLY") == n["rmp_alias_id"] == 322
+    assert known_vendor_id(parsed) != known_vendor_id(posted)
+
+    ok, why = vendor_confirmation_gate(
+        parsed_vendor=parsed,
+        posted_name=posted,
+        posted_id=n["posted_lookup_id"],
+    )
+    assert ok is False
+    assert GATE_VENDOR in why
+    assert "parsed" in why.lower() and "MSC" in why
+    assert "RMP" in why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-12")
+
+    self_ok, self_why = treyce_finish_selfcheck(
+        {
+            "parsed_vendor": parsed,
+            "posted_vendor": posted,
+            "posted_vendor_id": n["posted_lookup_id"],
+            "require_pdf_number": False,
+        }
+    )
+    assert self_ok is False
+    assert GATE_VENDOR in self_why
+    result, finish_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        kimco_id=n["kimco_id"],
+        selfcheck={
+            "parsed_vendor": parsed,
+            "posted_vendor": posted,
+            "posted_vendor_id": n["posted_lookup_id"],
+            "require_pdf_number": False,
+        },
+    )
+    assert result != RESULT_SUCCESS
+    assert result == RESULT_HOLD
+    assert GATE_VENDOR in finish_why
+
+    rmp_sample = {
+        "vendor_id": n["posted_lookup_id"],
+        "vendor_text": posted,
+        "invoice_id": 50,
+        "po_text": "",
+    }
+    resolved = _resolve_vendor(
+        _kimco(),
+        parsed,
+        None,
+        [rmp_sample],
+        invoice_by_number={},
+        invoice_number=n["invoice_number"],
+    )
+    assert resolved is not None
+    assert resolved["vendor_id"] == 128
+    assert resolved["vendor_id"] != n["posted_lookup_id"]
+
+    class PostedRmp:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return n["kimco_id"], {"id": n["kimco_id"], "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            values = {
+                "Remit_To_Address": {"id": 1, "text": "remit"},
+                "Terms_Code": {"id": 2, "text": "Net 30"},
+            }
+            if item_id == n["kimco_id"]:
+                values["Vendor"] = {"id": n["posted_lookup_id"], "text": posted}
+            return {"id": item_id, "values": values}
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, *args, **kwargs):
+            return "selected"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    pdf = tmp_path / f"{n['invoice_number']}.pdf"
+    pdf.write_bytes(b"%PDF-1.4 msc 70762501")
+    kimco = PostedRmp()
+    row, _ = _row(
+        {
+            "vendor": parsed,
+            "invoice_number": n["invoice_number"],
+            "date": n["date"],
+            "po": None,
+            "amount": 88.40,
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+            },
+            "pdf_path": str(pdf),
+            "pdf_on_disk": True,
+        },
+        kimco=kimco,
+        samples=[
+            rmp_sample,
+            {
+                "vendor_id": 128,
+                "vendor_text": "MSC INDUSTRIAL SUPPLY",
+                "invoice_id": 51,
+                "po_text": "",
+            },
+        ],
+    )
+    assert row["Result"] != RESULT_SUCCESS
+    assert_never_success(row["Result"], note_id="NOTE-12", detail=row["Why"])
+    assert GATE_VENDOR in (row["Why"] or "")
+    assert "MSC" in (row["Why"] or "")
+    assert "RMP" in (row["Why"] or "")
+    assert kimco.created
+    assert kimco.created[0]["Vendor"]["id"] == 128
+    assert kimco.created[0]["Vendor"]["id"] != n["posted_lookup_id"]
