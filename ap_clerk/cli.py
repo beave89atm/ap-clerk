@@ -35,7 +35,7 @@ from ap_clerk.graph import (
     load_graph_credentials,
 )
 from ap_clerk.inbox import HARD_EMAIL_CAP, clamp_email_limit, pull_recent_bills, skip_rows_for_report
-from ap_clerk.kimco import KimcoClient, KimcoError
+from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
     GATE_AUTO_PAY,
@@ -52,6 +52,7 @@ from ap_clerk.gates import (
     RESULT_SUCCESS,
     attach_presence_status,
     drop_fee_disguised_as_ppv,
+    fees_required,
     find_live_po,
     finish_gate,
     merchandise_amount,
@@ -89,7 +90,9 @@ from ap_clerk.rules import (
     known_vendor_id,
     lookup_id,
     lookup_text,
+    invoice_qty_evidence,
     match_receipts,
+    merchandise_qty,
     misc_purchase_item_for,
     money,
     names_match,
@@ -895,9 +898,20 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     merch = merchandise_amount(amount, inv.get("fees"))
+    invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
     po_lines = list((po_info or {}).get("lines") or [])
     if not invoice_lines and po_lines and len(po_lines) == 1 and merch not in (None, ""):
-        invoice_lines = [{"amount": merch, "qty": po_lines[0].get("qty"), "part": po_lines[0].get("part"), "po_line": po_lines[0].get("po_line")}]
+        # Do not copy PO qty onto the invoice (Fastenal TXFT4100079: PO/receipt 36 ≠ invoice 35).
+        synth: dict[str, Any] = {
+            "amount": merch,
+            "part": po_lines[0].get("part"),
+            "po_line": po_lines[0].get("po_line"),
+        }
+        if invoice_qty is not None:
+            synth["qty"] = invoice_qty
+        invoice_lines = [synth]
+    if invoice_qty is None:
+        invoice_qty = invoice_qty_evidence(invoice_lines)
     price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
     issue_hold: tuple[str, str] | None = None
     preset_hold = str(inv.get("hold_reason") or "").strip().lower()
@@ -934,9 +948,25 @@ def _process_invoice(
                 invoice_lines=invoice_lines,
                 receipts=receipts,
                 po_number=str(search_po) if search_po else None,
+                invoice_qty=invoice_qty,
+                invoice_amount=merch,
             )
             notes.append(one["why"])
             combined_matched.extend(one.get("matched") or [])
+            if one.get("ambiguous") and not one.get("matched"):
+                hold_all = False
+                if issue_hold is None:
+                    amb_why = str((one.get("ambiguous") or [{}])[0].get("why") or one.get("why") or "")
+                    issue_hold = (
+                        GATE_RECEIPT,
+                        why_hold(
+                            GATE_RECEIPT,
+                            amb_why
+                            or "multiple open receipts on the PO differ in qty/cost. "
+                            "Will not guess first-open / second-open-on-po.",
+                        )
+                        + " Create KIMCO header and attach PDF; do not claim Success.",
+                    )
             if not one["hold_no_receipts"]:
                 hold_all = False
         receipt_result = {"hold_no_receipts": hold_all, "matched": combined_matched, "why": " ".join(notes)}
@@ -963,6 +993,18 @@ def _process_invoice(
             rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
             if not rec_ok:
                 issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
+            elif invoice_qty is not None:
+                picked_qty = merchandise_qty(matched_receipts)
+                if picked_qty is not None and picked_qty != invoice_qty:
+                    issue_hold = (
+                        GATE_QTY,
+                        why_hold(
+                            GATE_QTY,
+                            f"invoice qty {invoice_qty:g} ≠ selected receipt qty {picked_qty:g} "
+                            f"(Fastenal TXFT4100079 class). Do not take the first open receipt.",
+                        )
+                        + " Create KIMCO header and attach PDF; do not claim Success.",
+                    )
 
     invoice_day = parse_iso_date(str(inv["date"]))
     due = due_date_from_terms(invoice_day, lookup_text(terms))
@@ -1022,6 +1064,21 @@ def _process_invoice(
         else:
             select_status = "blocked-405"
         receipts_selected = select_status == "selected"
+    fees_posted = False
+    fee_status = "none"
+    parsed_fees = list(inv.get("fees") or [])
+    if issue_hold:
+        fee_status = "held-unfinished"
+    elif fees_required(parsed_fees):
+        poster = getattr(client, "try_post_fees", None)
+        if poster:
+            try:
+                fee_status = poster(created_id, fees_with_amounts(parsed_fees))
+            except KimcoError:
+                fee_status = "blocked-405"
+        else:
+            fee_status = "blocked-no-fee-api"
+        fees_posted = fee_status == "posted"
     edit_hint = ""
     probe = getattr(client, "try_put_probe_rejected", None)
     if probe:
@@ -1057,6 +1114,8 @@ def _process_invoice(
         multi_po=multi_po,
         receipts_selected=receipts_selected,
         kimco_id=created_id,
+        fees=parsed_fees,
+        fees_posted=fees_posted,
         selfcheck=_selfcheck_with_posted_vendor(
             selfcheck_payload(
                 inv,
@@ -1066,6 +1125,8 @@ def _process_invoice(
                 price=price,
                 qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
                 receipt_result=receipt_result,
+                fees_posted=fees_posted,
+                receipt_qty_mismatch=bool(issue_hold and issue_hold[0] == GATE_QTY),
             ),
             parsed_vendor=vendor,
             posted=posted,
@@ -1104,16 +1165,27 @@ def _process_invoice(
     misc_item = misc_purchase_item_for(vendor)
     if misc_item and invoice_type == 4:
         misc_note = f" Miscellaneous purchase item {misc_item}."
+    fee_note = ""
+    if fees_required(parsed_fees):
+        if fees_posted:
+            fee_note = (
+                f"Posted Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                f"({format_fees(parsed_fees)}; not PPV). "
+            )
+        else:
+            fee_note = (
+                f"Fees {format_fees(parsed_fees)} were parsed but not posted "
+                f"({fee_status}); sheet column is not enough. "
+            )
     if result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
-            f"{ppv_note}"
-            "Fees go to Additional Charge Fees and surcharges / F-Fees & Surcharges (not PPV). "
+            f"{ppv_note}{fee_note}"
             f"{misc_note}Attach status={pdf_status}."
         )
     else:
         row["Why"] = (
-            f"{finish_why} {po_missing_note}{line_note}{receipt_note}{ppv_note}"
+            f"{finish_why} {po_missing_note}{line_note}{receipt_note}{ppv_note}{fee_note}"
             f"Attach status={pdf_status}."
         ).strip()
     LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=%s", number, created_id, vendor, po, invoice_type, result)

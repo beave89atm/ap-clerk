@@ -18,6 +18,7 @@ from ap_clerk.gates import (
     GATE_QTY,
     GATE_VENDOR,
     RESULT_HOLD,
+    RESULT_INCOMPLETE,
     RESULT_SKIPPED,
     RESULT_SUCCESS,
     finish_gate,
@@ -60,6 +61,7 @@ from ap_clerk.rules import (
     is_noise_reason,
     known_vendor_id,
     match_receipts,
+    merchandise_qty,
     misc_purchase_item_for,
     names_match,
     printed_invoice_number,
@@ -97,6 +99,9 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
         def try_select_receipts(self, *args, **kwargs):
             return select
 
+        def try_post_fees(self, *args, **kwargs):
+            return "posted"
+
         def try_put_probe_rejected(self, *args, **kwargs):
             return ""
 
@@ -122,9 +127,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 14))
-    assert len(TREYCE_NOTES_V12) == 13
-    assert len(TREYCE_FINISH_CHECKLIST) == 9
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 15))
+    assert len(TREYCE_NOTES_V12) == 14
+    assert len(TREYCE_FINISH_CHECKLIST) == 10
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
         "insight-msc-pdf-invoice-number",
@@ -140,6 +145,7 @@ def test_v12_registry_covers_all_notes():
         "nova-258145-from-person-not-vendor",
         "msc-70762501-not-rmp",
         "crosslink-27943-filename-pdf-on-disk",
+        "fastenal-txft4100079-qty-and-fees",
     }
 
 
@@ -544,6 +550,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "receipt-match-by-description",
         "qty-matches",
         "fees-not-ppv",
+        "fees-posted-on-bill",
         "ppv-within-rule",
         "pdf-attached",
         "select-receipts-when-po",
@@ -940,3 +947,176 @@ def test_never_repeat_crosslink_27943(tmp_path: Path):
     assert "27943" in missing_why
     assert "no-pdf-on-vm" not in missing_why or "missing" in missing_why.lower()
     assert_never_success(RESULT_HOLD, note_id="NOTE-13")
+
+
+def test_never_repeat_fastenal_txft4100079(tmp_path: Path):
+    """NOTE-14: TXFT4100079 empty lines + qty 35 vs 36; fees must be posted."""
+    n = NOTES["NOTE-14"]
+    pdf_path = tmp_path / "TXFT4100079.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 fastenal TXFT4100079")
+    receipts = [
+        {
+            "id": 3601,
+            "po": n["po"],
+            "slip": "RECV-36",
+            "part": "FAST-A",
+            "qty": n["wrong_receipt_qty"],
+            "amount": 1115.64,
+            "unit_price": 30.99,
+        },
+        {
+            "id": 3501,
+            "po": n["po"],
+            "slip": "RECV-35",
+            "part": "FAST-A",
+            "qty": n["invoice_qty"],
+            "amount": n["merchandise"],
+            "unit_price": 30.99,
+        },
+    ]
+    picked = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=[],
+        receipts=receipts,
+        po_number=n["po"],
+        invoice_qty=n["invoice_qty"],
+        invoice_amount=n["merchandise"],
+    )
+    assert picked["found"] is True
+    assert picked["hold_no_receipts"] is False
+    assert not picked["ambiguous"]
+    assert picked["matched"][0]["receipt"]["qty"] == n["invoice_qty"]
+    assert picked["matched"][0]["receipt"]["id"] == 3501
+    assert picked["matched"][0]["receipt"]["qty"] != n["wrong_receipt_qty"]
+    assert "not first qty" not in picked["why"] or "qty" in picked["why"].lower()
+    assert "first open" not in picked["why"].lower() or "not first" in picked["why"].lower()
+
+    # No invoice evidence + differing open receipts → HOLD ambiguous, not first-open Success.
+    blind = match_receipts(
+        invoice_number=n["invoice_number"],
+        invoice_lines=[],
+        receipts=receipts,
+        po_number=n["po"],
+    )
+    assert blind["found"] is False
+    assert blind["ambiguous"]
+    assert_never_success(RESULT_HOLD, note_id="NOTE-14")
+
+    class RecordingFees:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+            self.fees = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9968, {"id": 9968, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "Fastenal Company"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, invoice_id, fees=None):
+            self.fees.append((invoice_id, list(fees or [])))
+            return "posted"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    sidecar = {
+        "vendor": n["vendor"],
+        "invoice_number": n["invoice_number"],
+        "date": n["date"],
+        "po": n["po"],
+        "pos": [n["po"]],
+        "amount": n["amount"],
+        "qty": n["invoice_qty"],
+        "lines": [],
+        "fees": [{"name": n["fee_name"], "amount": n["fee_amount"]}],
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    po_index = {
+        n["po"]: {
+            "id": 58692,
+            "text": f"{n['po']}-FASTENAL",
+            "vendor_id": 9,
+            "vendor_text": "Fastenal Company",
+            "lines": [],
+        }
+    }
+    samples = [{"vendor_id": 9, "vendor_text": "Fastenal Company", "invoice_id": 100, "po_text": ""}]
+    row, client = _row(
+        sidecar,
+        kimco=RecordingFees(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert client.selected
+    assert client.selected[0][1] == [3501]
+    assert client.fees
+    assert client.fees[0][1][0]["amount"] == n["fee_amount"]
+    assert n["fee_name"] in (client.fees[0][1][0].get("name") or "")
+    assert row["Result"] == RESULT_SUCCESS
+    assert n["fee_amount"] == 63.98
+    assert "63.98" in row["Fees and surcharges"] or n["fee_name"] in row["Fees and surcharges"]
+    assert "Posted Additional Charge" in row["Why"] or "F-Fees" in row["Why"]
+    assert merchandise_qty([{"qty": hit["receipt"]["qty"]} for hit in picked["matched"]]) == n["invoice_qty"]
+
+    class NoFeePost(RecordingFees):
+        def try_post_fees(self, invoice_id, fees=None):
+            self.fees.append((invoice_id, list(fees or [])))
+            return "blocked-405"
+
+    blocked, _ = _row(
+        sidecar,
+        kimco=NoFeePost(),
+        po_index=po_index,
+        receipts=receipts,
+        samples=samples,
+    )
+    assert blocked["Result"] != RESULT_SUCCESS
+    assert_never_success(blocked["Result"], note_id="NOTE-14", detail=blocked["Why"])
+    assert blocked["Result"] == RESULT_INCOMPLETE or "Fees" in (blocked["Why"] or "")
+
+    ok, why = treyce_finish_selfcheck(
+        {
+            "require_pdf_number": False,
+            "fees_required": True,
+            "fees_posted": False,
+            "receipt_qty_mismatch": True,
+        }
+    )
+    assert ok is False
+    assert "Fees" in why or "qty" in why.lower()
+    assert_never_success(RESULT_HOLD, note_id="NOTE-14", detail=why)
+
+    result, finish_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=n["po"],
+        receipts_selected=True,
+        kimco_id=n["kimco_id"],
+        fees=[{"name": n["fee_name"], "amount": n["fee_amount"]}],
+        fees_posted=False,
+    )
+    assert result != RESULT_SUCCESS
+    assert result == RESULT_INCOMPLETE
+    assert "Fees" in finish_why or "surcharge" in finish_why.lower()

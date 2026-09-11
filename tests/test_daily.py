@@ -78,6 +78,7 @@ def test_email_subject_and_body_counts():
     assert "Incomplete: 1" in body
     assert "Fail: 1" in body
     assert "HOLD: 1" in body
+    assert "Additional Charge Fees" in body
     assert "Skipped: 0" in body
     assert "API Agent - 8/28/26 (700)" in body
     assert "accountspayable@kannonmfg.com" in body

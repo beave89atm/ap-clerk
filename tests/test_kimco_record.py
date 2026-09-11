@@ -7,11 +7,16 @@ from unittest.mock import patch
 import pytest
 
 from ap_clerk.kimco import (
+    ADDITIONAL_CHARGE_LIST,
+    FEE_CHARGE_CODE,
     LIST_EDIT_PERMISSIONS_HINT,
     LIVE_SERVICES,
     PROTOTYPE_SERVICES,
     KimcoClient,
     KimcoError,
+    fee_amounts_from_record,
+    fees_payload,
+    fees_posted_cover_parsed,
     invoice_lines_from_record,
     receipt_ids_from_invoice_lines,
     receipt_line_values_from_records,
@@ -142,6 +147,49 @@ def test_select_receipts_puts_record_lists_apinvoiceline() -> None:
     assert child["values"]["Purchase_Order_Line"] == {"id": 17666}
     assert child["values"]["Part_ID"] == {"id": 20560}
     assert child["values"]["Quantity"] == 24.0
+
+
+def test_fees_payload_is_additional_charge_fees_and_surcharges() -> None:
+    payload = fees_payload(
+        [{"name": "Shipping & Handling", "amount": 63.98}],
+        invoice_id=9968,
+    )
+    assert payload["id"] == 9968
+    assert payload["state"] == "Modified"
+    child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]
+    assert child["state"] == "Added"
+    assert child["values"]["Additional_Charge"] == FEE_CHARGE_CODE
+    assert child["values"]["Amount"] == 63.98
+    assert child["values"]["Description"] == "Shipping & Handling"
+    with pytest.raises(KimcoError, match="fee amount"):
+        fees_payload([])
+
+
+def test_try_post_fees_puts_record_additional_charge() -> None:
+    client = _live_client()
+    with patch.object(client.session, "request", return_value=FakeResp(200, {"ok": True})) as req:
+        status = client.try_post_fees(9968, [{"name": "Shipping & Handling", "amount": 63.98}])
+    assert status == "posted"
+    url = req.call_args.args[1]
+    assert req.call_args.args[0] == "PUT"
+    assert f"/{LIVE_GUID}/9968" in url
+    assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+    body = req.call_args.kwargs.get("json")
+    assert body["lists"][ADDITIONAL_CHARGE_LIST][0]["values"]["Amount"] == 63.98
+
+
+def test_fee_amounts_from_record_and_cover_parsed() -> None:
+    record = {
+        "lists": {
+            ADDITIONAL_CHARGE_LIST: [
+                {"values": {"Additional_Charge": FEE_CHARGE_CODE, "Amount": 63.98}},
+            ]
+        }
+    }
+    posted = fee_amounts_from_record(record)
+    assert posted == [63.98]
+    assert fees_posted_cover_parsed(posted, [{"name": "Shipping & Handling", "amount": 63.98}])
+    assert not fees_posted_cover_parsed([], [{"name": "Shipping & Handling", "amount": 63.98}])
 
 
 def test_select_receipts_payload_requires_receipt_id() -> None:

@@ -52,6 +52,9 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
         def try_select_receipts(self, *args, **kwargs):
             return select
 
+        def try_post_fees(self, *args, **kwargs):
+            return "posted"
+
         def try_put_probe_rejected(self, *args, **kwargs):
             return ""
 

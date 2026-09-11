@@ -69,9 +69,15 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
 3. **Receipt line by part/description** — not the first leftover qty (O’Neal SCH 40 A500).
 4. **Qty invoice vs PO/receipt equal** — else HOLD for the buyer (Capital 26764).
 5. **Fees/surcharges → Fees and surcharges** — never PPV (Techni-Tool $46.20).
+   Parsed fee amounts must be **posted** as Additional Charge Fees and
+   surcharges / F-Fees & Surcharges before Success (Fastenal TXFT4100079
+   Shipping & Handling 63.98). Sheet Fees column is not a post.
 6. **PPV only** for unit-price gaps vs PO, and only if ≤10% of invoice total **and** ≤$100; else price-does-not-match HOLD + `@Shawn McKibben`.
 7. **Vendor PDF attached** on the header.
-8. **Select Receipts posted** when the PO path applies.
+8. **Select Receipts posted** when the PO path applies. Receipt qty and
+   merchandise cost must match the invoice. Never first-open /
+   second-open-on-po when multiple open receipts differ (Fastenal
+   TXFT4100079 qty 36 vs invoice 35).
 9. **Posted vendor matches parsed** — GET after create; posted name/id is the
    parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
 
@@ -112,7 +118,7 @@ The vendor PDF is the version of the truth. Subject line and filename are
 - HOLD parse / no-pdf only when the PDF is **truly missing**, or extract+OCR
   of that PDF failed.
 
-## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink)
+## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova / MSC / Crosslink + 9/11 Fastenal)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
@@ -131,6 +137,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | PDF-is-truth: Vendor=Nova Alloys; same # on subject is OK; create header+attach; Why describes THIS bill (no MSC/McQueary); only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
 | **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
 | **NOTE-13** Crosslink 27943 / 27944 / 27946 (8/18) | HOLD preflight-parse (`invoice #` tagged `filename`); Attach `no-pdf-on-vm` though `invoice-27943.pdf` was on disk | PDF-is-truth: filename # + PDF on disk is not a parse HOLD; create header+attach; Why describes THIS Crosslink bill (no MSC/McQueary); no-pdf-on-vm forbidden when file exists | `test_never_repeat_crosslink_27943` |
+| **NOTE-14** Fastenal TXFT4100079 / PO 58692 / KIMCO 9968 (Kyle 2026-09-11) | Select Receipts qty **36** (first open on PO) vs invoice **35**; Why said “not first qty”; Shipping & Handling 63.98 Excel-only, never Additional Charge | Verify qty/cost; pick 35 not 36; never first-open / second-open-on-po Success when open receipts differ; post F-Fees & Surcharges 63.98 before Success or Incomplete / Entered with issues | `test_never_repeat_fastenal_txft4100079` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

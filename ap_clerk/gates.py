@@ -429,6 +429,16 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     return True, ""
 
 
+def fees_required(fees: list[dict[str, Any]] | None) -> bool:
+    """True when parsed fees have amounts that must be posted on the bill."""
+    for fee in fees or []:
+        if not isinstance(fee, dict):
+            continue
+        if money(fee.get("amount")) is not None:
+            return True
+    return False
+
+
 def finish_gate(
     *,
     header_created: bool,
@@ -438,11 +448,15 @@ def finish_gate(
     receipts_selected: bool = False,
     kimco_id: Any = None,
     selfcheck: dict[str, Any] | None = None,
+    fees: list[dict[str, Any]] | None = None,
+    fees_posted: bool = False,
 ) -> tuple[str, str]:
     """Success only if header + (Select Receipts when PO) + PDF attached
+    + Additional Charge Fees posted when fees were parsed
     AND the Treyce-load self-check passes (she would not need to rework).
 
-    Header-only with blocked-405 attach or receipts not selected is Incomplete.
+    Header-only with blocked-405 attach, receipts not selected, or fees
+    noted on the sheet but not posted is Incomplete.
     Incomplete is not Success and must not be Entered in AI.
     """
     if not header_created:
@@ -450,13 +464,21 @@ def finish_gate(
     attached = attach_succeeded(attach_status)
     need_receipts = receipts_required(po=po, multi_po=multi_po)
     receipts_ok = (not need_receipts) or bool(receipts_selected)
-    if not (attached and receipts_ok):
+    need_fees = fees_required(fees)
+    fees_ok = (not need_fees) or bool(fees_posted)
+    if not (attached and receipts_ok and fees_ok):
         bits = [f"header created (id {kimco_id})." if kimco_id not in (None, "") else "header created."]
         if need_receipts and not receipts_selected:
             bits.append(
                 "Select Receipts not posted on the invoice record "
                 "(check Can Edit Items / Inline on the list). "
                 "Do not type Add Item. Treyce would still select receipts."
+            )
+        if need_fees and not fees_posted:
+            bits.append(
+                "Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                "not posted on the bill (sheet Fees column is not enough). "
+                "Treyce would still post the fees."
             )
         if not attached:
             bits.append(
@@ -700,6 +722,17 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "Select Receipts was not posted on a PO-path bill. "
             "Fix: post Select Receipts. Treyce would still select receipts."
         )
+    if check.get("receipt_qty_mismatch"):
+        failures.append(
+            "Selected receipt qty does not match invoice qty (Fastenal TXFT4100079 36 vs 35). "
+            "Fix: rematch by invoice qty/cost. Do not claim Success."
+        )
+    if check.get("fees_required") and not check.get("fees_posted"):
+        failures.append(
+            "Parsed fees were not posted as Additional Charge Fees and surcharges "
+            "(Fastenal TXFT4100079 Shipping & Handling). "
+            "Sheet Fees column is not enough. Fix: post F-Fees & Surcharges before Success."
+        )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),
@@ -725,6 +758,8 @@ def selfcheck_payload(
     price: dict[str, Any] | None = None,
     qty_hold: bool = False,
     receipt_result: dict[str, Any] | None = None,
+    fees_posted: bool = False,
+    receipt_qty_mismatch: bool = False,
 ) -> dict[str, Any]:
     """Build the finish self-check dict from a processed invoice."""
     printed = [str(p) for p in (inv.get("pos") or ([inv.get("po")] if inv.get("po") else [])) if p]
@@ -743,6 +778,12 @@ def selfcheck_payload(
         score = int(hit.get("score") or 0)
         if 0 < score < 50:
             qty_only = True
+        how = str(hit.get("how") or hit.get("pass") or "")
+        if how in {"second-open-on-po", "first-open-on-po"} and score < 60:
+            # Blind first-PO-receipt is a qty-only guess when invoice evidence existed.
+            if inv.get("qty") not in (None, "") or inv.get("lines"):
+                qty_only = True
+    parsed_fees = list(inv.get("fees") or [])
     return {
         "invoice_number": inv.get("invoice_number"),
         "field_sources": inv.get("field_sources") or {},
@@ -756,6 +797,9 @@ def selfcheck_payload(
         "fees_posted_as_ppv": fees_as_ppv,
         "ppv_over_rule": ppv_over,
         "receipt_qty_only_match": qty_only,
+        "receipt_qty_mismatch": receipt_qty_mismatch,
+        "fees_required": fees_required(parsed_fees),
+        "fees_posted": bool(fees_posted),
         "require_pdf_number": bool(inv.get("field_sources")),
         "pdf_path": inv.get("pdf_path"),
         "pdf_on_disk": inv.get("pdf_on_disk"),

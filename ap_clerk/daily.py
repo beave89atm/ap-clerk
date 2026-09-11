@@ -11,6 +11,12 @@ Already-flagged mail is walked past and does not consume the cap.
 Requires `--live` and live KIMCO creds. Does not register a GitHub Actions
 cron that would post live from CI. FIFO from 2026-07-28 toward today with a
 persisted cursor. Emails the Excel to Treyce at kannonmfg.com from the AP mailbox.
+
+Weekday Success uses the same enter/finish gates: receipt qty and merchandise
+cost must match the invoice (never first-open / second-open-on-po when open
+receipts differ), and parsed fees must be posted as Additional Charge
+**Fees and surcharges** / **F-Fees & Surcharges**. The Excel Fees column
+alone is not a post (Fastenal TXFT4100079 / KIMCO 9968).
 """
 
 from __future__ import annotations
@@ -43,6 +49,8 @@ def email_body_for(rows: list[dict[str, Any]], *, batch_label: str, as_of: date)
         f"HOLD: {counts.get('HOLD', 0)}\n"
         f"Skipped: {counts.get('Skipped', 0)}\n"
         f"Mailbox: {ALLOWED_MAILBOX}\n"
+        "Success requires Select Receipts qty/cost vs the invoice and "
+        "Additional Charge Fees posted when fees were parsed.\n"
         f"Report attached.\n"
     )
 

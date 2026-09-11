@@ -110,6 +110,19 @@
           "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27946\nInvoice Date 08/18/2026\nCustomer PO 58741\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $255.00\n"
         }
       ]
+    },
+    "NOTE-14": {
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT4100079",
+      "po": "58692",
+      "kimco_id": 9968,
+      "amount": 1148.63,
+      "invoice_qty": 35,
+      "wrong_receipt_qty": 36,
+      "merchandise": 1084.65,
+      "fee_name": "Shipping & Handling",
+      "fee_amount": 63.98,
+      "date": "2026-08-18"
     }
   }
 }

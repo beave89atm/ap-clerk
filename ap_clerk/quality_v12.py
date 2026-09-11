@@ -178,6 +178,26 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-14",
+        "slug": "fastenal-txft4100079-qty-and-fees",
+        "gate": GATE_RECEIPT,
+        "cases": ("Fastenal TXFT4100079 / PO 58692 / KIMCO 9968",),
+        "9_11_bug": (
+            "8/18-class Success: empty invoice lines → first open receipt on PO "
+            "(qty 36) while invoice qty was 35; Why said 'not first qty'. "
+            "Shipping & Handling 63.98 was Excel-only; Additional Charge Fees "
+            "were never posted. KIMCO 9968."
+        ),
+        "expected": (
+            "Verify receipt qty and merchandise cost against the invoice. "
+            "Qty 35 vs 36 → pick 35. Never first-open / second-open-on-po "
+            "Success when open receipts differ. Post Additional Charge "
+            "Fees and surcharges / F-Fees & Surcharges (63.98) before Success; "
+            "sheet Fees column is not enough. Else Incomplete / Entered with issues."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -200,6 +220,14 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "fees-not-ppv",
         "check": "Supply/fee/surcharge amounts are Additional Charge Fees and surcharges, never PPV.",
+    },
+    {
+        "id": "fees-posted-on-bill",
+        "check": (
+            "Parsed fee amounts are posted as Additional Charge Fees and surcharges "
+            "(F-Fees & Surcharges) on the bill before Success. Sheet column is not enough "
+            "(Fastenal TXFT4100079)."
+        ),
     },
     {
         "id": "ppv-within-rule",

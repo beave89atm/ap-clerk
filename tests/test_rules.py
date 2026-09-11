@@ -19,6 +19,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     known_vendor_id,
     match_receipts,
+    pick_receipts_by_qty_cost,
     names_match,
     printed_invoice_number,
     should_create_header,
@@ -339,3 +340,44 @@ def test_receipt_name_carries_po_for_select_receipts():
     )
     assert result["found"] is True
     assert result["hold_no_receipts"] is False
+
+
+def test_empty_lines_picks_invoice_qty_not_first_open_receipt():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert result["found"] is True
+    assert result["matched"][0]["receipt"]["id"] == 35
+    assert "second-open-on-po" not in (result["matched"][0].get("pass") or "") or result["matched"][0]["receipt"]["qty"] == 35
+
+
+def test_differing_open_receipts_without_evidence_are_ambiguous():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+    )
+    assert result["found"] is False
+    assert result["ambiguous"]
+    assert result["hold_no_receipts"] is False
+    pick = pick_receipts_by_qty_cost(
+        [
+            {"id": 36, "qty": 36, "amount": 1115.64},
+            {"id": 35, "qty": 35, "amount": 1084.65},
+        ],
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert pick["picked"][0]["id"] == 35
