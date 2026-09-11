@@ -2,10 +2,16 @@
 
 Daily FIFO starts 2026-07-28 America/Chicago and walks toward today.
 Mail categorized `Entered in AI` is already processed and is skipped.
-Not-a-bill / CHECK STOP / statement / POD / payment / duplicate skips are
-walked past so a real-bill limit can still be filled. Those skips are
-sheet-noted as Skipped; they do not get Outlook `AI HOLD` and do not
-consume the bill-attempt cap. Does not use the Outlook follow-up flag.
+
+Hard email cap 10 until further notice (Kyle 2026-09-11). Cap = mailbox
+messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop
+after that many emails. Do not walk past noise to fill N bill attempts.
+Bill-attempt mode is suspended until Kyle lifts this. Noise is still
+sheet-noted as Skipped without Outlook `AI HOLD`.
+
+Already-flagged mail is walked past without touching and does **not**
+consume the cap: Outlook `Entered in AI`, `AI HOLD`, `Entered with issues`,
+or Graph `flag.flagStatus=flagged`. Do not reprocess or re-stamp those.
 """
 
 from __future__ import annotations
@@ -23,7 +29,7 @@ from ap_clerk.graph import (
     FLAG_NONE,
     GraphClient,
     assert_allowed_mailbox,
-    has_process_category,
+    is_already_flagged,
 )
 from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
 from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_public_pdf
@@ -44,7 +50,11 @@ PO_FILE_RE = PO_DOCUMENT_FILE_RE
 
 LOGGER = logging.getLogger("ap_clerk")
 
-SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop", "internal"}  # noise; replaced so 30 real bills are still attempted
+# Kyle 2026-09-11 until further notice. Bill-attempt mode is suspended.
+HARD_EMAIL_CAP = 10
+DEFAULT_INBOX_LIMIT = HARD_EMAIL_CAP
+
+SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop", "internal"}  # noise; consumes the email cap
 HOLD_SKIP_CLASSES = {
     "statement",
     "pod",
@@ -115,11 +125,17 @@ def _skip_flag_status(_message: dict[str, Any] | None = None) -> str:
     return FLAG_NONE
 
 
+def clamp_email_limit(requested: int | None, *, default: int = HARD_EMAIL_CAP) -> int:
+    """Hard-clamp a run to ≤10 mailbox messages (Kyle 2026-09-11)."""
+    raw = default if requested is None else int(requested)
+    return max(1, min(raw, HARD_EMAIL_CAP))
+
+
 def pull_recent_bills(
     graph: GraphClient,
     *,
     mailbox: str = ALLOWED_MAILBOX,
-    limit: int = 20,
+    limit: int = DEFAULT_INBOX_LIMIT,
     received_from: date | datetime | None = None,
     received_to: date | None = None,
     pdf_dir: Path,
@@ -131,13 +147,19 @@ def pull_recent_bills(
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Return (bills, skipped).
 
-    Default (fifo=False): most-recent `limit` real bills, then oldest-first.
-    Daily FIFO (fifo=True): from 2026-07-28 or the persisted cursor, oldest
-    received first, toward today. Skip `Entered in AI`. Walk past not-a-bill
-    / statement / CHECK STOP / payment / POD so `limit` real bills are still
-    attempted. Noise is sheet-noted only — never Outlook AI HOLD.
+    `limit` is mailbox messages touched, not bill attempts. Hard-clamped
+    to HARD_EMAIL_CAP (10) until Kyle lifts the 2026-09-11 rule. Noise,
+    HOLD, Incomplete, Fail, and Success each consume one slot. Already
+    flagged (process category or follow-up flag), already-seen, and
+    pre-floor messages are walked past and do not consume the cap.
+
+    Default (fifo=False): most-recent emails first, then oldest-first among
+    selected bills. Daily FIFO (fifo=True): from 2026-07-28 or the persisted
+    cursor, oldest received first, toward today. Noise is sheet-noted only
+    — never Outlook AI HOLD.
     """
     mailbox = assert_allowed_mailbox(mailbox)
+    limit = clamp_email_limit(limit)
     pdf_dir.mkdir(parents=True, exist_ok=True)
     start = received_from
     after = cursor or DailyCursor()
@@ -156,9 +178,10 @@ def pull_recent_bills(
     selected: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     scanned = 0
+    touched = 0
     examined: list[dict[str, Any]] = []
     for message in messages:
-        if len(selected) >= limit:
+        if touched >= limit:
             break
         if scanned >= max_messages:
             break
@@ -174,20 +197,25 @@ def pull_recent_bills(
             floor = start if isinstance(start, datetime) else daily_floor_datetime()
             if received_dt is not None and received_dt < floor:
                 continue
-        if unprocessed_only and has_process_category(message):
+        if is_already_flagged(message):
             skipped.append(
                 {
                     "subject": str(message.get("subject") or ""),
                     "receivedDateTime": message.get("receivedDateTime"),
-                    "class": "already-processed",
+                    "class": "already-flagged",
                     "graph_message_id": str(message.get("id") or ""),
-                    "hold_reason": "already-processed",
+                    "hold_reason": "already-flagged",
                 }
+            )
+            LOGGER.info(
+                "Walking past already-flagged mail (does not consume email cap): %s",
+                str(message.get("subject") or "")[:80],
             )
             continue
         if sender_address(message) and "kyle" in sender_address(message) and "kannon" not in sender_address(message):
             # Never treat Kyle's personal inbox as a source; this mailbox is AP-only.
             continue
+        touched += 1
         subject = str(message.get("subject") or "")
         preview = str(message.get("bodyPreview") or "")
         message_id = str(message.get("id") or "")
@@ -335,8 +363,6 @@ def pull_recent_bills(
                 bill["action"] = "create"
                 bill["id"] = message_id
                 chosen_bills.append(bill)
-                if len(selected) + len(chosen_bills) >= limit:
-                    break
         if check_stopped:
             continue
         if not chosen_bills:
@@ -374,12 +400,10 @@ def pull_recent_bills(
             )
             continue
         for chosen in chosen_bills:
-            if len(selected) >= limit:
-                break
             selected.append(chosen)
             LOGGER.info(
-                "Selected bill %s/%s vendor=%s invoice=%s received=%s",
-                len(selected),
+                "Touched email %s/%s selected bill vendor=%s invoice=%s received=%s",
+                touched,
                 limit,
                 chosen.get("vendor"),
                 chosen.get("invoice_number"),

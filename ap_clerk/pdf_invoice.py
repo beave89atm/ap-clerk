@@ -261,11 +261,27 @@ SUBJECT_VENDORS = (
     (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
     (re.compile(r"hudson energy", re.I), "Hudson Energy"),
+    (re.compile(r"nova\s+alloys", re.I), "Nova Alloys"),
 )
 
 
 def extract_pdf_text(path: Path) -> str:
-    reader = PdfReader(str(path))
+    """Read PDF text. If pypdf gets nothing, OCR/retry. Never invent no-pdf-on-vm."""
+    text = _extract_pypdf_text(path)
+    if (text or "").strip():
+        return text
+    ocr = _ocr_pdf_text(path)
+    if (ocr or "").strip():
+        LOGGER.info("OCR/retry extracted %s chars from %s", len(ocr), path.name)
+        return ocr
+    return text or ""
+
+
+def _extract_pypdf_text(path: Path) -> str:
+    try:
+        reader = PdfReader(str(path))
+    except Exception:  # noqa: BLE001 - unreadable PDF still exists on disk
+        return ""
     pages = []
     for page in reader.pages:
         try:
@@ -273,6 +289,25 @@ def extract_pdf_text(path: Path) -> str:
         except Exception:  # noqa: BLE001 - one bad page must not kill the invoice
             pages.append("")
     return "\n".join(pages)
+
+
+def _ocr_pdf_text(path: Path) -> str:
+    """Best-effort OCR/retry when pypdf extracted no text. Tools optional. No network."""
+    import subprocess
+
+    commands = (
+        ["pdftotext", "-layout", str(path), "-"],
+        ["pdftotext", str(path), "-"],
+    )
+    for cmd in commands:
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        text = (result.stdout or "").strip()
+        if text:
+            return text
+    return ""
 
 
 def parse_money(value: str | None) -> float | None:
@@ -497,6 +532,64 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
     return lines[:40]
 
 
+_COMPANY_LEGAL_RE = re.compile(
+    r"([A-Za-z][A-Za-z0-9&.'\s]{1,50}?),\s*(INC\.?|LLC|L\.L\.C\.|LTD\.?|CORP\.?|CO\.?)\b",
+    flags=re.I,
+)
+_COMPANY_BEFORE_INVOICE_RE = re.compile(
+    r"^\s*([A-Za-z][A-Za-z0-9&.'\s,]{2,70}?)\s*[-–—|:]\s*(?:Invoice|Inv\.?|Inv\b)",
+    flags=re.I,
+)
+_COMPANY_WORD_RE = re.compile(
+    r"\b(inc|llc|ltd|co|company|corp|supply|steel|products|staffing|alloys|industries|services|metals)\b",
+    flags=re.I,
+)
+
+
+def _looks_like_person_name(name: str) -> bool:
+    """True for a From display name like Erica Barrett — not a company."""
+    cleaned = re.sub(r"\s+", " ", name or "").strip()
+    if not cleaned or "@" in cleaned:
+        return False
+    if _COMPANY_WORD_RE.search(cleaned) or _COMPANY_LEGAL_RE.search(cleaned):
+        return False
+    parts = [p for p in re.split(r"\s+", cleaned) if p]
+    if not (2 <= len(parts) <= 3):
+        return False
+    return all(part[0].isalpha() and part[0].isupper() for part in parts)
+
+
+def _title_company(name: str) -> str:
+    small = {"inc", "inc.", "llc", "ltd", "ltd.", "corp", "co", "co.", "l.l.c."}
+    out: list[str] = []
+    for tok in re.split(r"(\s+|,)", name.strip()):
+        if not tok or tok.isspace() or tok == ",":
+            out.append(tok)
+            continue
+        key = tok.lower()
+        if key in small:
+            out.append(tok[0].upper() + tok[1:].lower())
+        elif tok.isupper():
+            out.append(tok.title())
+        else:
+            out.append(tok)
+    return re.sub(r"\s+", " ", "".join(out)).strip()
+
+
+def company_from_subject_or_text(*, subject: str = "", text: str = "") -> str:
+    """Company printed in the subject or PDF — never a From person's name."""
+    for blob in (subject or "", text or ""):
+        legal = _COMPANY_LEGAL_RE.search(blob)
+        if legal:
+            return _title_company(f"{legal.group(1).strip()}, {legal.group(2).strip()}")
+    headed = _COMPANY_BEFORE_INVOICE_RE.search(subject or "")
+    if headed:
+        raw = headed.group(1).strip(" -–—|:,")
+        if raw and not _looks_like_person_name(raw):
+            return _title_company(raw)
+    return ""
+
+
 def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
     addr = (from_address or "").lower()
     if "firstaid" in addr or "first aid" in (from_name or "").lower() or "firstaid" in (subject or "").lower():
@@ -512,15 +605,21 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     for line in (text or "").splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell|nova alloys)",
             stripped,
             re.I,
         ):
             return stripped[:80]
-    if from_name and "@" not in from_name:
+    company = company_from_subject_or_text(subject=subject, text=text)
+    if company:
+        return company[:80]
+    if from_name and "@" not in from_name and not _looks_like_person_name(from_name):
         cleaned = re.sub(r"\s+", " ", from_name).strip()
-        if re.search(r"\b(inc|llc|ltd|co|company|corp|supply|steel|products|staffing|alloys)\b", cleaned, re.I):
+        if _COMPANY_WORD_RE.search(cleaned):
             return cleaned[:80]
+    # Kyle 8/18 Nova 258145: never prefer Erica Barrett over a company in subject/PDF.
+    if _looks_like_person_name(from_name):
+        return (company or subject.split("-")[0] or subject or "").strip()[:80]
     return (from_name or subject or "").strip()[:80]
 
 
@@ -533,6 +632,7 @@ def _invoice_from_filename(filename: str) -> str | None:
         r"\b(\d{2}-\d{4,5})\b",
         r"\b(\d-\d{5,8})\b",
         r"Invoice[-_ ]+(\d-\d{5,8}|\d{2}-\d{4,5}|\d{4,})",
+        r"Invoice0+(\d{5,})",
         r"Inv[_-]?(\d-\d{5,8}|\d{5,})",
         r"[-_](\d-\d{5,8})\.pdf$",
         r"[-_](\d{5,})\.pdf$",
@@ -1069,5 +1169,8 @@ def parse_invoice_pdf(
     if len(bills) > 1:
         parsed["siblings"] = bills[1:]
     parsed["pdf_path"] = str(path)
+    parsed["pdf_on_disk"] = path.is_file()
     parsed["pdf_text_empty"] = not (text or "").strip()
+    # File on disk is never "unavailable" — empty extract means OCR/retry, not no-pdf-on-vm.
+    parsed["pdf_unavailable"] = not path.is_file()
     return parsed

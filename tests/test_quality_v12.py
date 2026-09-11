@@ -29,7 +29,11 @@ from ap_clerk.graph import (
     FLAG_ENTERED_WITH_ISSUES,
     categories_for_status,
 )
-from ap_clerk.pdf_invoice import expand_gas_misc_invoices, parse_invoice_text
+from ap_clerk.pdf_invoice import (
+    expand_gas_misc_invoices,
+    parse_invoice_text,
+    vendor_from_context,
+)
 from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, classify_download, extract_https_links
 from ap_clerk.quality_v12 import (
     TREYCE_FINISH_CHECKLIST,
@@ -110,9 +114,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
     ), client
 
 
-def test_v12_registry_covers_all_ten_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 11))
-    assert len(TREYCE_NOTES_V12) == 10
+def test_v12_registry_covers_all_notes():
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 12))
+    assert len(TREYCE_NOTES_V12) == 11
     assert len(TREYCE_FINISH_CHECKLIST) == 8
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
     assert slugs == {
@@ -126,6 +130,7 @@ def test_v12_registry_covers_all_ten_notes():
         "melody-channell-not-noise",
         "aqpc-pdf-behind-link",
         "gas-supply-misc-vs-check-stop",
+        "nova-258145-from-person-not-vendor",
     }
 
 
@@ -558,3 +563,97 @@ def test_v12_never_success_invariant_on_every_note():
         assert note["never_success"] is True
         assert_never_success(RESULT_HOLD, note_id=note["id"])
         assert_never_success(RESULT_SKIPPED, note_id=note["id"])
+
+
+def test_never_repeat_nova_258145(tmp_path: Path):
+    """NOTE-11: 8/18 Nova 258145 — never Vendor=Erica Barrett + parse HOLD."""
+    n = NOTES["NOTE-11"]
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        subject=n["subject"],
+        from_name=n["from_name"],
+        filename=n["filename"],
+    )
+    assert "Nova Alloys" in parsed["vendor"]
+    assert n["buggy_vendor"] not in parsed["vendor"]
+    assert parsed["invoice_number"] == n["invoice_number"]
+    assert parsed["amount"] == n["amount"]
+    assert parsed["field_sources"]["invoice_number"] == "pdf"
+    ok, why = preflight_parse_gate(parsed)
+    assert ok is True, why
+
+    vendor = vendor_from_context(
+        subject=n["subject"],
+        from_name=n["from_name"],
+        text=n["pdf_text"],
+    )
+    assert vendor == "Nova Alloys"
+    assert vendor != n["buggy_vendor"]
+
+    pdf_path = tmp_path / n["filename"]
+    pdf_path.write_bytes(b"%PDF-1.4 nova 258145")
+    # Reconstruct the 8/18 sidecar: # tagged subject, date/amount from PDF, file on disk.
+    sidecar = {
+        "vendor": vendor,
+        "invoice_number": n["invoice_number"],
+        "date": n["date"],
+        "amount": n["amount"],
+        "po": None,
+        "subject": n["subject"],
+        "from_name": n["from_name"],
+        "field_sources": {
+            "invoice_number": n["buggy_number_source"],
+            "date": "pdf",
+            "amount": "pdf",
+        },
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+        "pdf_unavailable": False,
+    }
+    ok, why = preflight_parse_gate(sidecar)
+    assert ok is True, why
+    row, _ = _row(sidecar)
+    assert row["Vendor"] == "Nova Alloys"
+    assert row["Vendor"] != n["buggy_vendor"]
+    assert "preflight-parse" not in (row["Why"] or "")
+    assert row["Attach status"] != "no-pdf-on-vm"
+    # 8/18 miss was Erica Barrett + parse HOLD. That pairing is the never-repeat.
+    assert not (
+        row["Vendor"] == n["buggy_vendor"]
+        and row["Result"] == RESULT_HOLD
+        and "preflight-parse" in (row["Why"] or "")
+    )
+
+    # The 8/18 buggy outcome must not be representable as a passing result.
+    buggy = {
+        **sidecar,
+        "vendor": n["buggy_vendor"],
+        "pdf_path": "",
+        "pdf_on_disk": False,
+        "pdf_unavailable": True,
+        "pdf_text_empty": True,
+    }
+    buggy_ok, buggy_why = preflight_parse_gate(buggy)
+    assert buggy_ok is False
+    assert GATE_PREFLIGHT in buggy_why or "parse-error" in buggy_why
+    assert n["buggy_vendor"] != vendor
+
+    from ap_clerk import pdf_invoice as pdf_mod
+
+    ocr_called = {"n": 0}
+
+    def fake_ocr(path):
+        ocr_called["n"] += 1
+        return n["pdf_text"]
+
+    orig_pypdf = pdf_mod._extract_pypdf_text
+    orig_ocr = pdf_mod._ocr_pdf_text
+    pdf_mod._extract_pypdf_text = lambda path: ""
+    pdf_mod._ocr_pdf_text = fake_ocr
+    try:
+        text = pdf_mod.extract_pdf_text(pdf_path)
+    finally:
+        pdf_mod._extract_pypdf_text = orig_pypdf
+        pdf_mod._ocr_pdf_text = orig_ocr
+    assert ocr_called["n"] == 1
+    assert "258145" in text

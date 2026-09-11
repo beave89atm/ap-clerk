@@ -58,6 +58,18 @@
       "notice_pdf_text": "CHECK STOP\nDo not process this payment.\nGas and Supply North Texas",
       "multi_pdf_text": "Gas and Supply\nInvoice Date 08/16/2026\nInvoice 0040367881 Amount Due 10.00\nInvoice 0040367882 Amount Due 10.00\nInvoice 0040367883 Amount Due 10.00\nInvoice 0040367884 Amount Due 10.00\nInvoice 0040367885 Amount Due 10.00\nTotal 50.00\n",
       "misc_item": "Shop Supplies - G&S"
+    },
+    "NOTE-11": {
+      "vendor": "Nova Alloys",
+      "invoice_number": "258145",
+      "amount": 25.0,
+      "date": "2026-08-18",
+      "subject": "NOVA ALLOYS, INC. - Invoice 258145",
+      "from_name": "Erica Barrett",
+      "filename": "2026-08-18_Invoice00258145.PDF",
+      "pdf_text": "NOVA ALLOYS, INC.\nInvoice 258145\nInvoice Date 08/18/2026\nAmount Due $25.00\n",
+      "buggy_vendor": "Erica Barrett",
+      "buggy_number_source": "subject"
     }
   }
 }

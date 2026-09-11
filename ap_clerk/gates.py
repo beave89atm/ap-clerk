@@ -6,6 +6,7 @@ Treyce 2026-09-10 notes on the 8/16 dry-10 sheet. No network I/O. Never logs sec
 from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Any
 
 from ap_clerk.rules import (
@@ -27,7 +28,8 @@ RESULT_SUCCESS = "Success"
 RESULT_INCOMPLETE = "Incomplete"
 RESULT_HOLD = "HOLD"
 RESULT_FAIL = "Fail"
-# Bill-attempt outcomes only. Mailbox noise is RESULT_SKIPPED and does not count toward N.
+# Bill-attempt outcomes. The run cap is mailbox messages touched (Kyle 2026-09-11),
+# not N bill attempts. Noise is RESULT_SKIPPED and still consumes the email cap.
 RESULT_VALUES = (RESULT_SUCCESS, RESULT_INCOMPLETE, RESULT_HOLD, RESULT_FAIL)
 RESULT_SKIPPED = "Skipped"
 RESULT_NOISE_ALIASES = frozenset({RESULT_SKIPPED, "Noise"})
@@ -92,12 +94,18 @@ def drop_fee_disguised_as_ppv(
 
 
 def is_bill_attempt_result(result: str | None) -> bool:
-    """Cap = Success + Incomplete + real bill HOLD + Fail. Noise does not count."""
+    """True for Success / Incomplete / HOLD / Fail. Not the run cap."""
     return (result or "").strip() in RESULT_VALUES
 
 
 def is_noise_result(result: str | None) -> bool:
     return (result or "").strip() in RESULT_NOISE_ALIASES
+
+
+def counts_toward_email_cap(result: str | None) -> bool:
+    """Kyle 2026-09-11: any processed outcome consumes the 10-email touch cap."""
+    value = (result or "").strip()
+    return value in RESULT_VALUES or value in RESULT_NOISE_ALIASES
 
 
 def why_hold(gate: str, detail: str) -> str:
@@ -126,12 +134,27 @@ def why_fail(detail: str) -> str:
     return f"Fail: {clean}" if clean else "Fail."
 
 
+def pdf_file_present(inv: dict[str, Any] | None) -> bool:
+    """True when the vendor PDF is on disk. Empty extract ≠ missing file (Nova 258145)."""
+    data = inv or {}
+    if data.get("pdf_on_disk"):
+        return True
+    path = str(data.get("pdf_path") or "").strip()
+    if not path:
+        return False
+    try:
+        return Path(path).is_file()
+    except OSError:
+        return False
+
+
 def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     """Invoice #, date, amount, and PO must come from vendor PDF text.
 
-    Filename/subject alone is not enough. If the PDF cannot be obtained,
-    HOLD with no-pdf-on-vm — do not pretend the PDF lacked a number that is
-    printed on it (Insight 1809 / MSC 5157357).
+    Filename/subject alone is not enough when the PDF is truly missing.
+    If the PDF is on disk, do not HOLD parse-error / no-pdf-on-vm — a subject
+    # that matches is OK (Nova Alloys 258145 / 8/18). Insight 1809 / MSC 5157357
+    still HOLD when there is no file and the # came from filename/subject.
     """
     if is_auto_pay(
         vendor=str(inv.get("vendor") or ""),
@@ -167,7 +190,8 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     invoice_date = inv.get("date")
     sources = inv.get("field_sources") or {}
     has_sources = bool(sources)
-    pdf_missing = bool(inv.get("pdf_unavailable") or inv.get("pdf_text_empty"))
+    on_disk = pdf_file_present(inv)
+    pdf_missing = (not on_disk) and bool(inv.get("pdf_unavailable") or inv.get("pdf_text_empty"))
 
     if pdf_missing and (not has_sources or str(sources.get("invoice_number") or "") not in PDF_FIELD_SOURCES):
         return False, why_hold(
@@ -182,7 +206,14 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
         amount_src = str(sources.get("amount") or "")
         date_src = str(sources.get("date") or "")
         po_src = str(sources.get("po") or "")
-        if not number or number_src not in PDF_FIELD_SOURCES:
+        number_from_pdf = number_src in PDF_FIELD_SOURCES
+        # 8/18 Nova 258145: PDF on disk + subject # is not a parse HOLD.
+        if not number:
+            return False, why_hold(
+                GATE_PREFLIGHT,
+                "invoice # missing from PDF text.",
+            )
+        if not number_from_pdf and not on_disk:
             return False, why_hold(
                 GATE_PREFLIGHT,
                 "invoice # must be taken from vendor PDF text, not email subject/filename alone "
@@ -429,7 +460,10 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
     number = str(check.get("invoice_number") or "").strip()
     number_src = str(sources.get("invoice_number") or "")
     if check.get("require_pdf_number", True) and sources:
-        if not number or number_src not in PDF_FIELD_SOURCES:
+        number_ok = bool(number) and (
+            number_src in PDF_FIELD_SOURCES or pdf_file_present(check)
+        )
+        if not number_ok:
             failures.append(
                 "Invoice # is not from vendor PDF text (Insight 1809 / MSC 5157357 / Techni-Tool suffix). "
                 "Fix: read the PDF; do not use filename/subject."
@@ -538,4 +572,6 @@ def selfcheck_payload(
         "ppv_over_rule": ppv_over,
         "receipt_qty_only_match": qty_only,
         "require_pdf_number": bool(inv.get("field_sources")),
+        "pdf_path": inv.get("pdf_path"),
+        "pdf_on_disk": inv.get("pdf_on_disk"),
     }

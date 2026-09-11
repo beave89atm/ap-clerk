@@ -21,7 +21,7 @@ from ap_clerk.cursor import (
 )
 from ap_clerk.daily import DEFAULT_DAILY_LIMIT, email_body_for, email_subject_for, result_counts
 from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, ENTERED_IN_AI_CATEGORY, default_report_to
-from ap_clerk.inbox import fifo_start_datetime, pull_recent_bills
+from ap_clerk.inbox import HARD_EMAIL_CAP, fifo_start_datetime, pull_recent_bills
 
 
 def test_daily_floor_is_july_28_2026_chicago():
@@ -29,7 +29,7 @@ def test_daily_floor_is_july_28_2026_chicago():
     floor = daily_floor_datetime()
     assert floor.year == 2026 and floor.month == 7 and floor.day == 28
     assert str(floor.tzinfo) == "America/Chicago"
-    assert DEFAULT_DAILY_LIMIT == 30
+    assert DEFAULT_DAILY_LIMIT == HARD_EMAIL_CAP == 10
 
 
 def test_cursor_persists_and_skips_last_message(tmp_path: Path):
@@ -221,13 +221,15 @@ def test_daily_fifo_from_july_28_skips_entered_in_ai_and_replaces_not_a_bill(tmp
         inbox_mod.parse_invoice_pdf = orig
 
     assert graph.list_kwargs.get("oldest_first") is True
-    assert [inv["invoice_number"] for inv in selected] == ["FIRST", "SECOND"]
+    # limit=2 is emails touched. Statement consumes one slot; FIRST fills the cap.
+    assert [inv["invoice_number"] for inv in selected] == ["FIRST"]
+    assert "SECOND" not in [inv["invoice_number"] for inv in selected]
     assert "NEWEST" not in [inv["invoice_number"] for inv in selected]
     assert "DONE1" not in [inv["invoice_number"] for inv in selected]
     assert any(s.get("class") == "statement" for s in skipped)
+    assert any(s.get("class") == "already-flagged" for s in skipped)
     assert "m-statement" not in graph.held
     assert graph.held == []
-    assert str(selected[0]["receivedDateTime"]) < str(selected[1]["receivedDateTime"])
 
 
 def test_fifo_from_date_816_overrides_earlier_cursor():
@@ -430,23 +432,29 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
             }
         ]
 
+    pulled: dict = {}
+
+    def fake_pull(*args, **kwargs):
+        pulled.update(kwargs)
+        return (
+            [
+                {
+                    "vendor": "Fastenal Company",
+                    "invoice_number": "TXFT1",
+                    "date": "2026-08-01",
+                    "po": "58749",
+                    "amount": 10,
+                    "graph_message_id": "AAMk-1",
+                    "receivedDateTime": "2026-08-01T12:00:00Z",
+                }
+            ],
+            [],
+        )
+
     with patch("ap_clerk.cli._optional_graph_client", return_value=FakeGraph()):
         with patch(
             "ap_clerk.cli.pull_recent_bills",
-            return_value=(
-                [
-                    {
-                        "vendor": "Fastenal Company",
-                        "invoice_number": "TXFT1",
-                        "date": "2026-08-01",
-                        "po": "58749",
-                        "amount": 10,
-                        "graph_message_id": "AAMk-1",
-                        "receivedDateTime": "2026-08-01T12:00:00Z",
-                    }
-                ],
-                [],
-            ),
+            side_effect=fake_pull,
         ):
             with patch("ap_clerk.cli.KimcoClient.authenticate", return_value=FakeKimco()):
                 with patch("ap_clerk.cli.run_enter", side_effect=fake_enter):
@@ -466,6 +474,8 @@ def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(
                     )
     assert code == 0
     out = capsys.readouterr().out
+    assert pulled.get("limit") == HARD_EMAIL_CAP
+    assert "Hard email cap 10 until further notice (Kyle 2026-09-11)" in out
     assert "email-denied" in out
     assert report.exists()
     assert cursor.exists()
