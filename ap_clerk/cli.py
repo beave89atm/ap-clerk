@@ -55,6 +55,7 @@ from ap_clerk.gates import (
     finish_gate,
     merchandise_amount,
     selfcheck_payload,
+    pdf_file_present,
     po_gate_decision,
     preflight_parse_gate,
     qty_gate,
@@ -749,6 +750,9 @@ def _process_invoice(
     parse_ok, parse_why = preflight_parse_gate(inv)
     if not parse_ok:
         row["Why"] = parse_why
+        if pdf_file_present(inv):
+            # 8/18 Nova: PDF was on disk; no-pdf-on-vm was false/misleading.
+            row["Attach status"] = "pdf-on-vm"
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     create_ok, hold_reason = should_create_header(inv)

@@ -117,6 +117,23 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "never_success": True,
         "deferred": "Live 0040367887 page-accurate 5-way amount split needs that PDF; heuristic HOLDs when ambiguous.",
     },
+    {
+        "id": "NOTE-11",
+        "slug": "nova-258145-from-person-not-vendor",
+        "gate": GATE_PREFLIGHT,
+        "cases": ("Nova Alloys 258145 / From Erica Barrett",),
+        "8_18_bug": (
+            "Sheet Vendor=Erica Barrett; HOLD preflight-parse because invoice # was tagged "
+            "subject; Attach status no-pdf-on-vm even though 2026-08-18_Invoice00258145.PDF "
+            "was on disk."
+        ),
+        "expected": (
+            "Vendor=Nova Alloys from subject/PDF, never the From person. Invoice # from PDF "
+            "or same # on subject when PDF exists — not a parse HOLD. Only HOLD no-pdf if "
+            "the file is truly missing. Never Success-as-Erica-Barrett-HOLD."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

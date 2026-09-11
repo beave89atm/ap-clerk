@@ -16,6 +16,13 @@ not re-stamp categories — if the message already has Outlook `Entered in AI`,
 messages do **not** consume the 10-email touch cap. Only unflagged /
 uncategorized (by those AP markers) messages count.
 
+**NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
+company on the subject/PDF (`Nova Alloys`), never the From person’s name
+(`Erica Barrett`). Invoice # from PDF text; the same # on the subject is OK
+when the PDF is on disk — do not HOLD preflight-parse for a `subject` tag.
+Do not report `no-pdf-on-vm` when the file exists; OCR/retry if text extract
+fails. Only HOLD no-pdf if the PDF is truly missing.
+
 `Success` means a **finished bill Treyce would not need to rework** — not a
 header create, not a close-enough line match, not Fees miscoded as PPV.
 
@@ -50,7 +57,7 @@ If Treyce would still fix header, lines, or charges → **HOLD**, **Incomplete**
 
 Every non-Success **Why** must name the gate and the next action so she is not hunting.
 
-## Never-repeat regressions (Treyce 8/16)
+## Never-repeat regressions (Treyce 8/16 + Kyle 8/18 Nova)
 
 Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 
@@ -66,6 +73,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-08** Melody Channell invoices | Junk not-a-bill skip | Bill, not noise Skipped; never Success-as-skip | `test_note08_melody_channell_not_noise` |
 | **NOTE-09** AQPC link-download PDF | Silent not-a-bill | Best-effort https GET; auth → `pdf-behind-link` HOLD; never Success | `test_note09_aqpc_pdf_behind_link` |
 | **NOTE-10** Gas & Supply Misc vs CHECK STOP | Blanket CHECK STOP | Invoice pages → Type 4 `Shop Supplies - G&S`; notice skip; ambiguous HOLD; never Success | `test_note10_gas_supply_misc_vs_check_stop` |
+| **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | Vendor=Nova Alloys from subject/PDF, never the From person; same # on subject is OK when PDF exists; only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
