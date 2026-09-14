@@ -129,8 +129,14 @@ _BAD_INVOICE_WORDS = {
 }
 
 PO_DOCUMENT_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
-_PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b", flags=re.I)
-_INVOICE_DOC_HINT = re.compile(r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|bill\s+to)\b", flags=re.I)
+# Do not treat the invoice field label "PURCHASE ORDER NUMBER" as a PO title
+# (Eastern Metal 818600 / 818601).
+_PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b(?!\s+NUMBER)", flags=re.I)
+_INVOICE_DOC_HINT = re.compile(
+    r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|total-?due|bill\s+to)\b",
+    flags=re.I,
+)
+_STATEMENT_DOC_RE = re.compile(r"\baccount\s+statement\b|\baging\s+report\b", flags=re.I)
 
 
 def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
@@ -139,12 +145,31 @@ def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
     if PO_DOCUMENT_FILE_RE.search(name):
         return True
     blob = text or ""
+    # Invoice forms print "INVOICE" plus a Purchase Order Number box.
+    if re.search(r"(?:^|\n)\s*INVOICE\b", blob) or _INVOICE_DOC_HINT.search(blob):
+        return False
     if _PO_DOC_HEADING.search(blob) and not _INVOICE_DOC_HINT.search(blob):
         return True
     if _PO_DOC_HEADING.search(blob) and re.search(r"\bship\s+to\b", blob, flags=re.I):
         if not re.search(r"\binvoice\s*(total|number|no\.?|#)\b", blob, flags=re.I):
             return True
     return False
+
+
+def is_account_statement_document(*, text: str = "", filename: str = "", subject: str = "") -> bool:
+    """True for an aging / account statement PDF (Leeco 1058256.pdf)."""
+    blob = f"{filename}\n{subject}\n{text}"
+    if _STATEMENT_DOC_RE.search(blob):
+        return True
+    if STATEMENT_FILE_HINT.search(filename or ""):
+        return True
+    return False
+
+
+STATEMENT_FILE_HINT = re.compile(
+    r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status",
+    flags=re.I,
+)
 
 
 DOMAIN_VENDORS = {
@@ -299,6 +324,7 @@ def _extract_pypdf_text(path: Path) -> str:
 def _ocr_pdf_text(path: Path) -> str:
     """Best-effort OCR/retry when pypdf extracted no text. Tools optional. No network."""
     import subprocess
+    import tempfile
 
     commands = (
         ["pdftotext", "-layout", str(path), "-"],
@@ -312,7 +338,32 @@ def _ocr_pdf_text(path: Path) -> str:
         text = (result.stdout or "").strip()
         if text:
             return text
-    return ""
+    # Scanned vendor packs (3P 142041–142044) need image OCR. Optional tools.
+    try:
+        with tempfile.TemporaryDirectory(prefix="ap-ocr-") as tmp:
+            prefix = str(Path(tmp) / "page")
+            render = subprocess.run(
+                ["pdftoppm", "-png", "-r", "200", str(path), prefix],
+                capture_output=True,
+                timeout=120,
+                check=False,
+            )
+            if render.returncode != 0:
+                return ""
+            parts: list[str] = []
+            for image in sorted(Path(tmp).glob("page*.png")):
+                ocr = subprocess.run(
+                    ["tesseract", str(image), "stdout", "--psm", "6"],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
+                    check=False,
+                )
+                if (ocr.stdout or "").strip():
+                    parts.append(ocr.stdout)
+            return "\n\f".join(parts).strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
 
 
 def parse_money(value: str | None) -> float | None:
@@ -448,6 +499,53 @@ def extract_po_numbers(text: str) -> list[str]:
         cleaned.append(number)
     kimco = [n for n in cleaned if re.fullmatch(r"5[7-9]\d{3}", n)]
     return kimco or cleaned
+
+
+_3P_PO_HEAD = re.compile(r"^PO\s*#\s*(\d{5,6})\s*$", flags=re.I)
+_3P_LINE = re.compile(
+    r"^(\S+)\s+([A-Z0-9]+(?:-[A-Z0-9]+)*)\b.+\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+
+
+def first_invoice_page(text: str) -> str:
+    """Keep the invoice face page. Later scan pages are packing lists / noise."""
+    return (text or "").split("\f", 1)[0]
+
+
+def extract_3p_lines(text: str) -> list[dict[str, Any]]:
+    """3P Industries face-page lines: `PO # 58766` then `qty part ... unit ext`."""
+    page = first_invoice_page(text)
+    lines: list[dict[str, Any]] = []
+    current_po: str | None = None
+    for raw in page.splitlines():
+        stripped = raw.strip()
+        headed = _3P_PO_HEAD.match(stripped)
+        if headed:
+            current_po = headed.group(1)
+            continue
+        match = _3P_LINE.match(stripped)
+        if not match or not current_po:
+            continue
+        qty_raw, part, each, amt = match.groups()
+        each_n = parse_money(each)
+        amt_n = parse_money(amt)
+        qty = parse_money(qty_raw) if re.fullmatch(r"\d+(?:\.\d+)?", qty_raw) else None
+        if qty in (None, 0) and each_n not in (None, 0) and amt_n not in (None, 0):
+            qty = round(float(amt_n) / float(each_n), 2)
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt_n,
+                "po": current_po,
+                "po_line": None,
+                "wo": None,
+                "label": stripped[:80],
+                "description": stripped[:120],
+            }
+        )
+    return lines
 
 
 def extract_fees(text: str) -> list[dict[str, Any]]:
@@ -1138,7 +1236,11 @@ def parse_invoice_text(
             invoice_from_pdf = True
     filename_only = False
     subject_only = False
-    if not invoice_number:
+    statement_doc = is_account_statement_document(text=pdf_text, filename=filename, subject=subject)
+    if statement_doc:
+        # Filename 1058256.pdf on a Leeco Account Statement is not an invoice #.
+        filename_inv = None
+    if not invoice_number and not statement_doc:
         filename_inv = _invoice_from_filename(filename)
         if filename_inv and filename_inv.upper() not in _CUSTOMER_ACCOUNTS:
             invoice_number = filename_inv
@@ -1347,6 +1449,21 @@ def parse_invoice_text(
         check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
     fees = extract_fees(pdf_text)
     lines = extract_invoice_lines(pdf_text)
+    if "3p" in vendor_l or "rachel bailey" in blob_l or re.search(r"\b3p\s+industries\b", pdf_text or "", flags=re.I):
+        three_p = extract_3p_lines(pdf_text)
+        if three_p:
+            lines = three_p
+            pos = list(dict.fromkeys(str(item.get("po") or "") for item in three_p if item.get("po")))
+            extra_pos = extract_subject_pos(subject)
+            for number in extra_pos:
+                if number not in pos:
+                    pos.append(number)
+            sources["po"] = "pdf"
+            line_sum = round(sum(float(item["amount"]) for item in three_p if item.get("amount") not in (None, "")), 2)
+            if line_sum:
+                if amount is None or float(amount) > line_sum * 1.25:
+                    amount = line_sum
+                    sources["amount"] = "pdf"
     po = pos[0] if len(pos) == 1 else None
     pdf_text_empty = not (pdf_text or "").strip()
     if invoice_number and pdf_text and invoice_number in pdf_text:
@@ -1370,6 +1487,7 @@ def parse_invoice_text(
         "text_chars": len(pdf_text),
         "field_sources": sources,
         "is_purchase_order_doc": po_doc,
+        "is_statement_doc": statement_doc,
         "pdf_text_empty": pdf_text_empty,
         "pdf_unavailable": pdf_text_empty,
         "parse_verified": bool(

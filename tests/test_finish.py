@@ -273,6 +273,40 @@ def test_grouped_flags_shared_message_stays_hold_unless_all_success():
     assert grouped_flag_status_for_message(both_ok) == FLAG_FLAGGED
 
 
+def test_grouped_flags_empty_invoice_number_keeps_each_skip_why():
+    class FakeGraph:
+        def __init__(self):
+            self.skipped = []
+
+        def flag_skipped(self, mailbox, message_id):
+            self.skipped.append(message_id)
+            return "ai-skipped"
+
+        def get_message(self, mailbox, message_id, select="id"):
+            return {"id": message_id, "categories": []}
+
+    rows = [
+        {
+            "Invoice #": "",
+            "Vendor": "Nanci Meza",
+            "Result": "Skipped",
+            "Why": "Skipped (bill-vs-noise): not-a-bill. Subject: FW: Your September safety check-in from Sentry.",
+            "graph_message_id": "AAMk-sentry",
+        },
+        {
+            "Invoice #": "",
+            "Vendor": "Julie Hencke",
+            "Result": "Skipped",
+            "Why": "Skipped (bill-vs-noise): statement. Subject: Past Due Invoices.",
+            "graph_message_id": "AAMk-pastdue",
+        },
+    ]
+    apply_grouped_outlook_flags(rows, [], FakeGraph())
+    assert "Sentry" in rows[0]["Why"]
+    assert "Past Due Invoices" in rows[1]["Why"]
+    assert "Sentry" not in rows[1]["Why"]
+
+
 def test_resolve_message_id_searches_when_stored_id_404s():
     from ap_clerk.finish import resolve_message_id
     from ap_clerk.graph import GraphError

@@ -1879,6 +1879,19 @@ def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):
     ) == "invoice"
     assert classify_mail(subject="Monthly Account Statement") == "statement"
     assert not never_skip_vendor_invoice(subject="Monthly Account Statement", from_name="Bank")
+    assert (
+        classify_mail(
+            subject="Leeco Account Statement",
+            attachment_names=["1058256.pdf"],
+            from_name="credit@leecosteel.com",
+        )
+        == "statement"
+    )
+    assert not never_skip_vendor_invoice(
+        subject="Leeco Account Statement",
+        from_name="Leeco Steel, LLC",
+        attachment_names=["1058256.pdf"],
+    )
     assert decide_flag_status(result="Success", kimco_id=9968, message_id="AAMk") != FLAG_SKIP_ELIGIBLE
     assert decide_flag_status(result="HOLD", kimco_id="", message_id="AAMk") != FLAG_SKIP_ELIGIBLE
 

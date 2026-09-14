@@ -401,6 +401,24 @@ def pull_recent_bills(
                 dest = pdf_dir / f"{len(selected)+len(skipped)+len(chosen_bills)}_{dest.name}"
             dest.write_bytes(content)
             parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
+            if parsed.get("is_statement_doc"):
+                flag_status = _skip_flag_status(message)
+                skipped.append(
+                    {
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "class": "statement",
+                        "attachment_names": names,
+                        "invoice_number": parsed.get("invoice_number"),
+                        "graph_message_id": message_id,
+                        "vendor": parsed.get("vendor") or from_name,
+                        "Flag status": flag_status,
+                        "hold_reason": "statement",
+                    }
+                )
+                LOGGER.info("Skipping statement PDF: %s", subject[:80])
+                check_stopped = True
+                break
             if parsed.get("is_purchase_order_doc"):
                 LOGGER.info("Skipping PO-not-invoice attachment %s", filename)
                 continue

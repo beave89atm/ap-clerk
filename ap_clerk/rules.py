@@ -124,6 +124,9 @@ VENDOR_ID_ALIASES = {
     "willbanks": 202,
     "shoppa": 159,
     "eastern metal": 64,
+    # Confirmed 2026-09-14 via GET of existing live invoice 2 / 133215 (API Vendor.id).
+    "3p": 1,
+    "3p industries": 1,
     "unifirst first aid": 209,
     "green valley": 405,
     "luxor": 112,
@@ -1580,6 +1583,12 @@ def classify_mail(
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
+    # Statement subject wins over known-vendor + PDF (Leeco Account Statement).
+    # Invoice/INV on the subject still means a bill (Eastern Metal / 3P).
+    if STATEMENT_RE.search(subject or "") and not INVOICE_HINT_RE.search(subject or ""):
+        return "statement"
+    if re.search(r"\binquiry\b", subject or "", flags=re.I) and not INVOICE_HINT_RE.search(subject or ""):
+        return "not-a-bill"
     if KNOWN_BILL_VENDOR_RE.search(blob) or MELODY_CHANNELL_RE.search(blob) or THREE_P_RE.search(blob):
         if re.search(r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment)\b", blob, flags=re.I):
             return "payment"
@@ -1688,6 +1697,10 @@ def never_skip_vendor_invoice(
     """
     names = list(attachment_names or [])
     blob = f"{from_name}\n{subject}\n{preview}\n{' '.join(names)}"
+    if STATEMENT_RE.search(subject or "") and not INVOICE_HINT_RE.search(subject or ""):
+        return False
+    if re.search(r"\binquiry\b", subject or "", flags=re.I) and not INVOICE_HINT_RE.search(subject or ""):
+        return False
     if re.search(
         r"\b(payment\s+confirmation|payment\s+received|thank\s+you\s+for\s+your\s+payment|wire\s+confirmation)\b",
         blob,

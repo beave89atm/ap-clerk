@@ -749,9 +749,12 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
     unmatched_lines = check.get("unmatched_invoice_lines") or []
     if unmatched_lines:
         labels = format_unmatched_lines(unmatched_lines)
+        emj_bit = ""
+        if "emj" in (labels or "").lower() or "jorgensen" in (labels or "").lower():
+            emj_bit = " (EMJ Z250725432)"
         failures.append(
-            f"Unmatched invoice line(s): {labels or 'unspecified'} "
-            "(EMJ Z250725432). Fix: Select Receipts for each merchandise line. "
+            f"Unmatched invoice line(s): {labels or 'unspecified'}{emj_bit}. "
+            "Fix: Select Receipts for each merchandise line. "
             "Do not stop after one. Never silent Success."
         )
     unmatched_pos = [str(p) for p in (check.get("unmatched_pos") or []) if p]

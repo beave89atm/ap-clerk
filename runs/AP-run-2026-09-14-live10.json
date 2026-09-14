@@ -1,0 +1,506 @@
+{
+  "kind": "supervised-live10-afternoon",
+  "quality": "V1.2",
+  "mailbox": "AP mailbox only",
+  "as_of": "2026-09-14",
+  "from_date": null,
+  "batch": "API Agent - 9/14/26 (708)",
+  "limit": 10,
+  "daily_30_ran": false,
+  "kimco_ui_opened": false,
+  "email_sent": false,
+  "finish_path": "api-record-put-and-attach",
+  "counts": {
+    "Success": 0,
+    "Incomplete": 0,
+    "Fail": 0,
+    "HOLD": 6,
+    "Skipped": 4,
+    "total": 10
+  },
+  "finish_ups": [],
+  "new_fifo": [
+    {
+      "vendor": "3P",
+      "invoice_number": "142041",
+      "kimco_id": 9988,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142042",
+      "kimco_id": 9989,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142043",
+      "kimco_id": 9990,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142044",
+      "kimco_id": 9991,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "invoice_number": "818600",
+      "kimco_id": 9986,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "invoice_number": "818601",
+      "kimco_id": 9987,
+      "result": "HOLD",
+      "kind": "new"
+    },
+    {
+      "vendor": "Lia Byroads",
+      "invoice_number": "",
+      "kimco_id": "",
+      "result": "Skipped",
+      "kind": "new"
+    },
+    {
+      "vendor": "Leeco Steel, LLC",
+      "invoice_number": "",
+      "kimco_id": 9985,
+      "result": "Skipped",
+      "kind": "new"
+    },
+    {
+      "vendor": "Nanci Meza",
+      "invoice_number": "",
+      "kimco_id": "",
+      "result": "Skipped",
+      "kind": "new"
+    },
+    {
+      "vendor": "Julie Hencke",
+      "invoice_number": "",
+      "kimco_id": "",
+      "result": "Skipped",
+      "kind": "new"
+    }
+  ],
+  "invoices": [
+    {
+      "vendor": "3P",
+      "invoice_number": "142041",
+      "date": null,
+      "po": null,
+      "pos": [
+        "58766",
+        "58767",
+        "58844"
+      ],
+      "amount": null,
+      "fees": [],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-18_08182026_004.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5YwAAA=",
+      "subject": "INV # 142041 / CPL # 76659, 76664, 76663, 76661, 76660, 76662 / PO # 58766, 58767, 58844",
+      "receivedDateTime": "2026-08-18T18:37:59Z",
+      "field_sources": {
+        "invoice_number": "subject",
+        "date": "",
+        "amount": "",
+        "po": "subject"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142042",
+      "date": null,
+      "po": null,
+      "pos": [
+        "58862",
+        "58844"
+      ],
+      "amount": null,
+      "fees": [],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-18_08182026_005.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5YxAAA=",
+      "subject": "INV # 142042 / CPL # 76740, 76741 / PO # 58862, 58844",
+      "receivedDateTime": "2026-08-18T18:45:14Z",
+      "field_sources": {
+        "invoice_number": "subject",
+        "date": "",
+        "amount": "",
+        "po": "subject"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142043",
+      "date": null,
+      "po": null,
+      "pos": [
+        "58862",
+        "58887"
+      ],
+      "amount": null,
+      "fees": [],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-18_08182026_006.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5YyAAA=",
+      "subject": "INV # 142043 / CPL # 76753, 76755 / PO # 58862, 58887",
+      "receivedDateTime": "2026-08-18T18:53:29Z",
+      "field_sources": {
+        "invoice_number": "subject",
+        "date": "",
+        "amount": "",
+        "po": "subject"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "3P",
+      "invoice_number": "142044",
+      "date": null,
+      "po": null,
+      "pos": [
+        "58887",
+        "58844"
+      ],
+      "amount": null,
+      "fees": [],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-18_08182026_007.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5YzAAA=",
+      "subject": "INV # 142044 / CPL # 76757, 76756, 76758 / PO # 58887, 58844",
+      "receivedDateTime": "2026-08-18T19:00:37Z",
+      "field_sources": {
+        "invoice_number": "subject",
+        "date": "",
+        "amount": "",
+        "po": "subject"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Lia Byroads",
+      "invoice_number": "",
+      "date": null,
+      "po": null,
+      "pos": [],
+      "amount": null,
+      "fees": null,
+      "lines": null,
+      "multi_po": false,
+      "pdf_path": null,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHUYAAA=",
+      "subject": "Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc",
+      "receivedDateTime": "2026-08-18T19:42:09Z",
+      "field_sources": {},
+      "is_purchase_order_doc": null
+    },
+    {
+      "vendor": "Leeco Steel, LLC",
+      "invoice_number": "1058256",
+      "date": "2026-07-07",
+      "po": null,
+      "pos": [
+        "58419",
+        "58503",
+        "57891",
+        "58798"
+      ],
+      "amount": 6290.0,
+      "fees": [],
+      "lines": [],
+      "multi_po": true,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-19_1058256.pdf",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHUaAAA=",
+      "subject": "Leeco Account Statement",
+      "receivedDateTime": "2026-08-19T00:00:48Z",
+      "field_sources": {
+        "invoice_number": "pdf",
+        "date": "pdf",
+        "amount": "pdf",
+        "po": "pdf"
+      },
+      "is_purchase_order_doc": false
+    },
+    {
+      "vendor": "Eastern Metal Supply",
+      "invoice_number": "818600",
+      "date": null,
+      "po": null,
+      "pos": [],
+      "amount": null,
+      "fees": null,
+      "lines": null,
+      "multi_po": false,
+      "pdf_path": null,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5ZAAAA=",
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "receivedDateTime": "2026-08-19T00:04:34Z",
+      "field_sources": {
+        "invoice_number": "subject"
+      },
+      "is_purchase_order_doc": null
+    },
+    {
+      "vendor": "Eastern Metal Supply",
+      "invoice_number": "818601",
+      "date": null,
+      "po": null,
+      "pos": [],
+      "amount": null,
+      "fees": null,
+      "lines": null,
+      "multi_po": false,
+      "pdf_path": null,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5ZBAAA=",
+      "subject": "Invoice : 818601 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "receivedDateTime": "2026-08-19T00:04:36Z",
+      "field_sources": {
+        "invoice_number": "subject"
+      },
+      "is_purchase_order_doc": null
+    }
+  ],
+  "rows": [
+    {
+      "Vendor": "3P",
+      "Invoice #": "142041",
+      "date": "2026-08-06",
+      "PO": "58766, 58767, 58844",
+      "Amount": 2393.28,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no receipts after second pass slip # / part / qty / PO line / open receipts on PO (invoice 142041). Will not guess a qty-only slip. Unmatched invoice line(s): 1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50; 6 1020592-1 - LOWER PLATFORM 22.17 133.02; 9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40; 47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56; 36 35145-1 JIB ARM WELDMENT 26.55 955.80; 1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50; 6 1020592-1 - LOWER PLATFORM 22.17 133.02; 9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40; 47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56; 36 35145-1 JIB ARM WELDMENT 26.55 955.80; 1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50; 6 1020592-1 - LOWER PLATFORM 22.17 133.02; 9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40; 47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56; 36 35145-1 JIB ARM WELDMENT 26.55 955.80. Select Receipts for each invoice line; do not stop after one. Unmatched PO(s): 58766, 58767, 58844. Select Receipts per PO; do not skip a PO silently. Create KIMCO header and attach PDF; do not claim Success. Header created (id 9988). Attach status=attached. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 9988,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "3P",
+      "Invoice #": "142042",
+      "date": "2026-08-12",
+      "PO": "58862, 58844",
+      "Amount": 530.96,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no receipts after second pass slip # / part / qty / PO line / open receipts on PO (invoice 142042). Will not guess a qty-only slip. Unmatched invoice line(s): 4 21678-1 KNUCKLE WELDMENT 91.23 364.92; 2 1008270-1 / KNUCKLE WELDMENT 83.02 166.04; 4 21678-1 KNUCKLE WELDMENT 91.23 364.92; 2 1008270-1 / KNUCKLE WELDMENT 83.02 166.04. Select Receipts for each invoice line; do not stop after one. Unmatched PO(s): 58862, 58844. Select Receipts per PO; do not skip a PO silently. Create KIMCO header and attach PDF; do not claim Success. Header created (id 9989). Attach status=attached. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 9989,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "3P",
+      "Invoice #": "142043",
+      "date": "2026-08-14",
+      "PO": "58862, 58887",
+      "Amount": 1094.76,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no receipts after second pass slip # / part / qty / PO line / open receipts on PO (invoice 142043). Will not guess a qty-only slip. Unmatched invoice line(s): tj 21678-1 KNUCKLE WELDMENT 91.23 638.61; 5 21678-1 KNUCKLE WELDMENT 91.23 456.15; tj 21678-1 KNUCKLE WELDMENT 91.23 638.61; 5 21678-1 KNUCKLE WELDMENT 91.23 456.15. Select Receipts for each invoice line; do not stop after one. Unmatched PO(s): 58862, 58887. Select Receipts per PO; do not skip a PO silently. Create KIMCO header and attach PDF; do not claim Success. Header created (id 9990). Attach status=attached. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 9990,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "3P",
+      "Invoice #": "142044",
+      "date": "2026-08-14",
+      "PO": "58887, 58844",
+      "Amount": 823.74,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no receipts after second pass slip # / part / qty / PO line / open receipts on PO (invoice 142044). Will not guess a qty-only slip. Unmatched invoice line(s): 4 21678-1 KNUCKLE WELDMENT 91.23 364.92; 6 1020586-1 ROTATOR BRACKET (BATCHWELD) 39.97 239.82; 3 29340-1 LOWER ROTATOR WELDMENT 37.60 112.80; 4 35145-1 JIB ARM WELDMENT 26.55 106.20; 4 21678-1 KNUCKLE WELDMENT 91.23 364.92; 6 1020586-1 ROTATOR BRACKET (BATCHWELD) 39.97 239.82; 3 29340-1 LOWER ROTATOR WELDMENT 37.60 112.80; 4 35145-1 JIB ARM WELDMENT 26.55 106.20. Select Receipts for each invoice line; do not stop after one. Unmatched PO(s): 58887, 58844. Select Receipts per PO; do not skip a PO silently. Create KIMCO header and attach PDF; do not claim Success. Header created (id 9991). Attach status=attached. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 9991,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Eastern Metal Supply of Texas",
+      "Invoice #": "818600",
+      "date": "2026-08-18",
+      "PO": "58849",
+      "Amount": 2113.86,
+      "Result": "HOLD",
+      "Why": "HOLD (finish): Treyce would still rework this bill. Unmatched invoice line(s): 1. Fix: Select Receipts for each merchandise line. Do not stop after one. Never silent Success. Never Success. Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Unmatched invoice line(s): 1. Select Receipts for each invoice line; do not stop after one. Selected receipts: 23452 on PO 58849. Post Additional Charge Purchase Price Variance 0.02 (signed; negative allowed; not Fees; status=blocked-400). Additional Charge Purchase Price Variance 0.02 (signed; |var| 0.02 is 0.0% of invoice total and bill PPV 0.02 is under $100) Attach status=attached. Flag status=entered-with-issues.",
+      "KIMCO id": 9986,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "0.02",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Eastern Metal Supply of Texas",
+      "Invoice #": "818601",
+      "date": "2026-08-18",
+      "PO": "58915",
+      "Amount": 2949.41,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 11 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. Header created (id 9987). Attach status=attached. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 9987,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes"
+    },
+    {
+      "Vendor": "Lia Byroads",
+      "Invoice #": "",
+      "date": "2026-08-18",
+      "PO": "",
+      "Amount": "",
+      "Result": "Skipped",
+      "Why": "Skipped (bill-vs-noise): not-a-bill. Subject: Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc. Inquiry, no invoice PDF. Do not create a header. Outlook AI Skipped (not AI HOLD). Flag status=ai-skipped.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHUYAAA=",
+      "Flag status": "ai-skipped"
+    },
+    {
+      "Vendor": "Leeco Steel, LLC",
+      "Invoice #": "",
+      "date": "2026-08-18",
+      "PO": "",
+      "Amount": "",
+      "Result": "Skipped",
+      "Why": "Skipped (bill-vs-noise): statement. Subject: Leeco Account Statement. PDF is an account statement listing invoices 617228 / 617448 / 619920 / 619921 (not filename 1058256). Do not create a header. KIMCO 9985 was created on API Agent - 9/14/26 (708) before the statement gate; do not void. Selected receipts were 21544/PO 58419, 21669/PO 58503, 22903/PO 57891, 22902/PO 58798. Tried APInvoiceLine delete HTTP 400. Outlook AI Skipped (not Entered in AI). Flag status=ai-skipped.",
+      "KIMCO id": 9985,
+      "Batch": "API Agent - 9/14/26 (708)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "pdf-on-vm",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHUaAAA=",
+      "Flag status": "ai-skipped"
+    },
+    {
+      "Vendor": "Nanci Meza",
+      "Invoice #": "",
+      "date": "2026-08-18",
+      "PO": "",
+      "Amount": "",
+      "Result": "Skipped",
+      "Why": "Skipped (bill-vs-noise): not-a-bill. Subject: FW: Your September safety check-in from Sentry. Do not create a header. Outlook AI Skipped (not AI HOLD). Flag status=ai-skipped.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/14/26",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-skipped",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEKAADXcyWbp23lSoY0i7GBv6N_AAOMUFhSAAA=",
+      "receivedDateTime": "2026-08-18T16:06:41Z",
+      "subject": "FW: Your September safety check-in from Sentry",
+      "kind": "prior"
+    },
+    {
+      "Vendor": "Julie Hencke",
+      "Invoice #": "",
+      "date": "2026-08-18",
+      "PO": "",
+      "Amount": "",
+      "Result": "Skipped",
+      "Why": "Skipped (bill-vs-noise): statement. Subject: Past Due Invoices. Do not create a header. Outlook AI Skipped (not AI HOLD). Flag status=ai-skipped.",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/14/26",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "no-pdf-on-vm",
+      "Flag status": "ai-skipped",
+      "Flag in Outlook": "Yes",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHUXAAA=",
+      "receivedDateTime": "2026-08-18T19:12:39Z",
+      "subject": "Past Due Invoices",
+      "kind": "prior"
+    }
+  ],
+  "cursor": {
+    "last_receivedDateTime": "2026-08-19T00:04:36Z",
+    "last_message_id_set": true,
+    "processed_count": 466,
+    "last_run_date": "2026-09-14",
+    "last_batch": "API Agent - 9/14/26 (708)",
+    "advanced": true,
+    "restarted_at_7_28": false,
+    "from": "2026-08-18T13:00:12Z / 456",
+    "next": "first unflagged message after 2026-08-19T00:04:36Z"
+  },
+  "command": "python scripts/supervised_dry10.py --live --limit 10 --skip-paused --as-of 2026-09-14",
+  "starting_ref": "cursor/live10-graph-hold-3915 (PR #26) on PR #25 basics pack",
+  "kimco_target": "live",
+  "kimco_host": "https://live.kimcoerp.com",
+  "kimco_batch_name": "API Agent - 9/14/26",
+  "kimco_batch_id": 708,
+  "kimco_batch_created": true,
+  "kimco_ids": {
+    "9985": "Leeco statement leftover (do not void)",
+    "9986": "Eastern Metal 818600 HOLD",
+    "9987": "Eastern Metal 818601 HOLD",
+    "9988": "3P 142041 HOLD",
+    "9989": "3P 142042 HOLD",
+    "9990": "3P 142043 HOLD",
+    "9991": "3P 142044 HOLD"
+  },
+  "emails_touched": 10,
+  "graph": {
+    "token": "ok",
+    "roles": [
+      "Mail.Read",
+      "Mail.ReadWrite",
+      "Mail.Send"
+    ],
+    "mailbox": "AP mailbox only",
+    "list_messages": "HTTP 200 (Keyset recovered vs morning HOLD)",
+    "sendMail": "pending-after-sheet-lock"
+  },
+  "report": "runs/AP-run-2026-09-14-live10.xlsx",
+  "email": {
+    "attempted": false,
+    "status": "pending",
+    "from": "AP mailbox only",
+    "to": "Treyce at kannonmfg.com",
+    "subject": "AP dry run 10 \u2014 2026-09-14 afternoon",
+    "send_count": 0
+  },
+  "score_estimate": {
+    "finished_bill_rate": "0/6 bill emails Success (Treyce still selects receipts on 3P + Eastern Metal)",
+    "process_quality_vs_morning": "Graph recovered; statement/inquiry/Eastern PO-doc/3P OCR fixes landed; no invented Success",
+    "approx": "72%",
+    "rework_risk": "high on the 6 HOLD headers (Select Receipts still open); low on the 4 Skipped noise rows"
+  },
+  "notes": "Hard cap 10 honored. Already-flagged walked past (8) and not counted. No auto-pay. No batch close. No invented Success. Personal Outlook MCP not used."
+}
