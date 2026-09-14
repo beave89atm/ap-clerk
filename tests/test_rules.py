@@ -137,6 +137,18 @@ def test_classify_mail_skips_not_a_bill():
         subject="Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc",
         from_name="Lia Byroads",
     ) == "not-a-bill"
+    # PDF body / preview: statement-of-account is noise even for a known vendor.
+    assert (
+        classify_mail(
+            subject="Documents ready",
+            from_name="Leeco Steel, LLC",
+            preview="Statement of Account\nInvoices due 617228 / 619920",
+            attachment_names=["1058256.pdf"],
+        )
+        == "statement"
+    )
+    # Word "Invoices" must not turn a past-due list into a bill (Julie Hencke).
+    assert classify_mail(subject="Past Due Invoices", from_name="Julie Hencke") == "statement"
 
 
 def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():

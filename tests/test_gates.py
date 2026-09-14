@@ -361,6 +361,13 @@ def test_leeco_account_statement_is_not_filename_invoice():
     )
     assert parsed.get("is_statement_doc") is True
     assert parsed.get("invoice_number") != "1058256"
+    soa = parse_invoice_text(
+        "Statement of Account\nInvoices due\n617228 58419\n619920 57891\n",
+        filename="1058256.pdf",
+        subject="Leeco Steel",
+        from_name="credit@leecosteel.com",
+    )
+    assert soa.get("is_statement_doc") is True
 
 
 def test_legacy_po_pdf_is_rejected_as_parse_error():

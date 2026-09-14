@@ -92,6 +92,7 @@ from ap_clerk.rules import (
     format_ppv,
     invoice_number_key,
     is_noise_reason,
+    looks_like_account_statement,
     invoice_type_for,
     kimco_datetime,
     known_vendor_id,
@@ -795,6 +796,25 @@ def _process_invoice(
         "Flag in Outlook": "No",
         "Notes": "",
     }
+
+    if looks_like_account_statement(
+        subject=str(inv.get("subject") or ""),
+        preview=str(inv.get("bodyPreview") or inv.get("preview") or ""),
+        text=str(inv.get("text") or inv.get("pdf_text") or ""),
+        filename=str(inv.get("filename") or ""),
+        is_statement_doc=bool(inv.get("is_statement_doc")),
+    ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        subject = str(inv.get("subject") or "")
+        detail = "statement. Do not create a header. Outlook AI Skipped (not AI HOLD)."
+        if subject:
+            detail = (
+                f"statement. Subject: {subject}. Do not create a header. "
+                "Outlook AI Skipped (not AI HOLD)."
+            )
+        row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
     existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
     if existing_hits and number:

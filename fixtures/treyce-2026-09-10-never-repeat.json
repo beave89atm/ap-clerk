@@ -250,6 +250,27 @@
           ]
         }
       }
+    },
+    "NOTE-24": {
+      "vendor": "Leeco Steel, LLC",
+      "from_name": "Leeco Steel, LLC",
+      "from_address": "credit@leecosteel.com",
+      "subject": "Leeco Account Statement",
+      "filename": "1058256.pdf",
+      "received": "2026-08-19T00:00:48Z",
+      "leftover_kimco_id": 9985,
+      "do_not_void": true,
+      "invoices_listed": ["617228", "617448", "619920", "619921"],
+      "pos_listed": ["58419", "58503", "57891", "58798"],
+      "pdf_text": "Account Statement 8/18/2026\nInvoice PO Date AMT\n617228 58419 7/7/2026 $9,997.24\n617448 58503 7/14/2026 $1,200.00\n619920 57891 8/4/2026 $900.00\n619921 58798 8/5/2026 $1,100.00\nCurrent $6,290.00\n",
+      "statement_of_account_text": "Statement of Account\nInvoices due\n617228 58419\n619920 57891\n",
+      "julie": {
+        "vendor": "Julie Hencke",
+        "from_name": "Julie Hencke",
+        "subject": "Past Due Invoices",
+        "received": "2026-08-18T19:12:39Z",
+        "pdf_text": "Past Due Invoices\nInvoice Date Amount\n617228 7/7/2026 9997.24\nPlease remit the invoices listed below.\n"
+      }
     }
   }
 }
