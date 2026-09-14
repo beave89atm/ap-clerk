@@ -63,6 +63,11 @@ def test_fees_are_not_ppv():
     assert not is_fee_or_surcharge("PREPAID")
 
 
+def test_3p_vendor_alias_is_live_id():
+    assert known_vendor_id("3P") == 1
+    assert known_vendor_id("3P Industries") == 1
+
+
 def test_extract_po_number():
     assert extract_po_number("PO58351-TELECOM PRODUCTS") == "58351"
     assert extract_po_number("PO58634-CAPITAL MACHINE TECHNOLOGIES") == "58634"
@@ -119,6 +124,19 @@ def test_classify_mail_skips_not_a_bill():
     assert classify_mail(subject="INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844", preview="Rachel Bailey") == "invoice"
     assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
     assert classify_mail(subject="Internal only — do not process") == "internal"
+    # Known vendor + PDF must not override a statement subject (Leeco 1058256.pdf).
+    assert (
+        classify_mail(
+            subject="Leeco Account Statement",
+            attachment_names=["1058256.pdf"],
+            from_name="credit@leecosteel.com",
+        )
+        == "statement"
+    )
+    assert classify_mail(
+        subject="Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc",
+        from_name="Lia Byroads",
+    ) == "not-a-bill"
 
 
 def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():

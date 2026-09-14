@@ -308,6 +308,61 @@ def test_msc_and_mcqueary_invoice_number_from_pdf_not_filename():
     assert "invoice #" in why.lower() or "preflight-parse" in why
 
 
+def test_3p_face_page_lines_sum_is_amount():
+    from ap_clerk.pdf_invoice import extract_3p_lines, parse_invoice_text
+
+    text = (
+        "3P INDUSTRIES Invoice\n8/6/2026 142041\n"
+        "Quantity Description Price Each Amount\n"
+        "PO # 58766\n"
+        "1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50\n"
+        "PO # 58767\n"
+        "6 1020592-1 - LOWER PLATFORM 22.17 133.02\n"
+        "PO # 58844\n"
+        "9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40\n"
+        "\fpacking list noise Total 34643.13\n"
+    )
+    lines = extract_3p_lines(text)
+    assert [item["po"] for item in lines] == ["58766", "58767", "58844"]
+    assert [item["part"] for item in lines] == ["1007044-1", "1020592-1", "29340-1"]
+    parsed = parse_invoice_text(text, subject="INV # 142041 / PO # 58766, 58767, 58844", from_name="Rachel Bailey")
+    assert parsed["invoice_number"] == "142041"
+    assert parsed["amount"] == 568.92
+    assert parsed["pos"] == ["58766", "58767", "58844"]
+    assert parsed["multi_po"] is True
+    assert len(parsed["lines"]) == 3
+
+
+def test_eastern_metal_invoice_is_not_a_purchase_order():
+    text = (
+        "EASTERN METAL SUPPLY of TEXAS, LLC             INVOICE\n"
+        "Bill To: Kannon\nShip To: Kannon\n"
+        "PURCHASE ORDER NUMBER 58849\n"
+        "TOTAL-DUE 2113.86\n"
+    )
+    assert is_purchase_order_document(text=text, filename="doc01159420.pdf") is False
+    parsed = parse_invoice_text(text, filename="doc01159420.pdf", subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.")
+    assert parsed["is_purchase_order_doc"] is False
+    assert parsed["invoice_number"] == "818600"
+
+
+def test_leeco_account_statement_is_not_filename_invoice():
+    text = (
+        "Account Statement 8/18/2026\n"
+        "Invoice PO Date AMT\n"
+        "617228 58419 7/7/2026 $9,997.24\n"
+        "Current $6,290.00\n"
+    )
+    parsed = parse_invoice_text(
+        text,
+        filename="1058256.pdf",
+        subject="Leeco Account Statement",
+        from_name="credit@leecosteel.com",
+    )
+    assert parsed.get("is_statement_doc") is True
+    assert parsed.get("invoice_number") != "1058256"
+
+
 def test_legacy_po_pdf_is_rejected_as_parse_error():
     assert PO_FILE_RE.search("Purchase_Order_58861.pdf")
     assert is_purchase_order_document(filename="Purchase_Order_58861.pdf")

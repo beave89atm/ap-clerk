@@ -1057,13 +1057,17 @@ def _process_invoice(
                     f" Unmatched PO(s): {unmatched_po_txt}. "
                     "Select Receipts per PO; do not skip a PO silently."
                 )
-            row["Result"] = RESULT_HOLD
-            row["Why"] = why_hold(
+            # Real vendor PDF: still create header + attach. Receipt HOLD is
+            # unfinished (Entered with issues), not a pre-create stop (3P 142041).
+            issue_hold = (
                 GATE_RECEIPT,
-                f"no receipts after second pass slip # / part / qty / PO line / open receipts on PO "
-                f"(invoice {number}). Will not guess a qty-only slip.{extra}",
+                why_hold(
+                    GATE_RECEIPT,
+                    f"no receipts after second pass slip # / part / qty / PO line / open receipts on PO "
+                    f"(invoice {number}). Will not guess a qty-only slip.{extra}",
+                )
+                + " Create KIMCO header and attach PDF; do not claim Success.",
             )
-            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
         if unmatched_pos:
             receipt_note += (

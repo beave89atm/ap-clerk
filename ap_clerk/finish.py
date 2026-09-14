@@ -464,12 +464,15 @@ def apply_grouped_outlook_flags(
     bill on that message is Success.
     """
     inv_by_number = {
-        str(inv.get("invoice_number") or ""): inv for inv in invoices if inv.get("invoice_number")
+        str(inv.get("invoice_number") or ""): inv
+        for inv in invoices
+        if str(inv.get("invoice_number") or "").strip()
     }
     by_message: dict[str, list[dict[str, Any]]] = {}
     orphans: list[tuple[dict[str, Any], dict[str, Any]]] = []
     for row in rows:
-        inv = dict(inv_by_number.get(str(row.get("Invoice #") or "")) or {})
+        number_key = str(row.get("Invoice #") or "").strip()
+        inv = dict(inv_by_number.get(number_key) or {}) if number_key else {}
         if not inv:
             inv = {
                 "invoice_number": row.get("Invoice #"),
@@ -479,7 +482,8 @@ def apply_grouped_outlook_flags(
         message_id = resolve_message_id(graph_client, inv, mailbox=mailbox)
         if message_id:
             inv["graph_message_id"] = message_id
-            inv_by_number[str(row.get("Invoice #") or "")] = inv
+            if number_key:
+                inv_by_number[number_key] = inv
         if not message_id:
             orphans.append((row, inv))
             continue
@@ -488,16 +492,16 @@ def apply_grouped_outlook_flags(
     for message_id, group in by_message.items():
         bills = [row for row in group if not is_noise_result(str(row.get("Result") or ""))]
         if not bills:
-            dummy = {"Result": "Skipped", "KIMCO id": "", "Why": str(group[0].get("Why") or "")}
+            dummy = {"Result": "Skipped", "KIMCO id": "", "Why": ""}
             apply_flag_after_match(dummy, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
             status = dummy.get("Flag status") or FLAG_SKIP_ELIGIBLE
             for row in group:
                 row["Flag status"] = status
                 row["Flag in Outlook"] = flag_in_outlook_for(str(row.get("Result") or "Skipped"))
                 why = str(row.get("Why") or "").rstrip()
-                extra = str(dummy.get("Why") or "")
-                if extra and extra not in why:
-                    row["Why"] = extra
+                note = f"Flag status={status}."
+                if "Flag status=" not in why:
+                    row["Why"] = f"{why} {note}".strip() if why else note
             continue
         results = {str(row.get("Result") or "") for row in bills}
         outcome = RESULT_SUCCESS if results == {RESULT_SUCCESS} else RESULT_INCOMPLETE

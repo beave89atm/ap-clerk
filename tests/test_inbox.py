@@ -674,11 +674,15 @@ def test_fastenal_receipt_slip_avoids_hold_no_receipts():
 
 
 def test_hold_no_receipts_after_thorough_search():
-    class NoCreate:
-        target = "live"
+    """V1.2: still create header + attach; receipt HOLD is unfinished, not Success."""
 
-        def create(self, *args, **kwargs):
-            raise AssertionError("must not create when no receipts match")
+    class CreateHold:
+        target = "live"
+        created = False
+
+        def create(self, service, values):
+            self.created = True
+            return 8801, {"id": 8801, "values": values}, 200, ""
 
         def get_item(self, service, item_id):
             return {
@@ -686,11 +690,22 @@ def test_hold_no_receipts_after_thorough_search():
                 "values": {
                     "Remit_To_Address": {"id": 1, "text": "remit"},
                     "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "Fastenal Company"},
                 },
             }
 
+        def try_official_attach(self, *args, **kwargs):
+            return "no-pdf-on-vm"
+
+        def try_select_receipts(self, *args, **kwargs):
+            return "held-unfinished"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+    client = CreateHold()
     row = _process_invoice(
-        NoCreate(),
+        client,
         {
             "vendor": "Fastenal Company",
             "invoice_number": "TXFT000000",
@@ -708,9 +723,11 @@ def test_hold_no_receipts_after_thorough_search():
         pdf_dir=None,
         flag_outlook=False,
     )
+    assert client.created is True
     assert row["Result"] == "HOLD"
+    assert row["Result"] != "Success"
     assert "no receipts" in row["Why"].lower()
-    assert row["KIMCO id"] == ""
+    assert row["KIMCO id"] == 8801
 
 
 def test_parse_capital_machine_po_and_trailing_total():
