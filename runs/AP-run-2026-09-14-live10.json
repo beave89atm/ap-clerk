@@ -8,7 +8,7 @@
   "limit": 10,
   "daily_30_ran": false,
   "kimco_ui_opened": false,
-  "email_sent": false,
+  "email_sent": true,
   "finish_path": "api-record-put-and-attach",
   "counts": {
     "Success": 0,
@@ -485,16 +485,16 @@
     ],
     "mailbox": "AP mailbox only",
     "list_messages": "HTTP 200 (Keyset recovered vs morning HOLD)",
-    "sendMail": "pending-after-sheet-lock"
+    "sendMail": "email-sent"
   },
   "report": "runs/AP-run-2026-09-14-live10.xlsx",
   "email": {
-    "attempted": false,
-    "status": "pending",
+    "attempted": true,
+    "status": "email-sent",
     "from": "AP mailbox only",
     "to": "Treyce at kannonmfg.com",
     "subject": "AP dry run 10 \u2014 2026-09-14 afternoon",
-    "send_count": 0
+    "send_count": 1
   },
   "score_estimate": {
     "finished_bill_rate": "0/6 bill emails Success (Treyce still selects receipts on 3P + Eastern Metal)",
