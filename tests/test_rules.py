@@ -278,6 +278,84 @@ def test_qty_only_is_not_a_receipt_match():
     assert result["matched"] == []
 
 
+def test_3p_part_on_po_matches_without_cpl_or_invoice_total_qty():
+    """Invoice-total qty/cost must not block per-line part+PO matches."""
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766"},
+            {"part": "1020592-1", "qty": 6, "amount": 133.02, "po": "58767"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58766", "part": "1007044-1 SUBFRAME WELDMENT", "qty": 1, "amount": 97.50, "slip": "NOT-CPL"},
+            {"id": 2, "po": "58767", "description": "1020592-1 LOWER PLATFORM", "qty": 6, "amount": 133.02, "slip": "ALSO-NOT-CPL"},
+        ],
+        po_numbers=["58766", "58767"],
+        invoice_qty=99,
+        invoice_amount=2393.28,
+        slip_numbers=[],
+    )
+    assert result["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {1, 2}
+    assert not result["unmatched_lines"]
+
+
+def test_two_cent_rounding_is_not_invented_ppv():
+    from ap_clerk.rules import decide_ppv
+
+    exact = decide_ppv(invoice_line_amount=133.02, po_line_amount=133.02, invoice_total=2393.28)
+    assert exact["action"] == "match"
+    assert exact["ppv"] == 0.0
+    rounded = decide_ppv(invoice_line_amount=97.50, po_line_amount=97.52, invoice_total=2393.28)
+    assert rounded["action"] == "match"
+    assert rounded["ppv"] == 0.0
+
+
+def test_receipt_qty_cover_selects_invoice_qty():
+    result = match_receipts(
+        invoice_number="142043",
+        invoice_lines=[{"part": "21678-1", "qty": 4, "amount": 364.92, "po": "58862"}],
+        receipts=[{"id": 9, "po": "58862", "part": "21678-1", "qty": 6, "amount": 547.38}],
+        po_numbers=["58862"],
+        slip_numbers=[],
+    )
+    assert result["matched"][0]["receipt"]["id"] == 9
+    assert result["matched"][0]["select_qty"] == 4
+
+
+def test_price_mismatch_does_not_skip_part_qty_po_match():
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[{"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766"}],
+        receipts=[{"id": 1, "po": "58766", "part": "1007044-1", "qty": 1, "amount": 80.00}],
+        po_numbers=["58766"],
+        slip_numbers=[],
+    )
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["id"] == 1
+
+
+def test_partial_select_does_not_hold_no_receipts_when_some_lines_match():
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766", "label": "1007044-1 SUBFRAME"},
+            {"part": "35145-1", "qty": 36, "amount": 955.80, "po": "58844", "label": "35145-1 JIB ARM"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58766", "part": "1007044-1", "qty": 1, "amount": 97.50},
+        ],
+        po_numbers=["58766", "58844"],
+        slip_numbers=["76659"],
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["id"] == 1
+    assert result["unmatched_lines"]
+    assert "35145-1" in (result["why"] or "") or "JIB" in (result["why"] or "")
+    assert "candidates considered" in result["why"].lower()
+
+
 def test_no_po_vendor_name_matching():
     assert names_match("Hudson Energy Services, LLC", "1086-HUDSON ENERGY-24312")
     assert names_match("Shoppa's Material Handling, Ltd", "1157-SHOPPA'S MATERIAL HANDLING")

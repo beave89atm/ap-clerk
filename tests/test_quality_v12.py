@@ -151,9 +151,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 23))
-    assert len(TREYCE_NOTES_V12) == 22
-    assert len(TREYCE_FINISH_CHECKLIST) == 12
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 24))
+    assert len(TREYCE_NOTES_V12) == 23
+    assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -180,6 +180,7 @@ def test_v12_registry_covers_all_notes():
         "eastern-metal-818600-not-noise",
         "aqpc-10917-link-download",
         "kimco-vendor-invoice-never-skip",
+        "3p-select-receipts-part-po-never-fail-close",
     }
 
 
@@ -597,6 +598,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "all-invoice-lines-selected",
         "posted-vendor-matches-parsed",
         "all-pos-selected",
+        "partial-select-receipts-never-fail-close",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -1669,6 +1671,435 @@ def test_3p_multi_po_select_receipts(tmp_path: Path):
     assert missing_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
     assert set(missing_client.selected[0][1]) == {11, 12}
     assert missing["PO"] == "58766, 58767, 58844"
+
+
+def test_never_repeat_3p_select_receipts_cpl(tmp_path: Path):
+    """NOTE-23 / 9988–9991: 3P lines match by part+PO. CPL is not required.
+
+    Live 9/14 HOLDed 142041–142044 (KIMCO 9988–9991) 'no receipts after
+    second pass' with zero Select Receipts. Open receipts existed on those
+    PO lines. Kyle: match invoice line → PO receipts by part / PO line /
+    qty; do not require subject CPL; check every line; never fail-close
+    the whole bill when some lines match.
+    """
+    subject = (
+        "INV # 142041 / CPL # 76659, 76664, 76663, 76661, 76660, 76662 / "
+        "PO # 58766, 58767, 58844"
+    )
+    lines = [
+        {
+            "part": "1007044-1",
+            "qty": 1,
+            "amount": 97.50,
+            "po": "58766",
+            "label": "1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50",
+            "description": "1007044-1 / SUBFRAME WELDMENT",
+        },
+        {
+            "part": "1020592-1",
+            "qty": 6,
+            "amount": 133.02,
+            "po": "58767",
+            "label": "6 1020592-1 - LOWER PLATFORM 22.17 133.02",
+            "description": "1020592-1 - LOWER PLATFORM",
+        },
+        {
+            "part": "29340-1",
+            "qty": 9,
+            "amount": 338.40,
+            "po": "58844",
+            "label": "9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40",
+            "description": "29340-1 LOWER ROTATOR WELDMENT",
+        },
+        {
+            "part": "21913-1",
+            "qty": 47,
+            "amount": 868.56,
+            "po": "58844",
+            "label": "47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56",
+            "description": "21913-1 UPPER SUPPORT WELDMENT",
+        },
+        {
+            "part": "35145-1",
+            "qty": 36,
+            "amount": 955.80,
+            "po": "58844",
+            "label": "36 35145-1 JIB ARM WELDMENT 26.55 955.80",
+            "description": "35145-1 JIB ARM WELDMENT",
+        },
+    ]
+    # Receipt slips are NOT the subject CPL numbers — CPL must not be the path.
+    receipts = [
+        {
+            "id": 201,
+            "po": "58766",
+            "part": "1007044-1 SUBFRAME WELDMENT",
+            "qty": 1,
+            "amount": 97.50,
+            "slip": "R-PO58766",
+        },
+        {
+            "id": 202,
+            "po": "58767",
+            "part": "",
+            "description": "1020592-1 - LOWER PLATFORM",
+            "qty": 6,
+            "amount": 133.02,
+            "slip": "R-PO58767",
+        },
+        {
+            "id": 203,
+            "po": "58844",
+            "part": "29340-1",
+            "qty": 9,
+            "amount": 338.40,
+            "slip": "R-ROTATOR",
+        },
+        {
+            "id": 204,
+            "po": "58844",
+            "part": "21913-1",
+            "qty": 47,
+            "amount": 868.56,
+            "slip": "R-SUPPORT",
+        },
+        {
+            "id": 205,
+            "po": "58844",
+            "part": "35145-1",
+            "qty": 36,
+            "amount": 955.80,
+            "slip": "R-JIB",
+        },
+    ]
+    picked = match_receipts(
+        invoice_number="142041",
+        invoice_lines=lines,
+        receipts=receipts,
+        po_numbers=["58766", "58767", "58844"],
+        invoice_qty=99,
+        invoice_amount=2393.28,
+        slip_numbers=[],
+    )
+    assert picked["found"] is True
+    assert picked["hold_no_receipts"] is False
+    assert not picked["unmatched_lines"]
+    assert {hit["receipt"]["id"] for hit in picked["matched"]} == {201, 202, 203, 204, 205}
+    assert "76659" not in (picked["why"] or "") or "part" in (picked["why"] or "").lower()
+
+    pdf_path = tmp_path / "142041.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 3P 142041")
+    sidecar = {
+        "vendor": "3P",
+        "invoice_number": "142041",
+        "date": "2026-08-06",
+        "po": None,
+        "pos": ["58766", "58767", "58844"],
+        "multi_po": True,
+        "amount": 2393.28,
+        "lines": lines,
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf"},
+        "subject": subject,
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+    samples = [{"vendor_id": 9, "vendor_text": "3P", "invoice_id": 100, "po_text": ""}]
+
+    class Recording:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return 9988, {"id": 9988, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "3P"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    all_row, all_client = _row(sidecar, kimco=Recording(), receipts=receipts, samples=samples)
+    assert "Purchase_Order" not in all_client.created[0]
+    assert all_client.created[0]["Invoice_Type"] == INVOICE_TYPE_PO
+    assert set(all_client.selected[0][1]) == {201, 202, 203, 204, 205}
+    assert all_row["Result"] == RESULT_SUCCESS
+    assert "no receipts after second pass" not in (all_row["Why"] or "").lower()
+    assert "Selected receipts:" in all_row["Why"]
+
+    # One leftover line: still Select Receipts for the four matches.
+    # Never blanket no-receipts HOLD that posts zero receipts.
+    partial = match_receipts(
+        invoice_number="142041",
+        invoice_lines=lines,
+        receipts=receipts[:4],
+        po_numbers=["58766", "58767", "58844"],
+        slip_numbers=[],
+    )
+    assert partial["found"] is True
+    assert partial["hold_no_receipts"] is False
+    assert len(partial["matched"]) == 4
+    assert {hit["receipt"]["id"] for hit in partial["matched"]} == {201, 202, 203, 204}
+    assert partial["unmatched_lines"]
+    assert "35145-1" in format_unmatched_lines(partial["unmatched_lines"]) or "JIB" in partial["why"]
+    assert "Selected vs unmatched" in partial["why"] or "Unmatched invoice line" in partial["why"]
+    assert "candidates considered" in partial["why"].lower()
+
+    missing, missing_client = _row(sidecar, kimco=Recording(), receipts=receipts[:4], samples=samples)
+    assert missing["Result"] != RESULT_SUCCESS
+    assert_never_success(missing["Result"], note_id="NOTE-23", detail=missing["Why"])
+    assert set(missing_client.selected[0][1]) == {201, 202, 203, 204}
+    assert "no receipts after second pass" not in (missing["Why"] or "").lower()
+    assert "35145-1" in missing["Why"] or "JIB" in missing["Why"]
+    assert "Selected receipts:" in missing["Why"]
+    assert missing["Result"] in {RESULT_HOLD, RESULT_INCOMPLETE}
+
+
+def _notes_3p_recording(created_id):
+    class Recording:
+        target = "live"
+
+        def __init__(self):
+            self.created = []
+            self.selected = []
+            self.ppv = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return created_id, {"id": created_id, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "3P"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_ppv(self, invoice_id, amount):
+            self.ppv.append((invoice_id, amount))
+            return "posted"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    return Recording()
+
+
+def _notes_3p_sidecar(tmp_path: Path, bill: dict, invoice_number: str) -> dict:
+    pdf_path = tmp_path / f"{invoice_number}.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 3P " + invoice_number.encode())
+    return {
+        "vendor": "3P",
+        "invoice_number": invoice_number,
+        "date": "2026-08-06",
+        "po": None,
+        "pos": list(bill["pos"]),
+        "multi_po": True,
+        "amount": bill["amount"],
+        "lines": list(bill["lines"]),
+        "fees": [],
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf"},
+        "subject": bill["subject"],
+        "pdf_path": str(pdf_path),
+        "pdf_on_disk": True,
+    }
+
+
+def _selected_ids(client) -> set:
+    refs = client.selected[0][1]
+    ids = set()
+    for ref in refs:
+        if isinstance(ref, dict):
+            ids.add(ref.get("id"))
+        else:
+            ids.add(ref)
+    return ids
+
+
+def test_never_repeat_3p_notes_142041_142044(tmp_path: Path):
+    """NOTE-23 Notes truth: pull every matchable line; no invented $0.02 PPV."""
+    n = NOTES["NOTE-23"]
+    samples = [{"vendor_id": 9, "vendor_text": "3P", "invoice_id": 100, "po_text": ""}]
+    bills = n["bills"]
+
+    # Invoice amounts add cleanly — do not invent a $0.02 PPV.
+    for number, bill in bills.items():
+        total = round(sum(float(line["amount"]) for line in bill["lines"]), 2)
+        assert total == float(bill["amount"]), number
+    from ap_clerk.rules import decide_ppv
+
+    clean = decide_ppv(invoice_line_amount=97.50, po_line_amount=97.50, invoice_total=2393.28)
+    assert clean["ppv"] == 0.0
+    assert clean["action"] == "match"
+    tiny = decide_ppv(invoice_line_amount=97.50, po_line_amount=97.48, invoice_total=2393.28)
+    assert tiny["ppv"] == 0.0
+    assert tiny["action"] == "match"
+
+    # --- 142041: price-wrong lines still select; MUST pull 2/4/5; over-threshold HOLD ---
+    b041 = bills["142041"]
+    receipts_041 = [
+        {"id": 401, "po": "58766", "part": "1007044-1", "qty": 1, "amount": 80.00, "unit_price": 80.00},
+        {"id": 402, "po": "58767", "part": "1020592-1", "qty": 6, "amount": 133.02, "unit_price": 22.17},
+        {"id": 403, "po": "58844", "part": "29340-1", "qty": 9, "amount": 450.00, "unit_price": 50.00},
+        {"id": 404, "po": "58844", "part": "21913-1", "qty": 47, "amount": 868.56, "unit_price": 18.48},
+        {"id": 405, "po": "58844", "part": "35145-1", "qty": 36, "amount": 955.80, "unit_price": 26.55},
+    ]
+    po_index_041 = {
+        "58766": {"id": 1, "text": "PO58766", "lines": [{"part": "1007044-1", "qty": 1, "amount": 80.00, "unit_price": 80.00}]},
+        "58767": {"id": 2, "text": "PO58767", "lines": [{"part": "1020592-1", "qty": 6, "amount": 133.02, "unit_price": 22.17}]},
+        "58844": {
+            "id": 3,
+            "text": "PO58844",
+            "lines": [
+                {"part": "29340-1", "qty": 9, "amount": 450.00, "unit_price": 50.00},
+                {"part": "21913-1", "qty": 47, "amount": 868.56, "unit_price": 18.48},
+                {"part": "35145-1", "qty": 36, "amount": 955.80, "unit_price": 26.55},
+            ],
+        },
+    }
+    picked_041 = match_receipts(
+        invoice_number="142041",
+        invoice_lines=b041["lines"],
+        receipts=receipts_041,
+        po_numbers=b041["pos"],
+        slip_numbers=[],
+    )
+    assert picked_041["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in picked_041["matched"]} == {401, 402, 403, 404, 405}
+    row041, client041 = _row(
+        _notes_3p_sidecar(tmp_path, b041, "142041"),
+        kimco=_notes_3p_recording(9988),
+        receipts=receipts_041,
+        samples=samples,
+        po_index=po_index_041,
+    )
+    assert _selected_ids(client041) == {401, 402, 403, 404, 405}
+    assert row041["Result"] != RESULT_SUCCESS
+    assert_never_success(row041["Result"], note_id="NOTE-23", detail=row041["Why"])
+    assert "no receipts after second pass" not in (row041["Why"] or "").lower()
+    assert "Shawn" in row041["Why"] or "price" in (row041["Why"] or "").lower()
+    assert float(str(row041["PPV"]).replace(",", "") or 0) != 0.02
+    assert 0.02 not in client041.ppv[0] if client041.ppv else True
+    if client041.ppv:
+        assert abs(client041.ppv[0][1]) <= 100
+        assert abs(client041.ppv[0][1] - 0.02) > 0.001
+
+    # --- 142042: line1 MUST pull; line2 price mismatch still selects ---
+    b042 = bills["142042"]
+    receipts_042 = [
+        {"id": 421, "po": "58862", "part": "21678-1", "qty": 4, "amount": 364.92},
+        {"id": 422, "po": "58844", "part": "1008270-1", "qty": 2, "amount": 150.00, "unit_price": 75.00},
+    ]
+    po_index_042 = {
+        "58862": {"id": 10, "text": "PO58862", "lines": [{"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23}]},
+        "58844": {"id": 11, "text": "PO58844", "lines": [{"part": "1008270-1", "qty": 2, "amount": 150.00, "unit_price": 75.00}]},
+    }
+    row042, client042 = _row(
+        _notes_3p_sidecar(tmp_path, b042, "142042"),
+        kimco=_notes_3p_recording(9989),
+        receipts=receipts_042,
+        samples=samples,
+        po_index=po_index_042,
+    )
+    assert 421 in _selected_ids(client042)
+    assert 422 in _selected_ids(client042)
+    assert "no receipts after second pass" not in (row042["Why"] or "").lower()
+    assert row042["PPV"] != "0.02"
+
+    # --- 142043: select qty 4 of receipt qty 6; line2 no receipts ---
+    b043 = bills["142043"]
+    receipts_043 = [
+        {"id": 431, "po": "58862", "part": "21678-1", "qty": 6, "amount": 547.38, "unit_price": 91.23},
+    ]
+    picked_043 = match_receipts(
+        invoice_number="142043",
+        invoice_lines=b043["lines"],
+        receipts=receipts_043,
+        po_numbers=b043["pos"],
+        slip_numbers=[],
+    )
+    assert picked_043["found"] is True
+    assert picked_043["hold_no_receipts"] is False
+    assert [hit["receipt"]["id"] for hit in picked_043["matched"]] == [431]
+    assert picked_043["matched"][0].get("select_qty") == 4
+    assert picked_043["unmatched_lines"]
+    row043, client043 = _row(
+        _notes_3p_sidecar(tmp_path, b043, "142043"),
+        kimco=_notes_3p_recording(9990),
+        receipts=receipts_043,
+        samples=samples,
+    )
+    assert client043.selected
+    sel043 = client043.selected[0][1]
+    assert any(
+        (isinstance(ref, dict) and ref.get("id") == 431 and ref.get("qty") == 4) or ref == 431
+        for ref in sel043
+    )
+    assert row043["Result"] != RESULT_SUCCESS
+    assert_never_success(row043["Result"], note_id="NOTE-23", detail=row043["Why"])
+    assert "21678-1" in row043["Why"] or "58887" in row043["Why"]
+
+    # --- 142044: MUST pull lines 1,2,4; line3 qty+price do not match ---
+    b044 = bills["142044"]
+    receipts_044 = [
+        {"id": 441, "po": "58887", "part": "21678-1", "qty": 4, "amount": 364.92},
+        {"id": 442, "po": "58887", "part": "1020586-1", "qty": 6, "amount": 239.82},
+        {"id": 443, "po": "58844", "part": "29340-1", "qty": 2, "amount": 90.00, "unit_price": 45.00},
+        {"id": 444, "po": "58844", "part": "35145-1", "qty": 4, "amount": 106.20},
+    ]
+    picked_044 = match_receipts(
+        invoice_number="142044",
+        invoice_lines=b044["lines"],
+        receipts=receipts_044,
+        po_numbers=b044["pos"],
+        slip_numbers=[],
+    )
+    assert {hit["receipt"]["id"] for hit in picked_044["matched"]} == {441, 442, 444}
+    assert 443 not in {hit["receipt"]["id"] for hit in picked_044["matched"]}
+    row044, client044 = _row(
+        _notes_3p_sidecar(tmp_path, b044, "142044"),
+        kimco=_notes_3p_recording(9991),
+        receipts=receipts_044,
+        samples=samples,
+    )
+    assert _selected_ids(client044) == {441, 442, 444}
+    assert row044["Result"] != RESULT_SUCCESS
+    assert_never_success(row044["Result"], note_id="NOTE-23", detail=row044["Why"])
+    assert "no receipts after second pass" not in (row044["Why"] or "").lower()
+    assert "29340-1" in row044["Why"] or "LOWER ROTATOR" in row044["Why"]
 
 
 def test_never_repeat_eastern_metal_818600_not_noise(tmp_path: Path):

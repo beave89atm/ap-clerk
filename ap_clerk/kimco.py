@@ -392,14 +392,24 @@ class KimcoClient:
         """
         if invoice_id in (None, ""):
             raise KimcoError("Select Receipts requires an invoice record id")
-        ids = [rid for rid in (receipt_ids or []) if rid not in (None, "")]
-        if not ids:
+        refs: list[tuple[Any, Any]] = []
+        for raw in receipt_ids or []:
+            if isinstance(raw, dict):
+                rid = raw.get("id") or raw.get("receipt_id")
+                qty = raw.get("qty") if raw.get("qty") is not None else raw.get("quantity")
+            else:
+                rid = raw
+                qty = None
+            if rid in (None, ""):
+                continue
+            refs.append((rid, qty))
+        if not refs:
             return "blocked-no-receipt-ids"
         invoice = self.get_item("ap_invoices", int(invoice_id))
         lines = []
-        for rid in ids:
+        for rid, qty in refs:
             receipt = self.get_item("receipts", int(rid))
-            lines.append(receipt_line_values_from_records(invoice, receipt))
+            lines.append(receipt_line_values_from_records(invoice, receipt, quantity=qty))
         status = self.add_invoice_lines(invoice_id, lines)
         if status == "added":
             return "selected"
@@ -626,8 +636,17 @@ def select_receipts_payload(lines_or_ids: list[Any], *, invoice_id: int | str | 
     return payload
 
 
-def receipt_line_values_from_records(invoice: dict[str, Any], receipt: dict[str, Any]) -> dict[str, Any]:
-    """Copy Select Receipts fields from invoice + receipt GETs. Receipt.id required."""
+def receipt_line_values_from_records(
+    invoice: dict[str, Any],
+    receipt: dict[str, Any],
+    *,
+    quantity: Any = None,
+) -> dict[str, Any]:
+    """Copy Select Receipts fields from invoice + receipt GETs. Receipt.id required.
+
+    `quantity` overrides Quantity_Received when the invoice needs less than
+    the open receipt (3P 142043: invoice qty 4, receipt qty 6).
+    """
     inv = _unwrap_record(invoice)
     rv = _unwrap_record(receipt)
     receipt_id = receipt.get("id") if isinstance(receipt, dict) else None
@@ -655,7 +674,7 @@ def receipt_line_values_from_records(invoice: dict[str, Any], receipt: dict[str,
     part = rv.get("Part_Number")
     if isinstance(part, dict) and part.get("id") not in (None, ""):
         values["Part_ID"] = {"id": part["id"]}
-    qty = rv.get("Quantity_Received")
+    qty = quantity if quantity not in (None, "") else rv.get("Quantity_Received")
     if qty not in (None, ""):
         values["Quantity"] = qty
     price = rv.get("PO_Item_Number_$_Unit_Price")
