@@ -10,6 +10,7 @@ from ap_clerk.cli import _process_invoice, main
 from ap_clerk.graph import (
     AI_HOLD_CATEGORY,
     AI_SKIPPED_CATEGORY,
+    FLAG_AI_SKIPPED,
     ALLOWED_MAILBOX,
     CATEGORY_CREATED,
     CATEGORY_DENIED,
@@ -178,6 +179,45 @@ def test_never_both_process_categories():
     assert issues == ["Solved!", ENTERED_WITH_ISSUES_CATEGORY]
     assert ENTERED_IN_AI_CATEGORY not in issues
     assert AI_HOLD_CATEGORY not in issues
+    assert AI_SKIPPED_CATEGORY == "AI Skipped 2"
+    skipped = categories_for_status(["AI Skipped", "Solved!"], add=AI_SKIPPED_CATEGORY)
+    assert skipped == ["Solved!", "AI Skipped 2"]
+    assert "AI Skipped" not in skipped
+
+
+def test_noise_patches_exact_ai_skipped_2_not_ai_skipped():
+    """Graph categories array must stamp exactly AI Skipped 2 going forward."""
+    patches: list[dict] = []
+
+    def fake_request(method, url, **kwargs):
+        assert ALLOWED_MAILBOX in url
+        resp = Mock()
+        resp.status_code = 200
+        if method == "PATCH":
+            patches.append(kwargs.get("json") or {})
+            resp.json.return_value = {"categories": ["AI Skipped 2"]}
+        else:
+            resp.json.return_value = {
+                "id": "AAMk-noise",
+                "categories": ["Solved!"],
+                "flag": {"flagStatus": "notFlagged"},
+            }
+        return resp
+
+    client = GraphClient("token-not-printed")
+    client.request = fake_request
+    row = {
+        "Result": "Skipped",
+        "KIMCO id": "",
+        "Why": "Skipped (bill-vs-noise): statement.",
+    }
+    status = apply_flag_after_match(row, {"graph_message_id": "AAMk-noise"}, client)
+    assert status == FLAG_AI_SKIPPED
+    assert patches
+    assert patches[0]["categories"] == ["Solved!", "AI Skipped 2"]
+    assert patches[0]["categories"][-1] == "AI Skipped 2"
+    assert "AI Skipped" not in patches[0]["categories"]
+    assert "flag" not in patches[0]
 
 
 def test_process_invoice_success_flags_and_hold_skips():
@@ -319,7 +359,9 @@ def test_ensure_ai_skipped_category_create_and_403():
     client.request = Mock(return_value=created)
     assert client.ensure_ai_skipped_category(ALLOWED_MAILBOX) == CATEGORY_CREATED
     args, kwargs = client.request.call_args
-    assert kwargs["json"] == {"displayName": AI_SKIPPED_CATEGORY, "color": "preset8"}
+    assert AI_SKIPPED_CATEGORY == "AI Skipped 2"
+    assert kwargs["json"] == {"displayName": "AI Skipped 2", "color": "preset8"}
+    assert kwargs["json"]["displayName"] == AI_SKIPPED_CATEGORY
 
     denied = Mock()
     denied.status_code = 403

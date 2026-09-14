@@ -20,6 +20,7 @@ from ap_clerk.daily import (
     write_email_sidecar,
 )
 from ap_clerk.graph import (
+    AI_SKIPPED_CATEGORY,
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
     FLAG_NO_MESSAGE_ID,
@@ -146,7 +147,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--from-inbox",
         action="store_true",
-        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; bill HOLD/Fail→AI HOLD; noise→AI Skipped.",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; bill HOLD/Fail→AI HOLD; noise→AI Skipped 2.",
     )
     parser.add_argument(
         "--limit",
@@ -214,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "Live target. Kyle said go. Writes use live host + live GUIDs only. "
             "Success (finished bill) gets Entered in AI; Incomplete/HOLD/Fail get AI HOLD. "
-            "Noise Skipped gets AI Skipped. "
+            "Noise Skipped gets AI Skipped 2. "
             "No follow-up flag.",
             flush=True,
         )
@@ -238,7 +239,7 @@ def main(argv: list[str] | None = None) -> int:
             skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
             print(f"AI HOLD master category: {category_status}", flush=True)
             print(f"Entered with issues master category: {issues_status}", flush=True)
-            print(f"AI Skipped master category: {skipped_status}", flush=True)
+            print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
         except (GraphError, MailboxRejected):
             print("AI HOLD master category: category-denied", flush=True)
         from datetime import timedelta
@@ -265,7 +266,7 @@ def main(argv: list[str] | None = None) -> int:
             f"Inbox touched up to {HARD_EMAIL_CAP} email(s) from {args.mailbox} "
             f"({start.isoformat()} to {end.isoformat()}); selected {len(invoices)} bill(s); "
             f"skipped {len(skipped)} (already-flagged walked past; noise consumes the cap). "
-            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→AI Skipped.",
+            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→AI Skipped 2.",
             flush=True,
         )
         if not invoices:
@@ -285,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
                 skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
                 print(f"AI HOLD master category: {category_status}", flush=True)
                 print(f"Entered with issues master category: {issues_status}", flush=True)
-                print(f"AI Skipped master category: {skipped_status}", flush=True)
+                print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
             except (GraphError, MailboxRejected):
                 print("AI HOLD master category: category-denied", flush=True)
         if args.match_inbox:
@@ -807,11 +808,11 @@ def _process_invoice(
         row["Result"] = RESULT_SKIPPED
         row["KIMCO id"] = ""
         subject = str(inv.get("subject") or "")
-        detail = "statement. Do not create a header. Outlook AI Skipped (not AI HOLD)."
+        detail = f"statement. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
         if subject:
             detail = (
                 f"statement. Subject: {subject}. Do not create a header. "
-                "Outlook AI Skipped (not AI HOLD)."
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
             )
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
@@ -846,7 +847,7 @@ def _process_invoice(
             row["Result"] = RESULT_SKIPPED
             row["Why"] = why_skipped(
                 GATE_BILL_VS_NOISE,
-                f"{hold_reason}. Do not create a header. Outlook AI Skipped (not AI HOLD).",
+                f"{hold_reason}. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD).",
             )
             return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
         reason_l = str(hold_reason).lower()
@@ -1743,7 +1744,7 @@ def _run_probe(args: argparse.Namespace) -> int:
     out_path.write_text(json.dumps(payload, indent=2) + "\n")
     print(f"AI HOLD master category: {category_status}", flush=True)
     print(f"Entered with issues master category: {issues_status}", flush=True)
-    print(f"AI Skipped master category: {skipped_status}", flush=True)
+    print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
     print(
         f"Mail.Send role={'present' if probe.get('mail_send_role') else 'absent'} "
         f"draft={probe.get('draft_status')} draft_http={probe.get('draft_http')} "
@@ -1774,10 +1775,10 @@ def _run_daily(args: argparse.Namespace) -> int:
     print(f"Instance host: {creds.instance_url}", flush=True)
     print(
         "Daily FIFO from 2026-07-28 America/Chicago toward today. "
-        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / AI Skipped / flag.flagStatus=flagged). "
+        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / AI Skipped 2 / leftover AI Skipped / flag.flagStatus=flagged). "
         "Hard email cap 10 until further notice (Kyle 2026-09-11). "
         "Noise consumes the cap. Cursor persists. "
-        "Success→Entered in AI only; bill Incomplete/HOLD/Fail→AI HOLD; noise→AI Skipped. No flag.flagStatus.",
+        "Success→Entered in AI only; bill Incomplete/HOLD/Fail→AI HOLD; noise→AI Skipped 2. No flag.flagStatus.",
         flush=True,
     )
 
@@ -1820,7 +1821,7 @@ def _run_daily(args: argparse.Namespace) -> int:
         skipped_status = "category-denied"
     print(f"AI HOLD master category: {category_status}", flush=True)
     print(f"Entered with issues master category: {issues_status}", flush=True)
-    print(f"AI Skipped master category: {skipped_status}", flush=True)
+    print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
 
     pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
     try:

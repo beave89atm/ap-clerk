@@ -363,7 +363,10 @@ def test_is_already_flagged_helpers():
     assert is_already_flagged({"categories": [ENTERED_IN_AI_CATEGORY]})
     assert is_already_flagged({"categories": [AI_HOLD_CATEGORY]})
     assert is_already_flagged({"categories": [ENTERED_WITH_ISSUES_CATEGORY]})
+    assert AI_SKIPPED_CATEGORY == "AI Skipped 2"
     assert is_already_flagged({"categories": [AI_SKIPPED_CATEGORY]})
+    assert is_already_flagged({"categories": ["AI Skipped 2"]})
+    assert is_already_flagged({"categories": ["AI Skipped"]})
     assert is_already_flagged({"flag": {"flagStatus": "flagged"}})
     assert is_already_flagged({"flag": {"flagStatus": "Flagged"}})
     assert not is_already_flagged({"categories": [], "flag": {"flagStatus": "notFlagged"}})
@@ -555,7 +558,8 @@ def test_flag_helpers_for_skipped_vs_bill_hold():
     status = apply_flag_after_match(row, {"graph_message_id": "AAMk-noise"}, None)
     assert status == FLAG_DENIED
     assert row["Flag status"] == FLAG_DENIED
-    assert "outlook-category-missing: AI Skipped" in row["Why"]
+    assert "outlook-category-missing: AI Skipped 2" in row["Why"]
+    assert AI_SKIPPED_CATEGORY == "AI Skipped 2"
     assert is_noise_reason("CHECK STOP")
     assert is_noise_reason("statement")
     assert is_noise_reason("not-a-bill")

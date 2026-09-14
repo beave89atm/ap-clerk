@@ -1,18 +1,19 @@
 """Select vendor invoices from the AP mailbox.
 
 Daily FIFO starts 2026-07-28 America/Chicago and walks toward today.
-Mail categorized `Entered in AI` or `AI Skipped` is already processed and is skipped.
+Mail categorized `Entered in AI` or `AI Skipped 2` (or leftover `AI Skipped`)
+is already processed and is skipped.
 
 Hard email cap 10 until further notice (Kyle 2026-09-11). Cap = mailbox
 messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop
 after that many emails. Do not walk past noise to fill N bill attempts.
 Bill-attempt mode is suspended until Kyle lifts this. Noise is still
-sheet-noted as Skipped and stamped Outlook `AI Skipped` (never `AI HOLD`).
+sheet-noted as Skipped and stamped Outlook `AI Skipped 2` (never `AI HOLD`).
 
 Already-flagged mail is walked past without touching and does **not**
 consume the cap: Outlook `Entered in AI`, `AI HOLD`, `Entered with issues`,
-`AI Skipped`, or Graph `flag.flagStatus=flagged`. Do not reprocess or
-re-stamp those.
+`AI Skipped 2`, leftover `AI Skipped`, or Graph `flag.flagStatus=flagged`.
+Do not reprocess or re-stamp those.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ from urllib.parse import urlparse
 from ap_clerk.cursor import DailyCursor, daily_floor_datetime, should_skip_already_seen
 from ap_clerk.gates import GATE_BILL_VS_NOISE, RESULT_SKIPPED, why_skipped
 from ap_clerk.graph import (
+    AI_SKIPPED_CATEGORY,
     ALLOWED_MAILBOX,
     FLAG_SKIP_ELIGIBLE,
     GraphClient,
@@ -132,7 +134,7 @@ def _safe_filename(name: str) -> str:
 
 
 def _skip_flag_status(_message: dict[str, Any] | None = None) -> str:
-    """Noise is eligible for Outlook `AI Skipped` (never AI HOLD)."""
+    """Noise is eligible for Outlook `AI Skipped 2` (never AI HOLD)."""
     return FLAG_SKIP_ELIGIBLE
 
 
@@ -169,7 +171,7 @@ def pull_recent_bills(
     Default (fifo=False): most-recent emails first, then oldest-first among
     selected bills. Daily FIFO (fifo=True): from 2026-07-28 or the persisted
     cursor, oldest received first, toward today. Noise is sheet-noted as
-    Skipped and stamped Outlook `AI Skipped` — never AI HOLD.
+    Skipped and stamped Outlook `AI Skipped 2` — never AI HOLD.
     """
     mailbox = assert_allowed_mailbox(mailbox)
     limit = clamp_email_limit(limit)
@@ -575,16 +577,19 @@ def wants_hold_without_pdf(text: str) -> bool:
 
 
 def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list[dict[str, Any]]:
-    """Excel Skipped rows for inbox noise. Outlook category is `AI Skipped`."""
+    """Excel Skipped rows for inbox noise. Outlook category is `AI Skipped 2`."""
     rows = []
     for item in skipped:
         if item.get("class") not in HOLD_SKIP_CLASSES and item.get("hold_reason") not in HOLD_SKIP_CLASSES:
             continue
         reason = item.get("hold_reason") or item.get("class") or "not-a-bill"
         subject = str(item.get("subject") or "")
-        detail = f"{reason}. Do not create a header. Outlook AI Skipped (not AI HOLD)."
+        detail = f"{reason}. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
         if subject:
-            detail = f"{reason}. Subject: {subject}. Do not create a header. Outlook AI Skipped (not AI HOLD)."
+            detail = (
+                f"{reason}. Subject: {subject}. Do not create a header. "
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+            )
         why = why_skipped(GATE_BILL_VS_NOISE, detail)
         received = str(item.get("receivedDateTime") or "")
         rows.append(
@@ -618,7 +623,7 @@ def apply_skip_outlook_flags(
     *,
     mailbox: str = ALLOWED_MAILBOX,
 ) -> list[dict[str, Any]]:
-    """Stamp `AI Skipped` on noise rows. Never AI HOLD."""
+    """Stamp `AI Skipped 2` on noise rows. Never AI HOLD."""
     seen: set[str] = set()
     for row in rows:
         if str(row.get("Result") or "") != RESULT_SKIPPED:

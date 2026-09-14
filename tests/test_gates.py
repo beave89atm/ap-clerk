@@ -559,6 +559,7 @@ def test_noise_skip_rows_name_bill_vs_noise_gate():
     assert rows[0]["Flag status"] == "skip-eligible"
     assert "bill-vs-noise" in rows[0]["Why"]
     assert "Monthly Account Statement" in rows[0]["Why"]
+    assert "Outlook AI Skipped 2" in rows[0]["Why"]
     assert rows[0]["Notes"] == ""
 
 

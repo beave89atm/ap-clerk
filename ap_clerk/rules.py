@@ -23,7 +23,7 @@ def flag_in_outlook_for(result: str | None) -> str:
     Success → Entered in AI.
     Header+PDF entered but unfinished (price/qty HOLD, Incomplete) → Entered with issues.
     Real bill unprocessable without a header → AI HOLD.
-    Skipped / Noise → Yes (`AI Skipped`). Never AI HOLD for noise.
+    Skipped / Noise → Yes (`AI Skipped 2`). Never AI HOLD for noise.
     """
     return "Yes" if (result or "").strip() in {
         "Success",
@@ -42,7 +42,7 @@ def comments_for(target: str) -> str:
     return COMMENTS
 
 
-# Mailbox noise: sheet-note Skipped + Outlook AI Skipped (never AI HOLD). Consumes the 10-email touch cap.
+# Mailbox noise: sheet-note Skipped + Outlook AI Skipped 2 (never AI HOLD). Consumes the 10-email touch cap.
 NOISE_REASONS = {
     "check stop",
     "check_stop",
@@ -2120,7 +2120,7 @@ def never_skip_vendor_invoice(
 
     Kyle: if a supplier is listed in KIMCO and provides an invoice (PDF,
     link-PDF, or Invoice/INV subject), enter or HOLD with a real Why.
-    AI Skipped is only for true non-vendor noise.
+    AI Skipped 2 is only for true non-vendor noise.
     """
     names = list(attachment_names or [])
     blob = f"{from_name}\n{subject}\n{preview}\n{' '.join(names)}"
