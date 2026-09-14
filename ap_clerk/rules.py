@@ -1846,7 +1846,13 @@ NOT_A_BILL_SUBJECT_RE = re.compile(
     flags=re.I,
 )
 STATEMENT_RE = re.compile(
-    r"\b(account\s+)?statement\b|\bpast\s+due\b|\bcollection\s+notice\b|\baccount\s*status\b",
+    r"\b(account\s+)?statement\b|\bstatement[\s_-]+of[\s_-]+account\b|"
+    r"\bpast\s+due\b|\bcollection\s+notice\b|\baccount\s*status\b",
+    flags=re.I,
+)
+# PDF / preview: Account Statement and statement-of-account are never invoices.
+ACCOUNT_STATEMENT_DOC_RE = re.compile(
+    r"\baccount\s+statement\b|\bstatement[\s_-]+of[\s_-]+account\b|\baging\s+report\b",
     flags=re.I,
 )
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
@@ -1906,6 +1912,29 @@ INTERNAL_MAIL_RE = re.compile(
 )
 
 
+def looks_like_account_statement(
+    *,
+    subject: str = "",
+    preview: str = "",
+    text: str = "",
+    filename: str = "",
+    is_statement_doc: bool = False,
+) -> bool:
+    """True for Account Statement / statement-of-account (not a vendor invoice).
+
+    Kyle: a list of invoices due to pay is noise. Skip — no header, no
+    Select Receipts, no Success. Leftover KIMCO 9985 stays; do not void.
+    """
+    if is_statement_doc:
+        return True
+    blob = f"{filename}\n{subject}\n{preview}\n{text}"
+    if ACCOUNT_STATEMENT_DOC_RE.search(blob):
+        return True
+    if STATEMENT_RE.search(subject or "") and not INVOICE_HINT_RE.search(subject or ""):
+        return True
+    return False
+
+
 def classify_mail(
     *,
     subject: str = "",
@@ -1926,9 +1955,12 @@ def classify_mail(
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
-    # Statement subject wins over known-vendor + PDF (Leeco Account Statement).
+    # Statement subject or Account Statement / statement-of-account in the
+    # preview/PDF excerpt wins over known-vendor + PDF (Leeco Account Statement).
     # Invoice/INV on the subject still means a bill (Eastern Metal / 3P).
-    if STATEMENT_RE.search(subject or "") and not INVOICE_HINT_RE.search(subject or ""):
+    if looks_like_account_statement(
+        subject=subject, preview=preview, filename=names
+    ) and not INVOICE_HINT_RE.search(subject or ""):
         return "statement"
     if re.search(r"\binquiry\b", subject or "", flags=re.I) and not INVOICE_HINT_RE.search(subject or ""):
         return "not-a-bill"
@@ -2075,7 +2107,9 @@ def never_skip_vendor_invoice(
     """
     names = list(attachment_names or [])
     blob = f"{from_name}\n{subject}\n{preview}\n{' '.join(names)}"
-    if STATEMENT_RE.search(subject or "") and not INVOICE_HINT_RE.search(subject or ""):
+    if looks_like_account_statement(
+        subject=subject, preview=preview, filename=" ".join(names)
+    ) and not INVOICE_HINT_RE.search(subject or ""):
         return False
     if re.search(r"\binquiry\b", subject or "", flags=re.I) and not INVOICE_HINT_RE.search(subject or ""):
         return False
@@ -2110,6 +2144,14 @@ def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:
     Price-does-not-match and qty HOLD still create header + attach PDF.
     Auto-pay / Toyota and pdf-behind-link do not enter in ERP.
     """
+    if looks_like_account_statement(
+        subject=str(inv.get("subject") or ""),
+        preview=str(inv.get("bodyPreview") or inv.get("preview") or ""),
+        text=str(inv.get("text") or inv.get("pdf_text") or ""),
+        filename=str(inv.get("filename") or ""),
+        is_statement_doc=bool(inv.get("is_statement_doc")),
+    ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
+        return False, "statement"
     if is_auto_pay(
         vendor=str(inv.get("vendor") or ""),
         subject=str(inv.get("subject") or ""),

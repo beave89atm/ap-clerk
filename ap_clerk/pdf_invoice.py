@@ -11,6 +11,7 @@ from typing import Any
 from pypdf import PdfReader, PdfWriter
 
 from ap_clerk.rules import (
+    ACCOUNT_STATEMENT_DOC_RE,
     FEE_KEYWORDS,
     extract_po_number,
     extract_subject_invoice_number,
@@ -136,7 +137,6 @@ _INVOICE_DOC_HINT = re.compile(
     r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|total-?due|bill\s+to)\b",
     flags=re.I,
 )
-_STATEMENT_DOC_RE = re.compile(r"\baccount\s+statement\b|\baging\s+report\b", flags=re.I)
 
 
 def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
@@ -157,9 +157,9 @@ def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
 
 
 def is_account_statement_document(*, text: str = "", filename: str = "", subject: str = "") -> bool:
-    """True for an aging / account statement PDF (Leeco 1058256.pdf)."""
+    """True for an aging / Account Statement / statement-of-account PDF (Leeco 1058256.pdf)."""
     blob = f"{filename}\n{subject}\n{text}"
-    if _STATEMENT_DOC_RE.search(blob):
+    if ACCOUNT_STATEMENT_DOC_RE.search(blob):
         return True
     if STATEMENT_FILE_HINT.search(filename or ""):
         return True

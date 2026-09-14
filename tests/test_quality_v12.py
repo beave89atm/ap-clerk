@@ -48,6 +48,7 @@ from ap_clerk.pdf_invoice import (
     expand_gas_misc_invoices,
     extract_invoice_lines,
     extract_fees,
+    is_account_statement_document,
     parse_invoice_text,
     prefer_after_tax_amount,
     vendor_from_context,
@@ -82,6 +83,7 @@ from ap_clerk.rules import (
     invoice_type_for,
     is_auto_pay,
     is_fee_or_surcharge,
+    looks_like_account_statement,
     is_noise_reason,
     format_unmatched_lines,
     match_receipts,
@@ -151,8 +153,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 24))
-    assert len(TREYCE_NOTES_V12) == 23
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 25))
+    assert len(TREYCE_NOTES_V12) == 24
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -181,6 +183,7 @@ def test_v12_registry_covers_all_notes():
         "aqpc-10917-link-download",
         "kimco-vendor-invoice-never-skip",
         "3p-select-receipts-part-po-never-fail-close",
+        "leeco-account-statement-skip",
     }
 
 
@@ -2354,3 +2357,154 @@ def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):
     assert row["Result"] != RESULT_SKIPPED
     assert "AI Skipped" not in row["Why"]
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-22")
+
+
+def test_never_repeat_leeco_account_statement(tmp_path: Path):
+    """NOTE-24: Leeco Account Statement is Skipped noise — no header, not a bill."""
+    import ap_clerk.inbox as inbox_mod
+    from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
+
+    n = NOTES["NOTE-24"]
+    assert n["do_not_void"] is True
+    assert n["leftover_kimco_id"] == 9985
+    assert classify_mail(
+        subject=n["subject"],
+        attachment_names=[n["filename"]],
+        from_name=n["from_address"],
+    ) == "statement"
+    assert classify_mail(
+        subject="Documents ready",
+        from_name=n["from_name"],
+        preview=n["pdf_text"],
+        attachment_names=[n["filename"]],
+    ) == "statement"
+    assert classify_mail(
+        subject="Leeco Steel",
+        from_name=n["from_name"],
+        preview=n["statement_of_account_text"],
+    ) == "statement"
+    assert not never_skip_vendor_invoice(
+        subject=n["subject"],
+        from_name=n["from_name"],
+        attachment_names=[n["filename"]],
+    )
+    assert not never_skip_vendor_invoice(
+        subject="Documents ready",
+        from_name=n["from_name"],
+        preview=n["pdf_text"],
+        attachment_names=[n["filename"]],
+    )
+    assert looks_like_account_statement(subject=n["subject"])
+    assert looks_like_account_statement(preview=n["statement_of_account_text"])
+    assert is_account_statement_document(
+        text=n["pdf_text"], filename=n["filename"], subject=n["subject"]
+    )
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        filename=n["filename"],
+        subject=n["subject"],
+        from_name=n["from_address"],
+    )
+    assert parsed.get("is_statement_doc") is True
+    assert parsed.get("invoice_number") != "1058256"
+    assert should_create_header(
+        {
+            "vendor": n["vendor"],
+            "invoice_number": "1058256",
+            "subject": n["subject"],
+            "amount": 6290.0,
+        }
+    ) == (False, "statement")
+    assert should_create_header({"is_statement_doc": True, "vendor": n["vendor"]}) == (
+        False,
+        "statement",
+    )
+
+    leftover_like = {
+        "vendor": n["vendor"],
+        "invoice_number": "1058256",
+        "date": "2026-07-07",
+        "po": None,
+        "pos": n["pos_listed"],
+        "amount": 6290.0,
+        "subject": n["subject"],
+        "filename": n["filename"],
+        "text": n["pdf_text"],
+        "field_sources": {"invoice_number": "pdf"},
+    }
+    row, client = _row(
+        leftover_like,
+        invoice_by_number={"1058256": [{"id": n["leftover_kimco_id"], "vendor": n["vendor"]}]},
+    )
+    assert row["Result"] == RESULT_SKIPPED
+    assert row["Result"] != RESULT_SUCCESS
+    assert row["Result"] != RESULT_HOLD
+    assert row["KIMCO id"] == ""
+    assert not client.created
+    assert "bill-vs-noise" in row["Why"]
+    assert "statement" in row["Why"].lower()
+    assert n["subject"] in row["Why"]
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-leeco-statement",
+                    "subject": n["subject"],
+                    "receivedDateTime": n["received"],
+                    "hasAttachments": True,
+                    "bodyPreview": n["pdf_text"],
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": n["from_address"],
+                        }
+                    },
+                },
+                {
+                    "id": "m-leeco-pdf-body",
+                    "subject": "Documents ready",
+                    "receivedDateTime": "2026-08-18T16:00:00Z",
+                    "hasAttachments": True,
+                    "bodyPreview": "",
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": n["from_address"],
+                        }
+                    },
+                },
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return [n["filename"]]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [(n["filename"], b"%PDF-1.4 statement")]
+
+    def fake_parse(path, **kwargs):
+        return parse_invoice_text(
+            n["pdf_text"],
+            filename=n["filename"],
+            subject=str(kwargs.get("subject") or ""),
+            from_name=str(kwargs.get("from_name") or ""),
+        )
+
+    orig = inbox_mod.parse_invoice_pdf
+    inbox_mod.parse_invoice_pdf = fake_parse
+    try:
+        selected, skipped = pull_recent_bills(Graph(), limit=2, pdf_dir=tmp_path / "pdfs")
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+
+    skip_noise = [item for item in skipped if item.get("class") != "already-flagged"]
+    assert not selected
+    assert skip_noise
+    assert {item.get("class") for item in skip_noise} == {"statement"}
+    assert all(item.get("hold_reason") == "statement" for item in skip_noise)
+    report = skip_rows_for_report(skip_noise, "API Agent - 9/14/26 (708)")
+    assert report
+    assert all(r["Result"] == RESULT_SKIPPED for r in report)
+    assert all(r["KIMCO id"] == "" for r in report)
+    assert any(n["subject"] in r["Why"] for r in report)
+    assert_never_success(row["Result"], note_id="NOTE-24", detail=row["Why"])

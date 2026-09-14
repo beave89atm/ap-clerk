@@ -60,6 +60,8 @@ header create, not a close-enough line match, not Fees miscoded as PPV.
 
 Never a fifth process-category name. Never two process markers on the same message. Do **not** leave noise uncategorized. Do **not** use `AI HOLD` for noise.
 
+**Account Statements (Kyle 2026-09-14).** Account Statements / statements-of-account are not invoices. Skip — do nothing (no header, no Select Receipts, no Success). Outlook `AI Skipped`. Do not void leftover KIMCO **9985**.
+
 ## Treyce-load: fix-before-complete checklist
 
 Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)` runs this list
@@ -153,6 +155,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
 | **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request URL, unauth GET (follow redirects), then header + attach. Auth wall → HOLD `pdf-behind-link` names vendor / # / host — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped`. `AI Skipped` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
+| **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985** (live 9/14 batch 708) | Entered as a bill (filename 1058256); listed invoices 617228 / 617448 / 619920 / 619921 | Account Statement / statement-of-account (subject or PDF body) → `Skipped` + Outlook `AI Skipped`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
