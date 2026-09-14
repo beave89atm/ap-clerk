@@ -100,6 +100,21 @@ class GraphError(RuntimeError):
     pass
 
 
+def graph_http_detail(response: Any) -> str:
+    """Short Graph error code/message for Why text. Never includes tokens."""
+    try:
+        err = (response.json() or {}).get("error") or {}
+    except (ValueError, TypeError, AttributeError):
+        return ""
+    if not isinstance(err, dict):
+        return ""
+    code = str(err.get("code") or "").strip()
+    message = str(err.get("message") or "").replace("\n", " ").strip()[:240]
+    if code and message:
+        return f"{code}: {message}"
+    return code or message
+
+
 class MailboxRejected(GraphError):
     """Raised when any mailbox other than accountspayable@kannonmfg.com is requested."""
 
@@ -426,7 +441,9 @@ class GraphClient:
                 first = False
             response = self.request("GET", url, **kwargs)
             if response.status_code != 200:
-                raise GraphError(f"Graph list messages HTTP {response.status_code}")
+                extra = graph_http_detail(response)
+                suffix = f" ({extra})" if extra else ""
+                raise GraphError(f"Graph list messages HTTP {response.status_code}{suffix}")
             payload = response.json() or {}
             chunk = payload.get("value") or []
             messages.extend(chunk)

@@ -20,8 +20,9 @@ from ap_clerk.cursor import (
     should_skip_already_seen,
 )
 from ap_clerk.daily import DEFAULT_DAILY_LIMIT, email_body_for, email_subject_for, result_counts
-from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, ENTERED_IN_AI_CATEGORY, default_report_to
+from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, ENTERED_IN_AI_CATEGORY, GraphError, default_report_to
 from ap_clerk.inbox import HARD_EMAIL_CAP, fifo_start_datetime, pull_recent_bills
+from openpyxl import load_workbook
 
 
 def test_daily_floor_is_july_28_2026_chicago():
@@ -369,6 +370,110 @@ def test_daily_refuses_without_live(capsys: pytest.CaptureFixture[str]) -> None:
     out = capsys.readouterr().out
     assert "requires --live" in out
     assert "secret" not in out.lower()
+
+
+def test_daily_graph_pull_failure_holds_keeps_cursor_attempts_send(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    for name in (
+        "KIMCO_PROTOTYPE_API_KEY",
+        "KIMCO_PROTOTYPE_API_PASSWORD",
+        "KIMCO_API_KEY",
+        "KIMCO_API_PASSWORD",
+        "KIMCO_LIVE_API_KEY",
+        "KIMCO_LIVE_API_PASSWORD",
+        "KIMCO_LIVE_INSTANCE_URL",
+        "KIMCO_TARGET",
+        "MICROSOFT_GRAPH_TENANT_ID",
+        "MICROSOFT_GRAPH_CLIENT_ID",
+        "MICROSOFT_GRAPH_CLIENT_SECRET",
+    ):
+        monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("KIMCO_LIVE_API_KEY", "live-key")
+    monkeypatch.setenv("KIMCO_LIVE_API_PASSWORD", "live-pw")
+    monkeypatch.setenv("MICROSOFT_GRAPH_TENANT_ID", "tenant")
+    monkeypatch.setenv("MICROSOFT_GRAPH_CLIENT_ID", "client")
+    monkeypatch.setenv("MICROSOFT_GRAPH_CLIENT_SECRET", "secret")
+
+    report = tmp_path / "AP-run-2026-09-14.xlsx"
+    cursor_path = tmp_path / "daily-cursor.json"
+    save_cursor(
+        DailyCursor(
+            last_receivedDateTime="2026-08-18T13:00:12Z",
+            last_message_id="AAMk-cursor",
+            last_run_date="2026-09-09",
+            last_batch="API Agent - 9/9/26 (703)",
+            processed_count=456,
+        ),
+        cursor_path,
+    )
+    sent: dict = {}
+
+    class FakeGraph:
+        def ensure_ai_hold_category(self, mailbox):
+            return "category-denied"
+
+        def ensure_entered_with_issues_category(self, mailbox):
+            return "category-denied"
+
+        def ensure_ai_skipped_category(self, mailbox):
+            return "category-denied"
+
+        def send_run_report(self, mailbox, **kwargs):
+            assert mailbox == ALLOWED_MAILBOX
+            sent.update(kwargs)
+            return EMAIL_DENIED
+
+    def boom(*args, **kwargs):
+        raise GraphError(
+            "Graph list messages HTTP 500 (ErrorInternalServerError: Keyset does not exist)"
+        )
+
+    with patch("ap_clerk.cli._optional_graph_client", return_value=FakeGraph()):
+        with patch("ap_clerk.cli.pull_recent_bills", side_effect=boom):
+            with patch("ap_clerk.cli.KimcoClient.authenticate") as kimco_auth:
+                with patch("ap_clerk.cli.run_enter") as enter:
+                    code = main(
+                        [
+                            "daily",
+                            "--live",
+                            "--limit",
+                            "10",
+                            "--as-of",
+                            "2026-09-14",
+                            "--report",
+                            str(report),
+                            "--cursor",
+                            str(cursor_path),
+                        ]
+                    )
+    assert code == 1
+    assert kimco_auth.call_count == 0
+    assert enter.call_count == 0
+    assert sent.get("to") == default_report_to()
+    assert report.exists()
+    book = load_workbook(report)
+    sheet = book.active
+    headers = [cell.value for cell in sheet[1]]
+    values = [cell.value for cell in sheet[2]]
+    row = dict(zip(headers, values))
+    assert row["Result"] == "HOLD"
+    assert row["Result"] != "Success"
+    assert "graph-mailbox" in str(row["Why"])
+    assert "Keyset does not exist" in str(row["Why"])
+    assert "Do not invent Success" in str(row["Why"])
+    assert "AP mailbox" in str(row["Why"])
+    assert "not created" in str(row["Batch"])
+    loaded = load_cursor(cursor_path)
+    assert loaded.last_receivedDateTime == "2026-08-18T13:00:12Z"
+    assert loaded.last_message_id == "AAMk-cursor"
+    assert loaded.processed_count == 456
+    out = capsys.readouterr().out
+    assert "Graph daily pull failed" in out
+    assert "live-key" not in out
+    assert "live-pw" not in out
 
 
 def test_daily_sendmail_403_writes_xlsx_and_does_not_crash(

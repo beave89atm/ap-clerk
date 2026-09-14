@@ -38,10 +38,25 @@ from ap_clerk.graph import (
     decide_flag_status,
     default_report_to,
     granted_app_roles,
+    graph_http_detail,
 )
 
 
 WRONG_MAILBOX = "someone-else@kannonmfg.com"
+
+
+def test_graph_http_detail_strips_error_without_body_dump():
+    response = Mock()
+    response.json.return_value = {
+        "error": {
+            "code": "ErrorInternalServerError",
+            "message": "An internal server error occurred. The operation failed., Keyset does not exist",
+        }
+    }
+    detail = graph_http_detail(response)
+    assert "ErrorInternalServerError" in detail
+    assert "Keyset does not exist" in detail
+    assert "eyJ" not in detail
 
 
 def test_cli_rejects_wrong_mailbox(capsys: pytest.CaptureFixture[str]) -> None:

@@ -15,6 +15,7 @@ from ap_clerk.daily import (
     cursor_from_run,
     email_body_for,
     email_subject_for,
+    hold_row_for_mailbox_block,
     result_counts,
     write_email_sidecar,
 )
@@ -1788,8 +1789,23 @@ def _run_daily(args: argparse.Namespace) -> int:
         return 2
     except GraphError as exc:
         print(f"Graph daily pull failed: {exc}", flush=True)
-        write_report(report_path, [])
-        write_email_sidecar(report_path, EMAIL_DENIED, subject=email_subject_for(as_of), to=args.email_to)
+        why = (
+            "HOLD graph-mailbox: mailbox read on the AP mailbox failed "
+            f"({exc}). "
+            "No emails touched. KIMCO batch not created. Cursor not advanced. "
+            "Do not invent Success. "
+            "Next action: restore Exchange/Graph mailbox access for the AP Clerk app, "
+            "then rerun daily --live --limit 10 from the persisted cursor."
+        )
+        rows = [hold_row_for_mailbox_block(why=why, batch_name=batch_name, as_of=as_of)]
+        write_report(report_path, rows)
+        save_cursor(
+            cursor_from_run([], [], as_of=as_of, batch=cursor.last_batch or batch_name, previous=cursor),
+            cursor_path,
+        )
+        print(f"Wrote {report_path}", flush=True)
+        _print_summary(rows)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_name, as_of=as_of, to=args.email_to)
         return 1
 
     print(
