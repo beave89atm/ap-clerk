@@ -101,6 +101,7 @@ from ap_clerk.rules import (
     format_unmatched_lines,
     format_unmatched_pos,
     INVOICE_TYPE_PO,
+    extract_subject_cpls,
     extract_subject_invoice_number,
     invoice_qty_evidence,
     match_receipts,
@@ -1000,50 +1001,48 @@ def _process_invoice(
     receipt_note = ""
     receipt_result: dict[str, Any] | None = None
     if receipts is not None and (po_info or multi_po):
-        search_pos = pos if multi_po else [str(po)] if po else []
-        hold_all = True
-        notes = []
-        combined_matched: list[dict[str, Any]] = []
-        combined_unmatched: list[dict[str, Any]] = []
-        unmatched_pos: list[str] = []
-        for search_po in search_pos or [None]:
-            one = match_receipts(
-                invoice_number=number,
-                invoice_lines=invoice_lines,
-                receipts=receipts,
-                po_number=str(search_po) if search_po else None,
-                invoice_qty=invoice_qty,
-                invoice_amount=merch,
-            )
-            notes.append(one["why"])
-            combined_matched.extend(one.get("matched") or [])
-            combined_unmatched.extend(one.get("unmatched_lines") or [])
-            if one.get("hold_no_receipts") and search_po:
-                unmatched_pos.append(str(search_po))
-            if one.get("ambiguous") and not one.get("matched"):
-                hold_all = False
-                if issue_hold is None:
-                    amb_why = str((one.get("ambiguous") or [{}])[0].get("why") or one.get("why") or "")
-                    issue_hold = (
-                        GATE_RECEIPT,
-                        why_hold(
-                            GATE_RECEIPT,
-                            amb_why
-                            or "multiple open receipts on the PO differ in qty/cost. "
-                            "Will not guess first-open / second-open-on-po.",
-                        )
-                        + " Create KIMCO header and attach PDF; do not claim Success.",
-                    )
-            if not one["hold_no_receipts"]:
-                hold_all = False
+        # One matcher pass over every invoice line and every listed PO.
+        # Do not feed invoice-total qty/cost as a per-line gate (3P 142041).
+        # CPL numbers are a secondary hint only — never required.
+        one = match_receipts(
+            invoice_number=number,
+            invoice_lines=invoice_lines,
+            receipts=receipts,
+            po_number=str(po) if (po and not multi_po) else None,
+            po_numbers=pos or None,
+            invoice_qty=invoice_qty if not invoice_lines else None,
+            invoice_amount=merch if not invoice_lines else None,
+            slip_numbers=extract_subject_cpls(str(inv.get("subject") or "")),
+        )
+        combined_matched = list(one.get("matched") or [])
+        combined_unmatched = list(one.get("unmatched_lines") or [])
+        matched_pos = {
+            str((hit.get("receipt") or {}).get("po") or (hit.get("line") or {}).get("po") or "")
+            for hit in combined_matched
+        }
+        unmatched_pos = [p for p in pos if p and p not in matched_pos]
         receipt_result = {
-            "hold_no_receipts": hold_all,
+            "hold_no_receipts": bool(one.get("hold_no_receipts")),
             "matched": combined_matched,
             "unmatched_lines": combined_unmatched,
             "unmatched_pos": unmatched_pos,
-            "why": " ".join(notes),
+            "why": one.get("why") or "",
         }
-        if hold_all and (po_info or multi_po) and issue_hold is None:
+        if one.get("ambiguous") and not combined_matched and issue_hold is None:
+            amb_why = str((one.get("ambiguous") or [{}])[0].get("why") or one.get("why") or "")
+            issue_hold = (
+                GATE_RECEIPT,
+                why_hold(
+                    GATE_RECEIPT,
+                    amb_why
+                    or "multiple open receipts on the PO differ in qty/cost. "
+                    "Will not guess first-open / second-open-on-po.",
+                )
+                + " Create KIMCO header and attach PDF; do not claim Success.",
+            )
+        # Blanket no-receipts HOLD only when ZERO lines matched. Partial
+        # Select Receipts is required when any line matches (Kyle 2026-09-14).
+        if receipt_result["hold_no_receipts"] and not combined_matched and issue_hold is None:
             unmatched_txt = format_unmatched_lines(combined_unmatched)
             unmatched_po_txt = format_unmatched_pos(unmatched_pos)
             extra = ""
@@ -1057,8 +1056,7 @@ def _process_invoice(
                     f" Unmatched PO(s): {unmatched_po_txt}. "
                     "Select Receipts per PO; do not skip a PO silently."
                 )
-            # Real vendor PDF: still create header + attach. Receipt HOLD is
-            # unfinished (Entered with issues), not a pre-create stop (3P 142041).
+            extra += " " + str(one.get("why") or "")
             issue_hold = (
                 GATE_RECEIPT,
                 why_hold(
@@ -1069,15 +1067,25 @@ def _process_invoice(
                 + " Create KIMCO header and attach PDF; do not claim Success.",
             )
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
-        if unmatched_pos:
+        if unmatched_pos and combined_matched:
             receipt_note += (
                 f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
                 "Select Receipts per PO; do not skip a PO silently. "
             )
-        selected_txt = format_selected_receipts((receipt_result or {}).get("matched"))
+        elif unmatched_pos and not combined_matched:
+            receipt_note += (
+                f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
+                "Select Receipts per PO; do not skip a PO silently. "
+            )
+        selected_txt = format_selected_receipts(combined_matched)
         if selected_txt:
             receipt_note += f"Selected receipts: {selected_txt}. "
-        if receipt_result and issue_hold is None:
+        if combined_unmatched and combined_matched:
+            receipt_note += (
+                f"Selected vs unmatched: matched {len(combined_matched)}, "
+                f"unmatched {len(combined_unmatched)}. "
+            )
+        if receipt_result and combined_matched:
             matched_receipts = [
                 {
                     "part": (hit.get("receipt") or {}).get("part"),
@@ -1086,18 +1094,17 @@ def _process_invoice(
                     or (hit.get("receipt") or {}).get("part"),
                     "label": (hit.get("line") or {}).get("label") or (hit.get("receipt") or {}).get("part"),
                 }
-                for hit in (receipt_result.get("matched") or [])
+                for hit in combined_matched
             ]
             rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
-            unmatched_now = list(receipt_result.get("unmatched_lines") or [])
-            if not rec_ok:
+            unmatched_now = list(combined_unmatched)
+            # Qty HOLD must not wipe matched receipt ids. Select every line
+            # that matched; leftover lines stay on Why.
+            if not rec_ok and not unmatched_now and issue_hold is None:
                 issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
             elif invoice_qty is not None and not unmatched_now:
-                # Aggregate qty is Fastenal 35-vs-36. When some invoice lines
-                # are unmatched (EMJ Z250725432), still Select Receipts for the
-                # matches; selfcheck names the skipped line and blocks Success.
                 picked_qty = merchandise_qty(matched_receipts)
-                if picked_qty is not None and picked_qty != invoice_qty:
+                if picked_qty is not None and picked_qty != invoice_qty and issue_hold is None:
                     issue_hold = (
                         GATE_QTY,
                         why_hold(
@@ -1155,13 +1162,24 @@ def _process_invoice(
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
     receipts_selected = False
     select_status = ""
-    if issue_hold:
-        # Price / qty HOLD: header + PDF only. Do not finish Select Receipts as Success.
+    receipt_ids = [hit.get("receipt", {}).get("id") for hit in (receipt_result or {}).get("matched") or []]
+    receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
+    if (po_info or multi_po) and receipt_ids:
+        # Kyle 2026-09-14: select every matchable line. A price/qty/unmatched
+        # leftover must not skip Select Receipts for the lines that did match.
+        selector = getattr(client, "try_select_receipts", None)
+        if selector:
+            try:
+                select_status = selector(created_id, receipt_ids)
+            except KimcoError:
+                select_status = "blocked-405"
+        else:
+            select_status = "blocked-405"
+        receipts_selected = select_status == "selected"
+    elif issue_hold:
         select_status = "held-unfinished"
     elif po_info or multi_po:
         selector = getattr(client, "try_select_receipts", None)
-        receipt_ids = [hit.get("receipt", {}).get("id") for hit in (receipt_result or {}).get("matched") or []]
-        receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
         if selector:
             try:
                 select_status = selector(created_id, receipt_ids)
@@ -1218,7 +1236,9 @@ def _process_invoice(
         if misc_item and invoice_type == 4:
             misc_note = f" Misc purchase item {misc_item}."
         row["Why"] = (
-            f"{issue_hold[1]} Header created (id {created_id}). Attach status={pdf_status}.{misc_note} "
+            f"{issue_hold[1]} {receipt_note}"
+            f"Header created (id {created_id}). Attach status={pdf_status}."
+            f" Select Receipts={select_status or 'not-posted'}.{misc_note} "
             "Outlook Entered with issues (not Entered in AI)."
         ).strip()
         LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=HOLD-with-header", number, created_id, vendor, po, invoice_type)

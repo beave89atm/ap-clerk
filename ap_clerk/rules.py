@@ -567,9 +567,42 @@ def normalize_part(value: Any) -> str:
     return re.sub(r"[^A-Z0-9]", "", str(value or "").upper())
 
 
+_PART_TOKEN_RE = re.compile(r"[A-Z0-9]{2,}(?:-[A-Z0-9]+)+", flags=re.I)
+
+
+def part_keys(value: Any) -> set[str]:
+    """Normalized part tokens (1007044-1 → 10070441) from a field or blob."""
+    text = str(value or "").strip()
+    keys: set[str] = set()
+    compact = normalize_part(text)
+    if compact and any(ch.isdigit() for ch in compact) and len(compact) >= 5:
+        keys.add(compact)
+    for tok in _PART_TOKEN_RE.findall(text):
+        key = normalize_part(tok)
+        if key and any(ch.isdigit() for ch in key) and len(key) >= 5:
+            keys.add(key)
+    return keys
+
+
+def parts_overlap(left: Any, right: Any) -> bool:
+    """True when invoice 1007044-1 matches receipt '1007044-1 SUBFRAME WELDMENT'."""
+    a, b = part_keys(left), part_keys(right)
+    if a & b:
+        return True
+    for x in a:
+        for y in b:
+            if len(x) >= 6 and x in y:
+                return True
+            if len(y) >= 6 and y in x:
+                return True
+    return False
+
+
 def _same_part(left: Any, right: Any) -> bool:
     a, b = normalize_part(left), normalize_part(right)
-    return bool(a and b and a == b)
+    if a and b and a == b:
+        return True
+    return parts_overlap(left, right)
 
 
 def _same_line_no(left: Any, right: Any) -> bool:
@@ -652,10 +685,27 @@ def _line_description(line: dict[str, Any]) -> str:
     )
 
 
+def _line_blob(line: dict[str, Any] | None) -> str:
+    if not isinstance(line, dict):
+        return ""
+    return " ".join(
+        str(line.get(key) or "")
+        for key in ("part", "item", "description", "label", "name")
+        if line.get(key)
+    )
+
+
 def _line_match_score(invoice_line: dict[str, Any], other: dict[str, Any]) -> int:
     """Part, description, and PO/WO line beat qty. Qty-only is not a pick."""
     score = 0
-    if _same_part(invoice_line.get("part") or invoice_line.get("item"), other.get("part") or other.get("item")):
+    inv_part = invoice_line.get("part") or invoice_line.get("item")
+    other_part = other.get("part") or other.get("item")
+    if (
+        _same_part(inv_part, other_part)
+        or parts_overlap(inv_part, _line_blob(other))
+        or parts_overlap(_line_blob(invoice_line), other_part)
+        or parts_overlap(_line_blob(invoice_line), _line_blob(other))
+    ):
         score += 100
     score += description_match_score(_line_description(invoice_line), _line_description(other))
     if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), other.get("po_line") or other.get("line") or other.get("line_no")):
@@ -692,7 +742,20 @@ def normalize_receipt(item: dict[str, Any]) -> dict[str, Any]:
         "Name",
         "Receiver",
     )
-    part = receipt_field(item, "PO_Item_Number", "Item_Number", "Item", "Part", "Part_Number")
+    part = receipt_field(
+        item,
+        "PO_Item_Number",
+        "Item_Number",
+        "Item",
+        "Part",
+        "Part_Number",
+        "Item_ID",
+        "Purchase_Item",
+        "PO_Item",
+        "Inventory_Item",
+        "Item_Name",
+        "Part_No",
+    )
     description = receipt_field(
         item,
         "Description",
@@ -1013,6 +1076,68 @@ def pick_receipts_by_qty_cost(
     }
 
 
+def receipt_po(receipt: dict[str, Any] | None) -> str:
+    if not isinstance(receipt, dict):
+        return ""
+    return str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or "")) or ""
+
+
+def line_po(line: dict[str, Any] | None, fallback: str | None = None) -> str:
+    if not isinstance(line, dict):
+        return str(fallback or "")
+    return str(line.get("po") or line.get("purchase_order") or fallback or "")
+
+
+def _part_conflicts(invoice_line: dict[str, Any], receipt: dict[str, Any]) -> bool:
+    """True when both sides name a part and those parts are not the same.
+
+    Qty-only must not steal a DIFFERENT part (NEED-THIS vs DIFFERENT).
+    Empty receipt part is not a conflict — 3P PO-line receipts often bury
+    the part in Name / Description.
+    """
+    left = invoice_line.get("part") or invoice_line.get("item")
+    right = receipt.get("part") or receipt.get("item")
+    if not left or not right:
+        return False
+    if _same_part(left, right) or parts_overlap(_line_blob(invoice_line), _line_blob(receipt)):
+        return False
+    return normalize_part(left) != normalize_part(right)
+
+
+def slip_matches_any(slip: str | None, numbers: list[str] | None) -> bool:
+    """Secondary CPL / packing-slip hint. Never a required gate."""
+    if not slip or not numbers:
+        return False
+    return any(slip_matches_invoice(slip, number) for number in numbers if number)
+
+
+def format_receipt_candidates(receipts: list[dict[str, Any]] | None, *, limit: int = 8) -> str:
+    """Why text: which open receipts were considered for an unmatched line."""
+    bits: list[str] = []
+    for receipt in (receipts or [])[:limit]:
+        if not isinstance(receipt, dict):
+            continue
+        rid = receipt.get("id")
+        part = receipt.get("part") or receipt.get("description") or receipt.get("name") or ""
+        qty = receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity")
+        po = receipt_po(receipt)
+        slip = receipt.get("slip") or ""
+        label = f"id {rid}" if rid not in (None, "") else "receipt"
+        if part:
+            label += f" part {str(part)[:40]}"
+        if qty not in (None, ""):
+            label += f" qty {qty}"
+        if po:
+            label += f" on PO {po}"
+        if slip:
+            label += f" slip {slip}"
+        bits.append(label)
+    extra = len(receipts or []) - len(bits)
+    if extra > 0:
+        bits.append(f"+{extra} more")
+    return "; ".join(bits) if bits else "none"
+
+
 def match_receipts(
     *,
     invoice_number: str | None,
@@ -1021,15 +1146,24 @@ def match_receipts(
     po_number: str | None = None,
     invoice_qty: Any = None,
     invoice_amount: Any = None,
+    po_numbers: list[str] | None = None,
+    slip_numbers: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Select Receipts: part + PO/WO line, then slip # = invoice #.
+    """Select Receipts: each invoice line → open receipts on that line's PO.
 
-    When invoice lines are empty, verify qty and merchandise cost against
-    open receipts on the PO. Prefer exact qty (35 vs 36 → 35). Never Success
-    via first-open / second-open-on-po when multiple open receipts differ in
-    qty/cost. Fastenal TXFT499356 is findable via slip # = invoice #.
-    Modern Heat 220804 must take lines 6–7 (parts 625-5200-002 / 400-5200-001),
-    not lines 1–3 that merely have a fitting qty.
+    Primary path is part / PO line / per-line qty (never invoice-total qty as
+    the per-line gate). Check every merchandise line; select every match.
+    Do not stop after the first unmatched line. Do not fail-close the whole
+    bill when some lines match.
+
+    Slip # = invoice # (Fastenal) still applies. Subject CPL numbers are a
+    secondary hint only — never required, never the only path, never a HOLD
+    gate when PO-line receipts exist for the invoice parts.
+
+    Empty invoice lines: verify qty/cost against open receipts on each listed
+    PO (Fastenal 35 vs 36). Never first-open / second-open-on-po when open
+    receipts differ. Modern Heat 220804 must take parts 625-5200-002 /
+    400-5200-001, not leftover qty on lines 1–3.
     """
     cleaned: list[dict[str, Any]] = []
     for row in receipts:
@@ -1039,7 +1173,14 @@ def match_receipts(
                 continue
         cleaned.append(normalize_receipt(row))
     normalized = cleaned
-    lines = [dict(line) for line in (invoice_lines or []) if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or ""))]
+    listed_pos = [str(p) for p in (po_numbers or []) if p]
+    if po_number and str(po_number) not in listed_pos:
+        listed_pos.append(str(po_number))
+    lines = [
+        dict(line)
+        for line in (invoice_lines or [])
+        if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or ""))
+    ]
     qty_ev = invoice_qty_evidence(lines, invoice_qty)
     amount_ev = money(invoice_amount)
     if amount_ev is None:
@@ -1057,26 +1198,52 @@ def match_receipts(
     matched: list[dict[str, Any]] = []
     used: set[int] = set()
     unmatched: list[dict[str, Any]] = []
+    unmatched_candidates: dict[int, list[dict[str, Any]]] = {}
     ambiguous: list[dict[str, Any]] = []
     hows: list[str] = []
+    cpl_hints = [str(s) for s in (slip_numbers or []) if s]
 
-    def _receipt_score(inv_line: dict[str, Any], receipt: dict[str, Any]) -> int:
+    def _line_qty(inv_line: dict[str, Any] | None) -> float | None:
+        if not inv_line:
+            return None
+        return money(inv_line.get("qty") if inv_line.get("qty") is not None else inv_line.get("quantity"))
+
+    def _line_amount(inv_line: dict[str, Any] | None) -> float | None:
+        if not inv_line:
+            return None
+        return money(
+            inv_line.get("amount")
+            if inv_line.get("amount") is not None
+            else inv_line.get("line_amount")
+        )
+
+    def _receipt_score(inv_line: dict[str, Any], receipt: dict[str, Any], *, search_po: str = "") -> int:
         score = _line_match_score(inv_line, receipt)
-        if slip_matches_invoice(str(receipt.get("slip") or receipt.get("name") or ""), invoice_number):
+        slip_txt = str(receipt.get("slip") or receipt.get("name") or "")
+        if slip_matches_invoice(slip_txt, invoice_number):
             score += 80
-        if po_number and str(receipt.get("po") or "") == str(po_number):
+        # CPL / packing-slip is a bonus only. Part + PO already wins at 100.
+        if cpl_hints and slip_matches_any(slip_txt, cpl_hints):
+            score += 20
+        rec_po = receipt_po(receipt)
+        if search_po and rec_po == str(search_po):
+            score += 15
+        elif po_number and rec_po == str(po_number):
             score += 15
         return score
 
-    def _open_on_po() -> list[dict[str, Any]]:
+    def _open_on_po(search_po: str | None) -> list[dict[str, Any]]:
+        if not search_po:
+            return [r for r in normalized if id(r) not in used]
         open_rows: list[dict[str, Any]] = []
         for receipt in normalized:
             if id(receipt) in used:
                 continue
-            receipt_po = str(receipt.get("po") or "") or extract_po_number(str(receipt.get("name") or ""))
-            if po_number and receipt_po == str(po_number):
+            if receipt_po(receipt) == str(search_po):
                 open_rows.append(receipt)
         return open_rows
+
+    _QTY_UNSET = object()
 
     def _apply_qty_cost_pick(
         candidates: list[dict[str, Any]],
@@ -1084,11 +1251,13 @@ def match_receipts(
         score: int,
         pass_name: str,
         line: dict[str, Any] | None = None,
+        pick_qty: Any = _QTY_UNSET,
+        pick_amount: Any = _QTY_UNSET,
     ) -> bool:
         pick = pick_receipts_by_qty_cost(
             candidates,
-            invoice_qty=qty_ev,
-            invoice_amount=amount_ev,
+            invoice_qty=qty_ev if pick_qty is _QTY_UNSET else pick_qty,
+            invoice_amount=amount_ev if pick_amount is _QTY_UNSET else pick_amount,
             invoice_number=invoice_number,
         )
         if pick.get("ambiguous") and not pick.get("picked"):
@@ -1111,32 +1280,60 @@ def match_receipts(
                 hows.append(str(pick["how"]))
         return bool(pick.get("picked"))
 
-    for inv_line in lines:
+    def _try_line(inv_line: dict[str, Any], *, pass_name: str) -> bool:
+        """Match one invoice line. Always returns; never stops the bill."""
+        search_po = line_po(inv_line, po_number)
         scored: list[tuple[int, dict[str, Any]]] = []
         for receipt in normalized:
             if id(receipt) in used:
                 continue
-            score = _receipt_score(inv_line, receipt)
+            rec_po = receipt_po(receipt)
+            if search_po and rec_po and rec_po != str(search_po):
+                continue
+            score = _receipt_score(inv_line, receipt, search_po=search_po)
             # Qty-only (10) is not a selection. Need part, PO/WO line, or slip.
             if score >= 50:
                 scored.append((score, receipt))
         scored.sort(key=lambda pair: pair[0], reverse=True)
         if not scored:
-            unmatched.append(inv_line)
-            continue
+            return False
+        line_qty = _line_qty(inv_line)
+        line_amt = _line_amount(inv_line)
         if len(scored) > 1 and scored[0][0] < scored[1][0] + 10:
-            # Same part/score: break ties with invoice qty, then cost.
             tied = [r for s, r in scored if s >= scored[0][0] - 5]
-            if len(tied) > 1 and (qty_ev is not None or amount_ev is not None):
-                if _apply_qty_cost_pick(tied, score=scored[0][0], pass_name="qty-cost-tiebreak", line=inv_line):
+            if len(tied) > 1 and (line_qty is not None or line_amt is not None):
+                if _apply_qty_cost_pick(
+                    tied,
+                    score=scored[0][0],
+                    pass_name="qty-cost-tiebreak",
+                    line=inv_line,
+                    pick_qty=line_qty,
+                    pick_amount=line_amt,
+                ):
                     hows.append("part/PO-WO + invoice qty/cost")
-                    continue
-            ambiguous.append({"line": inv_line, "candidates": [r for _s, r in scored[:3]]})
-            continue
+                    return True
+            if pass_name == "first":
+                ambiguous.append({"line": inv_line, "candidates": [r for _s, r in scored[:3]]})
+            return False
         pick = scored[0][1]
         used.add(id(pick))
-        matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "how": "part/PO-WO/slip"})
+        matched.append(
+            {
+                "line": inv_line,
+                "receipt": pick,
+                "score": scored[0][0],
+                "pass": pass_name,
+                "how": "part/PO-WO/slip" if pass_name == "first" else pass_name,
+            }
+        )
         hows.append("part/PO-WO/slip")
+        return True
+
+    # First pass: every merchandise line. Do not stop after one miss.
+    still_open: list[dict[str, Any]] = []
+    for inv_line in lines:
+        if not _try_line(inv_line, pass_name="first"):
+            still_open.append(inv_line)
 
     slip_hits = [
         r
@@ -1146,65 +1343,130 @@ def match_receipts(
     if not lines and slip_hits:
         _apply_qty_cost_pick(slip_hits, score=80, pass_name="slip")
 
-    found = bool(matched)
-    if not found and not lines and not ambiguous:
-        # Empty invoice lines (Fastenal TXFT4100079): never first-open on PO.
-        pool = _open_on_po() if po_number else list(normalized)
-        if pool:
-            _apply_qty_cost_pick(pool, score=65, pass_name="qty-cost-on-po")
-            found = bool(matched)
+    if not lines and not matched and not ambiguous:
+        # Empty invoice lines (Fastenal TXFT4100079 / 3P multi-PO with no face lines).
+        targets = listed_pos or ([str(po_number)] if po_number else [])
+        if not targets:
+            pool = [r for r in normalized if id(r) not in used]
+            if pool:
+                _apply_qty_cost_pick(pool, score=65, pass_name="qty-cost-on-po")
+        else:
+            multi = len(targets) > 1
+            for search_po in targets:
+                pool = _open_on_po(search_po)
+                if not pool:
+                    continue
+                _apply_qty_cost_pick(
+                    pool,
+                    score=65,
+                    pass_name="qty-cost-on-po",
+                    line={"po": search_po},
+                    pick_qty=qty_ev if not multi else None,
+                    pick_amount=amount_ev if not multi else None,
+                )
 
-    # Synthesized / named-for-PO receipts (McMaster PO58808, Ryerson PO58789).
-    # Never a single PO-receipt Success when the invoice has multiple merchandise lines
-    # (EMJ Z250725432: two lines, runner selected one).
-    if not found and po_number and not ambiguous and len(lines) <= 1:
-        pool = _open_on_po()
+    # Named-for-PO receipts (McMaster / Ryerson): only when this invoice has
+    # a single merchandise line. Multi-line bills must match each line
+    # (EMJ Z250725432). Multi-PO 3P uses per-PO single-line fallback below.
+    if not matched and po_number and not ambiguous and len(lines) <= 1:
+        pool = _open_on_po(str(po_number))
         if pool:
             _apply_qty_cost_pick(pool, score=65, pass_name="named-po")
-            found = bool(matched)
 
-    # Second pass before HOLD-no-receipts (Capital 26167 / Fastenal TXFT499356):
-    # slip # = invoice #, part, qty, PO line, then qty/cost among open receipts.
+    # Second pass: remaining lines only. Never abandon already-matched lines.
     second_pass = False
-    if not found and not ambiguous and po_number:
-        open_on_po = _open_on_po()
-        if _apply_qty_cost_pick(
-            [r for r in open_on_po if slip_matches_invoice(str(r.get("slip") or r.get("name") or ""), invoice_number)],
-            score=80,
-            pass_name="second-slip",
-        ):
-            found = True
-            second_pass = True
-        if not found:
-            for inv_line in lines:
-                scored = []
-                for receipt in open_on_po:
-                    if id(receipt) in used:
-                        continue
-                    score = _receipt_score(inv_line, receipt)
-                    if score >= 50:
-                        scored.append((score, receipt))
-                scored.sort(key=lambda pair: pair[0], reverse=True)
-                if scored:
-                    pick = scored[0][1]
-                    used.add(id(pick))
-                    matched.append({"line": inv_line, "receipt": pick, "score": scored[0][0], "pass": "second-part", "how": "second-part"})
-                    hows.append("part/PO-WO/slip")
-                    found = True
-                    second_pass = True
-        if not found and open_on_po and len(lines) <= 1:
-            # Capital 26167: a single open receipt on the PO is enough.
-            # Multiple invoice lines must each match; do not stop after one.
-            if _apply_qty_cost_pick(open_on_po, score=55, pass_name="second-open-on-po"):
-                found = True
+    if still_open:
+        retry: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            if _try_line(inv_line, pass_name="second-part"):
                 second_pass = True
+            else:
+                retry.append(inv_line)
+        still_open = retry
+
+        # Per-PO Capital / 3P fallback: one unmatched line on a PO + open
+        # receipts on that PO, using THAT line's qty/cost (not invoice total).
+        # Skip receipts whose part conflicts with the invoice line.
+        leftover: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            search_po = line_po(inv_line, po_number)
+            pool = [
+                r
+                for r in _open_on_po(search_po or None)
+                if not _part_conflicts(inv_line, r)
+            ]
+            if not pool:
+                leftover.append(inv_line)
+                unmatched_candidates[id(inv_line)] = _open_on_po(search_po or None)
+                continue
+            lines_on_po = [
+                ln
+                for ln in lines
+                if line_po(ln, po_number) == search_po
+            ]
+            line_qty = _line_qty(inv_line)
+            line_amt = _line_amount(inv_line)
+            picked = False
+            if len(lines_on_po) <= 1 or len(pool) == 1:
+                picked = _apply_qty_cost_pick(
+                    pool,
+                    score=55,
+                    pass_name="second-open-on-po",
+                    line=inv_line,
+                    pick_qty=line_qty,
+                    pick_amount=line_amt,
+                )
+            elif line_qty is not None or line_amt is not None:
+                picked = _apply_qty_cost_pick(
+                    pool,
+                    score=55,
+                    pass_name="second-open-on-po",
+                    line=inv_line,
+                    pick_qty=line_qty,
+                    pick_amount=line_amt,
+                )
+            if picked:
+                second_pass = True
+            else:
+                leftover.append(inv_line)
+                unmatched_candidates[id(inv_line)] = pool
+        still_open = leftover
+
+    unmatched.extend(still_open)
 
     found = bool(matched)
+    # HOLD-no-receipts only when ZERO lines matched and nothing was ambiguous.
+    # Partial Select Receipts is required when any line matches.
     hold_no_receipts = not found and not ambiguous
     unique_hows: list[str] = []
     for how in hows:
         if how and how not in unique_hows:
             unique_hows.append(how)
+    candidate_note = ""
+    if unmatched:
+        considered: list[dict[str, Any]] = []
+        seen_ids: set[Any] = set()
+        for inv_line in unmatched:
+            for receipt in unmatched_candidates.get(id(inv_line), []):
+                rid = receipt.get("id")
+                key = rid if rid not in (None, "") else id(receipt)
+                if key in seen_ids:
+                    continue
+                seen_ids.add(key)
+                considered.append(receipt)
+        if not considered:
+            for search_po in {line_po(ln, po_number) for ln in unmatched} | set(listed_pos):
+                for receipt in _open_on_po(search_po or None):
+                    rid = receipt.get("id")
+                    key = rid if rid not in (None, "") else id(receipt)
+                    if key in seen_ids:
+                        continue
+                    seen_ids.add(key)
+                    considered.append(receipt)
+        if considered:
+            candidate_note = f" Receipt candidates considered: {format_receipt_candidates(considered)}."
+        else:
+            candidate_note = " Receipt candidates considered: none on the listed PO(s)."
     if hold_no_receipts:
         why = "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
         if unmatched:
@@ -1212,6 +1474,7 @@ def match_receipts(
                 f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
                 "Select Receipts for each invoice line; do not stop after one."
             )
+        why += candidate_note
     elif ambiguous and not matched:
         why = (
             f"HOLD: {len(ambiguous)} ambiguous open receipt set(s) on the PO "
@@ -1236,8 +1499,10 @@ def match_receipts(
         if unmatched:
             why += (
                 f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                "Selected vs unmatched: matched {len(matched)}, unmatched {len(unmatched)}. "
                 "Select Receipts for each invoice line; do not stop after one."
             )
+            why += candidate_note
     return {
         "matched": matched,
         "unmatched_lines": unmatched,
@@ -1551,6 +1816,7 @@ KNOWN_BILL_VENDOR_RE = re.compile(
 THREE_P_RE = re.compile(r"\b3p\b|rachel\s+bailey", flags=re.I)
 EASTERN_METAL_RE = re.compile(r"eastern\s+metal", flags=re.I)
 _PO_HASH_LIST = re.compile(r"\bPO\s*#\s*([0-9,\s]+)", flags=re.I)
+_CPL_HASH_LIST = re.compile(r"\bCPL\s*#\s*([0-9,\s]+)", flags=re.I)
 _INV_HASH = re.compile(r"\bINV(?:OICE)?\s*#?\s*[:.]?\s*(\d{5,8})\b", flags=re.I)
 # AQPC often links a PDF instead of attaching it.
 LINK_DOWNLOAD_VENDOR_RE = re.compile(
@@ -1626,6 +1892,15 @@ def extract_subject_pos(subject: str) -> list[str]:
     if not match:
         return []
     found = [n for n in re.findall(r"\d{5,6}", match.group(1))]
+    return list(dict.fromkeys(found))
+
+
+def extract_subject_cpls(subject: str) -> list[str]:
+    """CPL # 76659, 76664, … packing-slip hints. Secondary only; never a gate."""
+    match = _CPL_HASH_LIST.search(subject or "")
+    if not match:
+        return []
+    found = [n for n in re.findall(r"\d{4,8}", match.group(1))]
     return list(dict.fromkeys(found))
 
 

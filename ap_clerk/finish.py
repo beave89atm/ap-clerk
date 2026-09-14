@@ -53,6 +53,7 @@ from ap_clerk.kimco import (
     receipt_qty_from_invoice_lines,
 )
 from ap_clerk.rules import (
+    extract_subject_cpls,
     flag_in_outlook_for,
     format_unmatched_lines,
     invoice_qty_evidence,
@@ -259,20 +260,21 @@ def finish_existing_header(
         combined: list[dict[str, Any]] = []
         notes: list[str] = []
         if receipts is not None:
-            for search_po in search_pos or [None]:
-                one = match_receipts(
-                    invoice_number=str(out.get("Invoice #") or inv.get("invoice_number") or ""),
-                    invoice_lines=invoice_lines,
-                    receipts=receipts,
-                    po_number=str(search_po) if search_po else None,
-                    invoice_qty=invoice_qty,
-                    invoice_amount=merch,
-                )
-                notes.append(str(one.get("why") or ""))
-                if one.get("ambiguous") and not one.get("matched"):
-                    receipt_note = str(one.get("why") or "")
-                combined.extend(one.get("matched") or [])
-                unmatched_for_check.extend(one.get("unmatched_lines") or [])
+            one = match_receipts(
+                invoice_number=str(out.get("Invoice #") or inv.get("invoice_number") or ""),
+                invoice_lines=invoice_lines,
+                receipts=receipts,
+                po_number=str(po) if (po and not multi_po) else None,
+                po_numbers=search_pos or None,
+                invoice_qty=invoice_qty if not invoice_lines else None,
+                invoice_amount=merch if not invoice_lines else None,
+                slip_numbers=extract_subject_cpls(str(inv.get("subject") or "")),
+            )
+            notes.append(str(one.get("why") or ""))
+            if one.get("ambiguous") and not one.get("matched"):
+                receipt_note = str(one.get("why") or "")
+            combined.extend(one.get("matched") or [])
+            unmatched_for_check.extend(one.get("unmatched_lines") or [])
             if not receipt_note:
                 receipt_note = " ".join(n for n in notes if n)
         receipt_ids = [
@@ -289,9 +291,15 @@ def finish_existing_header(
                 for hit in combined
             ]
         )
-        if invoice_qty is not None and picked_qty is not None and picked_qty != invoice_qty:
+        # Partial Select Receipts: a leftover unmatched line must not wipe
+        # the ids that did match (3P 142041 / Kyle 2026-09-14).
+        if (
+            invoice_qty is not None
+            and picked_qty is not None
+            and picked_qty != invoice_qty
+            and not unmatched_for_check
+        ):
             receipt_qty_mismatch = True
-            receipt_ids = []
         if receipt_ids:
             try:
                 select_status = client.try_select_receipts(int(invoice_id), receipt_ids)

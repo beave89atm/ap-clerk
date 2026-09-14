@@ -78,7 +78,12 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
 8. **Select Receipts posted** when the PO path applies. Receipt qty and
    merchandise cost must match the invoice. Never first-open /
    second-open-on-po when multiple open receipts differ (Fastenal
-   TXFT4100079 qty 36 vs invoice 35).
+   TXFT4100079 qty 36 vs invoice 35). **Check every invoice line.** Select
+   every line that matches. Do not stop after one unmatched line. Do not
+   fail-close the whole bill to `no receipts after second pass` when some
+   lines have matching PO receipts (3P 9988–9991). Partial select is
+   required: leftover lines stay HOLD / Incomplete / Entered with issues
+   with Why naming selected vs unmatched.
 9. **Posted vendor matches parsed** — GET after create; posted name/id is the
    parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
 
@@ -143,7 +148,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-16** Gas `billing01_A3050_c.pdf` / 0040370068 / KIMCO 9970 (Kyle 2026-09-11) | 6 invoices collapsed to one # + multi-PO Incomplete; amount 322 was before tax | Split to 6 bills; after-tax Amount Due (never Subtotal/Merchandise); page-range PDF per invoice when feasible else full pack + Why `multi-invoice-pdf page X–Y of N`; email still 1 touch; never Success/Incomplete a collapsed pack or a pre-tax amount | `test_never_repeat_gas_multi_invoice_pdf` / `test_never_repeat_gas_after_tax_amount` |
 | **NOTE-17** Insight 1809 already entered (Kyle 2026-09-11) | HOLD preflight-parse MSC/McQueary + `no-pdf-on-vm`; never said already-entered | Duplicate check before parse-HOLD; HOLD `already-entered` names vendor / # / existing KIMCO id(s); no McQueary; no `no-pdf-on-vm` when PDF is on disk | `test_never_repeat_insight_1809_already_entered` |
 | **NOTE-18** Outlook `AI Skipped` for noise (Kyle 2026-09-11) | Noise was sheet-only; no Outlook category; already-flagged ignored `AI Skipped` | Stamp exact `AI Skipped` (never `AI HOLD`); Why `outlook-category-missing: AI Skipped` if Graph cannot apply; already-flagged includes `AI Skipped` | `test_never_repeat_ai_skipped_noise` |
-| **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO; sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
+| **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO **by invoice line part + PO + qty** (CPL # is a secondary slip hint only, never a gate); sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
+| **NOTE-23** 3P 142041–142044 / KIMCO 9988–9991 (live 9/14 batch 708) | Header + PDF entered; **zero** Select Receipts; Why `no receipts after second pass` even though open receipts existed on those PO lines | Match each invoice line → open receipts on that line's listed PO by **part / PO line / line qty**. Check every line; select every match. Never stop after one unmatched line. Never fail-close the whole bill to a blanket no-receipts HOLD that posts zero receipts when some lines match. Partial select → Entered with issues / Incomplete; Why lists selected vs unmatched **and** receipt candidates considered. Success only if every merchandise line is selected. CPL # is not required. | `test_never_repeat_3p_select_receipts_cpl` |
 | **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
 | **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request URL, unauth GET (follow redirects), then header + attach. Auth wall → HOLD `pdf-behind-link` names vendor / # / host — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped`. `AI Skipped` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
@@ -196,5 +202,28 @@ Skip / false Success class of errors.
 - **Fastenal** has no confirmed `Vendor.id` alias row (never-skip uses the name
   token; header vendor still comes from PO / samples). Do not invent an id.
 - **3P** has no KIMCO vendor id — do not invent one.
+
+## 3P Select Receipts (Kyle 2026-09-14, NOTE-23)
+
+Primary match path is **invoice line → open receipts on the listed PO(s)**
+by part / PO line / per-line qty (existing Select Receipts rules).
+
+- Subject `CPL # 76659, 76664, …` numbers are **packing-slip hints only**.
+  Never require CPL to find receipts. Never HOLD no-receipts because CPL
+  matching failed when PO-line receipts exist for the invoice parts.
+- Do **not** use the invoice-total qty/cost as the per-line gate. A 5-line
+  3P bill (qty 1+6+9+47+36) must match each line's qty on that line's PO,
+  not qty 99 against every receipt.
+- Multi-line does **not** disable the open-on-PO fallback. Apply it
+  **per PO** (one unmatched line on PO 58766 + that PO's open receipts).
+- Partial Select Receipts is required when any line matches. Result is
+  Success only if every merchandise line is selected; otherwise Entered
+  with issues (or Incomplete) — not a zero-receipt HOLD.
+
+Live 9/14 afternoon (`API Agent - 9/14/26` batch **708**): KIMCO **9988–
+9991** (invoices 142041–142044) were HOLDed with zero receipts selected.
+Root cause was the matcher (invoice-total qty/cost + multi-line blocking
+open-on-PO), not missing receipts. Re-finish those four headers with this
+matcher when live secrets are present; do not create duplicate headers.
 
 Pause further ad-hoc dry runs. Next live touch is Monday’s scheduled 10.

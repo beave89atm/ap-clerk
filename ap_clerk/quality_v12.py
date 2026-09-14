@@ -283,9 +283,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "expected": (
             "Never classify 3P / Rachel Bailey INV#+PO# (142041–142044) as not-a-bill. "
             "Receipt-type Invoice_Type 3, not Misc Type 4. "
-            "Multi-PO: header Purchase Order blank; Select Receipts per PO; "
+            "Multi-PO: header Purchase Order blank; Select Receipts per PO by "
+            "invoice line part + PO + qty (CPL # is a secondary slip hint only). "
             "sheet lists every PO and selected receipt ids. Unmatched PO/line → "
-            "not Success and Why names it. Outlook is Entered in AI / AI HOLD / "
+            "not Success and Why names it. Partial Select Receipts when any line "
+            "matches. Outlook is Entered in AI / AI HOLD / "
             "Entered with issues — never AI Skipped."
         ),
         "never_success": True,
@@ -339,6 +341,35 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "an invoice (PDF, link-PDF, or Invoice/INV subject), never Skipped / "
             "AI Skipped / not-a-bill. Enter or HOLD with a real Why. AI Skipped "
             "is only for true non-vendor noise (statements, payments, PODs)."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-23",
+        "slug": "3p-select-receipts-part-po-never-fail-close",
+        "gate": GATE_RECEIPT,
+        "cases": (
+            "3P 142041–142044 / KIMCO 9988–9991 live 9/14 batch 708",
+        ),
+        "9_14_bug": (
+            "Headers created, PDFs attached, invoice lines parsed "
+            "(1007044-1 SUBFRAME WELDMENT, 1020592-1 LOWER PLATFORM, …) "
+            "but Select Receipts posted zero receipts. Why was blanket "
+            "HOLD no receipts after second pass. Open receipts existed on "
+            "the listed PO lines. Matcher used invoice-total qty/cost as "
+            "the per-line gate and skipped the open-on-PO fallback because "
+            "the bill had multiple merchandise lines. CPL # in the subject "
+            "was never required."
+        ),
+        "expected": (
+            "Match each invoice line to open receipts on that line's PO by "
+            "part / PO line / line qty. Check every line; select every "
+            "match. Do not stop after one unmatched line. Do not fail-close "
+            "the whole bill to no-receipts HOLD when some lines match. "
+            "CPL # is a secondary slip hint only — never a gate, never the "
+            "only path. Success only if every line is selected; partial → "
+            "Entered with issues / Incomplete with Why listing selected vs "
+            "unmatched and receipt candidates considered."
         ),
         "never_success": True,
     },
@@ -407,6 +438,15 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "and never silent Success (3P 142041)."
         ),
     },
+    {
+        "id": "partial-select-receipts-never-fail-close",
+        "check": (
+            "Select Receipts for every matchable invoice line. Never skip the "
+            "whole bill after one unmatched line. Never HOLD no-receipts when "
+            "some lines have matching PO receipts (3P 9988–9991). Partial "
+            "select → Entered with issues, not a zero-receipt HOLD."
+        ),
+    },
 )
 
 # Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
@@ -417,7 +457,7 @@ MONDAY_LIVE10_BASICS: tuple[dict[str, str], ...] = (
     {"id": "qty-cost-receipt-and-fees", "note": "NOTE-14", "test": "test_never_repeat_fastenal_txft4100079"},
     {"id": "all-lines-or-named-skip", "note": "NOTE-15", "test": "test_never_repeat_emj_z250725432_two_lines"},
     {"id": "gas-split-after-tax", "note": "NOTE-16", "test": "test_never_repeat_gas_multi_invoice_pdf"},
-    {"id": "3p-multi-po-select-receipts", "note": "NOTE-19", "test": "test_3p_multi_po_select_receipts"},
+    {"id": "3p-multi-po-select-receipts", "note": "NOTE-19", "test": "test_never_repeat_3p_select_receipts_cpl"},
     {"id": "aqpc-link-download", "note": "NOTE-21", "test": "test_never_repeat_aqpc_10917_link_download"},
     {"id": "eastern-metal-not-noise", "note": "NOTE-20", "test": "test_never_repeat_eastern_metal_818600_not_noise"},
     {"id": "already-entered-why", "note": "NOTE-17", "test": "test_never_repeat_insight_1809_already_entered"},
