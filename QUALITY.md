@@ -201,7 +201,9 @@ Skip / false Success class of errors.
   `gas_misc_ambiguous` — never invent per-invoice amounts.
 - **Fastenal** has no confirmed `Vendor.id` alias row (never-skip uses the name
   token; header vendor still comes from PO / samples). Do not invent an id.
-- **3P** has no KIMCO vendor id — do not invent one.
+- **3P** live vendor is `999-3P INDUSTRIES` (GET 9988–9991). Do not invent a
+  different id. Receipt `part` fields are often `PO58766-01` (PO line names),
+  not `1007044-1` — match invoice part/qty to open receipts on that PO.
 
 ## 3P Select Receipts (Kyle 2026-09-14, NOTE-23)
 
@@ -223,7 +225,14 @@ by part / PO line / per-line qty (existing Select Receipts rules).
 Live 9/14 afternoon (`API Agent - 9/14/26` batch **708**): KIMCO **9988–
 9991** (invoices 142041–142044) were HOLDed with zero receipts selected.
 Root cause was the matcher (invoice-total qty/cost + multi-line blocking
-open-on-PO), not missing receipts. Re-finish those four headers with this
-matcher when live secrets are present; do not create duplicate headers.
+open-on-PO), not missing receipts. Do not create duplicate headers.
+
+Evening GET of the same four ids (do not invent Success): someone already
+posted Notes-style **partial** Select Receipts — 9988 lines 2/4/5 (the
+MUST-pull lines); 9989 both lines (line 2 at unit 75 vs invoice 83.02);
+9990 qty **4** on PO 58862; 9991 lines 1/2/4. Price-wrong / no-receipt
+leftovers remain. Additional Charge PPV count is 0. Invoice totals add
+cleanly; do not invent a $0.02 PPV. This PR is so the clerk does that
+select itself next time.
 
 Pause further ad-hoc dry runs. Next live touch is Monday’s scheduled 10.
