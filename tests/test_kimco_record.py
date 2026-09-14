@@ -224,6 +224,15 @@ def test_receipt_line_values_from_records_copies_po_part_qty() -> None:
     assert values["Part_ID"] == {"id": 20560}
     assert values["Quantity"] == 24.0
     assert values["Unit_Price"] == 54.0
+    covered = receipt_line_values_from_records(
+        {"id": 9931, "values": {"Vendor": {"id": 434}}},
+        {
+            "id": 23879,
+            "values": {"Quantity_Received": 6.0, "PO_Item_Number_$_Unit_Price": 91.23},
+        },
+        quantity=4,
+    )
+    assert covered["Quantity"] == 4
 
 
 def test_invoice_lines_from_record_reads_lists_apinvoiceline() -> None:

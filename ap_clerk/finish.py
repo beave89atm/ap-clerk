@@ -60,6 +60,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     match_receipts,
     merchandise_qty,
+    receipt_select_refs,
     money,
     posted_vendor_fields,
 )
@@ -277,11 +278,7 @@ def finish_existing_header(
             unmatched_for_check.extend(one.get("unmatched_lines") or [])
             if not receipt_note:
                 receipt_note = " ".join(n for n in notes if n)
-        receipt_ids = [
-            hit.get("receipt", {}).get("id") if isinstance(hit.get("receipt"), dict) else None
-            for hit in combined
-        ]
-        receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
+        receipt_ids = receipt_select_refs(combined)
         picked_qty = merchandise_qty(
             [
                 {

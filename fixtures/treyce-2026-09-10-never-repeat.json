@@ -198,6 +198,58 @@
       "msc_pdf": "Invoice-70762501.pdf",
       "msc_link_body": "Download your invoice: https://www.mscdirect.com/invoices/70762501.pdf",
       "fastenal_from": "Fastenal Company"
+    },
+    "NOTE-23": {
+      "vendor": "3P",
+      "amount_adds_cleanly": true,
+      "invented_ppv_forbidden": 0.02,
+      "bills": {
+        "142041": {
+          "kimco_id": 9988,
+          "pos": ["58766", "58767", "58844"],
+          "amount": 2393.28,
+          "subject": "INV # 142041 / CPL # 76659, 76664, 76663, 76661, 76660, 76662 / PO # 58766, 58767, 58844",
+          "lines": [
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "unit_price": 97.50, "po": "58766", "label": "1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50", "note": "receipt exists; PO price wrong"},
+            {"part": "1020592-1", "qty": 6, "amount": 133.02, "unit_price": 22.17, "po": "58767", "label": "6 1020592-1 - LOWER PLATFORM 22.17 133.02", "note": "receipts correct; MUST pull"},
+            {"part": "29340-1", "qty": 9, "amount": 338.40, "unit_price": 37.60, "po": "58844", "label": "9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40", "note": "receipts; PO price wrong"},
+            {"part": "21913-1", "qty": 47, "amount": 868.56, "unit_price": 18.48, "po": "58844", "label": "47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56", "note": "available; MUST pull"},
+            {"part": "35145-1", "qty": 36, "amount": 955.80, "unit_price": 26.55, "po": "58844", "label": "36 35145-1 JIB ARM WELDMENT 26.55 955.80", "note": "available; MUST pull"}
+          ]
+        },
+        "142042": {
+          "kimco_id": 9989,
+          "pos": ["58862", "58844"],
+          "amount": 530.96,
+          "subject": "INV # 142042 / CPL # 76740, 76741 / PO # 58862, 58844",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58862", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "receipts match; MUST pull"},
+            {"part": "1008270-1", "qty": 2, "amount": 166.04, "unit_price": 83.02, "po": "58844", "label": "2 1008270-1 / KNUCKLE WELDMENT 83.02 166.04", "note": "receipts; price mismatch"}
+          ]
+        },
+        "142043": {
+          "kimco_id": 9990,
+          "pos": ["58862", "58887"],
+          "amount": 821.07,
+          "subject": "INV # 142043 / CPL # 76753, 76755 / PO # 58862, 58887",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58862", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "PO receipt qty 6; select qty 4"},
+            {"part": "21678-1", "qty": 5, "amount": 456.15, "unit_price": 91.23, "po": "58887", "label": "5 21678-1 KNUCKLE WELDMENT 91.23 456.15", "note": "no available receipts"}
+          ]
+        },
+        "142044": {
+          "kimco_id": 9991,
+          "pos": ["58887", "58844"],
+          "amount": 823.74,
+          "subject": "INV # 142044 / CPL # 76757, 76756, 76758 / PO # 58887, 58844",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58887", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "MUST pull"},
+            {"part": "1020586-1", "qty": 6, "amount": 239.82, "unit_price": 39.97, "po": "58887", "label": "6 1020586-1 ROTATOR BRACKET (BATCHWELD) 39.97 239.82", "note": "MUST pull"},
+            {"part": "29340-1", "qty": 3, "amount": 112.80, "unit_price": 37.60, "po": "58844", "label": "3 29340-1 LOWER ROTATOR WELDMENT 37.60 112.80", "note": "qty+price do not match"},
+            {"part": "35145-1", "qty": 4, "amount": 106.20, "unit_price": 26.55, "po": "58844", "label": "4 35145-1 JIB ARM WELDMENT 26.55 106.20", "note": "MUST pull"}
+          ]
+        }
+      }
     }
   }
 }

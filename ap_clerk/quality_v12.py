@@ -363,13 +363,16 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "expected": (
             "Match each invoice line to open receipts on that line's PO by "
-            "part / PO line / line qty. Check every line; select every "
-            "match. Do not stop after one unmatched line. Do not fail-close "
-            "the whole bill to no-receipts HOLD when some lines match. "
-            "CPL # is a secondary slip hint only — never a gate, never the "
-            "only path. Success only if every line is selected; partial → "
-            "Entered with issues / Incomplete with Why listing selected vs "
-            "unmatched and receipt candidates considered."
+            "part / qty / PO. Check every line; select every match. Price "
+            "gaps do not skip receipts: qualifying unit-price variance "
+            "posts Additional Charge PPV (≤10% of invoice total and ≤$100); "
+            "do not invent a $0.02 PPV when amounts add cleanly. Over "
+            "threshold → HOLD price-does-not-match + @Shawn McKibben and "
+            "still select other good lines. 142043: receipt qty 6 / invoice "
+            "4 → select qty 4 if the API allows. Fees ≠ PPV. Never "
+            "fail-close the whole bill to no-receipts HOLD when some lines "
+            "match. Success only if every line is selected and no human "
+            "price/qty fix remains."
         ),
         "never_success": True,
     },

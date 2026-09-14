@@ -98,6 +98,7 @@ from ap_clerk.rules import (
     lookup_id,
     lookup_text,
     format_selected_receipts,
+    receipt_select_refs,
     format_unmatched_lines,
     format_unmatched_pos,
     INVOICE_TYPE_PO,
@@ -962,7 +963,14 @@ def _process_invoice(
 
     merch = merchandise_amount(amount, inv.get("fees"))
     invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
-    po_lines = list((po_info or {}).get("lines") or [])
+    if multi_po:
+        po_lines = []
+        for listed in pos:
+            info = po_index.get(str(listed))
+            if info:
+                po_lines.extend(list(info.get("lines") or []))
+    else:
+        po_lines = list((po_info or {}).get("lines") or [])
     if not invoice_lines and po_lines and len(po_lines) == 1 and merch not in (None, ""):
         # Do not copy PO qty onto the invoice (Fastenal TXFT4100079: PO/receipt 36 ≠ invoice 35).
         synth: dict[str, Any] = {
@@ -978,25 +986,25 @@ def _process_invoice(
     price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
     issue_hold: tuple[str, str] | None = None
     preset_hold = str(inv.get("hold_reason") or "").strip().lower()
+    ppv_value = drop_fee_disguised_as_ppv(price.get("ppv_total") or 0.0, inv.get("fees"))
+    price["ppv_total"] = ppv_value
+    if ppv_value:
+        row["PPV"] = format_ppv(ppv_value)
     if price["hold"] or preset_hold == "price does not match":
-        row["PPV"] = "none"
         issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
         if PRICE_MISMATCH_PO_COMMENT not in issue_why:
             issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
         issue_why += " Create KIMCO header and attach PDF; do not finish the bill."
         issue_hold = (GATE_PRICE, issue_why)
-    else:
-        ppv_value = drop_fee_disguised_as_ppv(price.get("ppv_total") or 0.0, inv.get("fees"))
-        price["ppv_total"] = ppv_value
-        if ppv_value:
-            row["PPV"] = format_ppv(ppv_value)
-    qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
-    if not qty_ok:
-        extra = qty_why
-        if issue_hold:
-            issue_hold = (issue_hold[0], f"{issue_hold[1]} {extra}")
-        else:
-            issue_hold = (GATE_QTY, extra + " Create KIMCO header and attach PDF; do not claim Success.")
+    # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
+    if not multi_po:
+        qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
+        if not qty_ok:
+            extra = qty_why
+            if issue_hold:
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {extra}")
+            else:
+                issue_hold = (GATE_QTY, extra + " Create KIMCO header and attach PDF; do not claim Success.")
 
     receipt_note = ""
     receipt_result: dict[str, Any] | None = None
@@ -1089,7 +1097,9 @@ def _process_invoice(
             matched_receipts = [
                 {
                     "part": (hit.get("receipt") or {}).get("part"),
-                    "qty": (hit.get("receipt") or {}).get("qty"),
+                    "qty": hit.get("select_qty")
+                    if hit.get("select_qty") is not None
+                    else (hit.get("receipt") or {}).get("qty"),
                     "description": (hit.get("receipt") or {}).get("description")
                     or (hit.get("receipt") or {}).get("part"),
                     "label": (hit.get("line") or {}).get("label") or (hit.get("receipt") or {}).get("part"),
@@ -1162,8 +1172,7 @@ def _process_invoice(
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
     receipts_selected = False
     select_status = ""
-    receipt_ids = [hit.get("receipt", {}).get("id") for hit in (receipt_result or {}).get("matched") or []]
-    receipt_ids = [rid for rid in receipt_ids if rid not in (None, "")]
+    receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
     if (po_info or multi_po) and receipt_ids:
         # Kyle 2026-09-14: select every matchable line. A price/qty/unmatched
         # leftover must not skip Select Receipts for the lines that did match.
@@ -1204,7 +1213,7 @@ def _process_invoice(
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
     ppv_status = "none"
-    if not issue_hold and price.get("ppv_total"):
+    if price.get("ppv_total"):
         poster_ppv = getattr(client, "try_post_ppv", None)
         if poster_ppv:
             try:

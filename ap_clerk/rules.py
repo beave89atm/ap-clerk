@@ -423,7 +423,8 @@ def decide_ppv(
     invoice_amt = money(invoice_line_amount) or 0.0
     po_amt = money(po_line_amount) or 0.0
     variance = round(invoice_amt - po_amt, 2)
-    if variance == 0:
+    # Two-cent rounding is a match, not an invented PPV (3P 142041 amounts add cleanly).
+    if variance == 0 or abs(variance) <= 0.02:
         return {
             "action": "match",
             "ppv": 0.0,
@@ -891,6 +892,25 @@ def invoice_qty_evidence(
     return merchandise_qty(invoice_lines)
 
 
+def _receipt_qty(receipt: dict[str, Any] | None) -> float | None:
+    if not isinstance(receipt, dict):
+        return None
+    return money(receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity"))
+
+
+def select_qty_from_receipt(inv_line: dict[str, Any] | None, receipt: dict[str, Any] | None) -> float | None:
+    """Invoice qty when the open receipt has more (142043: need 4, receipt is 6)."""
+    if not inv_line or not receipt:
+        return None
+    line_qty = money(inv_line.get("qty") if inv_line.get("qty") is not None else inv_line.get("quantity"))
+    rec_qty = _receipt_qty(receipt)
+    if line_qty is None or rec_qty is None:
+        return None
+    if rec_qty > line_qty:
+        return line_qty
+    return None
+
+
 def _receipt_aligns(
     receipt: dict[str, Any],
     invoice_qty: float | None,
@@ -898,15 +918,23 @@ def _receipt_aligns(
     *,
     allow_missing: bool = True,
     qty_already_ok: bool = False,
+    check_cost: bool = True,
+    allow_qty_cover: bool = False,
 ) -> tuple[bool, str]:
-    """True when receipt qty/cost do not conflict with invoice evidence."""
+    """True when receipt qty/cost do not conflict with invoice evidence.
+
+    Price gaps are PPV / price-does-not-match — not a reason to skip the
+    receipt (Kyle 2026-09-14). `check_cost=False` still verifies qty.
+    `allow_qty_cover`: receipt qty 6 may satisfy invoice qty 4.
+    """
     if invoice_qty is not None and not qty_already_ok:
-        rq = money(receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity"))
+        rq = _receipt_qty(receipt)
         if rq is not None and not _same_qty(rq, invoice_qty):
-            return False, f"receipt qty {rq} ≠ invoice qty {invoice_qty}"
+            if not (allow_qty_cover and rq > invoice_qty):
+                return False, f"receipt qty {rq} ≠ invoice qty {invoice_qty}"
         if rq is None and not allow_missing:
             return False, "receipt qty missing"
-    if invoice_amount is not None:
+    if check_cost and invoice_amount is not None:
         rc = receipt_cost(receipt)
         if rc is not None and not costs_align(rc, invoice_amount):
             return False, f"receipt cost {rc:.2f} ≠ invoice merchandise {invoice_amount:.2f}"
@@ -921,17 +949,22 @@ def pick_receipts_by_qty_cost(
     invoice_qty: float | None = None,
     invoice_amount: float | None = None,
     invoice_number: str | None = None,
+    check_cost: bool = True,
+    allow_qty_cover: bool = False,
 ) -> dict[str, Any]:
     """Choose open PO receipts by invoice qty, then merchandise cost.
 
     Prefer exact qty match (35 vs 36 → 35). If remaining candidates still
     differ in cost, require cost alignment within rounding or HOLD ambiguous.
     Never first-open / second-open-on-po Success when multiple open receipts
-    differ in qty/cost.
+    differ in qty/cost. Per-line 3P matching sets check_cost=False so a PO
+    price gap does not skip the receipt (PPV / HOLD is separate).
     """
     empty = {"picked": [], "ambiguous": None, "how": "", "why": ""}
     if not candidates:
         return empty
+
+    align_kw = {"check_cost": check_cost, "allow_qty_cover": allow_qty_cover}
 
     slip_hits = [
         r
@@ -939,7 +972,7 @@ def pick_receipts_by_qty_cost(
         if slip_matches_invoice(str(r.get("slip") or r.get("name") or ""), invoice_number)
     ]
     if len(slip_hits) == 1:
-        ok, reason = _receipt_aligns(slip_hits[0], invoice_qty, invoice_amount)
+        ok, reason = _receipt_aligns(slip_hits[0], invoice_qty, invoice_amount, **align_kw)
         if ok:
             return {
                 "picked": slip_hits,
@@ -956,7 +989,9 @@ def pick_receipts_by_qty_cost(
             }
 
     if len(candidates) == 1:
-        ok, reason = _receipt_aligns(candidates[0], invoice_qty, invoice_amount, allow_missing=True)
+        ok, reason = _receipt_aligns(
+            candidates[0], invoice_qty, invoice_amount, allow_missing=True, **align_kw
+        )
         if ok:
             return {
                 "picked": candidates,
@@ -986,11 +1021,17 @@ def pick_receipts_by_qty_cost(
         qty_hits = [
             r
             for r in candidates
-            if _same_qty(r.get("qty") if r.get("qty") is not None else r.get("quantity"), invoice_qty)
+            if _same_qty(_receipt_qty(r), invoice_qty)
         ]
+        if not qty_hits and allow_qty_cover:
+            qty_hits = [
+                r
+                for r in candidates
+                if (rq := _receipt_qty(r)) is not None and rq > invoice_qty
+            ]
         if len(qty_hits) == 1:
             ok, reason = _receipt_aligns(
-                qty_hits[0], invoice_qty, invoice_amount, qty_already_ok=True
+                qty_hits[0], invoice_qty, invoice_amount, qty_already_ok=True, **align_kw
             )
             if ok:
                 return {
@@ -1245,6 +1286,29 @@ def match_receipts(
 
     _QTY_UNSET = object()
 
+    def _record_match(
+        line: dict[str, Any] | None,
+        receipt: dict[str, Any],
+        *,
+        score: int,
+        pass_name: str,
+        how: str,
+    ) -> None:
+        used.add(id(receipt))
+        hit: dict[str, Any] = {
+            "line": line or ({"invoice_number": invoice_number} if invoice_number else {"po": po_number}),
+            "receipt": receipt,
+            "score": score,
+            "pass": pass_name,
+            "how": how,
+        }
+        take_qty = select_qty_from_receipt(line, receipt)
+        if take_qty is not None:
+            hit["select_qty"] = take_qty
+        matched.append(hit)
+        if how:
+            hows.append(how)
+
     def _apply_qty_cost_pick(
         candidates: list[dict[str, Any]],
         *,
@@ -1253,12 +1317,16 @@ def match_receipts(
         line: dict[str, Any] | None = None,
         pick_qty: Any = _QTY_UNSET,
         pick_amount: Any = _QTY_UNSET,
+        check_cost: bool = True,
+        allow_qty_cover: bool = False,
     ) -> bool:
         pick = pick_receipts_by_qty_cost(
             candidates,
             invoice_qty=qty_ev if pick_qty is _QTY_UNSET else pick_qty,
             invoice_amount=amount_ev if pick_amount is _QTY_UNSET else pick_amount,
             invoice_number=invoice_number,
+            check_cost=check_cost,
+            allow_qty_cover=allow_qty_cover,
         )
         if pick.get("ambiguous") and not pick.get("picked"):
             ambiguous.append(pick["ambiguous"])
@@ -1266,18 +1334,13 @@ def match_receipts(
         for receipt in pick.get("picked") or []:
             if id(receipt) in used:
                 continue
-            used.add(id(receipt))
-            matched.append(
-                {
-                    "line": line or ({"invoice_number": invoice_number} if invoice_number else {"po": po_number}),
-                    "receipt": receipt,
-                    "score": score,
-                    "pass": pass_name,
-                    "how": pick.get("how") or pass_name,
-                }
+            _record_match(
+                line,
+                receipt,
+                score=score,
+                pass_name=pass_name,
+                how=pick.get("how") or pass_name,
             )
-            if pick.get("how"):
-                hows.append(str(pick["how"]))
         return bool(pick.get("picked"))
 
     def _try_line(inv_line: dict[str, Any], *, pass_name: str) -> bool:
@@ -1299,6 +1362,18 @@ def match_receipts(
             return False
         line_qty = _line_qty(inv_line)
         line_amt = _line_amount(inv_line)
+        if line_qty is not None:
+            enough = [
+                (s, r)
+                for s, r in scored
+                if _receipt_qty(r) is None or _receipt_qty(r) >= line_qty
+            ]
+            if not enough:
+                return False
+            scored = enough
+            exact = [(s, r) for s, r in scored if _same_qty(_receipt_qty(r), line_qty)]
+            if exact:
+                scored = exact
         if len(scored) > 1 and scored[0][0] < scored[1][0] + 10:
             tied = [r for s, r in scored if s >= scored[0][0] - 5]
             if len(tied) > 1 and (line_qty is not None or line_amt is not None):
@@ -1309,6 +1384,8 @@ def match_receipts(
                     line=inv_line,
                     pick_qty=line_qty,
                     pick_amount=line_amt,
+                    check_cost=False,
+                    allow_qty_cover=True,
                 ):
                     hows.append("part/PO-WO + invoice qty/cost")
                     return True
@@ -1316,17 +1393,13 @@ def match_receipts(
                 ambiguous.append({"line": inv_line, "candidates": [r for _s, r in scored[:3]]})
             return False
         pick = scored[0][1]
-        used.add(id(pick))
-        matched.append(
-            {
-                "line": inv_line,
-                "receipt": pick,
-                "score": scored[0][0],
-                "pass": pass_name,
-                "how": "part/PO-WO/slip" if pass_name == "first" else pass_name,
-            }
+        _record_match(
+            inv_line,
+            pick,
+            score=scored[0][0],
+            pass_name=pass_name,
+            how="part/PO-WO/slip" if pass_name == "first" else pass_name,
         )
-        hows.append("part/PO-WO/slip")
         return True
 
     # First pass: every merchandise line. Do not stop after one miss.
@@ -1415,6 +1488,8 @@ def match_receipts(
                     line=inv_line,
                     pick_qty=line_qty,
                     pick_amount=line_amt,
+                    check_cost=False,
+                    allow_qty_cover=True,
                 )
             elif line_qty is not None or line_amt is not None:
                 picked = _apply_qty_cost_pick(
@@ -1424,6 +1499,8 @@ def match_receipts(
                     line=inv_line,
                     pick_qty=line_qty,
                     pick_amount=line_amt,
+                    check_cost=False,
+                    allow_qty_cover=True,
                 )
             if picked:
                 second_pass = True
@@ -1918,6 +1995,29 @@ def format_unmatched_pos(pos: list[str] | None) -> str:
     return ", ".join(str(p) for p in (pos or []) if p)
 
 
+def receipt_select_refs(matched: list[dict[str, Any]] | None) -> list[Any]:
+    """Ids (or {id, qty} when taking less than the open receipt) for Select Receipts."""
+    refs: list[Any] = []
+    seen: set[Any] = set()
+    for hit in matched or []:
+        rec = hit.get("receipt") if isinstance(hit, dict) else None
+        if not isinstance(rec, dict):
+            continue
+        rid = rec.get("id")
+        if rid in (None, ""):
+            continue
+        take_qty = hit.get("select_qty")
+        key = (rid, take_qty)
+        if key in seen:
+            continue
+        seen.add(key)
+        if take_qty is not None:
+            refs.append({"id": rid, "qty": take_qty})
+        else:
+            refs.append(rid)
+    return refs
+
+
 def format_selected_receipts(matched: list[dict[str, Any]] | None) -> str:
     """Sheet notation: receipt id on each PO (3P multi-PO Select Receipts)."""
     bits: list[str] = []
@@ -1930,7 +2030,10 @@ def format_selected_receipts(matched: list[dict[str, Any]] | None) -> str:
         if rid in (None, ""):
             continue
         po = rec.get("po")
+        take_qty = hit.get("select_qty")
         label = f"{rid} on PO {po}" if po not in (None, "") else str(rid)
+        if take_qty is not None:
+            label += f" qty {take_qty:g}"
         if label in seen:
             continue
         seen.add(label)
