@@ -2508,3 +2508,83 @@ def test_never_repeat_leeco_account_statement(tmp_path: Path):
     assert all(r["KIMCO id"] == "" for r in report)
     assert any(n["subject"] in r["Why"] for r in report)
     assert_never_success(row["Result"], note_id="NOTE-24", detail=row["Why"])
+
+
+def test_never_repeat_julie_hencke_past_due_invoices(tmp_path: Path):
+    """NOTE-24: Julie Hencke Past Due Invoices is Skipped noise — same as Account Statements."""
+    from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
+
+    n = NOTES["NOTE-24"]
+    julie = n["julie"]
+    assert classify_mail(subject=julie["subject"], from_name=julie["from_name"]) == "statement"
+    assert classify_mail(
+        subject="Documents ready",
+        from_name=julie["from_name"],
+        preview=julie["pdf_text"],
+        attachment_names=["aging.pdf"],
+    ) == "statement"
+    assert not never_skip_vendor_invoice(
+        subject=julie["subject"],
+        from_name=julie["from_name"],
+        attachment_names=["aging.pdf"],
+    )
+    assert looks_like_account_statement(subject=julie["subject"])
+    assert looks_like_account_statement(preview=julie["pdf_text"])
+    assert is_account_statement_document(text=julie["pdf_text"], subject=julie["subject"])
+    assert should_create_header(
+        {"vendor": julie["vendor"], "subject": julie["subject"], "amount": 100.0}
+    ) == (False, "statement")
+    # Specific Invoice/INV # is still a bill (Eastern Metal / 3P).
+    assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
+
+    row, client = _row(
+        {
+            "vendor": julie["vendor"],
+            "invoice_number": "",
+            "subject": julie["subject"],
+            "text": julie["pdf_text"],
+            "from_name": julie["from_name"],
+        }
+    )
+    assert row["Result"] == RESULT_SKIPPED
+    assert row["Result"] != RESULT_SUCCESS
+    assert row["Result"] != RESULT_HOLD
+    assert row["KIMCO id"] == ""
+    assert not client.created
+    assert "bill-vs-noise" in row["Why"]
+    assert "Past Due Invoices" in row["Why"]
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-julie-pastdue",
+                    "subject": julie["subject"],
+                    "receivedDateTime": julie["received"],
+                    "hasAttachments": True,
+                    "bodyPreview": julie["pdf_text"],
+                    "from": {
+                        "emailAddress": {
+                            "name": julie["from_name"],
+                            "address": "julie@example.com",
+                        }
+                    },
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return ["aging.pdf"]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [("aging.pdf", b"%PDF-1.4 past due")]
+
+    selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    skip_noise = [item for item in skipped if item.get("class") != "already-flagged"]
+    assert not selected
+    assert skip_noise
+    assert skip_noise[0].get("class") == "statement"
+    report = skip_rows_for_report(skip_noise, "API Agent - 9/14/26 (708)")
+    assert report[0]["Result"] == RESULT_SKIPPED
+    assert report[0]["KIMCO id"] == ""
+    assert julie["subject"] in report[0]["Why"]
+    assert_never_success(row["Result"], note_id="NOTE-24", detail=row["Why"])

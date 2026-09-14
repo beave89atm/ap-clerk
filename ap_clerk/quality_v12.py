@@ -380,18 +380,23 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "id": "NOTE-24",
         "slug": "leeco-account-statement-skip",
         "gate": GATE_BILL_VS_NOISE,
-        "cases": ("Leeco Steel Account Statement 2026-08-18 / leftover KIMCO 9985",),
+        "cases": (
+            "Leeco Steel Account Statement 2026-08-18 / leftover KIMCO 9985",
+            "Julie Hencke 2026-08-18 Past Due Invoices",
+        ),
         "9_14_bug": (
             "Leeco Account Statement (PDF lists invoices 617228 / 617448 / "
             "619920 / 619921) was entered as a bill. Filename 1058256.pdf "
             "became the invoice #. KIMCO 9985 was created on API Agent - "
-            "9/14/26 (708) before the statement gate."
+            "9/14/26 (708) before the statement gate. "
+            "The word Invoices on a past-due list must not reclassify it as a bill."
         ),
         "expected": (
-            "Account Statements / statements-of-account are not invoices. "
-            "Subject or PDF body → Skipped (bill-vs-noise): statement. "
-            "No header, no Select Receipts, no Success. Outlook AI Skipped. "
-            "Do not void leftover 9985."
+            "Account Statements / statements-of-account / past-due invoice "
+            "lists are not invoices. Subject or PDF body → Skipped "
+            "(bill-vs-noise): statement. No header, no Select Receipts, "
+            "no Success. Outlook AI Skipped. Julie Hencke Past Due Invoices "
+            "is the same skip. Do not void leftover 9985."
         ),
         "never_success": True,
     },

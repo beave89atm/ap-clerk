@@ -147,6 +147,8 @@ def test_classify_mail_skips_not_a_bill():
         )
         == "statement"
     )
+    # Word "Invoices" must not turn a past-due list into a bill (Julie Hencke).
+    assert classify_mail(subject="Past Due Invoices", from_name="Julie Hencke") == "statement"
 
 
 def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():

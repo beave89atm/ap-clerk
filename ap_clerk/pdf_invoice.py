@@ -12,6 +12,7 @@ from pypdf import PdfReader, PdfWriter
 
 from ap_clerk.rules import (
     ACCOUNT_STATEMENT_DOC_RE,
+    PAST_DUE_LIST_RE,
     FEE_KEYWORDS,
     extract_po_number,
     extract_subject_invoice_number,
@@ -159,7 +160,7 @@ def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
 def is_account_statement_document(*, text: str = "", filename: str = "", subject: str = "") -> bool:
     """True for an aging / Account Statement / statement-of-account PDF (Leeco 1058256.pdf)."""
     blob = f"{filename}\n{subject}\n{text}"
-    if ACCOUNT_STATEMENT_DOC_RE.search(blob):
+    if ACCOUNT_STATEMENT_DOC_RE.search(blob) or PAST_DUE_LIST_RE.search(blob):
         return True
     if STATEMENT_FILE_HINT.search(filename or ""):
         return True
