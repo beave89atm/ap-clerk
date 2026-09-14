@@ -1550,12 +1550,16 @@ def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
 
 
 def test_never_repeat_ai_skipped_noise():
-    """NOTE-18: noise → Outlook AI Skipped, never AI HOLD; already-flagged includes it."""
+    """NOTE-18: noise → Outlook AI Skipped 2, never AI HOLD; already-flagged includes it."""
     n = NOTES["NOTE-18"]
+    assert AI_SKIPPED_CATEGORY == "AI Skipped 2"
+    assert n["category"] == "AI Skipped 2"
     assert n["category"] == AI_SKIPPED_CATEGORY
     assert flag_in_outlook_for("Skipped") == "Yes"
     assert decide_flag_status(result="Skipped", kimco_id="", message_id="AAMk") == FLAG_SKIP_ELIGIBLE
+    assert is_already_flagged({"categories": ["AI Skipped 2"]})
     assert is_already_flagged({"categories": [AI_SKIPPED_CATEGORY]})
+    assert is_already_flagged({"categories": ["AI Skipped"]})
     row = {"Result": RESULT_SKIPPED, "KIMCO id": "", "Why": "Skipped (bill-vs-noise): statement."}
 
     class Graph:
@@ -1571,7 +1575,8 @@ def test_never_repeat_ai_skipped_noise():
     missing = {"Result": RESULT_SKIPPED, "KIMCO id": "", "Why": "Skipped (bill-vs-noise): statement."}
     denied = apply_flag_after_match(missing, {"graph_message_id": "AAMk-noise"}, None)
     assert denied == "graph-denied"
-    assert "outlook-category-missing: AI Skipped" in missing["Why"]
+    assert "outlook-category-missing: AI Skipped 2" in missing["Why"]
+    assert missing["Why"].count("AI Skipped 2") == 1
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-18")
 
 
@@ -2279,7 +2284,7 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
 
 
 def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):
-    """NOTE-22: KIMCO-listed vendor + invoice is never Skipped / AI Skipped."""
+    """NOTE-22: KIMCO-listed vendor + invoice is never Skipped / AI Skipped 2."""
     from ap_clerk.inbox import pull_recent_bills
     from ap_clerk.rules import has_invoice_link
 

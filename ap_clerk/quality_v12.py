@@ -258,16 +258,16 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "id": "NOTE-18",
         "slug": "outlook-ai-skipped-noise",
         "gate": GATE_BILL_VS_NOISE,
-        "cases": ("Mailbox noise / Skipped → Outlook AI Skipped",),
+        "cases": ("Mailbox noise / Skipped → Outlook AI Skipped 2",),
         "9_11_bug": (
             "Noise Skipped rows were sheet-only with no Outlook category. "
             "Skip-already-flagged did not treat AI Skipped as already-touched."
         ),
         "expected": (
-            "Noise gets Outlook category exactly AI Skipped (never AI HOLD). "
+            "Noise gets Outlook category exactly AI Skipped 2 (never AI HOLD). "
             "Sheet Result stays Skipped. Graph missing category → Why "
-            "outlook-category-missing: AI Skipped. Already-flagged includes "
-            "AI Skipped (no reprocess, no email-cap consume)."
+            "outlook-category-missing: AI Skipped 2. Already-flagged includes "
+            "AI Skipped 2 and leftover AI Skipped (no reprocess, no email-cap consume)."
         ),
         "never_success": True,
     },
@@ -288,7 +288,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "sheet lists every PO and selected receipt ids. Unmatched PO/line → "
             "not Success and Why names it. Partial Select Receipts when any line "
             "matches. Outlook is Entered in AI / AI HOLD / "
-            "Entered with issues — never AI Skipped."
+            "Entered with issues — never AI Skipped 2."
         ),
         "never_success": True,
     },
@@ -304,7 +304,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "expected": (
             "Invoice + Eastern Metal / EASTERN METAL SUPPLY is a bill (alias 64). "
             "Invoice/INV subject or a PDF invoice attached is never not-a-bill. "
-            "Enter or HOLD with real Why. Never AI Skipped."
+            "Enter or HOLD with real Why. Never AI Skipped 2."
         ),
         "never_success": True,
     },
@@ -339,7 +339,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "expected": (
             "If the supplier is listed in KIMCO (From or subject) and provides "
             "an invoice (PDF, link-PDF, or Invoice/INV subject), never Skipped / "
-            "AI Skipped / not-a-bill. Enter or HOLD with a real Why. AI Skipped "
+            "AI Skipped 2 / not-a-bill. Enter or HOLD with a real Why. AI Skipped 2 "
             "is only for true non-vendor noise (statements, payments, PODs)."
         ),
         "never_success": True,
@@ -395,7 +395,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Account Statements / statements-of-account / past-due invoice "
             "lists are not invoices. Subject or PDF body → Skipped "
             "(bill-vs-noise): statement. No header, no Select Receipts, "
-            "no Success. Outlook AI Skipped. Julie Hencke Past Due Invoices "
+            "no Success. Outlook AI Skipped 2. Julie Hencke Past Due Invoices "
             "is the same skip. Do not void leftover 9985."
         ),
         "never_success": True,

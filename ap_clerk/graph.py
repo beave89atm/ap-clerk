@@ -3,7 +3,7 @@
 Mail without category `Entered in AI` is the work queue.
 `Entered in AI` is applied after a finished Success bill, never after download alone.
 Header+PDF entered but unfinished (price/qty HOLD, Incomplete) gets `Entered with issues`.
-Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped`.
+Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped 2`.
 Never two process categories on one message.
 Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
@@ -39,9 +39,12 @@ AI_HOLD_COLOR = "preset0"
 # Kyle may need to create this master category on accountspayable@ if it does not exist.
 ENTERED_WITH_ISSUES_CATEGORY = "Entered with issues"
 ENTERED_WITH_ISSUES_COLOR = "preset1"
-# Noise / bill-vs-noise Skipped. Exact name. Kyle may need to create it on accountspayable@.
-AI_SKIPPED_CATEGORY = "AI Skipped"
+# Noise / bill-vs-noise Skipped. Exact name (Treyce 2026-09-14: "AI Skipped 2").
+# Kyle/Treyce created this master category on accountspayable@.
+AI_SKIPPED_CATEGORY = "AI Skipped 2"
 AI_SKIPPED_COLOR = "preset8"
+# Historical noise stamps from before the rename. Walk past; do not re-stamp.
+LEGACY_AI_SKIPPED_CATEGORY = "AI Skipped"
 LEGACY_AP_MATCHED_CATEGORY = "AP Matched"
 PROCESS_CATEGORIES = (
     ENTERED_IN_AI_CATEGORY,
@@ -49,6 +52,8 @@ PROCESS_CATEGORIES = (
     ENTERED_WITH_ISSUES_CATEGORY,
     AI_SKIPPED_CATEGORY,
 )
+# Going-forward stamps plus leftover `AI Skipped` on old mail.
+ALREADY_FLAGGED_CATEGORIES = PROCESS_CATEGORIES + (LEGACY_AI_SKIPPED_CATEGORY,)
 OUTLOOK_CATEGORY_MISSING = "outlook-category-missing"
 CATEGORY_MISSING = "category-missing"
 # Recipient local-part + domain are split so the commit scanner does not
@@ -191,12 +196,13 @@ def has_entered_with_issues(message: dict[str, Any] | None) -> bool:
 
 
 def has_ai_skipped(message: dict[str, Any] | None) -> bool:
-    return AI_SKIPPED_CATEGORY in message_categories(message)
+    cats = set(message_categories(message))
+    return bool(cats & {AI_SKIPPED_CATEGORY, LEGACY_AI_SKIPPED_CATEGORY})
 
 
 def has_process_category(message: dict[str, Any] | None) -> bool:
     cats = set(message_categories(message))
-    return bool(cats & set(PROCESS_CATEGORIES))
+    return bool(cats & set(ALREADY_FLAGGED_CATEGORIES))
 
 
 def followup_flag_status(message: dict[str, Any] | None) -> str:
@@ -223,7 +229,7 @@ def is_already_flagged(message: dict[str, Any] | None) -> bool:
 def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | None) -> str:
     """    Success → Entered in AI. Header+PDF unfinished → Entered with issues.
 
-    Real bill with no header → AI HOLD. Noise → AI Skipped.
+    Real bill with no header → AI HOLD. Noise → AI Skipped 2.
     """
     outcome = (result or "").strip()
     has_id = str(message_id or "").strip()
@@ -252,12 +258,11 @@ def categories_for_status(existing: list[str] | None, *, add: str) -> list[str]:
     """Keep human categories. Drop AP Matched and the other process marker."""
     if add not in PROCESS_CATEGORIES:
         raise ValueError(f"Unsupported process category {add!r}")
+    drop = set(ALREADY_FLAGGED_CATEGORIES) | {LEGACY_AP_MATCHED_CATEGORY}
     keep = [
         str(c)
         for c in (existing or [])
-        if c
-        and str(c) != LEGACY_AP_MATCHED_CATEGORY
-        and str(c) not in PROCESS_CATEGORIES
+        if c and str(c) not in drop
     ]
     keep.append(add)
     return keep
@@ -649,14 +654,14 @@ class GraphClient:
         return self._patch_process_category(mailbox, message_id, ENTERED_WITH_ISSUES_CATEGORY)
 
     def flag_skipped(self, mailbox: str, message_id: str) -> str:
-        """PATCH categories to include exact `AI Skipped`. Removes other process markers."""
+        """PATCH categories to include exact `AI Skipped 2`. Removes other process markers."""
         return self._patch_process_category(mailbox, message_id, AI_SKIPPED_CATEGORY)
 
     def ensure_ai_skipped_category(self, mailbox: str = ALLOWED_MAILBOX) -> str:
-        """POST master category `AI Skipped` (preset8).
+        """POST master category `AI Skipped 2` (preset8).
 
-        403 is category-denied. Callers still PATCH the exact string. Kyle may
-        need to create this category once on accountspayable@ if apply fails.
+        403 is category-denied. Callers still PATCH the exact string. Treyce
+        created this category on accountspayable@. Do not POST `AI Skipped`.
         """
         mailbox = assert_allowed_mailbox(mailbox)
         response = self.request(
@@ -666,19 +671,19 @@ class GraphClient:
             headers={"Content-Type": "application/json"},
         )
         if response.status_code in {200, 201}:
-            LOGGER.info("Created Outlook master category AI Skipped (preset8)")
+            LOGGER.info("Created Outlook master category AI Skipped 2 (preset8)")
             return CATEGORY_CREATED
         if response.status_code in {409, 400}:
-            LOGGER.info("Outlook master category AI Skipped already present HTTP %s", response.status_code)
+            LOGGER.info("Outlook master category AI Skipped 2 already present HTTP %s", response.status_code)
             return CATEGORY_EXISTS
         if response.status_code == 403:
             LOGGER.info(
-                "Outlook masterCategories POST HTTP 403 for AI Skipped "
-                "(MailboxSettings.ReadWrite missing). Kyle may need to create "
-                "the category named exactly 'AI Skipped' on accountspayable@."
+                "Outlook masterCategories POST HTTP 403 for AI Skipped 2 "
+                "(MailboxSettings.ReadWrite missing). Kyle/Treyce may need to create "
+                "the category named exactly 'AI Skipped 2' on accountspayable@."
             )
             return CATEGORY_DENIED
-        LOGGER.info("Outlook masterCategories POST HTTP %s for AI Skipped", response.status_code)
+        LOGGER.info("Outlook masterCategories POST HTTP %s for AI Skipped 2", response.status_code)
         return CATEGORY_DENIED
 
     def ensure_entered_with_issues_category(self, mailbox: str = ALLOWED_MAILBOX) -> str:
@@ -853,7 +858,7 @@ def apply_flag_after_match(
     """Set row['Flag status'] after enter.
 
     Success→Entered in AI. Header+PDF unfinished→Entered with issues.
-    Real bill with no header→AI HOLD. Noise→AI Skipped.
+    Real bill with no header→AI HOLD. Noise→AI Skipped 2.
     """
     message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
     decision = decide_flag_status(
