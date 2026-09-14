@@ -1790,8 +1790,10 @@ def _run_daily(args: argparse.Namespace) -> int:
     except GraphError as exc:
         print(f"Graph daily pull failed: {exc}", flush=True)
         why = (
-            f"HOLD graph-mailbox: mailbox read on {args.mailbox} failed ({exc}). "
-            "No emails touched. Cursor not advanced. Do not invent Success. "
+            "HOLD graph-mailbox: mailbox read on the AP mailbox failed "
+            f"({exc}). "
+            "No emails touched. KIMCO batch not created. Cursor not advanced. "
+            "Do not invent Success. "
             "Next action: restore Exchange/Graph mailbox access for the AP Clerk app, "
             "then rerun daily --live --limit 10 from the persisted cursor."
         )

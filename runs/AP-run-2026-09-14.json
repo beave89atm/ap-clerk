@@ -1,0 +1,56 @@
+{
+  "as_of": "2026-09-14",
+  "timezone": "America/Chicago",
+  "command": "python -m ap_clerk daily --live --limit 10",
+  "starting_ref": "cursor/fastenal-qty-fees-85a1 @ 16ad19c (PR #25 quality basics pack)",
+  "follow_up_branch": "cursor/live10-graph-hold-3915",
+  "follow_up_pr": "https://github.com/beave89atm/ap-clerk/pull/26",
+  "kimco_target": "live",
+  "kimco_host": "https://live.kimcoerp.com",
+  "kimco_auth": "ok (GET Orthman 9931 / 701684)",
+  "kimco_batch_name": "API Agent - 9/14/26",
+  "kimco_batch_id": null,
+  "kimco_batch_created": false,
+  "graph": {
+    "token": "ok",
+    "roles": ["Mail.Read", "Mail.ReadWrite", "Mail.Send"],
+    "mailbox": "AP mailbox only",
+    "masterCategories": "HTTP 500 category-denied (AI HOLD, Entered with issues, AI Skipped)",
+    "list_messages": "HTTP 500 ErrorInternalServerError: Keyset does not exist",
+    "sendMail": "HTTP 500 email-denied"
+  },
+  "counts": {
+    "emails_touched": 0,
+    "Success": 0,
+    "HOLD": 1,
+    "Fail": 0,
+    "Skipped": 0,
+    "Entered with issues": 0,
+    "Incomplete": 0
+  },
+  "cursor": {
+    "last_receivedDateTime": "2026-08-18T13:00:12Z",
+    "last_message_id_set": true,
+    "processed_count": 456,
+    "last_run_date": "2026-09-14",
+    "last_batch": "API Agent - 9/9/26 (703)",
+    "advanced": false,
+    "restarted_at_7_28": false,
+    "next": "first unflagged message after 2026-08-18T13:00:12Z (same position as 2026-09-09 dry-10)"
+  },
+  "report": "runs/AP-run-2026-09-14.xlsx",
+  "email": {
+    "attempted": true,
+    "status": "email-denied",
+    "from": "AP mailbox only",
+    "to": "Treyce at kannonmfg.com",
+    "subject": "AP run 2026-09-14",
+    "send_count": 1
+  },
+  "blockers": [
+    "Microsoft Graph Exchange mailbox APIs return HTTP 500 Keyset does not exist (list messages, masterCategories, drafts, sendMail). Token + Mail.* application roles are present. TLS to graph.microsoft.com is genuine Microsoft. Personal Outlook MCP was not used.",
+    "Outlook master categories Entered with issues / AI Skipped could not be created (same Exchange 500). Code still PATCHes the exact strings when mailbox access works.",
+    "No vendor-id / AQPC / 3P work was reached because zero emails were read."
+  ],
+  "notes": "Hard cap 10 honored (0 touched). Weekday-30 not invoked as 30. No invented Success. No auto-pay. No batch close. No KIMCO writes."
+}

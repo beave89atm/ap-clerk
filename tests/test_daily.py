@@ -464,6 +464,8 @@ def test_daily_graph_pull_failure_holds_keeps_cursor_attempts_send(
     assert "graph-mailbox" in str(row["Why"])
     assert "Keyset does not exist" in str(row["Why"])
     assert "Do not invent Success" in str(row["Why"])
+    assert "AP mailbox" in str(row["Why"])
+    assert "not created" in str(row["Batch"])
     loaded = load_cursor(cursor_path)
     assert loaded.last_receivedDateTime == "2026-08-18T13:00:12Z"
     assert loaded.last_message_id == "AAMk-cursor"

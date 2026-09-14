@@ -120,7 +120,7 @@ def hold_row_for_mailbox_block(*, why: str, batch_name: str, as_of: date) -> dic
         "Result": RESULT_HOLD,
         "Why": why,
         "KIMCO id": "",
-        "Batch": batch_name,
+        "Batch": f"{batch_name} (not created)",
         "Fees and surcharges": "none",
         "PPV": "none",
         "Attach status": "no-pdf-on-vm",
