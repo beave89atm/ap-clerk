@@ -50,6 +50,7 @@ from ap_clerk.pdf_invoice import (
     assign_split_pdfs,
     classify_attachment,
     expand_gas_misc_invoices,
+    extract_aqpc_intuit_lines,
     extract_invoice_lines,
     extract_fees,
     extract_legacy_wire_bill,
@@ -3322,3 +3323,39 @@ def test_never_repeat_greentree_invoice_from_not_statement(tmp_path: Path):
     assert n["do_not_invent_success"] is True
     # Fixture Type 4 finish is not a live Success claim for the 9/15 miss.
     assert_never_success(RESULT_SKIPPED, note_id="NOTE-26", detail=why)
+
+
+def test_never_repeat_aqpc_11002_qty_not_line_number():
+    """AQPC Intuit row ``1. AMT-5003558`` is line 1, qty 100 @ $3, not qty 1."""
+    text = (
+        "INVOICE\nAMERICAN QUALITY POWDER COATING\n"
+        "Invoice no.: 11002\nInvoice date: 09/14/2026\nP.O. Number: 59172\n"
+        "# Product or service\tDescription\tQty\tRate\tAmount\n"
+        "1. AMT-5003558\tEnd Plate Recoat White RAL\n"
+        "9016(PO90008)\n"
+        "100\t$3.00\t$300.00\n"
+        "Total\t$300.00\n"
+    )
+    parsed = parse_invoice_text(
+        text,
+        subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 11002",
+        from_name="AMERICAN QUALITY POWDER COATING",
+    )
+    assert parsed.get("invoice_number") == "11002"
+    assert parsed.get("amount") == 300.0
+    assert parsed.get("po") == "59172"
+    lines = parsed.get("lines") or extract_aqpc_intuit_lines(text)
+    assert lines, "AQPC QBO merchandise lines must parse"
+    assert lines[0].get("part") == "AMT-5003558"
+    assert lines[0].get("qty") == 100.0
+    assert lines[0].get("amount") == 300.0
+    assert lines[0].get("unit_price") == 3.0
+    ok, why = qty_gate(lines, [{"qty": 100.0, "part": "AMT-5003558", "description": "End Plate"}])
+    assert ok is True, why
+    bad_ok, bad_why = qty_gate(
+        [{"qty": 1.0, "label": "1. AMT-5003558 End Plate Recoat White RAL"}],
+        [{"qty": 100.0, "description": "End Plate"}],
+    )
+    assert bad_ok is False
+    assert "1.0" in bad_why and "100.0" in bad_why
+

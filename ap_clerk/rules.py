@@ -1674,7 +1674,7 @@ def match_receipts(
         if unmatched:
             why += (
                 f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
-                "Selected vs unmatched: matched {len(matched)}, unmatched {len(unmatched)}. "
+                f"Selected vs unmatched: matched {len(matched)}, unmatched {len(unmatched)}. "
                 "Select Receipts for each invoice line; do not stop after one."
             )
             why += candidate_note
