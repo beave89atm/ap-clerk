@@ -1,9 +1,8 @@
 # QUALITY V1.2
 
 Treyce’s 2026-09-10 notes on the 8/16 dry-10 sheet, plus Kyle’s never-repeat and
-**Treyce-load / fix-before-complete** rules. Code + unit tests only. **Do not**
-run a live KIMCO or mailbox job until the scheduled **Monday 2026-09-14 2:00am
-America/Chicago** live 10-email run.
+**Treyce-load / fix-before-complete** rules. Next live FIFO continues AFTER the
+**2026-09-15** weekday cursor (`2026-08-19T20:12:03Z` / batch **711**).
 
 **Hard email cap 10 until further notice (Kyle 2026-09-11).** Cap = mailbox
 messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after
@@ -239,4 +238,9 @@ leftovers remain. Additional Charge PPV count is 0. Invoice totals add
 cleanly; do not invent a $0.02 PPV. This PR is so the clerk does that
 select itself next time.
 
-Pause further ad-hoc dry runs. Next live touch is Monday’s scheduled 10.
+Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
+(`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —
+AQPC Intuit links still auth-wall; Legacy 9995/9996 headers need Treyce
+Select Receipts; Crosslink 27321/27319/27419 were already-entered. Do not
+invent Success or recreate those headers. Next weekday continues AFTER
+`2026-08-19T20:12:03Z`.
