@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from ap_clerk.auth import format_presence, load_credentials, resolve_target
+from ap_clerk.browser_pdf import format_intuit_session_presence
 from ap_clerk.cursor import DEFAULT_CURSOR_PATH, load_cursor, save_cursor
 from ap_clerk.daily import (
     DEFAULT_DAILY_LIMIT,
@@ -72,6 +73,7 @@ from ap_clerk.gates import (
     vendor_confirmation_gate,
     why_fail,
     why_hold,
+    why_pdf_behind_link_detail,
     why_preflight_this_invoice,
     why_skipped,
 )
@@ -207,6 +209,7 @@ def main(argv: list[str] | None = None) -> int:
     creds = load_credentials(target=target)
     print(format_presence(creds.presence), flush=True)
     print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
     print(f"Target: {creds.target}", flush=True)
     if creds.key_source:
         print(f"Using credential pair: {creds.key_source}", flush=True)
@@ -855,14 +858,11 @@ def _process_invoice(
             row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
         elif reason_l == "pdf-behind-link":
             inv_no = number or extract_subject_invoice_number(str(inv.get("subject") or ""))
-            host = str(inv.get("pdf_link_host") or "")
-            host_bit = f" host {host}" if host else ""
             row["Invoice #"] = inv_no or row.get("Invoice #") or ""
-            row["Why"] = why_hold(
-                GATE_PDF_LINK,
-                f"{vendor} invoice #{inv_no or 'unknown'} PDF is behind a download link{host_bit} "
-                "(auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
-            )
+            if inv_no and not inv.get("invoice_number"):
+                inv = dict(inv)
+                inv["invoice_number"] = inv_no
+            row["Why"] = why_hold(GATE_PDF_LINK, why_pdf_behind_link_detail(inv))
         elif reason_l == "price does not match":
             row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}.")
         else:
@@ -1701,6 +1701,7 @@ def _attach_inbox_ids(
 def _run_probe(args: argparse.Namespace) -> int:
     """Graph-only: AI HOLD category + Mail.Send draft check. Never sendMail. Never KIMCO."""
     print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
     mailbox = assert_allowed_mailbox(args.mailbox)
     graph_creds = load_graph_credentials()
     if not graph_creds.ready:
@@ -1769,6 +1770,7 @@ def _run_daily(args: argparse.Namespace) -> int:
     creds = load_credentials(target=target)
     print(format_presence(creds.presence), flush=True)
     print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
     print(f"Target: {creds.target}", flush=True)
     if creds.key_source:
         print(f"Using credential pair: {creds.key_source}", flush=True)
@@ -1986,6 +1988,7 @@ def _email_daily_report(
 
 def _run_pull(args: argparse.Namespace) -> int:
     print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
     mailbox = assert_allowed_mailbox(args.mailbox)
     graph_creds = load_graph_credentials()
     if not graph_creds.ready:

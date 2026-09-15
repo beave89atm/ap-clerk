@@ -23,7 +23,7 @@ from urllib.parse import quote
 
 import requests
 
-from ap_clerk.pdf_links import download_first_public_pdf
+from ap_clerk.pdf_links import download_first_pdf
 
 LOGGER = logging.getLogger("ap_clerk")
 
@@ -542,11 +542,13 @@ class GraphClient:
         return downloaded
 
     def download_public_pdf_from_text(self, text: str) -> dict[str, Any]:
-        """Unauthenticated GET of https invoice links in the email body (AQPC).
+        """GET https invoice links in the email body (AQPC / Intuit).
 
-        Auth walls are pdf-behind-link. Never logs PDF bytes.
+        Cheap unauthenticated GET first. Auth wall escalates to a browser
+        session (Playwright + AP_CLERK_INTUIT_STORAGE_STATE). Still no PDF
+        → pdf-behind-link. Never logs PDF bytes or cookies.
         """
-        return download_first_public_pdf(text)
+        return download_first_pdf(text)
 
     def _download_attachment_bytes(self, mailbox: str, message_id: str, attachment_id: str) -> bytes | None:
         mailbox = assert_allowed_mailbox(mailbox)

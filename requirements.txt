@@ -1,3 +1,4 @@
 requests>=2.31.0
 openpyxl>=3.1.0
 pypdf>=5.0.0
+# Optional: Intuit/AQPC click-through. pip install playwright && python -m playwright install chrome

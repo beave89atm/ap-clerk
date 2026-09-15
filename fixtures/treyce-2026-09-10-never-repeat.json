@@ -50,8 +50,9 @@
       "attachment_names": ["MC-inv-1.pdf", "MC-inv-2.pdf", "MC-inv-3.pdf", "MC-inv-4.pdf"]
     },
     "NOTE-09": {
-      "body": "Please download your invoice: https://aqpowder.example.com/files/4412.pdf",
-      "vendor": "American Quality Powder Coating"
+      "body": "Please download your invoice: https://links.notification.intuit.com/ls/click?upn=aqpc-4412",
+      "vendor": "American Quality Powder Coating",
+      "link_host": "links.notification.intuit.com"
     },
     "NOTE-10": {
       "misc_pdf_text": "Gas and Supply North Texas, LLC\nORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/16/26 A3050 0040367887\nAmount Due: 88.00\n",
@@ -188,7 +189,10 @@
       "invoice_number": "10917",
       "subject_10918": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10918",
       "body": "Please download your invoice: https://pay.aqpowder.com/invoices/10917",
-      "link_host": "pay.aqpowder.com"
+      "link_host": "pay.aqpowder.com",
+      "intuit_host": "links.notification.intuit.com",
+      "intuit_body_10917": "AMERICAN QUALITY POWDER COATING invoice 10917: https://links.notification.intuit.com/ls/click?upn=invoice-10917",
+      "intuit_body_10918": "AMERICAN QUALITY POWDER COATING invoice 10918: https://links.notification.intuit.com/ls/click?upn=invoice-10918"
     },
     "NOTE-22": {
       "vendor": "Eastern Metal Supply of Texas",

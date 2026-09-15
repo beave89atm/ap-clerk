@@ -37,7 +37,7 @@ from ap_clerk.graph import (
     is_already_flagged,
 )
 from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
-from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_public_pdf
+from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_pdf
 from ap_clerk.rules import (
     CHICAGO,
     KNOWN_BILL_VENDOR_RE,
@@ -347,6 +347,9 @@ def pull_recent_bills(
                         "pdf_behind_link": True,
                         "pdf_link_url": str(link_hold.get("url") or ""),
                         "pdf_link_host": str(link_hold.get("host") or ""),
+                        "browser_tried": bool(link_hold.get("browser_tried")),
+                        "browser_failure": str(link_hold.get("browser_failure") or ""),
+                        "download_method": str(link_hold.get("method") or ""),
                         "action": "hold",
                         "graph_message_id": message_id,
                         "subject": subject,
@@ -540,7 +543,7 @@ def _pdfs_from_body_link(
     *,
     subject: str = "",
 ) -> tuple[list[tuple[str, bytes]], dict[str, Any] | None]:
-    """Best-effort AQPC-style https PDF download. Auth wall → ( [], hold-meta )."""
+    """AQPC-style https PDF download. Unauth GET, then browser. Auth wall → HOLD."""
     body_text = preview or ""
     getter = getattr(graph, "get_message", None)
     if callable(getter):
@@ -556,10 +559,17 @@ def _pdfs_from_body_link(
     if callable(downloader):
         result = downloader(body_text)
     else:
-        result = download_first_public_pdf(body_text)
+        result = download_first_pdf(body_text)
     url = str(result.get("url") or "")
     host = urlparse(url).netloc if url else ""
-    hold = {"url": url, "host": host, "reason": str(result.get("reason") or "")}
+    hold = {
+        "url": url,
+        "host": host,
+        "reason": str(result.get("reason") or ""),
+        "browser_tried": bool(result.get("browser_tried")),
+        "browser_failure": str(result.get("browser_failure") or ""),
+        "method": str(result.get("method") or ""),
+    }
     if result.get("ok") and result.get("content"):
         inv_no = extract_subject_invoice_number(subject) or extract_subject_invoice_number(body_text) or ""
         name = f"invoice-{inv_no}.pdf" if inv_no else "download.pdf"
