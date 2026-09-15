@@ -65,6 +65,12 @@ from ap_clerk.rules import (
     posted_vendor_fields,
 )
 
+def _receipt_ref_id(raw: Any) -> str:
+    if isinstance(raw, dict):
+        raw = raw.get("id") if raw.get("id") not in (None, "") else raw.get("receipt_id")
+    return str(raw).strip() if raw not in (None, "") else ""
+
+
 LOGGER = logging.getLogger("ap_clerk.finish")
 
 DRY_SUBJECT = "AP dry run 10 — quality V1.1 (API finish)"
@@ -240,13 +246,18 @@ def finish_existing_header(
         for line in list(inv.get("lines") or [])
         if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or line.get("description") or ""))
     ]
-    if receipts_selected and merch_inv_lines and existing_receipt_ids:
-        if len(existing_receipt_ids) < len(merch_inv_lines):
-            unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
-            receipt_note = (
-                f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
-                "Select Receipts for each invoice line; do not stop after one."
-            )
+    leftover_needed = bool(
+        receipts_selected
+        and merch_inv_lines
+        and existing_receipt_ids
+        and len(existing_receipt_ids) < len(merch_inv_lines)
+    )
+    if leftover_needed:
+        unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
+        receipt_note = (
+            f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
+            "Select Receipts for each invoice line; do not stop after one."
+        )
     if receipts_selected and invoice_qty is not None:
         posted_qty = receipt_qty_from_invoice_lines(lines)
         if posted_qty is not None and posted_qty != invoice_qty:
@@ -255,7 +266,7 @@ def finish_existing_header(
                 f"Posted receipt qty {posted_qty:g} ≠ invoice qty {invoice_qty:g} "
                 "(will not claim Success on first-open / second-open-on-po)."
             )
-    if need_receipts and not receipts_selected:
+    if need_receipts and (not receipts_selected or leftover_needed):
         invoice_lines = list(inv.get("lines") or [])
         search_pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
         combined: list[dict[str, Any]] = []
@@ -275,10 +286,12 @@ def finish_existing_header(
             if one.get("ambiguous") and not one.get("matched"):
                 receipt_note = str(one.get("why") or "")
             combined.extend(one.get("matched") or [])
-            unmatched_for_check.extend(one.get("unmatched_lines") or [])
+            unmatched_for_check = list(one.get("unmatched_lines") or [])
             if not receipt_note:
                 receipt_note = " ".join(n for n in notes if n)
         receipt_ids = receipt_select_refs(combined)
+        already = {_receipt_ref_id(rid) for rid in existing_receipt_ids}
+        new_refs = [rid for rid in receipt_ids if _receipt_ref_id(rid) not in already]
         picked_qty = merchandise_qty(
             [
                 {
@@ -297,15 +310,33 @@ def finish_existing_header(
             and not unmatched_for_check
         ):
             receipt_qty_mismatch = True
-        if receipt_ids:
+        elif unmatched_for_check:
+            receipt_qty_mismatch = False
+        if new_refs:
             try:
-                select_status = client.try_select_receipts(int(invoice_id), receipt_ids)
+                select_status = client.try_select_receipts(int(invoice_id), new_refs)
             except KimcoError:
                 select_status = "blocked-405"
-            receipts_selected = select_status == "selected"
-        else:
+            receipts_selected = select_status == "selected" or (
+                receipts_selected and select_status != "blocked-405"
+            )
+            if select_status == "selected":
+                try:
+                    record = client.get_item("ap_invoices", int(invoice_id))
+                    lines = invoice_lines_from_record(record)
+                    existing_receipt_ids = receipt_ids_from_invoice_lines(lines)
+                    receipts_selected = bool(existing_receipt_ids)
+                    posted_qty = receipt_qty_from_invoice_lines(lines)
+                    if invoice_qty is not None and posted_qty is not None:
+                        receipt_qty_mismatch = posted_qty != invoice_qty
+                except KimcoError:
+                    pass
+        elif receipt_ids and receipts_selected and not new_refs:
+            select_status = "already-selected"
+        elif not receipt_ids:
             select_status = "blocked-no-receipt-ids"
-            receipts_selected = False
+            if not receipts_selected:
+                receipts_selected = False
 
     parsed_fees = list(inv.get("fees") or [])
     fees_posted = False
