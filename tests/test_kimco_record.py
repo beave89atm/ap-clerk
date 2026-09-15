@@ -178,6 +178,40 @@ def test_try_post_fees_puts_record_additional_charge() -> None:
     assert body["lists"][ADDITIONAL_CHARGE_LIST][0]["values"]["Amount"] == 63.98
 
 
+def test_try_post_po_line_comment_puts_po_line_notes() -> None:
+    client = _live_client()
+    line_id = 17522
+    existing = {
+        "id": line_id,
+        "lists": {"Comments": []},
+        "values": {"_PO_Line_Notes": None, "Quantity": 2.0},
+    }
+
+    def kimco_request(method, url, **kwargs):
+        if method == "GET" and url.endswith(f"/{LIVE_SERVICES['purchase_lines']}/{line_id}"):
+            return FakeResp(200, existing)
+        if method == "PUT" and url.endswith(f"/{LIVE_SERVICES['purchase_lines']}/{line_id}"):
+            return FakeResp(200, {"ok": True})
+        raise AssertionError(f"unexpected {method} {url}")
+
+    with patch.object(client.session, "request", side_effect=kimco_request) as req:
+        status = client.try_post_po_line_comment(
+            line_id,
+            "@Shawn McKibben price does not match. AP invoice 11003 / KIMCO 10009.",
+        )
+    assert status == "posted"
+    put_calls = [c for c in req.call_args_list if c.args[0] == "PUT"]
+    assert put_calls
+    url = put_calls[0].args[1]
+    assert f"/{LIVE_SERVICES['purchase_lines']}/{line_id}" in url
+    assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_SERVICES['purchase_lines']}")
+    body = put_calls[0].kwargs.get("json")
+    assert body["id"] == line_id
+    assert body["state"] == "Modified"
+    assert "@Shawn McKibben" in body["values"]["_PO_Line_Notes"]
+    assert "11003" in body["values"]["_PO_Line_Notes"]
+
+
 def test_fee_amounts_from_record_and_cover_parsed() -> None:
     record = {
         "lists": {

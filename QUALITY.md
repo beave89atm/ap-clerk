@@ -388,3 +388,19 @@ receipts Invoiced=true / AP **11004**. Outlook **Entered in AI**.
 qtys pair uniquely. Test:
 `test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost`.
 Proof: `runs/kimco-10010-swapped-receipts.json`.
+
+**10010 still Success (GET after finish):** six lines, amount/net **$2,600**,
+void false. Leftovers 24109/24110 remain selected.
+
+**PO 59083 @Shawn comment (10009 / inv 11003):** purchase_lines **17522**
+(PO59083-01) PUT `_PO_Line_Notes` HTTP **200**. GET shows the price-mismatch
+note (PDF 2 @ $5.00 vs receipt 2 @ $0.78). Qty/unit unchanged. 10009
+untouched. `lists.Comments` exists but has no public child URL. Helper:
+`KimcoClient.try_post_po_line_comment`. Email to Shawn already going from
+AP Clerk.
+
+**Handoff — next 5 AQPC (do not enter in the 10010 finish run):** Graph has
+no 11006+. Newest unflagged payment-requests not already on KIMCO:
+**10998**, **10991**, **10984**, **10969**, **10968**. Guest Intuit
+click-through; reuse batch **711** if Status 0; do not touch 10009; no
+treyce@ email. See `runs/kimco-10010-success-po59083-handoff.json`.

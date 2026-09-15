@@ -456,6 +456,40 @@ class KimcoClient:
             return self._blocked_405("Additional Charge PPV", invoice_id)
         return f"blocked-{put.status_code}"
 
+    def try_post_po_line_comment(self, purchase_line_id: int, comment: str) -> str:
+        """Append @Shawn / buyer text on a purchase LINE via `_PO_Line_Notes`.
+
+        Live 2026-09-15: PUT purchase_lines/17522 (PO59083-01) with
+        `{id, state: Modified, values._PO_Line_Notes}` returned 200 and GET
+        showed the note. lists.Comments exists but has no public child URL
+        (GET .../comments is 404). Never the list GUID. Never invents a
+        comment schema. Does not change qty or unit price.
+        """
+        if purchase_line_id in (None, ""):
+            raise KimcoError("PO line comment requires a purchase line id")
+        text = str(comment or "").strip()
+        if not text:
+            return "none"
+        record = self.get_item("purchase_lines", int(purchase_line_id))
+        vals = record.get("values") if isinstance(record.get("values"), dict) else {}
+        if "_PO_Line_Notes" not in vals and "Comments" not in ((record.get("lists") or {})):
+            return "blocked-no-comment-field"
+        existing = str(vals.get("_PO_Line_Notes") or "").strip()
+        if text in existing:
+            return "already-present"
+        new_text = f"{existing}\n{text}".strip() if existing else text
+        payload = {
+            "id": int(purchase_line_id),
+            "state": "Modified",
+            "values": {"_PO_Line_Notes": new_text},
+        }
+        body, status, err = self.update("purchase_lines", int(purchase_line_id), payload)
+        if status < 400:
+            return "posted"
+        if status == 405:
+            return self._blocked_405("PO line notes", purchase_line_id)
+        return f"blocked-{status}"
+
 
 def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     """Parsed fees that have a numeric amount (the ones that must be posted)."""

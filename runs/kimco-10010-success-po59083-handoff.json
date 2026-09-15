@@ -1,0 +1,519 @@
+{
+  "proof": "kimco-10010-success-po59083-comment-aqpc-handoff",
+  "invent": false,
+  "void": false,
+  "new_headers": false,
+  "treyce_email": false,
+  "10010": {
+    "Result": "Success",
+    "amount": 2600.0,
+    "total_line_net": 2600.0,
+    "lines_count": 6,
+    "lines": [
+      {
+        "line_id": 20481,
+        "qty": 5.0,
+        "unit_price": 445.0,
+        "amount": 2225.0,
+        "receipt_id": 24106,
+        "po_line": "PO59165-01"
+      },
+      {
+        "line_id": 20482,
+        "qty": 5.0,
+        "unit_price": 5.0,
+        "amount": 25.0,
+        "receipt_id": 24107,
+        "po_line": "PO59165-02"
+      },
+      {
+        "line_id": 20483,
+        "qty": 5.0,
+        "unit_price": 5.0,
+        "amount": 25.0,
+        "receipt_id": 24108,
+        "po_line": "PO59165-03"
+      },
+      {
+        "line_id": 20484,
+        "qty": 5.0,
+        "unit_price": 25.0,
+        "amount": 125.0,
+        "receipt_id": 24111,
+        "po_line": "PO59165-06"
+      },
+      {
+        "line_id": 20485,
+        "qty": 15.0,
+        "unit_price": 10.0,
+        "amount": 150.0,
+        "receipt_id": 24110,
+        "po_line": "PO59165-05"
+      },
+      {
+        "line_id": 20486,
+        "qty": 5.0,
+        "unit_price": 10.0,
+        "amount": 50.0,
+        "receipt_id": 24109,
+        "po_line": "PO59165-04"
+      }
+    ],
+    "void": false
+  },
+  "10009": {
+    "amount": 1.55,
+    "total_line_net": 1.55,
+    "lines": [
+      {
+        "line_id": 20479,
+        "qty": 2.0,
+        "unit_price": 0.78,
+        "amount": 1.56,
+        "receipt_id": 24103,
+        "po_line": "PO59083-01"
+      }
+    ],
+    "untouched": true
+  },
+  "po_59083_comment": {
+    "attempted": false,
+    "supported": true,
+    "status": "already-present",
+    "field": "_PO_Line_Notes",
+    "why": "PO line already has the @Shawn McKibben 11003 comment.",
+    "posted_preview": "@Shawn McKibben price does not match. Purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI (breaks WO cost, material cost, and PO clearing). AP invoice 11003 / KIMCO 10009: PDF 2 @ $5.00 = $10.00 vs PO/receipt 2 @ $0.78 = $1.55 (84.5%). Email to Shawn already going from AP Clerk.",
+    "purchase_line_id": 17522,
+    "po_line": "PO59083-01"
+  },
+  "po_line_probe": {
+    "id": 17522,
+    "value_keys_commentish": [
+      "_Material_Notes",
+      "_PO_Line_Notes"
+    ],
+    "list_keys": [
+      "Attachments",
+      "Comments",
+      "MaterialReviewLine",
+      "PODeliveryDates",
+      "PurchaseSupply",
+      "Supply_Demand_Shared",
+      "_PODeliveryDates",
+      "_PODeliveryDates2",
+      "poLineReceiptsForCounting"
+    ],
+    "list_keys_commentish": [
+      "Comments"
+    ],
+    "has_comments_field": false,
+    "comments_value": null,
+    "value_keys": [
+      "Abstract",
+      "Batch",
+      "Business_Unit",
+      "Cancelled",
+      "Count_Deliveries",
+      "Current_Cost",
+      "Default_Delivery_Date",
+      "Display_Name",
+      "Extended_Description",
+      "Financial_Business_Unit",
+      "Fixed_Cost",
+      "From_Supply_Request",
+      "Inventory_Code",
+      "Inventory_Qty_Remaining",
+      "Inventory_UoM",
+      "IsArchived",
+      "IsLocked",
+      "Item_Closed",
+      "Item_Delivery_Instructions",
+      "Item_Type",
+      "Misc_Purchase_Item",
+      "ModifiedOn",
+      "ModifierId",
+      "OS_Quantity_In",
+      "OS_Quantity_Out",
+      "Order_Policy",
+      "Organization",
+      "Organization_$_Default_Material_Class",
+      "PO_Buyer",
+      "PO_Cancelled",
+      "PO_Closed",
+      "PO_Item_Description",
+      "PO_Item_ID",
+      "PO_Item_Number",
+      "PO_Vendor",
+      "Part_Description",
+      "Part_Facility_Sales_Group",
+      "Part_Lot",
+      "Part_Number",
+      "Post_Part_Number",
+      "Pre_Part_Number",
+      "Purchase_Conversion",
+      "Purchase_Line_Number",
+      "Purchase_Order_Number",
+      "Purchase_Order_Number_$_Facility",
+      "Purchase_Order_Number_$_Purchasing_Batch",
+      "Purchase_UOM",
+      "Purchasing_Batch",
+      "Quantity",
+      "Quantity_Not_on_Deliveries",
+      "Quantity_on_Deliveries",
+      "Receipt",
+      "Receipts_Counter",
+      "Received_Quantity",
+      "Reference",
+      "Remaining_Deliveries",
+      "Remaining_Quantity",
+      "Sales_Code",
+      "Stocking",
+      "Subtotal_Line_Price",
+      "Tax_Amount",
+      "Tax_Category",
+      "Taxable",
+      "Timestamp",
+      "Total_Deliveries",
+      "Total_Item_Price",
+      "Unit_Price",
+      "Vendor_Part_Number",
+      "WO_Operation",
+      "WO_Operation_$_Operation_Type",
+      "WO_Operation_$_Quantity_Inbound",
+      "WO_Operation_$_Quantity_Outbound",
+      "Work_Order_Material",
+      "Work_Order_Number",
+      "Work_Order_Number_$_Inventory_Code",
+      "Work_Order_Number_$_Part_Number",
+      "_Expedited",
+      "_Extended_Description",
+      "_Material_Notes",
+      "_Materials_Needed_By",
+      "_PO_Line_Notes",
+      "_Part_Revision",
+      "_WO_Operation_Description"
+    ],
+    "options_status": 405,
+    "options_allow": "DELETE, GET, PUT",
+    "child_probes": [
+      {
+        "suffix": "comments",
+        "status": 404,
+        "snippet": "Status Code: 404; Not Found                                                                                                                                                         "
+      },
+      {
+        "suffix": "notes",
+        "status": 404,
+        "snippet": "Status Code: 404; Not Found                                                                                                                                                         "
+      },
+      {
+        "suffix": "Comments",
+        "status": 404,
+        "snippet": "Status Code: 404; Not Found                                                                                                                                                         "
+      },
+      {
+        "suffix": "Notes",
+        "status": 404,
+        "snippet": "Status Code: 404; Not Found                                                                                                                                                         "
+      }
+    ]
+  },
+  "aqpc_search": {
+    "messages_seen": 24,
+    "distinct_invoices": [
+      "10938",
+      "10945",
+      "10946",
+      "10950",
+      "10952",
+      "10953",
+      "10954",
+      "10955",
+      "10956",
+      "10958",
+      "10962",
+      "10964",
+      "10967",
+      "10968",
+      "10969",
+      "10984",
+      "10991",
+      "10998",
+      "10999",
+      "11002",
+      "11003",
+      "11004",
+      "11005"
+    ],
+    "kimco_lookup_next_five": {
+      "10998": {
+        "http": 200,
+        "matches": []
+      },
+      "10991": {
+        "http": 200,
+        "matches": []
+      },
+      "10984": {
+        "http": 200,
+        "matches": []
+      },
+      "10969": {
+        "http": 200,
+        "matches": []
+      },
+      "10968": {
+        "http": 200,
+        "matches": []
+      }
+    },
+    "no_11006_plus": true
+  },
+  "aqpc_messages": [
+    {
+      "invoice": "11005",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11005",
+      "receivedDateTime": "2026-09-15T18:09:41Z",
+      "already_flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "11004",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004",
+      "receivedDateTime": "2026-09-15T18:10:17Z",
+      "already_flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "11004",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004",
+      "receivedDateTime": "2026-09-15T18:10:01Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "11003",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11003",
+      "receivedDateTime": "2026-09-15T18:10:45Z",
+      "already_flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "11002",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11002",
+      "receivedDateTime": "2026-09-15T18:11:01Z",
+      "already_flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "10999",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10999",
+      "receivedDateTime": "2026-09-14T13:10:27Z",
+      "already_flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "already_on_kimco": true
+    },
+    {
+      "invoice": "10998",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10998",
+      "receivedDateTime": "2026-09-14T13:10:53Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10991",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10991",
+      "receivedDateTime": "2026-09-11T18:39:08Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10984",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10984",
+      "receivedDateTime": "2026-09-10T12:11:48Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10969",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10969",
+      "receivedDateTime": "2026-09-02T15:36:29Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10968",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10968",
+      "receivedDateTime": "2026-09-01T19:06:59Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10967",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10967",
+      "receivedDateTime": "2026-09-01T19:07:16Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10964",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10964",
+      "receivedDateTime": "2026-09-01T19:07:33Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10962",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10962",
+      "receivedDateTime": "2026-08-31T12:58:34Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10958",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10958",
+      "receivedDateTime": "2026-08-31T12:58:54Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10956",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10956",
+      "receivedDateTime": "2026-08-31T12:04:17Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10955",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10955",
+      "receivedDateTime": "2026-08-28T13:21:15Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10954",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10954",
+      "receivedDateTime": "2026-08-28T13:20:56Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10953",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10953",
+      "receivedDateTime": "2026-08-28T13:19:45Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10952",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10952",
+      "receivedDateTime": "2026-08-27T18:35:41Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10950",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10950",
+      "receivedDateTime": "2026-08-28T13:20:35Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10946",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10946",
+      "receivedDateTime": "2026-08-26T19:28:53Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10945",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10945",
+      "receivedDateTime": "2026-08-25T14:26:47Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10938",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10938",
+      "receivedDateTime": "2026-08-25T14:27:06Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    }
+  ],
+  "next_five_aqpc": [
+    {
+      "invoice": "10998",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10998",
+      "receivedDateTime": "2026-09-14T13:10:53Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10991",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10991",
+      "receivedDateTime": "2026-09-11T18:39:08Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10984",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10984",
+      "receivedDateTime": "2026-09-10T12:11:48Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10969",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10969",
+      "receivedDateTime": "2026-09-02T15:36:29Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    },
+    {
+      "invoice": "10968",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10968",
+      "receivedDateTime": "2026-09-01T19:06:59Z",
+      "already_flagged": false,
+      "categories": [],
+      "already_on_kimco": false
+    }
+  ],
+  "handoff": "Next agent: enter up to 5 unflagged AQPC payment-request invoices not already on KIMCO (see next_five_aqpc). Reuse batch 711 if Status 0. Guest Intuit click-through, no treyce@ email, do not touch 10009 price HOLD."
+}
