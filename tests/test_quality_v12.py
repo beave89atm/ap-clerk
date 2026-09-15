@@ -3408,6 +3408,44 @@ def test_never_repeat_aqpc_11004_six_lines_not_line_numbers():
     assert 6.0 not in [ln.get("qty") for ln in lines]
 
 
+def test_never_repeat_aqpc_11004_qty_swap_holds_po_lines_04_05():
+    """11004 leftover: invoice 4/15 vs PO59165-04/05 5/15. Do not cross-match by qty."""
+    from ap_clerk.rules import match_receipts, po_line_number
+
+    assert po_line_number("PO59165-04") == 4
+    assert po_line_number(4) == 4
+    assert po_line_number("AMT-5003750-002") is None
+
+    lines = [
+        {"part": "AMT-6001232", "qty": 5.0, "amount": 2225.0, "unit_price": 445.0, "po_line": 1},
+        {"part": "AMT-5003753", "qty": 5.0, "amount": 25.0, "unit_price": 5.0, "po_line": 2},
+        {"part": "AMT-5003753", "qty": 5.0, "amount": 25.0, "unit_price": 5.0, "po_line": 3},
+        {"part": "AMT-5003741", "qty": 15.0, "amount": 150.0, "unit_price": 10.0, "po_line": 4},
+        {"part": "AMT-5003750-002", "qty": 5.0, "amount": 50.0, "unit_price": 10.0, "po_line": 5},
+        {"part": "AMT-5003750", "qty": 5.0, "amount": 125.0, "unit_price": 25.0, "po_line": 6},
+    ]
+    receipts = [
+        {"id": 24106, "part": "PO59165-01", "po": "59165", "qty": 5.0, "amount": 2225.0, "unit_price": 445.0},
+        {"id": 24107, "part": "PO59165-02", "po": "59165", "qty": 5.0, "amount": 25.0, "unit_price": 5.0},
+        {"id": 24108, "part": "PO59165-03", "po": "59165", "qty": 5.0, "amount": 25.0, "unit_price": 5.0},
+        {"id": 24109, "part": "PO59165-04", "po": "59165", "qty": 5.0, "amount": 50.0, "unit_price": 10.0},
+        {"id": 24110, "part": "PO59165-05", "po": "59165", "qty": 15.0, "amount": 150.0, "unit_price": 10.0},
+        {"id": 24111, "part": "PO59165-06", "po": "59165", "qty": 5.0, "amount": 125.0, "unit_price": 25.0},
+    ]
+    result = match_receipts(
+        invoice_number="11004",
+        invoice_lines=lines,
+        receipts=receipts,
+        po_number="59165",
+        invoice_amount=2600.0,
+    )
+    picked = {hit["receipt"]["id"] for hit in result.get("matched") or []}
+    assert picked == {24106, 24107, 24108, 24111}
+    leftover = {(ln.get("part"), ln.get("qty")) for ln in (result.get("unmatched_lines") or [])}
+    assert leftover == {("AMT-5003741", 15.0), ("AMT-5003750-002", 5.0)}
+    assert result.get("hold_no_receipts") is False
+
+
 def test_named_po_single_receipt_consumes_aqpc_line():
     """AQPC receipt part is PO59160-01. Named-PO pick must not leave the line unmatched."""
     result = match_receipts(
