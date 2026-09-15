@@ -96,6 +96,7 @@ from ap_clerk.rules import (
     format_unmatched_lines,
     match_receipts,
     merchandise_qty,
+    po_line_number,
     misc_purchase_item_for,
     names_match,
     printed_invoice_number,
@@ -3409,9 +3410,20 @@ def test_never_repeat_aqpc_11004_six_lines_not_line_numbers():
 
 
 def test_never_repeat_aqpc_11004_qty_swap_holds_po_lines_04_05():
-    """11004 leftover: invoice 4/15 vs PO59165-04/05 5/15. Do not cross-match by qty."""
-    from ap_clerk.rules import match_receipts, po_line_number
+    """Superseded by Kyle 2026-09-15: 11004 leftover 04↔05 swap is OK.
 
+    PR #38 held cross-select. Pair by qty+cost instead.
+    """
+    test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost()
+
+
+def test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost():
+    """11004 leftover: invoice qty 15↔5 vs PO59165-04/05. Select by qty+cost.
+
+    Kyle: leftovers are just swapped. Invoice 15@$10 → receipt 24110 qty 15;
+    invoice 5@$10 → receipt 24109 qty 5. Never HOLD qty-does-not-match only
+    because line 4↔5 / suffix order is reversed when dollars and qtys pair.
+    """
     assert po_line_number("PO59165-04") == 4
     assert po_line_number(4) == 4
     assert po_line_number("AMT-5003750-002") is None
@@ -3439,11 +3451,20 @@ def test_never_repeat_aqpc_11004_qty_swap_holds_po_lines_04_05():
         po_number="59165",
         invoice_amount=2600.0,
     )
-    picked = {hit["receipt"]["id"] for hit in result.get("matched") or []}
-    assert picked == {24106, 24107, 24108, 24111}
-    leftover = {(ln.get("part"), ln.get("qty")) for ln in (result.get("unmatched_lines") or [])}
-    assert leftover == {("AMT-5003741", 15.0), ("AMT-5003750-002", 5.0)}
+    hits = list(result.get("matched") or [])
+    picked = {(hit.get("receipt") or {}).get("id") for hit in hits}
+    assert picked == {24106, 24107, 24108, 24109, 24110, 24111}, result
+    pair = {
+        (hit.get("line") or {}).get("part"): (hit.get("receipt") or {}).get("id")
+        for hit in hits
+        if (hit.get("line") or {}).get("part") in {"AMT-5003741", "AMT-5003750-002"}
+    }
+    assert pair.get("AMT-5003741") == 24110
+    assert pair.get("AMT-5003750-002") == 24109
+    assert not result.get("unmatched_lines"), result.get("unmatched_lines")
     assert result.get("hold_no_receipts") is False
+    ok, why = qty_gate(lines, receipts)
+    assert ok, why
 
 
 def test_named_po_single_receipt_consumes_aqpc_line():

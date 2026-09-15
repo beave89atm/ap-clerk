@@ -378,9 +378,12 @@ partial Select Receipts on the four matching lines; Entered with issues.
 Do not void 10008–10011. Do not invent Success for 11003/11004.
 
 **Live recheck 2026-09-15 (GET invent=false, no void, no new headers):**
-HOLDs stand. 10009 still one line: 24103 / PO59083-01 qty 2 @ 0.78 = 1.55
-(PDF 2 @ $5.00 = $10.00). Only receipt on 59083; already selected. 10010
-still four posted lines ($2,400). Open leftovers 24109 PO59165-04 qty 5 @
-$10 and 24110 PO59165-05 qty 15 @ $10. Do not cross-select those to
-“finish” $2,600. Select Receipts unchanged. Code: `PO59165-04` now
-parses as line 4 so qty-unique cannot steal the swapped line.
+10009 HOLD stands (price). 10010 leftovers 24109 / PO59165-04 qty 5 @ $10
+and 24110 / PO59165-05 qty 15 @ $10 are a **line-order swap** (Kyle
+confirmed). Quantities and costs are correct. Pair invoice qty 15 →
+receipt qty 15 (24110) and invoice qty 5 → receipt qty 5 (24109); ignore
+PO suffix / invoice line index. Select those two leftovers and finish
+the bill at **$2,600** (six lines). Never HOLD `qty-does-not-match` only
+because 4↔5 are reversed when dollars and qtys pair uniquely. Test:
+`test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost`.
+Do not touch 10009. No new header, no void, no Treyce email.

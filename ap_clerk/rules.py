@@ -548,7 +548,19 @@ def _match_po_line(
     po_lines: list[dict[str, Any]],
     used: set[int],
 ) -> dict[str, Any] | None:
-    """Prefer part + PO/WO line. Never the first leftover qty that happens to fit."""
+    """Prefer unique qty+unit cost, then part + PO/WO line.
+
+    Never the first leftover qty that happens to fit. Kyle 2026-09-15:
+    when qty+cost uniquely pair on the same PO, do not require matching
+    PO line suffix / invoice line index (11004 04↔05 swap).
+    """
+    qty_cost_hits = [
+        po_line
+        for po_line in po_lines
+        if id(po_line) not in used and _qty_and_unit_cost_match(invoice_line, po_line)
+    ]
+    if len(qty_cost_hits) == 1:
+        return qty_cost_hits[0]
     scored: list[tuple[int, dict[str, Any]]] = []
     for po_line in po_lines:
         if id(po_line) in used:
@@ -662,7 +674,9 @@ def _receipt_line_token(receipt: dict[str, Any] | None) -> Any:
 def _line_number_conflicts(invoice_line: dict[str, Any], receipt: dict[str, Any]) -> bool:
     """True when both sides name a PO line and those lines differ.
 
-    AQPC 11004 leftover: invoice line 4 qty 15 must not take PO59165-05 qty 15.
+    This is not a HOLD by itself. Kyle 2026-09-15: 11004 leftover 04↔05
+    are swapped vs invoice line order. When qty+unit cost uniquely pair,
+    still Select Receipts (`_line_order_blocks_select`).
     """
     left = None
     if isinstance(invoice_line, dict):
@@ -677,6 +691,73 @@ def _line_number_conflicts(invoice_line: dict[str, Any], receipt: dict[str, Any]
 def _same_qty(left: Any, right: Any) -> bool:
     a, b = money(left), money(right)
     return a is not None and b is not None and a == b
+
+
+def _line_qty_value(line: dict[str, Any] | None) -> float | None:
+    if not isinstance(line, dict):
+        return None
+    return money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+
+
+def _line_unit_cost(line: dict[str, Any] | None) -> float | None:
+    """Unit price, else amount / qty. Used for 11004 leftover qty+cost pairing."""
+    if not isinstance(line, dict):
+        return None
+    unit = money(
+        line.get("unit_price")
+        if line.get("unit_price") is not None
+        else line.get("unit_cost")
+        if line.get("unit_cost") is not None
+        else line.get("rate")
+    )
+    if unit is not None:
+        return unit
+    qty = _line_qty_value(line)
+    amt = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+    if qty not in (None, 0) and amt is not None:
+        return round(amt / qty, 4)
+    return None
+
+
+def _qty_and_unit_cost_match(invoice_line: dict[str, Any], other: dict[str, Any]) -> bool:
+    """True when invoice qty and unit cost (or extended $) pair with the other row.
+
+    Kyle 2026-09-15: 11004 leftovers 15@$10 and 5@$10 pair cleanly even if
+    PO59165-04 / PO59165-05 suffixes are reversed vs invoice line 4/5.
+    """
+    if not isinstance(invoice_line, dict) or not isinstance(other, dict):
+        return False
+    inv_qty = _line_qty_value(invoice_line)
+    oth_qty = _receipt_qty(other)
+    if oth_qty is None:
+        oth_qty = _line_qty_value(other)
+    if not _same_qty(inv_qty, oth_qty):
+        return False
+    inv_unit = _line_unit_cost(invoice_line)
+    oth_unit = _line_unit_cost(other)
+    if inv_unit is not None and oth_unit is not None:
+        return costs_align(inv_unit, oth_unit)
+    inv_amt = money(
+        invoice_line.get("amount")
+        if invoice_line.get("amount") is not None
+        else invoice_line.get("line_amount")
+    )
+    oth_amt = receipt_cost(other)
+    if oth_amt is None:
+        oth_amt = money(other.get("amount") if other.get("amount") is not None else other.get("line_amount"))
+    if inv_amt is not None and oth_amt is not None:
+        return costs_align(inv_amt, oth_amt)
+    return False
+
+
+def _line_order_blocks_select(invoice_line: dict[str, Any], receipt: dict[str, Any]) -> bool:
+    """Skip a receipt only when line #s differ AND qty+unit cost do not pair.
+
+    Opposite of PR #38's rigid 11004 4↔5 block. Unique qty+cost still selects.
+    """
+    if not _line_number_conflicts(invoice_line, receipt):
+        return False
+    return not _qty_and_unit_cost_match(invoice_line, receipt)
 
 
 _DESC_STOP = {
@@ -1459,7 +1540,7 @@ def match_receipts(
             rec_po = receipt_po(receipt)
             if search_po and rec_po and rec_po != str(search_po):
                 continue
-            if _part_conflicts(inv_line, receipt) or _line_number_conflicts(inv_line, receipt):
+            if _part_conflicts(inv_line, receipt) or _line_order_blocks_select(inv_line, receipt):
                 continue
             if _same_qty(_receipt_qty(receipt), line_qty):
                 pool.append(receipt)
@@ -1519,7 +1600,7 @@ def match_receipts(
         if line_qty is not None:
             enough = []
             for score, receipt in scored:
-                if _line_number_conflicts(inv_line, receipt):
+                if _line_order_blocks_select(inv_line, receipt):
                     continue
                 rec_qty = _receipt_qty(receipt)
                 if rec_qty is None:
@@ -1530,13 +1611,14 @@ def match_receipts(
                     _receipt_line_token(receipt),
                 )
                 if named and not _same_qty(rec_qty, line_qty):
-                    # PO59165-04 qty 5 is not cover for invoice line 4 qty 15
-                    # (and PO-05 qty 15 is not cover for line 5 qty 5).
+                    # Same PO suffix with the wrong qty is not cover. The
+                    # leftover 04↔05 swap is selected via qty+cost unique
+                    # (`_try_qty_po_unique`), not as qty-cover.
                     continue
                 if rec_qty >= line_qty:
                     enough.append((score, receipt))
             if not enough:
-                return False
+                return _try_qty_po_unique(inv_line, search_po, pass_name=pass_name)
             scored = enough
             exact = [(s, r) for s, r in scored if _same_qty(_receipt_qty(r), line_qty)]
             if exact:
@@ -1646,16 +1728,19 @@ def match_receipts(
             pool = [
                 r
                 for r in _open_on_po(search_po or None)
-                if not _part_conflicts(inv_line, r) and not _line_number_conflicts(inv_line, r)
+                if not _part_conflicts(inv_line, r) and not _line_order_blocks_select(inv_line, r)
             ]
             line_qty = _line_qty(inv_line)
             if po_line_number(inv_line.get("po_line") or inv_line.get("line")) is not None and line_qty is not None:
-                # Named PO line: exact qty only. Do not cover invoice line 5
-                # qty 5 with the leftover PO59165-05 qty 15 (11004 swap).
+                # Named PO line: exact qty, or a leftover whose qty+unit
+                # cost uniquely pair (11004 04↔05). Do not cover invoice
+                # line 5 qty 5 with PO59165-05 qty 15 when costs differ.
                 pool = [
                     r
                     for r in pool
-                    if _receipt_qty(r) is None or _same_qty(_receipt_qty(r), line_qty)
+                    if _receipt_qty(r) is None
+                    or _same_qty(_receipt_qty(r), line_qty)
+                    or _qty_and_unit_cost_match(inv_line, r)
                 ]
             if not pool:
                 leftover.append(inv_line)
@@ -1697,6 +1782,19 @@ def match_receipts(
                 leftover.append(inv_line)
                 unmatched_candidates[id(inv_line)] = pool
         still_open = leftover
+
+        # Last leftover pass: unique qty+unit cost on the same PO even if
+        # invoice line order / PO suffix are swapped (11004 04↔05).
+        if still_open:
+            retry = []
+            for inv_line in still_open:
+                search_po = line_po(inv_line, po_number)
+                if _try_qty_po_unique(inv_line, search_po, pass_name="qty-cost-swap"):
+                    second_pass = True
+                else:
+                    retry.append(inv_line)
+                    unmatched_candidates.setdefault(id(inv_line), _open_on_po(search_po or None))
+            still_open = retry
 
     unmatched.extend(still_open)
 
