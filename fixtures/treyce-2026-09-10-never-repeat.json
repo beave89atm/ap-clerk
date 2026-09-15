@@ -343,10 +343,9 @@
       "received": "2026-08-19T20:12:03Z",
       "filename": "document.pdf",
       "preview": "View your account statement online. Invoice attached.",
-      "pdf_text": "Greentree Packaging & Lumber\nINVOICE\nInvoice Number: 78421\nInvoice Date: 08/19/2026\nBill To: Kannon Manufacturing\nAmount Due: $412.00\nPO Number: 58810\nView your account statement online.\n",
+      "pdf_text": "Greentree Packaging & Lumber\nINVOICE\nInvoice Number: 78421\nInvoice Date: 08/19/2026\nBill To: Kannon Manufacturing\nAmount Due: $412.00\nView your account statement online.\n",
       "invoice_number": "78421",
       "amount": 412.0,
-      "po": "58810",
       "sheet_why_2026_09_15": "Skipped (bill-vs-noise): statement. Subject: Invoice from Greentree Packaging & Lumber.",
       "do_not_invent_success": true,
       "do_not_void": true
