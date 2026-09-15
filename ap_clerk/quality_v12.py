@@ -447,6 +447,37 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (9995, 9996),
     },
+    {
+        "id": "NOTE-26",
+        "slug": "greentree-invoice-from-not-statement",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": (
+            "Greentree Packaging & Lumber 2026-09-15 sheet: Invoice from …",
+        ),
+        "9_15_bug": (
+            "Weekday 2026-09-15 live-10 (batch 711) wrongly Skipped "
+            "`Invoice from Greentree Packaging & Lumber` as "
+            "`Skipped (bill-vs-noise): statement`. Outlook AI Skipped 2, "
+            "Attach no-pdf-on-vm, empty invoice #. Run log: "
+            "`Skipping statement mail: Invoice from Greentree Packaging & "
+            "Lumber`. The bill-vs-noise classifier fired on preview/body "
+            "`account statement` tokens before inspecting the attached "
+            "invoice PDF (PDF-is-truth violated). The email consumed the "
+            "10-cap without entering the bill."
+        ),
+        "expected": (
+            "Subject Invoice/INV/bill hint (`Invoice from …`) is never "
+            "statement / AI Skipped 2. A real invoice PDF attachment "
+            "(Legacy packing-slip classifier) is never statement. If "
+            "unsure, download/inspect the PDF first; prefer enter "
+            "(header+attach) or bill HOLD over Skip when an invoice PDF "
+            "exists. True Account Statements / past-due lists (Leeco, "
+            "Julie Hencke) still skip. Do not invent Success. Do not void "
+            "unrelated rows."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

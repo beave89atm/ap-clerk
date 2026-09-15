@@ -91,6 +91,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     looks_like_account_statement,
     is_noise_reason,
+    subject_has_invoice_bill_hint,
     format_unmatched_lines,
     match_receipts,
     merchandise_qty,
@@ -159,8 +160,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 26))
-    assert len(TREYCE_NOTES_V12) == 25
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 27))
+    assert len(TREYCE_NOTES_V12) == 26
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -191,6 +192,7 @@ def test_v12_registry_covers_all_notes():
         "3p-select-receipts-part-po-never-fail-close",
         "leeco-account-statement-skip",
         "legacy-packing-slip-and-line-receipts",
+        "greentree-invoice-from-not-statement",
     }
 
 
@@ -3130,3 +3132,119 @@ def test_never_repeat_legacy_ps_inv103979_and_103980(tmp_path: Path):
         "PS-INV103979",
         "PS-INV103980",
     }
+
+
+def test_never_repeat_greentree_invoice_from_not_statement(tmp_path: Path):
+    """NOTE-26: Invoice from Greentree + invoice PDF is never Skipped-as-statement."""
+    import ap_clerk.inbox as inbox_mod
+    from ap_clerk.inbox import _clear_skip_now, pull_recent_bills, skip_rows_for_report
+    from ap_clerk.graph import AI_SKIPPED_CATEGORY, FLAG_SKIP_ELIGIBLE
+
+    n = NOTES["NOTE-26"]
+    subject = n["subject"]
+    assert subject == "Invoice from Greentree Packaging & Lumber"
+    assert subject_has_invoice_bill_hint(subject)
+    assert not looks_like_account_statement(
+        subject=subject,
+        preview=n["preview"],
+        filename=n["filename"],
+    )
+    assert looks_like_account_statement(subject="Leeco Account Statement")
+    assert looks_like_account_statement(subject="Past Due Invoices")
+    assert classify_mail(
+        subject=subject,
+        preview=n["preview"],
+        attachment_names=[n["filename"]],
+        from_name=n["from_name"],
+    ) == "invoice"
+    assert classify_mail(
+        subject=subject,
+        preview=n["preview"],
+        attachment_names=[n["filename"]],
+        from_name=n["from_name"],
+    ) != "statement"
+    assert never_skip_vendor_invoice(
+        subject=subject,
+        from_name=n["from_name"],
+        preview=n["preview"],
+        attachment_names=[n["filename"]],
+    )
+    assert should_create_header(
+        {
+            "vendor": n["vendor"],
+            "invoice_number": n["invoice_number"],
+            "subject": subject,
+            "amount": n["amount"],
+        }
+    ) == (True, "")
+    assert _clear_skip_now(
+        "statement", subject=subject, has_attachments=True
+    ) is False
+    parsed = parse_invoice_text(
+        n["pdf_text"],
+        filename=n["filename"],
+        subject=subject,
+        from_name=n["from_name"],
+    )
+    assert parsed.get("is_statement_doc") is not True
+    assert classify_attachment(
+        filename=n["filename"], text=n["pdf_text"], subject=subject
+    ) == ATTACHMENT_INVOICE
+    assert parsed.get("invoice_number") == n["invoice_number"]
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-greentree-invoice-from",
+                    "subject": subject,
+                    "receivedDateTime": n["received"],
+                    "hasAttachments": True,
+                    "bodyPreview": n["preview"],
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": "billing@greentree.example",
+                        }
+                    },
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return [n["filename"]]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [(n["filename"], b"%PDF-1.4 greentree invoice")]
+
+    def fake_parse(path, **kwargs):
+        return parse_invoice_text(
+            n["pdf_text"],
+            filename=n["filename"],
+            subject=str(kwargs.get("subject") or ""),
+            from_name=str(kwargs.get("from_name") or ""),
+        )
+
+    orig = inbox_mod.parse_invoice_pdf
+    inbox_mod.parse_invoice_pdf = fake_parse
+    try:
+        selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+
+    skip_noise = [item for item in skipped if item.get("class") != "already-flagged"]
+    assert not skip_noise
+    assert selected
+    assert selected[0].get("hold_reason") != "statement"
+    assert selected[0].get("invoice_number") == n["invoice_number"]
+    report = skip_rows_for_report(skip_noise, "API Agent - 9/15/26 (711)")
+    assert not report
+
+    row, client = _row(selected[0])
+    assert row["Result"] != RESULT_SKIPPED
+    assert "statement" not in str(row.get("Why") or "").lower()
+    assert AI_SKIPPED_CATEGORY not in str(row.get("Why") or "")
+    assert row.get("Flag status") != FLAG_SKIP_ELIGIBLE
+    assert row["Result"] in {RESULT_HOLD, RESULT_INCOMPLETE}
+    assert client.created
+    assert n["do_not_invent_success"] is True
+    assert_never_success(RESULT_SKIPPED, note_id="NOTE-26", detail=row["Why"])
