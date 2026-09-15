@@ -377,13 +377,14 @@ line 5 qty 5 vs PO59165-05 qty 15 (same $10 unit; qtys look swapped);
 partial Select Receipts on the four matching lines; Entered with issues.
 Do not void 10008–10011. Do not invent Success for 11003/11004.
 
-**Live recheck 2026-09-15 (GET invent=false, no void, no new headers):**
-10009 HOLD stands (price). 10010 leftovers 24109 / PO59165-04 qty 5 @ $10
-and 24110 / PO59165-05 qty 15 @ $10 are a **line-order swap** (Kyle
-confirmed). Quantities and costs are correct. Pair invoice qty 15 →
-receipt qty 15 (24110) and invoice qty 5 → receipt qty 5 (24109); ignore
-PO suffix / invoice line index. Select those two leftovers and finish
-the bill at **$2,600** (six lines). Never HOLD `qty-does-not-match` only
-because 4↔5 are reversed when dollars and qtys pair uniquely. Test:
+**Live finish 2026-09-15 (invent=false, no void, no new headers, no
+treyce@ email):** Kyle confirmed 10010 leftovers are just swapped.
+Select Receipts posted **24110** (qty 15 @ $10 = $150) and **24109**
+(qty 5 @ $10 = $50) on **10010**. GET after: six lines, **$2,600**,
+receipts Invoiced=true / AP **11004**. Outlook **Entered in AI**.
+**Result = Success** (Treyce would not rework). 10009 left alone
+(1 line / $1.55 / 24103; price HOLD still real). Never HOLD
+`qty-does-not-match` only because 4↔5 are reversed when dollars and
+qtys pair uniquely. Test:
 `test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost`.
-Do not touch 10009. No new header, no void, no Treyce email.
+Proof: `runs/kimco-10010-swapped-receipts.json`.
