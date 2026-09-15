@@ -3359,3 +3359,51 @@ def test_never_repeat_aqpc_11002_qty_not_line_number():
     assert bad_ok is False
     assert "1.0" in bad_why and "100.0" in bad_why
 
+
+def test_never_repeat_aqpc_11004_six_lines_not_line_numbers():
+    """11004 QBO: six merchandise lines; leading N. is line #, not qty. Two AMT-5003753 rows stay separate."""
+    text = (
+        "INVOICE\nAMERICAN QUALITY POWDER COATING\n"
+        "Invoice no.: 11004\nInvoice date: 09/15/2026\nP.O. Number: 59165\n"
+        "# Product or service Description Qty Rate Amount\n"
+        "1. AMT-6001232 5'x4'x4' Rotating Basket Primed and P.C.\n"
+        "Blue RAL 5002(SO34627)\n"
+        "5 $445.00 $2,225.00\n"
+        "2. AMT-5003753 8\"x8\"x3/8\" Z Bracket P.C. Black(SO34627) 5 $5.00 $25.00\n"
+        "3. AMT-5003753 8\"x8\"x3/8\" Z Bracket P.C. Black(SO34627) 5 $5.00 $25.00\n"
+        "4. AMT-5003741 24\"x24\" Panel Decal Primed and P.C. Blue\n"
+        "RAL 5002(SO34627)\n"
+        "15 $10.00 $150.00\n"
+        "5. AMT-5003750-002 Gear cover Primed and PC Blue RAL\n"
+        "5002(SO34627)\n"
+        "5 $10.00 $50.00\n"
+        "6. AMT-5003750 Crank Swivel Weldment Primed and P.C.\n"
+        "Blue RAL 5002(SO34627)\n"
+        "5 $25.00 $125.00\n"
+        "Total $2,600.00\n"
+    )
+    parsed = parse_invoice_text(
+        text,
+        subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004",
+        from_name="AMERICAN QUALITY POWDER COATING",
+    )
+    assert parsed.get("invoice_number") == "11004"
+    assert parsed.get("amount") == 2600.0
+    assert parsed.get("po") == "59165"
+    lines = parsed.get("lines") or extract_aqpc_intuit_lines(text)
+    assert len(lines) == 6
+    assert [ln.get("qty") for ln in lines] == [5.0, 5.0, 5.0, 15.0, 5.0, 5.0]
+    assert [ln.get("part") for ln in lines] == [
+        "AMT-6001232",
+        "AMT-5003753",
+        "AMT-5003753",
+        "AMT-5003741",
+        "AMT-5003750-002",
+        "AMT-5003750",
+    ]
+    assert [ln.get("amount") for ln in lines] == [2225.0, 25.0, 25.0, 150.0, 50.0, 125.0]
+    assert sum(float(ln.get("amount") or 0) for ln in lines) == 2600.0
+    # Line numbers 1-6 must never be used as qty.
+    assert 1.0 not in [ln.get("qty") for ln in lines]
+    assert 6.0 not in [ln.get("qty") for ln in lines]
+
