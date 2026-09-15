@@ -20,6 +20,7 @@ from ap_clerk.rules import (
     is_fee_or_surcharge,
     known_invoice_prefix,
     printed_invoice_number,
+    subject_has_invoice_bill_hint,
 )
 
 LOGGER = logging.getLogger("ap_clerk")
@@ -211,8 +212,15 @@ def classify_attachment(*, filename: str = "", text: str = "", subject: str = ""
     if STATEMENT_FILE_HINT.search(name) or PAST_DUE_LIST_RE.search(name):
         if PAST_DUE_LIST_RE.search(name):
             return ATTACHMENT_PAST_DUE
+        if blob and _INVOICE_DOC_HINT.search(blob):
+            return ATTACHMENT_INVOICE
+        if not blob.strip() and subject_has_invoice_bill_hint(subject):
+            # Filename hint only — inspect the PDF (Invoice-from + attached bill).
+            return ATTACHMENT_INSPECT
         return ATTACHMENT_STATEMENT
     if is_account_statement_document(text=blob, filename=name, subject=subject):
+        if blob and _INVOICE_DOC_HINT.search(blob) and subject_has_invoice_bill_hint(subject):
+            return ATTACHMENT_INVOICE
         if PAST_DUE_LIST_RE.search(f"{name}\n{subject}\n{blob}"):
             return ATTACHMENT_PAST_DUE
         return ATTACHMENT_STATEMENT
@@ -258,12 +266,32 @@ def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
     return False
 
 
+_ACCOUNT_STATEMENT_HEADING_RE = re.compile(
+    r"(?:^|\n)\s*(?:account\s+statement|statement[\s_-]+of[\s_-]+account|aging\s+report)\b",
+    flags=re.I,
+)
+
+
 def is_account_statement_document(*, text: str = "", filename: str = "", subject: str = "") -> bool:
-    """True for an aging / Account Statement / statement-of-account PDF (Leeco 1058256.pdf)."""
-    blob = f"{filename}\n{subject}\n{text}"
-    if ACCOUNT_STATEMENT_DOC_RE.search(blob) or PAST_DUE_LIST_RE.search(blob):
+    """True for an aging / Account Statement / statement-of-account PDF (Leeco 1058256.pdf).
+
+    Incidental preview/footer `account statement` on a real invoice PDF is not
+    a statement (Greentree Invoice-from + QBO “view your account statement”).
+    """
+    name = filename or ""
+    subj = subject or ""
+    body = text or ""
+    if PAST_DUE_LIST_RE.search(f"{name}\n{subj}\n{body}"):
         return True
-    if STATEMENT_FILE_HINT.search(filename or ""):
+    if STATEMENT_FILE_HINT.search(name):
+        return True
+    if ACCOUNT_STATEMENT_DOC_RE.search(subj) or ACCOUNT_STATEMENT_DOC_RE.search(name):
+        return True
+    if _ACCOUNT_STATEMENT_HEADING_RE.search(body):
+        if subject_has_invoice_bill_hint(subj) and _INVOICE_DOC_HINT.search(body):
+            return False
+        return True
+    if ACCOUNT_STATEMENT_DOC_RE.search(body) and not _INVOICE_DOC_HINT.search(body):
         return True
     return False
 

@@ -2027,6 +2027,32 @@ INTERNAL_MAIL_RE = re.compile(
 )
 
 
+def subject_is_statement_or_past_due_list(subject: str = "") -> bool:
+    """True when the subject itself is an Account Statement or past-due list.
+
+    Leeco `Account Statement` and Julie Hencke `Past Due Invoices` stay noise.
+    """
+    text = subject or ""
+    if PAST_DUE_LIST_RE.search(text):
+        return True
+    if ACCOUNT_STATEMENT_DOC_RE.search(text):
+        return True
+    if STATEMENT_RE.search(text) and not INVOICE_HINT_RE.search(text):
+        return True
+    return False
+
+
+def subject_has_invoice_bill_hint(subject: str = "") -> bool:
+    """Invoice/INV/bill on the subject — not a past-due list or Account Statement.
+
+    Kyle 2026-09-15: `Invoice from Greentree Packaging & Lumber` is a bill.
+    Preview/body `account statement` tokens must not flip it to AI Skipped 2.
+    """
+    if not INVOICE_HINT_RE.search(subject or ""):
+        return False
+    return not subject_is_statement_or_past_due_list(subject)
+
+
 def looks_like_account_statement(
     *,
     subject: str = "",
@@ -2039,10 +2065,26 @@ def looks_like_account_statement(
 
     Kyle: a list of invoices due to pay is noise. Skip — no header, no
     Select Receipts, no Success. Leftover KIMCO 9985 stays; do not void.
+
+    PDF-is-truth: an Invoice/INV/bill subject (like `Invoice from …`) is never
+    a statement from preview/body tokens. Only an inspected statement PDF
+    (`is_statement_doc`) can still skip that mail.
     """
     if is_statement_doc:
         return True
-    blob = f"{filename}\n{subject}\n{preview}\n{text}"
+    if subject_has_invoice_bill_hint(subject):
+        return False
+    if subject_is_statement_or_past_due_list(subject):
+        # "Past Due Invoices" is a list. A specific Invoice/INV # on the subject
+        # (Eastern Metal 818600) stays a bill unless the subject itself is the list.
+        if (
+            extract_subject_invoice_number(subject)
+            and not PAST_DUE_LIST_RE.search(subject or "")
+            and not ACCOUNT_STATEMENT_DOC_RE.search(subject or "")
+        ):
+            return False
+        return True
+    blob = f"{filename}\n{preview}\n{text}"
     if ACCOUNT_STATEMENT_DOC_RE.search(blob):
         return True
     past_due_list = bool(
@@ -2050,8 +2092,6 @@ def looks_like_account_statement(
         or re.search(r"\bpast\s+due\b|\bcollection\s+notice\b", subject or "", flags=re.I)
     )
     if past_due_list:
-        # "Past Due Invoices" is a list. A specific Invoice/INV # on the subject
-        # (Eastern Metal 818600) stays a bill unless the subject itself is the list.
         if extract_subject_invoice_number(subject) and not PAST_DUE_LIST_RE.search(subject or ""):
             return False
         return True
@@ -2080,9 +2120,9 @@ def classify_mail(
         return "check_stop"
     if INTERNAL_MAIL_RE.search(blob):
         return "internal"
-    # Statement subject or Account Statement / statement-of-account in the
-    # preview/PDF excerpt wins over known-vendor + PDF (Leeco Account Statement).
-    # Invoice/INV on the subject still means a bill (Eastern Metal / 3P).
+    # Account Statement / past-due *list* subjects (Leeco, Julie Hencke) are
+    # noise. Invoice/INV/bill subjects (`Invoice from …`) are bills even when
+    # the preview says "account statement" (Greentree 2026-09-15 false skip).
     if looks_like_account_statement(subject=subject, preview=preview, filename=names):
         return "statement"
     if re.search(r"\binquiry\b", subject or "", flags=re.I) and not INVOICE_HINT_RE.search(subject or ""):
@@ -2111,7 +2151,11 @@ def classify_mail(
         if has_invoice_hint(subject=subject, attachment_names=attachment_names) and not POD_NAME_RE.search(subject) and not POD_NAME_RE.search(names):
             return "invoice"
         return "pod"
-    if STATEMENT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names):
+    if (
+        STATEMENT_RE.search(blob)
+        and not has_invoice_hint(subject=subject, attachment_names=attachment_names)
+        and not subject_has_invoice_bill_hint(subject)
+    ):
         return "statement"
     if NOT_A_BILL_SUBJECT_RE.search(blob) and not has_invoice_hint(subject=subject, attachment_names=attachment_names, preview=preview):
         return "not-a-bill"

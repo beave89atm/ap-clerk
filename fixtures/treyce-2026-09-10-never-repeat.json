@@ -335,6 +335,20 @@
           {"id": 24099, "po": "58802", "part": "PO58802-09", "qty": 10, "amount": 500.0, "unit_price": 50.0}
         ]
       }
+    },
+    "NOTE-26": {
+      "vendor": "Greentree Packaging & Lumber",
+      "from_name": "Greentree Packaging & Lumber",
+      "subject": "Invoice from Greentree Packaging & Lumber",
+      "received": "2026-08-19T20:12:03Z",
+      "filename": "document.pdf",
+      "preview": "View your account statement online. Invoice attached.",
+      "pdf_text": "Greentree Packaging & Lumber\nINVOICE\nInvoice Number: 78421\nInvoice Date: 08/19/2026\nBill To: Kannon Manufacturing\nAmount Due: $412.00\nView your account statement online.\n",
+      "invoice_number": "78421",
+      "amount": 412.0,
+      "sheet_why_2026_09_15": "Skipped (bill-vs-noise): statement. Subject: Invoice from Greentree Packaging & Lumber.",
+      "do_not_invent_success": true,
+      "do_not_void": true
     }
   }
 }

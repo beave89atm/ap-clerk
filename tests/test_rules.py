@@ -149,6 +149,16 @@ def test_classify_mail_skips_not_a_bill():
     )
     # Word "Invoices" must not turn a past-due list into a bill (Julie Hencke).
     assert classify_mail(subject="Past Due Invoices", from_name="Julie Hencke") == "statement"
+    # Invoice-from subject is a bill even when the preview says account statement.
+    assert (
+        classify_mail(
+            subject="Invoice from Greentree Packaging & Lumber",
+            preview="View your account statement online. Invoice attached.",
+            attachment_names=["document.pdf"],
+            from_name="Greentree Packaging & Lumber",
+        )
+        == "invoice"
+    )
 
 
 def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():

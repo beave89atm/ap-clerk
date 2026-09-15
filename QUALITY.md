@@ -61,6 +61,8 @@ Never a fifth going-forward process-category name. Leftover `AI Skipped` on old 
 
 **Account Statements (Kyle 2026-09-14).** Account Statements / statements-of-account / past-due invoice lists are not invoices. Skip — do nothing (no header, no Select Receipts, no Success). Outlook `AI Skipped 2`. Julie Hencke 2026-08-18 `Past Due Invoices` is the same skip. Do not void leftover KIMCO **9985**.
 
+**Invoice-from is not a statement (Kyle 2026-09-15).** Subject `Invoice` / `INV` / `bill` (like `Invoice from Greentree Packaging & Lumber`) is a bill. Preview/body `account statement` tokens must not AI Skipped 2 it. A real invoice PDF attachment is never statement. If unsure, inspect the PDF first; prefer enter (header+attach) or bill HOLD over Skip when an invoice PDF exists. **Honest miss:** weekday 2026-09-15 live-10 (batch **711**) wrongly Skipped Greentree as `Skipped (bill-vs-noise): statement` — Outlook `AI Skipped 2`, `no-pdf-on-vm`, empty invoice # — before reading the attached invoice. Do not invent Success for that row. Do not void unrelated rows.
+
 ## Treyce-load: fix-before-complete checklist
 
 Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)` runs this list
@@ -156,6 +158,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped 2`. `AI Skipped 2` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 | **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985**; Julie Hencke `Past Due Invoices` (live 9/14 batch 708) | Leeco entered as a bill (filename 1058256); listed 617228 / 617448 / 619920 / 619921. Word `Invoices` on a past-due list must not flip it to a bill. | Account Statement / statement-of-account / past-due invoice list (subject or PDF body) → `Skipped` + Outlook `AI Skipped 2`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` / `test_never_repeat_julie_hencke_past_due_invoices` |
 | **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
+| **NOTE-26** Greentree Packaging & Lumber `Invoice from Greentree Packaging & Lumber` (live 9/15 batch 711) | **Honest miss / false statement skip:** sheet Why `Skipped (bill-vs-noise): statement`; Outlook `AI Skipped 2`; Attach `no-pdf-on-vm`; empty invoice #. Classifier treated preview/body `account statement` as noise **before** inspecting the attached invoice PDF (PDF-is-truth violated). Email consumed the 10-cap without entering the bill. | Subject Invoice/INV/bill hint (`Invoice from …`) **or** a real invoice PDF → never statement / never `AI Skipped 2`. If unsure, download/inspect the PDF first; prefer enter (header+attach) or bill HOLD over Skip. Leeco Account Statement / Julie Hencke `Past Due Invoices` still skip. Do not invent Success. Do not void unrelated rows | `test_never_repeat_greentree_invoice_from_not_statement` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -300,8 +303,12 @@ Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
 (`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —
 AQPC Intuit links auth-walled on unauthenticated GET (browser/session path
 was not implemented on that run); Legacy 9995/9996 headers need Treyce
-Select Receipts; Crosslink 27321/27319/27419 were already-entered. Do not
-invent Success or recreate those headers. Next weekday continues AFTER
-`2026-08-19T20:12:03Z`. With `AP_CLERK_INTUIT_STORAGE_STATE` set, AQPC
-10917/10918/10920/10921-class mail should click through; without a session,
-HOLD `pdf-behind-link` after the browser attempt — never Skipped.
+Select Receipts; Crosslink 27321/27319/27419 were already-entered. **Greentree
+Packaging & Lumber was a false statement skip** (NOTE-26): subject
+`Invoice from Greentree Packaging & Lumber` + attached invoice, sheet
+`Skipped (bill-vs-noise): statement`, Outlook `AI Skipped 2`,
+`no-pdf-on-vm`. Do not invent Success or recreate those headers. Next
+weekday continues AFTER `2026-08-19T20:12:03Z`. With
+`AP_CLERK_INTUIT_STORAGE_STATE` set, AQPC 10917/10918/10920/10921-class
+mail should click through; without a session, HOLD `pdf-behind-link`
+after the browser attempt — never Skipped.

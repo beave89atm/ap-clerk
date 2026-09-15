@@ -60,6 +60,7 @@ from ap_clerk.rules import (
     is_known_kimco_vendor,
     is_melody_channell,
     never_skip_vendor_invoice,
+    subject_has_invoice_bill_hint,
 )
 
 STATEMENT_FILE_RE = re.compile(
@@ -88,7 +89,22 @@ HOLD_SKIP_CLASSES = {
     "unreadable-or-not-a-bill",
 }
 # Clear noise can skip before PDF download. Vague not-a-bill still inspects vendor PDFs (AQPC).
+# Statement is *not* always clear: Invoice/INV/bill subjects and attached PDFs
+# must be inspected first (Greentree 2026-09-15 false statement skip).
 CLEAR_SKIP_CLASSES = {"statement", "pod", "payment", "check_stop", "internal"}
+
+
+def _clear_skip_now(klass: str, *, subject: str = "", has_attachments: bool = False) -> bool:
+    """True when inbox may skip without downloading PDFs.
+
+    PDF-is-truth: do not AI Skipped 2 as statement when the subject is an
+    Invoice/INV/bill hint or an attachment still needs classify.
+    """
+    if klass not in CLEAR_SKIP_CLASSES:
+        return False
+    if klass == "statement" and (has_attachments or subject_has_invoice_bill_hint(subject)):
+        return False
+    return True
 
 
 def _as_start_datetime(value: date | datetime | None) -> datetime | None:
@@ -263,6 +279,7 @@ def pull_recent_bills(
             names
             and not any(filename_looks_like_invoice(n) for n in names)
             and any(STATEMENT_FILE_RE.search(n or "") for n in names)
+            and not subject_has_invoice_bill_hint(subject)
         ):
             klass = "statement"
         elif (
@@ -291,7 +308,9 @@ def pull_recent_bills(
             )
             LOGGER.info("HOLD auto-pay (do not enter): %s", subject[:80])
             continue
-        if klass in CLEAR_SKIP_CLASSES:
+        if _clear_skip_now(
+            klass, subject=subject, has_attachments=bool(message.get("hasAttachments") or names)
+        ):
             flag_status = _skip_flag_status(message)
             skipped.append(
                 {
