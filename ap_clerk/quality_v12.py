@@ -106,10 +106,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "cases": ("AQPC https download link, no attachment",),
         "8_16_bug": "Silent not-a-bill when the PDF was only a link.",
         "expected": (
-            "Unauth GET first, then browser/session click-through (Playwright + "
-            "AP_CLERK_INTUIT_STORAGE_STATE). PDF → header + attach. Auth/MFA/timeout "
-            "after browser → HOLD pdf-behind-link (Why names vendor / # / host and that "
-            "browser/session was tried). Never Skipped. Never Success."
+            "Unauth GET first, then guest browser click-through (Playwright, no "
+            "Intuit login / no storage-state required). PDF → header + attach. "
+            "True failure after guest View/Download invoice → HOLD pdf-behind-link "
+            "(Why names vendor / # / host and that guest browser was tried). "
+            "Never Skipped. Never Success."
         ),
         "never_success": True,
     },
@@ -324,10 +325,12 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "expected": (
             "AQPC / American Quality Powder Coating is an invoice (never Skipped). "
             "Extract the https payment-request / Intuit link, unauth GET (follow "
-            "redirects), then browser/session if the GET hits an auth wall. Success → "
-            "header + attach + PDF-is-truth. True failure after browser → HOLD "
-            "pdf-behind-link naming vendor, invoice #, host, and that browser/session "
-            "was tried (login required / MFA / timeout). Never no-pdf-on-vm after a "
+            "redirects), then guest browser if the GET hits an auth/bot wall or "
+            "intermediate HTML. Click View/Download invoice with no Intuit login. "
+            "Success → header + attach + PDF-is-truth. True failure after guest "
+            "browser → HOLD pdf-behind-link naming vendor, invoice #, host, and "
+            "that guest browser was tried. Never tell Kyle to set "
+            "AP_CLERK_INTUIT_STORAGE_STATE for AQPC. Never no-pdf-on-vm after a "
             "fetched file. Never AI Skipped."
         ),
         "never_success": True,

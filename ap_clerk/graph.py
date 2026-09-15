@@ -544,8 +544,8 @@ class GraphClient:
     def download_public_pdf_from_text(self, text: str) -> dict[str, Any]:
         """GET https invoice links in the email body (AQPC / Intuit).
 
-        Cheap unauthenticated GET first. Auth wall escalates to a browser
-        session (Playwright + AP_CLERK_INTUIT_STORAGE_STATE). Still no PDF
+        Cheap unauthenticated GET first. Auth/bot wall or intermediate HTML
+        escalates to a guest Playwright browser (no Intuit login). Still no PDF
         → pdf-behind-link. Never logs PDF bytes or cookies.
         """
         return download_first_pdf(text)

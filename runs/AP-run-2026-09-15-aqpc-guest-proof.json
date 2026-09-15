@@ -1,0 +1,51 @@
+{
+  "proof": "aqpc-guest-one-invoice",
+  "invent": false,
+  "mail_send": false,
+  "storage_state": false,
+  "chosen_invoice": "10917",
+  "chosen_because": "9/15 HOLD still actionable",
+  "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917",
+  "graph_message_id_present": true,
+  "pdf_bytes": 23824,
+  "download_method": "browser",
+  "batch_name": "API Agent - 9/15/26",
+  "rows": [
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "10917",
+      "date": "2026-08-18",
+      "PO": "58944",
+      "Amount": 275.0,
+      "Result": "HOLD",
+      "Why": "HOLD (already-entered): American Quality Powder Coating invoice #10917 is already entered as KIMCO id 10003 (vendor 22 AMERICAN QUALITY POWDERCOATING, PO 58944, Type 3, Invoice_Amount 275.00, PDF Invoice 10917.pdf attached, 1 receipt line qty 1 @ 275 receipt 23186). Posted 2026-09-15 by Kyle Cleaver from batch 9_15_26-KC (713). Guest browser downloaded the payment-request PDF with no Intuit login / no storage-state (23824 bytes). Will not create another header. Outlook Entered in AI because the posted bill is finished. Flag status=entered-in-ai.",
+      "KIMCO id": 10003,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "pdf-on-vm",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "Guest PDF ok. Existing 10003 posted by Kyle; no second header. No Treyce email."
+    }
+  ],
+  "treyce_emailed": false,
+  "kimco_get_10003": {
+    "id": 10003,
+    "invoice_number": "10917",
+    "vendor_id": 22,
+    "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+    "po": "PO58944-AMERICAN QUALITY POWDERCOATING",
+    "invoice_amount": 275.0,
+    "posted": true,
+    "posted_by": "Kyle Cleaver",
+    "posted_from": "9_15_26-KC",
+    "attachments": 1,
+    "receipt_lines": 1,
+    "fees": 0,
+    "closed": false
+  },
+  "outlook_after": [
+    "Entered in AI"
+  ]
+}

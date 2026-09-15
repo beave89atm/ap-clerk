@@ -1,29 +1,23 @@
 """Browser click-through PDF download for Intuit / QuickBooks payment-request links.
 
 Unauthenticated GET is tried first (`pdf_links`). This module is the escalate
-path: open the https invoice link in Playwright (system Chrome when present),
-reuse a persisted Intuit session, follow redirects, and return PDF bytes.
+path: open the https invoice link in Playwright (system Chrome when present)
+**as a guest** — no Intuit/QuickBooks login. A human opening an AQPC payment-
+request link (`links.notification.intuit.com`) sees the invoice without signing
+in; the runner does the same, then clicks View/Download invoice.
 
-Session files are paths from the environment only. Never invent credentials,
-never log cookie values or storage_state contents, never commit those files.
+``AP_CLERK_INTUIT_STORAGE_STATE`` / cookie-jar env vars are optional for other
+vendor portals later. They are **not** required for AQPC success and must not
+be treated as a blocker.
 
 Env (names only — values are secrets):
 
-- ``AP_CLERK_INTUIT_STORAGE_STATE`` — Playwright ``storage_state`` JSON path
-  (cookies + localStorage). Preferred. Kyle exports this once after login/MFA.
-- ``AP_CLERK_INTUIT_COOKIE_JAR`` — optional cookie JSON (storage_state or a
-  cookie list). Used when a full storage_state is not available.
+- ``AP_CLERK_INTUIT_STORAGE_STATE`` — optional Playwright ``storage_state`` JSON
+  path (other portals). Unused for AQPC guest success.
+- ``AP_CLERK_INTUIT_COOKIE_JAR`` — optional cookie JSON (other portals).
 - ``AP_CLERK_BROWSER_PDF`` — set ``0`` / ``false`` / ``no`` to skip the
   browser escalate (unauth GET only). Default: enabled.
 - ``AP_CLERK_BROWSER_PDF_TIMEOUT`` — seconds (default 45).
-
-One-time Kyle setup (headed machine, MFA allowed)::
-
-    python -m ap_clerk.browser_pdf --save-session /secure/path/intuit-storage-state.json
-
-Log in to Intuit (complete MFA), then press Enter. Point
-``AP_CLERK_INTUIT_STORAGE_STATE`` at that file. The file is a cookie/session
-export, not a password.
 """
 
 from __future__ import annotations
@@ -57,25 +51,42 @@ FAIL_ERROR = "browser-error"
 FAIL_DISABLED = "disabled"
 
 BROWSER_FAIL_LABELS = {
-    FAIL_LOGIN: "login required",
+    FAIL_LOGIN: "guest browser landed on a login page",
     FAIL_MFA: "MFA required",
     FAIL_TIMEOUT: "timeout",
-    FAIL_NO_SESSION: "no Intuit session (set AP_CLERK_INTUIT_STORAGE_STATE)",
+    FAIL_NO_SESSION: "guest browser found no invoice PDF",
     FAIL_NO_PLAYWRIGHT: "Playwright not installed",
-    FAIL_NO_PDF: "no PDF after browser navigation",
+    FAIL_NO_PDF: "no PDF after guest browser click-through",
     FAIL_ERROR: "browser error",
     FAIL_DISABLED: "browser download disabled",
 }
 
-LOGIN_RE = re.compile(
-    r"(sign[\s-]?in|log[\s-]?in|enter your password|intuit account|"
-    r"accounts\.intuit|please\s+sign|create an account)",
+# Dedicated login form — not header chrome. Guest Intuit pages always say "Sign in".
+LOGIN_FORM_RE = re.compile(
+    r"(enter your password|forgot (?:your )?password|keep me signed in|"
+    r"sign in to (?:your )?intuit|email or user id|user id or email|"
+    r"accounts\.intuit\.com/(?:app/)?sign-in)",
     flags=re.I,
 )
+LOGIN_HOST_RE = re.compile(r"(^|\.)accounts\.intuit\.com$", flags=re.I)
 MFA_RE = re.compile(
     r"(verif(?:y|ication) code|two[\s-]?factor|two[\s-]?step|authenticator|"
-    r"one[\s-]?time code|enter the code|\bmfa\b|text message|approve this sign)",
+    r"one[\s-]?time code|enter the code|\bmfa\b|approve this sign)",
     flags=re.I,
+)
+GUEST_INVOICE_RE = re.compile(
+    r"(view\s*(?:/|and\s+)?\s*download\s+invoice|view\s+invoice|download\s+invoice|"
+    r"download\s+(?:the\s+)?pdf|view\s+pdf|print\s+invoice|amount\s+due|"
+    r"invoice\s*(?:#|number)|pay\s+(?:this\s+)?invoice|review\s+and\s+pay|"
+    r"see\s+invoice|open\s+invoice)",
+    flags=re.I,
+)
+GUEST_HOST_HINTS = (
+    "payments.intuit.com",
+    "pay.intuit.com",
+    "links.notification.intuit.com",
+    "app.qbo.intuit.com",
+    "qbo.intuit.com",
 )
 DOWNLOAD_SELECTORS = (
     "a[href*='.pdf' i]",
@@ -84,11 +95,40 @@ DOWNLOAD_SELECTORS = (
     "a:has-text('Download PDF')",
     "button:has-text('Download invoice')",
     "a:has-text('Download invoice')",
-    "button:has-text('Download')",
-    "a:has-text('Download')",
     "button:has-text('View invoice')",
     "a:has-text('View invoice')",
+    "button:has-text('View details')",
+    "a:has-text('View details')",
+    "button:has-text('Review and pay')",
+    "a:has-text('Review and pay')",
+    "button:has-text('View/Download invoice')",
+    "a:has-text('View/Download invoice')",
+    "button:has-text('View PDF')",
+    "a:has-text('View PDF')",
+    "button:has-text('Print invoice')",
+    "a:has-text('Print invoice')",
+    "button:has-text('Download')",
+    "a:has-text('Download')",
     "[data-testid*='download' i]",
+    "[data-testid*='view-invoice' i]",
+    "[aria-label*='View invoice' i]",
+    "[aria-label*='Download invoice' i]",
+)
+GUEST_CLICK_TEXTS = (
+    "View invoice",
+    "View Invoice",
+    "View details",
+    "View Details",
+    "Download invoice",
+    "Download Invoice",
+    "View/Download invoice",
+    "Review and pay",
+    "Download PDF",
+    "View PDF",
+    "Print invoice",
+    "See invoice",
+    "Open invoice",
+    "Pay now",
 )
 
 _FALSEY = frozenset({"0", "false", "no", "off"})
@@ -129,7 +169,10 @@ def session_file_present() -> bool:
 
 def format_intuit_session_presence() -> str:
     """Present/absent only. Never prints cookie or path values."""
-    lines = ["Intuit/QuickBooks session presence (names only, values never printed):"]
+    lines = [
+        "Optional vendor-portal session presence (names only, values never printed).",
+        "AQPC Intuit payment-request links are guest — no login / no session file required:",
+    ]
     for name in INTUIT_SESSION_ENV_NAMES:
         raw = (os.environ.get(name) or "").strip()
         if name == ENV_BROWSER_ENABLED:
@@ -143,15 +186,26 @@ def format_intuit_session_presence() -> str:
     return "\n".join(lines)
 
 
-def classify_browser_page(*, url: str = "", title: str = "", text: str = "") -> str | None:
-    """Return login-required / mfa when the rendered page is an auth wall."""
+def looks_like_guest_invoice(*, url: str = "", title: str = "", text: str = "") -> bool:
+    """True when the rendered page is a guest invoice / payment-request, not a login form."""
     blob = f"{url}\n{title}\n{text or ''}"[:8000]
+    if GUEST_INVOICE_RE.search(blob):
+        return True
     host = (urlparse(url).netloc or "").lower()
+    return any(hint in host for hint in GUEST_HOST_HINTS) and not LOGIN_FORM_RE.search(blob)
+
+
+def classify_browser_page(*, url: str = "", title: str = "", text: str = "") -> str | None:
+    """Return login-required / mfa only for a dedicated auth wall, not guest chrome."""
+    blob = f"{url}\n{title}\n{text or ''}"[:8000]
+    if b"%PDF" in (text or "").encode("utf-8", "ignore")[:8]:
+        return None
+    if looks_like_guest_invoice(url=url, title=title, text=text):
+        return None
     if MFA_RE.search(blob):
         return FAIL_MFA
-    if LOGIN_RE.search(blob) or "accounts.intuit.com" in host:
-        if b"%PDF" in (text or "").encode("utf-8", "ignore")[:8]:
-            return None
+    host = (urlparse(url).netloc or "").lower()
+    if LOGIN_HOST_RE.search(host) or LOGIN_FORM_RE.search(blob):
         return FAIL_LOGIN
     return None
 
@@ -185,7 +239,7 @@ def _ok(content: bytes, *, url: str = "", status_code: int = 200) -> dict[str, A
 
 
 def _load_storage_state() -> dict[str, Any] | str | None:
-    """Load Playwright storage_state or a cookie-list JSON. Never logs values."""
+    """Load optional Playwright storage_state. Never required for AQPC. Never logs values."""
     state = storage_state_path()
     jar = cookie_jar_path()
     for path in (state, jar):
@@ -201,7 +255,7 @@ def _read_session_file(path: Path) -> dict[str, Any] | None:
     try:
         raw = path.read_text(encoding="utf-8")
     except OSError:
-        LOGGER.info("Intuit session file is not readable")
+        LOGGER.info("Optional vendor-portal session file is not readable")
         return None
     text = raw.strip()
     if not text:
@@ -210,18 +264,18 @@ def _read_session_file(path: Path) -> dict[str, Any] | None:
         try:
             payload = json.loads(text)
         except json.JSONDecodeError:
-            LOGGER.info("Intuit session file is not valid JSON")
+            LOGGER.info("Optional vendor-portal session file is not valid JSON")
             return None
         if isinstance(payload, dict) and isinstance(payload.get("cookies"), list):
             return payload
         if isinstance(payload, list):
             return {"cookies": payload, "origins": []}
-        LOGGER.info("Intuit session JSON has no cookies list")
+        LOGGER.info("Optional vendor-portal session JSON has no cookies list")
         return None
     cookies = _parse_netscape_cookies(text)
     if cookies:
         return {"cookies": cookies, "origins": []}
-    LOGGER.info("Intuit session file is not a recognized cookie format")
+    LOGGER.info("Optional vendor-portal session file is not a recognized cookie format")
     return None
 
 
@@ -257,9 +311,9 @@ def _persist_storage_state(context: Any, path: Path | None) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         context.storage_state(path=str(path))
     except OSError:
-        LOGGER.info("Could not persist Intuit storage state (path not writable)")
+        LOGGER.info("Could not persist optional vendor-portal storage state (path not writable)")
     except Exception:  # noqa: BLE001 - persist must not raise into inbox
-        LOGGER.info("Could not persist Intuit storage state")
+        LOGGER.info("Could not persist optional vendor-portal storage state")
 
 
 def try_browser_download(
@@ -268,9 +322,10 @@ def try_browser_download(
     downloader: Callable[..., Any] | None = None,
     timeout: float | None = None,
 ) -> dict[str, Any]:
-    """Open ``url`` in a browser session and return PDF bytes or a HOLD reason.
+    """Open ``url`` in a guest browser and return PDF bytes or a HOLD reason.
 
     ``downloader(url, timeout=...)`` injects tests. Production uses Playwright.
+    Storage-state env is optional and must not be required for success.
     """
     parsed = urlparse(url or "")
     if parsed.scheme != "https" or not parsed.netloc:
@@ -308,7 +363,6 @@ def _playwright_download(url: str, *, timeout: float) -> dict[str, Any]:
         return _fail(FAIL_NO_PLAYWRIGHT, "Playwright is not installed", url=url)
 
     storage = _load_storage_state()
-    has_session = storage is not None
     state_path = storage_state_path()
     captured: dict[str, bytes | None] = {"pdf": None}
     ms = max(1000, int(timeout * 1000))
@@ -316,22 +370,32 @@ def _playwright_download(url: str, *, timeout: float) -> dict[str, Any]:
     try:
         with sync_playwright() as playwright:
             browser = _launch_browser(playwright)
-            context_kwargs: dict[str, Any] = {"accept_downloads": True}
+            context_kwargs: dict[str, Any] = {
+                "accept_downloads": True,
+                "locale": "en-US",
+                "viewport": {"width": 1280, "height": 800},
+                "user_agent": (
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+                ),
+            }
             if storage is not None:
                 context_kwargs["storage_state"] = storage
             context = browser.new_context(**context_kwargs)
-            page = context.new_page()
 
             def on_response(response: Any) -> None:
                 _capture_pdf_response(response, captured)
 
+            context.on("response", on_response)
+            context.on("page", lambda p: p.on("response", on_response))
+            page = context.new_page()
             page.on("response", on_response)
             try:
                 page.goto(url, wait_until="domcontentloaded", timeout=ms)
             except PlaywrightTimeout:
                 _persist_storage_state(context, state_path)
                 browser.close()
-                return _fail(FAIL_TIMEOUT, "browser navigation timed out", url=url)
+                return _fail(FAIL_TIMEOUT, "guest browser navigation timed out", url=url)
             try:
                 page.wait_for_load_state("networkidle", timeout=min(15_000, ms))
             except Exception:  # noqa: BLE001 - idle wait is best-effort
@@ -343,40 +407,26 @@ def _playwright_download(url: str, *, timeout: float) -> dict[str, Any]:
                 browser.close()
                 return _ok(pdf, url=page.url or url)
 
-            clicked = _click_download_buttons(page, captured, timeout_ms=min(8_000, ms))
+            clicked = _guest_click_through(page, context, captured, timeout_ms=min(12_000, ms))
             pdf = captured.get("pdf") or clicked
             if pdf and pdf[:5] == b"%PDF-":
                 _persist_storage_state(context, state_path)
                 browser.close()
                 return _ok(pdf, url=page.url or url)
 
-            title = ""
-            body_text = ""
-            try:
-                title = page.title() or ""
-            except Exception:  # noqa: BLE001
-                title = ""
-            try:
-                body_text = page.inner_text("body", timeout=2000)[:8000]
-            except Exception:  # noqa: BLE001
-                try:
-                    body_text = (page.content() or "")[:4000]
-                except Exception:  # noqa: BLE001
-                    body_text = ""
-            current_url = page.url or url
+            title, body_text, current_url = _page_snapshot(page, url)
             wall = classify_browser_page(url=current_url, title=title, text=body_text)
             _persist_storage_state(context, state_path)
             browser.close()
             if wall == FAIL_MFA:
-                return _fail(FAIL_MFA, "Intuit MFA challenge after browser navigation", url=current_url)
+                return _fail(FAIL_MFA, "MFA challenge after guest browser navigation", url=current_url)
             if wall == FAIL_LOGIN:
-                failure = FAIL_NO_SESSION if not has_session else FAIL_LOGIN
-                detail = (
-                    "login required; no Intuit session file (set AP_CLERK_INTUIT_STORAGE_STATE)"
-                    if failure == FAIL_NO_SESSION
-                    else "login required (session expired or rejected)"
+                return _fail(
+                    FAIL_LOGIN,
+                    "guest browser landed on a login page; AQPC payment-request "
+                    "links do not need an Intuit/QuickBooks sign-in",
+                    url=current_url,
                 )
-                return _fail(failure, detail, url=current_url)
             hint = classify_download(
                 status_code=200,
                 content=None,
@@ -384,21 +434,53 @@ def _playwright_download(url: str, *, timeout: float) -> dict[str, Any]:
                 text=body_text,
             )
             if hint == REASON_PDF_BEHIND_LINK:
-                failure = FAIL_NO_SESSION if not has_session else FAIL_LOGIN
-                return _fail(failure, "auth wall HTML after browser navigation", url=current_url)
-            return _fail(FAIL_NO_PDF, "browser opened the link but no invoice PDF was captured", url=current_url)
+                return _fail(
+                    FAIL_NO_PDF,
+                    "guest browser opened intermediate HTML but no invoice PDF was captured",
+                    url=current_url,
+                )
+            return _fail(
+                FAIL_NO_PDF,
+                "guest browser opened the link and clicked View/Download invoice but no PDF was captured",
+                url=current_url,
+            )
     except PlaywrightTimeout:
-        return _fail(FAIL_TIMEOUT, "browser navigation timed out", url=url)
+        return _fail(FAIL_TIMEOUT, "guest browser navigation timed out", url=url)
     except Exception as exc:  # noqa: BLE001 - never raise into inbox
-        LOGGER.info("Browser PDF download failed (%s)", type(exc).__name__)
+        LOGGER.info("Guest browser PDF download failed (%s)", type(exc).__name__)
         return _fail(FAIL_ERROR, f"browser error ({type(exc).__name__})", url=url)
 
 
-def _launch_browser(playwright: Any) -> Any:
+def _page_snapshot(page: Any, fallback_url: str) -> tuple[str, str, str]:
+    title = ""
+    body_text = ""
     try:
-        return playwright.chromium.launch(channel="chrome", headless=True)
+        title = page.title() or ""
+    except Exception:  # noqa: BLE001
+        title = ""
+    try:
+        body_text = page.inner_text("body", timeout=2000)[:8000]
+    except Exception:  # noqa: BLE001
+        try:
+            body_text = (page.content() or "")[:4000]
+        except Exception:  # noqa: BLE001
+            body_text = ""
+    try:
+        current_url = page.url or fallback_url
+    except Exception:  # noqa: BLE001
+        current_url = fallback_url
+    return title, body_text, current_url
+
+
+def _launch_browser(playwright: Any) -> Any:
+    launch_kwargs: dict[str, Any] = {
+        "headless": True,
+        "args": ["--disable-blink-features=AutomationControlled"],
+    }
+    try:
+        return playwright.chromium.launch(channel="chrome", **launch_kwargs)
     except Exception:  # noqa: BLE001 - fall back to bundled Chromium
-        return playwright.chromium.launch(headless=True)
+        return playwright.chromium.launch(**launch_kwargs)
 
 
 def _capture_pdf_response(response: Any, captured: dict[str, bytes | None]) -> None:
@@ -418,39 +500,93 @@ def _capture_pdf_response(response: Any, captured: dict[str, bytes | None]) -> N
         return
 
 
-def _click_download_buttons(page: Any, captured: dict[str, bytes | None], *, timeout_ms: int) -> bytes | None:
-    """Best-effort click of Download / View invoice. Never raises."""
-    if captured.get("pdf"):
+def _guest_click_through(
+    page: Any,
+    context: Any,
+    captured: dict[str, bytes | None],
+    *,
+    timeout_ms: int,
+) -> bytes | None:
+    """Guest click of View/Download invoice. No login. Never raises."""
+    if captured.get("pdf") and str(captured.get("pdf") or b"")[:5] == b"%PDF-":
         return captured["pdf"]
+    locators: list[Any] = []
     for selector in DOWNLOAD_SELECTORS:
         try:
-            loc = page.locator(selector).first
-            if loc.count() == 0:
-                continue
-            try:
-                with page.expect_download(timeout=timeout_ms) as download_info:
-                    loc.click(timeout=timeout_ms)
-                download = download_info.value
-                path = download.path()
-                if path:
-                    data = Path(path).read_bytes()
-                    if data[:5] == b"%PDF-":
-                        captured["pdf"] = data
-                        return data
-            except Exception:  # noqa: BLE001 - click may navigate instead of download
-                if captured.get("pdf"):
-                    return captured["pdf"]
-                continue
+            locators.append(page.locator(selector).first)
         except Exception:  # noqa: BLE001
             continue
-    return captured.get("pdf")
+    for label in GUEST_CLICK_TEXTS:
+        try:
+            locators.append(page.get_by_role("button", name=re.compile(re.escape(label), re.I)))
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            locators.append(page.get_by_role("link", name=re.compile(re.escape(label), re.I)))
+        except Exception:  # noqa: BLE001
+            pass
+        try:
+            locators.append(page.get_by_text(re.compile(rf"^{re.escape(label)}$", re.I)))
+        except Exception:  # noqa: BLE001
+            pass
+    for loc in locators:
+        got = _click_locator_for_pdf(page, context, loc, captured, timeout_ms=timeout_ms)
+        if got and got[:5] == b"%PDF-":
+            return got
+    return captured.get("pdf") if (captured.get("pdf") or b"")[:5] == b"%PDF-" else None
+
+
+def _click_locator_for_pdf(
+    page: Any,
+    context: Any,
+    loc: Any,
+    captured: dict[str, bytes | None],
+    *,
+    timeout_ms: int,
+) -> bytes | None:
+    try:
+        if loc.count() == 0:
+            return None
+    except Exception:  # noqa: BLE001
+        return None
+    pages_before = list(getattr(context, "pages", None) or [page])
+    try:
+        with page.expect_download(timeout=timeout_ms) as download_info:
+            loc.click(timeout=timeout_ms)
+        download = download_info.value
+        path = download.path()
+        if path:
+            data = Path(path).read_bytes()
+            if data[:5] == b"%PDF-":
+                captured["pdf"] = data
+                return data
+    except Exception:  # noqa: BLE001 - click may navigate / open a tab instead of download
+        if captured.get("pdf") and str(captured.get("pdf") or b"")[:5] == b"%PDF-":
+            return captured["pdf"]
+        try:
+            loc.click(timeout=min(3000, timeout_ms))
+        except Exception:  # noqa: BLE001
+            pass
+    try:
+        page.wait_for_timeout(min(1500, timeout_ms))
+    except Exception:  # noqa: BLE001
+        pass
+    if captured.get("pdf") and str(captured.get("pdf") or b"")[:5] == b"%PDF-":
+        return captured["pdf"]
+    for extra in list(getattr(context, "pages", None) or []):
+        if extra in pages_before:
+            continue
+        try:
+            extra.wait_for_load_state("domcontentloaded", timeout=min(8000, timeout_ms))
+        except Exception:  # noqa: BLE001
+            pass
+        if captured.get("pdf") and str(captured.get("pdf") or b"")[:5] == b"%PDF-":
+            return captured["pdf"]
+    return None
 
 
 def save_intuit_session(path: Path, *, start_url: str = "https://accounts.intuit.com") -> int:
-    """Headed browser: Kyle logs in (MFA ok), then we write storage_state.
-
-    Does not read or write passwords. The saved file is a session export.
-    """
+    """Optional headed helper for other vendor portals. Not required for AQPC."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -459,8 +595,8 @@ def save_intuit_session(path: Path, *, start_url: str = "https://accounts.intuit
     dest = path.expanduser()
     dest.parent.mkdir(parents=True, exist_ok=True)
     print(
-        "A headed Chrome window will open. Sign in to Intuit (complete MFA), "
-        "then return here and press Enter to save the session. "
+        "AQPC payment-request links do not need this. Optional headed Chrome for "
+        "other vendor portals: sign in if that portal requires it, then press Enter. "
         "No password is written — only cookies / storage_state."
     )
     with sync_playwright() as playwright:
@@ -472,21 +608,26 @@ def save_intuit_session(path: Path, *, start_url: str = "https://accounts.intuit
         page = context.new_page()
         page.goto(start_url, wait_until="domcontentloaded")
         try:
-            input("Press Enter after Intuit login/MFA succeeds… ")
+            input("Press Enter after the optional portal login succeeds… ")
         except EOFError:
             print("No TTY; closing without waiting for extra input.")
         context.storage_state(path=str(dest))
         browser.close()
-    print(f"Saved Intuit storage_state ({dest.stat().st_size} bytes). Set {ENV_STORAGE_STATE} to this path.")
+    print(
+        f"Saved optional storage_state ({dest.stat().st_size} bytes). "
+        f"{ENV_STORAGE_STATE} is not required for AQPC guest links."
+    )
     return 0
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="AP Clerk Intuit/QuickBooks session helper")
+    parser = argparse.ArgumentParser(
+        description="AP Clerk guest browser PDF helper (AQPC needs no Intuit login)."
+    )
     parser.add_argument(
         "--save-session",
         metavar="PATH",
-        help="Headed login: write Playwright storage_state JSON to PATH (not a password).",
+        help="Optional: write Playwright storage_state JSON to PATH (other portals, not AQPC).",
     )
     parser.add_argument(
         "--start-url",
@@ -498,8 +639,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.save_session:
         return save_intuit_session(Path(args.save_session), start_url=args.start_url)
     print(
-        f"Pass --save-session PATH to export cookies after a one-time Kyle login. "
-        f"Then set {ENV_STORAGE_STATE}.",
+        "AQPC Intuit payment-request links are guest: open the https link and click "
+        "View/Download invoice. No Intuit login and no storage-state file.",
         flush=True,
     )
     return 0

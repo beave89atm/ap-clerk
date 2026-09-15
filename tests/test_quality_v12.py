@@ -541,8 +541,9 @@ def test_note09_aqpc_pdf_behind_link():
     )
     assert ok is False
     assert GATE_PDF_LINK in why
-    assert "browser/session was tried" in why.lower()
-    assert "login required" in why.lower()
+    assert "guest browser was tried" in why.lower()
+    assert "login" in why.lower()
+    assert "AP_CLERK_INTUIT_STORAGE_STATE" not in why
     row, _ = _row(
         {
             "vendor": n["vendor"],
@@ -2367,6 +2368,77 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     assert br_row["Result"] != RESULT_SKIPPED
     assert "no-pdf-on-vm" not in br_row["Why"]
 
+    guest_html = (
+        "<html><body>Sign in Create an account "
+        "AMERICAN QUALITY POWDER COATING Invoice Number 10917 Amount Due 125.00 "
+        "<button>View invoice</button> <a>Download invoice</a></body></html>"
+    )
+
+    class GuestHtml:
+        status_code = 200
+        content = guest_html.encode("utf-8")
+        headers = {"Content-Type": "text/html"}
+        text = guest_html
+
+    def unauth_guest_html(url, **kwargs):
+        return GuestHtml()
+
+    def guest_click_no_session(url, **kwargs):
+        assert n["intuit_host"] in url
+        from ap_clerk.browser_pdf import session_file_present, storage_state_path
+
+        assert storage_state_path() is None
+        assert session_file_present() is False
+        return {"ok": True, "content": pdf_10917, "reason": "ok"}
+
+    guest_escalated = download_first_pdf(
+        intuit_body, getter=unauth_guest_html, browser=guest_click_no_session
+    )
+    assert guest_escalated.get("ok") is True
+    assert guest_escalated.get("method") == "browser"
+    assert guest_escalated["content"][:5] == b"%PDF-"
+
+    class GuestSuccessGraph(FetchGraph):
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc-guest-ok",
+                    "subject": n["subject"],
+                    "receivedDateTime": "2026-08-18T12:12:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": intuit_body,
+                    "from": {
+                        "emailAddress": {
+                            "name": n["vendor"],
+                            "address": "quickbooks@notification.intuit.com",
+                        }
+                    },
+                }
+            ]
+
+        def get_message(self, mailbox, message_id, select="id"):
+            return {"id": message_id, "bodyPreview": intuit_body, "body": {"content": intuit_body}}
+
+        def download_public_pdf_from_text(self, text):
+            return download_first_pdf(text, getter=unauth_guest_html, browser=guest_click_no_session)
+
+    selected_guest, skipped_guest = pull_recent_bills(
+        GuestSuccessGraph(), limit=1, pdf_dir=tmp_path / "pdfs-guest-ok"
+    )
+    skip_guest = [row for row in skipped_guest if row.get("class") != "already-flagged"]
+    assert not skip_guest
+    assert selected_guest
+    guest_bill = selected_guest[0]
+    assert guest_bill.get("invoice_number") == n["invoice_number"]
+    assert guest_bill.get("hold_reason") != "not-a-bill"
+    assert guest_bill.get("pdf_path")
+    assert Path(guest_bill["pdf_path"]).is_file()
+    assert "10917" in Path(guest_bill["pdf_path"]).name
+    guest_row, _ = _row(guest_bill)
+    assert guest_row["Result"] != RESULT_SKIPPED
+    assert "no-pdf-on-vm" not in guest_row["Why"]
+    assert "AP_CLERK_INTUIT_STORAGE_STATE" not in str(guest_row.get("Why") or "")
+
     def browser_login_fail(url, **kwargs):
         return {
             "ok": False,
@@ -2417,8 +2489,9 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     assert fail_row["Result"] != RESULT_SKIPPED
     assert_never_success(fail_row["Result"], note_id="NOTE-21", detail=fail_row["Why"])
     assert "pdf-behind-link" in fail_row["Why"]
-    assert "browser/session was tried" in fail_row["Why"].lower()
-    assert "login required" in fail_row["Why"].lower()
+    assert "guest browser was tried" in fail_row["Why"].lower()
+    assert "login" in fail_row["Why"].lower()
+    assert "AP_CLERK_INTUIT_STORAGE_STATE" not in fail_row["Why"]
     assert "10918" in fail_row["Why"]
     assert n["intuit_host"] in fail_row["Why"]
     assert "AI Skipped" not in fail_row["Why"]

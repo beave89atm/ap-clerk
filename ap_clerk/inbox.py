@@ -647,7 +647,7 @@ def _pdfs_from_body_link(
     *,
     subject: str = "",
 ) -> tuple[list[tuple[str, bytes]], dict[str, Any] | None]:
-    """AQPC-style https PDF download. Unauth GET, then browser. Auth wall → HOLD."""
+    """AQPC-style https PDF download. Unauth GET, then guest browser. Auth wall → HOLD."""
     body_text = preview or ""
     getter = getattr(graph, "get_message", None)
     if callable(getter):
