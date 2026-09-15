@@ -47,6 +47,8 @@ ALREADY = {
     "11004",
     "11005",
 }
+# Sibling bc-655a55e9 handoff: newest unflagged AQPC not on KIMCO (no 11006+).
+PREFERRED_FIVE = ["10998", "10991", "10984", "10969", "10968"]
 SWAP_RECEIPTS = (
     {"id": 24109, "qty": 5.0, "unit": 10.0},
     {"id": 24110, "qty": 15.0, "unit": 10.0},
@@ -162,7 +164,7 @@ def pick_five(
     for inv, cands in by_inv.items():
         cands.sort(key=lambda m: str(m.get("receivedDateTime") or ""), reverse=True)
         extras.append((inv, cands[0]))
-    extras.sort(key=lambda pair: -int(pair[0] or 0))
+    extras.sort(key=lambda pair: (0 if pair[0] in PREFERRED_FIVE else 1, -int(pair[0] or 0)))
     chosen: list[dict[str, Any]] = []
     for inv, msg in extras:
         if len(chosen) >= 5:

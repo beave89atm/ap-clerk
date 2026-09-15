@@ -3501,3 +3501,27 @@ def test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost():
     assert by_line.get("AMT-5003741") == 24110
     assert by_line.get("AMT-5003750-002") == 24109
 
+
+def test_never_repeat_aqpc_10998_po_suffix_line_match():
+    """Invoice po_line 1 matches receipt part PO59158-01; four qty-6@$10 lines all select."""
+    result = match_receipts(
+        invoice_number="10998",
+        invoice_lines=[
+            {"part": "AMT-55700001", "qty": 6.0, "unit_price": 10.0, "amount": 60.0, "po_line": 1},
+            {"part": "AMT-55700001", "qty": 6.0, "unit_price": 10.0, "amount": 60.0, "po_line": 2},
+            {"part": "AMT-5570009", "qty": 6.0, "unit_price": 10.0, "amount": 60.0, "po_line": 3},
+            {"part": "AMT-5570009", "qty": 6.0, "unit_price": 10.0, "amount": 60.0, "po_line": 4},
+        ],
+        receipts=[
+            {"id": 23979, "po": "59158", "part": "PO59158-01", "qty": 6.0, "unit_price": 10.0, "amount": 60.0},
+            {"id": 23980, "po": "59158", "part": "PO59158-02", "qty": 6.0, "unit_price": 10.0, "amount": 60.0},
+            {"id": 23981, "po": "59158", "part": "PO59158-03", "qty": 6.0, "unit_price": 10.0, "amount": 60.0},
+            {"id": 23982, "po": "59158", "part": "PO59158-04", "qty": 6.0, "unit_price": 10.0, "amount": 60.0},
+        ],
+        po_number="59158",
+    )
+    assert result.get("found") is True
+    assert not result.get("unmatched_lines"), result.get("why")
+    ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
+    assert ids == {23979, 23980, 23981, 23982}
+

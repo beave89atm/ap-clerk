@@ -383,3 +383,30 @@ Kyle 2026-09-15 confirmed 11004 leftovers are a **line-order swap**: select
 price HOLD). Then enter 5 more unprocessed AQPC payment-requests on batch
 **711**. Full-10 sheet: `runs/AP-run-2026-09-15-aqpc-batch711-10.xlsx`.
 No Treyce Mail.Send.
+
+### Plus-5 AQPC on batch 711 (2026-09-15)
+
+Sibling **bc-655a55e9** / PR #39 already finished **10010** (24109+24110 by
+qty+cost; $2,600 / six lines / Entered in AI). This run left 10010 as-is
+(`already-selected`) and entered the next five unflagged payment-requests
+(Graph has no 11006+): **10998, 10991, 10984, 10969, 10968**. Guest
+Playwright, no Intuit login, reuse batch **711**. No Treyce Mail.Send.
+`invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 11002 | **10007** | **Success** | 24104 100@3 | 300.00 | 59172 |
+| 10999 | **10008** | **Success** | 23978 12@10 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 2@0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | **Success** | 24106–24111 incl. swapped 24109/24110 | 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 5@30 | 150.00 | 59118 |
+| 10998 | **10012** | **Success** | 23979–23982 qty 6@10 | 240.00 | 59158 |
+| 10991 | **10013** | HOLD price-does-not-match | 23967 199@0.75 | PDF 199.00 / posted 149.25 | 59148 |
+| 10984 | **10014** | **Success** | 23897 1@5 | 5.00 | 59098 |
+| 10969 | **10015** | **Success** | 23677 3@45 | 135.00 | 59079 |
+| 10968 | **10016** | **Success** | 23682 1@10 | 10.00 | 59080 |
+
+10998 first pass HOLD: `PO59158-01` was not line 1, so four identical qty-6
+leftovers looked unmatched. Suffix parse + live PUT of 23979–23982; GET
+$240. 10991: do not invent Success — 25% / $49.75 over Kyle’s PPV cap;
+@Shawn; Entered with issues. 10009 left for Shawn. Do not void 10007–10016.

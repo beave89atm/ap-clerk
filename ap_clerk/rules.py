@@ -609,13 +609,30 @@ def _same_part(left: Any, right: Any) -> bool:
     return parts_overlap(left, right)
 
 
+_PO_LINE_SUFFIX = re.compile(r"(?:^|-)0*(\d{1,3})$")
+
+
+def _line_no_int(value: Any) -> int | None:
+    if value in (None, ""):
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        text = str(value).strip()
+        if _is_po_line_receipt_part(text):
+            match = _PO_LINE_SUFFIX.search(text)
+            if match:
+                return int(match.group(1))
+    return None
+
+
 def _same_line_no(left: Any, right: Any) -> bool:
     if left in (None, "") or right in (None, ""):
         return False
-    try:
-        return int(left) == int(right)
-    except (TypeError, ValueError):
-        return str(left).strip() == str(right).strip()
+    a, b = _line_no_int(left), _line_no_int(right)
+    if a is not None and b is not None:
+        return a == b
+    return str(left).strip() == str(right).strip()
 
 
 def _same_qty(left: Any, right: Any) -> bool:
@@ -734,7 +751,10 @@ def _line_match_score(invoice_line: dict[str, Any], other: dict[str, Any]) -> in
     ):
         score += 100
     score += description_match_score(_line_description(invoice_line), _line_description(other))
-    if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), other.get("po_line") or other.get("line") or other.get("line_no")):
+    other_line = other.get("po_line") or other.get("line") or other.get("line_no")
+    if other_line in (None, "") and _is_po_line_receipt_part(other.get("part")):
+        other_line = other.get("part")
+    if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), other_line):
         score += 50
     wo_left = invoice_line.get("wo") or invoice_line.get("work_order")
     wo_right = other.get("wo") or other.get("work_order")
