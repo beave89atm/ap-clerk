@@ -177,8 +177,9 @@ blockers and are **not** the standing fix.
 
 Cheap unauthenticated GET still runs first. An auth/bot wall or
 intermediate HTML escalates to Playwright (system Chrome when present)
-as a **guest**: navigate, then click View/Download invoice. No storage
-state is loaded for success.
+as a **guest**: open the `links.notification.intuit.com` View-details
+click (not the `sale/viewed` tracking pixel), then click
+View/Download invoice. No storage state is loaded for success.
 
 **Env (names only — never commit the files or values):**
 

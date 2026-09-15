@@ -97,6 +97,10 @@ DOWNLOAD_SELECTORS = (
     "a:has-text('Download invoice')",
     "button:has-text('View invoice')",
     "a:has-text('View invoice')",
+    "button:has-text('View details')",
+    "a:has-text('View details')",
+    "button:has-text('Review and pay')",
+    "a:has-text('Review and pay')",
     "button:has-text('View/Download invoice')",
     "a:has-text('View/Download invoice')",
     "button:has-text('View PDF')",
@@ -113,14 +117,18 @@ DOWNLOAD_SELECTORS = (
 GUEST_CLICK_TEXTS = (
     "View invoice",
     "View Invoice",
+    "View details",
+    "View Details",
     "Download invoice",
     "Download Invoice",
     "View/Download invoice",
+    "Review and pay",
     "Download PDF",
     "View PDF",
     "Print invoice",
     "See invoice",
     "Open invoice",
+    "Pay now",
 )
 
 _FALSEY = frozenset({"0", "false", "no", "off"})

@@ -77,6 +77,18 @@ def test_intuit_click_link_is_preferred_invoice_link():
     assert has_invoice_link(preview=body)
 
 
+def test_prefer_notification_click_over_intuit_tracking_pixel():
+    """Live AQPC mail puts sale/viewed + ho.gif before the human View details click."""
+    viewed = "https://connect.intuit.com/icnportal-server/rest/sale/viewed/scs-v1-abc"
+    click = "https://links.notification.intuit.com/ss/c/u001.token/4u2/id/h0/h001.click"
+    pixel = "https://links.notification.intuit.com/ss/o/u001.token/4u2/id/ho.gif"
+    logo = "https://plugin-qbo.intuit.com/brand/1.1.9/qbeinvoiceemail.png"
+    ranked = prefer_pdf_links([viewed, click, pixel, logo])
+    assert ranked[0] == click
+    assert ranked.index(click) < ranked.index(viewed)
+    assert ranked.index(click) < ranked.index(pixel)
+
+
 def test_classify_browser_page_login_and_mfa():
     assert classify_browser_page(url="https://accounts.intuit.com/app/sign-in", title="Sign in", text="") == FAIL_LOGIN
     assert (

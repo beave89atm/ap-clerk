@@ -27,6 +27,32 @@ AUTH_HINT_RE = re.compile(
     flags=re.I,
 )
 PDF_PATH_RE = re.compile(r"\.pdf(\b|$)", flags=re.I)
+TRACKING_PATH_RE = re.compile(
+    r"(sale/viewed|invoice/viewed|tracking/notification|/ss/o/|"
+    r"\.(?:gif|png|jpe?g|svg|webp)(\b|$))",
+    flags=re.I,
+)
+INTUIT_CLICK_RE = re.compile(
+    r"links\.notification\.intuit\.com/(?:ls/click|ss/c/)",
+    flags=re.I,
+)
+
+
+def is_tracking_or_asset(url: str) -> bool:
+    """Open-pixel / logo / viewed-beacon — never a guest invoice PDF."""
+    parsed = urlparse(url or "")
+    host = (parsed.netloc or "").lower()
+    path = parsed.path or ""
+    if TRACKING_PATH_RE.search(path):
+        return True
+    if "ips-logos" in host or "plugin-qbo.intuit.com" in host:
+        return True
+    return False
+
+
+def is_intuit_notification_click(url: str) -> bool:
+    """Human-facing AQPC payment-request click (not a tracking gif)."""
+    return bool(INTUIT_CLICK_RE.search(url or "")) and not is_tracking_or_asset(url or "")
 
 
 def extract_https_links(text: str | None) -> list[str]:
@@ -43,16 +69,27 @@ def extract_https_links(text: str | None) -> list[str]:
 
 
 def prefer_pdf_links(links: list[str]) -> list[str]:
-    """PDF-looking paths first, then payment-request / invoice hosts, then the rest."""
-    pdfs = [u for u in links if PDF_PATH_RE.search(urlparse(u).path or "")]
+    """PDF paths, then Intuit guest click links, then other invoice hosts.
+
+    Tracking pixels (`sale/viewed`, logos, `.gif`) stay last so guest
+    click-through opens `links.notification.intuit.com`, not a beacon.
+    """
+    pdfs = [
+        u
+        for u in links
+        if PDF_PATH_RE.search(urlparse(u).path or "") and not is_tracking_or_asset(u)
+    ]
+    clicks = [u for u in links if u not in pdfs and is_intuit_notification_click(u)]
     pay = [
         u
         for u in links
         if u not in pdfs
+        and u not in clicks
+        and not is_tracking_or_asset(u)
         and re.search(r"invoice|payment|pay\.|download|aqpowder|intuit", u, flags=re.I)
     ]
-    rest = [u for u in links if u not in pdfs and u not in pay]
-    return pdfs + pay + rest
+    rest = [u for u in links if u not in pdfs and u not in clicks and u not in pay]
+    return pdfs + clicks + pay + rest
 
 
 def classify_download(*, status_code: int, content: bytes | None, content_type: str = "", text: str = "") -> str:
