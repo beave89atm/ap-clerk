@@ -141,7 +141,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-06** EMJ large price gap | HOLD without header/PDF | `price-does-not-match` HOLD + header + PDF + `Entered with issues`; never Success | `test_note06_emj_price_hold_header_entered_with_issues` |
 | **NOTE-07** Toyota Commercial Finance / auto-pay | Entered as a PO bill | `auto-pay` HOLD; no ERP header; never Success | `test_note07_toyota_autopay_hold` |
 | **NOTE-08** Melody Channell invoices | Junk not-a-bill skip | Bill, not noise Skipped; never Success-as-skip | `test_note08_melody_channell_not_noise` |
-| **NOTE-09** AQPC link-download PDF | Silent not-a-bill | Unauth GET, then browser/session click-through; PDF → header+attach; auth/MFA/timeout after browser → `pdf-behind-link` HOLD (Why says browser/session was tried); never Success | `test_note09_aqpc_pdf_behind_link` |
+| **NOTE-09** AQPC link-download PDF | Silent not-a-bill | Unauth GET, then guest browser click-through (no Intuit login); PDF → header+attach; true failure after guest View/Download invoice → `pdf-behind-link` HOLD (Why says guest browser was tried); never Success | `test_note09_aqpc_pdf_behind_link` |
 | **NOTE-10** Gas & Supply Misc vs CHECK STOP | Blanket CHECK STOP | Invoice pages → Type 4 `Shop Supplies - G&S`; notice skip; ambiguous HOLD; never Success | `test_note10_gas_supply_misc_vs_check_stop` |
 | **NOTE-11** Nova Alloys 258145 / From Erica Barrett (8/18) | Vendor=`Erica Barrett`; HOLD preflight-parse (`invoice #` tagged `subject`); Attach `no-pdf-on-vm` though PDF was on disk | PDF-is-truth: Vendor=Nova Alloys; same # on subject is OK; create header+attach; Why describes THIS bill (no MSC/McQueary); only HOLD no-pdf if file missing | `test_never_repeat_nova_258145` |
 | **NOTE-12** MSC 70762501 / KIMCO 9967 posted as RMP (8/18) | Parsed MSC Industrial Supply; Result Success; live GET `1320-RMP INDUSTRIAL SUPPLY` type 4 | MSC ≠ RMP (distinctive tokens); alias 128 over fuzzy seed; GET posted vendor must match or HOLD `vendor-mismatch`; never Success | `test_never_repeat_msc_70762501_not_rmp` |
@@ -154,7 +154,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO **by invoice line part + PO + qty** (CPL # is a secondary slip hint only, never a gate); sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped 2` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
 | **NOTE-23** 3P 142041–142044 / KIMCO 9988–9991 (live 9/14 batch 708) | Header + PDF entered; **zero** Select Receipts; Why `no receipts after second pass` even though open receipts existed on those PO lines. Do not invent a $0.02 PPV — invoice amounts add cleanly; PPV is none unless a real unit-price gap qualifies. | Match each invoice line → open receipts on that line's listed PO by **part / qty / PO** (CPL not required). Check every line; select every match. Price gaps do **not** skip receipts: qualifying variance (≤10% of invoice total and ≤$100 bill PPV) posts Additional Charge Purchase Price Variance; over threshold → HOLD price-does-not-match + `@Shawn McKibben` and still select other good lines. 142043 receipt qty 6 / invoice 4 → select qty 4 if the API allows. Fees ≠ PPV. Partial select → Entered with issues / Incomplete; never Success if a human must fix price/qty; never zero-receipt HOLD when Notes-style matches exist. | `test_never_repeat_3p_select_receipts_cpl` / `test_never_repeat_3p_notes_142041_142044` |
 | **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
-| **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18; live 9/15 Intuit) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request / Intuit URL, unauth GET, then browser/session if auth-walled. PDF → header + attach. True failure after browser → HOLD `pdf-behind-link` names vendor / # / host and that browser/session was tried — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
+| **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18; live 9/15 Intuit) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request / Intuit URL, unauth GET, then guest browser if auth/bot-walled or intermediate HTML. Click View/Download invoice with no Intuit login. PDF → header + attach. True failure after guest browser → HOLD `pdf-behind-link` names vendor / # / host and that guest browser was tried — never Skipped, never “set `AP_CLERK_INTUIT_STORAGE_STATE`” | `test_never_repeat_aqpc_10917_link_download` |
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped 2`. `AI Skipped 2` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 | **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985**; Julie Hencke `Past Due Invoices` (live 9/14 batch 708) | Leeco entered as a bill (filename 1058256); listed 617228 / 617448 / 619920 / 619921. Word `Invoices` on a past-due list must not flip it to a bill. | Account Statement / statement-of-account / past-due invoice list (subject or PDF body) → `Skipped` + Outlook `AI Skipped 2`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` / `test_never_repeat_julie_hencke_past_due_invoices` |
 | **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
@@ -166,38 +166,37 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | --- | --- | --- |
 | NOTE-10 | Shared-total-only Gas packs (no per-invoice Amount Due) | HOLD `preflight-parse` when `gas_misc_ambiguous` |
 
-### Intuit / QuickBooks session (AQPC payment-request links)
+### AQPC / Intuit payment-request links (guest — no login)
 
-Login-cookie download **is implemented**. Cheap unauthenticated GET still runs first.
-An Intuit auth wall (`links.notification.intuit.com`) escalates to Playwright
-(system Chrome when present) with a persisted session.
+AQPC emails (`10917` / `10918` / `10920` / `10921`) link
+`links.notification.intuit.com`. A human opens that URL and sees the
+invoice **without** signing in to Intuit/QuickBooks. The runner must do
+the same. Kannon does not have (and does not need) a vendor-portal login.
+`AP_CLERK_INTUIT_STORAGE_STATE` / MFA / a saved Intuit session are **not**
+blockers and are **not** the standing fix.
+
+Cheap unauthenticated GET still runs first. An auth/bot wall or
+intermediate HTML escalates to Playwright (system Chrome when present)
+as a **guest**: navigate, then click View/Download invoice. No storage
+state is loaded for success.
 
 **Env (names only — never commit the files or values):**
 
 | Name | Purpose |
 | --- | --- |
-| `AP_CLERK_INTUIT_STORAGE_STATE` | Path to Playwright `storage_state` JSON (cookies + localStorage). Preferred. |
-| `AP_CLERK_INTUIT_COOKIE_JAR` | Optional cookie JSON (storage_state or a cookie list) when a full storage_state is not available. |
 | `AP_CLERK_BROWSER_PDF` | Set `0` / `false` / `no` to skip the browser escalate. Default: on. |
 | `AP_CLERK_BROWSER_PDF_TIMEOUT` | Browser wait seconds (default 45). |
+| `AP_CLERK_INTUIT_STORAGE_STATE` | Optional Playwright `storage_state` JSON for **other** portals later. Not required for AQPC. |
+| `AP_CLERK_INTUIT_COOKIE_JAR` | Optional cookie JSON for other portals later. Not required for AQPC. |
 
-**One-time Kyle setup (headed machine; MFA is expected):**
+Daily CLI prints present/absent for these names only.
 
-```bash
-python -m pip install playwright
-python -m playwright install chrome
-python -m ap_clerk.browser_pdf --save-session /secure/path/intuit-storage-state.json
-```
-
-Sign in to Intuit, complete MFA, press Enter. Point
-`AP_CLERK_INTUIT_STORAGE_STATE` at that file (secret/env — not in git).
-The file is a cookie/session export, not a password. Re-export when the
-session expires. Daily CLI prints present/absent for these names only.
-
-If the browser still hits login / MFA / timeout, the bill is HOLD
-`pdf-behind-link` with Why that says browser/session was tried and what
-failed. Never `AI Skipped`. Do not invent Success. Do not void prior HOLDs
-until one live AQPC invoice is proven with a real session.
+If the guest browser still fails, the bill is HOLD `pdf-behind-link`
+with Why that says guest browser was tried and what failed. Next action
+is retry the guest View/Download invoice click — **not** “set
+`AP_CLERK_INTUIT_STORAGE_STATE`”. Never `AI Skipped`. Do not invent
+Success. Do not void prior HOLDs until one live AQPC invoice is proven
+with a real guest click-through.
 
 ## Unchanged (Kyle / prior PRs)
 
@@ -234,11 +233,11 @@ Skip / false Success class of errors.
   POST is often 403. Code still PATCHes the exact strings. Missing `AI Skipped 2`
   → Why `outlook-category-missing: AI Skipped 2`; sheet stays Skipped. Old
   `AI Skipped` stamps are left in place.
-- **AQPC Intuit click-through** (NOTE-09 / NOTE-21): unauth GET then browser
-  session. HOLD `pdf-behind-link` only after the browser attempt fails
-  (login / MFA / timeout / no session). Why names vendor / # / host and
-  that browser/session was tried. Kyle supplies `AP_CLERK_INTUIT_STORAGE_STATE`
-  once (see Intuit session section). Never Skipped.
+- **AQPC Intuit click-through** (NOTE-09 / NOTE-21): unauth GET then guest
+  browser (no Intuit login). HOLD `pdf-behind-link` only after the guest
+  View/Download invoice click fails. Why names vendor / # / host and that
+  guest browser was tried. Do not ask Kyle to save an Intuit session.
+  Never Skipped.
 - **Gas shared-total-only packs** (NOTE-10): HOLD `preflight-parse` /
   `gas_misc_ambiguous` — never invent per-invoice amounts.
 - **Fastenal** has no confirmed `Vendor.id` alias row (never-skip uses the name
@@ -301,14 +300,14 @@ instead of invoice **line** matches.
 
 Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
 (`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —
-AQPC Intuit links auth-walled on unauthenticated GET (browser/session path
-was not implemented on that run); Legacy 9995/9996 headers need Treyce
-Select Receipts; Crosslink 27321/27319/27419 were already-entered. **Greentree
-Packaging & Lumber was a false statement skip** (NOTE-26): subject
-`Invoice from Greentree Packaging & Lumber` + attached invoice, sheet
-`Skipped (bill-vs-noise): statement`, Outlook `AI Skipped 2`,
-`no-pdf-on-vm`. Do not invent Success or recreate those headers. Next
-weekday continues AFTER `2026-08-19T20:12:03Z`. With
-`AP_CLERK_INTUIT_STORAGE_STATE` set, AQPC 10917/10918/10920/10921-class
-mail should click through; without a session, HOLD `pdf-behind-link`
-after the browser attempt — never Skipped.
+AQPC Intuit links auth-walled on unauthenticated GET (guest browser
+click-through was not implemented on that run); Legacy 9995/9996 headers
+need Treyce Select Receipts; Crosslink 27321/27319/27419 were
+already-entered. **Greentree Packaging & Lumber was a false statement
+skip** (NOTE-26): subject `Invoice from Greentree Packaging & Lumber` +
+attached invoice, sheet `Skipped (bill-vs-noise): statement`, Outlook
+`AI Skipped 2`, `no-pdf-on-vm`. Do not invent Success or recreate those
+headers. Next weekday continues AFTER `2026-08-19T20:12:03Z`. AQPC
+10917/10918/10920/10921-class mail should guest-click through with no
+Intuit session; HOLD `pdf-behind-link` only after that guest browser
+attempt fails — never Skipped.

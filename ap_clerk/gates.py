@@ -50,12 +50,12 @@ GATE_VENDOR = "vendor-mismatch"
 GATE_ALREADY_ENTERED = "already-entered"
 
 BROWSER_FAIL_LABELS = {
-    "login-required": "login required",
+    "login-required": "guest browser landed on a login page",
     "mfa": "MFA required",
     "timeout": "timeout",
-    "no-session": "no Intuit session (set AP_CLERK_INTUIT_STORAGE_STATE)",
+    "no-session": "guest browser found no invoice PDF",
     "playwright-missing": "Playwright not installed",
-    "no-pdf-after-browser": "no PDF after browser navigation",
+    "no-pdf-after-browser": "no PDF after guest browser click-through",
     "browser-error": "browser error",
     "disabled": "browser download disabled",
 }
@@ -132,8 +132,19 @@ def why_hold(gate: str, detail: str) -> str:
     return f"HOLD ({gate}): {clean}" if clean else f"HOLD ({gate})."
 
 
+def _is_aqpc_intuit_link(inv: dict[str, Any]) -> bool:
+    host = str(inv.get("pdf_link_host") or "").lower()
+    vendor = str(inv.get("vendor") or "").lower()
+    return (
+        "intuit.com" in host
+        or "aqpowder" in host
+        or "quality powder" in vendor
+        or "aqpc" in vendor
+    )
+
+
 def why_pdf_behind_link_detail(inv: dict[str, Any]) -> str:
-    """Why text after unauth GET and (when attempted) browser/session download."""
+    """Why text after unauth GET and (when attempted) guest browser download."""
     vendor = str(inv.get("vendor") or "vendor")
     number = str(inv.get("invoice_number") or "").strip() or "unknown"
     host = str(inv.get("pdf_link_host") or "")
@@ -141,9 +152,16 @@ def why_pdf_behind_link_detail(inv: dict[str, Any]) -> str:
     if inv.get("browser_tried"):
         raw = str(inv.get("browser_failure") or "").strip()
         fail_bit = BROWSER_FAIL_LABELS.get(raw, raw or "download failed")
+        next_bit = ""
+        if _is_aqpc_intuit_link(inv):
+            next_bit = (
+                " Next: retry the guest View/Download invoice click "
+                "(no Intuit/QuickBooks sign-in)."
+            )
         return (
             f"{vendor} invoice #{number} PDF is behind a download link{host_bit}. "
-            f"Browser/session was tried; failed ({fail_bit}). Not a silent not-a-bill."
+            f"Guest browser was tried; failed ({fail_bit}).{next_bit} "
+            "Not a silent not-a-bill."
         )
     return (
         f"{vendor} invoice #{number} PDF is behind a download link{host_bit} "

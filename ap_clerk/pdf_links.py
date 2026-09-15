@@ -1,10 +1,11 @@
 """Best-effort PDF download from email body links.
 
 Used when a vendor (AQPC) sends a download URL instead of a PDF attachment.
-Cheap unauthenticated GET first. Auth walls escalate to a browser session
-(`browser_pdf`) when enabled. True failure after that is HOLD
-pdf-behind-link, not silent not-a-bill. No live mailbox I/O lives here —
-callers pass text/HTTP and optional injected fetchers.
+Cheap unauthenticated GET first. Auth/bot walls or intermediate HTML
+escalate to a guest browser (`browser_pdf`) when enabled — no vendor
+login for AQPC. True failure after that is HOLD pdf-behind-link, not
+silent not-a-bill. No live mailbox I/O lives here — callers pass
+text/HTTP and optional injected fetchers.
 """
 
 from __future__ import annotations
@@ -152,7 +153,7 @@ def download_first_pdf(
     """Unauth GET first; escalate to browser when that does not yield a PDF.
 
     ``browser`` is a ``try_browser_download``-compatible callable for tests.
-    Production uses Playwright + the Intuit storage_state env path.
+    Production uses Playwright as a guest (no Intuit login for AQPC).
     """
     result = download_first_public_pdf(text, getter=getter, timeout=timeout)
     if result.get("ok") and result.get("content"):
