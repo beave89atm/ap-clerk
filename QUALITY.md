@@ -410,3 +410,16 @@ Playwright, no Intuit login, reuse batch **711**. No Treyce Mail.Send.
 leftovers looked unmatched. Suffix parse + live PUT of 23979–23982; GET
 $240. 10991: do not invent Success — 25% / $49.75 over Kyle’s PPV cap;
 @Shawn; Entered with issues. 10009 left for Shawn. Do not void 10007–10016.
+
+### Another plus-5 AQPC on batch 711 (2026-09-15)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**15 rows** (prior 10 + 5 new). Do not recreate 10007–10016
+(11002 / 10999 / 11003 HOLD / 11004 / 11005 / 10998 / 10991 HOLD / 10984 /
+10969 / 10968). Skip Kyle-entered 10917/10918/10920/10921. Guest Intuit
+View-details click (not `sale/viewed`). No Intuit login. No Treyce Mail.Send.
+`invent=false`. Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-15.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`).
+
+Chosen next unflagged payment-requests (Graph still has no 11006+):
+**10967, 10964, 10962, 10958, 10956**. Results filled after live GET.
