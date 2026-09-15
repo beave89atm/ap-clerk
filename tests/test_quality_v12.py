@@ -3407,3 +3407,33 @@ def test_never_repeat_aqpc_11004_six_lines_not_line_numbers():
     assert 1.0 not in [ln.get("qty") for ln in lines]
     assert 6.0 not in [ln.get("qty") for ln in lines]
 
+
+def test_named_po_single_receipt_consumes_aqpc_line():
+    """AQPC receipt part is PO59160-01. Named-PO pick must not leave the line unmatched."""
+    result = match_receipts(
+        invoice_number="10999",
+        invoice_lines=[
+            {
+                "part": "AMT-55700014",
+                "qty": 12.0,
+                "amount": 120.0,
+                "label": "AMT-55700014 24x3x3 Gate Equalizer P.C. Black",
+            }
+        ],
+        receipts=[
+            {
+                "id": 23978,
+                "part": "PO59160-01",
+                "po": "59160",
+                "qty": 12.0,
+                "amount": 120.0,
+                "name": "PO59160-AMERICAN QUALITY POWDERCOATING - 2026/9/14",
+            }
+        ],
+        po_number="59160",
+    )
+    assert result.get("found") is True
+    assert result.get("matched")
+    assert not result.get("unmatched_lines"), result.get("why")
+    assert (result["matched"][0].get("receipt") or {}).get("id") == 23978
+

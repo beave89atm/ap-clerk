@@ -348,3 +348,31 @@ Live GET: vendor 22, Type 3, PDF attached, Select Receipts **24104** qty
 100 @ 3.00, no fees. Outlook **Entered in AI**. No Treyce Mail.Send.
 Sheet: `runs/AP-run-2026-09-15-aqpc-next.xlsx`. Do not void 10007.
 Do not invent Success for 10918/10920/10921.
+
+### Plus-4 AQPC on batch 711 (2026-09-15)
+
+Touched **only** four unflagged AQPC payment-request emails. Graph has no
+11006+. Chosen: **11003**, **11004** (later of two emails), **11005**, and
+**10999** (next newest unflagged AQPC not already on KIMCO). Did not walk
+unrelated vendors. Did not recreate 10917/10918/10920/10921/11002.
+
+Guest Playwright View-details clicks (no Intuit login / no storage-state)
+downloaded `%PDF-1.4` files. PDF-is-truth qtys are not QBO line numbers.
+Reused batch `API Agent - 9/15/26` (**711**, Status 0). No Treyce Mail.Send.
+Sheet: `runs/AP-run-2026-09-15-aqpc-plus4.xlsx`. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 10999 | **10008** | **Success** | 23978 qty 12 @ 10.00 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 qty 2 @ 0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | HOLD qty-does-not-match | partial 24106/07/08/11 ($2,400); leftover 04/05 | PDF 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 qty 5 @ 30.00 | 150.00 | 59118 |
+
+**2 Success / 4 attempted.** First-pass named-po left the single AQPC line
+unmatched even after Select Receipts (false finish HOLD on 10999/11005);
+live GET matched the PDF, so those two were restamped **Entered in AI**.
+11003: PO/receipt $0.777 vs invoice $5.00 (84.4%) — `@Shawn McKibben`,
+Entered with issues. 11004: invoice line 4 qty 15 vs PO59165-04 qty 5 and
+line 5 qty 5 vs PO59165-05 qty 15 (same $10 unit; qtys look swapped);
+partial Select Receipts on the four matching lines; Entered with issues.
+Do not void 10008–10011. Do not invent Success for 11003/11004.
