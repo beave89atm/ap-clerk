@@ -1536,13 +1536,26 @@ def match_receipts(
                     pick_amount=amount_ev if not multi else None,
                 )
 
-    # Named-for-PO receipts (McMaster / Ryerson): only when this invoice has
-    # a single merchandise line. Multi-line bills must match each line
-    # (EMJ Z250725432). Multi-PO 3P uses per-PO single-line fallback below.
+    # Named-for-PO receipts (McMaster / Ryerson / AQPC PO59160-01): only when
+    # this invoice has a single merchandise line. Multi-line bills must match
+    # each line (EMJ Z250725432). Multi-PO 3P uses per-PO fallback below.
+    # The pick must consume that invoice line — leaving it in still_open after
+    # a named-po Select Receipts made 10999/11005 a false finish HOLD.
     if not matched and po_number and not ambiguous and len(lines) <= 1:
         pool = _open_on_po(str(po_number))
         if pool:
-            _apply_qty_cost_pick(pool, score=65, pass_name="named-po")
+            line = lines[0] if lines else None
+            if _apply_qty_cost_pick(
+                pool,
+                score=65,
+                pass_name="named-po",
+                line=line,
+                pick_qty=_line_qty(line) if line else qty_ev,
+                pick_amount=_line_amount(line) if line else amount_ev,
+                check_cost=False,
+                allow_qty_cover=True,
+            ) and line is not None:
+                still_open = [ln for ln in still_open if ln is not line]
 
     # Second pass: remaining lines only. Never abandon already-matched lines.
     second_pass = False
