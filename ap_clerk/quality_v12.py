@@ -405,6 +405,48 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-25",
+        "slug": "legacy-packing-slip-and-line-receipts",
+        "gate": GATE_BILL_VS_NOISE,
+        "cases": (
+            "Legacy Wire Receipt_114745 signed packing slip (not invoice 114745)",
+            "Legacy Wire PS-INV103979 / KIMCO 9995 / PO 58807 / $1271.75",
+            "Legacy Wire PS-INV103980 / KIMCO 9996 / PO 58802 / $2664.72",
+            "Legacy receipt-scan rows 103979 / 120911 / 121051",
+        ),
+        "9_15_bug": (
+            "Sheet row Legacy 114745 HOLD parse-error from filename "
+            "2026-08-19_Receipt_2026-08-19_114745.pdf — a signed packing slip, "
+            "not an invoice. Same-class receipt scans invented 103979 / 120911 / "
+            "121051. PS-INV103979 HOLD no open receipt qty 77 (inch dimension "
+            "from 77\" TUBE, not invoice qty). PS-INV103980 HOLD multiple open "
+            "receipts on the PO; merchandise cost does not uniquely align / "
+            "will not guess first-open — even though every invoice line matched "
+            "an open receipt and only freight remained. Prior matcher over-held "
+            "on rolled qty / cost uniqueness instead of line matches. Freight "
+            "was never Additional Charge Fees. Select Receipts left "
+            "held-unfinished."
+        ),
+        "expected": (
+            "Packing slip / POD / signed delivery receipt (Receipt_ filename, "
+            "body “packing slip”, signature pages) is non-invoice: disregard. "
+            "No HOLD parse-error row, no AI HOLD as a bill, no invented # from "
+            "filename. Invoice # exactly as printed on that invoice PDF "
+            "(PS-INV103979, never strip to 103979). Match each merchandise "
+            "line by part + qty + PO; select those receipts even if other open "
+            "receipts exist on the PO. Do not HOLD ambiguous / cost-uniquely-"
+            "align when line matches are clear. Freight / shipping / delivery "
+            "→ Additional Charge Fees and surcharges; never blocks Select "
+            "Receipts. Still no first-open guess when lines do not match. "
+            "Do not blank unfinished Select Receipts when lines matched. "
+            "Do not rewrite live 9995 / 9996. Never Success if Treyce would "
+            "still fix the bill."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (9995, 9996),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

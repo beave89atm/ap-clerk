@@ -275,6 +275,66 @@
         "received": "2026-08-18T19:12:39Z",
         "pdf_text": "Past Due Invoices\nInvoice Date Amount\n617228 7/7/2026 9997.24\nPlease remit the invoices listed below.\n"
       }
+    },
+    "NOTE-25": {
+      "vendor": "Legacy Wire Products",
+      "from_name": "Legacy Wire Products",
+      "from_address": "ar@legacywire.com",
+      "do_not_void": true,
+      "leftover_kimco_ids": [9995, 9996],
+      "packing_slip_114745": {
+        "filename": "2026-08-19_Receipt_2026-08-19_114745.pdf",
+        "subject": "Sales Invoice PS-INV103979",
+        "pdf_text": "PACKING SLIP\nLegacy Wire Products\nShip To: Kannon Manufacturing\nCustomer PO: 58807\nQty 24 HARDWARE\nQty 1 LATCH\nReceived by: Kyle Cleaver\nCustomer Signature\nCarrier Signature\nSigned delivery receipt\nDate: 08/19/2026\n"
+      },
+      "receipt_scan_names": [
+        "2026-08-19_Receipt_2026-08-19_103979.pdf",
+        "2026-08-19_Receipt_2026-08-19_114744_dragged_.pdf",
+        "2026-08-19_Receipt_2026-08-19_120911.pdf",
+        "2026-08-19_Receipt_2026-08-19_121051.pdf"
+      ],
+      "ps_inv103979": {
+        "invoice_number": "PS-INV103979",
+        "kimco_id": 9995,
+        "po": "58807",
+        "amount": 1271.75,
+        "freight": 246.75,
+        "filename": "Sales Invoice PS-INV103979.pdf",
+        "subject": "Sales Invoice PS-INV103979",
+        "pdf_text": "Legacy Wire Products\nSALES INVOICE\nInvoice No.\nPS-INV103979\nInvoice Date\n08/19/2026\nExternal Document No.\n58807\nKANNON-A-12345-001\nGATE HARDWARE\n24 Each 41.00 984.00\nKANNON-A-12345-002\nLATCH\n1 Each 41.00 41.00\nKANNON-A-05480-002\nBIFOLD GATE-77\"(2\"TUBE)\n0 Each 0.00 0.00\nFreight Charge - Wholesale - In\nState\n1\n246.75\n246.75\nTotal $ Incl. Tax\n1,271.75\n",
+        "lines": [
+          {"part": "KANNON-A-12345-001", "qty": 24, "amount": 984.0, "unit_price": 41.0},
+          {"part": "KANNON-A-12345-002", "qty": 1, "amount": 41.0, "unit_price": 41.0}
+        ],
+        "receipts": [
+          {"id": 23746, "po": "58807", "part": "PO58807-01", "qty": 24, "amount": 984.0, "unit_price": 41.0},
+          {"id": 23747, "po": "58807", "part": "PO58807-03", "qty": 1, "amount": 41.0, "unit_price": 41.0},
+          {"id": 23750, "po": "58807", "part": "PO58807-05", "qty": 10, "amount": 400.0, "unit_price": 40.0}
+        ]
+      },
+      "ps_inv103980": {
+        "invoice_number": "PS-INV103980",
+        "kimco_id": 9996,
+        "po": "58802",
+        "amount": 2664.72,
+        "freight": 200.0,
+        "filename": "Sales Invoice PS-INV103980.pdf",
+        "subject": "Sales Invoice PS-INV103980",
+        "pdf_text": "Legacy Wire Products\nSALES INVOICE\nInvoice No.\nPS-INV103980\nInvoice Date\n08/19/2026\nExternal Document No.\n58802\nKANNON-A-20001-001\nPANEL A\n12 Each 85.00 1020.00\nKANNON-A-20002-001\nPANEL B\n8 Each 95.00 760.00\nKANNON-A-20003-001\nBRACKET\n6 Each 82.00 492.00\nKANNON-A-20004-001\nCLIP\n4 Each 48.18 192.72\nFreight Charge - Wholesale - In\nState\n1\n200.00\n200.00\nTotal $ Incl. Tax\n2,664.72\n",
+        "lines": [
+          {"part": "KANNON-A-20001-001", "qty": 12, "amount": 1020.0, "unit_price": 85.0},
+          {"part": "KANNON-A-20002-001", "qty": 8, "amount": 760.0, "unit_price": 95.0},
+          {"part": "KANNON-A-20003-001", "qty": 6, "amount": 492.0, "unit_price": 82.0},
+          {"part": "KANNON-A-20004-001", "qty": 4, "amount": 192.72, "unit_price": 48.18}
+        ],
+        "receipts": [
+          {"id": 24001, "po": "58802", "part": "PO58802-01", "qty": 12, "amount": 1020.0, "unit_price": 85.0},
+          {"id": 24002, "po": "58802", "part": "PO58802-02", "qty": 8, "amount": 760.0, "unit_price": 95.0},
+          {"id": 24003, "po": "58802", "part": "PO58802-03", "qty": 6, "amount": 492.0, "unit_price": 82.0},
+          {"id": 24004, "po": "58802", "part": "PO58802-04", "qty": 4, "amount": 192.72, "unit_price": 48.18},
+          {"id": 24099, "po": "58802", "part": "PO58802-09", "qty": 10, "amount": 500.0, "unit_price": 50.0}
+        ]
+      }
     }
   }
 }

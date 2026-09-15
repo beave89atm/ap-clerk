@@ -155,6 +155,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18; live 9/15 Intuit) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request / Intuit URL, unauth GET, then browser/session if auth-walled. PDF → header + attach. True failure after browser → HOLD `pdf-behind-link` names vendor / # / host and that browser/session was tried — never Skipped | `test_never_repeat_aqpc_10917_link_download` |
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped 2`. `AI Skipped 2` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 | **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985**; Julie Hencke `Past Due Invoices` (live 9/14 batch 708) | Leeco entered as a bill (filename 1058256); listed 617228 / 617448 / 619920 / 619921. Word `Invoices` on a past-due list must not flip it to a bill. | Account Statement / statement-of-account / past-due invoice list (subject or PDF body) → `Skipped` + Outlook `AI Skipped 2`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` / `test_never_repeat_julie_hencke_past_due_invoices` |
+| **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -272,6 +273,28 @@ MUST-pull lines); 9989 both lines (line 2 at unit 75 vs invoice 83.02);
 leftovers remain. Additional Charge PPV count is 0. Invoice totals add
 cleanly; do not invent a $0.02 PPV. This PR is so the clerk does that
 select itself next time.
+
+## Legacy Wire line receipts + packing slips (Kyle 2026-09-15, NOTE-25)
+
+Prior matcher over-held on **rolled qty** and **PO-pool cost uniqueness**
+instead of invoice **line** matches.
+
+- `Receipt_114745.pdf` / `Receipt_*` / POD / signed packing slip is **not**
+  an invoice. Classify and disregard. Never invent `114745` / `103979` /
+  `120911` / `121051` from the filename. Never `AI HOLD` a slip as a bill.
+- Multi-invoice email or PDF is still N bill rows. An email with
+  `PS-INV103979` + a packing slip processes **only** the invoice.
+- Invoice # is exactly as printed (`PS-INV103979`), never stripped.
+- Select Receipts **line-by-line** (part + qty + PO). Extra open receipts
+  on the same PO do **not** HOLD “merchandise cost does not uniquely align”
+  when those line matches are clear (PS-INV103980 / 9996).
+- `77"` in a description is an inch dimension, not qty 77 (PS-INV103979 / 9995).
+- Freight / shipping / delivery → Additional Charge **Fees and surcharges**.
+  It does not block Select Receipts. Post Fees when parsed; do not leave
+  matched Select Receipts `held-unfinished`.
+- Still no first-open / second-open-on-po guess when lines do **not** match.
+- Live **9995** / **9996** were already worked by Kyle (do not rewrite;
+  do not invent Success).
 
 Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
 (`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —
