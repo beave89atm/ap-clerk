@@ -375,4 +375,11 @@ live GET matched the PDF, so those two were restamped **Entered in AI**.
 Entered with issues. 11004: invoice line 4 qty 15 vs PO59165-04 qty 5 and
 line 5 qty 5 vs PO59165-05 qty 15 (same $10 unit; qtys look swapped);
 partial Select Receipts on the four matching lines; Entered with issues.
-Do not void 10008–10011. Do not invent Success for 11003/11004.
+Do not void 10008–10011. Do not invent Success for 11003.
+
+Kyle 2026-09-15 confirmed 11004 leftovers are a **line-order swap**: select
+**24109** qty 5 @$10 and **24110** qty 15 @$10 by unique leftover qty+cost
+(not PO suffix). Matcher pass `qty-cost-swap`. Do not touch 10009 (Shawn
+price HOLD). Then enter 5 more unprocessed AQPC payment-requests on batch
+**711**. Full-10 sheet: `runs/AP-run-2026-09-15-aqpc-batch711-10.xlsx`.
+No Treyce Mail.Send.

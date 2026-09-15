@@ -917,6 +917,82 @@ def invoice_qty_evidence(
     return merchandise_qty(invoice_lines)
 
 
+def _qty_unit_key(qty: Any, unit: Any, amount: Any = None) -> tuple[float, float] | None:
+    """Unique leftover pair: invoice qty + unit (derive unit from amount/qty)."""
+    q = money(qty)
+    u = money(unit)
+    if u is None:
+        a = money(amount)
+        if q not in (None, 0) and a is not None:
+            u = money(round(a / q, 4))
+    if q is None or u is None:
+        return None
+    return (q, u)
+
+
+def line_qty_unit_key(line: dict[str, Any] | None) -> tuple[float, float] | None:
+    if not isinstance(line, dict):
+        return None
+    qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
+    amount = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+    return _qty_unit_key(qty, unit, amount)
+
+
+def receipt_qty_unit_key(receipt: dict[str, Any] | None) -> tuple[float, float] | None:
+    if not isinstance(receipt, dict):
+        return None
+    qty = _receipt_qty(receipt)
+    unit = money(
+        receipt.get("unit_price")
+        if receipt.get("unit_price") is not None
+        else receipt.get("unit_cost")
+        if receipt.get("unit_cost") is not None
+        else receipt.get("purchase_cost")
+    )
+    return _qty_unit_key(qty, unit, receipt_cost(receipt))
+
+
+def match_unique_qty_unit_pairs(
+    lines: list[dict[str, Any]],
+    receipts: list[dict[str, Any]],
+) -> dict[int, dict[str, Any]]:
+    """Map leftover invoice line id() → receipt when (qty, unit) is unique on both sides.
+
+    Kyle 2026-09-15 AQPC 11004: PO59165-04 qty 5 @$10 and PO59165-05 qty 15 @$10
+    are swapped vs invoice Panel Decal qty 15 @$10 and Gear cover qty 5 @$10.
+    Select by unique qty+cost. Never guess when two leftovers share a pair.
+    """
+    key_to_lines: dict[tuple[float, float], list[dict[str, Any]]] = {}
+    line_keys: dict[int, tuple[float, float]] = {}
+    for line in lines:
+        key = line_qty_unit_key(line)
+        if key is None:
+            continue
+        line_keys[id(line)] = key
+        key_to_lines.setdefault(key, []).append(line)
+    key_to_receipts: dict[tuple[float, float], list[dict[str, Any]]] = {}
+    for receipt in receipts:
+        key = receipt_qty_unit_key(receipt)
+        if key is None:
+            continue
+        key_to_receipts.setdefault(key, []).append(receipt)
+    out: dict[int, dict[str, Any]] = {}
+    used_receipts: set[int] = set()
+    for line in lines:
+        key = line_keys.get(id(line))
+        if key is None:
+            continue
+        if len(key_to_lines.get(key) or []) != 1:
+            continue
+        recs = [r for r in (key_to_receipts.get(key) or []) if id(r) not in used_receipts]
+        if len(recs) != 1:
+            continue
+        out[id(line)] = recs[0]
+        used_receipts.add(id(recs[0]))
+    return out
+
+
 def _receipt_qty(receipt: dict[str, Any] | None) -> float | None:
     if not isinstance(receipt, dict):
         return None
@@ -1472,6 +1548,12 @@ def match_receipts(
             exact = [(s, r) for s, r in scored if _same_qty(_receipt_qty(r), line_qty)]
             if exact:
                 scored = exact
+            elif scored[0][0] < 100 and not any(
+                _same_qty(_receipt_qty(r), line_qty) for _, r in scored
+            ):
+                # PO-line / description hit with a different qty (AQPC 11004
+                # 04/05 swap). Do not steal the leftover unique qty+cost row.
+                return False
         if len(scored) > 1 and scored[0][0] < scored[1][0] + 10:
             tied = [r for s, r in scored if s >= scored[0][0] - 5]
             if len(tied) > 1 and (line_qty is not None or line_amt is not None):
@@ -1619,6 +1701,29 @@ def match_receipts(
                 leftover.append(inv_line)
                 unmatched_candidates[id(inv_line)] = pool
         still_open = leftover
+
+    # Unique leftover qty+unit (Kyle 2026-09-15 AQPC 11004 swapped 04/05).
+    # Invoice Panel Decal qty 15 @$10 ↔ receipt 24110 qty 15 @$10; Gear cover
+    # qty 5 @$10 ↔ receipt 24109 qty 5 @$10. Do not HOLD solely because the
+    # PO suffix / part is reversed when the leftover pair is unique.
+    if still_open:
+        swap_pool = _open_on_po(str(po_number) if po_number else None)
+        swap_hits = match_unique_qty_unit_pairs(still_open, swap_pool)
+        kept_swap: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            rec = swap_hits.get(id(inv_line))
+            if rec is None:
+                kept_swap.append(inv_line)
+                continue
+            _record_match(
+                inv_line,
+                rec,
+                score=50,
+                pass_name="qty-cost-swap",
+                how="qty+unit unique leftover (PO line order swapped)",
+            )
+            second_pass = True
+        still_open = kept_swap
 
     unmatched.extend(still_open)
 

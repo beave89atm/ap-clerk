@@ -3437,3 +3437,67 @@ def test_named_po_single_receipt_consumes_aqpc_line():
     assert not result.get("unmatched_lines"), result.get("why")
     assert (result["matched"][0].get("receipt") or {}).get("id") == 23978
 
+
+def test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost():
+    """11004 leftover 04/05: unique qty+unit selects 24110 for qty 15 and 24109 for qty 5."""
+    result = match_receipts(
+        invoice_number="11004",
+        invoice_lines=[
+            {"part": "AMT-6001232", "qty": 5.0, "unit_price": 445.0, "amount": 2225.0, "po_line": 1},
+            {"part": "AMT-5003753", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 2},
+            {"part": "AMT-5003753", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 3},
+            {
+                "part": "AMT-5003741",
+                "qty": 15.0,
+                "unit_price": 10.0,
+                "amount": 150.0,
+                "description": "Panel Decal",
+                "po_line": 4,
+            },
+            {
+                "part": "AMT-5003750-002",
+                "qty": 5.0,
+                "unit_price": 10.0,
+                "amount": 50.0,
+                "description": "Gear cover",
+                "po_line": 5,
+            },
+            {"part": "AMT-5003750", "qty": 5.0, "unit_price": 25.0, "amount": 125.0, "po_line": 6},
+        ],
+        receipts=[
+            {"id": 24106, "po": "59165", "part": "PO59165-01", "qty": 5.0, "unit_price": 445.0, "amount": 2225.0, "po_line": 1},
+            {"id": 24107, "po": "59165", "part": "PO59165-02", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 2},
+            {"id": 24108, "po": "59165", "part": "PO59165-03", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 3},
+            {
+                "id": 24109,
+                "po": "59165",
+                "part": "PO59165-04",
+                "qty": 5.0,
+                "unit_price": 10.0,
+                "amount": 50.0,
+                "po_line": 4,
+            },
+            {
+                "id": 24110,
+                "po": "59165",
+                "part": "PO59165-05",
+                "qty": 15.0,
+                "unit_price": 10.0,
+                "amount": 150.0,
+                "po_line": 5,
+            },
+            {"id": 24111, "po": "59165", "part": "PO59165-06", "qty": 5.0, "unit_price": 25.0, "amount": 125.0, "po_line": 6},
+        ],
+        po_number="59165",
+    )
+    assert result.get("found") is True
+    assert not result.get("unmatched_lines"), result.get("why")
+    ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
+    assert ids == {24106, 24107, 24108, 24109, 24110, 24111}
+    by_line = {
+        str((hit.get("line") or {}).get("part")): (hit.get("receipt") or {}).get("id")
+        for hit in result.get("matched") or []
+    }
+    assert by_line.get("AMT-5003741") == 24110
+    assert by_line.get("AMT-5003750-002") == 24109
+

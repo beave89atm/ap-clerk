@@ -38,6 +38,7 @@ class FakeKimco:
         self.selected = []
         self.attached = []
         self.got = []
+        self.qty_by_id = {}
 
     def get_item(self, service, item_id):
         self.got.append((service, item_id))
@@ -55,7 +56,19 @@ class FakeKimco:
         return self.attach
 
     def try_select_receipts(self, invoice_id, receipt_ids=None):
-        self.selected.append((invoice_id, list(receipt_ids or [])))
+        refs = list(receipt_ids or [])
+        self.selected.append((invoice_id, refs))
+        for raw in refs:
+            rid = raw.get("id") if isinstance(raw, dict) else raw
+            qty = raw.get("qty") if isinstance(raw, dict) else None
+            if qty is None:
+                qty = self.qty_by_id.get(rid)
+                if qty is None and str(rid).isdigit():
+                    qty = self.qty_by_id.get(int(rid))
+            values = {"Receipt": {"id": rid}}
+            if qty is not None:
+                values["Quantity"] = qty
+            self.lines.append({"values": values})
         return self.select
 
     def try_post_fees(self, invoice_id, fees=None):
@@ -366,3 +379,57 @@ def test_dry_email_names_api_finish_and_not_daily_30():
     )
     assert "2026-08-16" in from_body
     assert "do not restart at 7/28" in from_body
+
+
+def test_finish_selects_leftover_11004_qty_cost_swap():
+    """Header 10010 already has 4 lines; leftover 24109/24110 match by qty+cost."""
+    kimco = FakeKimco(
+        lines=[
+            {"values": {"Receipt": {"id": 24106}, "Quantity": 5, "Unit_Price": 445}},
+            {"values": {"Receipt": {"id": 24107}, "Quantity": 5, "Unit_Price": 5}},
+            {"values": {"Receipt": {"id": 24108}, "Quantity": 5, "Unit_Price": 5}},
+            {"values": {"Receipt": {"id": 24111}, "Quantity": 5, "Unit_Price": 25}},
+        ],
+        attachments=[{"name": "2026-09-15_invoice-11004.pdf"}],
+    )
+    kimco.qty_by_id = {24109: 5.0, 24110: 15.0}
+    inv_lines = [
+        {"part": "AMT-6001232", "qty": 5.0, "unit_price": 445.0, "amount": 2225.0, "po_line": 1},
+        {"part": "AMT-5003753", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 2},
+        {"part": "AMT-5003753", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 3},
+        {"part": "AMT-5003741", "qty": 15.0, "unit_price": 10.0, "amount": 150.0, "description": "Panel Decal", "po_line": 4},
+        {"part": "AMT-5003750-002", "qty": 5.0, "unit_price": 10.0, "amount": 50.0, "description": "Gear cover", "po_line": 5},
+        {"part": "AMT-5003750", "qty": 5.0, "unit_price": 25.0, "amount": 125.0, "po_line": 6},
+    ]
+    receipts = [
+        {"id": 24106, "po": "59165", "part": "PO59165-01", "qty": 5.0, "unit_price": 445.0, "amount": 2225.0, "po_line": 1},
+        {"id": 24107, "po": "59165", "part": "PO59165-02", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 2},
+        {"id": 24108, "po": "59165", "part": "PO59165-03", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "po_line": 3},
+        {"id": 24109, "po": "59165", "part": "PO59165-04", "qty": 5.0, "unit_price": 10.0, "amount": 50.0, "po_line": 4},
+        {"id": 24110, "po": "59165", "part": "PO59165-05", "qty": 15.0, "unit_price": 10.0, "amount": 150.0, "po_line": 5},
+        {"id": 24111, "po": "59165", "part": "PO59165-06", "qty": 5.0, "unit_price": 25.0, "amount": 125.0, "po_line": 6},
+    ]
+    row = finish_existing_header(
+        kimco,
+        _incomplete_row(
+            Vendor="American Quality Powder Coating",
+            **{"Invoice #": "11004"},
+            PO="59165",
+            Amount=2600.0,
+            **{"KIMCO id": 10010},
+        ),
+        _inv(
+            vendor="American Quality Powder Coating",
+            invoice_number="11004",
+            po="59165",
+            pos=["59165"],
+            amount=2600.0,
+            lines=inv_lines,
+        ),
+        receipts=receipts,
+        flag_outlook=False,
+    )
+    assert kimco.selected, "must PUT leftover 24109/24110"
+    added = {int(x) for x in kimco.selected[0][1]}
+    assert added == {24109, 24110}
+    assert row["Result"] == RESULT_SUCCESS, row.get("Why")
