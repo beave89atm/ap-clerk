@@ -312,3 +312,16 @@ headers. Next weekday continues AFTER `2026-08-19T20:12:03Z`. AQPC
 10917/10918/10920/10921-class mail should guest-click through with no
 Intuit session; HOLD `pdf-behind-link` only after that guest browser
 attempt fails — never Skipped.
+
+### One-invoice AQPC guest proof (2026-09-15, after Kyle posted 10917)
+
+Touched **only** mailbox `New payment request from AMERICAN QUALITY POWDER
+COATING - invoice 10917` (the 9/15 `pdf-behind-link` HOLD). Guest Playwright
+(no `AP_CLERK_INTUIT_STORAGE_STATE`) downloaded a 23824-byte `%PDF-1.4`.
+Live GET: invoice **10917** is already **KIMCO 10003** — vendor 22
+`1020-AMERICAN QUALITY POWDERCOATING`, PO 58944, Type 3, amount 275.00,
+PDF attached, 1 receipt line qty 1 @ 275 (receipt 23186). **Posted**
+2026-09-15 by Kyle Cleaver from batch `9_15_26-KC` (713). This proof did
+**not** create a second header. Sheet Result is HOLD `already-entered`.
+Outlook restamped **Entered in AI**. No Treyce Mail.Send. Do not void
+10003. Do not invent Success on this proof row.
