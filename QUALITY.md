@@ -377,10 +377,30 @@ line 5 qty 5 vs PO59165-05 qty 15 (same $10 unit; qtys look swapped);
 partial Select Receipts on the four matching lines; Entered with issues.
 Do not void 10008–10011. Do not invent Success for 11003/11004.
 
-**Live recheck 2026-09-15 (GET invent=false, no void, no new headers):**
-HOLDs stand. 10009 still one line: 24103 / PO59083-01 qty 2 @ 0.78 = 1.55
-(PDF 2 @ $5.00 = $10.00). Only receipt on 59083; already selected. 10010
-still four posted lines ($2,400). Open leftovers 24109 PO59165-04 qty 5 @
-$10 and 24110 PO59165-05 qty 15 @ $10. Do not cross-select those to
-“finish” $2,600. Select Receipts unchanged. Code: `PO59165-04` now
-parses as line 4 so qty-unique cannot steal the swapped line.
+**Live finish 2026-09-15 (invent=false, no void, no new headers, no
+treyce@ email):** Kyle confirmed 10010 leftovers are just swapped.
+Select Receipts posted **24110** (qty 15 @ $10 = $150) and **24109**
+(qty 5 @ $10 = $50) on **10010**. GET after: six lines, **$2,600**,
+receipts Invoiced=true / AP **11004**. Outlook **Entered in AI**.
+**Result = Success** (Treyce would not rework). 10009 left alone
+(1 line / $1.55 / 24103; price HOLD still real). Never HOLD
+`qty-does-not-match` only because 4↔5 are reversed when dollars and
+qtys pair uniquely. Test:
+`test_never_repeat_aqpc_11004_swapped_po_lines_select_by_qty_cost`.
+Proof: `runs/kimco-10010-swapped-receipts.json`.
+
+**10010 still Success (GET after finish):** six lines, amount/net **$2,600**,
+void false. Leftovers 24109/24110 remain selected.
+
+**PO 59083 @Shawn comment (10009 / inv 11003):** purchase_lines **17522**
+(PO59083-01) PUT `_PO_Line_Notes` HTTP **200**. GET shows the price-mismatch
+note (PDF 2 @ $5.00 vs receipt 2 @ $0.78). Qty/unit unchanged. 10009
+untouched. `lists.Comments` exists but has no public child URL. Helper:
+`KimcoClient.try_post_po_line_comment`. Email to Shawn already going from
+AP Clerk.
+
+**Handoff — next 5 AQPC (do not enter in the 10010 finish run):** Graph has
+no 11006+. Newest unflagged payment-requests not already on KIMCO:
+**10998**, **10991**, **10984**, **10969**, **10968**. Guest Intuit
+click-through; reuse batch **711** if Status 0; do not touch 10009; no
+treyce@ email. See `runs/kimco-10010-success-po59083-handoff.json`.

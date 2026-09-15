@@ -217,6 +217,61 @@ def test_nopo_header_succeeds_with_pdf_only(tmp_path: Path):
     assert kimco.selected == []
 
 
+def test_finish_selects_leftover_11004_qty_cost_swap():
+    """Partial 10010: leftover 24109/24110 pair by qty+cost, not PO suffix."""
+    kimco = FakeKimco(
+        lines=[
+            {"values": {"Receipt": {"id": 24106}, "Quantity": 5}},
+            {"values": {"Receipt": {"id": 24107}, "Quantity": 5}},
+            {"values": {"Receipt": {"id": 24108}, "Quantity": 5}},
+            {"values": {"Receipt": {"id": 24111}, "Quantity": 5}},
+        ],
+        attachments=[{"name": "invoice-11004.pdf"}],
+    )
+    lines = [
+        {"part": "AMT-6001232", "qty": 5.0, "amount": 2225.0, "unit_price": 445.0, "po_line": 1},
+        {"part": "AMT-5003753", "qty": 5.0, "amount": 25.0, "unit_price": 5.0, "po_line": 2},
+        {"part": "AMT-5003753", "qty": 5.0, "amount": 25.0, "unit_price": 5.0, "po_line": 3},
+        {"part": "AMT-5003741", "qty": 15.0, "amount": 150.0, "unit_price": 10.0, "po_line": 4},
+        {"part": "AMT-5003750-002", "qty": 5.0, "amount": 50.0, "unit_price": 10.0, "po_line": 5},
+        {"part": "AMT-5003750", "qty": 5.0, "amount": 125.0, "unit_price": 25.0, "po_line": 6},
+    ]
+    receipts = [
+        {"id": 24106, "part": "PO59165-01", "po": "59165", "qty": 5.0, "amount": 2225.0, "unit_price": 445.0},
+        {"id": 24107, "part": "PO59165-02", "po": "59165", "qty": 5.0, "amount": 25.0, "unit_price": 5.0},
+        {"id": 24108, "part": "PO59165-03", "po": "59165", "qty": 5.0, "amount": 25.0, "unit_price": 5.0},
+        {"id": 24109, "part": "PO59165-04", "po": "59165", "qty": 5.0, "amount": 50.0, "unit_price": 10.0},
+        {"id": 24110, "part": "PO59165-05", "po": "59165", "qty": 15.0, "amount": 150.0, "unit_price": 10.0},
+        {"id": 24111, "part": "PO59165-06", "po": "59165", "qty": 5.0, "amount": 125.0, "unit_price": 25.0},
+    ]
+    row = finish_existing_header(
+        kimco,
+        _incomplete_row(
+            Vendor="AMERICAN QUALITY POWDER COATING",
+            **{"Invoice #": "11004"},
+            PO="59165",
+            Amount=2600.0,
+            **{"KIMCO id": 10010},
+            **{"Attach status": "attached"},
+        ),
+        _inv(
+            vendor="AMERICAN QUALITY POWDER COATING",
+            invoice_number="11004",
+            po="59165",
+            pos=["59165"],
+            amount=2600.0,
+            lines=lines,
+        ),
+        receipts=receipts,
+        flag_outlook=False,
+    )
+    assert kimco.selected, row.get("Why")
+    selected_ids = set(kimco.selected[0][1])
+    assert selected_ids == {24109, 24110}, kimco.selected
+    assert row["Result"] == RESULT_SUCCESS, row.get("Why")
+    assert row["KIMCO id"] == 10010
+
+
 def test_get_failure_is_incomplete_not_void():
     class Boom(FakeKimco):
         def get_item(self, service, item_id):

@@ -240,14 +240,19 @@ def finish_existing_header(
         for line in list(inv.get("lines") or [])
         if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or line.get("description") or ""))
     ]
-    if receipts_selected and merch_inv_lines and existing_receipt_ids:
-        if len(existing_receipt_ids) < len(merch_inv_lines):
-            unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
-            receipt_note = (
-                f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
-                "Select Receipts for each invoice line; do not stop after one."
-            )
-    if receipts_selected and invoice_qty is not None:
+    already_ids = {str(rid) for rid in existing_receipt_ids}
+    leftover_lines = (
+        len(existing_receipt_ids) < len(merch_inv_lines)
+        if merch_inv_lines and existing_receipt_ids
+        else False
+    )
+    if receipts_selected and leftover_lines:
+        unmatched_for_check = merch_inv_lines[len(existing_receipt_ids) :]
+        receipt_note = (
+            f"Unmatched invoice line(s): {format_unmatched_lines(unmatched_for_check)}. "
+            "Select Receipts for each invoice line; do not stop after one."
+        )
+    if receipts_selected and invoice_qty is not None and not leftover_lines:
         posted_qty = receipt_qty_from_invoice_lines(lines)
         if posted_qty is not None and posted_qty != invoice_qty:
             receipt_qty_mismatch = True
@@ -255,16 +260,22 @@ def finish_existing_header(
                 f"Posted receipt qty {posted_qty:g} ≠ invoice qty {invoice_qty:g} "
                 "(will not claim Success on first-open / second-open-on-po)."
             )
-    if need_receipts and not receipts_selected:
+    need_more_receipts = need_receipts and (not receipts_selected or leftover_lines)
+    if need_more_receipts:
         invoice_lines = list(inv.get("lines") or [])
         search_pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
         combined: list[dict[str, Any]] = []
         notes: list[str] = []
-        if receipts is not None:
+        unused_receipts = [
+            row
+            for row in (receipts or [])
+            if str((row or {}).get("id") or "") not in already_ids
+        ]
+        if unused_receipts:
             one = match_receipts(
                 invoice_number=str(out.get("Invoice #") or inv.get("invoice_number") or ""),
                 invoice_lines=invoice_lines,
-                receipts=receipts,
+                receipts=unused_receipts,
                 po_number=str(po) if (po and not multi_po) else None,
                 po_numbers=search_pos or None,
                 invoice_qty=invoice_qty if not invoice_lines else None,
@@ -275,10 +286,14 @@ def finish_existing_header(
             if one.get("ambiguous") and not one.get("matched"):
                 receipt_note = str(one.get("why") or "")
             combined.extend(one.get("matched") or [])
-            unmatched_for_check.extend(one.get("unmatched_lines") or [])
+            unmatched_for_check = list(one.get("unmatched_lines") or [])
             if not receipt_note:
                 receipt_note = " ".join(n for n in notes if n)
-        receipt_ids = receipt_select_refs(combined)
+        receipt_ids = [
+            ref
+            for ref in receipt_select_refs(combined)
+            if str(ref.get("id") if isinstance(ref, dict) else ref) not in already_ids
+        ]
         picked_qty = merchandise_qty(
             [
                 {
@@ -295,6 +310,7 @@ def finish_existing_header(
             and picked_qty is not None
             and picked_qty != invoice_qty
             and not unmatched_for_check
+            and not leftover_lines
         ):
             receipt_qty_mismatch = True
         if receipt_ids:
@@ -302,8 +318,14 @@ def finish_existing_header(
                 select_status = client.try_select_receipts(int(invoice_id), receipt_ids)
             except KimcoError:
                 select_status = "blocked-405"
-            receipts_selected = select_status == "selected"
-        else:
+            receipts_selected = select_status == "selected" or bool(existing_receipt_ids)
+            if select_status == "selected":
+                unmatched_for_check = []
+                receipt_note = (
+                    "Select Receipts added leftover qty+cost matches "
+                    "(ignore PO line order / suffix swap)."
+                )
+        elif not receipts_selected:
             select_status = "blocked-no-receipt-ids"
             receipts_selected = False
 
