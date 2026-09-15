@@ -643,6 +643,96 @@ def first_invoice_page(text: str) -> str:
     return (text or "").split("\f", 1)[0]
 
 
+_AQPC_ITEM = re.compile(
+    r"^\s*(\d+)\.\s+([A-Z0-9][A-Z0-9/_-]{2,})\s+(.*)$",
+    flags=re.I,
+)
+_AQPC_ITEM_INLINE = re.compile(
+    r"^\s*(\d+)\.\s+([A-Z0-9][A-Z0-9/_-]{2,})\s+(.+?)\s+"
+    r"(\d+(?:\.\d+)?)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+_AQPC_QTY_ROW = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+\$([\d,]+\.\d{2})\s+\$([\d,]+\.\d{2})\s*$"
+)
+_AQPC_STOP = re.compile(r"^(total|amount\s+due|balance\s+due|subtotal)\b", flags=re.I)
+
+
+def looks_like_aqpc_intuit(text: str, vendor: str = "") -> bool:
+    """QuickBooks payment-request invoices from American Quality Powder Coating."""
+    blob = f"{vendor}\n{text or ''}"
+    return bool(re.search(r"american\s+quality\s+powder|aqpc", blob, flags=re.I))
+
+
+def extract_aqpc_intuit_lines(text: str) -> list[dict[str, Any]]:
+    """AQPC Intuit/QBO rows: ``1. PART  desc`` then ``100  $3.00  $300.00``.
+
+    The leading ``1.`` is the line number, not qty. Generic steel-line parsing
+    treated ``End Plate`` + ``1.`` as qty 1 (11002 is qty 100 @ $3).
+    """
+    lines: list[dict[str, Any]] = []
+    pending: dict[str, Any] | None = None
+    for raw in (text or "").splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if _AQPC_STOP.match(stripped):
+            break
+        inline = _AQPC_ITEM_INLINE.match(stripped)
+        if inline:
+            qty = parse_money(inline.group(4))
+            unit = parse_money(inline.group(5))
+            amt = parse_money(inline.group(6))
+            part = inline.group(2).strip()
+            desc = re.sub(r"\s+", " ", inline.group(3)).strip()
+            lines.append(
+                {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amt,
+                    "unit_price": unit,
+                    "po_line": int(inline.group(1)),
+                    "wo": None,
+                    "label": f"{part} {desc}".strip()[:80],
+                    "description": desc[:120],
+                }
+            )
+            pending = None
+            continue
+        headed = _AQPC_ITEM.match(stripped)
+        if headed:
+            pending = {
+                "line_no": int(headed.group(1)),
+                "part": headed.group(2).strip(),
+                "desc": re.sub(r"\s+", " ", headed.group(3)).strip(),
+            }
+            continue
+        money = _AQPC_QTY_ROW.match(stripped)
+        if money and pending:
+            qty = parse_money(money.group(1))
+            unit = parse_money(money.group(2))
+            amt = parse_money(money.group(3))
+            part = str(pending.get("part") or "")
+            desc = str(pending.get("desc") or "")
+            lines.append(
+                {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amt,
+                    "unit_price": unit,
+                    "po_line": pending.get("line_no"),
+                    "wo": None,
+                    "label": f"{part} {desc}".strip()[:80],
+                    "description": desc[:120],
+                }
+            )
+            pending = None
+            continue
+        if pending and not _AQPC_QTY_ROW.match(stripped):
+            pending["desc"] = f"{pending['desc']} {stripped}".strip()
+    return lines
+
+
 def extract_3p_lines(text: str) -> list[dict[str, Any]]:
     """3P Industries face-page lines: `PO # 58766` then `qty part ... unit ext`."""
     page = first_invoice_page(text)
@@ -1708,6 +1798,10 @@ def parse_invoice_text(
         check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
     fees = extract_fees(pdf_text)
     lines = extract_invoice_lines(pdf_text)
+    if looks_like_aqpc_intuit(pdf_text, vendor):
+        aqpc_lines = extract_aqpc_intuit_lines(pdf_text)
+        if aqpc_lines:
+            lines = aqpc_lines
     if looks_like_legacy_sales_invoice(pdf_text) or "legacy wire" in vendor_l:
         legacy_lines, legacy_fees = extract_legacy_wire_bill(pdf_text)
         if legacy_lines:

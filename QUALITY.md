@@ -325,3 +325,26 @@ PDF attached, 1 receipt line qty 1 @ 275 (receipt 23186). **Posted**
 **not** create a second header. Sheet Result is HOLD `already-entered`.
 Outlook restamped **Entered in AI**. No Treyce Mail.Send. Do not void
 10003. Do not invent Success on this proof row.
+
+### Next AQPC guest enter (2026-09-15, after Kyle posted 10918/10920/10921)
+
+Live GET first: **10918 = 10002**, **10920 = 10005**, **10921 = 10004**
+(vendor 22, Type 3, PDF + receipts, posted from `9_15_26-KC` 713) — same
+already-entered class as 10917/10003. Did **not** touch those emails or
+create second headers.
+
+Touched **one** unflagged payment-request:
+`New payment request from AMERICAN QUALITY POWDER COATING - invoice 11002`.
+Guest Playwright (no `AP_CLERK_INTUIT_STORAGE_STATE`) downloaded a
+23482-byte `%PDF-1.4` from the Intuit **View details** click (not
+`sale/viewed`). PDF-is-truth: invoice **11002**, date 9/14/26, PO **59172**,
+amount **300.00**, line `AMT-5003558` qty **100** @ $3.00 (the leading
+`1.` is the QBO line number, not qty).
+
+Created **KIMCO 10007** on batch `API Agent - 9/15/26` (**711**). 711 was
+Status 1 / Unposted_Count 0; a second same-name batch create returned 400;
+reopen PUT Status 0 returned 405; header create on 711 still returned 200.
+Live GET: vendor 22, Type 3, PDF attached, Select Receipts **24104** qty
+100 @ 3.00, no fees. Outlook **Entered in AI**. No Treyce Mail.Send.
+Sheet: `runs/AP-run-2026-09-15-aqpc-next.xlsx`. Do not void 10007.
+Do not invent Success for 10918/10920/10921.
