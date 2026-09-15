@@ -1,8 +1,10 @@
-"""Best-effort public PDF download from email body links.
+"""Best-effort PDF download from email body links.
 
 Used when a vendor (AQPC) sends a download URL instead of a PDF attachment.
-Unauthenticated/simple GETs only. Auth walls are HOLD pdf-behind-link, not
-silent not-a-bill. No live mailbox I/O lives here — callers pass text/HTTP.
+Cheap unauthenticated GET first. Auth walls escalate to a browser session
+(`browser_pdf`) when enabled. True failure after that is HOLD
+pdf-behind-link, not silent not-a-bill. No live mailbox I/O lives here —
+callers pass text/HTTP and optional injected fetchers.
 """
 
 from __future__ import annotations
@@ -45,7 +47,8 @@ def prefer_pdf_links(links: list[str]) -> list[str]:
     pay = [
         u
         for u in links
-        if u not in pdfs and re.search(r"invoice|payment|pay\.|download|aqpowder", u, flags=re.I)
+        if u not in pdfs
+        and re.search(r"invoice|payment|pay\.|download|aqpowder|intuit", u, flags=re.I)
     ]
     rest = [u for u in links if u not in pdfs and u not in pay]
     return pdfs + pay + rest
@@ -135,4 +138,56 @@ def download_first_public_pdf(
         last = result
     if saw_auth:
         last["reason"] = REASON_PDF_BEHIND_LINK
+    return last
+
+
+def download_first_pdf(
+    text: str | None,
+    *,
+    getter: Callable[..., Any] | None = None,
+    browser: Callable[..., Any] | None = None,
+    timeout: float = 15.0,
+    browser_timeout: float | None = None,
+) -> dict[str, Any]:
+    """Unauth GET first; escalate to browser when that does not yield a PDF.
+
+    ``browser`` is a ``try_browser_download``-compatible callable for tests.
+    Production uses Playwright + the Intuit storage_state env path.
+    """
+    result = download_first_public_pdf(text, getter=getter, timeout=timeout)
+    if result.get("ok") and result.get("content"):
+        result["method"] = "unauth"
+        result["browser_tried"] = False
+        result["browser_failure"] = ""
+        return result
+    links = prefer_pdf_links(extract_https_links(text))
+    if not links:
+        result["method"] = "unauth"
+        result["browser_tried"] = False
+        result["browser_failure"] = ""
+        return result
+
+    from ap_clerk.browser_pdf import browser_pdf_enabled, try_browser_download
+
+    if browser is None and not browser_pdf_enabled():
+        result["method"] = "unauth"
+        result["browser_tried"] = False
+        result["browser_failure"] = "disabled"
+        return result
+
+    last = dict(result)
+    for url in links[:6]:
+        br = try_browser_download(url, downloader=browser, timeout=browser_timeout)
+        br["url"] = url
+        if br.get("ok") and br.get("content"):
+            br["method"] = "browser"
+            br["browser_tried"] = True
+            return br
+        last = br
+    last["ok"] = False
+    last["content"] = None
+    last["reason"] = REASON_PDF_BEHIND_LINK
+    last["method"] = "browser"
+    last["browser_tried"] = True
+    last.setdefault("url", links[0])
     return last

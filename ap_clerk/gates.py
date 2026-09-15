@@ -49,6 +49,17 @@ GATE_PDF_LINK = "pdf-behind-link"
 GATE_VENDOR = "vendor-mismatch"
 GATE_ALREADY_ENTERED = "already-entered"
 
+BROWSER_FAIL_LABELS = {
+    "login-required": "login required",
+    "mfa": "MFA required",
+    "timeout": "timeout",
+    "no-session": "no Intuit session (set AP_CLERK_INTUIT_STORAGE_STATE)",
+    "playwright-missing": "Playwright not installed",
+    "no-pdf-after-browser": "no PDF after browser navigation",
+    "browser-error": "browser error",
+    "disabled": "browser download disabled",
+}
+
 ATTACH_OK = frozenset({"attached"})
 PDF_FIELD_SOURCES = frozenset({"pdf", "pdf-prefix"})
 
@@ -119,6 +130,25 @@ def why_hold(gate: str, detail: str) -> str:
         prefix = "HOLD parse-error (preflight-parse)"
         return f"{prefix}: {clean}" if clean else f"{prefix}."
     return f"HOLD ({gate}): {clean}" if clean else f"HOLD ({gate})."
+
+
+def why_pdf_behind_link_detail(inv: dict[str, Any]) -> str:
+    """Why text after unauth GET and (when attempted) browser/session download."""
+    vendor = str(inv.get("vendor") or "vendor")
+    number = str(inv.get("invoice_number") or "").strip() or "unknown"
+    host = str(inv.get("pdf_link_host") or "")
+    host_bit = f" host {host}" if host else ""
+    if inv.get("browser_tried"):
+        raw = str(inv.get("browser_failure") or "").strip()
+        fail_bit = BROWSER_FAIL_LABELS.get(raw, raw or "download failed")
+        return (
+            f"{vendor} invoice #{number} PDF is behind a download link{host_bit}. "
+            f"Browser/session was tried; failed ({fail_bit}). Not a silent not-a-bill."
+        )
+    return (
+        f"{vendor} invoice #{number} PDF is behind a download link{host_bit} "
+        "(auth wall or failed unauthenticated GET). Not a silent not-a-bill."
+    )
 
 
 def why_skipped(gate: str, detail: str) -> str:
@@ -372,15 +402,7 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     ) or str(inv.get("hold_reason") or "").strip().lower() in {"auto-pay", "auto pay"}:
         return False, why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
     if str(inv.get("hold_reason") or "").strip().lower() == GATE_PDF_LINK or inv.get("pdf_behind_link"):
-        vendor = str(inv.get("vendor") or "vendor")
-        number = str(inv.get("invoice_number") or "").strip() or "unknown"
-        host = str(inv.get("pdf_link_host") or "")
-        host_bit = f" host {host}" if host else ""
-        return False, why_hold(
-            GATE_PDF_LINK,
-            f"{vendor} invoice #{number} PDF is behind a download link{host_bit} "
-            "(auth wall or failed unauthenticated GET). Not a silent not-a-bill.",
-        )
+        return False, why_hold(GATE_PDF_LINK, why_pdf_behind_link_detail(inv))
     if inv.get("check_stop") or str(inv.get("hold_reason") or "").strip().upper() == "CHECK STOP":
         # Real notices are mailbox noise (Skipped), not a fake parse-error HOLD.
         return True, ""

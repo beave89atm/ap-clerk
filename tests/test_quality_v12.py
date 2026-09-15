@@ -56,6 +56,7 @@ from ap_clerk.pdf_invoice import (
 from ap_clerk.pdf_links import (
     REASON_PDF_BEHIND_LINK,
     classify_download,
+    download_first_pdf,
     download_first_public_pdf,
     extract_https_links,
 )
@@ -507,10 +508,11 @@ def test_note08_melody_channell_not_noise():
 
 
 def test_note09_aqpc_pdf_behind_link():
-    """NOTE-09: AQPC https link — auth wall HOLDs pdf-behind-link, never silent skip/Success."""
+    """NOTE-09: AQPC https / Intuit link — auth after browser HOLDs, never skip/Success."""
     n = NOTES["NOTE-09"]
     links = extract_https_links(n["body"])
     assert links and links[0].startswith("https://")
+    assert n["link_host"] in links[0]
     reason = classify_download(
         status_code=401,
         content=b"<html>please sign in</html>",
@@ -524,16 +526,24 @@ def test_note09_aqpc_pdf_behind_link():
             "vendor": n["vendor"],
             "hold_reason": "pdf-behind-link",
             "pdf_behind_link": True,
+            "pdf_link_host": n["link_host"],
+            "browser_tried": True,
+            "browser_failure": "login-required",
         }
     )
     assert ok is False
     assert GATE_PDF_LINK in why
+    assert "browser/session was tried" in why.lower()
+    assert "login required" in why.lower()
     row, _ = _row(
         {
             "vendor": n["vendor"],
             "invoice_number": "",
             "hold_reason": "pdf-behind-link",
             "pdf_behind_link": True,
+            "pdf_link_host": n["link_host"],
+            "browser_tried": True,
+            "browser_failure": "login-required",
             "action": "hold",
         }
     )
@@ -541,9 +551,9 @@ def test_note09_aqpc_pdf_behind_link():
     assert_never_success(row["Result"], note_id="NOTE-09", detail=row["Why"])
     assert row["KIMCO id"] == ""
     assert "not-a-bill" not in row["Why"].lower() or "pdf-behind-link" in row["Why"]
-    # Deferred stub: authenticated portals stay HOLD, never Success.
-    deferred = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-09")
-    assert deferred.get("deferred")
+    note = next(item for item in TREYCE_NOTES_V12 if item["id"] == "NOTE-09")
+    assert not note.get("deferred")
+    assert "browser" in str(note.get("expected") or "").lower()
     assert_never_success(RESULT_SUCCESS if False else RESULT_HOLD, note_id="NOTE-09")
 
 
@@ -2281,6 +2291,129 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     assert n["link_host"] in row["Why"] or "aqpowder" in row["Why"].lower()
     assert "not-a-bill" not in row["Why"].lower() or "pdf-behind-link" in row["Why"]
     assert row["Result"] != RESULT_SKIPPED
+
+    intuit_body = n["intuit_body_10917"]
+    intuit_links = extract_https_links(intuit_body)
+    assert intuit_links and n["intuit_host"] in intuit_links[0]
+
+    class AuthWall:
+        status_code = 401
+        content = b"<html>please sign in</html>"
+        headers = {"Content-Type": "text/html"}
+        text = "please sign in to Intuit"
+
+    def unauth_wall(url, **kwargs):
+        return AuthWall()
+
+    pdf_10917 = (
+        b"%PDF-1.4 AMERICAN QUALITY POWDER COATING Invoice Number 10917 Amount Due 125.00"
+    )
+
+    def browser_ok(url, **kwargs):
+        assert n["intuit_host"] in url
+        return {"ok": True, "content": pdf_10917, "reason": "ok"}
+
+    escalated = download_first_pdf(intuit_body, getter=unauth_wall, browser=browser_ok)
+    assert escalated.get("ok") is True
+    assert escalated.get("method") == "browser"
+    assert escalated.get("browser_tried") is True
+    assert escalated["content"][:5] == b"%PDF-"
+
+    class BrowserSuccessGraph(FetchGraph):
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc-browser-ok",
+                    "subject": n["subject"],
+                    "receivedDateTime": "2026-08-18T12:10:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": intuit_body,
+                    "from": {
+                        "emailAddress": {
+                            "name": n["vendor"],
+                            "address": "quickbooks@notification.intuit.com",
+                        }
+                    },
+                }
+            ]
+
+        def get_message(self, mailbox, message_id, select="id"):
+            return {"id": message_id, "bodyPreview": intuit_body, "body": {"content": intuit_body}}
+
+        def download_public_pdf_from_text(self, text):
+            return download_first_pdf(text, getter=unauth_wall, browser=browser_ok)
+
+    selected_br, skipped_br = pull_recent_bills(
+        BrowserSuccessGraph(), limit=1, pdf_dir=tmp_path / "pdfs-browser-ok"
+    )
+    skip_br = [row for row in skipped_br if row.get("class") != "already-flagged"]
+    assert not skip_br
+    assert selected_br
+    browser_bill = selected_br[0]
+    assert browser_bill.get("invoice_number") == n["invoice_number"]
+    assert browser_bill.get("hold_reason") != "not-a-bill"
+    assert browser_bill.get("pdf_path")
+    assert Path(browser_bill["pdf_path"]).is_file()
+    assert "10917" in Path(browser_bill["pdf_path"]).name
+    br_row, _ = _row(browser_bill)
+    assert br_row["Result"] != RESULT_SKIPPED
+    assert "no-pdf-on-vm" not in br_row["Why"]
+
+    def browser_login_fail(url, **kwargs):
+        return {
+            "ok": False,
+            "content": None,
+            "reason": REASON_PDF_BEHIND_LINK,
+            "browser_failure": "login-required",
+        }
+
+    class BrowserAuthGraph(FetchGraph):
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-aqpc-browser-fail",
+                    "subject": n["subject_10918"],
+                    "receivedDateTime": "2026-08-18T12:15:00Z",
+                    "hasAttachments": False,
+                    "bodyPreview": n["intuit_body_10918"],
+                    "from": {
+                        "emailAddress": {
+                            "name": n["vendor"],
+                            "address": "quickbooks@notification.intuit.com",
+                        }
+                    },
+                }
+            ]
+
+        def get_message(self, mailbox, message_id, select="id"):
+            body = n["intuit_body_10918"]
+            return {"id": message_id, "bodyPreview": body, "body": {"content": body}}
+
+        def download_public_pdf_from_text(self, text):
+            return download_first_pdf(text, getter=unauth_wall, browser=browser_login_fail)
+
+    selected_fail, skipped_fail = pull_recent_bills(
+        BrowserAuthGraph(), limit=1, pdf_dir=tmp_path / "pdfs-browser-fail"
+    )
+    skip_fail = [row for row in skipped_fail if row.get("class") != "already-flagged"]
+    assert not skip_fail
+    assert selected_fail
+    fail_bill = selected_fail[0]
+    assert fail_bill.get("hold_reason") == "pdf-behind-link"
+    assert fail_bill.get("invoice_number") == "10918"
+    assert fail_bill.get("browser_tried") is True
+    assert fail_bill.get("browser_failure") == "login-required"
+    assert n["intuit_host"] in str(fail_bill.get("pdf_link_host") or "")
+    fail_row, _ = _row(fail_bill)
+    assert fail_row["Result"] == RESULT_HOLD
+    assert fail_row["Result"] != RESULT_SKIPPED
+    assert_never_success(fail_row["Result"], note_id="NOTE-21", detail=fail_row["Why"])
+    assert "pdf-behind-link" in fail_row["Why"]
+    assert "browser/session was tried" in fail_row["Why"].lower()
+    assert "login required" in fail_row["Why"].lower()
+    assert "10918" in fail_row["Why"]
+    assert n["intuit_host"] in fail_row["Why"]
+    assert "AI Skipped" not in fail_row["Why"]
 
 
 def test_never_repeat_kimco_vendor_invoice_never_skip(tmp_path: Path):

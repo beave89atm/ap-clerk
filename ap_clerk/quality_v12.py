@@ -105,9 +105,13 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "gate": GATE_PDF_LINK,
         "cases": ("AQPC https download link, no attachment",),
         "8_16_bug": "Silent not-a-bill when the PDF was only a link.",
-        "expected": "Best-effort public GET. Auth wall → HOLD pdf-behind-link, not Skipped. Never Success.",
+        "expected": (
+            "Unauth GET first, then browser/session click-through (Playwright + "
+            "AP_CLERK_INTUIT_STORAGE_STATE). PDF → header + attach. Auth/MFA/timeout "
+            "after browser → HOLD pdf-behind-link (Why names vendor / # / host and that "
+            "browser/session was tried). Never Skipped. Never Success."
+        ),
         "never_success": True,
-        "deferred": "Authenticated vendor portals are HOLD pdf-behind-link until Kyle adds a download path.",
     },
     {
         "id": "NOTE-10",
@@ -319,13 +323,14 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "expected": (
             "AQPC / American Quality Powder Coating is an invoice (never Skipped). "
-            "Extract the https payment-request link and GET the PDF (unauth, follow "
-            "redirects). Success → header + attach + PDF-is-truth. Auth wall → HOLD "
-            "pdf-behind-link naming vendor, invoice #, and link host. Never no-pdf-on-vm "
-            "after a fetched file."
+            "Extract the https payment-request / Intuit link, unauth GET (follow "
+            "redirects), then browser/session if the GET hits an auth wall. Success → "
+            "header + attach + PDF-is-truth. True failure after browser → HOLD "
+            "pdf-behind-link naming vendor, invoice #, host, and that browser/session "
+            "was tried (login required / MFA / timeout). Never no-pdf-on-vm after a "
+            "fetched file. Never AI Skipped."
         ),
         "never_success": True,
-        "deferred": "Authenticated vendor portals stay HOLD pdf-behind-link.",
     },
     {
         "id": "NOTE-22",

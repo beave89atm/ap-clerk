@@ -1867,7 +1867,7 @@ PAST_DUE_LIST_RE = re.compile(
 INVOICE_HINT_RE = re.compile(r"\b(invoice|inv[#\s.-]|bill\b)", flags=re.I)
 # Link-PDF: https invoice / download / .pdf (AQPC payment-request, vendor portals).
 HTTPS_INVOICE_LINK_RE = re.compile(
-    r"https://[^\s<>\"']*(?:invoice|inv[#/?]|download|payment.?request|\.pdf|pay\.)[^\s<>\"']*",
+    r"https://[^\s<>\"']*(?:invoice|inv[#/?]|download|payment.?request|\.pdf|pay\.|intuit)[^\s<>\"']*",
     flags=re.I,
 )
 
