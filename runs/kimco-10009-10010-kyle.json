@@ -1,0 +1,103 @@
+{
+  "proof": "kimco-10009-10010-recheck",
+  "invent": false,
+  "void": false,
+  "new_headers": false,
+  "select_receipts_changed": false,
+  "as_of": "2026-09-15",
+  "verdict": {
+    "10009": "HOLD correct. Only receipt on PO 59083 is already selected. Price gap is purchasing, not a missed receipt.",
+    "10010": "HOLD correct. Four matching lines already selected. Leftover 24109/24110 are the 04/05 qty swap. Do not cross-match. Do not invent Success."
+  },
+  "invoices": {
+    "10009": {
+      "invoice_number": "11003",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59083-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 1.55,
+      "pdf_amount": 10.0,
+      "batch_id": 711,
+      "void": false,
+      "posted": null,
+      "lines": [
+        {
+          "line_id": 20479,
+          "part": "AMT-5003115 Extension Platform Weld (PDF)",
+          "wo": "SO34821.02.W000 - 5003115-011",
+          "qty": 2.0,
+          "unit_price": 0.78,
+          "amount": 1.55,
+          "receipt_id": 24103,
+          "receipt_slip": "PO59083-AMERICAN QUALITY POWDERCOATING - 2026/9/15",
+          "po_line": "PO59083-01"
+        }
+      ]
+    },
+    "10010": {
+      "invoice_number": "11004",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59165-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 2400.0,
+      "pdf_amount": 2600.0,
+      "batch_id": 711,
+      "void": false,
+      "posted": null,
+      "lines": [
+        {"line_id": 20481, "pdf_part": "AMT-6001232 Rotating Basket", "qty": 5.0, "unit_price": 445.0, "amount": 2225.0, "receipt_id": 24106, "po_line": "PO59165-01"},
+        {"line_id": 20482, "pdf_part": "AMT-5003753 Z Bracket", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "receipt_id": 24107, "po_line": "PO59165-02"},
+        {"line_id": 20483, "pdf_part": "AMT-5003753 Z Bracket", "qty": 5.0, "unit_price": 5.0, "amount": 25.0, "receipt_id": 24108, "po_line": "PO59165-03"},
+        {"line_id": 20484, "pdf_part": "AMT-5003750 Crank Swivel", "qty": 5.0, "unit_price": 25.0, "amount": 125.0, "receipt_id": 24111, "po_line": "PO59165-06"}
+      ],
+      "unmatched_pdf": [
+        "AMT-5003741 Panel Decal qty 15 @ 10.00 = 150.00 vs PO59165-04 / 24109 qty 5 @ 10.00 = 50.00 (open)",
+        "AMT-5003750-002 Gear cover qty 5 @ 10.00 = 50.00 vs PO59165-05 / 24110 qty 15 @ 10.00 = 150.00 (open)"
+      ]
+    }
+  },
+  "pdfs": {
+    "11003": {
+      "source": "KIMCO 10009 attachment 2026-09-15_invoice-11003.pdf",
+      "invoice_number": "11003",
+      "date": "2026-09-14",
+      "po": "59083",
+      "total": 10.0,
+      "lines": [
+        {"part": "AMT-5003115", "desc": "Extension Platform Weld Primed and PC White RAL 9016(SO34821)", "qty": 2.0, "rate": 5.0, "amount": 10.0}
+      ]
+    },
+    "11004": {
+      "source": "KIMCO 10010 attachment 2026-09-15_invoice-11004.pdf",
+      "invoice_number": "11004",
+      "date": "2026-09-15",
+      "po": "59165",
+      "total": 2600.0,
+      "lines": [
+        {"n": 1, "part": "AMT-6001232", "qty": 5.0, "rate": 445.0, "amount": 2225.0, "match": "24106 PO59165-01"},
+        {"n": 2, "part": "AMT-5003753", "qty": 5.0, "rate": 5.0, "amount": 25.0, "match": "24107 PO59165-02"},
+        {"n": 3, "part": "AMT-5003753", "qty": 5.0, "rate": 5.0, "amount": 25.0, "match": "24108 PO59165-03"},
+        {"n": 4, "part": "AMT-5003741", "qty": 15.0, "rate": 10.0, "amount": 150.0, "match": "HOLD vs 24109 PO59165-04 qty 5"},
+        {"n": 5, "part": "AMT-5003750-002", "qty": 5.0, "rate": 10.0, "amount": 50.0, "match": "HOLD vs 24110 PO59165-05 qty 15"},
+        {"n": 6, "part": "AMT-5003750", "qty": 5.0, "rate": 25.0, "amount": 125.0, "match": "24111 PO59165-06"}
+      ]
+    }
+  },
+  "receipts": {
+    "59083": [
+      {"id": 24103, "po_line": "PO59083-01", "qty": 2.0, "unit": 0.78, "ext": 1.55, "invoiced": true, "ap": "11003"}
+    ],
+    "59165": [
+      {"id": 24106, "po_line": "PO59165-01", "qty": 5.0, "unit": 445.0, "ext": 2225.0, "invoiced": true, "ap": "11004"},
+      {"id": 24107, "po_line": "PO59165-02", "qty": 5.0, "unit": 5.0, "ext": 25.0, "invoiced": true, "ap": "11004"},
+      {"id": 24108, "po_line": "PO59165-03", "qty": 5.0, "unit": 5.0, "ext": 25.0, "invoiced": true, "ap": "11004"},
+      {"id": 24109, "po_line": "PO59165-04", "qty": 5.0, "unit": 10.0, "ext": 50.0, "invoiced": null, "ap": null},
+      {"id": 24110, "po_line": "PO59165-05", "qty": 15.0, "unit": 10.0, "ext": 150.0, "invoiced": null, "ap": null},
+      {"id": 24111, "po_line": "PO59165-06", "qty": 5.0, "unit": 25.0, "ext": 125.0, "invoiced": true, "ap": "11004"}
+    ]
+  },
+  "next_action": {
+    "10009": "@Shawn McKibben: unreceive 24103, change PO59083-01 unit from 0.78 to 5.00, re-receive. Do not post PPV (84.5%). Do not alter receipt unit in GI.",
+    "10010": "Buyer comment/tag on PO59165-04 qty 5 vs invoice Panel Decal 15, and PO59165-05 qty 15 vs invoice Gear cover 5. Leave 24109/24110 unselected until purchasing fixes the swap."
+  }
+}

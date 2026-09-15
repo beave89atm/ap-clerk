@@ -376,3 +376,11 @@ Entered with issues. 11004: invoice line 4 qty 15 vs PO59165-04 qty 5 and
 line 5 qty 5 vs PO59165-05 qty 15 (same $10 unit; qtys look swapped);
 partial Select Receipts on the four matching lines; Entered with issues.
 Do not void 10008–10011. Do not invent Success for 11003/11004.
+
+**Live recheck 2026-09-15 (GET invent=false, no void, no new headers):**
+HOLDs stand. 10009 still one line: 24103 / PO59083-01 qty 2 @ 0.78 = 1.55
+(PDF 2 @ $5.00 = $10.00). Only receipt on 59083; already selected. 10010
+still four posted lines ($2,400). Open leftovers 24109 PO59165-04 qty 5 @
+$10 and 24110 PO59165-05 qty 15 @ $10. Do not cross-select those to
+“finish” $2,600. Select Receipts unchanged. Code: `PO59165-04` now
+parses as line 4 so qty-unique cannot steal the swapped line.

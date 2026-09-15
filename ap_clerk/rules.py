@@ -609,13 +609,69 @@ def _same_part(left: Any, right: Any) -> bool:
     return parts_overlap(left, right)
 
 
+_PO_LINE_SUFFIX = re.compile(r"^PO\s*\d{4,6}-0*(\d+)$", flags=re.I)
+
+
+def po_line_number(value: Any) -> int | None:
+    """Invoice `4` / `04` and KIMCO `PO59165-04` are the same PO line.
+
+    Do not parse vendor parts such as `AMT-5003750-002` as line 2.
+    """
+    if value in (None, ""):
+        return None
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        number = int(value)
+        return number if number >= 0 else None
+    text = str(value).strip()
+    if re.fullmatch(r"\d+", text):
+        return int(text)
+    match = _PO_LINE_SUFFIX.match(text)
+    if match:
+        return int(match.group(1))
+    return None
+
+
 def _same_line_no(left: Any, right: Any) -> bool:
+    a, b = po_line_number(left), po_line_number(right)
+    if a is not None and b is not None:
+        return a == b
     if left in (None, "") or right in (None, ""):
         return False
     try:
         return int(left) == int(right)
     except (TypeError, ValueError):
         return str(left).strip() == str(right).strip()
+
+
+def _receipt_line_token(receipt: dict[str, Any] | None) -> Any:
+    """PO line from a receipt: explicit po_line, else `PO59165-04` in part/name."""
+    if not isinstance(receipt, dict):
+        return None
+    for key in ("po_line", "line", "line_no"):
+        if receipt.get(key) not in (None, ""):
+            return receipt.get(key)
+    for key in ("part", "item", "name", "slip"):
+        raw = receipt.get(key)
+        if _is_po_line_receipt_part(raw):
+            return raw
+    return None
+
+
+def _line_number_conflicts(invoice_line: dict[str, Any], receipt: dict[str, Any]) -> bool:
+    """True when both sides name a PO line and those lines differ.
+
+    AQPC 11004 leftover: invoice line 4 qty 15 must not take PO59165-05 qty 15.
+    """
+    left = None
+    if isinstance(invoice_line, dict):
+        left = invoice_line.get("po_line") or invoice_line.get("line")
+    right = _receipt_line_token(receipt)
+    a, b = po_line_number(left), po_line_number(right)
+    if a is None or b is None:
+        return False
+    return a != b
 
 
 def _same_qty(left: Any, right: Any) -> bool:
@@ -734,7 +790,7 @@ def _line_match_score(invoice_line: dict[str, Any], other: dict[str, Any]) -> in
     ):
         score += 100
     score += description_match_score(_line_description(invoice_line), _line_description(other))
-    if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), other.get("po_line") or other.get("line") or other.get("line_no")):
+    if _same_line_no(invoice_line.get("po_line") or invoice_line.get("line"), _receipt_line_token(other)):
         score += 50
     wo_left = invoice_line.get("wo") or invoice_line.get("work_order")
     wo_right = other.get("wo") or other.get("work_order")
@@ -1403,7 +1459,7 @@ def match_receipts(
             rec_po = receipt_po(receipt)
             if search_po and rec_po and rec_po != str(search_po):
                 continue
-            if _part_conflicts(inv_line, receipt):
+            if _part_conflicts(inv_line, receipt) or _line_number_conflicts(inv_line, receipt):
                 continue
             if _same_qty(_receipt_qty(receipt), line_qty):
                 pool.append(receipt)
@@ -1461,11 +1517,24 @@ def match_receipts(
         line_qty = _line_qty(inv_line)
         line_amt = _line_amount(inv_line)
         if line_qty is not None:
-            enough = [
-                (s, r)
-                for s, r in scored
-                if _receipt_qty(r) is None or _receipt_qty(r) >= line_qty
-            ]
+            enough = []
+            for score, receipt in scored:
+                if _line_number_conflicts(inv_line, receipt):
+                    continue
+                rec_qty = _receipt_qty(receipt)
+                if rec_qty is None:
+                    enough.append((score, receipt))
+                    continue
+                named = _same_line_no(
+                    inv_line.get("po_line") or inv_line.get("line"),
+                    _receipt_line_token(receipt),
+                )
+                if named and not _same_qty(rec_qty, line_qty):
+                    # PO59165-04 qty 5 is not cover for invoice line 4 qty 15
+                    # (and PO-05 qty 15 is not cover for line 5 qty 5).
+                    continue
+                if rec_qty >= line_qty:
+                    enough.append((score, receipt))
             if not enough:
                 return False
             scored = enough
@@ -1577,8 +1646,17 @@ def match_receipts(
             pool = [
                 r
                 for r in _open_on_po(search_po or None)
-                if not _part_conflicts(inv_line, r)
+                if not _part_conflicts(inv_line, r) and not _line_number_conflicts(inv_line, r)
             ]
+            line_qty = _line_qty(inv_line)
+            if po_line_number(inv_line.get("po_line") or inv_line.get("line")) is not None and line_qty is not None:
+                # Named PO line: exact qty only. Do not cover invoice line 5
+                # qty 5 with the leftover PO59165-05 qty 15 (11004 swap).
+                pool = [
+                    r
+                    for r in pool
+                    if _receipt_qty(r) is None or _same_qty(_receipt_qty(r), line_qty)
+                ]
             if not pool:
                 leftover.append(inv_line)
                 unmatched_candidates[id(inv_line)] = _open_on_po(search_po or None)
