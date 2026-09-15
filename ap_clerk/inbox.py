@@ -36,7 +36,16 @@ from ap_clerk.graph import (
     assert_allowed_mailbox,
     is_already_flagged,
 )
-from ap_clerk.pdf_invoice import PO_DOCUMENT_FILE_RE, parse_invoice_pdf
+from ap_clerk.pdf_invoice import (
+    ATTACHMENT_PAST_DUE,
+    ATTACHMENT_STATEMENT,
+    NON_INVOICE_ATTACHMENT_KINDS,
+    PO_DOCUMENT_FILE_RE,
+    RECEIPT_SCAN_FILE_RE,
+    classify_attachment,
+    filename_looks_like_invoice,
+    parse_invoice_pdf,
+)
 from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_pdf
 from ap_clerk.rules import (
     CHICAGO,
@@ -60,6 +69,7 @@ STATEMENT_FILE_RE = re.compile(
 # A vendor invoice email may also attach the customer's PO. Do not enter the PO PDF as a bill
 # (9/7 created Legacy 9888 / invoice # 58861 from Purchase_Order_58861.pdf).
 PO_FILE_RE = PO_DOCUMENT_FILE_RE
+RECEIPT_FILE_RE = RECEIPT_SCAN_FILE_RE
 
 LOGGER = logging.getLogger("ap_clerk")
 
@@ -238,12 +248,30 @@ def pull_recent_bills(
         message["attachment_names"] = names
         examined.append(message)
         from_name = sender_name(message)
-        if any(STATEMENT_FILE_RE.search(n or "") for n in names):
+        klass = classify_mail(
+            subject=subject, attachment_names=names, preview=preview, from_name=from_name
+        )
+        # Mixed email: invoice PDF + statement/POD/receipt is still an invoice email.
+        # Classify each attachment; do not skip the whole message.
+        if any(filename_looks_like_invoice(n) for n in names) and klass in {
+            "statement",
+            "pod",
+            "not-a-bill",
+        }:
+            klass = "invoice"
+        elif (
+            names
+            and not any(filename_looks_like_invoice(n) for n in names)
+            and any(STATEMENT_FILE_RE.search(n or "") for n in names)
+        ):
             klass = "statement"
-        else:
-            klass = classify_mail(
-                subject=subject, attachment_names=names, preview=preview, from_name=from_name
-            )
+        elif (
+            names
+            and not any(filename_looks_like_invoice(n) for n in names)
+            and all(classify_attachment(filename=n) in NON_INVOICE_ATTACHMENT_KINDS for n in names)
+        ):
+            # Receipt_114745 / POD / packing slip only — disregard, never a bill.
+            klass = "pod"
         if klass == "auto-pay":
             selected.append(
                 {
@@ -397,63 +425,42 @@ def pull_recent_bills(
             continue
         from_addr = sender_address(message)
         chosen_bills: list[dict[str, Any]] = []
-        check_stopped = False
+        ignored_non_invoice = 0
+        ignored_kinds: list[str] = []
+        mail_check_stop = False
         for filename, content in pdfs:
-            if STATEMENT_FILE_RE.search(filename or "") or PO_FILE_RE.search(filename or ""):
+            name_kind = classify_attachment(filename=filename)
+            if name_kind in NON_INVOICE_ATTACHMENT_KINDS:
+                ignored_non_invoice += 1
+                ignored_kinds.append(name_kind)
+                LOGGER.info("Ignoring %s attachment %s", name_kind, filename)
                 continue
             dest = pdf_dir / f"{_safe_filename(str(message.get('receivedDateTime') or '')[:10])}_{_safe_filename(filename)}"
             if dest.exists():
                 dest = pdf_dir / f"{len(selected)+len(skipped)+len(chosen_bills)}_{dest.name}"
             dest.write_bytes(content)
             parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
-            if parsed.get("is_statement_doc"):
-                flag_status = _skip_flag_status(message)
-                skipped.append(
-                    {
-                        "subject": subject,
-                        "receivedDateTime": message.get("receivedDateTime"),
-                        "class": "statement",
-                        "attachment_names": names,
-                        "invoice_number": parsed.get("invoice_number"),
-                        "graph_message_id": message_id,
-                        "vendor": parsed.get("vendor") or from_name,
-                        "Flag status": flag_status,
-                        "hold_reason": "statement",
-                    }
+            kind = str(parsed.get("attachment_class") or classify_attachment(
+                filename=filename,
+                text=str(parsed.get("text") or parsed.get("pdf_text") or ""),
+                subject=subject,
+            ))
+            if kind in NON_INVOICE_ATTACHMENT_KINDS or parsed.get("is_purchase_order_doc") or parsed.get("is_receipt_scan_doc") or parsed.get("is_statement_doc"):
+                ignored_non_invoice += 1
+                ignored_kinds.append(
+                    "statement" if parsed.get("is_statement_doc") else (kind or "not_an_invoice")
                 )
-                LOGGER.info("Skipping statement PDF: %s", subject[:80])
-                check_stopped = True
-                break
-            if parsed.get("is_purchase_order_doc"):
-                LOGGER.info("Skipping PO-not-invoice attachment %s", filename)
+                LOGGER.info("Ignoring %s attachment %s", kind or "non-invoice", filename)
                 continue
             if parsed.get("check_stop"):
-                flag_status = _skip_flag_status(message)
-                skipped.append(
-                    {
-                        "subject": subject,
-                        "receivedDateTime": message.get("receivedDateTime"),
-                        "class": "check_stop",
-                        "attachment_names": names,
-                        "invoice_number": parsed.get("invoice_number"),
-                        "graph_message_id": message_id,
-                        "vendor": parsed.get("vendor") or from_name,
-                        "Flag status": flag_status,
-                        "hold_reason": "CHECK STOP",
-                    }
-                )
-                check_stopped = True
-                break
+                mail_check_stop = True
+                LOGGER.info("Ignoring CHECK STOP notice attachment %s", filename)
+                continue
             extras = list(parsed.pop("siblings", []) or [])
             for bill in [parsed, *extras]:
-                inv_no = bill.get("invoice_number") or extract_subject_invoice_number(subject)
-                if inv_no and not bill.get("invoice_number"):
-                    bill["invoice_number"] = inv_no
-                    sources = dict(bill.get("field_sources") or {})
-                    sources.setdefault("invoice_number", "subject")
-                    bill["field_sources"] = sources
-                # Link-downloaded / known-bill PDFs stay even when pypdf extract is empty
-                # (AQPC 10917: fetch the invoice, attach, continue — never drop as not-a-bill).
+                # Invoice # from THIS invoice PDF only. Never copy subject/filename
+                # onto a packing slip (Receipt_114745 → 114745).
+                inv_no = bill.get("invoice_number")
                 empty_unusable = (
                     bill.get("pdf_text_empty")
                     and bill.get("amount") in (None, "")
@@ -463,9 +470,15 @@ def pull_recent_bills(
                 )
                 if empty_unusable:
                     continue
-                if not bill.get("invoice_number") and not bill.get("amount") and not known_bill and not wants_link:
+                if not inv_no and not bill.get("amount") and not known_bill and not wants_link:
                     continue
-                # Prefer a page-range slice from parse_invoice_pdf; else the full pack.
+                if known_bill and not inv_no and bill.get("pdf_text_empty"):
+                    printed = extract_subject_invoice_number(subject)
+                    if printed:
+                        bill["invoice_number"] = printed
+                        sources = dict(bill.get("field_sources") or {})
+                        sources.setdefault("invoice_number", "subject")
+                        bill["field_sources"] = sources
                 split_path = str(bill.get("pdf_path") or "").strip()
                 if not split_path or not Path(split_path).is_file():
                     bill["pdf_path"] = str(dest)
@@ -476,9 +489,45 @@ def pull_recent_bills(
                 bill["action"] = "create"
                 bill["id"] = message_id
                 chosen_bills.append(bill)
-        if check_stopped:
-            continue
+        chosen_bills = _prefer_printed_invoice_aliases(chosen_bills)
         if not chosen_bills:
+            saw_invoice_named = any(filename_looks_like_invoice(n) for n in names)
+            if ignored_non_invoice and not saw_invoice_named:
+                skip_class = (
+                    "statement"
+                    if any(k in {ATTACHMENT_STATEMENT, ATTACHMENT_PAST_DUE, "statement"} for k in ignored_kinds)
+                    else "pod"
+                )
+                flag_status = _skip_flag_status(message)
+                skipped.append(
+                    {
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "class": skip_class,
+                        "attachment_names": names,
+                        "graph_message_id": message_id,
+                        "vendor": from_name,
+                        "Flag status": flag_status,
+                        "hold_reason": skip_class,
+                    }
+                )
+                LOGGER.info("No invoice PDFs; ignored packing slip/POD/PO/statement attachments")
+                continue
+            if mail_check_stop and not saw_invoice_named:
+                flag_status = _skip_flag_status(message)
+                skipped.append(
+                    {
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "class": "check_stop",
+                        "attachment_names": names,
+                        "graph_message_id": message_id,
+                        "vendor": from_name,
+                        "Flag status": flag_status,
+                        "hold_reason": "CHECK STOP",
+                    }
+                )
+                continue
             if (
                 is_melody_channell(f"{from_name} {subject} {preview}")
                 or is_melody_channell(from_addr)
@@ -533,6 +582,42 @@ def pull_recent_bills(
         # Process oldest-first among the most-recent `limit`
         selected.sort(key=lambda inv: str(inv.get("receivedDateTime") or ""))
     return selected, skipped
+
+
+def _same_email_invoice_key(number: str) -> str:
+    """PS-INV103979 and 103979 are the same invoice on one email."""
+    text = (number or "").strip().upper()
+    match = re.fullmatch(r"PS-INV(\d{5,})", text)
+    if match:
+        return match.group(1)
+    return text
+
+
+def _prefer_printed_invoice_aliases(bills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse PS-INV103979 vs stripped 103979 only. Multiple real invoices stay.
+
+    Does not force one-email-one-row. Two invoice PDFs or a split pack → N rows.
+    """
+    kept: list[dict[str, Any]] = []
+    index_by_key: dict[str, int] = {}
+    for bill in bills:
+        number = str(bill.get("invoice_number") or "")
+        key = _same_email_invoice_key(number)
+        if key and key in index_by_key:
+            existing = kept[index_by_key[key]]
+            existing_no = str(existing.get("invoice_number") or "")
+            existing_stub = existing.get("amount") in (None, "") and not existing.get("date")
+            incoming_printed = number.upper().startswith("PS-INV")
+            existing_printed = existing_no.upper().startswith("PS-INV")
+            if incoming_printed and not existing_printed:
+                kept[index_by_key[key]] = bill
+            elif existing_stub and bill.get("amount") not in (None, ""):
+                kept[index_by_key[key]] = bill
+            continue
+        if key:
+            index_by_key[key] = len(kept)
+        kept.append(bill)
+    return kept
 
 
 def _pdfs_from_body_link(

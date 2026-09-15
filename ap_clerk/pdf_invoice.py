@@ -131,6 +131,47 @@ _BAD_INVOICE_WORDS = {
 }
 
 PO_DOCUMENT_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
+RECEIPT_SCAN_FILE_RE = re.compile(
+    r"(?:^|[/\\._ -])receipt(?:[/\\._ -]|$)|receipt\s*scan|_dragged_",
+    flags=re.I,
+)
+POD_FILE_RE = re.compile(
+    r"(?:^|[/\\._ -])pod(?:[/\\._ -]|$)|proof[_ -]?of[_ -]?delivery|signed[_ -]?delivery",
+    flags=re.I,
+)
+_SALES_INVOICE_NAME = re.compile(
+    r"sales\s*invoice|ps-inv|\binvoice[-_ .]|inv[_-]|txft\d",
+    flags=re.I,
+)
+_PACKING_SLIP_BODY = re.compile(
+    r"\bpacking\s+slip\b|\bsigned\s+(?:packing\s+)?slip\b|\bcustomer\s+signature\b|"
+    r"\breceived\s+by\b|\bcarrier\s+signature\b|\bdelivery\s+receipt\b|"
+    r"\bproof\s+of\s+delivery\b|\bsigned\s+delivery\b",
+    flags=re.I,
+)
+
+ATTACHMENT_INVOICE = "invoice"
+ATTACHMENT_PO = "po"
+ATTACHMENT_POD = "pod"
+ATTACHMENT_PACKING_SLIP = "packing_slip"
+ATTACHMENT_RECEIPT_SCAN = "receipt_scan"
+ATTACHMENT_STATEMENT = "statement"
+ATTACHMENT_PAST_DUE = "past_due"
+ATTACHMENT_CHECK_STOP = "check_stop"
+ATTACHMENT_NOT_INVOICE = "not_an_invoice"
+ATTACHMENT_INSPECT = "inspect"
+NON_INVOICE_ATTACHMENT_KINDS = frozenset(
+    {
+        ATTACHMENT_PO,
+        ATTACHMENT_POD,
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_STATEMENT,
+        ATTACHMENT_PAST_DUE,
+        ATTACHMENT_CHECK_STOP,
+        ATTACHMENT_NOT_INVOICE,
+    }
+)
 # Do not treat the invoice field label "PURCHASE ORDER NUMBER" as a PO title
 # (Eastern Metal 818600 / 818601).
 _PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b(?!\s+NUMBER)", flags=re.I)
@@ -138,6 +179,66 @@ _INVOICE_DOC_HINT = re.compile(
     r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|total-?due|bill\s+to)\b",
     flags=re.I,
 )
+
+
+def is_receipt_scan_document(*, text: str = "", filename: str = "") -> bool:
+    """True for a receipt / packing-slip scan that is not a second vendor invoice."""
+    return classify_attachment(filename=filename, text=text) in {
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_POD,
+    }
+
+
+def classify_attachment(*, filename: str = "", text: str = "", subject: str = "") -> str:
+    """Invoice vs not-an-invoice for one attachment. Never invent a bill from a slip.
+
+    Filename `Receipt_114745.pdf` / `Receipt_*_dragged_.pdf` is a signed packing
+    slip or POD (Kyle 2026-09-15), not invoice # 114745. Content “packing slip”
+    / proof of delivery is the same. Only `invoice` is entered.
+    """
+    name = filename or ""
+    blob = text or ""
+    sales_named = bool(_SALES_INVOICE_NAME.search(name))
+    if RECEIPT_SCAN_FILE_RE.search(name) and not sales_named:
+        return ATTACHMENT_PACKING_SLIP
+    if POD_FILE_RE.search(name) and not sales_named:
+        return ATTACHMENT_POD
+    if PO_DOCUMENT_FILE_RE.search(name):
+        if re.search(r"packing", name, flags=re.I):
+            return ATTACHMENT_PACKING_SLIP
+        return ATTACHMENT_PO
+    if STATEMENT_FILE_HINT.search(name) or PAST_DUE_LIST_RE.search(name):
+        if PAST_DUE_LIST_RE.search(name):
+            return ATTACHMENT_PAST_DUE
+        return ATTACHMENT_STATEMENT
+    if is_account_statement_document(text=blob, filename=name, subject=subject):
+        if PAST_DUE_LIST_RE.search(f"{name}\n{subject}\n{blob}"):
+            return ATTACHMENT_PAST_DUE
+        return ATTACHMENT_STATEMENT
+    if is_purchase_order_document(text=blob, filename=name):
+        return ATTACHMENT_PO
+    if blob and _PACKING_SLIP_BODY.search(blob) and not _INVOICE_DOC_HINT.search(blob):
+        return ATTACHMENT_PACKING_SLIP
+    if blob and _INVOICE_DOC_HINT.search(blob):
+        return ATTACHMENT_INVOICE
+    if blob and re.search(r"\binvoice\b", blob, flags=re.I):
+        # 3P "3P INDUSTRIES Invoice" / face-page packs. Receipt_ filename already
+        # returned packing_slip above.
+        return ATTACHMENT_INVOICE
+    if sales_named or re.search(r"\bPS-INV\d{5,}\b", blob, flags=re.I):
+        return ATTACHMENT_INVOICE
+    if not blob.strip():
+        # Unknown name, no text yet — caller must parse, then classify again.
+        return ATTACHMENT_INSPECT
+    if re.search(r"(?:^|\n)\s*INVOICE\b", blob) or re.search(r"\binvoice\s+no\.?\b", blob, flags=re.I):
+        return ATTACHMENT_INVOICE
+    return ATTACHMENT_NOT_INVOICE
+
+
+def filename_looks_like_invoice(filename: str) -> bool:
+    """True when the attachment name is a vendor invoice PDF, not a slip."""
+    return classify_attachment(filename=filename) == ATTACHMENT_INVOICE
 
 
 def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
@@ -551,12 +652,24 @@ def extract_3p_lines(text: str) -> list[dict[str, Any]]:
 
 def extract_fees(text: str) -> list[dict[str, Any]]:
     fees: list[dict[str, Any]] = []
-    for line in (text or "").splitlines():
+    rows = list((text or "").splitlines())
+    for index, line in enumerate(rows):
         stripped = line.strip()
         if not stripped or not is_fee_or_surcharge(stripped):
             continue
         amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
         amounts = [a for a in amounts if a is not None and a < 100000]
+        if not amounts:
+            # Wrapped "Freight Charge - Wholesale - In / State / 246.75".
+            window = "\n".join(rows[index : index + 7])
+            window = re.split(
+                r"\b(?:amount\s+subject|subtotal|amount\s+due|invoice\s+total)\b|"
+                r"total\s+\$",
+                window,
+                flags=re.I,
+            )[0]
+            amounts = [parse_money(m) for m in _MONEY.findall(window)]
+            amounts = [a for a in amounts if a is not None and a < 100000]
         if not amounts:
             # Prepaid / shipping-date text with a null amount is not a fee.
             continue
@@ -574,6 +687,83 @@ def extract_fees(text: str) -> list[dict[str, Any]]:
         seen.add(key)
         dedup.append(fee)
     return dedup[:8]
+
+
+_LEGACY_EACH = re.compile(
+    r"(?P<qty>\d+(?:\.\d+)?)\s+Each\s+(?P<unit>[\d,]+\.\d{2})\s+(?P<amt>[\d,]+\.\d{2})",
+    flags=re.I,
+)
+_LEGACY_ITEM = re.compile(
+    r"\b(KANNON-[A-Z0-9]+(?:-[A-Z0-9]+)+|[A-Z]-\d{4,6}-\d{3,}|\d{1,3}-\d{2,6}-\d{3,})\b",
+    flags=re.I,
+)
+_LEGACY_FREIGHT_BLOCK = re.compile(
+    r"(?P<name>Freight(?:\s+Charge)?[^\n]*)(?:\n[^\n]{0,80}){0,6}?"
+    r"\n\s*(?P<qty>\d+(?:\.\d+)?)\s*\n\s*(?P<unit>[\d,]+\.\d{2})\s*\n\s*(?P<amt>[\d,]+\.\d{2})",
+    flags=re.I,
+)
+
+
+def looks_like_legacy_sales_invoice(text: str) -> bool:
+    blob = text or ""
+    return bool(
+        re.search(r"\bPS-INV\d{5,}\b", blob, flags=re.I)
+        or (
+            re.search(r"legacy\s+wire", blob, flags=re.I)
+            and re.search(r"External Document No\.", blob, flags=re.I)
+        )
+    )
+
+
+def extract_legacy_wire_bill(text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Legacy Wire Business Central sales invoice: Each rows + freight Fees.
+
+    `77\"` in `BIFOLD GATE-77\"(2\"TUBE)` is an inch dimension, not invoice qty.
+    Qty 0 / $0 rows are not merchandise. Freight Charge is Fees, never a receipt.
+    """
+    lines: list[dict[str, Any]] = []
+    fees: list[dict[str, Any]] = []
+    blob = text or ""
+    if not blob:
+        return lines, fees
+    fee_spans = [m.span() for m in _LEGACY_FREIGHT_BLOCK.finditer(blob)]
+    for match in _LEGACY_FREIGHT_BLOCK.finditer(blob):
+        amt = parse_money(match.group("amt"))
+        if amt in (None, 0):
+            continue
+        name = re.sub(r"\s+", " ", match.group("name")).strip(" :-") or "Freight Charge"
+        fees.append({"name": name[:80], "amount": amt, "fee": True})
+    for match in _LEGACY_EACH.finditer(blob):
+        start = match.start()
+        if any(left <= start < right for left, right in fee_spans):
+            continue
+        qty = parse_money(match.group("qty"))
+        amt = parse_money(match.group("amt"))
+        unit = parse_money(match.group("unit"))
+        if qty in (None, 0) and amt in (None, 0):
+            continue
+        before = blob[max(0, start - 400) : start]
+        if is_fee_or_surcharge(before[-160:]):
+            if amt not in (None, 0):
+                fees.append({"name": "Freight Charge", "amount": amt, "fee": True})
+            continue
+        items = _LEGACY_ITEM.findall(before)
+        part = str(items[-1] or "").strip() if items else ""
+        desc_lines = [ln.strip() for ln in before.splitlines() if ln.strip()]
+        desc = " ".join(desc_lines[-6:])[:120]
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt,
+                "unit_price": unit,
+                "po_line": None,
+                "wo": None,
+                "label": (part or desc)[:80],
+                "description": desc,
+            }
+        )
+    return lines, fees
 
 
 _STEEL_LINE_RE = re.compile(
@@ -646,6 +836,8 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
             qty = parse_money(um_qty.group(1))
         elif amounts and len(amounts) >= 2:
             qty = amounts[0]
+        if qty is not None and _qty_is_inch_dimension(blob, qty):
+            qty = None
         po_line = None
         line_match = re.search(r"^\s*(\d{1,3})\s+|(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
         if line_match:
@@ -672,9 +864,17 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
             if key not in seen:
                 seen.add(key)
                 if qty is None:
-                    bare_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b", blob, flags=re.I)
+                    bare_qty = re.search(
+                        r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b(?!\s*[\"″''])",
+                        blob,
+                        flags=re.I,
+                    )
                     if bare_qty:
                         qty = parse_money(bare_qty.group(1))
+                    if qty is not None and _qty_is_inch_dimension(blob, qty):
+                        qty = None
+                if qty is None and not amounts:
+                    continue
                 lines.append(
                     {
                         "part": "",
@@ -687,6 +887,12 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                     }
                 )
     return lines[:40]
+
+
+def _qty_is_inch_dimension(blob: str, qty: float) -> bool:
+    """77\" in a part description is a size, not invoice qty (Legacy PS-INV103979)."""
+    token = f"{qty:g}"
+    return bool(re.search(rf"(?<![\d.]){re.escape(token)}\s*[\"″'']", blob or ""))
 
 
 _COMPANY_LEGAL_RE = re.compile(
@@ -796,6 +1002,9 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
 
 def _invoice_from_filename(filename: str) -> str | None:
     name = filename or ""
+    # Receipt_114745.pdf is a packing slip. Never invent invoice # 114745.
+    if classify_attachment(filename=name) != ATTACHMENT_INVOICE:
+        return None
     for pattern in (
         r"(TXFT\d{5,})",
         r"(PS-INV\d{5,})",
@@ -1241,16 +1450,36 @@ def parse_invoice_text(
     if statement_doc:
         # Filename 1058256.pdf on a Leeco Account Statement is not an invoice #.
         filename_inv = None
-    if not invoice_number and not statement_doc:
+    attachment_kind = classify_attachment(filename=filename, text=pdf_text, subject=subject)
+    if not invoice_number and not statement_doc and attachment_kind == ATTACHMENT_INVOICE:
         filename_inv = _invoice_from_filename(filename)
         if filename_inv and filename_inv.upper() not in _CUSTOMER_ACCOUNTS:
             invoice_number = filename_inv
             filename_only = True
-    if not invoice_number:
+    if not invoice_number and attachment_kind == ATTACHMENT_INVOICE:
         subject_inv = _invoice_from_subject(subject)
         if subject_inv and subject_inv.upper() not in _CUSTOMER_ACCOUNTS and "account #" not in (subject or "").lower():
             invoice_number = subject_inv
             subject_only = True
+    elif attachment_kind in {
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_POD,
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_STATEMENT,
+        ATTACHMENT_PAST_DUE,
+        ATTACHMENT_PO,
+        ATTACHMENT_CHECK_STOP,
+    }:
+        # Confirmed slip / POD / PO / statement: never invent 114745 / 103979.
+        invoice_number = None
+        filename_only = False
+        subject_only = False
+    elif attachment_kind != ATTACHMENT_INVOICE:
+        # Sparse invoice PDFs (Tube / Leeco) may classify as not_an_invoice
+        # before labels are obvious. Keep a # already read from PDF text.
+        invoice_number = invoice_number if invoice_from_pdf else None
+        filename_only = False
+        subject_only = False
     luxor = re.search(r"Invoice\s*#\s*\n\s*\d{1,2}/\d{1,2}/\d{2,4}\s+(\d{4,})", pdf_text, flags=re.I)
     if luxor and (not invoice_number or filename_only or subject_only):
         invoice_number = _usable_invoice_number(luxor.group(1))
@@ -1439,6 +1668,7 @@ def parse_invoice_text(
     # CHECK STOP on the subject/filename is not enough when the PDF has invoice pages
     # (Gas & Supply 0040367887: 5 Misc invoices). Real notices have no invoice to enter.
     po_doc = is_purchase_order_document(text=pdf_text, filename=filename)
+    receipt_scan_doc = is_receipt_scan_document(text=pdf_text, filename=filename)
     check_stop_in_pdf = bool(_CHECK_STOP.search(pdf_text))
     check_stop_in_subject = bool(_CHECK_STOP.search(f"{subject}\n{filename}"))
     has_invoice_pages = bool(
@@ -1450,6 +1680,25 @@ def parse_invoice_text(
         check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
     fees = extract_fees(pdf_text)
     lines = extract_invoice_lines(pdf_text)
+    if looks_like_legacy_sales_invoice(pdf_text) or "legacy wire" in vendor_l:
+        legacy_lines, legacy_fees = extract_legacy_wire_bill(pdf_text)
+        if legacy_lines:
+            lines = legacy_lines
+        for fee in legacy_fees:
+            key = str(fee.get("name") or "").strip().lower()
+            if not key:
+                continue
+            existing = next(
+                (row for row in fees if str(row.get("name") or "").strip().lower() == key),
+                None,
+            )
+            if existing:
+                # Wrapped "Freight Charge" must not keep Invoice Total as the fee.
+                if fee.get("amount") not in (None, 0):
+                    existing["amount"] = fee["amount"]
+                    existing["fee"] = True
+            else:
+                fees.append(fee)
     if "3p" in vendor_l or "rachel bailey" in blob_l or re.search(r"\b3p\s+industries\b", pdf_text or "", flags=re.I):
         three_p = extract_3p_lines(pdf_text)
         if three_p:
@@ -1488,7 +1737,9 @@ def parse_invoice_text(
         "text_chars": len(pdf_text),
         "field_sources": sources,
         "is_purchase_order_doc": po_doc,
+        "is_receipt_scan_doc": receipt_scan_doc,
         "is_statement_doc": statement_doc,
+        "attachment_class": classify_attachment(filename=filename, text=pdf_text, subject=subject),
         "pdf_text_empty": pdf_text_empty,
         "pdf_unavailable": pdf_text_empty,
         "parse_verified": bool(

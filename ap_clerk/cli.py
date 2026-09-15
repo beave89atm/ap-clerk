@@ -820,6 +820,30 @@ def _process_invoice(
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
+    attachment_kind = str(inv.get("attachment_class") or "").strip().lower()
+    if (
+        inv.get("is_receipt_scan_doc")
+        or attachment_kind in {"packing_slip", "receipt_scan", "pod"}
+        or str(inv.get("hold_reason") or "").strip().lower() in {"pod", "packing_slip", "receipt_scan"}
+    ):
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        row["Invoice #"] = ""
+        detail = (
+            "packing slip / POD / signed delivery receipt. Not an invoice. "
+            "Do not create a header. Do not invent invoice # from Receipt_*.pdf. "
+            f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+        )
+        subject = str(inv.get("subject") or "")
+        if subject:
+            detail = (
+                f"packing slip / POD / signed delivery receipt. Subject: {subject}. "
+                "Not an invoice. Do not create a header. "
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+            )
+        row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
     existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
     if existing_hits and number:
         existing_ids = [hit.get("id") for hit in existing_hits if hit.get("id") not in (None, "")]
@@ -1221,9 +1245,7 @@ def _process_invoice(
     fees_posted = False
     fee_status = "none"
     parsed_fees = list(inv.get("fees") or [])
-    if issue_hold:
-        fee_status = "held-unfinished"
-    elif fees_required(parsed_fees):
+    if fees_required(parsed_fees):
         poster = getattr(client, "try_post_fees", None)
         if poster:
             try:

@@ -48,6 +48,8 @@ NOISE_REASONS = {
     "check_stop",
     "statement",
     "pod",
+    "packing_slip",
+    "receipt_scan",
     "payment",
     "payment letter",
     "dup",
@@ -209,6 +211,7 @@ FEE_KEYWORDS = (
     "energy surcharge",
     "freight",
     "shipping",
+    "delivery",
     "handling",
     "surcharge",
     "supply fee",
@@ -696,6 +699,28 @@ def _line_blob(line: dict[str, Any] | None) -> str:
     )
 
 
+def _dimension_only_line(line: dict[str, Any] | None) -> bool:
+    """True for a fake line whose qty is an inch mark (Legacy 77\" TUBE)."""
+    if not isinstance(line, dict):
+        return False
+    qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    amt = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+    if qty is None or amt not in (None, 0):
+        return False
+    token = f"{qty:g}"
+    blob = _line_description(line)
+    return bool(re.search(rf"(?<![\d.]){re.escape(token)}\s*[\"″'']", blob))
+
+
+def _zero_qty_placeholder_line(line: dict[str, Any] | None) -> bool:
+    """Qty 0 / $0 rows are not Select Receipts merchandise (Legacy A-05480)."""
+    if not isinstance(line, dict):
+        return False
+    qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    amt = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+    return qty == 0 and amt in (None, 0)
+
+
 def _line_match_score(invoice_line: dict[str, Any], other: dict[str, Any]) -> int:
     """Part, description, and PO/WO line beat qty. Qty-only is not a pick."""
     score = 0
@@ -1129,16 +1154,26 @@ def line_po(line: dict[str, Any] | None, fallback: str | None = None) -> str:
     return str(line.get("po") or line.get("purchase_order") or fallback or "")
 
 
+_PO_LINE_RECEIPT_PART = re.compile(r"^PO\s*\d{4,6}-\d{2,}\b", flags=re.I)
+
+
+def _is_po_line_receipt_part(value: Any) -> bool:
+    """Legacy / KIMCO receipt part is often PO58802-01, not the vendor item."""
+    return bool(_PO_LINE_RECEIPT_PART.match(str(value or "").strip()))
+
+
 def _part_conflicts(invoice_line: dict[str, Any], receipt: dict[str, Any]) -> bool:
     """True when both sides name a part and those parts are not the same.
 
     Qty-only must not steal a DIFFERENT part (NEED-THIS vs DIFFERENT).
-    Empty receipt part is not a conflict — 3P PO-line receipts often bury
-    the part in Name / Description.
+    Empty receipt part is not a conflict — 3P / Legacy PO-line receipts often
+    bury the part in Name / Description (`PO58802-01`).
     """
     left = invoice_line.get("part") or invoice_line.get("item")
     right = receipt.get("part") or receipt.get("item")
     if not left or not right:
+        return False
+    if _is_po_line_receipt_part(right) or _is_po_line_receipt_part(left):
         return False
     if _same_part(left, right) or parts_overlap(_line_blob(invoice_line), _line_blob(receipt)):
         return False
@@ -1193,9 +1228,13 @@ def match_receipts(
     """Select Receipts: each invoice line → open receipts on that line's PO.
 
     Primary path is part / PO line / per-line qty (never invoice-total qty as
-    the per-line gate). Check every merchandise line; select every match.
-    Do not stop after the first unmatched line. Do not fail-close the whole
-    bill when some lines match.
+    the per-line gate, never an inch dimension such as 77\"). Check every
+    merchandise line; select every match even if other open receipts remain
+    on the PO (Legacy PS-INV103980). Do not HOLD “merchandise cost does not
+    uniquely align” when line part/qty matches are clear. Freight / shipping
+    / delivery is Fees and surcharges, not a Select Receipts qty. Do not
+    stop after the first unmatched line. Do not fail-close the whole bill
+    when some lines match. Still no first-open guess when lines do not match.
 
     Slip # = invoice # (Fastenal) still applies. Subject CPL numbers are a
     secondary hint only — never required, never the only path, never a HOLD
@@ -1220,7 +1259,10 @@ def match_receipts(
     lines = [
         dict(line)
         for line in (invoice_lines or [])
-        if line and not is_fee_or_surcharge(str(line.get("label") or line.get("name") or ""))
+        if line
+        and not (is_fee_or_surcharge(_line_description(line)) or line.get("fee"))
+        and not _dimension_only_line(line)
+        and not _zero_qty_placeholder_line(line)
     ]
     qty_ev = invoice_qty_evidence(lines, invoice_qty)
     amount_ev = money(invoice_amount)
@@ -1343,6 +1385,62 @@ def match_receipts(
             )
         return bool(pick.get("picked"))
 
+    def _try_qty_po_unique(inv_line: dict[str, Any], search_po: str, *, pass_name: str) -> bool:
+        """Same PO + unique line qty (or qty+amount). Never first-open on a tie.
+
+        Legacy receipts are named PO58802-01 while the invoice prints
+        KANNON-A-… Part tokens differ; qty/PO still match (PS-INV103980).
+        Extra open receipts on the PO do not HOLD the line.
+        """
+        line_qty = _line_qty(inv_line)
+        line_amt = _line_amount(inv_line)
+        if line_qty is None:
+            return False
+        pool: list[dict[str, Any]] = []
+        for receipt in normalized:
+            if id(receipt) in used:
+                continue
+            rec_po = receipt_po(receipt)
+            if search_po and rec_po and rec_po != str(search_po):
+                continue
+            if _part_conflicts(inv_line, receipt):
+                continue
+            if _same_qty(_receipt_qty(receipt), line_qty):
+                pool.append(receipt)
+        if len(pool) == 1:
+            _record_match(
+                inv_line,
+                pool[0],
+                score=55,
+                pass_name=pass_name,
+                how="line qty + PO (not first-open; extra PO receipts ignored)",
+            )
+            return True
+        if len(pool) > 1 and line_amt is not None:
+            cost_hits = [r for r in pool if costs_align(receipt_cost(r), line_amt)]
+            if len(cost_hits) == 1:
+                _record_match(
+                    inv_line,
+                    cost_hits[0],
+                    score=55,
+                    pass_name=pass_name,
+                    how="line qty + amount + PO (not first-open)",
+                )
+                return True
+            if pass_name == "first":
+                ambiguous.append(
+                    {
+                        "line": inv_line,
+                        "candidates": pool[:3],
+                        "why": (
+                            f"invoice line qty {line_qty:g} matches {len(pool)} open "
+                            "receipts; amount does not uniquely align. Will not guess "
+                            "first-open."
+                        ),
+                    }
+                )
+        return False
+
     def _try_line(inv_line: dict[str, Any], *, pass_name: str) -> bool:
         """Match one invoice line. Always returns; never stops the bill."""
         search_po = line_po(inv_line, po_number)
@@ -1359,7 +1457,7 @@ def match_receipts(
                 scored.append((score, receipt))
         scored.sort(key=lambda pair: pair[0], reverse=True)
         if not scored:
-            return False
+            return _try_qty_po_unique(inv_line, search_po, pass_name=pass_name)
         line_qty = _line_qty(inv_line)
         line_amt = _line_amount(inv_line)
         if line_qty is not None:
@@ -1622,7 +1720,7 @@ def format_unmatched_lines(lines: list[dict[str, Any]] | None) -> str:
 
 
 _NOT_A_FEE = re.compile(
-    r"shipping\s*date|ship(?:ping)?\s*date|prepaid|pre-?paid|shipped\s+via",
+    r"shipping\s*date|ship(?:ping)?\s*date|delivery\s*date|prepaid|pre-?paid|shipped\s+via",
     flags=re.I,
 )
 
@@ -1910,6 +2008,14 @@ EASTERN_METAL_RE = re.compile(r"eastern\s+metal", flags=re.I)
 _PO_HASH_LIST = re.compile(r"\bPO\s*#\s*([0-9,\s]+)", flags=re.I)
 _CPL_HASH_LIST = re.compile(r"\bCPL\s*#\s*([0-9,\s]+)", flags=re.I)
 _INV_HASH = re.compile(r"\bINV(?:OICE)?\s*#?\s*[:.]?\s*(\d{5,8})\b", flags=re.I)
+# Printed prefixes must win over the digit-only shortcut (PS-INV103979 ≠ 103979).
+_PRINTED_SUBJECT_INVOICE = (
+    re.compile(r"\b(PS-INV\d{5,})\b", flags=re.I),
+    re.compile(r"\b(TXFT\d{5,})\b", flags=re.I),
+    re.compile(r"\b(TMC-\d{5,})\b", flags=re.I),
+    re.compile(r"\b(PSI-\d{6,})\b", flags=re.I),
+    re.compile(r"\b(S\d{6,}\.\d{3})\b"),
+)
 # AQPC often links a PDF instead of attaching it.
 LINK_DOWNLOAD_VENDOR_RE = re.compile(
     r"american\s+quality\s+powder|aqpc|quality\s+powder\s+coating|aqpowder",
@@ -2031,10 +2137,16 @@ def extract_subject_cpls(subject: str) -> list[str]:
 
 
 def extract_subject_invoice_number(subject: str) -> str | None:
-    match = _INV_HASH.search(subject or "")
+    """Invoice # exactly as printed. Never strip PS-INV → 103979."""
+    text = subject or ""
+    for rx in _PRINTED_SUBJECT_INVOICE:
+        printed = rx.search(text)
+        if printed:
+            return printed.group(1)
+    match = _INV_HASH.search(text)
     if match:
         return match.group(1)
-    loose = re.search(r"\binvoice\b[^0-9]{0,12}(\d{4,8})\b", subject or "", flags=re.I)
+    loose = re.search(r"\binvoice\b[^0-9]{0,12}(\d{4,8})\b", text, flags=re.I)
     if loose:
         return loose.group(1)
     return None
@@ -2167,6 +2279,13 @@ def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:
         is_statement_doc=bool(inv.get("is_statement_doc")),
     ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
         return False, "statement"
+    kind = str(inv.get("attachment_class") or "").strip().lower()
+    if (
+        inv.get("is_receipt_scan_doc")
+        or kind in {"packing_slip", "receipt_scan", "pod"}
+        or str(inv.get("hold_reason") or "").strip().lower() in {"pod", "packing_slip", "receipt_scan"}
+    ):
+        return False, "pod"
     if is_auto_pay(
         vendor=str(inv.get("vendor") or ""),
         subject=str(inv.get("subject") or ""),

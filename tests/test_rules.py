@@ -497,3 +497,50 @@ def test_differing_open_receipts_without_evidence_are_ambiguous():
         invoice_amount=1084.65,
     )
     assert pick["picked"][0]["id"] == 35
+
+
+def test_legacy_line_qty_po_selects_despite_extra_open_receipts():
+    """PS-INV103980: line qty+PO matches even when other PO receipts are open."""
+    from ap_clerk.rules import extract_subject_invoice_number
+
+    assert extract_subject_invoice_number("Sales Invoice PS-INV103979") == "PS-INV103979"
+    result = match_receipts(
+        invoice_number="PS-INV103980",
+        invoice_lines=[
+            {"part": "KANNON-A-20001-001", "qty": 12, "amount": 1020.0, "po": "58802"},
+            {"part": "KANNON-A-20002-001", "qty": 8, "amount": 760.0, "po": "58802"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58802", "part": "PO58802-01", "qty": 12, "amount": 1020.0},
+            {"id": 2, "po": "58802", "part": "PO58802-02", "qty": 8, "amount": 760.0},
+            {"id": 9, "po": "58802", "part": "PO58802-09", "qty": 10, "amount": 500.0},
+        ],
+        po_number="58802",
+        invoice_amount=2664.72,
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {1, 2}
+    assert "uniquely align" not in (result["why"] or "").lower()
+    assert not result["unmatched_lines"]
+
+
+def test_legacy_inch_dimension_is_not_invoice_qty():
+    result = match_receipts(
+        invoice_number="PS-INV103979",
+        invoice_lines=[
+            {"part": "KANNON-A-12345-001", "qty": 24, "amount": 984.0, "po": "58807"},
+            {"part": "KANNON-A-12345-002", "qty": 1, "amount": 41.0, "po": "58807"},
+            {"part": "KANNON-A-05480-002", "qty": 77, "amount": None, "description": 'BIFOLD GATE-77"(2"TUBE)', "po": "58807"},
+        ],
+        receipts=[
+            {"id": 24, "po": "58807", "part": "PO58807-01", "qty": 24, "amount": 984.0},
+            {"id": 1, "po": "58807", "part": "PO58807-03", "qty": 1, "amount": 41.0},
+        ],
+        po_number="58807",
+        invoice_qty=77,
+        invoice_amount=1271.75,
+    )
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {24, 1}
+    assert result["hold_no_receipts"] is False
+    assert "qty 77" not in (result["why"] or "")

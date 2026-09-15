@@ -44,10 +44,15 @@ from ap_clerk.graph import (
     is_already_flagged,
 )
 from ap_clerk.pdf_invoice import (
+    ATTACHMENT_INVOICE,
+    ATTACHMENT_PACKING_SLIP,
+    NON_INVOICE_ATTACHMENT_KINDS,
     assign_split_pdfs,
+    classify_attachment,
     expand_gas_misc_invoices,
     extract_invoice_lines,
     extract_fees,
+    extract_legacy_wire_bill,
     is_account_statement_document,
     parse_invoice_text,
     prefer_after_tax_amount,
@@ -154,8 +159,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 25))
-    assert len(TREYCE_NOTES_V12) == 24
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 26))
+    assert len(TREYCE_NOTES_V12) == 25
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -185,6 +190,7 @@ def test_v12_registry_covers_all_notes():
         "kimco-vendor-invoice-never-skip",
         "3p-select-receipts-part-po-never-fail-close",
         "leeco-account-statement-skip",
+        "legacy-packing-slip-and-line-receipts",
     }
 
 
@@ -2726,3 +2732,401 @@ def test_never_repeat_julie_hencke_past_due_invoices(tmp_path: Path):
     assert report[0]["KIMCO id"] == ""
     assert julie["subject"] in report[0]["Why"]
     assert_never_success(row["Result"], note_id="NOTE-24", detail=row["Why"])
+
+
+def test_never_repeat_legacy_receipt_114745_not_invoice(tmp_path: Path):
+    """NOTE-25: Receipt_114745 is a signed packing slip — not invoice 114745."""
+    import ap_clerk.inbox as inbox_mod
+    from ap_clerk.inbox import pull_recent_bills, skip_rows_for_report
+
+    n = NOTES["NOTE-25"]
+    slip = n["packing_slip_114745"]
+    assert n["do_not_void"] is True
+    assert 9995 in n["leftover_kimco_ids"]
+    assert classify_attachment(filename=slip["filename"]) == ATTACHMENT_PACKING_SLIP
+    for name in n["receipt_scan_names"]:
+        kind = classify_attachment(filename=name)
+        assert kind in NON_INVOICE_ATTACHMENT_KINDS
+        assert kind != ATTACHMENT_INVOICE
+    assert classify_attachment(filename=slip["filename"], text=slip["pdf_text"]) == ATTACHMENT_PACKING_SLIP
+    parsed = parse_invoice_text(
+        slip["pdf_text"],
+        filename=slip["filename"],
+        subject=slip["subject"],
+        from_name=n["from_name"],
+    )
+    assert parsed.get("attachment_class") == ATTACHMENT_PACKING_SLIP
+    assert parsed.get("is_receipt_scan_doc") is True
+    assert parsed.get("invoice_number") not in {"114745", "103979"}
+    assert should_create_header(parsed) == (False, "pod")
+    row, client = _row(
+        {
+            **parsed,
+            "vendor": n["vendor"],
+            "invoice_number": "114745",
+            "subject": slip["subject"],
+            "filename": slip["filename"],
+            "attachment_class": ATTACHMENT_PACKING_SLIP,
+            "is_receipt_scan_doc": True,
+        }
+    )
+    assert row["Result"] == RESULT_SKIPPED
+    assert row["Result"] != RESULT_HOLD
+    assert row["KIMCO id"] == ""
+    assert not client.created
+    assert "114745" not in str(row.get("Invoice #") or "")
+    assert "packing slip" in row["Why"].lower() or "pod" in row["Why"].lower()
+    assert_never_success(row["Result"], note_id="NOTE-25", detail=row["Why"])
+
+    class Graph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-legacy-slip-only",
+                    "subject": slip["subject"],
+                    "receivedDateTime": "2026-08-19T16:00:00Z",
+                    "hasAttachments": True,
+                    "bodyPreview": "",
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": n["from_address"],
+                        }
+                    },
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return [slip["filename"]]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [(slip["filename"], b"%PDF-1.4 packing slip")]
+
+    def fake_parse(path, **kwargs):
+        return parse_invoice_text(
+            slip["pdf_text"],
+            filename=slip["filename"],
+            subject=str(kwargs.get("subject") or ""),
+            from_name=str(kwargs.get("from_name") or ""),
+        )
+
+    orig = inbox_mod.parse_invoice_pdf
+    inbox_mod.parse_invoice_pdf = fake_parse
+    try:
+        selected, skipped = pull_recent_bills(Graph(), limit=1, pdf_dir=tmp_path / "pdfs")
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+
+    skip_noise = [item for item in skipped if item.get("class") != "already-flagged"]
+    assert not selected
+    assert skip_noise
+    assert skip_noise[0].get("class") == "pod"
+    assert all(item.get("invoice_number") not in {"114745", "103979"} for item in selected)
+    report = skip_rows_for_report(skip_noise, "API Agent - 9/15/26 (711)")
+    assert report[0]["Result"] == RESULT_SKIPPED
+    assert report[0]["KIMCO id"] == ""
+    assert_never_success(RESULT_HOLD, note_id="NOTE-25")
+
+
+def test_never_repeat_legacy_ps_inv103979_and_103980(tmp_path: Path):
+    """NOTE-25: 103979 qty-77 + 103980 multi-open → line receipts + freight Fees."""
+    import ap_clerk.inbox as inbox_mod
+    from ap_clerk.inbox import pull_recent_bills
+
+    n = NOTES["NOTE-25"]
+    inv979 = n["ps_inv103979"]
+    inv980 = n["ps_inv103980"]
+    slip = n["packing_slip_114745"]
+
+    assert extract_subject_invoice_number(inv979["subject"]) == "PS-INV103979"
+    assert extract_subject_invoice_number("Invoice PS-INV103979") == "PS-INV103979"
+    assert extract_subject_invoice_number(inv979["subject"]) != "103979"
+
+    parsed979 = parse_invoice_text(
+        inv979["pdf_text"],
+        filename=inv979["filename"],
+        subject=inv979["subject"],
+        from_name=n["from_name"],
+    )
+    assert parsed979["invoice_number"] == "PS-INV103979"
+    assert parsed979["invoice_number"] != "103979"
+    assert parsed979["po"] == inv979["po"]
+    assert parsed979["amount"] == inv979["amount"]
+    qtys = [line.get("qty") for line in parsed979["lines"]]
+    assert 77 not in qtys
+    assert 24 in qtys
+    assert 1 in qtys
+    steel_qty = extract_invoice_lines(inv979["pdf_text"])
+    assert not any((line.get("qty") == 77) for line in steel_qty)
+    fees979 = parsed979["fees"] or extract_fees(inv979["pdf_text"])
+    assert any(
+        is_fee_or_surcharge(str(fee.get("name") or "")) and float(fee.get("amount") or 0) == inv979["freight"]
+        for fee in fees979
+    )
+    legacy_lines, legacy_fees = extract_legacy_wire_bill(inv979["pdf_text"])
+    assert {round(float(line["qty"]), 2) for line in legacy_lines} == {24.0, 1.0}
+    assert any(float(fee.get("amount") or 0) == inv979["freight"] for fee in legacy_fees)
+
+    picked979 = match_receipts(
+        invoice_number=inv979["invoice_number"],
+        invoice_lines=inv979["lines"],
+        receipts=inv979["receipts"],
+        po_number=inv979["po"],
+        invoice_qty=77,
+        invoice_amount=inv979["amount"],
+    )
+    assert picked979["found"] is True
+    assert picked979["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in picked979["matched"]} == {23746, 23747}
+    assert 23750 not in {hit["receipt"]["id"] for hit in picked979["matched"]}
+    assert not any("uniquely align" in str(amb.get("why") or "") for amb in picked979["ambiguous"])
+    assert "77" not in (picked979["why"] or "") or "24" in (picked979["why"] or "")
+
+    parsed980 = parse_invoice_text(
+        inv980["pdf_text"],
+        filename=inv980["filename"],
+        subject=inv980["subject"],
+        from_name=n["from_name"],
+    )
+    assert parsed980["invoice_number"] == "PS-INV103980"
+    assert parsed980["po"] == inv980["po"]
+    assert parsed980["amount"] == inv980["amount"]
+    assert len(parsed980["lines"]) >= 4
+    assert any(
+        is_fee_or_surcharge(str(fee.get("name") or "")) and float(fee.get("amount") or 0) == inv980["freight"]
+        for fee in (parsed980["fees"] or [])
+    )
+
+    picked980 = match_receipts(
+        invoice_number=inv980["invoice_number"],
+        invoice_lines=inv980["lines"],
+        receipts=inv980["receipts"],
+        po_number=inv980["po"],
+        invoice_amount=inv980["amount"],
+    )
+    assert picked980["found"] is True
+    assert picked980["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in picked980["matched"]} == {24001, 24002, 24003, 24004}
+    assert 24099 not in {hit["receipt"]["id"] for hit in picked980["matched"]}
+    why980 = (picked980["why"] or "").lower()
+    assert "uniquely align" not in why980
+    assert "first-open" not in why980 or "not first" in why980
+    assert not picked980["unmatched_lines"]
+
+    class Recording:
+        target = "live"
+
+        def __init__(self, created_id):
+            self.created_id = created_id
+            self.created = []
+            self.selected = []
+            self.fees = []
+
+        def create(self, service, values):
+            self.created.append(values)
+            return self.created_id, {"id": self.created_id, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 292, "text": "292-LEGACY WIRE PRODUCTS"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
+            return "selected"
+
+        def try_post_fees(self, invoice_id, fees=None):
+            self.fees.append((invoice_id, list(fees or [])))
+            return "posted"
+
+        def try_put_probe_rejected(self, *args, **kwargs):
+            return ""
+
+    def _process(bill, created_id):
+        pdf_path = tmp_path / f"{bill['invoice_number']}.pdf"
+        pdf_path.write_bytes(b"%PDF-1.4 legacy")
+        sidecar = {
+            "vendor": n["vendor"],
+            "invoice_number": bill["invoice_number"],
+            "date": "2026-08-19",
+            "po": bill["po"],
+            "pos": [bill["po"]],
+            "amount": bill["amount"],
+            "lines": bill["lines"],
+            "fees": [{"name": "Freight Charge", "amount": bill["freight"], "fee": True}],
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+            "pdf_path": str(pdf_path),
+            "pdf_on_disk": True,
+        }
+        po_index = {
+            bill["po"]: {
+                "id": int(bill["po"]),
+                "text": f"{bill['po']}-LEGACY WIRE",
+                "vendor_id": 292,
+                "vendor_text": "292-LEGACY WIRE PRODUCTS",
+                "lines": [],
+            }
+        }
+        samples = [
+            {
+                "vendor_id": 292,
+                "vendor_text": "292-LEGACY WIRE PRODUCTS",
+                "invoice_id": 100,
+                "po_text": "",
+            }
+        ]
+        return _row(
+            sidecar,
+            kimco=Recording(created_id),
+            po_index=po_index,
+            receipts=bill["receipts"],
+            samples=samples,
+        )
+
+    row979, client979 = _process(inv979, 8801)
+    assert client979.selected
+    selected979 = set(client979.selected[0][1])
+    assert selected979 == {23746, 23747}
+    assert client979.fees
+    assert client979.fees[0][1][0]["amount"] == inv979["freight"]
+    assert "held-unfinished" not in str(row979.get("Why") or "").lower()
+    assert "uniquely align" not in (row979["Why"] or "").lower()
+    assert row979["Result"] != RESULT_HOLD or "qty 77" not in (row979["Why"] or "")
+    assert_never_success(RESULT_HOLD, note_id="NOTE-25", detail=row979["Why"])
+
+    row980, client980 = _process(inv980, 8802)
+    assert client980.selected
+    selected980 = set(client980.selected[0][1])
+    assert selected980 == {24001, 24002, 24003, 24004}
+    assert 24099 not in selected980
+    assert client980.fees
+    assert client980.fees[0][1][0]["amount"] == inv980["freight"]
+    assert "held-unfinished" not in str(row980.get("Why") or "").lower()
+    assert "uniquely align" not in (row980["Why"] or "").lower()
+    assert row980["Result"] != RESULT_HOLD
+    assert_never_success(RESULT_HOLD, note_id="NOTE-25", detail=row980["Why"])
+
+    class MixedGraph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-legacy-mixed",
+                    "subject": inv979["subject"],
+                    "receivedDateTime": "2026-08-19T16:10:00Z",
+                    "hasAttachments": True,
+                    "bodyPreview": "",
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": n["from_address"],
+                        }
+                    },
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return [inv979["filename"], slip["filename"]]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [
+                (inv979["filename"], b"%PDF-1.4 invoice"),
+                (slip["filename"], b"%PDF-1.4 slip"),
+            ]
+
+    def fake_parse_mixed(path, **kwargs):
+        name = path.name
+        if "Receipt" in name or "114745" in name:
+            return parse_invoice_text(
+                slip["pdf_text"],
+                filename=slip["filename"],
+                subject=str(kwargs.get("subject") or ""),
+                from_name=str(kwargs.get("from_name") or ""),
+            )
+        return parse_invoice_text(
+            inv979["pdf_text"],
+            filename=inv979["filename"],
+            subject=str(kwargs.get("subject") or ""),
+            from_name=str(kwargs.get("from_name") or ""),
+        )
+
+    orig = inbox_mod.parse_invoice_pdf
+    inbox_mod.parse_invoice_pdf = fake_parse_mixed
+    try:
+        selected, skipped = pull_recent_bills(
+            MixedGraph(), limit=1, pdf_dir=tmp_path / "pdfs-mixed"
+        )
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+
+    numbers = [str(item.get("invoice_number") or "") for item in selected]
+    assert numbers == ["PS-INV103979"]
+    assert "114745" not in numbers
+    assert "103979" not in numbers
+    assert not any(item.get("hold_reason") == "parse-error" for item in selected)
+
+    class MultiInvGraph:
+        def list_messages(self, mailbox, **kwargs):
+            return [
+                {
+                    "id": "m-legacy-two-inv",
+                    "subject": "Legacy invoices",
+                    "receivedDateTime": "2026-08-19T16:20:00Z",
+                    "hasAttachments": True,
+                    "from": {
+                        "emailAddress": {
+                            "name": n["from_name"],
+                            "address": n["from_address"],
+                        }
+                    },
+                }
+            ]
+
+        def list_attachment_names(self, mailbox, message_id):
+            return [inv979["filename"], inv980["filename"]]
+
+        def download_pdf_attachments(self, mailbox, message_id):
+            return [
+                (inv979["filename"], b"%PDF-1.4 979"),
+                (inv980["filename"], b"%PDF-1.4 980"),
+            ]
+
+    def fake_parse_two(path, **kwargs):
+        if "103980" in path.name:
+            return parse_invoice_text(
+                inv980["pdf_text"],
+                filename=inv980["filename"],
+                subject=str(kwargs.get("subject") or ""),
+                from_name=str(kwargs.get("from_name") or ""),
+            )
+        return parse_invoice_text(
+            inv979["pdf_text"],
+            filename=inv979["filename"],
+            subject=str(kwargs.get("subject") or ""),
+            from_name=str(kwargs.get("from_name") or ""),
+        )
+
+    inbox_mod.parse_invoice_pdf = fake_parse_two
+    try:
+        selected_two, _skipped_two = pull_recent_bills(
+            MultiInvGraph(), limit=1, pdf_dir=tmp_path / "pdfs-two"
+        )
+    finally:
+        inbox_mod.parse_invoice_pdf = orig
+
+    assert {item.get("invoice_number") for item in selected_two} == {
+        "PS-INV103979",
+        "PS-INV103980",
+    }
