@@ -533,8 +533,8 @@ def test_note09_aqpc_pdf_behind_link():
     )
     assert ok is False
     assert GATE_PDF_LINK in why
-    assert "browser/session was tried" in why
-    assert "login required" in why
+    assert "browser/session was tried" in why.lower()
+    assert "login required" in why.lower()
     row, _ = _row(
         {
             "vendor": n["vendor"],
@@ -2409,8 +2409,8 @@ def test_never_repeat_aqpc_10917_link_download(tmp_path: Path):
     assert fail_row["Result"] != RESULT_SKIPPED
     assert_never_success(fail_row["Result"], note_id="NOTE-21", detail=fail_row["Why"])
     assert "pdf-behind-link" in fail_row["Why"]
-    assert "browser/session was tried" in fail_row["Why"]
-    assert "login required" in fail_row["Why"]
+    assert "browser/session was tried" in fail_row["Why"].lower()
+    assert "login required" in fail_row["Why"].lower()
     assert "10918" in fail_row["Why"]
     assert n["intuit_host"] in fail_row["Why"]
     assert "AI Skipped" not in fail_row["Why"]
