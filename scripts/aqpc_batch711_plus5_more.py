@@ -312,22 +312,10 @@ def quality_row(
     if finish and finish.get("wanted"):
         extra = f"Post-enter Select Receipts {finish.get('status')} ids={finish.get('wanted')}. "
 
-    price_why = _price_hold_why(parsed, proof)
-    if price_why:
-        out["Result"] = "HOLD"
-        out["Why"] = price_why
-        out["Flag status"] = "entered-with-issues"
-        out["Amount"] = pdf_amt
-        if graph is not None and message_id:
-            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
-        out["Receipts"] = format_receipts(proof)
-        out["Fees"] = enter_row.get("Fees and surcharges") or "none"
-        out["Attach"] = "attached" if attach_ok else enter_row.get("Attach status") or ""
-        return out
-
     qty_hold = False
     qty_why = ""
     pdf_lines = parsed.get("lines") or []
+    price_why = _price_hold_why(parsed, proof) if recs else ""
     if pdf_lines and recs and len(pdf_lines) == len(recs):
         for inv_line, rec in zip(pdf_lines, recs, strict=False):
             iq = money(inv_line.get("qty"))
@@ -370,6 +358,13 @@ def quality_row(
     elif qty_hold:
         out["Result"] = "HOLD"
         out["Why"] = qty_why
+        out["Flag status"] = "entered-with-issues"
+        out["Amount"] = pdf_amt
+        if graph is not None and message_id:
+            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    elif price_why:
+        out["Result"] = "HOLD"
+        out["Why"] = price_why
         out["Flag status"] = "entered-with-issues"
         out["Amount"] = pdf_amt
         if graph is not None and message_id:
