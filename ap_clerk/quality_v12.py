@@ -591,7 +591,8 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "expected": (
             "Enter without Select Receipts lines. All charges → Additional Charge "
-            "Freight External (not Fees & Surcharges). Never Success if posted as Fees. "
+            "Freight External on InvoiceAdditionalCharges lookup id 1 "
+            "(not Fees & Surcharges id 11). Never Success if posted as Fees. "
             "Finish Incomplete 10047 this way if still open."
         ),
         "never_success": True,
@@ -663,9 +664,10 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "expected": (
             "PPV is the per-line unit/amount gap, not a rolled invoice-total "
-            "minus PO-total. Post PPV +0.42. Do not HOLD $714.60. Over-PPV "
-            "lock (NOTE-29) still applies for true over-gate gaps. "
-            "Finish 10050 with line 1 receipt + PPV $0.42 if still open."
+            "minus PO-total. Post PPV +0.42 on InvoiceAdditionalCharges lookup "
+            "id 13. Do not HOLD $714.60. Over-PPV lock (NOTE-29) still applies "
+            "for true over-gate gaps. Finish 10050 with line 1 receipt + PPV "
+            "$0.42 if still open."
         ),
         "never_success": True,
         "do_not_void": True,

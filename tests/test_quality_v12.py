@@ -3927,9 +3927,11 @@ def test_never_repeat_priority1_freight_external():
     assert not is_freight_vendor("Fastenal")
 
     from ap_clerk.kimco import (
-        FEE_CHARGE_CODE,
+        ADDITIONAL_CHARGE_FIELD,
+        ADDITIONAL_CHARGE_LIST,
+        FEE_CHARGE_LOOKUP_ID,
         FREIGHT_EXTERNAL_CHARGE_CODE,
-        FREIGHT_EXTERNAL_CHARGE_TYPE,
+        FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID,
         fees_payload,
     )
 
@@ -3938,11 +3940,13 @@ def test_never_repeat_priority1_freight_external():
         invoice_id=10047,
         freight_external=True,
     )
-    child = payload["lists"]["APInvoiceAdditionalCharge"][0]["values"]
-    assert child["Additional_Charge"] == FREIGHT_EXTERNAL_CHARGE_CODE
-    assert child["Charge_Type"] == FREIGHT_EXTERNAL_CHARGE_TYPE
+    child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]["values"]
+    lookup = child[ADDITIONAL_CHARGE_FIELD]
+    assert ADDITIONAL_CHARGE_LIST == "InvoiceAdditionalCharges"
+    assert lookup["id"] == FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID
+    assert lookup["text"] == FREIGHT_EXTERNAL_CHARGE_CODE
+    assert lookup["id"] != FEE_CHARGE_LOOKUP_ID
     assert child["Amount"] == 235.77
-    assert child["Additional_Charge"] != FEE_CHARGE_CODE
 
     result, why = finish_gate(
         header_created=True,

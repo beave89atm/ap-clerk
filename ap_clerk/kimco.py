@@ -21,15 +21,27 @@ from ap_clerk.rules import is_fee_or_surcharge, is_freight_vendor, money
 
 LOGGER = logging.getLogger("ap_clerk")
 
-# GUI Additional Charge type. Record PUT of lists.APInvoiceAdditionalCharge.
+# Live GET 2026-09-16 (invent=false): Additional Charge children live on
+# lists.InvoiceAdditionalCharges. Additional_Charges is a lookup {id, text}.
+# PUT of lists.APInvoiceAdditionalCharge + string Additional_Charge returned
+# 400 Invalid List (10047 Freight External / 10050 PPV). Ids from existing
+# live invoices — do not invent:
+#   10047 Freight External id=1 text="Freight External-Freight External"
+#   Crosslink 9382 F-Fees & Surcharges id=11
+#   10050 Purchase Price Variance id=13
 FEE_CHARGE_TYPE = "Fees and surcharges"
 FEE_CHARGE_CODE = "F-Fees & Surcharges"
+FEE_CHARGE_LOOKUP_ID = 11
 FREIGHT_EXTERNAL_CHARGE_TYPE = "Freight External"
 FREIGHT_EXTERNAL_CHARGE_CODE = "Freight External"
+FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID = 1
 PPV_CHARGE_TYPE = "Purchase Price Variance"
 PPV_CHARGE_CODE = "Purchase Price Variance"
-ADDITIONAL_CHARGE_LIST = "APInvoiceAdditionalCharge"
+PPV_CHARGE_LOOKUP_ID = 13
+ADDITIONAL_CHARGE_LIST = "InvoiceAdditionalCharges"
+ADDITIONAL_CHARGE_FIELD = "Additional_Charges"
 ADDITIONAL_CHARGE_LISTS = (
+    "InvoiceAdditionalCharges",
     "APInvoiceAdditionalCharge",
     "Additional_Charge",
     "APAdditionalCharge",
@@ -428,8 +440,8 @@ class KimcoClient:
         """Post Additional Charge Fees — or Freight External for freight companies.
 
         Priority 1 (Treyce 2026-09-16): Additional Charge → Freight External,
-        not F-Fees & Surcharges. Record PUT of lists.APInvoiceAdditionalCharge.
-        Sheet Fees column is not a post.
+        not F-Fees & Surcharges. Record PUT of lists.InvoiceAdditionalCharges
+        with Additional_Charges lookup {id, text}. Sheet Fees column is not a post.
         """
         if invoice_id in (None, ""):
             raise KimcoError("Fee post requires an invoice record id")
@@ -704,6 +716,29 @@ def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]
     return out
 
 
+def additional_charge_lookup(*, freight_external: bool = False, ppv: bool = False) -> dict[str, Any]:
+    """Live Additional_Charges lookup. Ids from GET of existing invoices."""
+    if ppv:
+        return {"id": PPV_CHARGE_LOOKUP_ID, "text": PPV_CHARGE_CODE}
+    if freight_external:
+        return {"id": FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID, "text": FREIGHT_EXTERNAL_CHARGE_CODE}
+    return {"id": FEE_CHARGE_LOOKUP_ID, "text": FEE_CHARGE_CODE}
+
+
+def _charge_kind_text(values: dict[str, Any]) -> str:
+    kind = (
+        values.get("Additional_Charges")
+        or values.get("Additional_Charge")
+        or values.get("Charge_Type")
+        or values.get("Description")
+        or values.get("Name")
+        or ""
+    )
+    if isinstance(kind, dict):
+        kind = kind.get("text") or kind.get("id") or ""
+    return str(kind or "")
+
+
 def fees_payload(
     fees: list[dict[str, Any]],
     *,
@@ -713,8 +748,8 @@ def fees_payload(
     """Record PUT body for Additional Charge Fees — or Freight External.
 
     Parent: `{id, state: "Modified"}`.
-    Each child: `{state: "Added", values: {Additional_Charge, Amount, Description}}`.
-    Freight companies (Priority 1) use Freight External, not F-Fees & Surcharges.
+    Each child: `{state: "Added", values: {Additional_Charges: {id, text}, Amount, Description}}`.
+    Freight companies (Priority 1) use Freight External lookup id 1, not Fees id 11.
     """
     items: list[dict[str, Any]] = []
     for fee in fees_with_amounts(fees):
@@ -723,15 +758,13 @@ def fees_payload(
             or fee.get("freight_external")
             or str(fee.get("charge_code") or "").lower() == FREIGHT_EXTERNAL_CHARGE_CODE.lower()
         )
-        code = FREIGHT_EXTERNAL_CHARGE_CODE if use_freight else FEE_CHARGE_CODE
         kind = FREIGHT_EXTERNAL_CHARGE_TYPE if use_freight else FEE_CHARGE_TYPE
         name = str(fee.get("name") or fee.get("label") or kind).strip()
         items.append(
             {
                 "state": "Added",
                 "values": {
-                    "Additional_Charge": code,
-                    "Charge_Type": kind,
+                    ADDITIONAL_CHARGE_FIELD: additional_charge_lookup(freight_external=use_freight),
                     "Amount": fee["amount"],
                     "Description": name,
                 },
@@ -746,7 +779,7 @@ def fees_payload(
 
 
 def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[str, Any]:
-    """Record PUT body for Additional Charge Purchase Price Variance."""
+    """Record PUT body for Additional Charge Purchase Price Variance (lookup id 13)."""
     value = money(amount)
     if value is None or value == 0:
         raise KimcoError("PPV post requires a non-zero amount")
@@ -757,8 +790,7 @@ def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[s
                 {
                     "state": "Added",
                     "values": {
-                        "Additional_Charge": PPV_CHARGE_CODE,
-                        "Charge_Type": PPV_CHARGE_TYPE,
+                        ADDITIONAL_CHARGE_FIELD: additional_charge_lookup(ppv=True),
                         "Amount": value,
                         "Description": PPV_CHARGE_TYPE,
                     },
@@ -782,12 +814,7 @@ def fee_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
             if not isinstance(item, dict):
                 continue
             values = item.get("values") if isinstance(item.get("values"), dict) else item
-            kind = str(
-                values.get("Additional_Charge")
-                or values.get("Charge_Type")
-                or values.get("Description")
-                or ""
-            )
+            kind = _charge_kind_text(values)
             if kind and not (
                 is_fee_or_surcharge(str(kind))
                 or FEE_CHARGE_CODE.lower() in kind.lower()
