@@ -7,17 +7,25 @@ from unittest.mock import patch
 import pytest
 
 from ap_clerk.kimco import (
+    ADDITIONAL_CHARGE_FIELD,
     ADDITIONAL_CHARGE_LIST,
     FEE_CHARGE_CODE,
+    FEE_CHARGE_LOOKUP_ID,
+    FREIGHT_EXTERNAL_CHARGE_CODE,
+    FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID,
     LIST_EDIT_PERMISSIONS_HINT,
     LIVE_SERVICES,
+    PPV_CHARGE_CODE,
+    PPV_CHARGE_LOOKUP_ID,
     PROTOTYPE_SERVICES,
     KimcoClient,
     KimcoError,
+    additional_charge_lookup,
     fee_amounts_from_record,
     fees_payload,
     fees_posted_cover_parsed,
     invoice_lines_from_record,
+    ppv_payload,
     receipt_ids_from_invoice_lines,
     receipt_line_values_from_records,
     select_receipts_payload,
@@ -157,13 +165,42 @@ def test_fees_payload_is_additional_charge_fees_and_surcharges() -> None:
     )
     assert payload["id"] == 9968
     assert payload["state"] == "Modified"
+    assert ADDITIONAL_CHARGE_LIST == "InvoiceAdditionalCharges"
     child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]
     assert child["state"] == "Added"
-    assert child["values"]["Additional_Charge"] == FEE_CHARGE_CODE
+    lookup = child["values"][ADDITIONAL_CHARGE_FIELD]
+    assert lookup == additional_charge_lookup()
+    assert lookup["id"] == FEE_CHARGE_LOOKUP_ID
+    assert lookup["text"] == FEE_CHARGE_CODE
     assert child["values"]["Amount"] == 63.98
     assert child["values"]["Description"] == "Shipping & Handling"
     with pytest.raises(KimcoError, match="fee amount"):
         fees_payload([])
+
+
+def test_fees_payload_freight_external_not_fees_and_surcharges() -> None:
+    payload = fees_payload(
+        [{"name": "Freight Charge USD$235.77", "amount": 235.77}],
+        invoice_id=10047,
+        freight_external=True,
+    )
+    child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]
+    lookup = child["values"][ADDITIONAL_CHARGE_FIELD]
+    assert lookup == additional_charge_lookup(freight_external=True)
+    assert lookup["id"] == FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID
+    assert lookup["text"] == FREIGHT_EXTERNAL_CHARGE_CODE
+    assert lookup["id"] != FEE_CHARGE_LOOKUP_ID
+    assert child["values"]["Amount"] == 235.77
+
+
+def test_ppv_payload_uses_live_lookup_id() -> None:
+    payload = ppv_payload(0.42, invoice_id=10050)
+    child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]
+    lookup = child["values"][ADDITIONAL_CHARGE_FIELD]
+    assert lookup == additional_charge_lookup(ppv=True)
+    assert lookup["id"] == PPV_CHARGE_LOOKUP_ID
+    assert lookup["text"] == PPV_CHARGE_CODE
+    assert child["values"]["Amount"] == 0.42
 
 
 def test_try_post_fees_puts_record_additional_charge() -> None:
@@ -191,6 +228,28 @@ def test_fee_amounts_from_record_and_cover_parsed() -> None:
     assert posted == [63.98]
     assert fees_posted_cover_parsed(posted, [{"name": "Shipping & Handling", "amount": 63.98}])
     assert not fees_posted_cover_parsed([], [{"name": "Shipping & Handling", "amount": 63.98}])
+
+
+def test_fee_amounts_from_live_invoiceadditionalcharges_lookup() -> None:
+    record = {
+        "lists": {
+            "InvoiceAdditionalCharges": [
+                {
+                    "id": 5281,
+                    "values": {
+                        "Additional_Charges": {
+                            "id": FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID,
+                            "text": "Freight External-Freight External",
+                        },
+                        "Amount": 235.77,
+                    },
+                }
+            ]
+        }
+    }
+    posted = fee_amounts_from_record(record)
+    assert posted == [235.77]
+    assert fees_posted_cover_parsed(posted, [{"name": "Freight Charge", "amount": 235.77}])
 
 
 def test_select_receipts_payload_requires_receipt_id() -> None:

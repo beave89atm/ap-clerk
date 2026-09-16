@@ -349,6 +349,8 @@ DOMAIN_VENDORS = {
     "techni-tool.com": "Techni-Tool",
     "technitool.com": "Techni-Tool",
     "toyota.com": "Toyota Commercial Finance",
+    "mcnichols.com": "McNichols",
+    "e.mcnichols.com": "McNichols",
 }
 
 SUBJECT_VENDORS = (
@@ -422,6 +424,7 @@ SUBJECT_VENDORS = (
     (re.compile(r"mcqueary", re.I), "McQueary Industries"),
     (re.compile(r"hudson energy", re.I), "Hudson Energy"),
     (re.compile(r"nova\s+alloys", re.I), "Nova Alloys"),
+    (re.compile(r"mcnichols", re.I), "McNichols"),
 )
 
 
@@ -582,6 +585,9 @@ def extract_po_numbers(text: str) -> list[str]:
     for match in _PO_LABEL.finditer(text or ""):
         raw = match.group(1)
         if raw.upper() in {"NONE", "NET"} or raw.upper().startswith("TXFT"):
+            continue
+        window = (text or "")[max(0, match.start() - 12) : match.start()]
+        if re.search(r"\brfq\b", window, flags=re.I):
             continue
         if re.fullmatch(r"C\d{5,8}", raw.upper()):
             continue
@@ -948,12 +954,22 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
         qty = None
         qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", blob, flags=re.I)
         um_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:FT|LF|PC|PCS|EA|LB|CWT)\b", blob, flags=re.I)
+        inch_pair = re.search(
+            r"\b(\d+(?:\.\d+)?)\s*@\s*(\d+(?:\.\d+)?)\s*(?:in(?:ch(?:es)?)?|[\"″])\b",
+            blob,
+            flags=re.I,
+        )
         if qty_match:
             qty = parse_money(qty_match.group(1))
         elif um_qty:
             qty = parse_money(um_qty.group(1))
+        elif inch_pair:
+            qty = parse_money(inch_pair.group(1))
         elif amounts and len(amounts) >= 2:
             qty = amounts[0]
+            if qty is not None and amounts[-1] is not None and qty == amounts[-1]:
+                qty = None
+        length_inches = parse_money(inch_pair.group(2)) if inch_pair else None
         if qty is not None and _qty_is_inch_dimension(blob, qty):
             qty = None
         po_line = None
@@ -965,8 +981,7 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
             if part in seen:
                 continue
             seen.add(part)
-            lines.append(
-                {
+            line_row = {
                     "part": part,
                     "qty": qty,
                     "amount": amounts[-1] if amounts else None,
@@ -974,8 +989,10 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                     "wo": wo_match.group(1) if wo_match else None,
                     "label": stripped[:80],
                     "description": stripped[:120],
-                }
-            )
+            }
+            if length_inches is not None:
+                line_row["length_inches"] = length_inches
+            lines.append(line_row)
         # O'Neal / EMJ mill descriptions without XXX-XXXX-XXX part numbers.
         if desc_only:
             key = re.sub(r"\s+", " ", stripped.upper())[:48]
@@ -993,8 +1010,7 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                         qty = None
                 if qty is None and not amounts:
                     continue
-                lines.append(
-                    {
+                desc_row = {
                         "part": "",
                         "qty": qty,
                         "amount": amounts[-1] if amounts else None,
@@ -1002,8 +1018,10 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
                         "wo": wo_match.group(1) if wo_match else None,
                         "label": stripped[:80],
                         "description": (desc_only and stripped[:120]) or blob[:120],
-                    }
-                )
+                }
+                if length_inches is not None:
+                    desc_row["length_inches"] = length_inches
+                lines.append(desc_row)
     return lines[:40]
 
 
@@ -1081,7 +1099,7 @@ def _vendor_from_pdf_text(text: str) -> str:
     for line in text.splitlines():
         stripped = line.strip()
         if re.match(
-            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell|nova alloys)",
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell|nova alloys|mcnichols)",
             stripped,
             re.I,
         ):
@@ -1101,6 +1119,11 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
         domain = addr.split("@", 1)[1]
         if domain in DOMAIN_VENDORS:
             return DOMAIN_VENDORS[domain]
+        parts = domain.split(".")
+        for index in range(1, len(parts) - 1):
+            parent = ".".join(parts[index:])
+            if parent in DOMAIN_VENDORS:
+                return DOMAIN_VENDORS[parent]
     blob = f"{subject}\n{from_name}\n{from_address}"
     for pattern, vendor in SUBJECT_VENDORS:
         if pattern.search(blob):
@@ -1115,7 +1138,21 @@ def vendor_from_context(*, subject: str = "", from_name: str = "", from_address:
     # Kyle 8/18 Nova 258145: never prefer Erica Barrett over a company in subject/PDF.
     if _looks_like_person_name(from_name):
         return (company or subject.split("-")[0] or subject or "").strip()[:80]
-    return (from_name or subject or "").strip()[:80]
+    raw = (from_name or subject or "").strip()
+    if "@" in raw:
+        domain = raw.split("@", 1)[1].lower()
+        if domain in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[domain]
+        parts = domain.split(".")
+        for index in range(len(parts) - 1):
+            parent = ".".join(parts[index:])
+            if parent in DOMAIN_VENDORS:
+                return DOMAIN_VENDORS[parent]
+        token = parts[-2] if len(parts) >= 2 else domain
+        if token and token not in {"com", "net", "org", "edu"}:
+            return token.replace("-", " ").title()[:80]
+        return ""
+    return raw[:80]
 
 
 def _invoice_from_filename(filename: str) -> str | None:
@@ -1275,6 +1312,30 @@ _BEFORE_TAX_LABEL = re.compile(
     r"before\s+tax|total\s+before\s+tax|net\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
     flags=re.I,
 )
+_AFTER_TAX_STACKED = re.compile(
+    r"(?m)^[ \t]*(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|"
+    r"grand\s+total|total\s+to\s+be\s+paid|total\s+this\s+invoice|"
+    r"total\s+amount\s+due|please\s+pay\s+this\s+amount|total)\b"
+    r"[^\n]{0,40}\n(?:[ \t]*[A-Za-z][^\n]*\n){0,3}[ \t]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+
+
+def _stacked_after_tax_totals(text: str) -> list[float]:
+    """Label on one line, amount on the next. Never invent. Never take Subtotal.
+
+    Gas 2026-09-16 packs failed preflight because Amount Due / Total sat
+    above the dollars. One note was a single-invoice PDF.
+    """
+    found: list[float] = []
+    for match in _AFTER_TAX_STACKED.finditer(text or ""):
+        line = match.group(0).splitlines()[0]
+        if re.search(r"sub[\s-]*total|merchandise|taxable|before\s+tax", line, flags=re.I):
+            continue
+        amount = parse_money(match.group(1))
+        if amount not in (None, 0, 0.0):
+            found.append(amount)
+    return found
 
 
 def _bare_grand_totals(text: str) -> list[float]:
@@ -1306,6 +1367,7 @@ def prefer_after_tax_amount(text: str, current: float | None = None) -> float | 
     after = [parse_money(m) for m in _AFTER_TAX_LABEL.findall(text or "")]
     after = [a for a in after if a not in (None, 0, 0.0)]
     after.extend(_bare_grand_totals(text))
+    after.extend(_stacked_after_tax_totals(text))
     before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
     before = [a for a in before if a not in (None, 0, 0.0)]
     grand = [a for a in after if a not in before]
@@ -1433,8 +1495,14 @@ def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
         bill["field_sources"] = sources
         if amount in (None, ""):
             bill["gas_misc_ambiguous"] = True
+            if count == 1:
+                bill["gas_single_invoice"] = True
+                bill["multi_invoice_pdf"] = False
         else:
             bill.pop("gas_misc_ambiguous", None)
+            if count == 1:
+                bill["gas_single_invoice"] = True
+                bill["multi_invoice_pdf"] = False
         bill.pop("siblings", None)
         bills.append(bill)
     return bills or [parsed]
