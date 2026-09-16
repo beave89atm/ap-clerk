@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
+from ap_clerk.pdf_invoice import extract_jpsteel_bill, parse_invoice_text  # noqa: E402
 from ap_clerk.rules import names_match  # noqa: E402
 from jpsteel_0916 import (  # noqa: E402
     CAP,
@@ -26,6 +27,7 @@ from jpsteel_0916 import (  # noqa: E402
     is_jpsteel_invoice_email,
     is_jpsteel_message,
     is_jpsteel_vendor_text,
+    match_jpsteel_inch_partial,
     pick_recent,
     _qty_hold,
 )
@@ -66,6 +68,7 @@ def test_jpsteel_names_match_compact_and_spaced():
     assert names_match("JP Steel", "JP Steel")
     assert is_jpsteel_vendor_text("JP Steel")
     assert is_jpsteel_vendor_text("100-JP STEEL")
+    assert is_jpsteel_vendor_text("1098-JP STEEL")
     assert is_jpsteel_vendor_text("JPSteel")
     assert not is_jpsteel_vendor_text("304-MORGAN STEEL")
     assert not is_jpsteel_vendor_text("Leeco Steel, LLC")
@@ -156,6 +159,15 @@ def test_jpsteel_statement_is_not_an_invoice():
     assert is_jpsteel_invoice_email(
         _msg(subject="Invoice 125200 from JP Steel")
     )
+    assert is_jpsteel_invoice_email(
+        _msg(subject="JP Steel Invoice#  (125316) Transmission for KANNON MFG")
+    )
+    reply = _msg(subject="Re: JP Steel Invoice#  (124506) Transmission for KANNON MFG")
+    reply["hasAttachments"] = False
+    assert not is_jpsteel_invoice_email(reply)
+    assert not is_jpsteel_invoice_email(
+        _msg(subject="JP Steel Invoice#  (CM123738) Transmission for KANNON MFG")
+    )
 
 
 def test_jpsteel_batch_is_dedicated_not_crosslink_715():
@@ -182,3 +194,162 @@ def test_jpsteel_inches_are_not_rolled_qty():
     # Explicit length_inches 32 vs receipt qty 32 is allowed (Metal Supermarkets class).
     parsed_len = {"lines": [{"part": "BAR", "qty": 1.0, "length_inches": 32.0}]}
     assert _qty_hold(parsed_len, [{"qty": 32.0}]) is False
+
+
+JPSTEEL_125315 = """
+JP Steel
+https://jpsteel.us/
+Invoice No: 125315
+Customer P.O.#: 59128
+Invoice Date: 9/15/26
+--------------- BOL No: 17343 ---------------
+21684-1--4.000 X 0.375
+1026 DOM -- 21684-1
+ 250.89 $33.00 $693.00 E9.875" E 21  1 P
+Invoice Totals  250.89  21
+Subtotal Non Taxable $693.00
+Total $693.00
+"""
+
+JPSTEEL_125316 = """
+JP Steel
+https://jpsteel.us/
+Invoice No: 125316
+Customer P.O.#: 59154
+Invoice Date: 9/15/26
+--------------- BOL No: 17344 ---------------
+3 X 2 X 0.188 A500 B/C
+Square/Rec
+ 673.13 $9.25 $1,113.85 E289" F 5  1 P 24.08'120.42'
+1.313 X 0.120 1020 DOM  158.49 $4.50 $466.88 E249" F 5  2 P 20.75'103.75'
+Invoice Totals  831.62  10
+Subtotal Non Taxable $1,580.73
+Total $1,580.73
+"""
+
+JPSTEEL_125314 = """
+JP Steel
+https://jpsteel.us/
+Invoice No: 125314
+Customer P.O.#: 59104
+Invoice Date: 9/15/26
+--------------- BOL No: 17344 ---------------
+15878-3--5.500 X 0.500
+1026 DOM
+ 1,122.80 $115.00 $2,530.00 E22.9375" E 22  1 P
+Invoice Totals  1,122.80  22
+Subtotal Non Taxable $2,530.00
+Total $2,530.00
+"""
+
+JPSTEEL_125122 = """
+JP Steel
+https://jpsteel.us/
+Invoice No: 125122
+Customer P.O.#: 59018
+Invoice Date: 9/1/26
+--------------- BOL No: 17168 ---------------
+1.000 X 0.083 1026 DOM  35.22 $3.25 $140.83 E260" F 2  1 P 21.67'43.33'
+1.250 X 1.250 X 14 GA
+A513 Square/Rec
+ 316.08 $2.88 $691.20 E288" F 10  2 P 24'240.00'
+Invoice Totals  351.30  12
+Subtotal Non Taxable $832.03
+Total $832.03
+"""
+
+JPSTEEL_125051 = """
+JP Steel
+https://jpsteel.us/
+Invoice No: 125051
+Customer P.O.#: 58937
+Invoice Date: 8/27/26
+--------------- BOL No: 17101 ---------------
+0.250 X 1.500 6061-T6 BAR
+- FLAT
+ 96.00 $7.92 $380.16 E144" F 4  1 P 12'48.00'
+1.250 X 0.083 6061 ROUND
+TUBE
+ 25.92 $10.42 $750.24 E144" F 6  2 P 12'72.00'
+Invoice Totals  121.92  10
+Subtotal Non Taxable $1,130.40
+Total $1,130.40
+"""
+
+
+def test_jpsteel_pdf_piece_and_foot_lines():
+    """Piece bills use pcs. Foot bills use rolled inches. Cut length is not qty."""
+    piece = extract_jpsteel_bill(JPSTEEL_125315)
+    assert len(piece) == 1
+    assert piece[0]["qty"] == 21.0
+    assert piece[0]["unit_price"] == 33.0
+    assert piece[0]["amount"] == 693.0
+    assert piece[0]["qty_uom"] == "pcs"
+    assert piece[0]["length_inches"] in {9.875, 9.88}
+    assert piece[0]["qty"] != piece[0]["length_inches"]
+
+    two = extract_jpsteel_bill(JPSTEEL_125316)
+    assert [(round(ln["qty"], 2), ln["amount"], ln["qty_uom"]) for ln in two] == [
+        (1445.0, 1113.85, "in"),
+        (1245.0, 466.88, "in"),
+    ]
+    assert two[0]["length_inches"] == 289.0
+    assert two[0]["qty"] != 289.0
+    assert two[0]["qty"] != 5.0
+
+    split = extract_jpsteel_bill(JPSTEEL_125314)
+    assert split[0]["qty"] == 22.0
+    assert split[0]["amount"] == 2530.0
+    assert split[0]["qty_uom"] == "pcs"
+
+    feet = extract_jpsteel_bill(JPSTEEL_125122)
+    assert [(ln["qty"], ln["amount"]) for ln in feet] == [
+        (520.0, 140.83),
+        (2880.0, 691.20),
+    ]
+    assert feet[1]["length_inches"] == 288.0
+    assert feet[1]["qty"] != 288.0
+
+    swap = extract_jpsteel_bill(JPSTEEL_125051)
+    assert [(ln["qty"], ln["amount"]) for ln in swap] == [
+        (576.0, 380.16),
+        (864.0, 750.24),
+    ]
+
+
+def test_jpsteel_inch_partial_takes_unique_unit_only():
+    lines = [
+        {"qty": 1445.0, "unit_price": 0.770833, "amount": 1113.85, "qty_uom": "in"},
+        {"qty": 1245.0, "unit_price": 0.375, "amount": 466.88, "qty_uom": "in"},
+    ]
+    pool = [
+        {"id": 24128, "qty": 14400.0, "unit_price": 0.77},
+        {"id": 24129, "qty": 14940.0, "unit_price": 0.38},
+    ]
+    hits = match_jpsteel_inch_partial(lines, pool, set())
+    assert [(h["id"], h["select_qty"]) for h in hits] == [(24128, 1445.0), (24129, 1245.0)]
+    # Two leftovers at the same unit — do not guess.
+    tied = match_jpsteel_inch_partial(
+        [{"qty": 100.0, "unit_price": 0.50, "qty_uom": "in"}],
+        [
+            {"id": 1, "qty": 500.0, "unit_price": 0.50},
+            {"id": 2, "qty": 600.0, "unit_price": 0.50},
+        ],
+        set(),
+    )
+    assert tied == []
+
+
+def test_jpsteel_parse_invoice_text_uses_pdf_truth():
+    parsed = parse_invoice_text(
+        JPSTEEL_125315,
+        subject="JP Steel Invoice#  (125315) Transmission for KANNON MFG",
+        from_name="JP Steel",
+    )
+    assert parsed["invoice_number"] == "125315"
+    assert parsed["po"] == "59128"
+    assert parsed["amount"] == 693.0
+    assert parsed["date"] == "2026-09-15"
+    assert parsed["vendor"]
+    assert "jp" in parsed["vendor"].lower()
+    assert parsed["lines"][0]["qty"] == 21.0

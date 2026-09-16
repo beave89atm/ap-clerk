@@ -152,11 +152,19 @@ def is_jpsteel_message(message: dict[str, Any]) -> bool:
     return True
 
 
+_REPLY_PREFIX = re.compile(r"^\s*(re|fw|fwd)\s*:", flags=re.I)
+_CREDIT_MEMO = re.compile(r"\bCM\d{5,}\b", flags=re.I)
+
+
 def is_jpsteel_invoice_email(message: dict[str, Any]) -> bool:
     if not is_jpsteel_message(message):
         return False
     subject = str(message.get("subject") or "")
     if NOISE_SUBJECT.search(subject):
+        return False
+    if _CREDIT_MEMO.search(subject):
+        return False
+    if _REPLY_PREFIX.match(subject) and not message.get("hasAttachments"):
         return False
     return bool(_subject_inv(subject) or message.get("hasAttachments"))
 
@@ -212,9 +220,15 @@ def find_jpsteel_messages(graph) -> list[dict[str, Any]]:
 
 
 def confirm_jpsteel_vendor(client: KimcoClient) -> dict[str, Any]:
-    """Live vendor id from existing KIMCO invoices. invent=false — never guess."""
+    """Live vendor id from existing KIMCO invoices. invent=false — never guess.
+
+    List view often stores Vendor as display text (`1098-JP STEEL`) without
+    Vendor.id. Record GET is required for the API vendor id (100, not 1098).
+    """
     samples: list[dict[str, Any]] = []
     entered: dict[str, int] = {}
+    list_hits: list[tuple[int, str, str]] = []
+    list_texts: set[str] = set()
     for item in client.list_items("ap_invoices"):
         vals = item.get("values") or {}
         vendor_txt = str(
@@ -227,6 +241,8 @@ def confirm_jpsteel_vendor(client: KimcoClient) -> dict[str, Any]:
         kid = item.get("id")
         if number and kid not in (None, ""):
             entered[number] = int(kid)
+            list_hits.append((int(kid), number, vendor_txt))
+            list_texts.add(vendor_txt)
         if vendor_id not in (None, ""):
             samples.append(
                 {
@@ -234,9 +250,34 @@ def confirm_jpsteel_vendor(client: KimcoClient) -> dict[str, Any]:
                     "invoice_number": number,
                     "vendor_id": int(vendor_id),
                     "vendor_text": vendor_txt,
+                    "source": "list",
                 }
             )
-    counts = Counter(s["vendor_id"] for s in samples)
+    # Newest first. GET enough records to prove Vendor.id (list view omits it).
+    list_hits.sort(reverse=True)
+    for kid, number, vendor_txt in list_hits[:8]:
+        if any(s.get("invoice_id") == kid and s.get("source") == "record" for s in samples):
+            continue
+        try:
+            rec = client.get_item("ap_invoices", kid)
+        except KimcoError:
+            continue
+        vals = rec.get("values") or {}
+        posted = lookup_id(vals.get("Vendor"))
+        posted_txt = str(lookup_text(vals.get("Vendor")) or vendor_txt)
+        if posted in (None, "") or not is_jpsteel_vendor_text(posted_txt):
+            continue
+        samples.append(
+            {
+                "invoice_id": kid,
+                "invoice_number": number,
+                "vendor_id": int(posted),
+                "vendor_text": posted_txt,
+                "source": "record",
+            }
+        )
+    record_samples = [s for s in samples if s.get("source") == "record"]
+    counts = Counter(s["vendor_id"] for s in (record_samples or samples))
     confirmed = None
     if len(counts) == 1:
         confirmed = next(iter(counts))
@@ -248,9 +289,9 @@ def confirm_jpsteel_vendor(client: KimcoClient) -> dict[str, Any]:
             confirmed = top_id
     return {
         "vendor_id": confirmed,
-        "vendor_text_samples": sorted({s["vendor_text"] for s in samples}),
+        "vendor_text_samples": sorted(list_texts | {s["vendor_text"] for s in samples}),
         "id_counts": dict(counts),
-        "samples": samples[:20],
+        "samples": [s for s in samples if s.get("source") == "record"][:12] or samples[:12],
         "entered": entered,
         "invent": False,
     }
@@ -670,6 +711,45 @@ def _qty_hold(parsed: dict[str, Any], recs: list[dict[str, Any]]) -> bool:
     return True
 
 
+def match_jpsteel_inch_partial(
+    lines: list[dict[str, Any]],
+    pool: list[dict[str, Any]],
+    already_ids: set[int],
+) -> list[dict[str, Any]]:
+    """Foot-priced JP Steel line → unique per-inch leftover, take invoice inches.
+
+    Receipt 14400@0.77 can cover invoice 1445" (120.42'). Do not guess when
+    two leftovers share a unit. Per-piece cut length is not a candidate qty.
+    """
+    hits: list[dict[str, Any]] = []
+    used: set[int] = set(already_ids)
+    for line in lines:
+        if str(line.get("qty_uom") or "") != "in":
+            continue
+        need = money(line.get("qty"))
+        unit = money(line.get("unit_price"))
+        if need is None or unit is None:
+            continue
+        cands: list[dict[str, Any]] = []
+        for rec in pool:
+            rid = rec.get("id")
+            if rid in (None, "") or int(rid) in used:
+                continue
+            ru = money(rec.get("unit_price"))
+            rq = money(rec.get("qty"))
+            if ru is None or rq is None or rq + 0.001 < need:
+                continue
+            if abs(ru - unit) <= 0.012:
+                cands.append(rec)
+        if len(cands) != 1:
+            continue
+        rec = cands[0]
+        rid = int(rec["id"])
+        used.add(rid)
+        hits.append({"line": line, "receipt": rec, "select_qty": need, "id": rid})
+    return hits
+
+
 def finish_hold_header(
     client: KimcoClient,
     *,
@@ -688,23 +768,39 @@ def finish_hold_header(
         po_number=str(parsed.get("po") or ""),
         invoice_amount=parsed.get("amount"),
     )
+    matched = list(match.get("matched") or [])
+    have_ids = set(have)
+    for hit in matched:
+        rid = (hit.get("receipt") or {}).get("id")
+        if rid not in (None, ""):
+            have_ids.add(int(rid))
+    extra = match_jpsteel_inch_partial(list(parsed.get("lines") or []), pool, have_ids)
+    for hit in extra:
+        matched.append(
+            {
+                "line": hit["line"],
+                "receipt": hit["receipt"],
+                "select_qty": hit["select_qty"],
+                "how": "jpsteel-inch-partial",
+            }
+        )
     locked = filter_matches_outside_ppv_gate(
-        list(match.get("matched") or []),
+        matched,
         invoice_total=parsed.get("amount"),
     )
     selectable = list(locked.get("selectable") or [])
     skipped = list(locked.get("skipped") or [])
     wanted_refs = receipt_select_refs(selectable)
-    wanted_ids: list[int] = []
+    wanted: list[Any] = []
     for ref in wanted_refs:
         rid = ref.get("id") if isinstance(ref, dict) else ref
         if rid not in (None, "") and int(rid) not in have:
-            wanted_ids.append(int(rid))
-    select_status = "already-selected" if have and not wanted_ids else "held-unfinished"
+            wanted.append(ref)
+    select_status = "already-selected" if have and not wanted else "held-unfinished"
     if locked.get("select_zero") or (skipped and not selectable):
         select_status = "ppv-lock-select-zero"
-    elif wanted_ids:
-        select_status = client.try_select_receipts(kimco_id, wanted_ids)
+    elif wanted:
+        select_status = client.try_select_receipts(kimco_id, wanted)
 
     parsed_fees = list(parsed.get("fees") or [])
     fee_status = "none"
@@ -730,7 +826,7 @@ def finish_hold_header(
 
     after = jpsteel_proof(client, kimco_id)
     return {
-        "wanted": wanted_ids,
+        "wanted": wanted,
         "select_status": select_status,
         "fee_status": fee_status,
         "ppv_status": ppv_status,
@@ -1036,7 +1132,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     entered = dict(vendor_info.get("entered") or {})
-    entered.update(kimco_jpsteel_numbers(client, int(vendor_id)))
+    if not entered:
+        entered.update(kimco_jpsteel_numbers(client, int(vendor_id)))
     print(
         f"KIMCO JPSteel invoices already present: {sorted(entered)} ({len(entered)})",
         flush=True,
