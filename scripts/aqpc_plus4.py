@@ -197,7 +197,10 @@ def live_get_proof(client: KimcoClient, invoice_id: Any) -> dict[str, Any]:
                 "po_line": lookup_text(lv.get("PO_Item")) or lv.get("PO_Item"),
             }
         )
-    charges = item.get("lists", {}).get("APInvoiceAdditionalCharge") or []
+    lists = item.get("lists") or {}
+    charges = []
+    for key in ("InvoiceAdditionalCharges", "APInvoiceAdditionalCharge"):
+        charges.extend(lists.get(key) or [])
     return {
         "id": item.get("id"),
         "invoice_number": vals.get("Invoice_Number"),
@@ -206,7 +209,9 @@ def live_get_proof(client: KimcoClient, invoice_id: Any) -> dict[str, Any]:
         "po": lookup_text(vals.get("Purchase_Order")) or vals.get("Purchase_Order"),
         "invoice_type": vals.get("Invoice_Type"),
         "invoice_amount": vals.get("Invoice_Amount"),
-        "verification": vals.get("Verification_Total") or vals.get("Invoice_Balance"),
+        "verification": vals.get("Invoice_Verification_Amount")
+        or vals.get("Verification_Total")
+        or vals.get("Invoice_Balance"),
         "invoice_date": vals.get("Invoice_Date"),
         "posted": vals.get("Posted"),
         "void": vals.get("Void"),
@@ -214,6 +219,7 @@ def live_get_proof(client: KimcoClient, invoice_id: Any) -> dict[str, Any]:
         "batch_text": lookup_text(vals.get("AP_Invoice_Batch")),
         "receipt_lines": lines,
         "fee_count": len(charges),
+        "charges": charges,
         "attachments": attachments,
     }
 

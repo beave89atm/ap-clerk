@@ -748,7 +748,9 @@ def fees_payload(
     """Record PUT body for Additional Charge Fees — or Freight External.
 
     Parent: `{id, state: "Modified"}`.
-    Each child: `{state: "Added", values: {Additional_Charges: {id, text}, Amount, Description}}`.
+    Each child: `{state: "Added", values: {Additional_Charges: {id, text},
+    Quantity, Price, Amount}}`. Live 2026-09-16 (Crosslink 10104):
+    `Description` is Invalid Field. Working GET 9382 uses Quantity/Price/Amount.
     Freight companies (Priority 1) use Freight External lookup id 1, not Fees id 11.
     """
     items: list[dict[str, Any]] = []
@@ -758,15 +760,15 @@ def fees_payload(
             or fee.get("freight_external")
             or str(fee.get("charge_code") or "").lower() == FREIGHT_EXTERNAL_CHARGE_CODE.lower()
         )
-        kind = FREIGHT_EXTERNAL_CHARGE_TYPE if use_freight else FEE_CHARGE_TYPE
-        name = str(fee.get("name") or fee.get("label") or kind).strip()
+        amount = fee["amount"]
         items.append(
             {
                 "state": "Added",
                 "values": {
                     ADDITIONAL_CHARGE_FIELD: additional_charge_lookup(freight_external=use_freight),
-                    "Amount": fee["amount"],
-                    "Description": name,
+                    "Quantity": 1.0,
+                    "Price": amount,
+                    "Amount": amount,
                 },
             }
         )
@@ -791,8 +793,9 @@ def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[s
                     "state": "Added",
                     "values": {
                         ADDITIONAL_CHARGE_FIELD: additional_charge_lookup(ppv=True),
+                        "Quantity": 1.0,
+                        "Price": value,
                         "Amount": value,
-                        "Description": PPV_CHARGE_TYPE,
                     },
                 }
             ]

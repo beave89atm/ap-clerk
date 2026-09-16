@@ -828,6 +828,99 @@ _LEGACY_FREIGHT_BLOCK = re.compile(
 )
 
 
+_CROSSLINK_AMT_ROW = re.compile(
+    r"(?P<po>\d{5}(?:-\d+)?)\s+(?P<unit>[\d,]+\.\d{2})\s+(?P<qty>\d+(?:\.\d+)?)\s+"
+    r"\$(?P<amt>[\d,]+\.\d{2})"
+)
+_CROSSLINK_PART = re.compile(r"\b(\d{6,8}-\d+)\b")
+_CROSSLINK_TOUCHUP = re.compile(r"\bCustomer\s+Touchup\b", flags=re.I)
+_CROSSLINK_FEE_HEAD = re.compile(
+    r"packaging\s*/\s*shop\s+supplies|shop\s+supplies\s+recovery",
+    flags=re.I,
+)
+_CROSSLINK_TABLE_STOP = re.compile(r"Part Number Description", flags=re.I)
+
+
+def looks_like_crosslink(text: str, vendor: str = "") -> bool:
+    blob = f"{vendor}\n{text or ''}"
+    return bool(re.search(r"crosslink", blob, flags=re.I))
+
+
+def extract_crosslink_bill(text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Crosslink Line-Name table: part/qty/unit merch + one Supplies Recovery fee.
+
+    ``Packaging/Shop Supplies Recovery`` at unit 0.01 is Additional Charge Fees
+    (SH:27591 class), never PPV and never a receipt qty. ``46.250" TALL`` /
+    ``52.25"`` are heights, not qty and not fees.
+    """
+    lines: list[dict[str, Any]] = []
+    fees: list[dict[str, Any]] = []
+    blob = text or ""
+    if not blob:
+        return lines, fees
+    table = _CROSSLINK_TABLE_STOP.split(blob, maxsplit=1)[0]
+    start = 0
+    headed = re.search(r"Line Name Coating", table, flags=re.I)
+    if headed:
+        start = headed.end()
+    matches = list(_CROSSLINK_AMT_ROW.finditer(table, start))
+    last = start
+    for match in matches:
+        unit = parse_money(match.group("unit"))
+        qty = parse_money(match.group("qty"))
+        amt = parse_money(match.group("amt"))
+        po = match.group("po")
+        window = table[last : match.start()]
+        last = match.end()
+        fee_row = bool(_CROSSLINK_FEE_HEAD.search(window)) or (
+            unit == 0.01 and amt not in (None, 0) and qty not in (None, 0) and qty >= 10
+        )
+        if fee_row:
+            if amt not in (None, 0):
+                fees.append(
+                    {
+                        "name": "Packaging/Shop Supplies Recovery",
+                        "amount": amt,
+                        "fee": True,
+                    }
+                )
+            continue
+        part = ""
+        parts = _CROSSLINK_PART.findall(window)
+        if parts:
+            part = parts[-1]
+        elif _CROSSLINK_TOUCHUP.search(window) or _CROSSLINK_TOUCHUP.search(match.group(0)):
+            part = "Customer Touchup"
+        if not part:
+            continue
+        if qty is not None and _qty_is_inch_dimension(window, qty):
+            continue
+        po_header = re.match(r"(\d{5})", po or "")
+        desc = re.sub(r"\s+", " ", window).strip()[:120]
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt,
+                "unit_price": unit,
+                "po": po_header.group(1) if po_header else po,
+                "po_line": None,
+                "wo": None,
+                "label": f"{part} {desc}".strip()[:80],
+                "description": desc,
+            }
+        )
+    seen_fee: set[float] = set()
+    uniq_fees: list[dict[str, Any]] = []
+    for fee in fees:
+        key = float(fee["amount"])
+        if key in seen_fee:
+            continue
+        seen_fee.add(key)
+        uniq_fees.append(fee)
+    return lines, uniq_fees
+
+
 def looks_like_legacy_sales_invoice(text: str) -> bool:
     blob = text or ""
     return bool(
@@ -1866,6 +1959,13 @@ def parse_invoice_text(
         check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
     fees = extract_fees(pdf_text)
     lines = extract_invoice_lines(pdf_text)
+    if looks_like_crosslink(pdf_text, vendor):
+        xl_lines, xl_fees = extract_crosslink_bill(pdf_text)
+        if xl_lines:
+            lines = xl_lines
+        # Crosslink supply-fee rows must replace generic keyword hits
+        # (46.250" TALL is not a Recovery fee; SH:27591 class).
+        fees = xl_fees
     if looks_like_aqpc_intuit(pdf_text, vendor):
         aqpc_lines = extract_aqpc_intuit_lines(pdf_text)
         if aqpc_lines:
