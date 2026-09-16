@@ -651,8 +651,9 @@ buyer.
 Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
 **40 rows** (prior 35 + 5 new). Do not recreate 10007–10041
 (through 10926/10037, 10925/10038 HOLD, 10924/10039, 10696/10040,
-10523/10041). Keep HOLD rows 11003/10009, 10991/10013, 10956/10021,
-10925/10038 as-is. Skip Kyle-entered 10917/10918/10920/10921. Guest
+10523/10041). Keep HOLD rows 11003/10009, 10991/10013, 10925/10038 as-is
+(10956/10021 later finished — NOTE-27). Skip Kyle-entered
+10917/10918/10920/10921. Guest
 Intuit View-details click (not `sale/viewed`). No Intuit login. No
 Treyce Mail.Send. `invent=false`. Sheet:
 `runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx`
@@ -673,14 +674,15 @@ login / no storage-state). Reused batch **711**. No Treyce Mail.Send.
 | 9352 | **10045** | HOLD not-kannon-po | none (PDF billed to BLM FENCE CO.; Paid in Full) | 130.00 | (blank) |
 | 9343 | **10046** | **Success** | 8235 20@8 | 160.00 | 54871 |
 
-**New five: 4 Success / 1 HOLD. All 40: 35 Success / 5 HOLD.** Live GET of
+**New five: 4 Success / 1 HOLD. All 40 at enter: 35 Success / 5 HOLD;
+after 10956 finish: 36 Success / 4 HOLD.** Live GET of
 10042 / 10043 / 10044 / 10046 matches each PDF qty/unit/total. 9352 first
 pass false Type 4 Success — PDF is billed to **BLM FENCE CO. / Leo
 Mendez**, no Kannon PO, Paid in Full $130; header **10045** left as HOLD
 Entered with issues (do not void). Outlook **Entered in AI** on Success;
 **Entered with issues** on 9352. Never AI Skipped. Do not void
-10007–10046 or 4779. 10009 / 10013 / 10021 / 10038 / 10045 left for
-Shawn / buyer.
+10007–10046 or 4779. After finishing 10956/10021 (NOTE-27), remaining
+HOLD: 10009 / 10013 / 10038 / 10045 for Shawn / buyer.
 
 ### Finish 10956 / 10021 (same-cost leftover, 2026-09-16)
 
