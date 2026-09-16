@@ -67,9 +67,9 @@ ALREADY_ON_711 = {
 }
 KYLE_ENTERED = {"10917", "10918", "10920", "10921"}
 ALREADY = ALREADY_ON_711 | KYLE_ENTERED
-# Next newest unflagged AQPC payment-requests not already on KIMCO (no 11006+
-# last time; 10951 was not in mailbox). Discovery fills extras.
-PREFERRED_FIVE = ["10949", "10948", "10947", "10946", "10945"]
+# Next newest unflagged AQPC payment-requests not already on KIMCO (no 11006+;
+# 10951 / 10949 / 10948 / 10947 not in mailbox). Discovery fills extras.
+PREFERRED_FIVE = ["10946", "10945", "10939", "10938", "10934"]
 KNOWN_TWENTY = [
     {"invoice": "11002", "kimco_id": 10007},
     {"invoice": "10999", "kimco_id": 10008},
