@@ -380,21 +380,14 @@
       "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
       "po": "PO59083-AMERICAN QUALITY POWDERCOATING",
       "invoice_type": 3,
-      "invoice_amount": 1.55,
-      "verification": 1.55,
+      "invoice_amount": 0.0,
+      "verification": 0.0,
       "invoice_date": "2026-09-14T00:00:00",
       "posted": null,
       "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 2.0,
-          "unit": 0.777,
-          "receipt": 24103,
-          "po_line": null
-        }
-      ],
+      "batch_id": 712,
+      "batch_text": "9/15/26 - tw",
+      "receipt_lines": [],
       "fee_count": 0,
       "attachments": [
         "2026-09-15_invoice-11003.pdf"
@@ -536,21 +529,14 @@
       "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
       "po": "PO59148-AMERICAN QUALITY POWDERCOATING",
       "invoice_type": 3,
-      "invoice_amount": 149.25,
-      "verification": 149.25,
+      "invoice_amount": 0.0,
+      "verification": 0.0,
       "invoice_date": "2026-09-10T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 711,
       "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 199.0,
-          "unit": 0.75,
-          "receipt": 23967,
-          "po_line": null
-        }
-      ],
+      "receipt_lines": [],
       "fee_count": 0,
       "attachments": [
         "2026-09-11_invoice-10991.pdf"
@@ -1604,14 +1590,14 @@
       "PO": "59083",
       "Amount": 10.0,
       "Result": "HOLD",
-      "Why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Receipt 24103 / PO59083-01 is qty 2 @ $0.777 = $1.55 (84.4% of invoice total). Do not post PPV. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI. Header 10009 + PDF attached + receipt selected (KIMCO Invoice_Amount is now 1.55 from the receipt). Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Leftover receipt 24103 / PO59083-01 is qty 2 @ $0.777 = $1.55 (84.4% of invoice total / $8.45). Do not post PPV. Receipts NOT selected per Kyle lock rule (NOTE-29): selecting locks the leftover so Shawn cannot unreceive, fix the PO price, and re-receive. Header 10009 + PDF attached. Select Receipts posted zero. Invoice_Amount is not driven by the leftover. @Shawn McKibben. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
       "KIMCO id": 10009,
-      "Batch": "API Agent - 9/15/26 (711)",
+      "Batch": "9/15/26 - tw (712)",
       "Fees": "none",
       "PPV": "none",
       "Attach": "attached",
       "Flag status": "entered-with-issues",
-      "Receipts": "24103 2@0.777",
+      "Receipts": "",
       "Fees and surcharges": "none",
       "Attach status": "attached",
       "Flag in Outlook": "Yes",
@@ -1684,14 +1670,14 @@
       "PO": "59148",
       "Amount": 199.0,
       "Result": "HOLD",
-      "Why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Receipt 23967 / PO59148-02 is qty 199 @ $0.75 = $149.25 (25.0% of invoice total / $49.75). Do not post PPV. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI. Header 10013 + PDF attached + receipt selected (KIMCO Invoice_Amount is now 149.25 from the receipt). First pass wrongly claimed Success on the only open PO receipt. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Leftover receipt 23967 / PO59148-02 is qty 199 @ $0.75 = $149.25 (25.0% of invoice total / $49.75). Do not post PPV. Receipts NOT selected per Kyle lock rule (NOTE-29): selecting locks the leftover so Shawn cannot unreceive, fix the PO price, and re-receive. Header 10013 + PDF attached. Select Receipts posted zero. Invoice_Amount is not driven by the leftover. @Shawn McKibben. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
       "KIMCO id": 10013,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees": "none",
       "PPV": "none",
       "Attach": "attached",
       "Flag status": "entered-with-issues",
-      "Receipts": "23967 199@0.75",
+      "Receipts": "",
       "Fees and surcharges": "none",
       "Attach status": "attached",
       "Flag in Outlook": "Yes",
@@ -2664,12 +2650,12 @@
       {
         "inv": "11003",
         "id": 10009,
-        "why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Receip"
+        "why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Leftov"
       },
       {
         "inv": "10991",
         "id": 10013,
-        "why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Rec"
+        "why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Lef"
       }
     ]
   },
@@ -2728,5 +2714,59 @@
     },
     "outlook": "entered-in-ai",
     "success_ok": true
+  },
+  "release_over_ppv": {
+    "10009": {
+      "id": 10009,
+      "invoice_number": "11003",
+      "invoice_amount": 0.0,
+      "verification": 10.0,
+      "batch": {
+        "id": 712,
+        "text": "9/15/26 - tw",
+        "isAbstract": false
+      },
+      "void": false,
+      "nlines": 0,
+      "receipt_ids": [],
+      "attachments": [
+        "2026-09-15_invoice-11003.pdf"
+      ],
+      "comments": "API Agent. NOTE-29 receipts not selected (over-PPV lock rule).",
+      "receipt": {
+        "id": 24103,
+        "Invoiced": false,
+        "Selected_for_Receipt": false,
+        "Locked_PO": false,
+        "AP_Invoice_Number": null,
+        "unit": 0.777
+      }
+    },
+    "10013": {
+      "id": 10013,
+      "invoice_number": "10991",
+      "invoice_amount": 0.0,
+      "verification": 199.0,
+      "batch": {
+        "id": 711,
+        "text": "API Agent - 9/15/26",
+        "isAbstract": false
+      },
+      "void": false,
+      "nlines": 0,
+      "receipt_ids": [],
+      "attachments": [
+        "2026-09-11_invoice-10991.pdf"
+      ],
+      "comments": "API Agent. NOTE-29 receipts not selected (over-PPV lock rule).",
+      "receipt": {
+        "id": 23967,
+        "Invoiced": false,
+        "Selected_for_Receipt": false,
+        "Locked_PO": false,
+        "AP_Invoice_Number": null,
+        "unit": 0.75
+      }
+    }
   }
 }

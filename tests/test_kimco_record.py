@@ -412,6 +412,27 @@ def test_deselect_receipts_payload_deletes_line_ids() -> None:
     assert payload["state"] == "Modified"
     assert payload["lists"]["APInvoiceLine"] == [{"id": 501, "state": "Removed"}]
     assert deselect_receipts_payload([], invoice_id=10042) is None
+    persist = deselect_receipts_payload(
+        [{"id": 20487, "values": {"Receipt": {"id": 23967}, "Quantity": 199}}],
+        invoice_id=10013,
+        zero_verification=True,
+        record={
+            "lists": {
+                "InvoiceAdditionalCharges": [
+                    {
+                        "id": 5279,
+                        "values": {
+                            "Additional_Charges": {"id": 13, "text": "Purchase Price Variance"},
+                            "Amount": 8.45,
+                        },
+                    }
+                ]
+            }
+        },
+    )
+    assert persist["values"]["Invoice_Verification_Amount"] == 0
+    assert persist["lists"]["APInvoiceLine"] == [{"id": 20487, "state": "Removed"}]
+    assert persist["lists"]["InvoiceAdditionalCharges"] == [{"id": 5279, "state": "Removed"}]
 
 
 def test_try_void_invoice_deselects_then_deletes() -> None:
@@ -426,16 +447,21 @@ def test_try_void_invoice_deselects_then_deletes() -> None:
         },
     }
     calls: list[tuple[str, str]] = []
+    state = {"deselected": False}
 
     def fake_request(method, url, **kwargs):
         calls.append((method, url))
         if method == "GET":
             if any(item[0] == "DELETE" for item in calls):
                 return FakeResp(404, text="gone")
+            if state["deselected"]:
+                empty = {"id": 10042, "values": invoice["values"], "lists": {"APInvoiceLine": []}}
+                return FakeResp(200, empty)
             return FakeResp(200, invoice)
         if method == "PUT":
             body = kwargs.get("json") or {}
             assert body["lists"]["APInvoiceLine"][0]["state"] == "Removed"
+            state["deselected"] = True
             return FakeResp(200, {"id": 10042})
         if method == "DELETE":
             assert url.endswith(f"/{LIVE_GUID}/10042")

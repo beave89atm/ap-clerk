@@ -23,6 +23,13 @@ KIMCO. Kyle reversed 10040–10046 (10696 / 10523 / 10381 / 9502 / 9498 /
 9352 / 9343) as too-old. Do not re-enter them. Same-cost leftover 10956 /
 10021 stays (NOTE-27).
 
+**NOTE-29 over-PPV do not lock receipts (Kyle 2026-09-16).** If leftover
+vs invoice line is outside the PPV gate (≤10% of invoice total **and**
+bill PPV ≤$100), **do not Select Receipts** for that line (selecting
+locks the receipt; Shawn cannot unreceive / fix PO / re-receive). Whole
+bill over-gate → select **zero**. Still header + PDF. HOLD
+`price-does-not-match`. Live released 10009 / 24103 and 10013 / 23967.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -737,7 +744,23 @@ Whole bill over-gate → select **zero**. Still create header + attach PDF.
 HOLD `price-does-not-match` + `@Shawn McKibben`. Outlook Entered with
 issues. Never Success. Never invent receipts.
 
-Live release (batch 711): deselect **10009 / 24103** (~84% / $8.45 on
-AQPC 11003 / PO 59083) and **10013 / 23967** (~25% / $49.75 on AQPC
-10991 / PO 59148). Keep header + PDF. Sheet Why: receipts **NOT**
-selected per Kyle lock rule. Shawn can unreceive / fix PO / re-receive.
+Live release: deselect **10009 / 24103** (~84% / $8.45 on AQPC 11003 /
+PO 59083) and **10013 / 23967** (~25% / $49.75 on AQPC 10991 / PO 59148).
+Keep header + PDF. Sheet Why: receipts **NOT** selected per Kyle lock
+rule. Shawn can unreceive / fix PO / re-receive.
+
+Konfigure will return HTTP 200 for `APInvoiceLine` `Removed` and then
+roll back if `Invoice_Verification_Amount` still equals the selected
+receipt total. Persist by setting verification to **0** on the same PUT
+(and Remove any over-gate PPV additional charge). Then restore the PDF
+verification. 10013 stayed on batch **711**. 10009 was moved to Treyce
+batch **712** (`9/15/26 - tw`) with an over-gate PPV $8.45 posted;
+both the receipt line and that PPV were removed so 24103 unlocked.
+Do not post PPV over the gate.
+
+Live GET after release: **10009** Invoice_Amount **0**, verification
+**10.00**, 0 receipt lines, PDF attached, receipt 24103 Invoiced=false /
+Selected=false / Locked_PO=false. **10013** Invoice_Amount **0**,
+verification **199.00**, 0 receipt lines, PDF attached, receipt 23967
+Invoiced=false / Selected=false / Locked_PO=false. Sheet still
+**31 Success / 2 HOLD / 7 Voided**.

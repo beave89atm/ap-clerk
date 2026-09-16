@@ -461,6 +461,10 @@ class KimcoClient:
 
         PUT child APInvoiceLine rows as `state: Removed` (line id from GET).
         Konfigure EntityState accepts Added / Modified / Removed — not Deleted.
+        A lists-only Removed PUT can return 200 and still roll back when
+        Invoice_Verification_Amount still equals the selected-receipt total
+        (NOTE-29 / 10013). Persist path: same PUT with verification 0 and any
+        PPV additional charges Removed, then restore the PDF verification.
         Does not invent merchandise lines. Empty / no-receipt bills return none.
         """
         if invoice_id in (None, ""):
@@ -473,11 +477,41 @@ class KimcoClient:
             return "none"
         url = self._record_url("ap_invoices", invoice_id)
         put = self.request("PUT", url, json=payload)
-        if put.status_code < 400:
+        if put.status_code >= 400:
+            if put.status_code == 405:
+                return self._blocked_405("deselect receipts", invoice_id)
+            return f"blocked-{put.status_code}"
+        after = self.get_item("ap_invoices", int(invoice_id))
+        if not receipt_ids_from_invoice_lines(invoice_lines_from_record(after)):
             return "deselected"
-        if put.status_code == 405:
-            return self._blocked_405("deselect receipts", invoice_id)
-        return f"blocked-{put.status_code}"
+        persist = deselect_receipts_payload(
+            invoice_lines_from_record(after),
+            invoice_id=invoice_id,
+            record=after,
+            zero_verification=True,
+        )
+        if persist is None:
+            return "deselected-stale"
+        put2 = self.request("PUT", url, json=persist)
+        if put2.status_code >= 400:
+            if put2.status_code == 405:
+                return self._blocked_405("deselect receipts persist", invoice_id)
+            return f"blocked-{put2.status_code}"
+        confirm = self.get_item("ap_invoices", int(invoice_id))
+        if receipt_ids_from_invoice_lines(invoice_lines_from_record(confirm)):
+            return "deselected-stale"
+        original_ver = money((invoice.get("values") or {}).get("Invoice_Verification_Amount"))
+        if original_ver not in (None, 0, 0.0):
+            self.update(
+                "ap_invoices",
+                invoice_id,
+                {
+                    "state": "Modified",
+                    "id": int(invoice_id),
+                    "values": {"Invoice_Verification_Amount": original_ver},
+                },
+            )
+        return "deselected"
 
     def try_delete_invoice(self, invoice_id: int) -> str:
         """DELETE the invoice RECORD. OPTIONS Allow includes DELETE."""
@@ -580,8 +614,15 @@ def deselect_receipts_payload(
     lines: list[dict[str, Any]] | None,
     *,
     invoice_id: int | str | None = None,
+    record: dict[str, Any] | None = None,
+    zero_verification: bool = False,
 ) -> dict[str, Any] | None:
-    """Record PUT that deletes receipt-linked APInvoiceLine children."""
+    """Record PUT that deletes receipt-linked APInvoiceLine children.
+
+    `zero_verification=True` also sets Invoice_Verification_Amount to 0 and
+    Removes PPV additional charges so Konfigure will persist the unlink
+    (NOTE-29 live 10013/10009: lists-only Removed returned 200 then rolled back).
+    """
     items: list[dict[str, Any]] = []
     for raw in lines or []:
         if not isinstance(raw, dict):
@@ -594,12 +635,50 @@ def deselect_receipts_payload(
         if _receipt_id_from_line(raw) in (None, ""):
             continue
         items.append({"id": int(line_id), "state": "Removed"})
-    if not items:
+    if not items and not zero_verification:
         return None
-    payload: dict[str, Any] = {"state": "Modified", "lists": {"APInvoiceLine": items}}
+    payload: dict[str, Any] = {"state": "Modified", "lists": {"APInvoiceLine": items} if items else {}}
     if invoice_id not in (None, ""):
         payload["id"] = int(invoice_id)
+    if zero_verification:
+        payload.setdefault("values", {})["Invoice_Verification_Amount"] = 0
+        charge_name, charges = _ppv_charge_removals(record)
+        if charge_name and charges:
+            payload.setdefault("lists", {})[charge_name] = charges
+    if not payload.get("lists"):
+        payload.pop("lists", None)
+        if not payload.get("values"):
+            return None
     return payload
+
+
+def _ppv_charge_removals(record: dict[str, Any] | None) -> tuple[str | None, list[dict[str, Any]]]:
+    """PPV Additional Charge children to Remove (do not touch Fees)."""
+    if not isinstance(record, dict):
+        return None, []
+    lists = record.get("lists") if isinstance(record.get("lists"), dict) else {}
+    for name in ("InvoiceAdditionalCharges", ADDITIONAL_CHARGE_LIST, "Additional_Charge"):
+        rows = lists.get(name) or []
+        items: list[dict[str, Any]] = []
+        for raw in rows if isinstance(rows, list) else []:
+            if not isinstance(raw, dict):
+                continue
+            values = raw.get("values") if isinstance(raw.get("values"), dict) else raw
+            kind = values.get("Additional_Charges") or values.get("Additional_Charge") or values.get("Name") or ""
+            if isinstance(kind, dict):
+                kind = kind.get("text") or kind.get("id") or ""
+            label = str(kind or "")
+            if "purchase price variance" not in label.lower():
+                continue
+            line_id = raw.get("id")
+            if line_id in (None, "") and isinstance(raw.get("values"), dict):
+                line_id = raw["values"].get("id")
+            if line_id in (None, ""):
+                continue
+            items.append({"id": int(line_id), "state": "Removed"})
+        if items:
+            return name, items
+    return None, []
 
 
 def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
