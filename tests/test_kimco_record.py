@@ -172,8 +172,10 @@ def test_fees_payload_is_additional_charge_fees_and_surcharges() -> None:
     assert lookup == additional_charge_lookup()
     assert lookup["id"] == FEE_CHARGE_LOOKUP_ID
     assert lookup["text"] == FEE_CHARGE_CODE
+    assert child["values"]["Quantity"] == 1.0
+    assert child["values"]["Price"] == 63.98
     assert child["values"]["Amount"] == 63.98
-    assert child["values"]["Description"] == "Shipping & Handling"
+    assert "Description" not in child["values"]
     with pytest.raises(KimcoError, match="fee amount"):
         fees_payload([])
 
@@ -200,7 +202,10 @@ def test_ppv_payload_uses_live_lookup_id() -> None:
     assert lookup == additional_charge_lookup(ppv=True)
     assert lookup["id"] == PPV_CHARGE_LOOKUP_ID
     assert lookup["text"] == PPV_CHARGE_CODE
+    assert child["values"]["Quantity"] == 1.0
+    assert child["values"]["Price"] == 0.42
     assert child["values"]["Amount"] == 0.42
+    assert "Description" not in child["values"]
 
 
 def test_try_post_fees_puts_record_additional_charge() -> None:
