@@ -2,7 +2,7 @@
 
 Treyce’s 2026-09-10 notes on the 8/16 dry-10 sheet, plus Kyle’s never-repeat and
 **Treyce-load / fix-before-complete** rules. Next live FIFO continues AFTER the
-**2026-09-15** weekday cursor (`2026-08-19T20:12:03Z` / batch **711**).
+**2026-09-16** weekday cursor (`2026-08-20T04:57:35Z` / batch **715**).
 
 **Hard email cap 10 until further notice (Kyle 2026-09-11).** Cap = mailbox
 messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop after
@@ -321,6 +321,17 @@ headers. Next weekday continues AFTER `2026-08-19T20:12:03Z`. AQPC
 10917/10918/10920/10921-class mail should guest-click through with no
 Intuit session; HOLD `pdf-behind-link` only after that guest browser
 attempt fails — never Skipped.
+
+Weekday 2026-09-16 live-10 used `daily --live --limit 10` from that
+9/15 cursor on stacked tip `cursor/aqpc-plus5-batch711-25-307b`. Batch
+**715** `API Agent - 9/16/26`. **0 Success** after reversing daily's
+Type-4 Success on EMJ `Z250741432` / **10048** (PDF has 3 mill lines
+totaling $4,222.58; parser `lines:[]`; live GET amount 0.00; no unique
+receipt by qty+cost). Also Incomplete Priority 1 **10047** (fees
+blocked-400), Fail McNichols `2559543` (vendor parsed as From email;
+PO 58935 exists), HOLD Metal **10049** qty and O'Neal **10050**
+price-does-not-match. Gas & Supply split but amounts not extracted —
+no invented totals. Next weekday continues AFTER `2026-08-20T04:57:35Z`.
 
 ### One-invoice AQPC guest proof (2026-09-15, after Kyle posted 10917)
 
