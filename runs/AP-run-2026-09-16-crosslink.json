@@ -9,8 +9,8 @@
   "batch": {
     "id": 715,
     "name": "API Agent - 9/16/26",
-    "status": 1,
-    "unposted": 0,
+    "status": 0,
+    "unposted": 5,
     "matches_today": true
   },
   "discovered": 65,
@@ -1014,7 +1014,7 @@
     "28100",
     "28102"
   ],
-  "chosen_because": "Unflagged Crosslink Powder Coating only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. NOTE-30 reminders not recreated. Distinctive token Crosslink (never MSC/RMP).",
+  "chosen_because": "Unflagged Crosslink Powder Coating only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. NOTE-30 reminders not recreated. Distinctive token Crosslink (never MSC/RMP). First pass created headers; finish hydrated list-view receipts then Select Receipts + Fees + in-gate PPV.",
   "parsed": [
     {
       "invoice_number": "28166",
@@ -1036,12 +1036,12 @@
       ],
       "fees": [],
       "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-11_invoice-28166.pdf",
-      "pdf_bytes": 286524,
-      "download_method": "attachment",
+      "pdf_bytes": null,
+      "download_method": null,
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice #28166 for 59087 (#8497) from Crosslink Powder Coating",
+      "subject": null,
       "graph_message_id_present": true
     },
     {
@@ -1070,12 +1070,12 @@
         }
       ],
       "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28113.pdf",
-      "pdf_bytes": 313510,
-      "download_method": "attachment",
+      "pdf_bytes": null,
+      "download_method": null,
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice #28113 for 59038 (#8432) from Crosslink Powder Coating",
+      "subject": null,
       "graph_message_id_present": true
     },
     {
@@ -1104,12 +1104,12 @@
         }
       ],
       "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28114.pdf",
-      "pdf_bytes": 313594,
-      "download_method": "attachment",
+      "pdf_bytes": null,
+      "download_method": null,
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice #28114 for 59052 (#8451) from Crosslink Powder Coating",
+      "subject": null,
       "graph_message_id_present": true
     },
     {
@@ -1138,12 +1138,12 @@
         }
       ],
       "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28100.pdf",
-      "pdf_bytes": 313337,
-      "download_method": "attachment",
+      "pdf_bytes": null,
+      "download_method": null,
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice #28100 for 59022-01 (#8421) from Crosslink Powder Coating",
+      "subject": null,
       "graph_message_id_present": true
     },
     {
@@ -1183,12 +1183,12 @@
         }
       ],
       "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28102.pdf",
-      "pdf_bytes": 313725,
-      "download_method": "attachment",
+      "pdf_bytes": null,
+      "download_method": null,
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice #28102 for 58902 (#8242) from Crosslink Powder Coating",
+      "subject": null,
       "graph_message_id_present": true
     }
   ],
@@ -1201,7 +1201,7 @@
       "PO": "59087",
       "Amount": 200.0,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 23924 on PO 59087. Attach status=attached. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23924 8@25.0 on PO 59087. Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10101,
       "Batch": "API Agent - 9/16/26 (715)",
       "Fees and surcharges": "none",
@@ -1209,7 +1209,9 @@
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Notes": "",
+      "Receipts": "23924 8@25.0",
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "Crosslink Powder Coating",
@@ -1217,16 +1219,18 @@
       "date": "2026-09-03",
       "PO": "59038",
       "Amount": 830.54,
-      "Result": "HOLD",
-      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 4 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. HOLD: no open receipt qty matches invoice qty 4 (will not take first-open / second-open-on-po). Unmatched PO(s): 59038. Select Receipts per PO; do not skip a PO silently. Header created (id 10102). Attach status=attached. Select Receipts=held-unfinished. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23605 3@193.94; 23794 1@193.94 on PO 59038. Fees=Packaging/Shop Supplies Recovery 8.22 (Additional Charge Fees id 11, not PPV). PPV=46.56. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10102,
       "Batch": "API Agent - 9/16/26 (715)",
       "Fees and surcharges": "Packaging/Shop Supplies Recovery 8.22",
       "PPV": "46.56",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Notes": "",
+      "Receipts": "23605 3@193.94; 23794 1@193.94",
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "Crosslink Powder Coating",
@@ -1234,16 +1238,18 @@
       "date": "2026-09-03",
       "PO": "59052",
       "Amount": 1174.02,
-      "Result": "HOLD",
-      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 5 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. HOLD: no open receipt qty matches invoice qty 5 (will not take first-open / second-open-on-po). Unmatched PO(s): 59052. Select Receipts per PO; do not skip a PO silently. Header created (id 10103). Attach status=attached. Select Receipts=held-unfinished. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23675 1@219.32; 23795 2@219.32; 23882 2@219.32 on PO 59052. Fees=Packaging/Shop Supplies Recovery 11.62 (Additional Charge Fees id 11, not PPV). PPV=65.80. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10103,
       "Batch": "API Agent - 9/16/26 (715)",
       "Fees and surcharges": "Packaging/Shop Supplies Recovery 11.62",
       "PPV": "65.80",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Notes": "",
+      "Receipts": "23675 1@219.32; 23795 2@219.32; 23882 2@219.32",
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "Crosslink Powder Coating",
@@ -1251,16 +1257,18 @@
       "date": "2026-09-02",
       "PO": "59022",
       "Amount": 1245.81,
-      "Result": "HOLD",
-      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 6 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. HOLD: no open receipt qty matches invoice qty 6 (will not take first-open / second-open-on-po). Unmatched PO(s): 59022. Select Receipts per PO; do not skip a PO silently. Header created (id 10104). Attach status=attached. Select Receipts=held-unfinished. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23674 6@205.58 on PO 59022. Fees=Packaging/Shop Supplies Recovery 12.33 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10104,
       "Batch": "API Agent - 9/16/26 (715)",
       "Fees and surcharges": "Packaging/Shop Supplies Recovery 12.33",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Notes": "",
+      "Receipts": "23674 6@205.58",
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "Crosslink Powder Coating",
@@ -1268,18 +1276,140 @@
       "date": "2026-09-02",
       "PO": "58902",
       "Amount": 2104.11,
-      "Result": "HOLD",
-      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 8 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. HOLD: no open receipt qty matches invoice qty 8 (will not take first-open / second-open-on-po). Unmatched PO(s): 58902. Select Receipts per PO; do not skip a PO silently. Header created (id 10105). Attach status=attached. Select Receipts=held-unfinished. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23229 8@193.94; 23230 2@219.32 on PO 58902. Fees=Packaging/Shop Supplies Recovery 20.83 (Additional Charge Fees id 11, not PPV). PPV=93.12. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10105,
       "Batch": "API Agent - 9/16/26 (715)",
       "Fees and surcharges": "Packaging/Shop Supplies Recovery 20.83",
       "PPV": "93.12",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Notes": "",
+      "Receipts": "23229 8@193.94; 23230 2@219.32",
+      "outlook": "entered-in-ai"
     }
   ],
+  "finishes": {
+    "28113": {
+      "wanted": [],
+      "select_status": "already-selected",
+      "fee_status": "posted",
+      "ppv_status": "posted",
+      "ppv_amount": 46.56,
+      "match_how": null,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23605,
+          "qty": 3.0,
+          "unit_price": 193.94,
+          "amount": 581.82,
+          "part": "PO59038-01"
+        },
+        {
+          "id": 23794,
+          "qty": 1.0,
+          "unit_price": 193.94,
+          "amount": 193.94,
+          "part": "PO59038-01"
+        }
+      ]
+    },
+    "28114": {
+      "wanted": [],
+      "select_status": "already-selected",
+      "fee_status": "posted",
+      "ppv_status": "posted",
+      "ppv_amount": 65.8,
+      "match_how": null,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23675,
+          "qty": 1.0,
+          "unit_price": 219.32,
+          "amount": 219.32,
+          "part": "PO59052-01"
+        },
+        {
+          "id": 23676,
+          "qty": 1.0,
+          "unit_price": 232.48,
+          "amount": 232.48,
+          "part": "PO59052-02"
+        },
+        {
+          "id": 23795,
+          "qty": 2.0,
+          "unit_price": 219.32,
+          "amount": 438.64,
+          "part": "PO59052-01"
+        },
+        {
+          "id": 23882,
+          "qty": 2.0,
+          "unit_price": 219.32,
+          "amount": 438.64,
+          "part": "PO59052-01"
+        }
+      ]
+    },
+    "28100": {
+      "wanted": [],
+      "select_status": "already-selected",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23674,
+          "qty": 6.0,
+          "unit_price": 205.58,
+          "amount": 1233.48,
+          "part": "PO59022-01"
+        },
+        {
+          "id": 23793,
+          "qty": 1.0,
+          "unit_price": 205.58,
+          "amount": 205.58,
+          "part": "PO59022-02"
+        }
+      ]
+    },
+    "28102": {
+      "wanted": [],
+      "select_status": "already-selected",
+      "fee_status": "posted",
+      "ppv_status": "posted",
+      "ppv_amount": 93.12,
+      "match_how": null,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23229,
+          "qty": 8.0,
+          "unit_price": 193.94,
+          "amount": 1551.52,
+          "part": "PO58902-01"
+        },
+        {
+          "id": 23230,
+          "qty": 2.0,
+          "unit_price": 219.32,
+          "amount": 438.64,
+          "part": "PO58902-02"
+        }
+      ]
+    }
+  },
   "kimco_gets": {
     "10101": {
       "id": 10101,
@@ -1304,9 +1434,13 @@
         }
       ],
       "fee_count": 0,
+      "charges": [],
       "attachments": [
         "2026-09-11_invoice-28166.pdf"
-      ]
+      ],
+      "verification_amount": 200.0,
+      "fee_amounts": [],
+      "ppv_amounts": []
     },
     "10102": {
       "id": 10102,
@@ -1315,17 +1449,51 @@
       "vendor_text": "1276-Crosslink Powder Coating",
       "po": "PO59038-Crosslink Powder Coating",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 830.54,
+      "verification": 830.54,
       "invoice_date": "2026-09-03T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 715,
       "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [],
-      "fee_count": 0,
+      "receipt_lines": [
+        {
+          "qty": 3.0,
+          "unit": 193.94,
+          "receipt": 23605,
+          "po_line": null
+        },
+        {
+          "qty": 1.0,
+          "unit": 193.94,
+          "receipt": 23794,
+          "po_line": null
+        }
+      ],
+      "fee_count": 2,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 8.22,
+          "description": "F-Fees & Surcharges"
+        },
+        {
+          "lookup_id": 13,
+          "text": "Purchase Price Variance",
+          "amount": 46.56,
+          "description": "Purchase Price Variance"
+        }
+      ],
       "attachments": [
         "2026-09-04_invoice-28113.pdf"
+      ],
+      "verification_amount": 830.54,
+      "fee_amounts": [
+        8.22
+      ],
+      "ppv_amounts": [
+        46.56
       ]
     },
     "10103": {
@@ -1335,17 +1503,57 @@
       "vendor_text": "1276-Crosslink Powder Coating",
       "po": "PO59052-Crosslink Powder Coating",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 1174.02,
+      "verification": 1174.02,
       "invoice_date": "2026-09-03T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 715,
       "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [],
-      "fee_count": 0,
+      "receipt_lines": [
+        {
+          "qty": 1.0,
+          "unit": 219.32,
+          "receipt": 23675,
+          "po_line": null
+        },
+        {
+          "qty": 2.0,
+          "unit": 219.32,
+          "receipt": 23795,
+          "po_line": null
+        },
+        {
+          "qty": 2.0,
+          "unit": 219.32,
+          "receipt": 23882,
+          "po_line": null
+        }
+      ],
+      "fee_count": 2,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 11.62,
+          "description": "F-Fees & Surcharges"
+        },
+        {
+          "lookup_id": 13,
+          "text": "Purchase Price Variance",
+          "amount": 65.8,
+          "description": "Purchase Price Variance"
+        }
+      ],
       "attachments": [
         "2026-09-04_invoice-28114.pdf"
+      ],
+      "verification_amount": 1174.02,
+      "fee_amounts": [
+        11.62
+      ],
+      "ppv_amounts": [
+        65.8
       ]
     },
     "10104": {
@@ -1355,18 +1563,38 @@
       "vendor_text": "1276-Crosslink Powder Coating",
       "po": "PO59022-Crosslink Powder Coating",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 1245.81,
+      "verification": 1245.81,
       "invoice_date": "2026-09-02T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 715,
       "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [],
-      "fee_count": 0,
+      "receipt_lines": [
+        {
+          "qty": 6.0,
+          "unit": 205.58,
+          "receipt": 23674,
+          "po_line": null
+        }
+      ],
+      "fee_count": 1,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 12.33,
+          "description": "F-Fees & Surcharges"
+        }
+      ],
       "attachments": [
         "2026-09-04_invoice-28100.pdf"
-      ]
+      ],
+      "verification_amount": 1245.81,
+      "fee_amounts": [
+        12.33
+      ],
+      "ppv_amounts": []
     },
     "10105": {
       "id": 10105,
@@ -1375,17 +1603,51 @@
       "vendor_text": "1276-Crosslink Powder Coating",
       "po": "PO58902-Crosslink Powder Coating",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 2104.11,
+      "verification": 2104.11,
       "invoice_date": "2026-09-02T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 715,
       "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [],
-      "fee_count": 0,
+      "receipt_lines": [
+        {
+          "qty": 8.0,
+          "unit": 193.94,
+          "receipt": 23229,
+          "po_line": null
+        },
+        {
+          "qty": 2.0,
+          "unit": 219.32,
+          "receipt": 23230,
+          "po_line": null
+        }
+      ],
+      "fee_count": 2,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 20.83,
+          "description": "F-Fees & Surcharges"
+        },
+        {
+          "lookup_id": 13,
+          "text": "Purchase Price Variance",
+          "amount": 93.12,
+          "description": "Purchase Price Variance"
+        }
+      ],
       "attachments": [
         "2026-09-04_invoice-28102.pdf"
+      ],
+      "verification_amount": 2104.11,
+      "fee_amounts": [
+        20.83
+      ],
+      "ppv_amounts": [
+        93.12
       ]
     }
   },
