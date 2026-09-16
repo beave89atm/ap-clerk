@@ -711,3 +711,13 @@ remain GET-able at 10040–10046 with $0 / no receipts / no batch / VOID
 comments. Outlook process categories cleared. NOTE-28. Sheet marks those
 rows **Voided**. Remaining Aug–Sep rows stay on 711 (33 unposted),
 including **11002 / 10007** (untouched).
+
+### Finish 10925 / 10038 (buyer received PO 58939, 2026-09-16)
+
+Kyle / Ruben Perez ~6:24am CT: **"Okay is bee received"** — parts received
+on PO 58939. Live leftovers **24112** 16@$5, **24113** 15@$10,
+**24114** 30@$10, **24115** 20@$10 match the PDF 4 lines / $730. Select
+Receipts posted; Invoice_Amount **730.00**. Outlook upgraded to
+**Entered in AI**. Do not leave HOLD when receipts now exist. Sheet
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx` now **31 Success / 2 HOLD
+/ 7 Voided**. Remaining HOLD: 11003/10009, 10991/10013.

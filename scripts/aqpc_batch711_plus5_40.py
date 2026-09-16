@@ -136,7 +136,6 @@ PRIOR_SHEET = ROOT / "runs" / "AP-run-2026-09-15-aqpc-batch711-35.json"
 HOLD_PDF_AMOUNTS = {
     10009: 10.0,
     10013: 199.0,
-    10038: 730.0,
 }
 # NOTE-28: only Aug/Sep 2026 mail. Do not list older months into KIMCO.
 AUG_SEP_MONTHS = [
