@@ -742,46 +742,72 @@ def filter_matches_outside_ppv_gate(
     unreceive, fix the PO price, and re-receive. Skip that line. If every
     matched line (the whole bill) is over-gate, select zero receipts.
     In-gate / exact-cost matches still select. Header + PDF still create.
+
+    Same-unit leftover covers (Crosslink 28113 3+1, 28114 1+2+2) are one
+    invoice line. Compare the combined receipt cost to the line, not each
+    split receipt against the full line amount (that false-over-gates).
     """
     selectable: list[dict[str, Any]] = []
     skipped: list[dict[str, Any]] = []
     running = 0.0
     total = money(invoice_total)
+    groups: dict[Any, list[dict[str, Any]]] = {}
     for hit in matched or []:
         if not isinstance(hit, dict):
             continue
         line = hit.get("line") if isinstance(hit.get("line"), dict) else {}
-        rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+        key = id(line) if line else id(hit)
+        groups.setdefault(key, []).append(hit)
+    for hits in groups.values():
+        line = hits[0].get("line") if isinstance(hits[0].get("line"), dict) else {}
         inv_amt = line_cost(line)
-        rec_amt = receipt_cost(rec)
-        select_qty = money(hit.get("select_qty"))
-        if select_qty is None:
-            select_qty = select_qty_from_receipt(line, rec)
-        if select_qty is not None:
+        rec_amt = 0.0
+        rec_units: list[float] = []
+        rec_qty_sum = 0.0
+        have_rec = False
+        for hit in hits:
+            rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+            one = receipt_cost(rec)
+            select_qty = money(hit.get("select_qty"))
+            if select_qty is None:
+                select_qty = select_qty_from_receipt(line, rec)
             unit = money(rec.get("unit_price"))
             rec_qty = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
-            if unit is None and rec_qty and rec_amt is not None:
-                unit = round(rec_amt / rec_qty, 4)
+            if unit is None and rec_qty and one is not None:
+                unit = round(one / rec_qty, 4)
+            if select_qty is not None and unit is not None:
+                one = round(select_qty * unit, 2)
+                rec_qty_sum = round(rec_qty_sum + select_qty, 4)
+            elif rec_qty is not None:
+                rec_qty_sum = round(rec_qty_sum + rec_qty, 4)
             if unit is not None:
-                rec_amt = round(select_qty * unit, 2)
-        label = str(line.get("label") or line.get("part") or rec.get("part") or "")
-        decision = decide_ppv(
-            invoice_line_amount=inv_amt if inv_amt is not None else 0.0,
-            po_line_amount=rec_amt if rec_amt is not None else 0.0,
-            invoice_total=float(total or 0.0),
-            ppv_already_on_bill=running,
-            po_unit_price=rec.get("unit_price"),
-            label=label,
-        ) if inv_amt is not None and rec_amt is not None and total is not None else {
-            "hold": False,
-            "action": "match",
-            "ppv": 0.0,
-            "reason": "",
-        }
+                rec_units.append(unit)
+            if one is not None:
+                rec_amt = round(rec_amt + one, 2)
+                have_rec = True
+        label = str(line.get("label") or line.get("part") or "")
+        shared_unit = rec_units[0] if rec_units and all(u == rec_units[0] for u in rec_units) else None
+        inv_unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
+        line_qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+        decision = (
+            decide_ppv(
+                invoice_line_amount=inv_amt if inv_amt is not None else 0.0,
+                po_line_amount=rec_amt,
+                invoice_total=float(total or 0.0),
+                ppv_already_on_bill=running,
+                po_unit_price=shared_unit,
+                invoice_unit_price=inv_unit,
+                qty=line_qty if line_qty is not None else rec_qty_sum,
+                label=label,
+            )
+            if inv_amt is not None and have_rec and total is not None
+            else {"hold": False, "action": "match", "ppv": 0.0, "reason": ""}
+        )
         if decision.get("hold"):
-            skipped.append({**hit, "ppv_skip_reason": decision.get("reason") or ""})
+            for hit in hits:
+                skipped.append({**hit, "ppv_skip_reason": decision.get("reason") or ""})
             continue
-        selectable.append(hit)
+        selectable.extend(hits)
         if decision.get("action") == "ppv":
             running = round(running + float(decision.get("ppv") or 0.0), 2)
     bill_over = bool(skipped) and not selectable
@@ -1291,6 +1317,80 @@ def line_cost(line: dict[str, Any] | None) -> float | None:
     unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
     if qty is not None and unit is not None:
         return round(qty * unit, 2)
+    return None
+
+
+def _unique_qty_subset(
+    receipts: list[dict[str, Any]],
+    need: float,
+) -> list[dict[str, Any]] | None:
+    """Return the only subset whose qtys sum to ``need``. None if 0 or 2+."""
+    indexed: list[tuple[dict[str, Any], float]] = []
+    for receipt in receipts:
+        qty = _receipt_qty(receipt)
+        if qty is None or qty <= 0:
+            continue
+        indexed.append((receipt, qty))
+    if not indexed:
+        return None
+    found: list[list[dict[str, Any]]] = []
+    n = len(indexed)
+    for mask in range(1, 1 << n):
+        total = 0.0
+        pick: list[dict[str, Any]] = []
+        for i, (receipt, qty) in enumerate(indexed):
+            if mask & (1 << i):
+                total = round(total + qty, 4)
+                pick.append(receipt)
+        if _same_qty(total, need):
+            found.append(pick)
+            if len(found) > 1:
+                return None
+    return found[0] if found else None
+
+
+def match_same_unit_qty_cover(
+    line: dict[str, Any] | None,
+    receipts: list[dict[str, Any]],
+) -> list[dict[str, Any]] | None:
+    """Cover one leftover invoice qty with same-unit leftovers (Crosslink 28113/28114).
+
+    28113: qty 4 ↔ 3@193.94 + 1@193.94. 28114: qty 5 ↔ 1+2+2 @219.32
+    (leave the 1@232.48 exact-unit leftover). Do not mix units. Do not
+    guess when two same-unit groups (or two subsets) both cover.
+    """
+    if not isinstance(line, dict):
+        return None
+    need = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    if need is None or need <= 0:
+        return None
+    by_unit: dict[float, list[dict[str, Any]]] = {}
+    for receipt in receipts:
+        if _part_conflicts(line, receipt):
+            continue
+        unit = money(
+            receipt.get("unit_price")
+            if receipt.get("unit_price") is not None
+            else receipt.get("unit_cost")
+            if receipt.get("unit_cost") is not None
+            else receipt.get("purchase_cost")
+        )
+        if unit is None:
+            continue
+        by_unit.setdefault(unit, []).append(receipt)
+    covers: list[tuple[float, list[dict[str, Any]]]] = []
+    for unit, recs in by_unit.items():
+        subset = _unique_qty_subset(recs, need)
+        if subset:
+            covers.append((unit, subset))
+    if not covers:
+        return None
+    inv_unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
+    exact = [pair for pair in covers if inv_unit is not None and pair[0] == inv_unit]
+    if len(exact) == 1:
+        return exact[0][1]
+    if len(covers) == 1:
+        return covers[0][1]
     return None
 
 
@@ -2127,6 +2227,35 @@ def match_receipts(
             )
             second_pass = True
         still_open = kept_cost
+
+    # Same-unit leftover cover (Crosslink 28113/28114): several open
+    # receipts at one unit uniquely sum to the invoice qty. Do not mix
+    # units. Do not guess when two groups or two subsets both cover.
+    if still_open:
+        used_cover: set[int] = set()
+        kept_unit: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            search_po = line_po(inv_line, po_number)
+            pool = [
+                r
+                for r in _open_on_po(search_po or None)
+                if id(r) not in used_cover
+            ]
+            cover = match_same_unit_qty_cover(inv_line, pool)
+            if not cover:
+                kept_unit.append(inv_line)
+                continue
+            for rec in cover:
+                _record_match(
+                    inv_line,
+                    rec,
+                    score=50,
+                    pass_name="same-unit-cover",
+                    how="same-unit leftover qty cover (not first-open)",
+                )
+                used_cover.add(id(rec))
+            second_pass = True
+        still_open = kept_unit
 
     unmatched.extend(still_open)
 

@@ -67,6 +67,12 @@ KNOWN_ENTERED = {
     "27319": 9193,
     "27419": 9345,
 }
+# Locked after 2026-09-16 discovery: newest unflagged Crosslink not on KIMCO.
+PREFERRED_FIVE = ["28166", "28100", "28102", "28113", "28114"]
+NOISE_SUBJECT = re.compile(
+    r"statement|past due|friendly payment reminder|account with us",
+    flags=re.I,
+)
 
 
 def _safe_filename(text: str) -> str:
@@ -76,6 +82,16 @@ def _safe_filename(text: str) -> str:
 def _subject_inv(subject: str) -> str:
     printed = extract_subject_invoice_number(subject)
     return invoice_number_key(printed) if printed else ""
+
+
+def is_crosslink_invoice_email(message: dict[str, Any]) -> bool:
+    """Real Crosslink invoice email. Statements and past-due reminders are not."""
+    if not is_crosslink_message(message):
+        return False
+    subject = str(message.get("subject") or "")
+    if NOISE_SUBJECT.search(subject):
+        return False
+    return bool(_subject_inv(subject) or message.get("hasAttachments"))
 
 
 def is_crosslink_message(message: dict[str, Any]) -> bool:
@@ -326,17 +342,40 @@ def main(argv: list[str] | None = None) -> int:
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_entered = 0
+    skipped_noise = 0
     for msg in messages:
         inv = _subject_inv(str(msg.get("subject") or ""))
         if is_already_flagged(msg):
             skipped_flagged += 1
+            continue
+        if not is_crosslink_invoice_email(msg):
+            skipped_noise += 1
             continue
         if inv and inv in already:
             skipped_entered += 1
             continue
         msg["_wanted_invoice"] = inv
         candidates.append(msg)
-    candidates.sort(key=lambda m: str(m.get("receivedDateTime") or ""), reverse=True)
+    by_inv: dict[str, dict[str, Any]] = {}
+    for msg in candidates:
+        inv = str(msg.get("_wanted_invoice") or "")
+        if not inv:
+            continue
+        prior = by_inv.get(inv)
+        if prior is None or str(msg.get("receivedDateTime") or "") > str(
+            prior.get("receivedDateTime") or ""
+        ):
+            by_inv[inv] = msg
+    ordered: list[dict[str, Any]] = []
+    for inv in PREFERRED_FIVE:
+        if inv in by_inv and inv not in already:
+            ordered.append(by_inv.pop(inv))
+    extras = sorted(
+        by_inv.values(),
+        key=lambda m: str(m.get("receivedDateTime") or ""),
+        reverse=True,
+    )
+    candidates = (ordered + extras)[: max(CAP, len(PREFERRED_FIVE))]
     print(
         json.dumps(
             {
@@ -350,6 +389,7 @@ def main(argv: list[str] | None = None) -> int:
                 ],
                 "skipped_flagged": skipped_flagged,
                 "skipped_already_entered": skipped_entered,
+                "skipped_noise": skipped_noise,
             },
             indent=2,
             default=str,
