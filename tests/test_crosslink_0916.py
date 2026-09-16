@@ -15,12 +15,16 @@ if str(ROOT / "scripts") not in sys.path:
 
 from ap_clerk.pdf_invoice import extract_crosslink_bill, parse_invoice_text  # noqa: E402
 from crosslink_0916 import (  # noqa: E402
+    CREATED_HEADERS,
+    FIRST_FIVE,
     MIN_INVOICE_DATE,
+    NEXT_FIVE,
     NOTE30_REMINDERS,
     PREFERRED_FIVE,
     VENDOR_NAME,
     is_crosslink_invoice_email,
     is_crosslink_message,
+    merge_sheet_rows,
     pick_recent,
 )
 
@@ -194,7 +198,15 @@ def test_crosslink_note30_reminders_not_recreated():
     assert recent == []
     assert older == []
     assert VENDOR_NAME == "Crosslink Powder Coating"
-    assert PREFERRED_FIVE == ["28166", "28100", "28102", "28113", "28114"]
+    assert FIRST_FIVE == ["28166", "28113", "28114", "28100", "28102"]
+    assert CREATED_HEADERS == {
+        "28166": 10101,
+        "28113": 10102,
+        "28114": 10103,
+        "28100": 10104,
+        "28102": 10105,
+    }
+    assert PREFERRED_FIVE == NEXT_FIVE == ["28008"]
 
 
 def test_crosslink_statement_and_past_due_are_not_invoices():
@@ -548,3 +560,43 @@ def test_crosslink_over_ppv_finish_does_not_select():
     assert client.selected == []
     assert client.fees == []
     assert client.ppv == []
+
+
+def test_crosslink_plus5_starts_28008_and_skips_pre_aug():
+    """Second pass: 28008 if open; July 27557 is leftover, not entered."""
+    recent, older = pick_recent(
+        [
+            {
+                "invoice_number": "28008",
+                "date": "2026-08-26",
+                "receivedDateTime": "2026-08-26T21:23:40Z",
+            },
+            {
+                "invoice_number": "27557",
+                "date": "2026-07-06",
+                "receivedDateTime": "2026-07-20T20:03:05Z",
+            },
+            {
+                "invoice_number": "28166",
+                "date": "2026-09-09",
+                "receivedDateTime": "2026-09-11T12:48:51Z",
+            },
+        ],
+        already=set(CREATED_HEADERS),
+        cap=5,
+    )
+    assert [b["invoice_number"] for b in recent] == ["28008"]
+    assert [b["invoice_number"] for b in older] == ["27557"]
+
+
+def test_crosslink_merge_keeps_first_five():
+    prior = [
+        {"Invoice #": "28166", "Result": "Success", "KIMCO id": 10101},
+        {"Invoice #": "28113", "Result": "Success", "KIMCO id": 10102},
+    ]
+    new = [{"Invoice #": "28008", "Result": "Success", "KIMCO id": 10110}]
+    merged = merge_sheet_rows(prior, new)
+    assert [r["Invoice #"] for r in merged] == ["28166", "28113", "28008"]
+    # Re-enter of a first-pass number must not duplicate.
+    again = merge_sheet_rows(merged, [{"Invoice #": "28166", "Result": "HOLD"}])
+    assert [r["Invoice #"] for r in again] == ["28113", "28008", "28166"]

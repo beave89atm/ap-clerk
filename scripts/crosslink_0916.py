@@ -82,11 +82,14 @@ KNOWN_ENTERED = {
     "27321": 9199,
     "27319": 9193,
     "27419": 9345,
+    "28166": 10101,
+    "28113": 10102,
+    "28114": 10103,
+    "28100": 10104,
+    "28102": 10105,
 }
-# Locked after 2026-09-16 discovery: newest unflagged Crosslink not on KIMCO.
-PREFERRED_FIVE = ["28166", "28100", "28102", "28113", "28114"]
-# First-pass live headers on batch 715. 28166 already Success. The other four
-# HOLDed because list-view receipts omit qty/unit — finish hydrates via GET.
+# First-pass Success on batch 715. Do not recreate.
+FIRST_FIVE = ["28166", "28113", "28114", "28100", "28102"]
 CREATED_HEADERS = {
     "28166": 10101,
     "28113": 10102,
@@ -94,6 +97,9 @@ CREATED_HEADERS = {
     "28100": 10104,
     "28102": 10105,
 }
+# Second pass: 28008 first if still open. Discovery fills extras if more recent.
+NEXT_FIVE = ["28008"]
+PREFERRED_FIVE = NEXT_FIVE
 HOLD_TO_FINISH = {
     "28113": 10102,
     "28114": 10103,
@@ -793,6 +799,49 @@ def prior_rows_from_sidecar(report_path: Path) -> list[dict[str, Any]]:
     return [dict(r) for r in payload.get("rows") or [] if isinstance(r, dict)]
 
 
+def merge_sheet_rows(
+    prior_rows: list[dict[str, Any]],
+    new_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Keep first-pass Success rows, then append this pass. No duplicate invoice #."""
+    seen = {str(r.get("Invoice #") or "") for r in new_rows}
+    keep = [r for r in prior_rows if str(r.get("Invoice #") or "") not in seen]
+    return keep + new_rows
+
+
+def finish_entered_rows(
+    client: KimcoClient,
+    graph,
+    *,
+    parsed_bills: list[dict[str, Any]],
+    enter_rows: list[dict[str, Any]],
+    receipts: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, Any], dict[str, Any]]:
+    """Hydrate + Select Receipts + Fees + in-gate PPV on new headers."""
+    rows: list[dict[str, Any]] = []
+    finishes: dict[str, Any] = {}
+    gets: dict[str, Any] = {}
+    by_inv = {invoice_number_key(b.get("invoice_number")): b for b in parsed_bills}
+    for enter_row in enter_rows:
+        inv = invoice_number_key(enter_row.get("Invoice #"))
+        kid = enter_row.get("KIMCO id")
+        parsed = by_inv.get(inv) or {}
+        if kid in (None, "") or not parsed:
+            rows.append(enter_row)
+            continue
+        finish = finish_hold_header(
+            client, parsed=parsed, kimco_id=int(kid), receipts=receipts
+        )
+        finishes[inv] = {k: v for k, v in finish.items() if k != "after"}
+        proof = finish.get("after") or crosslink_proof(client, kid)
+        row = quality_crosslink_row(
+            graph, parsed=parsed, enter_row=enter_row, proof=proof, finish=finish
+        )
+        rows.append(row)
+        gets[str(kid)] = proof
+    return rows, finishes, gets
+
+
 def run_finish_only(
     client: KimcoClient,
     graph,
@@ -810,10 +859,16 @@ def run_finish_only(
     gets: dict[str, Any] = {}
     parsed_all: list[dict[str, Any]] = []
 
-    keep_order = ["28166", "28113", "28114", "28100", "28102"]
+    keep_order = list(FIRST_FIVE)
+    for inv in NEXT_FIVE:
+        if inv not in keep_order:
+            keep_order.append(inv)
+    for inv in prior:
+        if inv not in keep_order:
+            keep_order.append(inv)
     for inv in keep_order:
-        kid = CREATED_HEADERS.get(inv)
-        if kid is None:
+        kid = CREATED_HEADERS.get(inv) or (prior.get(inv) or {}).get("KIMCO id")
+        if kid in (None, ""):
             continue
         parsed = parsed_from_disk(inv, pdf_dir)
         if parsed is None:
@@ -896,8 +951,9 @@ def run_finish_only(
             "Unflagged Crosslink Powder Coating only; not already on KIMCO; "
             f"invoice date on/after {MIN_INVOICE_DATE}; cap {CAP}. "
             "NOTE-30 reminders not recreated. Distinctive token Crosslink "
-            "(never MSC/RMP). First pass created headers; finish hydrated "
-            "list-view receipts then Select Receipts + Fees + in-gate PPV."
+            "(never MSC/RMP). Second pass starts at 28008; first-pass "
+            "10101–10105 kept. Finish hydrates list-view receipts then "
+            "Select Receipts + Fees + in-gate PPV."
         ),
         "parsed": [summarize_parse(b) for b in parsed_all],
         "older_not_entered": [],
@@ -1124,7 +1180,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Wrote {report_path} and sidecar (no enter).", flush=True)
         return 0
 
-    rows = run_enter(
+    enter_rows = run_enter(
         client,
         recent,
         batch_name=BATCH_NAME,
@@ -1133,16 +1189,24 @@ def main(argv: list[str] | None = None) -> int:
         mailbox=ALLOWED_MAILBOX,
         flag_outlook=True,
     )
+    receipts = load_list_receipts(client)
+    new_rows, finishes, gets = finish_entered_rows(
+        client,
+        graph,
+        parsed_bills=recent,
+        enter_rows=enter_rows,
+        receipts=receipts,
+    )
+    prior_rows = prior_rows_from_sidecar(report_path)
+    rows = merge_sheet_rows(prior_rows, new_rows)
     write_report(report_path, rows)
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
 
-    gets: dict[str, Any] = {}
-    for row in rows:
-        kid = row.get("KIMCO id")
-        if kid not in (None, ""):
-            gets[str(kid)] = live_get_proof(client, kid)
-
+    leftover_pending = [
+        summarize_parse(b)
+        for b in older
+    ]
     sidecar = {
         "proof": "crosslink-0916",
         "invent": False,
@@ -1156,16 +1220,23 @@ def main(argv: list[str] | None = None) -> int:
         "catalog": catalog,
         "kimco_already": entered,
         "note30_left_alone": NOTE30_REMINDERS,
+        "first_five": FIRST_FIVE,
+        "first_headers": CREATED_HEADERS,
         "chosen": [invoice_number_key(b.get("invoice_number")) for b in recent],
         "chosen_because": (
-            "Unflagged Crosslink Powder Coating only; not already on KIMCO; "
+            "Second Crosslink pass on batch 715. Start 28008 if still open. "
+            "Unflagged Crosslink only; not already on KIMCO; "
             f"invoice date on/after {MIN_INVOICE_DATE}; cap {CAP}. "
-            "NOTE-30 reminders not recreated. Distinctive token Crosslink "
-            "(never MSC/RMP)."
+            "Fewer than 5 recent remain — enter what's left and stop. "
+            "Do not recreate 10101–10105 or NOTE-30. Distinctive token "
+            "Crosslink (never MSC/RMP)."
         ),
         "parsed": [summarize_parse(b) for b in recent],
-        "older_not_entered": [summarize_parse(b) for b in older],
+        "older_not_entered": leftover_pending,
+        "leftover_pending": leftover_pending,
         "rows": rows,
+        "new_rows": new_rows,
+        "finishes": finishes,
         "kimco_gets": gets,
         "treyce_emailed": False,
         "report": str(report_path),
