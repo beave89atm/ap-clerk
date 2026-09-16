@@ -399,8 +399,8 @@ def try_finish_receipts(
         if line_keys == rec_keys:
             wanted = [int(r["id"]) for r in pool if r.get("id") not in (None, "")]
     # Partial: unique leftover qty+cost matches even when line counts differ.
-    if not wanted and leftover_lines and pool:
-        used: set[int] = set()
+    if leftover_lines and pool:
+        used: set[int] = {int(x) for x in wanted}
         for ln in leftover_lines:
             key = (money(ln.get("qty")), money(ln.get("unit_price")))
             hits = [
@@ -412,6 +412,36 @@ def try_finish_receipts(
             if len(hits) == 1:
                 used.add(int(hits[0]["id"]))
                 wanted.append(int(hits[0]["id"]))
+        # Invoice qty N across leftover same-unit receipts (10939: 3 x qty-1 @ $15).
+        for ln in leftover_lines:
+            iq = money(ln.get("qty"))
+            iu = money(ln.get("unit_price"))
+            if iq is None or iu is None:
+                continue
+            if any(
+                r.get("id") in used
+                and (money(r.get("qty")), money(r.get("unit_price"))) == (iq, iu)
+                for r in pool
+            ):
+                continue
+            candidates = [
+                r
+                for r in pool
+                if r.get("id") not in used and money(r.get("unit_price")) == iu
+            ]
+            acc = 0.0
+            pick: list[dict[str, Any]] = []
+            for rec in sorted(candidates, key=lambda r: (money(r.get("qty")) or 0, int(r.get("id") or 0))):
+                q = money(rec.get("qty")) or 0.0
+                if acc + q <= iq + 0.001:
+                    pick.append(rec)
+                    acc += q
+                    if abs(acc - iq) <= 0.001:
+                        break
+            if pick and abs(acc - iq) <= 0.001:
+                for rec in pick:
+                    used.add(int(rec["id"]))
+                    wanted.append(int(rec["id"]))
     status = "already-selected"
     if wanted:
         status = client.try_select_receipts(kimco_id, wanted)
