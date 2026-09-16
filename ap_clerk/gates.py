@@ -69,8 +69,13 @@ def attach_succeeded(status: str | None) -> bool:
     return (status or "").strip().lower() in ATTACH_OK
 
 
-def receipts_required(*, po: Any = None, multi_po: bool = False) -> bool:
-    """Select Receipts is required when a PO exists (including multi-PO)."""
+def receipts_required(*, po: Any = None, multi_po: bool = False, freight_vendor: bool = False) -> bool:
+    """Select Receipts is required when a PO exists (including multi-PO).
+
+    Freight companies (Priority 1) enter without Select Receipts lines.
+    """
+    if freight_vendor:
+        return False
     if multi_po:
         return True
     return po is not None and str(po).strip() not in {"", "None", "null"}
@@ -370,10 +375,19 @@ def why_preflight_this_invoice(inv: dict[str, Any] | None, kind: str) -> str:
         )
     if kind == "gas_ambiguous":
         item = misc_purchase_item_for(str((inv or {}).get("vendor") or "")) or "Shop Supplies - G&S"
+        count = (inv or {}).get("multi_invoice_count")
+        single = count in (None, "", 1) or (inv or {}).get("gas_single_invoice")
+        if single:
+            return (
+                f"{head} Labeled Total / Amount Due could not be read from this "
+                "Gas PDF (one invoice). Next: read the labeled after-tax Total / "
+                f"Amount Due. Use Invoice_Type 4 and miscellaneous purchase item {item}. "
+                "Do not invent a total."
+            )
         return (
             f"{head} PDF has multiple Misc invoices but amounts could not be split. "
             f"When entering, use Invoice_Type 4 and miscellaneous purchase item {item}. "
-            "Next: HOLD; do not invent per-invoice amounts."
+            "Next: HOLD; read labeled Total / Amount Due per invoice. Do not invent per-invoice amounts."
         )
     return f"{head} Next: Treyce must review this parse HOLD."
 
@@ -498,6 +512,7 @@ def finish_gate(
     selfcheck: dict[str, Any] | None = None,
     fees: list[dict[str, Any]] | None = None,
     fees_posted: bool = False,
+    freight_vendor: bool = False,
 ) -> tuple[str, str]:
     """Success only if header + (Select Receipts when PO) + PDF attached
     + Additional Charge Fees posted when fees were parsed
@@ -510,7 +525,7 @@ def finish_gate(
     if not header_created:
         return RESULT_HOLD, why_hold(GATE_FINISH, "header was not created. Treyce cannot finish this bill.")
     attached = attach_succeeded(attach_status)
-    need_receipts = receipts_required(po=po, multi_po=multi_po)
+    need_receipts = receipts_required(po=po, multi_po=multi_po, freight_vendor=freight_vendor)
     receipts_ok = (not need_receipts) or bool(receipts_selected)
     need_fees = fees_required(fees)
     fees_ok = (not need_fees) or bool(fees_posted)
@@ -523,11 +538,18 @@ def finish_gate(
                 "Do not type Add Item. Treyce would still select receipts."
             )
         if need_fees and not fees_posted:
-            bits.append(
-                "Additional Charge Fees and surcharges / F-Fees & Surcharges "
-                "not posted on the bill (sheet Fees column is not enough). "
-                "Treyce would still post the fees."
-            )
+            if freight_vendor:
+                bits.append(
+                    "Additional Charge Freight External not posted on the bill "
+                    "(freight company — not Fees & Surcharges; sheet column is not enough). "
+                    "Treyce would still post Freight External."
+                )
+            else:
+                bits.append(
+                    "Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                    "not posted on the bill (sheet Fees column is not enough). "
+                    "Treyce would still post the fees."
+                )
         if not attached:
             bits.append(
                 f"PDF attach={attach_status or 'missing'}. "

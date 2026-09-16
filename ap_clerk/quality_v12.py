@@ -558,6 +558,139 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (10009, 10013),
     },
+    {
+        "id": "NOTE-30",
+        "slug": "crosslink-reminder-already-entered",
+        "gate": GATE_ALREADY_ENTERED,
+        "cases": (
+            "Crosslink 27447 / 9382",
+            "Crosslink 27448 / 9384",
+            "Crosslink 27591 / 9587",
+        ),
+        "9_16_bug": (
+            "AP-run-2026-09-16 reminder emails for already-entered Crosslink "
+            "27447 / 27448 / 27591. HOLD already-entered is correct."
+        ),
+        "expected": (
+            "Already-entered reminder emails stay HOLD already-entered. "
+            "Do not create another header. Do not invent Success. Leave Crosslink alone."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (9382, 9384, 9587),
+    },
+    {
+        "id": "NOTE-31",
+        "slug": "priority1-freight-external-no-receipts",
+        "gate": "freight-external",
+        "cases": ("Priority 1 18030910 / KIMCO 10047",),
+        "9_16_bug": (
+            "Incomplete 10047: tried Additional Charge Fees and surcharges / "
+            "F-Fees & Surcharges for Freight Charge $235.77 (blocked-400). "
+            "Priority 1 is a freight company."
+        ),
+        "expected": (
+            "Enter without Select Receipts lines. All charges → Additional Charge "
+            "Freight External (not Fees & Surcharges). Never Success if posted as Fees. "
+            "Finish Incomplete 10047 this way if still open."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10047,),
+    },
+    {
+        "id": "NOTE-32",
+        "slug": "mcnichols-vendor-from-po-partial",
+        "gate": GATE_VENDOR,
+        "cases": ("McNichols 2559543 / PO 58935",),
+        "9_16_bug": (
+            "Fail vendor missing for billings@e.mcnichols.com though PO 58935 "
+            "exists as PO58935-MCNICHOLS CO. Treyce: vendor = 1116-MCNICHOLS."
+        ),
+        "expected": (
+            "If email domain/name fails but a PO exists and the PO vendor name "
+            "is a partial match, create the invoice with that PO vendor. "
+            "Never invent a vendor id from thin air — only from the PO vendor link."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-33",
+        "slug": "emj-no-po-on-pdf-transfer-ap",
+        "gate": GATE_PO,
+        "cases": ("EMJ Z250741432 / KIMCO 10048",),
+        "9_16_bug": (
+            "PO missing from the invoice PDF (printed customer PO is RFQ 081026.3). "
+            "Daily marked Success then reversed to a fake receipt HOLD. "
+            "Treyce commented @Misty McCoy and transferred to Transfer AP."
+        ),
+        "expected": (
+            "No-PO-on-PDF → comment @Misty McCoy (buyer) and Transfer AP batch. "
+            "Not a fake receipt HOLD. Do not invent a PO. Never Success."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10048,),
+    },
+    {
+        "id": "NOTE-34",
+        "slug": "metal-supermarkets-inches-qty",
+        "gate": GATE_QTY,
+        "cases": ("Metal Supermarkets 1091102 / KIMCO 10049 / PO 58919",),
+        "9_16_bug": (
+            "HOLD qty-does-not-match: invoice qty 262.74 (the dollar amount) vs "
+            "PO/receipt qty 32. Invoice is 1 @ 32 inches; PO has 32 inches."
+        ),
+        "expected": (
+            "Do not HOLD qty-does-not-match when the PDF unit is inches/length "
+            "and the PO qty is the inch measure (same class as Legacy Wire "
+            "rolled-qty miss). Do not use the invoice dollar amount as qty. "
+            "Finish 10049 if leftovers match."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10049,),
+    },
+    {
+        "id": "NOTE-35",
+        "slug": "oneal-per-line-ppv-not-rolled",
+        "gate": GATE_PRICE,
+        "cases": ("O'Neal 14748440 / KIMCO 10050 / PO 58964",),
+        "9_16_bug": (
+            "HOLD price-does-not-match $714.60 (bogus rolled variance). "
+            "Line 1 matches 20 @ 248.4845. Line 2 qty 6 correct; unit "
+            "901.97 vs 901.9 → PPV +0.42 only."
+        ),
+        "expected": (
+            "PPV is the per-line unit/amount gap, not a rolled invoice-total "
+            "minus PO-total. Post PPV +0.42. Do not HOLD $714.60. Over-PPV "
+            "lock (NOTE-29) still applies for true over-gate gaps. "
+            "Finish 10050 with line 1 receipt + PPV $0.42 if still open."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10050,),
+    },
+    {
+        "id": "NOTE-36",
+        "slug": "gas-labeled-total-amount-due",
+        "gate": GATE_PREFLIGHT,
+        "cases": (
+            "Gas 0040374117 / 0011062620 / 0040372952 / 0011054481",
+            "Gas 0040374112 / 0011062611",
+        ),
+        "9_16_bug": (
+            "Preflight-parse HOLD gas_misc_ambiguous with empty amounts though "
+            "PDFs were on disk. One note: 0040372952 is only 1 invoice."
+        ),
+        "expected": (
+            "Extract after-tax totals from labeled Total / Amount Due "
+            "(including label-then-amount on the next line). Never invent "
+            "totals. A single-invoice Gas PDF is not 'multiple Misc invoices'. "
+            "HOLD only when a labeled total is truly missing."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

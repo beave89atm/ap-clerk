@@ -85,8 +85,10 @@ from ap_clerk.rules import (
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_BATCH_NAMES,
     FORBIDDEN_INVOICE_IDS,
+    NO_PO_ON_PDF_BUYER_COMMENT,
     PRICE_DOES_NOT_MATCH,
     PRICE_MISMATCH_PO_COMMENT,
+    TRANSFER_AP_BATCH_NAME,
     batch_name_for,
     chicago_today,
     comments_for,
@@ -101,6 +103,8 @@ from ap_clerk.rules import (
     is_noise_reason,
     looks_like_account_statement,
     invoice_type_for,
+    is_freight_vendor,
+    is_rfq_not_kimco_po,
     kimco_datetime,
     known_vendor_id,
     lookup_id,
@@ -119,7 +123,10 @@ from ap_clerk.rules import (
     money,
     names_match,
     normalize_receipt,
+    po_vendor_name_from_text,
+    po_vendor_partial_match,
     posted_vendor_fields,
+    should_transfer_ap_missing_po,
     should_create_header,
     vendor_match_score,
     parse_iso_date,
@@ -1002,8 +1009,15 @@ def _process_invoice(
         )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
-    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p]
-    multi_po = bool(inv.get("multi_po")) or len(pos) > 1
+    freight_vendor = is_freight_vendor(vendor)
+    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)]
+    if po and is_rfq_not_kimco_po(po):
+        po = None
+        po_display = ""
+        row["PO"] = ""
+    multi_po = bool(inv.get("multi_po")) and len(pos) > 1
+    if not pos:
+        multi_po = False
     if multi_po:
         row["PO"] = ", ".join(pos)
     invoice_lines = list(inv.get("lines") or [])
@@ -1061,6 +1075,8 @@ def _process_invoice(
         invoice_by_number=invoice_by_number,
         invoice_number=number,
     )
+    if not vendor_info and po_info:
+        vendor_info = _resolve_vendor_from_po_partial(vendor, po_info, vendor_samples)
     if not vendor_info:
         hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (looked up by vendor name / alias / PO vendor)"
         row["Result"] = RESULT_FAIL
@@ -1094,6 +1110,23 @@ def _process_invoice(
         row["Why"] = why_fail("sample invoice missing remit or terms; will not invent them.")
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
+    transfer_ap = should_transfer_ap_missing_po(
+        vendor=vendor,
+        printed_pos=pos,
+        resolved=resolved if not multi_po else None,
+        freight=freight_vendor,
+        gas_misc=bool(inv.get("gas_misc") or inv.get("gas_split") or misc_purchase_item_for(vendor)),
+    )
+    if freight_vendor:
+        parsed_fee_list = list(inv.get("fees") or [])
+        if not parsed_fee_list and amount not in (None, ""):
+            inv["fees"] = [{"name": "Freight External", "amount": amount, "fee": True, "freight_external": True}]
+        else:
+            for fee in parsed_fee_list:
+                if isinstance(fee, dict):
+                    fee["freight_external"] = True
+            inv["fees"] = parsed_fee_list
+        row["Fees and surcharges"] = format_fees(inv.get("fees"))
     merch = merchandise_amount(amount, inv.get("fees"))
     invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
     if multi_po:
@@ -1130,7 +1163,8 @@ def _process_invoice(
         issue_why += " Create KIMCO header and attach PDF; do not finish the bill."
         issue_hold = (GATE_PRICE, issue_why)
     # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
-    if not multi_po:
+    # Freight companies have no Select Receipts / PO qty gate (Priority 1).
+    if not multi_po and not freight_vendor and not transfer_ap:
         qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
         if not qty_ok:
             extra = qty_why
@@ -1138,10 +1172,17 @@ def _process_invoice(
                 issue_hold = (issue_hold[0], f"{issue_hold[1]} {extra}")
             else:
                 issue_hold = (GATE_QTY, extra + " Create KIMCO header and attach PDF; do not claim Success.")
+    if transfer_ap:
+        transfer_why = why_hold(
+            GATE_PO,
+            f"{NO_PO_ON_PDF_BUYER_COMMENT} Batch {TRANSFER_AP_BATCH_NAME}. "
+            "Create KIMCO header and attach PDF; do not invent a PO or Select Receipts.",
+        )
+        issue_hold = (GATE_PO, transfer_why)
 
     receipt_note = ""
     receipt_result: dict[str, Any] | None = None
-    if receipts is not None and (po_info or multi_po):
+    if receipts is not None and (po_info or multi_po) and not freight_vendor and not transfer_ap:
         # One matcher pass over every invoice line and every listed PO.
         # Do not feed invoice-total qty/cost as a per-line gate (3P 142041).
         # CPL numbers are a secondary hint only — never required.
@@ -1316,7 +1357,13 @@ def _process_invoice(
         "Transaction_Date": kimco_datetime(invoice_day),
         "Comments": comments_for(client.target),
     }
-    if po_info and not multi_po:
+    if transfer_ap:
+        payload["Comments"] = f"{payload['Comments']} {NO_PO_ON_PDF_BUYER_COMMENT}".strip()
+        found_transfer = _find_existing_batch_named(client, TRANSFER_AP_BATCH_NAME)
+        if found_transfer:
+            payload["AP_Invoice_Batch"] = {"id": found_transfer["id"]}
+            row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({found_transfer['id']})"
+    if po_info and not multi_po and not transfer_ap:
         payload["Purchase_Order"] = {"id": po_info["id"]}
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
@@ -1338,7 +1385,9 @@ def _process_invoice(
     receipts_selected = False
     select_status = ""
     receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
-    if (po_info or multi_po) and receipt_ids:
+    if freight_vendor or transfer_ap:
+        receipt_ids = []
+    if (po_info or multi_po) and receipt_ids and not freight_vendor and not transfer_ap:
         # Kyle 2026-09-14: select every matchable line. A price/qty/unmatched
         # leftover must not skip Select Receipts for the lines that did match.
         selector = getattr(client, "try_select_receipts", None)
@@ -1369,7 +1418,15 @@ def _process_invoice(
         poster = getattr(client, "try_post_fees", None)
         if poster:
             try:
-                fee_status = poster(created_id, fees_with_amounts(parsed_fees))
+                try:
+                    fee_status = poster(
+                        created_id,
+                        fees_with_amounts(parsed_fees),
+                        freight_vendor=freight_vendor,
+                        vendor=vendor,
+                    )
+                except TypeError:
+                    fee_status = poster(created_id, fees_with_amounts(parsed_fees))
             except KimcoError:
                 fee_status = "blocked-405"
         else:
@@ -1424,6 +1481,7 @@ def _process_invoice(
         kimco_id=created_id,
         fees=parsed_fees,
         fees_posted=fees_posted,
+        freight_vendor=freight_vendor,
         selfcheck=_selfcheck_with_posted_vendor(
             selfcheck_payload(
                 inv,
@@ -1477,15 +1535,27 @@ def _process_invoice(
     fee_note = ""
     if fees_required(parsed_fees):
         if fees_posted:
-            fee_note = (
-                f"Posted Additional Charge Fees and surcharges / F-Fees & Surcharges "
-                f"({format_fees(parsed_fees)}; not PPV). "
-            )
+            if freight_vendor:
+                fee_note = (
+                    f"Posted Additional Charge Freight External "
+                    f"({format_fees(parsed_fees)}; not Fees & Surcharges; not PPV). "
+                )
+            else:
+                fee_note = (
+                    f"Posted Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                    f"({format_fees(parsed_fees)}; not PPV). "
+                )
         else:
-            fee_note = (
-                f"Fees {format_fees(parsed_fees)} were parsed but not posted "
-                f"({fee_status}); sheet column is not enough. "
-            )
+            if freight_vendor:
+                fee_note = (
+                    f"Freight External {format_fees(parsed_fees)} was parsed but not posted "
+                    f"({fee_status}); sheet column is not enough. "
+                )
+            else:
+                fee_note = (
+                    f"Fees {format_fees(parsed_fees)} were parsed but not posted "
+                    f"({fee_status}); sheet column is not enough. "
+                )
     if result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
@@ -1560,6 +1630,58 @@ def _selfcheck_with_posted_vendor(
     return out
 
 
+def _find_existing_batch_named(client: KimcoClient, name: str) -> dict[str, Any] | None:
+    """Find Transfer AP (or any named batch). Never create. Never invent an id."""
+    wanted = (name or "").strip()
+    if not wanted:
+        return None
+    try:
+        items = client.list_items("ap_batches", page_size=200)
+    except (KimcoError, AttributeError, TypeError):
+        return None
+    for item in items or []:
+        values = item.get("values") or {}
+        label = str(values.get("AP_Invoice_Batch_ID") or values.get("Name") or "").strip()
+        if label == wanted and item.get("id") not in (None, ""):
+            return {"id": item["id"], "name": label}
+    return None
+
+
+def _resolve_vendor_from_po_partial(
+    parsed_vendor: str,
+    po_info: dict[str, Any] | None,
+    samples: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """McNichols 2559543: email/name fail + PO vendor partial match → use PO vendor.
+
+    Never invent a vendor id. Only the id already on the PO (or a sample for that same PO vendor).
+    """
+    if not po_info:
+        return None
+    po_text = str(po_info.get("text") or "")
+    po_name = str(po_info.get("vendor_text") or "") or po_vendor_name_from_text(po_text)
+    po_id = po_info.get("vendor_id")
+    if not po_vendor_partial_match(parsed_vendor, po_name or po_text):
+        return None
+    if po_id not in (None, ""):
+        from_po = _sample_by_vendor_id(samples, int(po_id))
+        if from_po:
+            return from_po
+    if po_name:
+        from_name = _best_vendor_sample(po_name, po_text, samples)
+        if from_name:
+            return from_name
+    if po_id not in (None, ""):
+        return {
+            "vendor_id": int(po_id),
+            "vendor_text": po_name or parsed_vendor,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_po_partial": True,
+        }
+    return None
+
+
 def _resolve_vendor(
     client: KimcoClient,
     fixture_vendor: str,
@@ -1577,7 +1699,7 @@ def _resolve_vendor(
     """
     po_text = (po_info or {}).get("text") or ""
     po_vendor_id = (po_info or {}).get("vendor_id")
-    po_vendor_text = (po_info or {}).get("vendor_text") or ""
+    po_vendor_text = (po_info or {}).get("vendor_text") or po_vendor_name_from_text(po_text)
     parsed_alias = known_vendor_id(fixture_vendor)
     alias_id = parsed_alias or known_vendor_id(po_vendor_text)
 
@@ -1637,6 +1759,10 @@ def _resolve_vendor(
     )
     if discovered:
         return discovered
+
+    partial = _resolve_vendor_from_po_partial(fixture_vendor, po_info, samples)
+    if partial:
+        return partial
 
     # Vendor is known from alias or the live PO; remit/terms sample may still be missing.
     known_id = alias_id or po_vendor_id

@@ -104,6 +104,20 @@ PRICE_MISMATCH_PO_COMMENT = (
     "and PO clearing)."
 )
 
+# Treyce 2026-09-16: Priority 1 is a freight company. Enter without Select
+# Receipts; all charges are Additional Charge Freight External (not Fees).
+FREIGHT_VENDOR_TOKENS = frozenset({"priority 1", "priority1"})
+
+# Treyce 2026-09-16: no-PO-on-PDF (EMJ Z250741432) → buyer comment + Transfer AP.
+# Never invent a PO. Never fake a receipt HOLD.
+MISTY_MCCOY = "@Misty McCoy"
+TRANSFER_AP_BATCH_NAME = "Transfer AP"
+NO_PO_ON_PDF_BUYER_COMMENT = (
+    "@Misty McCoy PO number is missing from this invoice. "
+    "Transfer to Transfer AP. Do not invent a PO or fake a receipt HOLD."
+)
+GATE_NO_PO_TRANSFER = "no-po-on-pdf-transfer-ap"
+
 # Treyce 2026-08-28: when name match fails, these vendors are known live ids.
 # Do not Fail "vendor missing" when the PO has a vendor.
 VENDOR_ID_ALIASES = {
@@ -311,6 +325,100 @@ def format_ppv(amount: float | None) -> str:
     return f"{value:.2f}"
 
 
+def is_freight_vendor(name: str | None) -> bool:
+    """Priority 1 and same-class freight companies. No Select Receipts."""
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    norm = normalize_name(name)
+    if raw in FREIGHT_VENDOR_TOKENS or (norm or "") in FREIGHT_VENDOR_TOKENS:
+        return True
+    compact = raw.replace(" ", "")
+    return "priority 1" in (norm or "") or compact == "priority1" or compact.startswith("priority1")
+
+
+def po_vendor_name_from_text(text: str | None) -> str:
+    """PO58935-MCNICHOLS CO. → MCNICHOLS CO. Never invent an id from the label."""
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    if "-" in raw:
+        head, tail = raw.split("-", 1)
+        tail = tail.strip()
+        if tail and re.fullmatch(r"(?:PO)?\d+", head, flags=re.I):
+            return tail
+    return raw
+
+
+def vendor_hint_tokens(value: str | None) -> set[str]:
+    """Tokens from a vendor name or email (billings@e.mcnichols.com → mcnichols)."""
+    text = str(value or "").strip().lower()
+    if "@" in text:
+        _local, _, domain = text.partition("@")
+        text = domain.replace(".", " ")
+    tokens = set(distinctive_vendor_tokens(text))
+    tokens.update(tok for tok in normalize_name(text).split() if tok)
+    return {tok for tok in tokens if tok not in GENERIC_VENDOR_TOKENS and len(tok) >= 4}
+
+
+def po_vendor_partial_match(parsed: str | None, po_vendor: str | None) -> bool:
+    """True when email/name fails exact match but PO vendor is a partial hit.
+
+    McNichols 2559543: billings@e.mcnichols.com vs PO58935-MCNICHOLS CO.
+    Never invent a vendor id — caller must take the id from the PO link.
+    """
+    if not (parsed or "").strip() or not (po_vendor or "").strip():
+        return False
+    if names_match(parsed, po_vendor) or vendor_match_score(parsed, po_vendor):
+        return True
+    left = vendor_hint_tokens(parsed)
+    right = vendor_hint_tokens(po_vendor)
+    if not left or not right:
+        return False
+    for a in left:
+        for b in right:
+            if a == b or a in b or b in a:
+                return True
+    return False
+
+
+def is_rfq_not_kimco_po(value: Any) -> bool:
+    """RFQ 081026.3 is not a live KIMCO PO (EMJ Z250741432)."""
+    text = str(value or "").strip()
+    if not text:
+        return False
+    if re.search(r"\brfq\b", text, flags=re.I):
+        return True
+    return bool(re.fullmatch(r"\d{5,6}\.\d+", text))
+
+
+def vendor_expects_printed_po(name: str | None) -> bool:
+    """Merchandise vendors Treyce transfers when the PDF has no KIMCO PO."""
+    norm = normalize_name(name)
+    blob = (name or "").lower()
+    return any(
+        key in (norm or "") or key in blob
+        for key in ("earle", "jorgensen", "emj", "o neal", "oneal")
+    )
+
+
+def should_transfer_ap_missing_po(
+    *,
+    vendor: str | None,
+    printed_pos: list[str] | None = None,
+    resolved: dict[str, Any] | None = None,
+    freight: bool = False,
+    gas_misc: bool = False,
+) -> bool:
+    """No-PO-on-PDF → buyer comment + Transfer AP. Not a fake receipt HOLD."""
+    if freight or gas_misc or is_freight_vendor(vendor):
+        return False
+    if not vendor_expects_printed_po(vendor):
+        return False
+    usable = [str(p) for p in (printed_pos or []) if p and not is_rfq_not_kimco_po(p)]
+    if resolved and resolved.get("info"):
+        return False
+    return True if not usable else not bool(resolved and resolved.get("info"))
+
+
 def known_vendor_id(name: str | None) -> int | None:
     """National Specialty Alloys → 1386; Coherent Corp. → 1410.
 
@@ -396,6 +504,34 @@ def money(value: Any) -> float | None:
         return None
 
 
+def per_line_extended_amounts(
+    invoice_line: dict[str, Any] | None,
+    po_line: dict[str, Any] | None,
+    *,
+    invoice_total: float | None = None,
+) -> tuple[float | None, float | None]:
+    """Per-line unit/amount gap. Never a rolled invoice-total vs PO-total.
+
+    O'Neal 14748440 line 2: 6 @ 901.97 vs 901.9 → $0.42, not a bogus $714.60.
+    """
+    inv = invoice_line if isinstance(invoice_line, dict) else {}
+    po = po_line if isinstance(po_line, dict) else {}
+    inv_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+    po_qty = money(po.get("qty") if po.get("qty") is not None else po.get("quantity"))
+    inv_unit = money(inv.get("unit_price") or inv.get("rate"))
+    po_unit = money(po.get("unit_price") or po.get("rate") or po.get("unit"))
+    inv_amt = money(inv.get("amount") if inv.get("amount") is not None else inv.get("line_amount"))
+    po_amt = money(po.get("amount") if po.get("amount") is not None else po.get("line_amount"))
+    qty = inv_qty if inv_qty is not None else po_qty
+    if inv_unit is not None and po_unit is not None and qty is not None:
+        return round(inv_unit * qty, 2), round(po_unit * qty, 2)
+    if po_amt is None and po_unit is not None and qty is not None:
+        po_amt = round(po_unit * qty, 2)
+    if inv_amt is None and inv_unit is not None and qty is not None:
+        inv_amt = round(inv_unit * qty, 2)
+    return inv_amt, po_amt
+
+
 def decide_ppv(
     *,
     invoice_line_amount: float,
@@ -403,9 +539,15 @@ def decide_ppv(
     invoice_total: float,
     ppv_already_on_bill: float = 0.0,
     po_unit_price: float | None = None,
+    invoice_unit_price: float | None = None,
+    qty: float | None = None,
     label: str = "",
 ) -> dict[str, Any]:
-    """Kyle 2026-08-28 PPV rule. Fees never go through this helper (caller filters)."""
+    """Kyle 2026-08-28 PPV rule. Fees never go through this helper (caller filters).
+
+    Variance is the per-line unit/amount gap. Do not HOLD a rolled
+    invoice-total minus PO-total (O'Neal 14748440 $714.60 miss).
+    """
     if is_fee_or_surcharge(label):
         return {
             "action": "fee",
@@ -427,8 +569,14 @@ def decide_ppv(
             ),
             "po_comment": PRICE_MISMATCH_PO_COMMENT,
         }
-    invoice_amt = money(invoice_line_amount) or 0.0
-    po_amt = money(po_line_amount) or 0.0
+    inv_unit = money(invoice_unit_price)
+    line_qty = money(qty)
+    if inv_unit is not None and unit is not None and line_qty is not None:
+        invoice_amt = round(inv_unit * line_qty, 2)
+        po_amt = round(unit * line_qty, 2)
+    else:
+        invoice_amt = money(invoice_line_amount) or 0.0
+        po_amt = money(po_line_amount) or 0.0
     variance = round(invoice_amt - po_amt, 2)
     # Two-cent rounding is a match, not an invented PPV (3P 142041 amounts add cleanly).
     if variance == 0 or abs(variance) <= 0.02:
@@ -513,23 +661,33 @@ def evaluate_bill_price_variance(
             if po_match.get("amount") is not None
             else po_match.get("line_amount")
         )
-        if inv_amt is None or po_amt is None:
-            unit = money(po_match.get("unit_price"))
-            qty = money(po_match.get("qty") or po_match.get("quantity"))
-            if po_amt is None and unit is not None and qty is not None:
-                po_amt = round(unit * qty, 2)
-            inv_unit = money(inv.get("unit_price"))
-            inv_qty = money(inv.get("qty") or inv.get("quantity"))
-            if inv_amt is None and inv_unit is not None and inv_qty is not None:
-                inv_amt = round(inv_unit * inv_qty, 2)
+        inv_amt, po_amt = per_line_extended_amounts(inv, po_match, invoice_total=invoice_total)
+        merch_n = sum(
+            1
+            for line in inv_lines
+            if line and not (is_fee_or_surcharge(str(line.get("label") or line.get("part") or "")) or line.get("fee"))
+        )
+        if (
+            merch_n > 1
+            and invoice_total is not None
+            and inv_amt is not None
+            and inv_amt == money(invoice_total)
+            and money(inv.get("unit_price")) is None
+        ):
+            continue
         if inv_amt is None or po_amt is None:
             continue
+        inv_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+        if inv_qty is None:
+            inv_qty = money(po_match.get("qty") if po_match.get("qty") is not None else po_match.get("quantity"))
         decision = decide_ppv(
             invoice_line_amount=inv_amt,
             po_line_amount=po_amt,
             invoice_total=float(invoice_total),
             ppv_already_on_bill=running,
             po_unit_price=po_match.get("unit_price"),
+            invoice_unit_price=inv.get("unit_price"),
+            qty=inv_qty,
             label=label,
         )
         result["items"].append({**decision, "label": label, "invoice_amount": inv_amt, "po_amount": po_amt})
@@ -810,6 +968,48 @@ def _line_blob(line: dict[str, Any] | None) -> str:
     )
 
 
+def line_length_inches(line: dict[str, Any] | None) -> float | None:
+    """Printed length in inches (Metal Supermarkets 1 @ 32 inches)."""
+    if not isinstance(line, dict):
+        return None
+    explicit = money(line.get("length_inches") or line.get("length") or line.get("inch_qty"))
+    if explicit is not None:
+        return explicit
+    blob = f"{_line_blob(line)} {line.get('uom') or ''} {line.get('unit') or ''}"
+    match = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:in(?:ch(?:es)?)?|[\"″])\b", blob, flags=re.I)
+    if match:
+        return money(match.group(1))
+    return None
+
+
+def qty_looks_like_dollar_amount(qty: Any, amount: Any) -> bool:
+    """Invoice amount used as qty (Metal Supermarkets 1091102: 262.74 vs 32 in)."""
+    q, a = money(qty), money(amount)
+    return q is not None and a is not None and q == a and abs(a) >= 1
+
+
+def length_qty_equivalent(
+    invoice_line: dict[str, Any] | None,
+    other_line: dict[str, Any] | None,
+) -> bool:
+    """Invoice 1 @ 32 inches matches PO qty 32 (same class as Legacy rolled-qty miss)."""
+    inv = invoice_line if isinstance(invoice_line, dict) else {}
+    other = other_line if isinstance(other_line, dict) else {}
+    inv_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+    other_qty = money(other.get("qty") if other.get("qty") is not None else other.get("quantity"))
+    inv_len = line_length_inches(inv)
+    other_len = line_length_inches(other)
+    if inv_qty == 1 and inv_len is not None and other_qty == inv_len:
+        return True
+    if other_qty == 1 and other_len is not None and inv_qty == other_len:
+        return True
+    if inv_len is not None and other_qty == inv_len:
+        return True
+    if other_len is not None and inv_qty == other_len:
+        return True
+    return False
+
+
 def _dimension_only_line(line: dict[str, Any] | None) -> bool:
     """True for a fake line whose qty is an inch mark (Legacy 77\" TUBE)."""
     if not isinstance(line, dict):
@@ -1026,7 +1226,14 @@ def invoice_qty_evidence(
 ) -> float | None:
     """Invoice merchandise qty: explicit invoice-level qty, else sum of lines."""
     explicit = money(invoice_qty)
-    if explicit is not None:
+    line_amt = None
+    for line in invoice_lines or []:
+        if not isinstance(line, dict):
+            continue
+        line_amt = money(line.get("amount") if line.get("amount") is not None else line.get("line_amount"))
+        if line_amt is not None:
+            break
+    if explicit is not None and not qty_looks_like_dollar_amount(explicit, line_amt):
         return explicit
     return merchandise_qty(invoice_lines)
 
@@ -2281,7 +2488,13 @@ def qty_discrepancy(
         used.add(id(matched))
         inv_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
         other_qty = money(matched.get("qty") if matched.get("qty") is not None else matched.get("quantity"))
+        inv_amt = money(inv.get("amount") if inv.get("amount") is not None else inv.get("line_amount"))
+        if qty_looks_like_dollar_amount(inv_qty, inv_amt):
+            if length_qty_equivalent(inv, matched) or other_qty is not None:
+                continue
         if inv_qty is None or other_qty is None:
+            continue
+        if length_qty_equivalent(inv, matched):
             continue
         if inv_qty != other_qty:
             label = _line_description(inv) or str(inv.get("part") or "")

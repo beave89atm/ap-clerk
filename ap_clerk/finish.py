@@ -58,6 +58,7 @@ from ap_clerk.rules import (
     format_unmatched_lines,
     invoice_qty_evidence,
     is_fee_or_surcharge,
+    is_freight_vendor,
     match_receipts,
     merchandise_qty,
     receipt_select_refs,
@@ -233,7 +234,11 @@ def finish_existing_header(
 
     po = _po_from_row(out, inv)
     multi_po = bool(inv.get("multi_po")) or len([p for p in (inv.get("pos") or []) if p]) > 1
-    need_receipts = receipts_required(po=po, multi_po=multi_po)
+    need_receipts = receipts_required(
+        po=po,
+        multi_po=multi_po,
+        freight_vendor=is_freight_vendor(str(inv.get("vendor") or out.get("Vendor") or "")),
+    )
     receipt_note = ""
     invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
     if invoice_qty is None:
@@ -399,6 +404,7 @@ def finish_existing_header(
         selfcheck=check,
         fees=parsed_fees,
         fees_posted=fees_posted,
+        freight_vendor=is_freight_vendor(str(inv.get("vendor") or out.get("Vendor") or "")),
     )
     out["Result"] = result
     out["Attach status"] = attach_status

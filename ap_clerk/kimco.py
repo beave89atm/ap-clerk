@@ -17,13 +17,15 @@ from typing import Any
 import requests
 
 from ap_clerk.auth import LIVE_HOST
-from ap_clerk.rules import is_fee_or_surcharge, money
+from ap_clerk.rules import is_fee_or_surcharge, is_freight_vendor, money
 
 LOGGER = logging.getLogger("ap_clerk")
 
 # GUI Additional Charge type. Record PUT of lists.APInvoiceAdditionalCharge.
 FEE_CHARGE_TYPE = "Fees and surcharges"
 FEE_CHARGE_CODE = "F-Fees & Surcharges"
+FREIGHT_EXTERNAL_CHARGE_TYPE = "Freight External"
+FREIGHT_EXTERNAL_CHARGE_CODE = "Freight External"
 PPV_CHARGE_TYPE = "Purchase Price Variance"
 PPV_CHARGE_CODE = "Purchase Price Variance"
 ADDITIONAL_CHARGE_LIST = "APInvoiceAdditionalCharge"
@@ -415,19 +417,27 @@ class KimcoClient:
             return "selected"
         return status
 
-    def try_post_fees(self, invoice_id: int, fees: list[dict[str, Any]] | None = None) -> str:
-        """Post Additional Charge Fees and surcharges on the invoice RECORD.
+    def try_post_fees(
+        self,
+        invoice_id: int,
+        fees: list[dict[str, Any]] | None = None,
+        *,
+        freight_vendor: bool = False,
+        vendor: str | None = None,
+    ) -> str:
+        """Post Additional Charge Fees — or Freight External for freight companies.
 
-        GUI equivalent: Additional Charge → Fees and surcharges /
-        F-Fees & Surcharges. Record PUT of lists.APInvoiceAdditionalCharge.
-        Never the list GUID. Sheet Fees column is not a post.
+        Priority 1 (Treyce 2026-09-16): Additional Charge → Freight External,
+        not F-Fees & Surcharges. Record PUT of lists.APInvoiceAdditionalCharge.
+        Sheet Fees column is not a post.
         """
         if invoice_id in (None, ""):
             raise KimcoError("Fee post requires an invoice record id")
         needed = fees_with_amounts(fees)
         if not needed:
             return "none"
-        payload = fees_payload(needed, invoice_id=invoice_id)
+        use_freight = bool(freight_vendor or is_freight_vendor(vendor) or any(fee.get("freight_external") for fee in needed))
+        payload = fees_payload(needed, invoice_id=invoice_id, freight_external=use_freight)
         url = self._record_url("ap_invoices", invoice_id)
         put = self.request("PUT", url, json=payload)
         if put.status_code < 400:
@@ -694,21 +704,34 @@ def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]
     return out
 
 
-def fees_payload(fees: list[dict[str, Any]], *, invoice_id: int | str | None = None) -> dict[str, Any]:
-    """Record PUT body for Additional Charge Fees and surcharges.
+def fees_payload(
+    fees: list[dict[str, Any]],
+    *,
+    invoice_id: int | str | None = None,
+    freight_external: bool = False,
+) -> dict[str, Any]:
+    """Record PUT body for Additional Charge Fees — or Freight External.
 
     Parent: `{id, state: "Modified"}`.
     Each child: `{state: "Added", values: {Additional_Charge, Amount, Description}}`.
+    Freight companies (Priority 1) use Freight External, not F-Fees & Surcharges.
     """
     items: list[dict[str, Any]] = []
     for fee in fees_with_amounts(fees):
-        name = str(fee.get("name") or fee.get("label") or FEE_CHARGE_TYPE).strip()
+        use_freight = bool(
+            freight_external
+            or fee.get("freight_external")
+            or str(fee.get("charge_code") or "").lower() == FREIGHT_EXTERNAL_CHARGE_CODE.lower()
+        )
+        code = FREIGHT_EXTERNAL_CHARGE_CODE if use_freight else FEE_CHARGE_CODE
+        kind = FREIGHT_EXTERNAL_CHARGE_TYPE if use_freight else FEE_CHARGE_TYPE
+        name = str(fee.get("name") or fee.get("label") or kind).strip()
         items.append(
             {
                 "state": "Added",
                 "values": {
-                    "Additional_Charge": FEE_CHARGE_CODE,
-                    "Charge_Type": FEE_CHARGE_TYPE,
+                    "Additional_Charge": code,
+                    "Charge_Type": kind,
                     "Amount": fee["amount"],
                     "Description": name,
                 },
@@ -769,6 +792,8 @@ def fee_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
                 is_fee_or_surcharge(str(kind))
                 or FEE_CHARGE_CODE.lower() in kind.lower()
                 or FEE_CHARGE_TYPE.lower() in kind.lower()
+                or FREIGHT_EXTERNAL_CHARGE_CODE.lower() in kind.lower()
+                or FREIGHT_EXTERNAL_CHARGE_TYPE.lower() in kind.lower()
             ):
                 continue
             amount = money(values.get("Amount") or values.get("Charge_Amount"))

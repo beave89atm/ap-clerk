@@ -9,6 +9,8 @@ import pytest
 from ap_clerk.kimco import (
     ADDITIONAL_CHARGE_LIST,
     FEE_CHARGE_CODE,
+    FREIGHT_EXTERNAL_CHARGE_CODE,
+    FREIGHT_EXTERNAL_CHARGE_TYPE,
     LIST_EDIT_PERMISSIONS_HINT,
     LIVE_SERVICES,
     PROTOTYPE_SERVICES,
@@ -164,6 +166,19 @@ def test_fees_payload_is_additional_charge_fees_and_surcharges() -> None:
     assert child["values"]["Description"] == "Shipping & Handling"
     with pytest.raises(KimcoError, match="fee amount"):
         fees_payload([])
+
+
+def test_fees_payload_freight_external_not_fees_and_surcharges() -> None:
+    payload = fees_payload(
+        [{"name": "Freight Charge USD$235.77", "amount": 235.77}],
+        invoice_id=10047,
+        freight_external=True,
+    )
+    child = payload["lists"][ADDITIONAL_CHARGE_LIST][0]
+    assert child["values"]["Additional_Charge"] == FREIGHT_EXTERNAL_CHARGE_CODE
+    assert child["values"]["Charge_Type"] == FREIGHT_EXTERNAL_CHARGE_TYPE
+    assert child["values"]["Additional_Charge"] != FEE_CHARGE_CODE
+    assert child["values"]["Amount"] == 235.77
 
 
 def test_try_post_fees_puts_record_additional_charge() -> None:

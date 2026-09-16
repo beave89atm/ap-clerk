@@ -9,15 +9,23 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ap_clerk.cli import _matching_existing_invoices, _process_invoice, _resolve_vendor
+from ap_clerk.cli import (
+    _matching_existing_invoices,
+    _process_invoice,
+    _resolve_vendor,
+    _resolve_vendor_from_po_partial,
+)
 from ap_clerk.gates import (
+    GATE_ALREADY_ENTERED,
     GATE_TOO_OLD,
     GATE_AUTO_PAY,
+    GATE_PO,
     GATE_PDF_LINK,
     GATE_PREFLIGHT,
     GATE_PRICE,
     GATE_QTY,
     GATE_VENDOR,
+    RESULT_FAIL,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
     RESULT_SKIPPED,
@@ -81,13 +89,16 @@ from ap_clerk.rules import (
     PRICE_DOES_NOT_MATCH,
     classify_mail,
     decide_ppv,
+    evaluate_bill_price_variance,
     extract_subject_invoice_number,
     extract_subject_pos,
     flag_in_outlook_for,
+    is_freight_vendor,
+    is_rfq_not_kimco_po,
     known_vendor_id,
+    length_qty_equivalent,
     never_skip_vendor_invoice,
     description_match_score,
-    evaluate_bill_price_variance,
     invoice_type_for,
     is_auto_pay,
     is_fee_or_surcharge,
@@ -99,8 +110,13 @@ from ap_clerk.rules import (
     merchandise_qty,
     misc_purchase_item_for,
     names_match,
+    NO_PO_ON_PDF_BUYER_COMMENT,
+    po_vendor_name_from_text,
+    po_vendor_partial_match,
     printed_invoice_number,
+    qty_discrepancy,
     should_create_header,
+    should_transfer_ap_missing_po,
     vendor_match_score,
     AQPC_MIN_INVOICE_DATE,
     AQPC_TOO_OLD_INVOICES,
@@ -171,8 +187,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 30))
-    assert len(TREYCE_NOTES_V12) == 29
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 37))
+    assert len(TREYCE_NOTES_V12) == 36
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -207,6 +223,13 @@ def test_v12_registry_covers_all_notes():
         "aqpc-10956-same-cost-inverted-qty-unit",
         "aqpc-too-old-before-2026-08-01",
         "over-ppv-do-not-select-receipts",
+        "crosslink-reminder-already-entered",
+        "priority1-freight-external-no-receipts",
+        "mcnichols-vendor-from-po-partial",
+        "emj-no-po-on-pdf-transfer-ap",
+        "metal-supermarkets-inches-qty",
+        "oneal-per-line-ppv-not-rolled",
+        "gas-labeled-total-amount-due",
     }
 
 
@@ -3844,4 +3867,505 @@ def test_never_repeat_aqpc_over_ppv_does_not_select_receipts():
     assert mixed["select_zero"] is False
     assert [hit["receipt"]["id"] for hit in mixed["selectable"]] == [1]
     assert [hit["receipt"]["id"] for hit in mixed["skipped"]] == [2]
+
+
+def test_never_repeat_crosslink_reminder_already_entered():
+    """NOTE-30: Crosslink reminder emails stay already-entered HOLD. No Success invent."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-30")
+    assert n["slug"] == "crosslink-reminder-already-entered"
+    assert n["never_success"] is True
+    assert set(n["leftover_kimco_ids"]) == {9382, 9384, 9587}
+
+    cases = (
+        ("27447", 9382),
+        ("27448", 9384),
+        ("27591", 9587),
+    )
+    for number, kimco_id in cases:
+        existing = {
+            number: [
+                {
+                    "id": kimco_id,
+                    "values": {
+                        "Invoice_Number": number,
+                        "Vendor": {"id": 278, "text": "Crosslink Powder Coating"},
+                    },
+                }
+            ]
+        }
+        row, client = _row(
+            {
+                "vendor": "Crosslink Powder Coating",
+                "invoice_number": number,
+                "date": "2026-07-07",
+                "po": "58453",
+                "amount": 1567.04,
+                "pdf_on_disk": True,
+                "filename": f"invoice-{number}.pdf",
+                "field_sources": {
+                    "invoice_number": "pdf",
+                    "date": "pdf",
+                    "amount": "pdf",
+                    "po": "pdf",
+                },
+            },
+            invoice_by_number=existing,
+        )
+        assert row["Result"] == RESULT_HOLD, (number, row)
+        assert row["KIMCO id"] == kimco_id
+        assert GATE_ALREADY_ENTERED in row["Why"] or "already-entered" in row["Why"]
+        assert not client.created
+        assert_never_success(row["Result"], note_id="NOTE-30", detail=row["Why"])
+
+
+def test_never_repeat_priority1_freight_external():
+    """NOTE-31: Priority 1 enters without Select Receipts; charges are Freight External."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-31")
+    assert n["slug"] == "priority1-freight-external-no-receipts"
+    assert is_freight_vendor("Priority 1")
+    assert is_freight_vendor("PRIORITY 1 INC")
+    assert not is_freight_vendor("Fastenal")
+
+    from ap_clerk.kimco import (
+        FEE_CHARGE_CODE,
+        FREIGHT_EXTERNAL_CHARGE_CODE,
+        FREIGHT_EXTERNAL_CHARGE_TYPE,
+        fees_payload,
+    )
+
+    payload = fees_payload(
+        [{"name": "Freight Charge USD$235.77", "amount": 235.77, "freight_external": True}],
+        invoice_id=10047,
+        freight_external=True,
+    )
+    child = payload["lists"]["APInvoiceAdditionalCharge"][0]["values"]
+    assert child["Additional_Charge"] == FREIGHT_EXTERNAL_CHARGE_CODE
+    assert child["Charge_Type"] == FREIGHT_EXTERNAL_CHARGE_TYPE
+    assert child["Amount"] == 235.77
+    assert child["Additional_Charge"] != FEE_CHARGE_CODE
+
+    result, why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        fees=[{"name": "Freight Charge", "amount": 235.77}],
+        fees_posted=True,
+        freight_vendor=True,
+    )
+    assert result == RESULT_SUCCESS, why
+
+    blocked, blocked_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        fees=[{"name": "Freight Charge", "amount": 235.77}],
+        fees_posted=False,
+        freight_vendor=True,
+    )
+    assert blocked != RESULT_SUCCESS
+    assert "Freight External" in blocked_why
+    assert_never_success(blocked, note_id="NOTE-31", detail=blocked_why)
+
+    row, client = _row(
+        {
+            "vendor": "Priority 1",
+            "invoice_number": "18030910",
+            "date": "2026-08-07",
+            "po": None,
+            "amount": 235.77,
+            "fees": [{"name": "Freight Charge USD$235.77", "amount": 235.77, "fee": True}],
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+            },
+        },
+        samples=[{"vendor_id": 145, "vendor_text": "Priority 1", "invoice_id": 100, "po_text": ""}],
+        receipts=[{"id": 999, "qty": 1, "amount": 235.77}],
+    )
+    assert row["KIMCO id"] not in (None, "")
+    assert not client.selected
+    assert "Freight External" in row["Why"] or row["Result"] == RESULT_SUCCESS
+    if row["Result"] != RESULT_SUCCESS:
+        assert_never_success(row["Result"], note_id="NOTE-31", detail=row["Why"])
+
+
+def test_never_repeat_mcnichols_vendor_from_po_partial():
+    """NOTE-32: email/name fail + PO vendor partial match → use PO vendor, never invent."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-32")
+    assert n["slug"] == "mcnichols-vendor-from-po-partial"
+    assert po_vendor_name_from_text("PO58935-MCNICHOLS CO.") == "MCNICHOLS CO."
+    assert po_vendor_partial_match("billings@e.mcnichols.com", "MCNICHOLS CO.")
+    assert po_vendor_partial_match("billings@e.mcnichols.com", "1116-MCNICHOLS")
+    assert not po_vendor_partial_match("billings@e.mcnichols.com", "FASTENAL COMPANY")
+    assert vendor_from_context(from_address="billings@e.mcnichols.com") == "McNichols"
+
+    samples = [
+        {
+            "vendor_id": 77,
+            "vendor_text": "1116-MCNICHOLS",
+            "invoice_id": 200,
+            "po_text": "PO58935-MCNICHOLS CO.",
+        }
+    ]
+    po_info = {
+        "id": 58935,
+        "text": "PO58935-MCNICHOLS CO.",
+        "vendor_id": 77,
+        "vendor_text": "MCNICHOLS CO.",
+        "lines": [{"part": "GRATE", "qty": 1, "amount": 1957.04, "unit_price": 1957.04}],
+    }
+    hit = _resolve_vendor_from_po_partial("billings@e.mcnichols.com", po_info, samples)
+    assert hit is not None
+    assert hit["vendor_id"] == 77
+    assert hit["vendor_id"] != 1116 or hit.get("from_po_partial")
+
+    invented = _resolve_vendor_from_po_partial(
+        "billings@e.mcnichols.com",
+        {"text": "PO58935-MCNICHOLS CO.", "vendor_text": "MCNICHOLS CO."},
+        [],
+    )
+    assert invented is None
+
+    row, client = _row(
+        {
+            "vendor": "billings@e.mcnichols.com",
+            "invoice_number": "2559543",
+            "date": "2026-08-19",
+            "po": "58935",
+            "amount": 1957.04,
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+        },
+        po_index={"58935": po_info},
+        samples=samples,
+    )
+    assert row["Result"] != RESULT_FAIL, row
+    assert client.created
+    assert client.created[0]["Vendor"]["id"] == 77
+    fail_row, fail_client = _row(
+        {
+            "vendor": "billings@unknown-vendor.example",
+            "invoice_number": "2559543",
+            "date": "2026-08-19",
+            "po": "58935",
+            "amount": 1957.04,
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+        },
+        po_index={
+            "58935": {
+                "id": 58935,
+                "text": "PO58935-OTHER CO.",
+                "vendor_text": "OTHER CO.",
+                "lines": [],
+            }
+        },
+        samples=[
+            {
+                "vendor_id": 9,
+                "vendor_text": "Acme Fasteners LLC",
+                "invoice_id": 100,
+                "po_text": "",
+            }
+        ],
+    )
+    assert fail_row["Result"] == RESULT_FAIL
+    assert "invent" in fail_row["Why"].lower()
+    assert not fail_client.created
+    assert_never_success(fail_row["Result"], note_id="NOTE-32", detail=fail_row["Why"])
+
+
+def test_never_repeat_emj_no_po_transfer_ap():
+    """NOTE-33: no PO on PDF → @Misty McCoy + Transfer AP, not a fake receipt HOLD."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-33")
+    assert n["slug"] == "emj-no-po-on-pdf-transfer-ap"
+    assert is_rfq_not_kimco_po("RFQ 081026.3")
+    assert is_rfq_not_kimco_po("081026.3")
+    assert not is_rfq_not_kimco_po("58913")
+    assert should_transfer_ap_missing_po(
+        vendor="Earle M. Jorgensen Co",
+        printed_pos=[],
+    )
+    assert should_transfer_ap_missing_po(
+        vendor="Earle M. Jorgensen Co",
+        printed_pos=["081026.3"],
+    )
+    assert not should_transfer_ap_missing_po(
+        vendor="Earle M. Jorgensen Co",
+        printed_pos=["58913"],
+        resolved={"info": {"id": 1}},
+    )
+    assert not should_transfer_ap_missing_po(vendor="Priority 1", printed_pos=[], freight=True)
+
+    row, client = _row(
+        {
+            "vendor": "Earle M. Jorgensen Co",
+            "invoice_number": "Z250741432",
+            "date": "2026-08-19",
+            "po": None,
+            "amount": 4222.58,
+            "lines": [
+                {"part": "RB-3.75-1018V", "qty": 39, "unit_price": 20.94, "amount": 816.66},
+                {"part": "RB-3.75-1018", "qty": 146, "unit_price": 10.42, "amount": 1521.32},
+                {"part": "RB-3.75-1018V", "qty": 90, "unit_price": 20.94, "amount": 1884.60},
+            ],
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+            },
+        },
+        samples=[
+            {
+                "vendor_id": 208,
+                "vendor_text": "Earle M. Jorgensen Co",
+                "invoice_id": 100,
+                "po_text": "",
+            }
+        ],
+        receipts=[{"id": 1, "qty": 39, "amount": 816.66}],
+    )
+    assert row["Result"] == RESULT_HOLD, row
+    assert row["KIMCO id"] not in (None, "")
+    assert "Misty McCoy" in row["Why"] or NO_PO_ON_PDF_BUYER_COMMENT.split()[0] in row["Why"]
+    assert "Transfer AP" in row["Why"]
+    assert GATE_PO in row["Why"] or "no-po" in row["Why"].lower() or "missing" in row["Why"].lower()
+    assert "receipt" not in row["Why"].lower() or "do not invent" in row["Why"].lower() or "fake" in row["Why"].lower()
+    assert not client.selected
+    assert_never_success(row["Result"], note_id="NOTE-33", detail=row["Why"])
+
+
+def test_never_repeat_metal_supermarkets_inches_qty():
+    """NOTE-34: 1 @ 32 inches matches PO qty 32. Do not HOLD dollar-as-qty 262.74."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-34")
+    assert n["slug"] == "metal-supermarkets-inches-qty"
+
+    parsed_lines = extract_invoice_lines(
+        "Metal Supermarkets\nCold Rolled Round Tube 1026 DOM 2.500 X 0.219 TUBE\n"
+        "1 @ 32 inches 262.74\nAmount Due 262.74\n"
+    )
+    assert parsed_lines
+    assert parsed_lines[0].get("qty") != 262.74
+    assert parsed_lines[0].get("length_inches") == 32.0 or parsed_lines[0].get("qty") in {1.0, 32.0}
+
+    inv = {
+        "description": "Cold Rolled Round Tube 1026 DOM 1 @ 32 inches",
+        "qty": 1.0,
+        "length_inches": 32.0,
+        "amount": 262.74,
+        "part": "CTR1026D/2500219",
+    }
+    po = {"description": "Cold Rolled Round Tube 32 inches", "qty": 32.0, "amount": 262.74, "part": "CTR1026D/2500219"}
+    assert length_qty_equivalent(inv, po)
+    found = qty_discrepancy([inv], [po])
+    assert found.get("hold") is False, found
+    dollar_as_qty = qty_discrepancy(
+        [{"description": "Tube", "qty": 262.74, "amount": 262.74, "length_inches": 32.0, "part": "TUBE"}],
+        [{"description": "Tube", "qty": 32.0, "amount": 262.74, "part": "TUBE"}],
+    )
+    assert dollar_as_qty.get("hold") is False, dollar_as_qty
+    ok, why = qty_gate([inv], [po])
+    assert ok is True, why
+
+    row, client = _row(
+        {
+            "vendor": "Metal Supermarkets",
+            "invoice_number": "1091102",
+            "date": "2026-08-19",
+            "po": "58919",
+            "amount": 262.74,
+            "lines": [inv],
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+        },
+        po_index={
+            "58919": {
+                "id": 58919,
+                "text": "PO58919-METAL SUPERMARKETS",
+                "vendor_id": 121,
+                "vendor_text": "Metal Supermarkets",
+                "lines": [po],
+            }
+        },
+        samples=[
+            {
+                "vendor_id": 121,
+                "vendor_text": "Metal Supermarkets",
+                "invoice_id": 100,
+                "po_text": "",
+            }
+        ],
+        receipts=[{"id": 23185, "po": "58919", "qty": 32.0, "amount": 262.74, "part": "CTR1026D/2500219"}],
+    )
+    assert GATE_QTY not in str(row.get("Why") or "")
+    assert "262.74 vs" not in str(row.get("Why") or "")
+    if row["Result"] != RESULT_SUCCESS:
+        assert_never_success(row["Result"], note_id="NOTE-34", detail=row["Why"])
+
+
+def test_never_repeat_oneal_per_line_ppv():
+    """NOTE-35: per-line unit gap 6*(901.97-901.9)=0.42. Not a rolled $714.60 HOLD."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-35")
+    assert n["slug"] == "oneal-per-line-ppv-not-rolled"
+
+    invoice_lines = [
+        {"part": "PLATE-A", "qty": 20.0, "unit_price": 248.4845, "amount": 4969.69, "description": "PLATE A"},
+        {"part": "PLATE-B", "qty": 6.0, "unit_price": 901.97, "amount": 5411.82, "description": "PLATE B"},
+    ]
+    po_lines = [
+        {"part": "PLATE-A", "qty": 20.0, "unit_price": 248.4845, "amount": 4969.69, "description": "PLATE A"},
+        {"part": "PLATE-B", "qty": 6.0, "unit_price": 901.9, "amount": 5411.40, "description": "PLATE B"},
+    ]
+    bill = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=10381.51)
+    assert bill["hold"] is False, bill
+    assert abs(bill["ppv_total"] - 0.42) < 0.001, bill
+    unit_decision = decide_ppv(
+        invoice_line_amount=5411.82,
+        po_line_amount=5411.40,
+        invoice_total=10381.51,
+        invoice_unit_price=901.97,
+        po_unit_price=901.9,
+        qty=6.0,
+    )
+    assert unit_decision["action"] == "ppv"
+    assert unit_decision["ppv"] == 0.42
+    assert unit_decision["hold"] is False
+
+    rolled_bill = evaluate_bill_price_variance(
+        [
+            {"part": "PLATE-A", "qty": 20.0, "unit_price": 248.4845, "amount": 10381.51},
+            {"part": "PLATE-B", "qty": 6.0, "unit_price": 901.97, "amount": 5411.82},
+        ],
+        po_lines,
+        invoice_total=10381.51,
+    )
+    assert rolled_bill["hold"] is False, rolled_bill
+    assert abs((rolled_bill.get("ppv_total") or 0) - 0.42) < 0.02 or rolled_bill["ppv_total"] in (0.0, 0.42)
+
+    row, client = _row(
+        {
+            "vendor": "O'Neal Steel - Dallas (GP)",
+            "invoice_number": "14748440",
+            "date": "2026-08-18",
+            "po": "58964",
+            "amount": 10381.51,
+            "lines": invoice_lines,
+            "field_sources": {
+                "invoice_number": "pdf",
+                "date": "pdf",
+                "amount": "pdf",
+                "po": "pdf",
+            },
+        },
+        po_index={
+            "58964": {
+                "id": 58964,
+                "text": "PO58964-O'NEAL",
+                "vendor_id": 137,
+                "vendor_text": "O'Neal Steel",
+                "lines": po_lines,
+            }
+        },
+        samples=[
+            {
+                "vendor_id": 137,
+                "vendor_text": "O'Neal Steel - Dallas (GP)",
+                "invoice_id": 100,
+                "po_text": "",
+            }
+        ],
+        receipts=[
+            {
+                "id": 24001,
+                "po": "58964",
+                "part": "PLATE-A",
+                "qty": 20.0,
+                "unit_price": 248.4845,
+                "amount": 4969.69,
+            },
+            {
+                "id": 24002,
+                "po": "58964",
+                "part": "PLATE-B",
+                "qty": 6.0,
+                "unit_price": 901.9,
+                "amount": 5411.40,
+            },
+        ],
+    )
+    assert "714.60" not in str(row.get("Why") or "")
+    assert GATE_PRICE not in str(row.get("Why") or "") or "0.42" in str(row.get("PPV") or "")
+    assert row.get("PPV") in {"0.42", 0.42} or str(row.get("PPV") or "").endswith("0.42")
+    if row["Result"] != RESULT_SUCCESS:
+        assert_never_success(row["Result"], note_id="NOTE-35", detail=row["Why"])
+
+    over = filter_matches_outside_ppv_gate(
+        [
+            {
+                "line": {"part": "OUT", "qty": 1.0, "unit_price": 200.0, "amount": 200.0},
+                "receipt": {"id": 9, "qty": 1.0, "unit_price": 50.0, "amount": 50.0},
+            }
+        ],
+        invoice_total=200.0,
+    )
+    assert over["select_zero"] is True
+
+
+def test_never_repeat_gas_labeled_total_amount_due():
+    """NOTE-36: labeled Total / Amount Due (incl. stacked) wins. Never invent. Single invoice ≠ multi."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-36")
+    assert n["slug"] == "gas-labeled-total-amount-due"
+
+    stacked = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\n"
+        "INVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/19/26 A3050 0040374117\n"
+        "Merchandise 40.00\nSubtotal 40.00\nTax 3.30\nAmount Due\n$43.30\n"
+    )
+    assert prefer_after_tax_amount(stacked, None) == 43.30
+    assert prefer_after_tax_amount(stacked, 40.00) == 43.30
+    parsed = parse_invoice_text(stacked, from_name="Gas and Supply North Texas, LLC")
+    assert parsed["amount"] == 43.30
+    bills = expand_gas_misc_invoices(stacked, {**parsed, "vendor": "Gas and Supply North Texas, LLC"})
+    assert len(bills) == 1
+    assert bills[0]["amount"] == 43.30
+    assert not bills[0].get("gas_misc_ambiguous")
+    assert bills[0].get("gas_single_invoice") is True or bills[0].get("multi_invoice_count") in (None, 1)
+
+    ok, why = preflight_parse_gate(bills[0])
+    assert ok is True, why
+
+    missing = {
+        "vendor": "Gas and Supply North Texas, LLC",
+        "invoice_number": "0040372952",
+        "date": "2026-08-19",
+        "pdf_on_disk": True,
+        "filename": "billing01_A3050_c_0040372952_p2-2.pdf",
+        "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": ""},
+        "gas_misc_ambiguous": True,
+        "gas_single_invoice": True,
+        "multi_invoice_count": 1,
+    }
+    hold_ok, hold_why = preflight_parse_gate(missing)
+    assert hold_ok is False
+    assert "invent" in hold_why.lower()
+    assert "multiple Misc invoices" not in hold_why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-36", detail=hold_why)
+
+    invented = prefer_after_tax_amount("Gas and Supply\nINVOICE 0011062611\nno totals here\n", None)
+    assert invented in (None, 0, 0.0)
 
