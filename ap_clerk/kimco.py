@@ -459,7 +459,8 @@ class KimcoClient:
     def try_deselect_receipts(self, invoice_id: int) -> str:
         """Unlink Select Receipts lines on the invoice RECORD.
 
-        PUT child APInvoiceLine rows as `state: Deleted` (line id from GET).
+        PUT child APInvoiceLine rows as `state: Removed` (line id from GET).
+        Konfigure EntityState accepts Added / Modified / Removed — not Deleted.
         Does not invent merchandise lines. Empty / no-receipt bills return none.
         """
         if invoice_id in (None, ""):
@@ -525,18 +526,31 @@ class KimcoClient:
             out["deselect"] = f"error-{type(exc).__name__}"
         out["delete"] = self.try_delete_invoice(int(invoice_id))
         if str(out["delete"]).startswith("blocked"):
+            # Unposted AP Invoice list rejects DELETE ("does not allow items to
+            # be archived") and ignores Void=true while Status=1. Reverse the
+            # enter: release receipts, leave the batch, stamp VOID comments.
             body, status, err = self.update(
                 "ap_invoices",
                 invoice_id,
-                {"Void": True},
+                {
+                    "state": "Modified",
+                    "id": int(invoice_id),
+                    "values": {
+                        "AP_Invoice_Batch": None,
+                        "Comments": (
+                            "VOID too-old / Kyle reverse 2026-09-15 NOTE-28. "
+                            "Do not re-enter."
+                        ),
+                    },
+                },
             )
             out["void_put"] = status
             out["void_error"] = err
-            if status < 400 or (isinstance(body, dict) and (body.get("values") or {}).get("Void")):
-                out["delete"] = "voided"
+            if status < 400:
+                out["delete"] = "removed-from-batch"
         confirm = self._confirm_voided_or_gone(int(invoice_id))
         out["confirm"] = confirm
-        if confirm in {"gone", "voided"}:
+        if confirm in {"gone", "voided", "reversed"}:
             out["status"] = confirm
         else:
             out["status"] = "half-state"
@@ -552,6 +566,13 @@ class KimcoClient:
         vals = after.get("values") or {}
         if vals.get("Void") is True:
             return "voided"
+        batch = vals.get("AP_Invoice_Batch")
+        lines = invoice_lines_from_record(after)
+        recs = receipt_ids_from_invoice_lines(lines)
+        comments = str(vals.get("Comments") or "")
+        off_batch = batch in (None, "", {})
+        if off_batch and not recs and "NOTE-28" in comments:
+            return "reversed"
         return "present"
 
 
@@ -572,7 +593,7 @@ def deselect_receipts_payload(
             continue
         if _receipt_id_from_line(raw) in (None, ""):
             continue
-        items.append({"id": int(line_id), "state": "Deleted"})
+        items.append({"id": int(line_id), "state": "Removed"})
     if not items:
         return None
     payload: dict[str, Any] = {"state": "Modified", "lists": {"APInvoiceLine": items}}

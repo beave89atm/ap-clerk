@@ -64,12 +64,21 @@ def _confirm_get(client: KimcoClient, kimco_id: int) -> dict[str, Any]:
     try:
         proof = live_get_proof(client, kimco_id)
         voided = proof.get("void") is True
+        recs = proof.get("receipt_lines") or []
+        off_batch = proof.get("batch_id") in (None, "")
+        if voided:
+            status = "voided"
+        elif off_batch and not recs:
+            status = "reversed"
+        else:
+            status = "present"
         return {
-            "status": "voided" if voided else "present",
+            "status": status,
             "void": proof.get("void"),
             "invoice_number": proof.get("invoice_number"),
             "invoice_amount": proof.get("invoice_amount"),
-            "receipts": proof.get("receipt_lines") or [],
+            "batch_id": proof.get("batch_id"),
+            "receipts": recs,
         }
     except KimcoError as exc:
         text = str(exc)
@@ -246,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
     bad = [
         inv
         for inv, result in voids.items()
-        if (result.get("after") or {}).get("status") not in {"gone", "voided"}
+        if (result.get("after") or {}).get("status") not in {"gone", "voided", "reversed"}
         and not (
             (result.get("after") or {}).get("status") == "present"
             and (result.get("after") or {}).get("void") is True

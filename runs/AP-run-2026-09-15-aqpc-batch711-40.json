@@ -220,16 +220,18 @@
       "date": "2026-03-10",
       "PO": "57572",
       "Amount": 50.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 17800 on PO 57572. Attach status=attached. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10042,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": ""
     },
     {
       "Vendor": "American Quality Powder Coating",
@@ -237,16 +239,18 @@
       "date": "2025-06-02",
       "PO": "55311",
       "Amount": 275.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 9567 on PO 55311. Attach status=attached. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10043,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": ""
     },
     {
       "Vendor": "American Quality Powder Coating",
@@ -254,16 +258,18 @@
       "date": "2025-05-30",
       "PO": "55292",
       "Amount": 200.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 9558 on PO 55292. Attach status=attached. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10044,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": ""
     },
     {
       "Vendor": "American Quality Powder Coating",
@@ -271,16 +277,18 @@
       "date": "2025-04-23",
       "PO": "",
       "Amount": 130.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 4). Purchase Order left blank (no-PO or multi-PO). Do not type Add Item. Attach status=attached. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10045,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": ""
     },
     {
       "Vendor": "American Quality Powder Coating",
@@ -288,16 +296,18 @@
       "date": "2025-04-22",
       "PO": "54871",
       "Amount": 160.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 8235 on PO 54871. Attach status=attached. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10046,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": ""
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": ""
     }
   ],
   "finishes": {
@@ -2236,18 +2246,18 @@
       "date": "2026-06-08",
       "PO": "58377",
       "Amount": 73.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10696 from PDF. PO 58377 set. Select Receipts posted 20668 2@20.0; 20669 1@5.0; 20670 2@10.0; 20671 1@8.0. Live GET Invoice_Amount 73.0 matches PDF 73.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Post-enter Select Receipts selected ids=[20668, 20669, 20670, 20671]. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10040,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "4. AMT-70039334 Fuel Filter Bracket P.C. Black(SO34462) 1 $8.00 8.00",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "20668 2@20.0; 20669 1@5.0; 20670 2@10.0; 20671 1@8.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "4. AMT-70039334 Fuel Filter Bracket P.C. Black(SO34462) 1 $8.00 8.00",
       "Attach": "attached"
     },
@@ -2257,18 +2267,18 @@
       "date": "2026-04-17",
       "PO": "57794",
       "Amount": 50.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10523 from PDF. PO 57794 set. Select Receipts posted 18652 1@50.0. Live GET Invoice_Amount 50.0 matches PDF 50.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Post-enter Select Receipts selected ids=[18652]. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10041,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "18652 1@50.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
     },
@@ -2278,18 +2288,18 @@
       "date": "2026-03-10",
       "PO": "57572",
       "Amount": 50.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10381 from PDF. PO 57572 set. Select Receipts posted 17800 1@50.0. Live GET Invoice_Amount 50.0 matches PDF 50.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10042,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "17800 1@50.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
     },
@@ -2299,18 +2309,18 @@
       "date": "2025-06-02",
       "PO": "55311",
       "Amount": 275.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 9502 from PDF. PO 55311 set. Select Receipts posted 9567 1@275.0. Live GET Invoice_Amount 275.0 matches PDF 275.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10043,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "9567 1@275.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
     },
@@ -2320,18 +2330,18 @@
       "date": "2025-05-30",
       "PO": "55292",
       "Amount": 200.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 9498 from PDF. PO 55292 set. Select Receipts posted 9558 20@10.0. Live GET Invoice_Amount 200.0 matches PDF 200.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10044,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "9558 20@10.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
     },
@@ -2341,17 +2351,17 @@
       "date": "2025-04-23",
       "PO": "",
       "Amount": 130.0,
-      "Result": "HOLD",
-      "Why": "HOLD (not-kannon-po): PDF invoice 9352 is billed to BLM FENCE CO. / Leo Mendez, not Kannon. No PO on the PDF. Paid in Full $130.00 (Iron Gate / Iron Fence / tube steel). Header 10045 Type 4 + PDF attached. Do not Select Receipts. Do not invent Success as Misc Type 4. Treyce would rework. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10045,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-with-issues",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
       "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
@@ -2362,22 +2372,294 @@
       "date": "2025-04-22",
       "PO": "54871",
       "Amount": 160.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 9343 from PDF. PO 54871 set. Select Receipts posted 8235 20@8.0. Live GET Invoice_Amount 160.0 matches PDF 160.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "Voided",
+      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
       "KIMCO id": 10046,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "8235 20@8.0",
+      "Flag status": "cleared",
+      "Flag in Outlook": "No",
+      "Notes": "voided as too-old",
+      "outlook": "cleared",
+      "Receipts": "",
       "Fees": "none",
       "Attach": "attached"
     }
   ],
   "treyce_emailed": false,
-  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx"
+  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx",
+  "voided_too_old": {
+    "10696": {
+      "invoice": "10696",
+      "kimco_id": 10040,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "10696",
+        "invoice_amount": 73.0,
+        "batch_id": 711,
+        "receipts": [
+          {
+            "qty": 2.0,
+            "unit": 20.0,
+            "receipt": 20668,
+            "po_line": null
+          },
+          {
+            "qty": 1.0,
+            "unit": 5.0,
+            "receipt": 20669,
+            "po_line": null
+          },
+          {
+            "qty": 2.0,
+            "unit": 10.0,
+            "receipt": 20670,
+            "po_line": null
+          },
+          {
+            "qty": 1.0,
+            "unit": 8.0,
+            "receipt": 20671,
+            "po_line": null
+          }
+        ]
+      },
+      "void": {
+        "id": 10040,
+        "deselect": "deselected",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "10696",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "10523": {
+      "invoice": "10523",
+      "kimco_id": 10041,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "10523",
+        "invoice_amount": 50.0,
+        "batch_id": 711,
+        "receipts": [
+          {
+            "qty": 1.0,
+            "unit": 50.0,
+            "receipt": 18652,
+            "po_line": null
+          }
+        ]
+      },
+      "void": {
+        "id": 10041,
+        "deselect": "deselected",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "10523",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "10381": {
+      "invoice": "10381",
+      "kimco_id": 10042,
+      "before": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "10381",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "void": {
+        "id": 10042,
+        "deselect": "none",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "10381",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "9502": {
+      "invoice": "9502",
+      "kimco_id": 10043,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "9502",
+        "invoice_amount": 275.0,
+        "batch_id": 711,
+        "receipts": [
+          {
+            "qty": 1.0,
+            "unit": 275.0,
+            "receipt": 9567,
+            "po_line": null
+          }
+        ]
+      },
+      "void": {
+        "id": 10043,
+        "deselect": "deselected",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "9502",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "9498": {
+      "invoice": "9498",
+      "kimco_id": 10044,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "9498",
+        "invoice_amount": 200.0,
+        "batch_id": 711,
+        "receipts": [
+          {
+            "qty": 20.0,
+            "unit": 10.0,
+            "receipt": 9558,
+            "po_line": null
+          }
+        ]
+      },
+      "void": {
+        "id": 10044,
+        "deselect": "deselected",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "9498",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "9352": {
+      "invoice": "9352",
+      "kimco_id": 10045,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "9352",
+        "invoice_amount": 0.0,
+        "batch_id": 711,
+        "receipts": []
+      },
+      "void": {
+        "id": 10045,
+        "deselect": "none",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "9352",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    },
+    "9343": {
+      "invoice": "9343",
+      "kimco_id": 10046,
+      "before": {
+        "status": "present",
+        "void": false,
+        "invoice_number": "9343",
+        "invoice_amount": 160.0,
+        "batch_id": 711,
+        "receipts": [
+          {
+            "qty": 20.0,
+            "unit": 8.0,
+            "receipt": 8235,
+            "po_line": null
+          }
+        ]
+      },
+      "void": {
+        "id": 10046,
+        "deselect": "deselected",
+        "delete": "removed-from-batch",
+        "void_put": 200,
+        "void_error": "",
+        "confirm": "reversed",
+        "status": "reversed"
+      },
+      "after": {
+        "status": "reversed",
+        "void": false,
+        "invoice_number": "9343",
+        "invoice_amount": 0.0,
+        "batch_id": null,
+        "receipts": []
+      },
+      "outlook": []
+    }
+  },
+  "counts": {
+    "Success": 30,
+    "HOLD": 3,
+    "Voided": 7,
+    "other": 0,
+    "rows": 40
+  }
 }

@@ -704,8 +704,10 @@ matches PDF. Outlook upgraded to **Entered in AI**. NOTE-27. Sheet
 ### Void too-old AQPC 10040–10046 (Kyle 2026-09-16)
 
 Kyle: reverse the 7 older AQPC headers and **stop entering older AQPC**.
-Deselect receipts then DELETE/void each of **10040–10046**. Clear Outlook
-`Entered in AI` / `Entered with issues` (do not leave processed; do not
-AI Skipped 2; do not re-enter). NOTE-28. Sheet marks those rows
-**Voided** (`too-old / Kyle reverse 2026-09-15`). Remaining Aug–Sep
-rows stay active.
+Deselect receipts (`APInvoiceLine` state **Removed** — Konfigure does not
+accept Deleted) then leave batch 711. Live DELETE returns 405 (list does
+not allow archive); Void=true does not stick on unposted Status=1. Headers
+remain GET-able at 10040–10046 with $0 / no receipts / no batch / VOID
+comments. Outlook process categories cleared. NOTE-28. Sheet marks those
+rows **Voided**. Remaining Aug–Sep rows stay on 711 (33 unposted),
+including **11002 / 10007** (untouched).

@@ -410,7 +410,7 @@ def test_deselect_receipts_payload_deletes_line_ids() -> None:
     )
     assert payload["id"] == 10042
     assert payload["state"] == "Modified"
-    assert payload["lists"]["APInvoiceLine"] == [{"id": 501, "state": "Deleted"}]
+    assert payload["lists"]["APInvoiceLine"] == [{"id": 501, "state": "Removed"}]
     assert deselect_receipts_payload([], invoice_id=10042) is None
 
 
@@ -435,7 +435,7 @@ def test_try_void_invoice_deselects_then_deletes() -> None:
             return FakeResp(200, invoice)
         if method == "PUT":
             body = kwargs.get("json") or {}
-            assert body["lists"]["APInvoiceLine"][0]["state"] == "Deleted"
+            assert body["lists"]["APInvoiceLine"][0]["state"] == "Removed"
             return FakeResp(200, {"id": 10042})
         if method == "DELETE":
             assert url.endswith(f"/{LIVE_GUID}/10042")
