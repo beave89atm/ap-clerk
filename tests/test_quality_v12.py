@@ -9,8 +9,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ap_clerk.cli import _process_invoice, _resolve_vendor
+from ap_clerk.cli import _matching_existing_invoices, _process_invoice, _resolve_vendor
 from ap_clerk.gates import (
+    GATE_TOO_OLD,
     GATE_AUTO_PAY,
     GATE_PDF_LINK,
     GATE_PREFLIGHT,
@@ -101,6 +102,13 @@ from ap_clerk.rules import (
     printed_invoice_number,
     should_create_header,
     vendor_match_score,
+    AQPC_MIN_INVOICE_DATE,
+    AQPC_TOO_OLD_INVOICES,
+    AQPC_TOO_OLD_KIMCO_IDS,
+    aqpc_discover_skip_invoice,
+    aqpc_invoice_too_old,
+    filter_matches_outside_ppv_gate,
+    is_aqpc_vendor,
 )
 
 FIXTURE = json.loads(Path("fixtures/treyce-2026-09-10-never-repeat.json").read_text())
@@ -113,6 +121,7 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
 
         def __init__(self):
             self.created = []
+            self.selected = []
 
         def create(self, service, values):
             self.created.append(values)
@@ -130,7 +139,8 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
         def try_official_attach(self, *args, **kwargs):
             return attach
 
-        def try_select_receipts(self, *args, **kwargs):
+        def try_select_receipts(self, invoice_id, receipt_ids=None, **kwargs):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
             return select
 
         def try_post_fees(self, *args, **kwargs):
@@ -161,8 +171,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 27))
-    assert len(TREYCE_NOTES_V12) == 26
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 30))
+    assert len(TREYCE_NOTES_V12) == 29
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -194,6 +204,9 @@ def test_v12_registry_covers_all_notes():
         "leeco-account-statement-skip",
         "legacy-packing-slip-and-line-receipts",
         "greentree-invoice-from-not-statement",
+        "aqpc-10956-same-cost-inverted-qty-unit",
+        "aqpc-too-old-before-2026-08-01",
+        "over-ppv-do-not-select-receipts",
     }
 
 
@@ -1569,6 +1582,61 @@ def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
     assert row["Attach status"] == "pdf-on-vm"
 
 
+def test_aqpc_10938_not_jmor_4779_already_entered():
+    """Same invoice # on a different known vendor is not a duplicate.
+
+    AQPC payment-request 10938 is not JMOR Machinery 4779 (vendor 98, $21025,
+    2025-08-05). Unique-number matching must not block the AQPC header.
+    NoreplyMV / Leeco unique-# dups stay in force when the From is weak.
+    """
+    existing = {
+        "10938": [
+            {
+                "id": 4779,
+                "values": {
+                    "Invoice_Number": "10938",
+                    "Vendor": {"id": 98, "text": "1096-JMOR MACHINERY"},
+                },
+            }
+        ]
+    }
+    hits = _matching_existing_invoices(
+        existing, "10938", "American Quality Powder Coating"
+    )
+    assert hits == []
+    leeco = {
+        "619920": [
+            {
+                "id": 9001,
+                "values": {
+                    "Invoice_Number": "619920",
+                    "Vendor": {"id": 109, "text": "109-LEECO STEEL, LLC"},
+                },
+            }
+        ]
+    }
+    noreply = _matching_existing_invoices(leeco, "619920", "NoreplyMV")
+    assert [hit.get("id") for hit in noreply] == [9001]
+    same = _matching_existing_invoices(
+        existing, "10938", "JMOR Machinery"
+    )
+    assert [hit.get("id") for hit in same] == [4779]
+    text_only = {
+        "10938": [
+            {
+                "id": 4779,
+                "values": {
+                    "Invoice_Number": "10938",
+                    "Vendor": {"text": "1096-JMOR MACHINERY"},
+                },
+            }
+        ]
+    }
+    assert _matching_existing_invoices(
+        text_only, "10938", "American Quality Powder Coating"
+    ) == []
+
+
 def test_never_repeat_ai_skipped_noise():
     """NOTE-18: noise → Outlook AI Skipped 2, never AI HOLD; already-flagged includes it."""
     n = NOTES["NOTE-18"]
@@ -2034,7 +2102,8 @@ def test_never_repeat_3p_notes_142041_142044(tmp_path: Path):
         samples=samples,
         po_index=po_index_041,
     )
-    assert _selected_ids(client041) == {401, 402, 403, 404, 405}
+    # 403 / 29340-1 is over the $100 PPV cap ($111.60) — NOTE-29 skip.
+    assert _selected_ids(client041) == {401, 402, 404, 405}
     assert row041["Result"] != RESULT_SUCCESS
     assert_never_success(row041["Result"], note_id="NOTE-23", detail=row041["Why"])
     assert "no receipts after second pass" not in (row041["Why"] or "").lower()
@@ -3524,4 +3593,255 @@ def test_never_repeat_aqpc_10998_po_suffix_line_match():
     assert not result.get("unmatched_lines"), result.get("why")
     ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
     assert ids == {23979, 23980, 23981, 23982}
+
+
+def test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit():
+    """NOTE-27: 10956 plate 6@$50=$300 selects leftover 23517 2@$150=$300."""
+    result = match_receipts(
+        invoice_number="10956",
+        invoice_lines=[
+            {
+                "part": "AMT-BB2000",
+                "qty": 2.0,
+                "unit_price": 200.0,
+                "amount": 400.0,
+                "description": "Rack",
+                "po_line": 1,
+            },
+            {
+                "part": "AMT-BB2000",
+                "qty": 6.0,
+                "unit_price": 50.0,
+                "amount": 300.0,
+                "description": "10'x8\" Aluminum Plate PC White(SO34672)",
+                "po_line": 2,
+            },
+        ],
+        receipts=[
+            {
+                "id": 23516,
+                "po": "59016",
+                "part": "PO59016-01",
+                "qty": 2.0,
+                "unit_price": 200.0,
+                "amount": 400.0,
+            },
+            {
+                "id": 23517,
+                "po": "59016",
+                "part": "PO59016-02",
+                "qty": 2.0,
+                "unit_price": 150.0,
+                "amount": 300.0,
+            },
+        ],
+        po_number="59016",
+        invoice_amount=700.0,
+    )
+    assert result.get("found") is True
+    assert not result.get("unmatched_lines"), result.get("why")
+    ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
+    assert ids == {23516, 23517}
+    by_amount = {
+        (hit.get("line") or {}).get("amount"): (hit.get("receipt") or {}).get("id")
+        for hit in result.get("matched") or []
+    }
+    assert by_amount.get(400.0) == 23516
+    assert by_amount.get(300.0) == 23517
+    hows = " ".join(str(h) for h in (result.get("hows") or []))
+    assert "same-cost" in hows or "inverted" in hows or 23517 in ids
+
+
+def test_never_repeat_aqpc_too_old_before_2026_08_01():
+    """NOTE-28: AQPC invoice date before 2026-08-01 is skip / no header."""
+    from datetime import date
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-28")
+    assert n["slug"] == "aqpc-too-old-before-2026-08-01"
+    assert n["never_success"] is True
+    assert n["do_not_void"] is False
+    assert set(n["voided_kimco_ids"]) == set(AQPC_TOO_OLD_KIMCO_IDS)
+    assert AQPC_MIN_INVOICE_DATE == date(2026, 8, 1)
+    assert is_aqpc_vendor("AMERICAN QUALITY POWDERCOATING")
+    assert is_aqpc_vendor(vendor_id=22)
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-06-08",
+        invoice_number="10696",
+    )
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date=date(2025, 4, 22),
+        invoice_number="9343",
+    )
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date=None,
+        invoice_number="9352",
+    )
+    assert aqpc_discover_skip_invoice("10381")
+    assert not aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-08-01",
+        invoice_number="10900",
+    )
+    assert not aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-08-27",
+        invoice_number="10956",
+    )
+    assert not aqpc_invoice_too_old(
+        vendor="JMOR MACHINERY",
+        invoice_date="2025-04-22",
+        invoice_number="4779",
+    )
+    for number in AQPC_TOO_OLD_INVOICES:
+        row, client = _row(
+            {
+                "vendor": "American Quality Powder Coating",
+                "invoice_number": number,
+                "date": "2026-03-10" if number == "10381" else "2025-04-22",
+                "po": "57572",
+                "amount": 50.0,
+                "graph_message_id": f"msg-{number}",
+            }
+        )
+        assert row["Result"] == RESULT_SKIPPED, (number, row)
+        assert row["KIMCO id"] in ("", None)
+        assert "too-old" in str(row["Why"])
+        assert GATE_TOO_OLD in str(row["Why"])
+        assert not client.created
+        assert_never_success(row["Result"], note_id="NOTE-28", detail=row["Why"])
+    aug, _client = _row(
+        {
+            "vendor": "American Quality Powder Coating",
+            "invoice_number": "10956",
+            "date": "2026-08-27",
+            "po": "59016",
+            "amount": 700.0,
+        }
+    )
+    assert "too-old" not in str(aug.get("Why") or "")
+    assert aug["Result"] != RESULT_SKIPPED or "already" in str(aug.get("Why") or "").lower()
+
+
+def test_never_repeat_aqpc_over_ppv_does_not_select_receipts():
+    """NOTE-29: 11003 / 10991 over-PPV leftovers must not be Select Receipts'd."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-29")
+    assert n["slug"] == "over-ppv-do-not-select-receipts"
+    assert n["never_success"] is True
+    assert set(n["leftover_kimco_ids"]) == {10009, 10013}
+
+    cases = [
+        {
+            "invoice_number": "11003",
+            "po": "59083",
+            "amount": 10.0,
+            "qty": 2.0,
+            "unit": 5.0,
+            "rec_id": 24103,
+            "rec_unit": 0.777,
+            "rec_amt": 1.55,
+        },
+        {
+            "invoice_number": "10991",
+            "po": "59148",
+            "amount": 199.0,
+            "qty": 199.0,
+            "unit": 1.0,
+            "rec_id": 23967,
+            "rec_unit": 0.75,
+            "rec_amt": 149.25,
+        },
+    ]
+    for case in cases:
+        line = {
+            "part": "AMT-TEST",
+            "qty": case["qty"],
+            "unit_price": case["unit"],
+            "amount": case["amount"],
+        }
+        rec = {
+            "id": case["rec_id"],
+            "po": case["po"],
+            "part": f"PO{case['po']}-01",
+            "qty": case["qty"],
+            "unit_price": case["rec_unit"],
+            "amount": case["rec_amt"],
+        }
+        locked = filter_matches_outside_ppv_gate(
+            [{"line": line, "receipt": rec}],
+            invoice_total=case["amount"],
+        )
+        assert locked["select_zero"] is True, case
+        assert locked["selectable"] == []
+        assert locked["skipped"]
+
+        row, client = _row(
+            {
+                "vendor": "American Quality Powder Coating",
+                "invoice_number": case["invoice_number"],
+                "date": "2026-09-14",
+                "po": case["po"],
+                "amount": case["amount"],
+                "lines": [line],
+                "field_sources": {
+                    "invoice_number": "pdf",
+                    "date": "pdf",
+                    "amount": "pdf",
+                    "po": "pdf",
+                },
+            },
+            po_index={
+                case["po"]: {
+                    "id": 900,
+                    "text": f"PO{case['po']}-AQPC",
+                    "vendor_id": 22,
+                    "vendor_text": "AMERICAN QUALITY POWDERCOATING",
+                    "lines": [
+                        {
+                            "part": "AMT-TEST",
+                            "qty": case["qty"],
+                            "amount": case["rec_amt"],
+                            "unit_price": case["rec_unit"],
+                        }
+                    ],
+                }
+            },
+            samples=[
+                {
+                    "vendor_id": 22,
+                    "vendor_text": "American Quality Powder Coating",
+                    "invoice_id": 100,
+                    "po_text": "",
+                }
+            ],
+            receipts=[rec],
+        )
+        assert row["Result"] == RESULT_HOLD, (case["invoice_number"], row)
+        assert row["KIMCO id"] not in (None, "")
+        assert client.created
+        assert GATE_PRICE in row["Why"] or "price" in row["Why"].lower()
+        assert "NOTE-29" in row["Why"] or "not selected" in row["Why"].lower() or "zero" in row["Why"].lower()
+        selected_ids = []
+        for _inv, refs in client.selected:
+            for ref in refs:
+                selected_ids.append(ref.get("id") if isinstance(ref, dict) else ref)
+        assert case["rec_id"] not in selected_ids, (case["invoice_number"], client.selected)
+        assert_never_success(row["Result"], note_id="NOTE-29", detail=row["Why"])
+
+    in_gate = {
+        "line": {"part": "IN", "qty": 1.0, "unit_price": 10.0, "amount": 10.0},
+        "receipt": {"id": 1, "qty": 1.0, "unit_price": 9.50, "amount": 9.50},
+    }
+    over_gate = {
+        "line": {"part": "OUT", "qty": 1.0, "unit_price": 200.0, "amount": 200.0},
+        "receipt": {"id": 2, "qty": 1.0, "unit_price": 50.0, "amount": 50.0},
+    }
+    mixed = filter_matches_outside_ppv_gate(
+        [in_gate, over_gate], invoice_total=210.0
+    )
+    assert mixed["select_zero"] is False
+    assert [hit["receipt"]["id"] for hit in mixed["selectable"]] == [1]
+    assert [hit["receipt"]["id"] for hit in mixed["skipped"]] == [2]
 

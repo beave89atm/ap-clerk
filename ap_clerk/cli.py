@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +25,7 @@ from ap_clerk.graph import (
     AI_SKIPPED_CATEGORY,
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
+    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     REPORT_TO,
@@ -55,6 +57,7 @@ from ap_clerk.gates import (
     GATE_PRICE,
     GATE_QTY,
     GATE_RECEIPT,
+    GATE_TOO_OLD,
     RESULT_FAIL,
     RESULT_HOLD,
     RESULT_SKIPPED,
@@ -89,6 +92,7 @@ from ap_clerk.rules import (
     comments_for,
     due_date_from_terms,
     evaluate_bill_price_variance,
+    filter_matches_outside_ppv_gate,
     extract_po_number,
     flag_in_outlook_for,
     format_fees,
@@ -119,6 +123,7 @@ from ap_clerk.rules import (
     should_create_header,
     vendor_match_score,
     parse_iso_date,
+    aqpc_invoice_too_old,
 )
 
 LOGGER = logging.getLogger("ap_clerk")
@@ -440,6 +445,31 @@ def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any
     return index
 
 
+def _is_clearly_other_vendor(parsed: str, posted_text: str, posted_id: Any) -> bool:
+    """True when the live header is a different company (AQPC 10938 ≠ JMOR 4779).
+
+    Unique invoice # is still a duplicate when the mailbox sender is weak
+    (NoreplyMV / Leeco). A noreply From must not create a second header.
+    """
+    if not parsed or not posted_text:
+        return False
+    if names_match(parsed, posted_text) or vendor_match_score(parsed, posted_text):
+        return False
+    if re.search(r"noreply|no[\s-]?reply|donotreply|do[\s-]?not[\s-]?reply", parsed, flags=re.I):
+        return False
+    parsed_id = known_vendor_id(parsed)
+    if posted_id not in (None, "") and parsed_id not in (None, "") and int(posted_id) != int(parsed_id):
+        return True
+    posted_known = known_vendor_id(posted_text)
+    if parsed_id not in (None, "") and posted_known not in (None, "") and int(parsed_id) != int(posted_known):
+        return True
+    if posted_id not in (None, ""):
+        return True
+    # List view may omit Vendor.id. A posted company name that does not match
+    # the parsed vendor is still a different bill (AQPC ≠ JMOR MACHINERY).
+    return bool(str(posted_text).strip())
+
+
 def _matching_existing_invoices(
     invoice_by_number: dict[str, list[dict[str, Any]]],
     number: str,
@@ -447,19 +477,31 @@ def _matching_existing_invoices(
 ) -> list[dict[str, Any]]:
     """Same vendor + invoice # on live or this run. Unique # is a dup even when
     the mailbox sender name does not match (NoreplyMV / Leeco). Two vendors
-    sharing a number are not treated as the same bill.
+    sharing a number are not treated as the same bill — including a unique
+    number that already belongs to a different known vendor (AQPC 10938 vs
+    JMOR Machinery 4779).
     """
     items = invoice_by_number.get(invoice_number_key(number)) or []
     if not items:
         return []
-    if not vendor or len(items) == 1:
+    if not vendor:
         return list(items)
     matched: list[dict[str, Any]] = []
+    other: list[dict[str, Any]] = []
     for item in items:
         values = item.get("values") or {}
         text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        posted_id = lookup_id(values.get("Vendor"))
         if names_match(vendor, text) or vendor_match_score(vendor, text):
             matched.append(item)
+        elif _is_clearly_other_vendor(vendor, str(text or ""), posted_id):
+            other.append(item)
+        elif len(items) == 1:
+            matched.append(item)
+    if matched:
+        return matched
+    if other and len(other) == len(items):
+        return []
     return matched
 
 
@@ -844,7 +886,53 @@ def _process_invoice(
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
 
+    if aqpc_invoice_too_old(
+        vendor=vendor,
+        invoice_date=inv.get("date") or inv.get("invoice_date"),
+        invoice_number=number,
+    ):
+        parsed_day = inv.get("date") or inv.get("invoice_date") or "unknown"
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        row["Why"] = why_skipped(
+            GATE_TOO_OLD,
+            f"AQPC invoice date {parsed_day} is before 2026-08-01 "
+            f"(or Kyle-voided too-old # {number}). Do not create a header. "
+            "Do not walk older payment-requests into KIMCO. Kyle reverse 2026-09-15. "
+            "Do not stamp Entered in AI / Entered with issues / AI Skipped 2.",
+        )
+        row["Flag in Outlook"] = "No"
+        row["Flag status"] = FLAG_NONE
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=False)
+
     existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
+    confirmed_hits: list[dict[str, Any]] = []
+    for hit in existing_hits:
+        values = hit.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        posted_id = lookup_id(values.get("Vendor"))
+        if (not text or posted_id is None) and hit.get("id") not in (None, "") and client is not None:
+            try:
+                live = client.get_item("ap_invoices", int(hit["id"]))
+                values = live.get("values") or {}
+                text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+                posted_id = lookup_id(values.get("Vendor"))
+            except Exception:  # noqa: BLE001 - keep the list-view hit
+                confirmed_hits.append(hit)
+                continue
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            confirmed_hits.append(hit)
+        elif _is_clearly_other_vendor(vendor, str(text or ""), posted_id):
+            LOGGER.info(
+                "Invoice #%s live id %s is other vendor %s (parsed %s); not a duplicate",
+                number,
+                hit.get("id"),
+                text,
+                vendor,
+            )
+        else:
+            confirmed_hits.append(hit)
+    existing_hits = confirmed_hits
     if existing_hits and number:
         existing_ids = [hit.get("id") for hit in existing_hits if hit.get("id") not in (None, "")]
         existing_id = existing_ids[0] if existing_ids else existing_hits[0].get("id")
@@ -1069,6 +1157,37 @@ def _process_invoice(
         )
         combined_matched = list(one.get("matched") or [])
         combined_unmatched = list(one.get("unmatched_lines") or [])
+        ppv_lock = filter_matches_outside_ppv_gate(
+            combined_matched, invoice_total=amount
+        )
+        ppv_lock_note = ""
+        if ppv_lock.get("skipped"):
+            combined_matched = list(ppv_lock.get("selectable") or [])
+            ppv_lock_note = (
+                "Over-PPV leftover(s) not selected (locks the receipt; "
+                "Shawn cannot unreceive / fix PO price / re-receive). NOTE-29. "
+            )
+            if ppv_lock.get("select_zero"):
+                ppv_lock_note += (
+                    "Whole bill is over the PPV gate; Select Receipts posted zero. "
+                )
+            skip_reason = ""
+            for hit in ppv_lock.get("skipped") or []:
+                skip_reason = str(hit.get("ppv_skip_reason") or "").strip()
+                if skip_reason:
+                    break
+            lock_why = why_hold(
+                GATE_PRICE,
+                (skip_reason or PRICE_DOES_NOT_MATCH)
+                + " Receipts NOT selected per Kyle lock rule (NOTE-29).",
+            )
+            if PRICE_MISMATCH_PO_COMMENT not in lock_why:
+                lock_why = f"{lock_why} {PRICE_MISMATCH_PO_COMMENT}"
+            lock_why += " Create KIMCO header and attach PDF; do not finish the bill."
+            if issue_hold is None:
+                issue_hold = (GATE_PRICE, lock_why)
+            elif "NOTE-29" not in str(issue_hold[1]):
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {ppv_lock_note}")
         matched_pos = {
             str((hit.get("receipt") or {}).get("po") or (hit.get("line") or {}).get("po") or "")
             for hit in combined_matched
@@ -1120,6 +1239,7 @@ def _process_invoice(
                 + " Create KIMCO header and attach PDF; do not claim Success.",
             )
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        receipt_note += ppv_lock_note
         if unmatched_pos and combined_matched:
             receipt_note += (
                 f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "

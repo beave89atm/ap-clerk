@@ -375,8 +375,9 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "gaps do not skip receipts: qualifying unit-price variance "
             "posts Additional Charge PPV (≤10% of invoice total and ≤$100); "
             "do not invent a $0.02 PPV when amounts add cleanly. Over "
-            "threshold → HOLD price-does-not-match + @Shawn McKibben and "
-            "still select other good lines. 142043: receipt qty 6 / invoice "
+            "threshold → HOLD price-does-not-match + @Shawn McKibben; do "
+            "not Select Receipts on the over-PPV line (NOTE-29 / 11003 / "
+            "10991). Still select other in-gate lines. 142043: receipt qty 6 / invoice "
             "4 → select qty 4 if the API allows. Fees ≠ PPV. Never "
             "fail-close the whole bill to no-receipts HOLD when some lines "
             "match. Success only if every line is selected and no human "
@@ -480,6 +481,82 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
         "do_not_void": True,
+    },
+    {
+        "id": "NOTE-27",
+        "slug": "aqpc-10956-same-cost-inverted-qty-unit",
+        "gate": GATE_RECEIPT,
+        "cases": ("AQPC 10956 / KIMCO 10021 / PO 59016 / receipt 23517",),
+        "9_16_bug": (
+            "Plus-5 batch 711 left 10956 HOLD qty-does-not-match: line 2 "
+            "invoice qty 6 @$50 = $300 vs leftover 23517 / PO59016-02 qty 2 "
+            "@$150 = $300. Same cost, qty/unit inverted. Partial 23516 only "
+            "(posted $400 vs PDF $700)."
+        ),
+        "expected": (
+            "When leftover receipt extended cost uniquely matches the invoice "
+            "line total, Select Receipts even if qty and unit are inverted "
+            "(10956 / 23517). Same class as 11004 qty+unit swap. Do not PPV. "
+            "Do not alter receipt unit price. Do not HOLD qty-does-not-match "
+            "when the dollars already match. Never invent receipts."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10021,),
+    },
+    {
+        "id": "NOTE-28",
+        "slug": "aqpc-too-old-before-2026-08-01",
+        "gate": "too-old",
+        "cases": (
+            "AQPC 10696 / 10040",
+            "10523 / 10041",
+            "10381 / 10042",
+            "9502 / 10043",
+            "9498 / 10044",
+            "9352 / 10045",
+            "9343 / 10046",
+        ),
+        "9_16_bug": (
+            "Plus-5 discovery walked older AQPC payment-requests (Jun 2026 "
+            "through Apr 2025) into batch 711 as headers 10040–10046."
+        ),
+        "expected": (
+            "AQPC invoice date before 2026-08-01 → skip / do not create a "
+            "header. After Aug/Sep AQPC is exhausted, stop — do not walk "
+            "older payment-requests into KIMCO. Kyle 2026-09-16: void/reverse "
+            "10040–10046; do not re-enter. Never Success. Never invent receipts."
+        ),
+        "never_success": True,
+        "do_not_void": False,
+        "leftover_kimco_ids": (),
+        "voided_kimco_ids": (10040, 10041, 10042, 10043, 10044, 10045, 10046),
+    },
+    {
+        "id": "NOTE-29",
+        "slug": "over-ppv-do-not-select-receipts",
+        "gate": GATE_PRICE,
+        "cases": (
+            "AQPC 11003 / KIMCO 10009 / PO 59083 / receipt 24103",
+            "AQPC 10991 / KIMCO 10013 / PO 59148 / receipt 23967",
+        ),
+        "9_16_bug": (
+            "11003 selected leftover 24103 (2 @ $0.777 vs invoice 2 @ $5, "
+            "~84% / $8.45). 10991 selected 23967 (199 @ $0.75 vs invoice "
+            "199 @ $1, ~25% / $49.75). Selecting locked the receipt so "
+            "Shawn could not unreceive, fix the PO price, and re-receive."
+        ),
+        "expected": (
+            "If a leftover is outside the PPV gate (≤10% of invoice total "
+            "AND bill PPV ≤$100), do not Select Receipts for that line. "
+            "If the whole bill is over-gate, select zero receipts. Still "
+            "create header + attach PDF. HOLD price-does-not-match + "
+            "@Shawn McKibben. Outlook Entered with issues. Never Success. "
+            "Never invent receipts. Kyle 2026-09-16."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10009, 10013),
     },
 )
 

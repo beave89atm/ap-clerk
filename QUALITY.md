@@ -16,6 +16,20 @@ not re-stamp categories — if the message already has Outlook `Entered in AI`,
 `flag.flagStatus=flagged`. Those messages do **not** consume the 10-email
 touch cap. Only unflagged / uncategorized (by those AP markers) messages count.
 
+**NOTE-28 AQPC too-old (Kyle 2026-09-16).** AQPC invoice date **before
+2026-08-01 → skip / do not create a header.** After Aug/Sep AQPC
+payment-requests are exhausted, **stop** — do not walk older mail into
+KIMCO. Kyle reversed 10040–10046 (10696 / 10523 / 10381 / 9502 / 9498 /
+9352 / 9343) as too-old. Do not re-enter them. Same-cost leftover 10956 /
+10021 stays (NOTE-27).
+
+**NOTE-29 over-PPV do not lock receipts (Kyle 2026-09-16).** If leftover
+vs invoice line is outside the PPV gate (≤10% of invoice total **and**
+bill PPV ≤$100), **do not Select Receipts** for that line (selecting
+locks the receipt; Shawn cannot unreceive / fix PO / re-receive). Whole
+bill over-gate → select **zero**. Still header + PDF. HOLD
+`price-does-not-match`. Live released 10009 / 24103 and 10013 / 23967.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -77,6 +91,11 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
    surcharges / F-Fees & Surcharges before Success (Fastenal TXFT4100079
    Shipping & Handling 63.98). Sheet Fees column is not a post.
 6. **PPV only** for unit-price gaps vs PO, and only if ≤10% of invoice total **and** ≤$100; else price-does-not-match HOLD + `@Shawn McKibben`.
+   **Kyle 2026-09-16 (NOTE-29):** if a leftover is over that gate, **do not
+   Select Receipts** for that line (selecting locks the receipt; Shawn
+   cannot unreceive, fix the PO price, and re-receive). If the whole bill
+   is over-gate, select **zero** receipts. Still create header + attach
+   PDF. AQPC **11003 / 10009** and **10991 / 10013** are the class.
 7. **Vendor PDF attached** on the header.
 8. **Select Receipts posted** when the PO path applies. Receipt qty and
    merchandise cost must match the invoice. Never first-open /
@@ -152,13 +171,16 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-17** Insight 1809 already entered (Kyle 2026-09-11) | HOLD preflight-parse MSC/McQueary + `no-pdf-on-vm`; never said already-entered | Duplicate check before parse-HOLD; HOLD `already-entered` names vendor / # / existing KIMCO id(s); no McQueary; no `no-pdf-on-vm` when PDF is on disk | `test_never_repeat_insight_1809_already_entered` |
 | **NOTE-18** Outlook `AI Skipped 2` for noise (Kyle 2026-09-11 / Treyce 2026-09-14) | Noise was sheet-only; no Outlook category; already-flagged ignored `AI Skipped` | Stamp exact `AI Skipped 2` (never `AI HOLD`, never `AI Skipped`); Why `outlook-category-missing: AI Skipped 2` if Graph cannot apply; already-flagged includes `AI Skipped 2` and leftover `AI Skipped` | `test_never_repeat_ai_skipped_noise` |
 | **NOTE-19** 3P / Rachel Bailey INV# 142041–142044 multi-PO (8/18) | Skipped not-a-bill | Invoice, not noise; Invoice_Type 3 (not Misc 4); header PO blank; Select Receipts per PO **by invoice line part + PO + qty** (CPL # is a secondary slip hint only, never a gate); sheet lists POs + selected receipts; unmatched PO named on Why; Outlook bill categories, never `AI Skipped 2` | `test_never_repeat_3p_rachel_bailey_not_noise` / `test_3p_multi_po_select_receipts` |
-| **NOTE-23** 3P 142041–142044 / KIMCO 9988–9991 (live 9/14 batch 708) | Header + PDF entered; **zero** Select Receipts; Why `no receipts after second pass` even though open receipts existed on those PO lines. Do not invent a $0.02 PPV — invoice amounts add cleanly; PPV is none unless a real unit-price gap qualifies. | Match each invoice line → open receipts on that line's listed PO by **part / qty / PO** (CPL not required). Check every line; select every match. Price gaps do **not** skip receipts: qualifying variance (≤10% of invoice total and ≤$100 bill PPV) posts Additional Charge Purchase Price Variance; over threshold → HOLD price-does-not-match + `@Shawn McKibben` and still select other good lines. 142043 receipt qty 6 / invoice 4 → select qty 4 if the API allows. Fees ≠ PPV. Partial select → Entered with issues / Incomplete; never Success if a human must fix price/qty; never zero-receipt HOLD when Notes-style matches exist. | `test_never_repeat_3p_select_receipts_cpl` / `test_never_repeat_3p_notes_142041_142044` |
+| **NOTE-23** 3P 142041–142044 / KIMCO 9988–9991 (live 9/14 batch 708) | Header + PDF entered; **zero** Select Receipts; Why `no receipts after second pass` even though open receipts existed on those PO lines. Do not invent a $0.02 PPV — invoice amounts add cleanly; PPV is none unless a real unit-price gap qualifies. | Match each invoice line → open receipts on that line's listed PO by **part / qty / PO** (CPL not required). Check every line; select every **in-gate** match. Qualifying variance (≤10% of invoice total and ≤$100 bill PPV) posts Additional Charge Purchase Price Variance. Over threshold → HOLD price-does-not-match + `@Shawn McKibben` and **do not Select** the over-PPV line (NOTE-29 / 11003 / 10991); still select other in-gate lines. 142043 receipt qty 6 / invoice 4 → select qty 4 if the API allows. Fees ≠ PPV. Partial select → Entered with issues / Incomplete; never Success if a human must fix price/qty; never zero-receipt HOLD when Notes-style matches exist. | `test_never_repeat_3p_select_receipts_cpl` / `test_never_repeat_3p_notes_142041_142044` |
 | **NOTE-20** Eastern Metal 818600 / 818601 (8/18) | Skipped not-a-bill | `Invoice` + Eastern Metal / EASTERN METAL SUPPLY (alias 64) is a bill; Invoice/INV subject **or** PDF invoice attached is never not-a-bill; enter or HOLD | `test_never_repeat_eastern_metal_818600_not_noise` |
 | **NOTE-21** AQPC 10917 / 10918 payment-request link (8/18; live 9/15 Intuit) | Skipped not-a-bill + `no-pdf-on-vm` | **Link download is mandatory:** extract https payment-request / Intuit URL, unauth GET, then guest browser if auth/bot-walled or intermediate HTML. Click View/Download invoice with no Intuit login. PDF → header + attach. True failure after guest browser → HOLD `pdf-behind-link` names vendor / # / host and that guest browser was tried — never Skipped, never “set `AP_CLERK_INTUIT_STORAGE_STATE`” | `test_never_repeat_aqpc_10917_link_download` |
 | **NOTE-22** KIMCO vendor + invoice never skip (Kyle) | Listed vendors with Invoice/INV subjects were Skipped | KIMCO From/subject + invoice (PDF, link-PDF, or Invoice/INV subject) → enter or HOLD with real Why; never Skipped / `AI Skipped 2`. `AI Skipped 2` only for true non-vendor noise | `test_never_repeat_kimco_vendor_invoice_never_skip` |
 | **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985**; Julie Hencke `Past Due Invoices` (live 9/14 batch 708) | Leeco entered as a bill (filename 1058256); listed 617228 / 617448 / 619920 / 619921. Word `Invoices` on a past-due list must not flip it to a bill. | Account Statement / statement-of-account / past-due invoice list (subject or PDF body) → `Skipped` + Outlook `AI Skipped 2`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` / `test_never_repeat_julie_hencke_past_due_invoices` |
 | **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
 | **NOTE-26** Greentree Packaging & Lumber `Invoice from Greentree Packaging & Lumber` (live 9/15 batch 711) | **Honest miss / false statement skip:** sheet Why `Skipped (bill-vs-noise): statement`; Outlook `AI Skipped 2`; Attach `no-pdf-on-vm`; empty invoice #. Classifier treated preview/body `account statement` as noise **before** inspecting the attached invoice PDF (PDF-is-truth violated). Email consumed the 10-cap without entering the bill. | Subject Invoice/INV/bill hint (`Invoice from …`) **or** a real invoice PDF → never statement / never `AI Skipped 2`. If unsure, download/inspect the PDF first; prefer enter (header+attach) or bill HOLD over Skip. Leeco Account Statement / Julie Hencke `Past Due Invoices` still skip. Do not invent Success. Do not void unrelated rows | `test_never_repeat_greentree_invoice_from_not_statement` |
+| **NOTE-27** AQPC 10956 / KIMCO **10021** / PO 59016 / receipt **23517** (batch 711) | **Honest miss / false qty HOLD:** line 1 Rack 2@$200 selected 23516; line 2 plate invoice qty 6 @$50 = $300 vs leftover 23517 qty 2 @$150 = $300. Same cost, qty/unit inverted. Sheet stayed HOLD qty-does-not-match (posted $400 vs PDF $700). | When leftover receipt extended cost uniquely matches the invoice line total, Select Receipts even if qty and unit are inverted (same class as 11004 qty+unit swap). Do not PPV. Do not alter receipt unit price. Do not HOLD qty-does-not-match when the dollars already match. Never invent receipts. Kyle 2026-09-16: close 10956 with 23516+23517 | `test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit` |
+| **NOTE-28** AQPC invoice date before **2026-08-01** / KIMCO **10040–10046** (batch 711) | Discovery walked older AQPC payment-requests (10696 Jun 2026 … 9343 Apr 2025) into headers 10040–10046. | **Skip / do not create header** when AQPC invoice date is before 2026-08-01. After Aug/Sep is exhausted, stop — do not walk older payment-requests into KIMCO. Kyle reverse 2026-09-15/16: void 10040–10046; clear Outlook process categories; do not re-enter; sheet Result=Voided (too-old). Never Success. Never invent receipts. | `test_never_repeat_aqpc_too_old_before_2026_08_01` |
+| **NOTE-29** Over-PPV leftover must not be selected (AQPC **11003 / 10009** receipt 24103; **10991 / 10013** receipt 23967) | Headers created; over-PPV leftovers were still Select Receipts’d (~84% / $8.45 on 11003; ~25% / $49.75 on 10991). That locked the receipt so Shawn could not unreceive, fix the PO price, and re-receive. | If leftover vs invoice line is outside the PPV gate (≤10% of invoice total **and** bill PPV ≤$100), **do not Select Receipts** for that line. Whole bill over-gate → select **zero**. Still header + PDF. HOLD `price-does-not-match` + `@Shawn McKibben`. Outlook Entered with issues. Never Success. Kyle 2026-09-16: release 24103 / 23967 on 10009 / 10013. | `test_never_repeat_aqpc_over_ppv_does_not_select_receipts` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -494,3 +516,251 @@ qty/unit/total. 10952/10950 first pass HOLD used rolled invoice qty and
 list-view receipts with null qty/cost; record GET matched every PO-suffix
 line, then Select Receipts. Outlook **Entered in AI**. Do not void
 10007–10026. 10009 / 10013 / 10021 left for Shawn / buyer.
+
+### Another plus-5 AQPC on batch 711 (25-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**25 rows** (prior 20 + 5 new). Do not recreate 10007–10026
+(11002 / 10999 / 11003 HOLD / 11004 / 11005 / 10998 / 10991 HOLD / 10984 /
+10969 / 10968 / 10967 / 10964 / 10962 / 10958 / 10956 HOLD / 10955 / 10954 /
+10953 / 10952 / 10950). Skip Kyle-entered 10917/10918/10920/10921. Guest
+Intuit View-details click (not `sale/viewed`). No Intuit login. No Treyce
+Mail.Send. `invent=false`. Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-25.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as batch711-20.
+
+Chosen next unflagged payment-requests (Graph still has no 11006+;
+10951 / 10949 / 10948 / 10947 not in mailbox): **10946, 10945, 10939,
+10938, 10934**. Guest Playwright View-details (no Intuit login /
+no storage-state). Reused batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 11002 | **10007** | **Success** | 24104 100@3 | 300.00 | 59172 |
+| 10999 | **10008** | **Success** | 23978 12@10 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 2@0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | **Success** | 24106–24111 incl. swapped 24109/24110 | 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 5@30 | 150.00 | 59118 |
+| 10998 | **10012** | **Success** | 23979–23982 qty 6@10 | 240.00 | 59158 |
+| 10991 | **10013** | HOLD price-does-not-match | 23967 199@0.75 | PDF 199.00 / posted 149.25 | 59148 |
+| 10984 | **10014** | **Success** | 23897 1@5 | 5.00 | 59098 |
+| 10969 | **10015** | **Success** | 23677 3@45 | 135.00 | 59079 |
+| 10968 | **10016** | **Success** | 23682 1@10 | 10.00 | 59080 |
+| 10967 | **10017** | **Success** | 23681 10@50 | 500.00 | 59075 |
+| 10964 | **10018** | **Success** | 23683 2@75 | 150.00 | 59076 |
+| 10962 | **10019** | **Success** | 23520 4@25 | 100.00 | 59042 |
+| 10958 | **10020** | **Success** | 23519 4@65 | 260.00 | 59051 |
+| 10956 | **10021** | HOLD qty-does-not-match | partial 23516 2@200 | PDF 700.00 / posted 400.00 | 59016 |
+| 10955 | **10022** | **Success** | 23518 5@65 | 325.00 | 59037 |
+| 10954 | **10023** | **Success** | 23515 8@15 | 120.00 | 59024 |
+| 10953 | **10024** | **Success** | 23514 3@65 | 195.00 | 59032 |
+| 10952 | **10025** | **Success** | 23481–23486 (3@445, 3@5, 3@5, 9@10, 3@10, 3@25) | 1560.00 | 59025 |
+| 10950 | **10026** | **Success** | 23457 2@50; 23895 1@50 | 150.00 | 59023 |
+| 10946 | **10027** | **Success** | 23889–23894 (5@25, 5@10, 15@10, 5@5, 5@5, 5@445) | 2600.00 | 58988 |
+| 10945 | **10028** | **Success** | 23379 4@65 | 260.00 | 59003 |
+| 10939 | **10029** | **Success** | 23280/23281/23282 qty 1@15 | 45.00 | 58998 |
+| 10938 | **10031** | **Success** | 23377 16@5; 23378 14@10 | 220.00 | 58991 |
+| 10934 | **10030** | **Success** | 23232 15@10 | 150.00 | 58986 |
+
+**New five: 5 Success / 0 HOLD.** Live GET of 10027–10031 matches each PDF
+qty/unit/total. 10946 first pass HOLD used rolled qty 5; record GET matched
+all six PO58988 leftovers. 10939 first pass HOLD wanted one qty-3 receipt;
+three leftover qty-1 @ $15 on PO58998 were selected (NOTE-23). 10938 first
+pass false already-entered vs **JMOR Machinery 4779** (vendor 98, $21,025,
+2025-08-05 Type 4) — unique invoice # is not a dup across companies; 4779
+left untouched; header **10031** on 711. Outlook **Entered in AI**. Never
+AI Skipped. Do not void 10007–10031 or 4779. 10009 / 10013 / 10021 left
+for Shawn / buyer.
+
+### Another plus-5 AQPC on batch 711 (30-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**30 rows** (prior 25 + 5 new). Do not recreate 10007–10031
+(11002 / 10999 / 11003 HOLD / 11004 / 11005 / 10998 / 10991 HOLD / 10984 /
+10969 / 10968 / 10967 / 10964 / 10962 / 10958 / 10956 HOLD / 10955 / 10954 /
+10953 / 10952 / 10950 / 10946 / 10945 / 10939 / 10938 / 10934). Keep HOLD
+rows 11003/10009, 10991/10013, 10956/10021 as-is. Skip Kyle-entered
+10917/10918/10920/10921. Guest Intuit View-details click (not
+`sale/viewed`). No Intuit login. No Treyce Mail.Send. `invent=false`.
+Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-30.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-25.
+
+Chosen next unflagged payment-requests (Graph still has no 11006+;
+10951 / 10949 / 10948 / 10947 not in mailbox): **10933, 10932, 10929,
+10928, 10927**. Guest Playwright View-details (no Intuit login /
+no storage-state). Reused batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 11002 | **10007** | **Success** | 24104 100@3 | 300.00 | 59172 |
+| 10999 | **10008** | **Success** | 23978 12@10 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 2@0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | **Success** | 24106–24111 incl. swapped 24109/24110 | 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 5@30 | 150.00 | 59118 |
+| 10998 | **10012** | **Success** | 23979–23982 qty 6@10 | 240.00 | 59158 |
+| 10991 | **10013** | HOLD price-does-not-match | 23967 199@0.75 | PDF 199.00 / posted 149.25 | 59148 |
+| 10984 | **10014** | **Success** | 23897 1@5 | 5.00 | 59098 |
+| 10969 | **10015** | **Success** | 23677 3@45 | 135.00 | 59079 |
+| 10968 | **10016** | **Success** | 23682 1@10 | 10.00 | 59080 |
+| 10967 | **10017** | **Success** | 23681 10@50 | 500.00 | 59075 |
+| 10964 | **10018** | **Success** | 23683 2@75 | 150.00 | 59076 |
+| 10962 | **10019** | **Success** | 23520 4@25 | 100.00 | 59042 |
+| 10958 | **10020** | **Success** | 23519 4@65 | 260.00 | 59051 |
+| 10956 | **10021** | HOLD qty-does-not-match | partial 23516 2@200 | PDF 700.00 / posted 400.00 | 59016 |
+| 10955 | **10022** | **Success** | 23518 5@65 | 325.00 | 59037 |
+| 10954 | **10023** | **Success** | 23515 8@15 | 120.00 | 59024 |
+| 10953 | **10024** | **Success** | 23514 3@65 | 195.00 | 59032 |
+| 10952 | **10025** | **Success** | 23481–23486 (3@445, 3@5, 3@5, 9@10, 3@10, 3@25) | 1560.00 | 59025 |
+| 10950 | **10026** | **Success** | 23457 2@50; 23895 1@50 | 150.00 | 59023 |
+| 10946 | **10027** | **Success** | 23889–23894 (5@25, 5@10, 15@10, 5@5, 5@5, 5@445) | 2600.00 | 58988 |
+| 10945 | **10028** | **Success** | 23379 4@65 | 260.00 | 59003 |
+| 10939 | **10029** | **Success** | 23280/23281/23282 qty 1@15 | 45.00 | 58998 |
+| 10938 | **10031** | **Success** | 23377 16@5; 23378 14@10 | 220.00 | 58991 |
+| 10934 | **10030** | **Success** | 23232 15@10 | 150.00 | 58986 |
+| 10933 | **10032** | **Success** | 23236 10@20; 23237 1@30; 23238 4@20; 23239 1@5 | 315.00 | 58962 |
+| 10932 | **10033** | **Success** | 23235 1@5 | 5.00 | 58982 |
+| 10929 | **10034** | **Success** | 23234 4@30 | 120.00 | 58956 |
+| 10928 | **10035** | **Success** | 23233 2@275 | 550.00 | 58969 |
+| 10927 | **10036** | **Success** | 23242 1@275 | 275.00 | 58963 |
+
+**New five: 5 Success / 0 HOLD. All 30: 27 Success / 3 HOLD.** Live GET of
+10032–10036 matches each PDF qty/unit/total. 10933 first pass HOLD used
+rolled qty 10; record GET matched four PO58962 leftovers (10@20, 1@30,
+4@20, 1@5). Unique invoice # is still not a dup across companies (AQPC
+10938 ≠ JMOR 4779). Outlook **Entered in AI**. Never AI Skipped. Do not
+void 10007–10036 or 4779. 10009 / 10013 / 10021 left for Shawn / buyer.
+
+### Another plus-5 AQPC on batch 711 (35-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**35 rows** (prior 30 + 5 new). Do not recreate 10007–10036
+(through 10933/10032, 10932/10033, 10929/10034, 10928/10035, 10927/10036).
+Keep HOLD rows 11003/10009, 10991/10013, 10956/10021 as-is. Skip
+Kyle-entered 10917/10918/10920/10921. Guest Intuit View-details click
+(not `sale/viewed`). No Intuit login. No Treyce Mail.Send. `invent=false`.
+Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-35.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-30.
+
+Chosen next unflagged payment-requests not already on KIMCO (Graph still
+has no 11006+; 10951 / 10949–10947 / 10931 / 10930 / 10923 / 10922 /
+10919 not in mailbox; 10921/20/18/17 Kyle; 10916–10697 already-flagged
+or already on KIMCO): **10926, 10925, 10924, 10696, 10523**. Guest
+Playwright View-details (no Intuit login / no storage-state). Reused
+batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 10926 | **10037** | **Success** | 23241 6@275 | 1650.00 | 58957 |
+| 10925 | **10038** | HOLD no-receipts | none (PO 58939 lines 16/15/30/20 exist, zero receipts) | 730.00 | 58939 |
+| 10924 | **10039** | **Success** | 23240 15@10 | 150.00 | 58945 |
+| 10696 | **10040** | **Success** | 20668 2@20; 20669 1@5; 20670 2@10; 20671 1@8 | 73.00 | 58377 |
+| 10523 | **10041** | **Success** | 18652 1@50 | 50.00 | 57794 |
+
+**New five: 4 Success / 1 HOLD. All 35: 31 Success / 4 HOLD.** Live GET of
+10037 / 10039 / 10040 / 10041 matches each PDF qty/unit/total. 10696
+first pass HOLD used rolled qty 2; record GET matched four PO58377
+leftovers. 10523 first pass price HOLD; leftover 18652 1@50 matches the
+PDF. 10925 header **10038** + PDF attached; PO 58939 has matching open
+lines but nothing received — buyer must receive. Outlook **Entered in AI**
+on Success; **Entered with issues** on 10925. Never AI Skipped. Do not
+void 10007–10041 or 4779. 10009 / 10013 / 10021 / 10038 left for Shawn /
+buyer.
+
+### Another plus-5 AQPC on batch 711 (40-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**40 rows** (prior 35 + 5 new). Do not recreate 10007–10041
+(through 10926/10037, 10925/10038 HOLD, 10924/10039, 10696/10040,
+10523/10041). Keep HOLD rows 11003/10009, 10991/10013, 10925/10038 as-is
+(10956/10021 later finished — NOTE-27). Skip Kyle-entered
+10917/10918/10920/10921. Guest
+Intuit View-details click (not `sale/viewed`). No Intuit login. No
+Treyce Mail.Send. `invent=false`. Sheet:
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-35.
+
+Chosen next unflagged payment-requests not already on KIMCO (continue
+older after 10523; 10522–10382 already on KIMCO or missing): **10381,
+9502, 9498, 9352, 9343**. Guest Playwright View-details (no Intuit
+login / no storage-state). Reused batch **711**. No Treyce Mail.Send.
+`invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 10381 | **10042** | **Success** | 17800 1@50 | 50.00 | 57572 |
+| 9502 | **10043** | **Success** | 9567 1@275 | 275.00 | 55311 |
+| 9498 | **10044** | **Success** | 9558 20@10 | 200.00 | 55292 |
+| 9352 | **10045** | HOLD not-kannon-po | none (PDF billed to BLM FENCE CO.; Paid in Full) | 130.00 | (blank) |
+| 9343 | **10046** | **Success** | 8235 20@8 | 160.00 | 54871 |
+
+**New five: 4 Success / 1 HOLD. All 40 at enter: 35 Success / 5 HOLD;
+after 10956 finish: 36 Success / 4 HOLD.** Live GET of
+10042 / 10043 / 10044 / 10046 matches each PDF qty/unit/total. 9352 first
+pass false Type 4 Success — PDF is billed to **BLM FENCE CO. / Leo
+Mendez**, no Kannon PO, Paid in Full $130; header **10045** left as HOLD
+Entered with issues (do not void). Outlook **Entered in AI** on Success;
+**Entered with issues** on 9352. Never AI Skipped. Do not void
+10007–10046 or 4779. After finishing 10956/10021 (NOTE-27), remaining
+HOLD: 10009 / 10013 / 10038 / 10045 for Shawn / buyer.
+
+### Finish 10956 / 10021 (same-cost leftover, 2026-09-16)
+
+Kyle: close 10956. Vendor applied the same $300 as invoice qty 6 @$50 vs
+receipt **23517** qty 2 @$150. Select the leftover; do not PPV; do not
+alter receipt unit price; do not leave HOLD. Live GET after Select
+Receipts: **23516** 2@200 + **23517** 2@150, Invoice_Amount **700.00**
+matches PDF. Outlook upgraded to **Entered in AI**. NOTE-27. Sheet
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx` now **36 Success / 4 HOLD**.
+
+### Void too-old AQPC 10040–10046 (Kyle 2026-09-16)
+
+Kyle: reverse the 7 older AQPC headers and **stop entering older AQPC**.
+Deselect receipts (`APInvoiceLine` state **Removed** — Konfigure does not
+accept Deleted) then leave batch 711. Live DELETE returns 405 (list does
+not allow archive); Void=true does not stick on unposted Status=1. Headers
+remain GET-able at 10040–10046 with $0 / no receipts / no batch / VOID
+comments. Outlook process categories cleared. NOTE-28. Sheet marks those
+rows **Voided**. Remaining Aug–Sep rows stay on 711 (33 unposted),
+including **11002 / 10007** (untouched).
+
+### Finish 10925 / 10038 (buyer received PO 58939, 2026-09-16)
+
+Kyle / Ruben Perez ~6:24am CT: **"Okay is bee received"** — parts received
+on PO 58939. Live leftovers **24112** 16@$5, **24113** 15@$10,
+**24114** 30@$10, **24115** 20@$10 match the PDF 4 lines / $730. Select
+Receipts posted; Invoice_Amount **730.00**. Outlook upgraded to
+**Entered in AI**. Do not leave HOLD when receipts now exist. Sheet
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx` now **31 Success / 2 HOLD
+/ 7 Voided**. Remaining HOLD: 11003/10009, 10991/10013.
+
+### NOTE-29 over-PPV do not lock receipts (Kyle 2026-09-16)
+
+Selecting an over-PPV leftover locks it so Shawn cannot unreceive, fix
+the PO price, and re-receive. **Do not Select Receipts** for a line
+outside the PPV gate (≤10% of invoice total **and** bill PPV ≤$100).
+Whole bill over-gate → select **zero**. Still create header + attach PDF.
+HOLD `price-does-not-match` + `@Shawn McKibben`. Outlook Entered with
+issues. Never Success. Never invent receipts.
+
+Live release: deselect **10009 / 24103** (~84% / $8.45 on AQPC 11003 /
+PO 59083) and **10013 / 23967** (~25% / $49.75 on AQPC 10991 / PO 59148).
+Keep header + PDF. Sheet Why: receipts **NOT** selected per Kyle lock
+rule. Shawn can unreceive / fix PO / re-receive.
+
+Konfigure will return HTTP 200 for `APInvoiceLine` `Removed` and then
+roll back if `Invoice_Verification_Amount` still equals the selected
+receipt total. Persist by setting verification to **0** on the same PUT
+(and Remove any over-gate PPV additional charge). Then restore the PDF
+verification. 10013 stayed on batch **711**. 10009 was moved to Treyce
+batch **712** (`9/15/26 - tw`) with an over-gate PPV $8.45 posted;
+both the receipt line and that PPV were removed so 24103 unlocked.
+Do not post PPV over the gate.
+
+Live GET after release: **10009** Invoice_Amount **0**, verification
+**10.00**, 0 receipt lines, PDF attached, receipt 24103 Invoiced=false /
+Selected=false / Locked_PO=false. **10013** Invoice_Amount **0**,
+verification **199.00**, 0 receipt lines, PDF attached, receipt 23967
+Invoiced=false / Selected=false / Locked_PO=false. Sheet still
+**31 Success / 2 HOLD / 7 Voided**.

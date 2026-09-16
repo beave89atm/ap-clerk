@@ -38,10 +38,13 @@ from ap_clerk.kimco import KimcoClient  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
     decide_ppv,
+    filter_matches_outside_ppv_gate,
     invoice_number_key,
+    line_cost,
     match_receipts,
     money,
     normalize_receipt,
+    receipt_cost,
 )
 
 LOGGER = logging.getLogger("ap_clerk.aqpc_batch711_20")
@@ -254,8 +257,9 @@ def _price_hold_why(parsed: dict[str, Any], proof: dict[str, Any]) -> str:
                         f"({pct:.1f}% of invoice total / ${gap:.2f}). Do not post PPV. "
                         f"{SHAWN_MCKIBBEN}: purchasing must unreceive, change the PO price, "
                         "and re-receive. Do not alter receipt unit price in GI. "
-                        f"Header {kid} + PDF attached + receipt selected "
-                        f"(KIMCO Invoice_Amount is now {posted} from the receipt). "
+                        f"Header {kid} + PDF attached. Receipts NOT selected "
+                        f"(NOTE-29 Kyle lock rule: selecting locks the leftover so "
+                        f"Shawn cannot unreceive / fix PO price / re-receive). "
                         "Treyce would still rework the price. Outlook Entered with issues. "
                         "Flag status=entered-with-issues."
                     )
@@ -399,8 +403,8 @@ def try_finish_receipts(
         if line_keys == rec_keys:
             wanted = [int(r["id"]) for r in pool if r.get("id") not in (None, "")]
     # Partial: unique leftover qty+cost matches even when line counts differ.
-    if not wanted and leftover_lines and pool:
-        used: set[int] = set()
+    if leftover_lines and pool:
+        used: set[int] = {int(x) for x in wanted}
         for ln in leftover_lines:
             key = (money(ln.get("qty")), money(ln.get("unit_price")))
             hits = [
@@ -412,9 +416,114 @@ def try_finish_receipts(
             if len(hits) == 1:
                 used.add(int(hits[0]["id"]))
                 wanted.append(int(hits[0]["id"]))
+        # Invoice qty N across leftover same-unit receipts (10939: 3 x qty-1 @ $15).
+        for ln in leftover_lines:
+            iq = money(ln.get("qty"))
+            iu = money(ln.get("unit_price"))
+            if iq is None or iu is None:
+                continue
+            if any(
+                r.get("id") in used
+                and (money(r.get("qty")), money(r.get("unit_price"))) == (iq, iu)
+                for r in pool
+            ):
+                continue
+            candidates = [
+                r
+                for r in pool
+                if r.get("id") not in used and money(r.get("unit_price")) == iu
+            ]
+            acc = 0.0
+            pick: list[dict[str, Any]] = []
+            for rec in sorted(candidates, key=lambda r: (money(r.get("qty")) or 0, int(r.get("id") or 0))):
+                q = money(rec.get("qty")) or 0.0
+                if acc + q <= iq + 0.001:
+                    pick.append(rec)
+                    acc += q
+                    if abs(acc - iq) <= 0.001:
+                        break
+            if pick and abs(acc - iq) <= 0.001:
+                for rec in pick:
+                    used.add(int(rec["id"]))
+                    wanted.append(int(rec["id"]))
+        # Same-cost leftover (10956): invoice 6@50=$300 ↔ receipt 2@150=$300.
+        for ln in leftover_lines:
+            lc = line_cost(ln)
+            if lc is None:
+                continue
+            hits = [
+                r
+                for r in pool
+                if r.get("id") not in used and receipt_cost(r) == lc
+            ]
+            if len(hits) == 1:
+                used.add(int(hits[0]["id"]))
+                wanted.append(int(hits[0]["id"]))
+    reconstructed: list[dict[str, Any]] = []
+    unused_lines = list(parsed.get("lines") or [])
+    recs_by_id: dict[int, dict[str, Any]] = {}
+    for line in proof.get("receipt_lines") or []:
+        rid = line.get("receipt")
+        if isinstance(rid, dict):
+            rid = rid.get("id")
+        if rid in (None, ""):
+            continue
+        qty = money(line.get("qty"))
+        unit = money(line.get("unit") or line.get("unit_price"))
+        amount = (
+            round(qty * unit, 2) if qty is not None and unit is not None else money(line.get("amount"))
+        )
+        recs_by_id[int(rid)] = {
+            "id": int(rid),
+            "qty": qty,
+            "unit_price": unit,
+            "amount": amount,
+            "part": line.get("po_line") or line.get("part"),
+        }
+    for rec in list(pool) + list(receipts or []):
+        rid = rec.get("id")
+        if rid not in (None, ""):
+            recs_by_id.setdefault(int(rid), rec)
+    # Score new matches and already-selected leftovers (NOTE-29 release).
+    candidate_ids = list(dict.fromkeys([*wanted, *have]))
+    for rid in candidate_ids:
+        rec = recs_by_id.get(int(rid), {"id": rid})
+        line = None
+        rc = receipt_cost(rec)
+        rq = money(rec.get("qty"))
+        for ln in list(unused_lines):
+            if money(ln.get("qty")) == rq or line_cost(ln) == rc:
+                line = ln
+                unused_lines.remove(ln)
+                break
+        if line is None and unused_lines:
+            line = unused_lines.pop(0)
+        reconstructed.append({"line": line or {}, "receipt": rec})
+    locked = filter_matches_outside_ppv_gate(
+        reconstructed, invoice_total=parsed.get("amount")
+    )
+    deselect_status = ""
+    if locked.get("skipped") or locked.get("select_zero"):
+        selectable_ids: list[int] = []
+        for hit in locked.get("selectable") or []:
+            rid = (hit.get("receipt") or {}).get("id")
+            if rid not in (None, ""):
+                selectable_ids.append(int(rid))
+        skipped_ids = set()
+        for hit in locked.get("skipped") or []:
+            rid = (hit.get("receipt") or {}).get("id")
+            if rid not in (None, ""):
+                skipped_ids.add(int(rid))
+        selected_over = [rid for rid in have if rid in skipped_ids or locked.get("select_zero")]
+        if selected_over:
+            deselect_status = client.try_deselect_receipts(kimco_id)
+            have = []
+        wanted = [rid for rid in selectable_ids if rid not in have]
     status = "already-selected"
     if wanted:
         status = client.try_select_receipts(kimco_id, wanted)
+    elif deselect_status:
+        status = f"ppv-lock-{deselect_status}"
     after = live_get_proof(client, kimco_id)
     return {
         "wanted": wanted,
@@ -462,6 +571,18 @@ def quality_row(
             iq = money(inv_line.get("qty"))
             rq = money(rec.get("qty"))
             if iq is not None and rq is not None and iq != rq:
+                line_amt = line_cost(inv_line)
+                rec_unit = money(rec.get("unit") or rec.get("unit_price"))
+                rec_amt = receipt_cost(rec)
+                if rec_amt is None and rq is not None and rec_unit is not None:
+                    rec_amt = round(rq * rec_unit, 2)
+                # 10956 / NOTE-27: same-cost leftover, qty/unit inverted.
+                if (
+                    line_amt is not None
+                    and rec_amt is not None
+                    and abs(line_amt - rec_amt) <= 0.02
+                ):
+                    continue
                 qty_hold = True
                 qty_why = _qty_hold_why(
                     parsed, proof, open_on_po=(finish or {}).get("open_on_po")

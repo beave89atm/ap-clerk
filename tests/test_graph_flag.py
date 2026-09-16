@@ -29,6 +29,7 @@ from ap_clerk.graph import (
     FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIP_ELIGIBLE,
+    FLAG_CLEARED,
     FLAG_SKIPPED,
     GraphClient,
     MailboxRejected,
@@ -36,6 +37,7 @@ from ap_clerk.graph import (
     assert_allowed_mailbox,
     attach_message_ids,
     categories_for_status,
+    categories_without_process,
     decide_flag_status,
     default_report_to,
     granted_app_roles,
@@ -537,3 +539,34 @@ def test_attach_message_ids_requires_unique_hit():
     enriched = attach_message_ids(invoices, messages)
     assert enriched[0]["graph_message_id"] == "AAMk-telecom"
     assert enriched[1]["graph_message_id"] == "AAMk-crosslink"
+
+
+def test_clear_process_categories_drops_entered_markers():
+    patches: list[dict] = []
+
+    def fake_request(method, url, **kwargs):
+        assert ALLOWED_MAILBOX in url
+        resp = Mock()
+        resp.status_code = 200
+        if method == "PATCH":
+            patches.append(kwargs.get("json") or {})
+            resp.json.return_value = {"categories": ["Human"]}
+        else:
+            resp.json.return_value = {
+                "id": "AAMk-voided",
+                "categories": [ENTERED_IN_AI_CATEGORY, "Human"],
+                "flag": {"flagStatus": "flagged"},
+            }
+        return resp
+
+    client = GraphClient("token-not-printed")
+    client.request = fake_request
+    status = client.clear_process_categories(ALLOWED_MAILBOX, "AAMk-voided")
+    assert status == FLAG_CLEARED
+    assert patches
+    assert patches[0]["categories"] == ["Human"]
+    assert ENTERED_IN_AI_CATEGORY not in patches[0]["categories"]
+    assert patches[0]["flag"]["flagStatus"] == "notFlagged"
+    assert categories_without_process(
+        [ENTERED_WITH_ISSUES_CATEGORY, "Human"]
+    ) == ["Human"]

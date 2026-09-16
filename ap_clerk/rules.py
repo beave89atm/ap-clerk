@@ -187,6 +187,10 @@ VENDOR_ID_ALIASES = {
     # Confirmed 2026-09-08 via GET of live invoice 9496 (Vendor.id, not invented).
     "orthman": 434,
     "orthman conveying": 434,
+    # Confirmed 2026-09-15 via GET of live AQPC headers (Vendor.id 22).
+    "american quality powder": 22,
+    "american quality powdercoating": 22,
+    "american quality powder coating": 22,
 }
 
 # Listed KIMCO vendors that are recognized for never-skip without inventing a Vendor.id.
@@ -541,6 +545,96 @@ def evaluate_bill_price_variance(
     result["why"] = " ".join(holds)
     result["po_comment"] = comments[0] if comments else ""
     return result
+
+
+def ppv_gap_holds(
+    *,
+    invoice_line_amount: Any,
+    receipt_or_po_amount: Any,
+    invoice_total: Any,
+    ppv_already_on_bill: float = 0.0,
+    po_unit_price: Any = None,
+    label: str = "",
+) -> bool:
+    """True when this line is outside Kyle's PPV gate (do not Select Receipts)."""
+    inv_amt = money(invoice_line_amount)
+    rec_amt = money(receipt_or_po_amount)
+    total = money(invoice_total)
+    if inv_amt is None or rec_amt is None or total is None:
+        return False
+    decision = decide_ppv(
+        invoice_line_amount=inv_amt,
+        po_line_amount=rec_amt,
+        invoice_total=total,
+        ppv_already_on_bill=ppv_already_on_bill,
+        po_unit_price=po_unit_price,
+        label=label,
+    )
+    return bool(decision.get("hold"))
+
+
+def filter_matches_outside_ppv_gate(
+    matched: list[dict[str, Any]] | None,
+    *,
+    invoice_total: Any,
+) -> dict[str, Any]:
+    """Drop over-PPV matches so Select Receipts does not lock those leftovers.
+
+    Kyle 2026-09-16: selecting an over-PPV receipt locks it; Shawn cannot
+    unreceive, fix the PO price, and re-receive. Skip that line. If every
+    matched line (the whole bill) is over-gate, select zero receipts.
+    In-gate / exact-cost matches still select. Header + PDF still create.
+    """
+    selectable: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    running = 0.0
+    total = money(invoice_total)
+    for hit in matched or []:
+        if not isinstance(hit, dict):
+            continue
+        line = hit.get("line") if isinstance(hit.get("line"), dict) else {}
+        rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+        inv_amt = line_cost(line)
+        rec_amt = receipt_cost(rec)
+        select_qty = money(hit.get("select_qty"))
+        if select_qty is None:
+            select_qty = select_qty_from_receipt(line, rec)
+        if select_qty is not None:
+            unit = money(rec.get("unit_price"))
+            rec_qty = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
+            if unit is None and rec_qty and rec_amt is not None:
+                unit = round(rec_amt / rec_qty, 4)
+            if unit is not None:
+                rec_amt = round(select_qty * unit, 2)
+        label = str(line.get("label") or line.get("part") or rec.get("part") or "")
+        decision = decide_ppv(
+            invoice_line_amount=inv_amt if inv_amt is not None else 0.0,
+            po_line_amount=rec_amt if rec_amt is not None else 0.0,
+            invoice_total=float(total or 0.0),
+            ppv_already_on_bill=running,
+            po_unit_price=rec.get("unit_price"),
+            label=label,
+        ) if inv_amt is not None and rec_amt is not None and total is not None else {
+            "hold": False,
+            "action": "match",
+            "ppv": 0.0,
+            "reason": "",
+        }
+        if decision.get("hold"):
+            skipped.append({**hit, "ppv_skip_reason": decision.get("reason") or ""})
+            continue
+        selectable.append(hit)
+        if decision.get("action") == "ppv":
+            running = round(running + float(decision.get("ppv") or 0.0), 2)
+    bill_over = bool(skipped) and not selectable
+    if bill_over:
+        selectable = []
+    return {
+        "selectable": selectable,
+        "skipped": skipped,
+        "bill_over_ppv": bill_over,
+        "select_zero": bill_over,
+    }
 
 
 def _match_po_line(
@@ -971,6 +1065,66 @@ def receipt_qty_unit_key(receipt: dict[str, Any] | None) -> tuple[float, float] 
         else receipt.get("purchase_cost")
     )
     return _qty_unit_key(qty, unit, receipt_cost(receipt))
+
+
+def line_cost(line: dict[str, Any] | None) -> float | None:
+    """Invoice line extended cost: amount, else qty × unit."""
+    if not isinstance(line, dict):
+        return None
+    amount = money(
+        line.get("amount")
+        if line.get("amount") is not None
+        else line.get("line_amount")
+        if line.get("line_amount") is not None
+        else line.get("extended")
+    )
+    if amount is not None:
+        return amount
+    qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
+    if qty is not None and unit is not None:
+        return round(qty * unit, 2)
+    return None
+
+
+def match_unique_same_cost_pairs(
+    lines: list[dict[str, Any]],
+    receipts: list[dict[str, Any]],
+) -> dict[int, dict[str, Any]]:
+    """Map leftover invoice line id() → receipt when extended cost is unique.
+
+    Kyle 2026-09-16 AQPC 10956 / PO59016-02: invoice plate qty 6 @$50 = $300
+    vs receipt 23517 qty 2 @$150 = $300. Same cost, qty/unit inverted. Select
+    the leftover. Never PPV. Never guess when two leftovers share a cost.
+    """
+    cost_to_lines: dict[float, list[dict[str, Any]]] = {}
+    line_costs: dict[int, float] = {}
+    for line in lines:
+        cost = line_cost(line)
+        if cost is None:
+            continue
+        line_costs[id(line)] = cost
+        cost_to_lines.setdefault(cost, []).append(line)
+    cost_to_receipts: dict[float, list[dict[str, Any]]] = {}
+    for receipt in receipts:
+        cost = receipt_cost(receipt)
+        if cost is None:
+            continue
+        cost_to_receipts.setdefault(cost, []).append(receipt)
+    out: dict[int, dict[str, Any]] = {}
+    used_receipts: set[int] = set()
+    for line in lines:
+        cost = line_costs.get(id(line))
+        if cost is None:
+            continue
+        if len(cost_to_lines.get(cost) or []) != 1:
+            continue
+        recs = [r for r in (cost_to_receipts.get(cost) or []) if id(r) not in used_receipts]
+        if len(recs) != 1:
+            continue
+        out[id(line)] = recs[0]
+        used_receipts.add(id(recs[0]))
+    return out
 
 
 def match_unique_qty_unit_pairs(
@@ -1745,6 +1899,28 @@ def match_receipts(
             second_pass = True
         still_open = kept_swap
 
+    # Same-cost leftover (Kyle 2026-09-16 AQPC 10956): invoice 6@$50=$300
+    # ↔ receipt 23517 2@$150=$300. Qty/unit inverted; totals match. Select.
+    # Do not PPV. Do not alter receipt unit price.
+    if still_open:
+        cost_pool = _open_on_po(str(po_number) if po_number else None)
+        cost_hits = match_unique_same_cost_pairs(still_open, cost_pool)
+        kept_cost: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            rec = cost_hits.get(id(inv_line))
+            if rec is None:
+                kept_cost.append(inv_line)
+                continue
+            _record_match(
+                inv_line,
+                rec,
+                score=50,
+                pass_name="same-cost-split",
+                how="same-cost leftover (qty/unit inverted)",
+            )
+            second_pass = True
+        still_open = kept_cost
+
     unmatched.extend(still_open)
 
     found = bool(matched)
@@ -1995,6 +2171,75 @@ def extract_po_number(text: str | None) -> str | None:
 
 def invoice_number_key(value: str | None) -> str:
     return (value or "").strip().upper()
+
+
+# Kyle 2026-09-16: do not enter AQPC bills dated before Aug 2026. After
+# Aug/Sep payment-requests are exhausted, stop — do not walk older mail
+# into KIMCO. Voided too-old headers 10040–10046 stay on this list so a
+# missing PDF date cannot recreate them.
+AQPC_VENDOR_ID = 22
+AQPC_MIN_INVOICE_DATE = date(2026, 8, 1)
+AQPC_TOO_OLD_INVOICES = frozenset(
+    {"10696", "10523", "10381", "9502", "9498", "9352", "9343"}
+)
+AQPC_TOO_OLD_KIMCO_IDS = frozenset({10040, 10041, 10042, 10043, 10044, 10045, 10046})
+
+
+def coalesce_invoice_date(value: Any) -> date | None:
+    """PDF/KIMCO invoice date. Accepts date, datetime, or ISO YYYY-MM-DD…"""
+    if value in (None, ""):
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    text = str(value).strip()
+    if len(text) < 10:
+        return None
+    try:
+        return date.fromisoformat(text[:10])
+    except ValueError:
+        return None
+
+
+def is_aqpc_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """AMERICAN QUALITY POWDERCOATING / vendor 22."""
+    if vendor_id not in (None, "") and int(vendor_id) == AQPC_VENDOR_ID:
+        return True
+    blob = (name or "").upper()
+    return "QUALITY POWDER" in blob or "AQ POWDER" in blob
+
+
+def aqpc_invoice_too_old(
+    *,
+    vendor: str | None = None,
+    vendor_id: Any = None,
+    invoice_date: Any = None,
+    invoice_number: str | None = None,
+) -> bool:
+    """True when this AQPC bill must not get a KIMCO header.
+
+    Invoice date before 2026-08-01, or a Kyle-voided too-old number
+    (10696 / 10523 / 10381 / 9502 / 9498 / 9352 / 9343). Non-AQPC vendors
+    are never gated here. Missing date + unknown number is not too-old
+    (Aug/Sep 109xx still enter).
+    """
+    number = invoice_number_key(invoice_number)
+    has_vendor = bool(vendor) or vendor_id not in (None, "")
+    aqpc = is_aqpc_vendor(vendor, vendor_id)
+    if number in AQPC_TOO_OLD_INVOICES:
+        return aqpc if has_vendor else True
+    if not aqpc:
+        return False
+    parsed = coalesce_invoice_date(invoice_date)
+    if parsed is None:
+        return False
+    return parsed < AQPC_MIN_INVOICE_DATE
+
+
+def aqpc_discover_skip_invoice(invoice_number: str | None) -> bool:
+    """Discovery: never pick a Kyle-voided too-old AQPC invoice number."""
+    return invoice_number_key(invoice_number) in AQPC_TOO_OLD_INVOICES
 
 
 def invoice_type_for(po: Any) -> int:

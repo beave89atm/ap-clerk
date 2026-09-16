@@ -48,6 +48,7 @@ GATE_AUTO_PAY = "auto-pay"
 GATE_PDF_LINK = "pdf-behind-link"
 GATE_VENDOR = "vendor-mismatch"
 GATE_ALREADY_ENTERED = "already-entered"
+GATE_TOO_OLD = "too-old"
 
 BROWSER_FAIL_LABELS = {
     "login-required": "guest browser landed on a login page",

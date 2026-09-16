@@ -1,5 +1,5 @@
 {
-  "proof": "aqpc-batch711-40",
+  "proof": "aqpc-batch711-30",
   "invent": false,
   "mail_send": false,
   "storage_state": false,
@@ -7,16 +7,6 @@
   "batch_name": "API Agent - 9/15/26",
   "batch_id": 711,
   "skipped_already_on_711": {
-    "10523": 10041,
-    "10696": 10040,
-    "10924": 10039,
-    "10925": 10038,
-    "10926": 10037,
-    "10927": 10036,
-    "10928": 10035,
-    "10929": 10034,
-    "10932": 10033,
-    "10933": 10032,
     "10934": 10030,
     "10938": 10031,
     "10939": 10029,
@@ -50,44 +40,155 @@
     "10921": 10004
   },
   "chosen": [
-    "10381",
-    "9502",
-    "9498",
-    "9352",
-    "9343"
+    "10933",
+    "10932",
+    "10929",
+    "10928",
+    "10927"
   ],
   "parsed": [
     {
-      "invoice_number": "10381",
-      "date": "2026-03-10",
-      "po": "57572",
-      "amount": 50.0,
+      "invoice_number": "10933",
+      "date": "2026-08-20",
+      "po": "58962",
+      "amount": 315.0,
       "lines": [
         {
-          "part": "AMT-80341994",
-          "qty": 1.0,
-          "amount": 50.0,
-          "unit_price": 50.0,
+          "part": "AMT-5000489",
+          "qty": 10.0,
+          "amount": 200.0,
+          "unit_price": 20.0,
           "po_line": 1,
           "wo": null,
-          "label": "AMT-80341994 48:x30\"x10\" Coupler PC Black(SO34015)",
-          "description": "48:x30\"x10\" Coupler PC Black(SO34015)"
+          "label": "AMT-5000489 18\"x12\"x8\" Jib Storage Ramp Prime and P.C. Blue RAL 5002(SO34825)",
+          "description": "18\"x12\"x8\" Jib Storage Ramp Prime and P.C. Blue RAL 5002(SO34825)"
+        },
+        {
+          "part": "AMT-70011240",
+          "qty": 1.0,
+          "amount": 30.0,
+          "unit_price": 30.0,
+          "po_line": 2,
+          "wo": null,
+          "label": "AMT-70011240 48\"x12\"x10\" Front Corner RH Corner Panel P.C. Black(SO34818)",
+          "description": "48\"x12\"x10\" Front Corner RH Corner Panel P.C. Black(SO34818)"
+        },
+        {
+          "part": "AMT-A059C910",
+          "qty": 4.0,
+          "amount": 80.0,
+          "unit_price": 20.0,
+          "po_line": 3,
+          "wo": null,
+          "label": "AMT-A059C910 22\"x8\"x4\" Def. Supply Mount Bracket P.C. Black(SO34801)",
+          "description": "22\"x8\"x4\" Def. Supply Mount Bracket P.C. Black(SO34801)"
+        },
+        {
+          "part": "AMT-70033820",
+          "qty": 1.0,
+          "amount": 5.0,
+          "unit_price": 5.0,
+          "po_line": 4,
+          "wo": null,
+          "label": "AMT-70033820 Bracket Grid Heater P.C. black(SO34818)",
+          "description": "Bracket Grid Heater P.C. black(SO34818)"
         }
       ],
       "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-03-18_invoice-10381.pdf",
-      "pdf_bytes": 24288,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-21_invoice-10933.pdf",
+      "pdf_bytes": 24776,
       "download_method": "browser",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10381",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10933",
       "graph_message_id_present": true
     },
     {
-      "invoice_number": "9502",
-      "date": "2025-06-02",
-      "po": "55311",
+      "invoice_number": "10932",
+      "date": "2026-08-20",
+      "po": "58982",
+      "amount": 5.0,
+      "lines": [
+        {
+          "part": "AMT-70020280",
+          "qty": 1.0,
+          "amount": 5.0,
+          "unit_price": 5.0,
+          "po_line": 1,
+          "wo": null,
+          "label": "AMT-70020280 7\"x3\"x2\" Bracket Strut Mount P.C. black(SO34906)",
+          "description": "7\"x3\"x2\" Bracket Strut Mount P.C. black(SO34906)"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-21_invoice-10932.pdf",
+      "pdf_bytes": 23777,
+      "download_method": "browser",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10932",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "10929",
+      "date": "2026-08-20",
+      "po": "58956",
+      "amount": 120.0,
+      "lines": [
+        {
+          "part": "AMT-70021950",
+          "qty": 4.0,
+          "amount": 120.0,
+          "unit_price": 30.0,
+          "po_line": 1,
+          "wo": null,
+          "label": "AMT-70021950 4'x8\"x3\" Base Rail P.C. black(SO34818)",
+          "description": "4'x8\"x3\" Base Rail P.C. black(SO34818)"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-21_invoice-10929.pdf",
+      "pdf_bytes": 23820,
+      "download_method": "browser",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10929",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "10928",
+      "date": "2026-08-20",
+      "po": "58969",
+      "amount": 550.0,
+      "lines": [
+        {
+          "part": "AMT-S0264",
+          "qty": 2.0,
+          "amount": 550.0,
+          "unit_price": 275.0,
+          "po_line": 1,
+          "wo": null,
+          "label": "AMT-S0264 72\"x40\"x12\" Engine Skid P.C. Black(SO34709)",
+          "description": "72\"x40\"x12\" Engine Skid P.C. Black(SO34709)"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-21_invoice-10928.pdf",
+      "pdf_bytes": 23764,
+      "download_method": "browser",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10928",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "10927",
+      "date": "2026-08-20",
+      "po": "58963",
       "amount": 275.0,
       "lines": [
         {
@@ -97,225 +198,148 @@
           "unit_price": 275.0,
           "po_line": 1,
           "wo": null,
-          "label": "AMT-S0264 60\"x27\"x22\" Engine Skid P.C. Black(SO33271)",
-          "description": "60\"x27\"x22\" Engine Skid P.C. Black(SO33271)"
+          "label": "AMT-S0264 72\"x40\"x12\" Engine Skid P.C. Black(SO34709)",
+          "description": "72\"x40\"x12\" Engine Skid P.C. Black(SO34709)"
         }
       ],
       "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2025-06-03_invoice-9502.pdf",
-      "pdf_bytes": 24132,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-21_invoice-10927.pdf",
+      "pdf_bytes": 23821,
       "download_method": "browser",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 9502",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "9498",
-      "date": "2025-05-30",
-      "po": "55292",
-      "amount": 200.0,
-      "lines": [
-        {
-          "part": "AMT-1007509",
-          "qty": 20.0,
-          "amount": 200.0,
-          "unit_price": 10.0,
-          "po_line": 1,
-          "wo": null,
-          "label": "AMT-1007509 42\"x5\"x3\" Cover Outer Boom P.C. Black(SO33303)",
-          "description": "42\"x5\"x3\" Cover Outer Boom P.C. Black(SO33303)"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2025-06-03_invoice-9498.pdf",
-      "pdf_bytes": 24137,
-      "download_method": "browser",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 9498",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "9352",
-      "date": "2025-04-23",
-      "po": null,
-      "amount": 130.0,
-      "lines": [
-        {
-          "part": "C1000-0012",
-          "qty": 2.0,
-          "amount": 50.0,
-          "unit_price": 25.0,
-          "po_line": 1,
-          "wo": null,
-          "label": "C1000-0012 5'x5' Iron Gate",
-          "description": "5'x5' Iron Gate"
-        },
-        {
-          "part": "C1000-0003",
-          "qty": 2.0,
-          "amount": 30.0,
-          "unit_price": 15.0,
-          "po_line": 2,
-          "wo": null,
-          "label": "C1000-0003 4'x4' Iron Fence",
-          "description": "4'x4' Iron Fence"
-        },
-        {
-          "part": "C1000-00064",
-          "qty": 1.0,
-          "amount": 50.0,
-          "unit_price": 50.0,
-          "po_line": 3,
-          "wo": null,
-          "label": "C1000-00064 1\"x1\"-20 Tube steel powder Coated black",
-          "description": "1\"x1\"-20 Tube steel powder Coated black"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2025-04-24_invoice-9352.pdf",
-      "pdf_bytes": 24003,
-      "download_method": "browser",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 9352",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "9343",
-      "date": "2025-04-22",
-      "po": "54871",
-      "amount": 160.0,
-      "lines": [
-        {
-          "part": "AMT-70037539",
-          "qty": 20.0,
-          "amount": 160.0,
-          "unit_price": 8.0,
-          "po_line": 1,
-          "wo": null,
-          "label": "AMT-70037539 CRADLE SCR BRKT PC Black(SO33197)",
-          "description": "CRADLE SCR BRKT PC Black(SO33197)"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2025-04-22_invoice-9343.pdf",
-      "pdf_bytes": 24123,
-      "download_method": "browser",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 9343",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10927",
       "graph_message_id_present": true
     }
   ],
   "enter_rows": [
     {
       "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10381",
-      "date": "2026-03-10",
-      "PO": "57572",
-      "Amount": 50.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10042,
+      "Invoice #": "10933",
+      "date": "2026-08-20",
+      "PO": "58962",
+      "Amount": 315.0,
+      "Result": "HOLD",
+      "Why": "HOLD (receipt): no open receipt qty matches invoice qty 10 (will not take first-open / second-open-on-po). Create KIMCO header and attach PDF; do not claim Success. HOLD: no open receipt qty matches invoice qty 10 (will not take first-open / second-open-on-po). Unmatched PO(s): 58962. Select Receipts per PO; do not skip a PO silently. Header created (id 10032). Attach status=attached. Select Receipts=held-unfinished. Outlook Entered with issues (not Entered in AI). Flag status=entered-with-issues.",
+      "KIMCO id": 10032,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": ""
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": ""
     },
     {
       "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9502",
-      "date": "2025-06-02",
-      "PO": "55311",
+      "Invoice #": "10932",
+      "date": "2026-08-20",
+      "PO": "58982",
+      "Amount": 5.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 23235 on PO 58982. Attach status=attached. Flag status=entered-in-ai.",
+      "KIMCO id": 10033,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "10929",
+      "date": "2026-08-20",
+      "PO": "58956",
+      "Amount": 120.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 23234 on PO 58956. Attach status=attached. Flag status=entered-in-ai.",
+      "KIMCO id": 10034,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "10928",
+      "date": "2026-08-20",
+      "PO": "58969",
+      "Amount": 550.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 23233 on PO 58969. Attach status=attached. Flag status=entered-in-ai.",
+      "KIMCO id": 10035,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "10927",
+      "date": "2026-08-20",
+      "PO": "58963",
       "Amount": 275.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10043,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts-equivalent posted on the invoice record; do not type Add Item. Select Receipts: 1 receipt(s) matched by single open receipt on PO. Selected receipts: 23242 on PO 58963. Attach status=attached. Flag status=entered-in-ai.",
+      "KIMCO id": 10036,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": ""
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9498",
-      "date": "2025-05-30",
-      "PO": "55292",
-      "Amount": 200.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10044,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": ""
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9352",
-      "date": "2025-04-23",
-      "PO": "",
-      "Amount": 130.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10045,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": ""
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9343",
-      "date": "2025-04-22",
-      "PO": "54871",
-      "Amount": 160.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10046,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": ""
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": ""
     }
   ],
   "finishes": {
-    "9352": {
-      "wanted": [],
-      "status": "already-selected",
+    "10933": {
+      "wanted": [
+        23236,
+        23237,
+        23238,
+        23239
+      ],
+      "status": "selected",
       "match_how": null,
-      "open_on_po": []
+      "open_on_po": [
+        {
+          "id": 23236,
+          "qty": 10.0,
+          "unit_price": 20.0,
+          "amount": 200.0,
+          "part": "PO58962-01"
+        },
+        {
+          "id": 23237,
+          "qty": 1.0,
+          "unit_price": 30.0,
+          "amount": 30.0,
+          "part": "PO58962-02"
+        },
+        {
+          "id": 23238,
+          "qty": 4.0,
+          "unit_price": 20.0,
+          "amount": 80.0,
+          "part": "PO58962-03"
+        },
+        {
+          "id": 23239,
+          "qty": 1.0,
+          "unit_price": 5.0,
+          "amount": 5.0,
+          "part": "PO58962-04"
+        }
+      ]
     }
   },
   "known_gets": {
@@ -380,14 +404,21 @@
       "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
       "po": "PO59083-AMERICAN QUALITY POWDERCOATING",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 1.55,
+      "verification": 1.55,
       "invoice_date": "2026-09-14T00:00:00",
       "posted": null,
       "void": false,
-      "batch_id": 712,
-      "batch_text": "9/15/26 - tw",
-      "receipt_lines": [],
+      "batch_id": 711,
+      "batch_text": "API Agent - 9/15/26",
+      "receipt_lines": [
+        {
+          "qty": 2.0,
+          "unit": 0.777,
+          "receipt": 24103,
+          "po_line": null
+        }
+      ],
       "fee_count": 0,
       "attachments": [
         "2026-09-15_invoice-11003.pdf"
@@ -529,14 +560,21 @@
       "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
       "po": "PO59148-AMERICAN QUALITY POWDERCOATING",
       "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
+      "invoice_amount": 149.25,
+      "verification": 149.25,
       "invoice_date": "2026-09-10T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 711,
       "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [],
+      "receipt_lines": [
+        {
+          "qty": 199.0,
+          "unit": 0.75,
+          "receipt": 23967,
+          "po_line": null
+        }
+      ],
       "fee_count": 0,
       "attachments": [
         "2026-09-11_invoice-10991.pdf"
@@ -1111,7 +1149,9 @@
       "attachments": [
         "2026-08-21_invoice-10934.pdf"
       ]
-    },
+    }
+  },
+  "new_gets": {
     "10032": {
       "id": 10032,
       "invoice_number": "10933",
@@ -1264,282 +1304,6 @@
       "attachments": [
         "2026-08-21_invoice-10927.pdf"
       ]
-    },
-    "10037": {
-      "id": 10037,
-      "invoice_number": "10926",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO58957-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 1650.0,
-      "verification": 1650.0,
-      "invoice_date": "2026-08-19T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 6.0,
-          "unit": 275.0,
-          "receipt": 23241,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-08-21_invoice-10926.pdf"
-      ]
-    },
-    "10038": {
-      "id": 10038,
-      "invoice_number": "10925",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO58939-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
-      "invoice_date": "2026-08-19T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [],
-      "fee_count": 0,
-      "attachments": [
-        "2026-08-21_invoice-10925.pdf"
-      ]
-    },
-    "10039": {
-      "id": 10039,
-      "invoice_number": "10924",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO58945-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 150.0,
-      "verification": 150.0,
-      "invoice_date": "2026-08-19T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 15.0,
-          "unit": 10.0,
-          "receipt": 23240,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-08-21_invoice-10924.pdf"
-      ]
-    },
-    "10040": {
-      "id": 10040,
-      "invoice_number": "10696",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO58377-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 73.0,
-      "verification": 73.0,
-      "invoice_date": "2026-06-08T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 2.0,
-          "unit": 20.0,
-          "receipt": 20668,
-          "po_line": null
-        },
-        {
-          "qty": 1.0,
-          "unit": 5.0,
-          "receipt": 20669,
-          "po_line": null
-        },
-        {
-          "qty": 2.0,
-          "unit": 10.0,
-          "receipt": 20670,
-          "po_line": null
-        },
-        {
-          "qty": 1.0,
-          "unit": 8.0,
-          "receipt": 20671,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-07-28_invoice-10696.pdf"
-      ]
-    },
-    "10041": {
-      "id": 10041,
-      "invoice_number": "10523",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO57794-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 50.0,
-      "verification": 50.0,
-      "invoice_date": "2026-04-17T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 1.0,
-          "unit": 50.0,
-          "receipt": 18652,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-04-21_invoice-10523.pdf"
-      ]
-    }
-  },
-  "new_gets": {
-    "10042": {
-      "id": 10042,
-      "invoice_number": "10381",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO57572-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 50.0,
-      "verification": 50.0,
-      "invoice_date": "2026-03-10T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 1.0,
-          "unit": 50.0,
-          "receipt": 17800,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-03-18_invoice-10381.pdf"
-      ]
-    },
-    "10043": {
-      "id": 10043,
-      "invoice_number": "9502",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO55311-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 275.0,
-      "verification": 275.0,
-      "invoice_date": "2025-06-02T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 1.0,
-          "unit": 275.0,
-          "receipt": 9567,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2025-06-03_invoice-9502.pdf"
-      ]
-    },
-    "10044": {
-      "id": 10044,
-      "invoice_number": "9498",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO55292-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 200.0,
-      "verification": 200.0,
-      "invoice_date": "2025-05-30T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 20.0,
-          "unit": 10.0,
-          "receipt": 9558,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2025-06-03_invoice-9498.pdf"
-      ]
-    },
-    "10045": {
-      "id": 10045,
-      "invoice_number": "9352",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": null,
-      "invoice_type": 4,
-      "invoice_amount": 0.0,
-      "verification": 0.0,
-      "invoice_date": "2025-04-23T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [],
-      "fee_count": 0,
-      "attachments": [
-        "2025-04-24_invoice-9352.pdf"
-      ]
-    },
-    "10046": {
-      "id": 10046,
-      "invoice_number": "9343",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO54871-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 160.0,
-      "verification": 160.0,
-      "invoice_date": "2025-04-22T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 20.0,
-          "unit": 8.0,
-          "receipt": 8235,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2025-04-22_invoice-9343.pdf"
-      ]
     }
   },
   "rows": [
@@ -1590,14 +1354,14 @@
       "PO": "59083",
       "Amount": 10.0,
       "Result": "HOLD",
-      "Why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Leftover receipt 24103 / PO59083-01 is qty 2 @ $0.777 = $1.55 (84.4% of invoice total / $8.45). Do not post PPV. Receipts NOT selected per Kyle lock rule (NOTE-29): selecting locks the leftover so Shawn cannot unreceive, fix the PO price, and re-receive. Header 10009 + PDF attached. Select Receipts posted zero. Invoice_Amount is not driven by the leftover. @Shawn McKibben. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Receipt 24103 / PO59083-01 is qty 2 @ $0.777 = $1.55 (84.4% of invoice total). Do not post PPV. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI. Header 10009 + PDF attached + receipt selected (KIMCO Invoice_Amount is now 1.55 from the receipt). Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
       "KIMCO id": 10009,
-      "Batch": "9/15/26 - tw (712)",
+      "Batch": "API Agent - 9/15/26 (711)",
       "Fees": "none",
       "PPV": "none",
       "Attach": "attached",
       "Flag status": "entered-with-issues",
-      "Receipts": "",
+      "Receipts": "24103 2@0.777",
       "Fees and surcharges": "none",
       "Attach status": "attached",
       "Flag in Outlook": "Yes",
@@ -1670,14 +1434,14 @@
       "PO": "59148",
       "Amount": 199.0,
       "Result": "HOLD",
-      "Why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Leftover receipt 23967 / PO59148-02 is qty 199 @ $0.75 = $149.25 (25.0% of invoice total / $49.75). Do not post PPV. Receipts NOT selected per Kyle lock rule (NOTE-29): selecting locks the leftover so Shawn cannot unreceive, fix the PO price, and re-receive. Header 10013 + PDF attached. Select Receipts posted zero. Invoice_Amount is not driven by the leftover. @Shawn McKibben. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Receipt 23967 / PO59148-02 is qty 199 @ $0.75 = $149.25 (25.0% of invoice total / $49.75). Do not post PPV. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI. Header 10013 + PDF attached + receipt selected (KIMCO Invoice_Amount is now 149.25 from the receipt). First pass wrongly claimed Success on the only open PO receipt. Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
       "KIMCO id": 10013,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees": "none",
       "PPV": "none",
       "Attach": "attached",
       "Flag status": "entered-with-issues",
-      "Receipts": "",
+      "Receipts": "23967 199@0.75",
       "Fees and surcharges": "none",
       "Attach status": "attached",
       "Flag in Outlook": "Yes",
@@ -1833,18 +1597,18 @@
       "date": "2026-08-27",
       "PO": "59016",
       "Amount": 700.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10956 from PDF. PO 59016 set. Select Receipts posted 23516 2@200.0 (Rack) and 23517 2@150.0 (same-cost leftover: invoice plate qty 6 @ $50 = $300 vs receipt qty 2 @ $150 = $300; NOTE-27). Live GET Invoice_Amount 700.00 matches PDF 700.00. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No PPV. No fees. Attach status=attached. Outlook upgraded Entered with issues \u2192 Entered in AI. Treyce would not rework. Flag status=entered-in-ai.",
+      "Result": "HOLD",
+      "Why": "HOLD (qty-does-not-match): PDF invoice 10956 has 2 merchandise lines totaling $700.00. Line 1 AMT-BB2000 Rack qty 2 @ $200.00 = $400.00 selected receipt 23516 / PO59016-01 (qty 2 @ $200). Line 2 AMT-BB2000 10'x8\" Aluminum Plate PC White(SO34672) invoice qty 6 @ $50.00 = $300.00 vs open receipt 23517 / PO59016-02 qty 2 @ $150.00 = $300.00 (qty 6 vs 2; unit $50 vs $150). Partial Select Receipts posted on the matching line (NOTE-23). Do not invent Success. Header 10021 + PDF attached. Treyce would still rework qty on line 2. Outlook Entered with issues. Flag status=entered-with-issues.",
       "KIMCO id": 10021,
       "Batch": "API Agent - 9/15/26 (711)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
+      "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "23516 2@200.0; 23517 2@150.0",
+      "outlook": "entered-with-issues",
+      "Receipts": "23516 2@200.0",
       "Fees": "none",
       "Attach": "attached"
     },
@@ -2162,611 +1926,8 @@
       "Receipts": "23242 1@275.0",
       "Fees": "none",
       "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10926",
-      "date": "2026-08-19",
-      "PO": "58957",
-      "Amount": 1650.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10926 from PDF. PO 58957 set. Select Receipts posted 23241 6@275.0. Live GET Invoice_Amount 1650.0 matches PDF 1650.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
-      "KIMCO id": 10037,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "23241 6@275.0",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10925",
-      "date": "2026-08-19",
-      "PO": "58939",
-      "Amount": 730.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10925 from PDF. PO 58939 set. Select Receipts posted 24112 16@5.0; 24113 15@10.0; 24114 30@10.0; 24115 20@10.0 after Ruben Perez 2026-09-16 received PO 58939. Live GET Invoice_Amount 730.0 matches PDF 730.00. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No PPV. No fees. Attach status=attached. Outlook upgraded Entered with issues \u2192 Entered in AI. Treyce would not rework. Flag status=entered-in-ai.",
-      "KIMCO id": 10038,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "finished after buyer receive 2026-09-16",
-      "outlook": "entered-in-ai",
-      "Receipts": "24112 16@5.0; 24113 15@10.0; 24114 30@10.0; 24115 20@10.0",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10924",
-      "date": "2026-08-19",
-      "PO": "58945",
-      "Amount": 150.0,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Invoice # 10924 from PDF. PO 58945 set. Select Receipts posted 23240 15@10.0. Live GET Invoice_Amount 150.0 matches PDF 150.0. Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser View-details click, no Intuit login. Treyce would not rework. Flag status=entered-in-ai.",
-      "KIMCO id": 10039,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "outlook": "entered-in-ai",
-      "Receipts": "23240 15@10.0",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10696",
-      "date": "2026-06-08",
-      "PO": "58377",
-      "Amount": 73.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10040,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "4. AMT-70039334 Fuel Filter Bracket P.C. Black(SO34462) 1 $8.00 8.00",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "4. AMT-70039334 Fuel Filter Bracket P.C. Black(SO34462) 1 $8.00 8.00",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10523",
-      "date": "2026-04-17",
-      "PO": "57794",
-      "Amount": 50.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10041,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "10381",
-      "date": "2026-03-10",
-      "PO": "57572",
-      "Amount": 50.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10042,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9502",
-      "date": "2025-06-02",
-      "PO": "55311",
-      "Amount": 275.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10043,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9498",
-      "date": "2025-05-30",
-      "PO": "55292",
-      "Amount": 200.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10044,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9352",
-      "date": "2025-04-23",
-      "PO": "",
-      "Amount": 130.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10045,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
-    },
-    {
-      "Vendor": "American Quality Powder Coating",
-      "Invoice #": "9343",
-      "date": "2025-04-22",
-      "PO": "54871",
-      "Amount": 160.0,
-      "Result": "Voided",
-      "Why": "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date before 2026-08-01. Header reversed (deselect receipts + delete/void). Do not re-enter. NOTE-28.",
-      "KIMCO id": 10046,
-      "Batch": "API Agent - 9/15/26 (711)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "cleared",
-      "Flag in Outlook": "No",
-      "Notes": "voided as too-old",
-      "outlook": "cleared",
-      "Receipts": "",
-      "Fees": "none",
-      "Attach": "attached"
     }
   ],
   "treyce_emailed": false,
-  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx",
-  "voided_too_old": {
-    "10696": {
-      "invoice": "10696",
-      "kimco_id": 10040,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "10696",
-        "invoice_amount": 73.0,
-        "batch_id": 711,
-        "receipts": [
-          {
-            "qty": 2.0,
-            "unit": 20.0,
-            "receipt": 20668,
-            "po_line": null
-          },
-          {
-            "qty": 1.0,
-            "unit": 5.0,
-            "receipt": 20669,
-            "po_line": null
-          },
-          {
-            "qty": 2.0,
-            "unit": 10.0,
-            "receipt": 20670,
-            "po_line": null
-          },
-          {
-            "qty": 1.0,
-            "unit": 8.0,
-            "receipt": 20671,
-            "po_line": null
-          }
-        ]
-      },
-      "void": {
-        "id": 10040,
-        "deselect": "deselected",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "10696",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "10523": {
-      "invoice": "10523",
-      "kimco_id": 10041,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "10523",
-        "invoice_amount": 50.0,
-        "batch_id": 711,
-        "receipts": [
-          {
-            "qty": 1.0,
-            "unit": 50.0,
-            "receipt": 18652,
-            "po_line": null
-          }
-        ]
-      },
-      "void": {
-        "id": 10041,
-        "deselect": "deselected",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "10523",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "10381": {
-      "invoice": "10381",
-      "kimco_id": 10042,
-      "before": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "10381",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "void": {
-        "id": 10042,
-        "deselect": "none",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "10381",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "9502": {
-      "invoice": "9502",
-      "kimco_id": 10043,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "9502",
-        "invoice_amount": 275.0,
-        "batch_id": 711,
-        "receipts": [
-          {
-            "qty": 1.0,
-            "unit": 275.0,
-            "receipt": 9567,
-            "po_line": null
-          }
-        ]
-      },
-      "void": {
-        "id": 10043,
-        "deselect": "deselected",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "9502",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "9498": {
-      "invoice": "9498",
-      "kimco_id": 10044,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "9498",
-        "invoice_amount": 200.0,
-        "batch_id": 711,
-        "receipts": [
-          {
-            "qty": 20.0,
-            "unit": 10.0,
-            "receipt": 9558,
-            "po_line": null
-          }
-        ]
-      },
-      "void": {
-        "id": 10044,
-        "deselect": "deselected",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "9498",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "9352": {
-      "invoice": "9352",
-      "kimco_id": 10045,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "9352",
-        "invoice_amount": 0.0,
-        "batch_id": 711,
-        "receipts": []
-      },
-      "void": {
-        "id": 10045,
-        "deselect": "none",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "9352",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    },
-    "9343": {
-      "invoice": "9343",
-      "kimco_id": 10046,
-      "before": {
-        "status": "present",
-        "void": false,
-        "invoice_number": "9343",
-        "invoice_amount": 160.0,
-        "batch_id": 711,
-        "receipts": [
-          {
-            "qty": 20.0,
-            "unit": 8.0,
-            "receipt": 8235,
-            "po_line": null
-          }
-        ]
-      },
-      "void": {
-        "id": 10046,
-        "deselect": "deselected",
-        "delete": "removed-from-batch",
-        "void_put": 200,
-        "void_error": "",
-        "confirm": "reversed",
-        "status": "reversed"
-      },
-      "after": {
-        "status": "reversed",
-        "void": false,
-        "invoice_number": "9343",
-        "invoice_amount": 0.0,
-        "batch_id": null,
-        "receipts": []
-      },
-      "outlook": []
-    }
-  },
-  "counts": {
-    "Success": 31,
-    "HOLD": 2,
-    "Voided": 7,
-    "rows": 40,
-    "holds": [
-      {
-        "inv": "11003",
-        "id": 10009,
-        "why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Leftov"
-      },
-      {
-        "inv": "10991",
-        "id": 10013,
-        "why": "HOLD (price-does-not-match): PDF invoice 10991 is qty 199 @ $1.00 = $199.00. Lef"
-      }
-    ]
-  },
-  "finish_10925": {
-    "select": "selected",
-    "wanted": [
-      24112,
-      24113,
-      24114,
-      24115
-    ],
-    "after": {
-      "id": 10038,
-      "invoice_number": "10925",
-      "vendor_id": 22,
-      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
-      "po": "PO58939-AMERICAN QUALITY POWDERCOATING",
-      "invoice_type": 3,
-      "invoice_amount": 730.0,
-      "verification": 730.0,
-      "invoice_date": "2026-08-19T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 711,
-      "batch_text": "API Agent - 9/15/26",
-      "receipt_lines": [
-        {
-          "qty": 16.0,
-          "unit": 5.0,
-          "receipt": 24112,
-          "po_line": null
-        },
-        {
-          "qty": 15.0,
-          "unit": 10.0,
-          "receipt": 24113,
-          "po_line": null
-        },
-        {
-          "qty": 30.0,
-          "unit": 10.0,
-          "receipt": 24114,
-          "po_line": null
-        },
-        {
-          "qty": 20.0,
-          "unit": 10.0,
-          "receipt": 24115,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "attachments": [
-        "2026-08-21_invoice-10925.pdf"
-      ]
-    },
-    "outlook": "entered-in-ai",
-    "success_ok": true
-  },
-  "release_over_ppv": {
-    "10009": {
-      "id": 10009,
-      "invoice_number": "11003",
-      "invoice_amount": 0.0,
-      "verification": 10.0,
-      "batch": {
-        "id": 712,
-        "text": "9/15/26 - tw",
-        "isAbstract": false
-      },
-      "void": false,
-      "nlines": 0,
-      "receipt_ids": [],
-      "attachments": [
-        "2026-09-15_invoice-11003.pdf"
-      ],
-      "comments": "API Agent. NOTE-29 receipts not selected (over-PPV lock rule).",
-      "receipt": {
-        "id": 24103,
-        "Invoiced": false,
-        "Selected_for_Receipt": false,
-        "Locked_PO": false,
-        "AP_Invoice_Number": null,
-        "unit": 0.777
-      }
-    },
-    "10013": {
-      "id": 10013,
-      "invoice_number": "10991",
-      "invoice_amount": 0.0,
-      "verification": 199.0,
-      "batch": {
-        "id": 711,
-        "text": "API Agent - 9/15/26",
-        "isAbstract": false
-      },
-      "void": false,
-      "nlines": 0,
-      "receipt_ids": [],
-      "attachments": [
-        "2026-09-11_invoice-10991.pdf"
-      ],
-      "comments": "API Agent. NOTE-29 receipts not selected (over-PPV lock rule).",
-      "receipt": {
-        "id": 23967,
-        "Invoiced": false,
-        "Selected_for_Receipt": false,
-        "Locked_PO": false,
-        "AP_Invoice_Number": null,
-        "unit": 0.75
-      }
-    }
-  }
+  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-batch711-30.xlsx"
 }
