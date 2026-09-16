@@ -325,6 +325,16 @@ def main(argv: list[str] | None = None) -> int:
         kid = row.get("KIMCO id")
         parsed_row = invoice_by_num.get(inv_no) or parsed_by_inv.get(inv_no) or {}
         finish = None
+        why = str(row.get("Why") or "").lower()
+        if "already-entered" in why or "already entered" in why:
+            out = dict(row)
+            out["Fees"] = row.get("Fees and surcharges") or "none"
+            out["Attach"] = row.get("Attach status") or ""
+            out["Receipts"] = ""
+            out["Flag in Outlook"] = "Yes"
+            out["Notes"] = ""
+            sheet_new.append(out)
+            continue
         if kid not in (None, ""):
             proof = live_get_proof(client, int(kid))
             if not proof.get("receipt_lines") or len(proof.get("receipt_lines") or []) < len(

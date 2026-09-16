@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ap_clerk.cli import _process_invoice, _resolve_vendor
+from ap_clerk.cli import _matching_existing_invoices, _process_invoice, _resolve_vendor
 from ap_clerk.gates import (
     GATE_AUTO_PAY,
     GATE_PDF_LINK,
@@ -1567,6 +1567,61 @@ def test_never_repeat_insight_1809_already_entered(tmp_path: Path):
     assert "preflight-parse" not in why
     assert "no-pdf-on-vm" not in why
     assert row["Attach status"] == "pdf-on-vm"
+
+
+def test_aqpc_10938_not_jmor_4779_already_entered():
+    """Same invoice # on a different known vendor is not a duplicate.
+
+    AQPC payment-request 10938 is not JMOR Machinery 4779 (vendor 98, $21025,
+    2025-08-05). Unique-number matching must not block the AQPC header.
+    NoreplyMV / Leeco unique-# dups stay in force when the From is weak.
+    """
+    existing = {
+        "10938": [
+            {
+                "id": 4779,
+                "values": {
+                    "Invoice_Number": "10938",
+                    "Vendor": {"id": 98, "text": "1096-JMOR MACHINERY"},
+                },
+            }
+        ]
+    }
+    hits = _matching_existing_invoices(
+        existing, "10938", "American Quality Powder Coating"
+    )
+    assert hits == []
+    leeco = {
+        "619920": [
+            {
+                "id": 9001,
+                "values": {
+                    "Invoice_Number": "619920",
+                    "Vendor": {"id": 109, "text": "109-LEECO STEEL, LLC"},
+                },
+            }
+        ]
+    }
+    noreply = _matching_existing_invoices(leeco, "619920", "NoreplyMV")
+    assert [hit.get("id") for hit in noreply] == [9001]
+    same = _matching_existing_invoices(
+        existing, "10938", "JMOR Machinery"
+    )
+    assert [hit.get("id") for hit in same] == [4779]
+    text_only = {
+        "10938": [
+            {
+                "id": 4779,
+                "values": {
+                    "Invoice_Number": "10938",
+                    "Vendor": {"text": "1096-JMOR MACHINERY"},
+                },
+            }
+        ]
+    }
+    assert _matching_existing_invoices(
+        text_only, "10938", "American Quality Powder Coating"
+    ) == []
 
 
 def test_never_repeat_ai_skipped_noise():
