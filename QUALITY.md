@@ -548,3 +548,62 @@ pass false already-entered vs **JMOR Machinery 4779** (vendor 98, $21,025,
 left untouched; header **10031** on 711. Outlook **Entered in AI**. Never
 AI Skipped. Do not void 10007–10031 or 4779. 10009 / 10013 / 10021 left
 for Shawn / buyer.
+
+### Another plus-5 AQPC on batch 711 (30-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**30 rows** (prior 25 + 5 new). Do not recreate 10007–10031
+(11002 / 10999 / 11003 HOLD / 11004 / 11005 / 10998 / 10991 HOLD / 10984 /
+10969 / 10968 / 10967 / 10964 / 10962 / 10958 / 10956 HOLD / 10955 / 10954 /
+10953 / 10952 / 10950 / 10946 / 10945 / 10939 / 10938 / 10934). Keep HOLD
+rows 11003/10009, 10991/10013, 10956/10021 as-is. Skip Kyle-entered
+10917/10918/10920/10921. Guest Intuit View-details click (not
+`sale/viewed`). No Intuit login. No Treyce Mail.Send. `invent=false`.
+Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-30.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-25.
+
+Chosen next unflagged payment-requests (Graph still has no 11006+;
+10951 / 10949 / 10948 / 10947 not in mailbox): **10933, 10932, 10929,
+10928, 10927**. Guest Playwright View-details (no Intuit login /
+no storage-state). Reused batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 11002 | **10007** | **Success** | 24104 100@3 | 300.00 | 59172 |
+| 10999 | **10008** | **Success** | 23978 12@10 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 2@0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | **Success** | 24106–24111 incl. swapped 24109/24110 | 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 5@30 | 150.00 | 59118 |
+| 10998 | **10012** | **Success** | 23979–23982 qty 6@10 | 240.00 | 59158 |
+| 10991 | **10013** | HOLD price-does-not-match | 23967 199@0.75 | PDF 199.00 / posted 149.25 | 59148 |
+| 10984 | **10014** | **Success** | 23897 1@5 | 5.00 | 59098 |
+| 10969 | **10015** | **Success** | 23677 3@45 | 135.00 | 59079 |
+| 10968 | **10016** | **Success** | 23682 1@10 | 10.00 | 59080 |
+| 10967 | **10017** | **Success** | 23681 10@50 | 500.00 | 59075 |
+| 10964 | **10018** | **Success** | 23683 2@75 | 150.00 | 59076 |
+| 10962 | **10019** | **Success** | 23520 4@25 | 100.00 | 59042 |
+| 10958 | **10020** | **Success** | 23519 4@65 | 260.00 | 59051 |
+| 10956 | **10021** | HOLD qty-does-not-match | partial 23516 2@200 | PDF 700.00 / posted 400.00 | 59016 |
+| 10955 | **10022** | **Success** | 23518 5@65 | 325.00 | 59037 |
+| 10954 | **10023** | **Success** | 23515 8@15 | 120.00 | 59024 |
+| 10953 | **10024** | **Success** | 23514 3@65 | 195.00 | 59032 |
+| 10952 | **10025** | **Success** | 23481–23486 (3@445, 3@5, 3@5, 9@10, 3@10, 3@25) | 1560.00 | 59025 |
+| 10950 | **10026** | **Success** | 23457 2@50; 23895 1@50 | 150.00 | 59023 |
+| 10946 | **10027** | **Success** | 23889–23894 (5@25, 5@10, 15@10, 5@5, 5@5, 5@445) | 2600.00 | 58988 |
+| 10945 | **10028** | **Success** | 23379 4@65 | 260.00 | 59003 |
+| 10939 | **10029** | **Success** | 23280/23281/23282 qty 1@15 | 45.00 | 58998 |
+| 10938 | **10031** | **Success** | 23377 16@5; 23378 14@10 | 220.00 | 58991 |
+| 10934 | **10030** | **Success** | 23232 15@10 | 150.00 | 58986 |
+| 10933 | **10032** | **Success** | 23236 10@20; 23237 1@30; 23238 4@20; 23239 1@5 | 315.00 | 58962 |
+| 10932 | **10033** | **Success** | 23235 1@5 | 5.00 | 58982 |
+| 10929 | **10034** | **Success** | 23234 4@30 | 120.00 | 58956 |
+| 10928 | **10035** | **Success** | 23233 2@275 | 550.00 | 58969 |
+| 10927 | **10036** | **Success** | 23242 1@275 | 275.00 | 58963 |
+
+**New five: 5 Success / 0 HOLD. All 30: 27 Success / 3 HOLD.** Live GET of
+10032–10036 matches each PDF qty/unit/total. 10933 first pass HOLD used
+rolled qty 10; record GET matched four PO58962 leftovers (10@20, 1@30,
+4@20, 1@5). Unique invoice # is still not a dup across companies (AQPC
+10938 ≠ JMOR 4779). Outlook **Entered in AI**. Never AI Skipped. Do not
+void 10007–10036 or 4779. 10009 / 10013 / 10021 left for Shawn / buyer.
