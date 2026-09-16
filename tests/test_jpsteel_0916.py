@@ -6,6 +6,7 @@ are reported, not entered (AQPC NOTE-28). Never reuse Crosslink batch 715.
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -178,6 +179,10 @@ def test_jpsteel_batch_is_dedicated_not_crosslink_715():
     assert PREFERRED_BATCH_NAME != CROSSLINK_TODAY_NAME
     assert FALLBACK_BATCH_NAME != CROSSLINK_TODAY_NAME
     assert VENDOR_NAME == "JP Steel"
+    jpsteel_716 = "API Agent - 9/16/26 JPSteel (716)"
+    assert not re.search(r"\(715\)", jpsteel_716)
+    assert CROSSLINK_TODAY_NAME in jpsteel_716  # prefix only — must not abort 716
+    assert jpsteel_716 != CROSSLINK_TODAY_NAME
 
 
 def test_jpsteel_inches_are_not_rolled_qty():

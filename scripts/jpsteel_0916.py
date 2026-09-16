@@ -96,6 +96,14 @@ MIN_INVOICE_DATE = date(2026, 8, 1)
 CAP = 5
 # 9/8 weekday HOLD — skip if still sitting; do not recreate.
 KNOWN_HOLD = {"124747"}
+# First-pass headers on batch 716. Do not recreate.
+CREATED_HEADERS = {
+    "125315": 10107,
+    "125316": 10108,
+    "125314": 10109,
+    "125122": 10110,
+    "125051": 10111,
+}
 NOISE_SUBJECT = re.compile(
     r"statement|past due|account with us|remittance|payment reminder",
     flags=re.I,
@@ -1038,6 +1046,156 @@ def finish_entered_rows(
     return rows, finishes, gets
 
 
+def graph_message_id_for(graph, inv: str) -> str:
+    needle = f"JP Steel Invoice#  ({inv})"
+    try:
+        hits = graph.search_messages(ALLOWED_MAILBOX, needle, top=10)
+    except Exception as exc:  # noqa: BLE001 - finish still posts
+        LOGGER.info("Graph search for %s failed: %s", inv, type(exc).__name__)
+        return ""
+    best = ""
+    best_recv = ""
+    for msg in hits:
+        if not is_jpsteel_invoice_email(msg) and not is_jpsteel_message(msg):
+            continue
+        subject = str(msg.get("subject") or "")
+        if invoice_number_key(extract_subject_invoice_number(subject) or "") != inv:
+            continue
+        recv = str(msg.get("receivedDateTime") or "")
+        if recv >= best_recv:
+            best_recv = recv
+            best = str(msg.get("id") or "")
+    return best
+
+
+def parsed_from_disk(inv: str, pdf_dir: Path) -> dict[str, Any] | None:
+    matches = sorted(pdf_dir.glob(f"*Invoice_{inv}.pdf"))
+    if not matches:
+        matches = sorted(pdf_dir.glob(f"*{inv}*.pdf"))
+    if not matches:
+        return None
+    path = matches[0]
+    parsed = parse_invoice_pdf(
+        path,
+        subject=f"JP Steel Invoice#  ({inv}) Transmission for KANNON MFG",
+        from_name=VENDOR_NAME,
+    )
+    parsed["pdf_path"] = str(path)
+    parsed["vendor"] = VENDOR_NAME
+    if not parsed.get("invoice_number"):
+        parsed["invoice_number"] = inv
+    return parsed
+
+
+def run_finish_only(
+    client: KimcoClient,
+    graph,
+    report_path: Path,
+    batch_info: dict[str, Any],
+    *,
+    vendor_id: int,
+    catalog: list[dict[str, Any]] | None = None,
+    entered: dict[str, int] | None = None,
+) -> int:
+    pdf_dir = ROOT / "runs" / "inbox-pdfs"
+    receipts = load_list_receipts(client)
+    rows: list[dict[str, Any]] = []
+    finishes: dict[str, Any] = {}
+    gets: dict[str, Any] = {}
+    parsed_all: list[dict[str, Any]] = []
+    batch_label = f"{batch_info.get('name')} ({batch_info.get('id')})"
+
+    for inv, kid in CREATED_HEADERS.items():
+        parsed = parsed_from_disk(inv, pdf_dir)
+        if parsed is None:
+            print(f"Missing PDF for {inv}; cannot finish.", flush=True)
+            continue
+        mid = graph_message_id_for(graph, inv) if graph is not None else ""
+        if mid:
+            parsed["graph_message_id"] = mid
+        parsed_all.append(parsed)
+        enter_row = {
+            "Vendor": VENDOR_NAME,
+            "Invoice #": inv,
+            "date": parsed.get("date"),
+            "PO": parsed.get("po") or "",
+            "Amount": parsed.get("amount"),
+            "Result": "HOLD",
+            "Why": "",
+            "KIMCO id": kid,
+            "Batch": batch_label,
+            "Fees and surcharges": "none",
+            "PPV": "none",
+            "Attach status": "",
+            "Flag status": "entered-with-issues",
+            "Flag in Outlook": "Yes",
+            "Notes": "",
+        }
+        finish = finish_hold_header(
+            client, parsed=parsed, kimco_id=kid, receipts=receipts
+        )
+        finishes[inv] = {k: v for k, v in finish.items() if k != "after"}
+        proof = finish.get("after") or jpsteel_proof(client, kid)
+        row = quality_jpsteel_row(
+            graph,
+            parsed=parsed,
+            enter_row=enter_row,
+            proof=proof,
+            finish=finish,
+            vendor_id=vendor_id,
+        )
+        rows.append(row)
+        gets[str(kid)] = proof
+        print(
+            json.dumps(
+                {
+                    "invoice": inv,
+                    "kimco_id": kid,
+                    "result": row.get("Result"),
+                    "receipts": row.get("Receipts"),
+                    "fees": row.get("Fees and surcharges"),
+                    "ppv": row.get("PPV"),
+                    "finish": finishes.get(inv),
+                },
+                indent=2,
+                default=str,
+            ),
+            flush=True,
+        )
+
+    write_report(report_path, rows)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    sidecar = {
+        "proof": "jpsteel-0916",
+        "invent": False,
+        "mail_send": False,
+        "vendor": VENDOR_NAME,
+        "vendor_id": vendor_id,
+        "batch_name": batch_info.get("name"),
+        "batch_id": batch_info.get("id"),
+        "batch": batch_info,
+        "forbidden_batch_ids": sorted(FORBIDDEN_BATCH_IDS),
+        "created_headers": CREATED_HEADERS,
+        "chosen": list(CREATED_HEADERS),
+        "parsed": [summarize_parse(b) for b in parsed_all],
+        "rows": rows,
+        "finishes": finishes,
+        "kimco_gets": gets,
+        "treyce_emailed": False,
+        "report": str(report_path),
+    }
+    if catalog is not None:
+        sidecar["catalog"] = catalog
+        sidecar["discovered"] = len(catalog)
+    if entered is not None:
+        sidecar["kimco_already"] = entered
+    sidecar_path = report_path.with_suffix(".json")
+    sidecar_path.write_text(json.dumps(sidecar, indent=2, default=str) + "\n")
+    print(f"Wrote {sidecar_path}", flush=True)
+    return 0
+
+
 def _older_hold_rows(
     older: list[dict[str, Any]],
     batch_label: str,
@@ -1077,6 +1235,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--discover-only", action="store_true")
     parser.add_argument("--parse-only", action="store_true")
     parser.add_argument("--create-batch-only", action="store_true")
+    parser.add_argument(
+        "--finish-only",
+        action="store_true",
+        help="Select Receipts + Fees + in-gate PPV on first-pass headers 10107–10111.",
+    )
     parser.add_argument(
         "--report",
         default=str(ROOT / "runs" / "AP-run-2026-09-16-jpsteel.xlsx"),
@@ -1130,6 +1293,21 @@ def main(argv: list[str] | None = None) -> int:
             print("Created/found batch is 715 — abort.", flush=True)
             return 2
         return 0
+
+    if args.finish_only:
+        batch = create_jpsteel_batch(client)
+        verified = verify_batch(client, int(batch["id"]), str(batch["name"]))
+        print(json.dumps({"batch": batch, "verified": verified}, indent=2, default=str), flush=True)
+        if verified.get("is_forbidden_715") or batch.get("id") in FORBIDDEN_BATCH_IDS:
+            print("Refusing batch 715 (Crosslink). Abort finish.", flush=True)
+            return 2
+        return run_finish_only(
+            client,
+            graph,
+            Path(args.report),
+            verified,
+            vendor_id=int(vendor_id),
+        )
 
     entered = dict(vendor_info.get("entered") or {})
     if not entered:
@@ -1285,10 +1463,11 @@ def main(argv: list[str] | None = None) -> int:
         mailbox=ALLOWED_MAILBOX,
         flag_outlook=True,
     )
-    # Refuse any row that landed on 715.
+    # Refuse only the Crosslink morning batch (id 715 / exact today-name).
+    # Do not substring-match "API Agent - 9/16/26 JPSteel (716)".
     for row in enter_rows:
         batch_cell = str(row.get("Batch") or "")
-        if "715" in batch_cell or CROSSLINK_TODAY_NAME in batch_cell:
+        if re.search(r"\(715\)", batch_cell) or batch_cell == CROSSLINK_TODAY_NAME:
             raise KimcoError(f"Enter posted to forbidden Crosslink batch: {batch_cell}")
 
     receipts = load_list_receipts(client)
