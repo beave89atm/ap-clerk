@@ -644,3 +644,39 @@ lines but nothing received — buyer must receive. Outlook **Entered in AI**
 on Success; **Entered with issues** on 10925. Never AI Skipped. Do not
 void 10007–10041 or 4779. 10009 / 10013 / 10021 / 10038 left for Shawn /
 buyer.
+
+### Another plus-5 AQPC on batch 711 (40-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**40 rows** (prior 35 + 5 new). Do not recreate 10007–10041
+(through 10926/10037, 10925/10038 HOLD, 10924/10039, 10696/10040,
+10523/10041). Keep HOLD rows 11003/10009, 10991/10013, 10956/10021,
+10925/10038 as-is. Skip Kyle-entered 10917/10918/10920/10921. Guest
+Intuit View-details click (not `sale/viewed`). No Intuit login. No
+Treyce Mail.Send. `invent=false`. Sheet:
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-35.
+
+Chosen next unflagged payment-requests not already on KIMCO (continue
+older after 10523; 10522–10382 already on KIMCO or missing): **10381,
+9502, 9498, 9352, 9343**. Guest Playwright View-details (no Intuit
+login / no storage-state). Reused batch **711**. No Treyce Mail.Send.
+`invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 10381 | **10042** | **Success** | 17800 1@50 | 50.00 | 57572 |
+| 9502 | **10043** | **Success** | 9567 1@275 | 275.00 | 55311 |
+| 9498 | **10044** | **Success** | 9558 20@10 | 200.00 | 55292 |
+| 9352 | **10045** | HOLD not-kannon-po | none (PDF billed to BLM FENCE CO.; Paid in Full) | 130.00 | (blank) |
+| 9343 | **10046** | **Success** | 8235 20@8 | 160.00 | 54871 |
+
+**New five: 4 Success / 1 HOLD. All 40: 35 Success / 5 HOLD.** Live GET of
+10042 / 10043 / 10044 / 10046 matches each PDF qty/unit/total. 9352 first
+pass false Type 4 Success — PDF is billed to **BLM FENCE CO. / Leo
+Mendez**, no Kannon PO, Paid in Full $130; header **10045** left as HOLD
+Entered with issues (do not void). Outlook **Entered in AI** on Success;
+**Entered with issues** on 9352. Never AI Skipped. Do not void
+10007–10046 or 4779. 10009 / 10013 / 10021 / 10038 / 10045 left for
+Shawn / buyer.
