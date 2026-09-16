@@ -607,3 +607,40 @@ rolled qty 10; record GET matched four PO58962 leftovers (10@20, 1@30,
 4@20, 1@5). Unique invoice # is still not a dup across companies (AQPC
 10938 ≠ JMOR 4779). Outlook **Entered in AI**. Never AI Skipped. Do not
 void 10007–10036 or 4779. 10009 / 10013 / 10021 left for Shawn / buyer.
+
+### Another plus-5 AQPC on batch 711 (35-row sheet, 2026-09-16)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**35 rows** (prior 30 + 5 new). Do not recreate 10007–10036
+(through 10933/10032, 10932/10033, 10929/10034, 10928/10035, 10927/10036).
+Keep HOLD rows 11003/10009, 10991/10013, 10956/10021 as-is. Skip
+Kyle-entered 10917/10918/10920/10921. Guest Intuit View-details click
+(not `sale/viewed`). No Intuit login. No Treyce Mail.Send. `invent=false`.
+Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-35.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`). Same columns as
+batch711-30.
+
+Chosen next unflagged payment-requests not already on KIMCO (Graph still
+has no 11006+; 10951 / 10949–10947 / 10931 / 10930 / 10923 / 10922 /
+10919 not in mailbox; 10921/20/18/17 Kyle; 10916–10697 already-flagged
+or already on KIMCO): **10926, 10925, 10924, 10696, 10523**. Guest
+Playwright View-details (no Intuit login / no storage-state). Reused
+batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 10926 | **10037** | **Success** | 23241 6@275 | 1650.00 | 58957 |
+| 10925 | **10038** | HOLD no-receipts | none (PO 58939 lines 16/15/30/20 exist, zero receipts) | 730.00 | 58939 |
+| 10924 | **10039** | **Success** | 23240 15@10 | 150.00 | 58945 |
+| 10696 | **10040** | **Success** | 20668 2@20; 20669 1@5; 20670 2@10; 20671 1@8 | 73.00 | 58377 |
+| 10523 | **10041** | **Success** | 18652 1@50 | 50.00 | 57794 |
+
+**New five: 4 Success / 1 HOLD. All 35: 31 Success / 4 HOLD.** Live GET of
+10037 / 10039 / 10040 / 10041 matches each PDF qty/unit/total. 10696
+first pass HOLD used rolled qty 2; record GET matched four PO58377
+leftovers. 10523 first pass price HOLD; leftover 18652 1@50 matches the
+PDF. 10925 header **10038** + PDF attached; PO 58939 has matching open
+lines but nothing received — buyer must receive. Outlook **Entered in AI**
+on Success; **Entered with issues** on 10925. Never AI Skipped. Do not
+void 10007–10041 or 4779. 10009 / 10013 / 10021 / 10038 left for Shawn /
+buyer.
