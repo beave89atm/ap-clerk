@@ -84,8 +84,9 @@ ALREADY_ON_711 = {
 KYLE_ENTERED = {"10917", "10918", "10920", "10921"}
 ALREADY = ALREADY_ON_711 | KYLE_ENTERED
 # Next unflagged not-on-KIMCO after 10523 (Graph gaps; skip already-flagged).
-# Discovery fills extras from older mailbox months.
-PREFERRED_FIVE: list[str] = []
+# 10522–10382 already on KIMCO or missing. Next: 10381, then 9502 / 9498 /
+# 9352 / 9343 (Jun/Apr 2025 payment-requests never flagged).
+PREFERRED_FIVE = ["10381", "9502", "9498", "9352", "9343"]
 KNOWN_THIRTY_FIVE = [
     {"invoice": "11002", "kimco_id": 10007},
     {"invoice": "10999", "kimco_id": 10008},
@@ -137,6 +138,8 @@ OLDER_MONTHS = [
     (date(2026, 1, 1), date(2026, 1, 31)),
     (date(2025, 12, 1), date(2025, 12, 31)),
     (date(2025, 11, 1), date(2025, 11, 30)),
+    (date(2025, 6, 1), date(2025, 6, 30)),
+    (date(2025, 4, 1), date(2025, 4, 30)),
 ]
 
 
@@ -186,6 +189,11 @@ def find_aqpc_payment_requests(graph) -> list[dict[str, Any]]:
             *[str(n) for n in range(11006, 11016)],
             *[str(n) for n in range(10480, 10523)],
             *[str(n) for n in range(10524, 10580)],
+            "10381",
+            "9502",
+            "9498",
+            "9352",
+            "9343",
         ]
         if n not in found
     ]
