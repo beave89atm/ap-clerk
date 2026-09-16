@@ -481,6 +481,28 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "never_success": True,
         "do_not_void": True,
     },
+    {
+        "id": "NOTE-27",
+        "slug": "aqpc-10956-same-cost-inverted-qty-unit",
+        "gate": GATE_RECEIPT,
+        "cases": ("AQPC 10956 / KIMCO 10021 / PO 59016 / receipt 23517",),
+        "9_16_bug": (
+            "Plus-5 batch 711 left 10956 HOLD qty-does-not-match: line 2 "
+            "invoice qty 6 @$50 = $300 vs leftover 23517 / PO59016-02 qty 2 "
+            "@$150 = $300. Same cost, qty/unit inverted. Partial 23516 only "
+            "(posted $400 vs PDF $700)."
+        ),
+        "expected": (
+            "When leftover receipt extended cost uniquely matches the invoice "
+            "line total, Select Receipts even if qty and unit are inverted "
+            "(10956 / 23517). Same class as 11004 qty+unit swap. Do not PPV. "
+            "Do not alter receipt unit price. Do not HOLD qty-does-not-match "
+            "when the dollars already match. Never invent receipts."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10021,),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

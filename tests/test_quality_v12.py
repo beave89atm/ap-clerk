@@ -161,8 +161,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 27))
-    assert len(TREYCE_NOTES_V12) == 26
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 28))
+    assert len(TREYCE_NOTES_V12) == 27
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -194,6 +194,7 @@ def test_v12_registry_covers_all_notes():
         "leeco-account-statement-skip",
         "legacy-packing-slip-and-line-receipts",
         "greentree-invoice-from-not-statement",
+        "aqpc-10956-same-cost-inverted-qty-unit",
     }
 
 
@@ -3579,4 +3580,61 @@ def test_never_repeat_aqpc_10998_po_suffix_line_match():
     assert not result.get("unmatched_lines"), result.get("why")
     ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
     assert ids == {23979, 23980, 23981, 23982}
+
+
+def test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit():
+    """NOTE-27: 10956 plate 6@$50=$300 selects leftover 23517 2@$150=$300."""
+    result = match_receipts(
+        invoice_number="10956",
+        invoice_lines=[
+            {
+                "part": "AMT-BB2000",
+                "qty": 2.0,
+                "unit_price": 200.0,
+                "amount": 400.0,
+                "description": "Rack",
+                "po_line": 1,
+            },
+            {
+                "part": "AMT-BB2000",
+                "qty": 6.0,
+                "unit_price": 50.0,
+                "amount": 300.0,
+                "description": "10'x8\" Aluminum Plate PC White(SO34672)",
+                "po_line": 2,
+            },
+        ],
+        receipts=[
+            {
+                "id": 23516,
+                "po": "59016",
+                "part": "PO59016-01",
+                "qty": 2.0,
+                "unit_price": 200.0,
+                "amount": 400.0,
+            },
+            {
+                "id": 23517,
+                "po": "59016",
+                "part": "PO59016-02",
+                "qty": 2.0,
+                "unit_price": 150.0,
+                "amount": 300.0,
+            },
+        ],
+        po_number="59016",
+        invoice_amount=700.0,
+    )
+    assert result.get("found") is True
+    assert not result.get("unmatched_lines"), result.get("why")
+    ids = {(hit.get("receipt") or {}).get("id") for hit in result.get("matched") or []}
+    assert ids == {23516, 23517}
+    by_amount = {
+        (hit.get("line") or {}).get("amount"): (hit.get("receipt") or {}).get("id")
+        for hit in result.get("matched") or []
+    }
+    assert by_amount.get(400.0) == 23516
+    assert by_amount.get(300.0) == 23517
+    hows = " ".join(str(h) for h in (result.get("hows") or []))
+    assert "same-cost" in hows or "inverted" in hows or 23517 in ids
 

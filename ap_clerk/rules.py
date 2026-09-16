@@ -973,6 +973,66 @@ def receipt_qty_unit_key(receipt: dict[str, Any] | None) -> tuple[float, float] 
     return _qty_unit_key(qty, unit, receipt_cost(receipt))
 
 
+def line_cost(line: dict[str, Any] | None) -> float | None:
+    """Invoice line extended cost: amount, else qty × unit."""
+    if not isinstance(line, dict):
+        return None
+    amount = money(
+        line.get("amount")
+        if line.get("amount") is not None
+        else line.get("line_amount")
+        if line.get("line_amount") is not None
+        else line.get("extended")
+    )
+    if amount is not None:
+        return amount
+    qty = money(line.get("qty") if line.get("qty") is not None else line.get("quantity"))
+    unit = money(line.get("unit_price") or line.get("rate") or line.get("unit"))
+    if qty is not None and unit is not None:
+        return round(qty * unit, 2)
+    return None
+
+
+def match_unique_same_cost_pairs(
+    lines: list[dict[str, Any]],
+    receipts: list[dict[str, Any]],
+) -> dict[int, dict[str, Any]]:
+    """Map leftover invoice line id() → receipt when extended cost is unique.
+
+    Kyle 2026-09-16 AQPC 10956 / PO59016-02: invoice plate qty 6 @$50 = $300
+    vs receipt 23517 qty 2 @$150 = $300. Same cost, qty/unit inverted. Select
+    the leftover. Never PPV. Never guess when two leftovers share a cost.
+    """
+    cost_to_lines: dict[float, list[dict[str, Any]]] = {}
+    line_costs: dict[int, float] = {}
+    for line in lines:
+        cost = line_cost(line)
+        if cost is None:
+            continue
+        line_costs[id(line)] = cost
+        cost_to_lines.setdefault(cost, []).append(line)
+    cost_to_receipts: dict[float, list[dict[str, Any]]] = {}
+    for receipt in receipts:
+        cost = receipt_cost(receipt)
+        if cost is None:
+            continue
+        cost_to_receipts.setdefault(cost, []).append(receipt)
+    out: dict[int, dict[str, Any]] = {}
+    used_receipts: set[int] = set()
+    for line in lines:
+        cost = line_costs.get(id(line))
+        if cost is None:
+            continue
+        if len(cost_to_lines.get(cost) or []) != 1:
+            continue
+        recs = [r for r in (cost_to_receipts.get(cost) or []) if id(r) not in used_receipts]
+        if len(recs) != 1:
+            continue
+        out[id(line)] = recs[0]
+        used_receipts.add(id(recs[0]))
+    return out
+
+
 def match_unique_qty_unit_pairs(
     lines: list[dict[str, Any]],
     receipts: list[dict[str, Any]],
@@ -1744,6 +1804,28 @@ def match_receipts(
             )
             second_pass = True
         still_open = kept_swap
+
+    # Same-cost leftover (Kyle 2026-09-16 AQPC 10956): invoice 6@$50=$300
+    # ↔ receipt 23517 2@$150=$300. Qty/unit inverted; totals match. Select.
+    # Do not PPV. Do not alter receipt unit price.
+    if still_open:
+        cost_pool = _open_on_po(str(po_number) if po_number else None)
+        cost_hits = match_unique_same_cost_pairs(still_open, cost_pool)
+        kept_cost: list[dict[str, Any]] = []
+        for inv_line in still_open:
+            rec = cost_hits.get(id(inv_line))
+            if rec is None:
+                kept_cost.append(inv_line)
+                continue
+            _record_match(
+                inv_line,
+                rec,
+                score=50,
+                pass_name="same-cost-split",
+                how="same-cost leftover (qty/unit inverted)",
+            )
+            second_pass = True
+        still_open = kept_cost
 
     unmatched.extend(still_open)
 

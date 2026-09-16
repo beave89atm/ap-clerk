@@ -39,9 +39,11 @@ from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
     decide_ppv,
     invoice_number_key,
+    line_cost,
     match_receipts,
     money,
     normalize_receipt,
+    receipt_cost,
 )
 
 LOGGER = logging.getLogger("ap_clerk.aqpc_batch711_20")
@@ -442,6 +444,19 @@ def try_finish_receipts(
                 for rec in pick:
                     used.add(int(rec["id"]))
                     wanted.append(int(rec["id"]))
+        # Same-cost leftover (10956): invoice 6@50=$300 ↔ receipt 2@150=$300.
+        for ln in leftover_lines:
+            lc = line_cost(ln)
+            if lc is None:
+                continue
+            hits = [
+                r
+                for r in pool
+                if r.get("id") not in used and receipt_cost(r) == lc
+            ]
+            if len(hits) == 1:
+                used.add(int(hits[0]["id"]))
+                wanted.append(int(hits[0]["id"]))
     status = "already-selected"
     if wanted:
         status = client.try_select_receipts(kimco_id, wanted)
@@ -492,6 +507,18 @@ def quality_row(
             iq = money(inv_line.get("qty"))
             rq = money(rec.get("qty"))
             if iq is not None and rq is not None and iq != rq:
+                line_amt = line_cost(inv_line)
+                rec_unit = money(rec.get("unit") or rec.get("unit_price"))
+                rec_amt = receipt_cost(rec)
+                if rec_amt is None and rq is not None and rec_unit is not None:
+                    rec_amt = round(rq * rec_unit, 2)
+                # 10956 / NOTE-27: same-cost leftover, qty/unit inverted.
+                if (
+                    line_amt is not None
+                    and rec_amt is not None
+                    and abs(line_amt - rec_amt) <= 0.02
+                ):
+                    continue
                 qty_hold = True
                 qty_why = _qty_hold_why(
                     parsed, proof, open_on_po=(finish or {}).get("open_on_po")

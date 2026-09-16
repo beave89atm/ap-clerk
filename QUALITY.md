@@ -159,6 +159,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-24** Leeco Account Statement 2026-08-18 / leftover KIMCO **9985**; Julie Hencke `Past Due Invoices` (live 9/14 batch 708) | Leeco entered as a bill (filename 1058256); listed 617228 / 617448 / 619920 / 619921. Word `Invoices` on a past-due list must not flip it to a bill. | Account Statement / statement-of-account / past-due invoice list (subject or PDF body) → `Skipped` + Outlook `AI Skipped 2`. No header, no Select Receipts, no Success. Do not void 9985 | `test_never_repeat_leeco_account_statement` / `test_never_repeat_julie_hencke_past_due_invoices` |
 | **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
 | **NOTE-26** Greentree Packaging & Lumber `Invoice from Greentree Packaging & Lumber` (live 9/15 batch 711) | **Honest miss / false statement skip:** sheet Why `Skipped (bill-vs-noise): statement`; Outlook `AI Skipped 2`; Attach `no-pdf-on-vm`; empty invoice #. Classifier treated preview/body `account statement` as noise **before** inspecting the attached invoice PDF (PDF-is-truth violated). Email consumed the 10-cap without entering the bill. | Subject Invoice/INV/bill hint (`Invoice from …`) **or** a real invoice PDF → never statement / never `AI Skipped 2`. If unsure, download/inspect the PDF first; prefer enter (header+attach) or bill HOLD over Skip. Leeco Account Statement / Julie Hencke `Past Due Invoices` still skip. Do not invent Success. Do not void unrelated rows | `test_never_repeat_greentree_invoice_from_not_statement` |
+| **NOTE-27** AQPC 10956 / KIMCO **10021** / PO 59016 / receipt **23517** (batch 711) | **Honest miss / false qty HOLD:** line 1 Rack 2@$200 selected 23516; line 2 plate invoice qty 6 @$50 = $300 vs leftover 23517 qty 2 @$150 = $300. Same cost, qty/unit inverted. Sheet stayed HOLD qty-does-not-match (posted $400 vs PDF $700). | When leftover receipt extended cost uniquely matches the invoice line total, Select Receipts even if qty and unit are inverted (same class as 11004 qty+unit swap). Do not PPV. Do not alter receipt unit price. Do not HOLD qty-does-not-match when the dollars already match. Never invent receipts. Kyle 2026-09-16: close 10956 with 23516+23517 | `test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -680,3 +681,12 @@ Entered with issues (do not void). Outlook **Entered in AI** on Success;
 **Entered with issues** on 9352. Never AI Skipped. Do not void
 10007–10046 or 4779. 10009 / 10013 / 10021 / 10038 / 10045 left for
 Shawn / buyer.
+
+### Finish 10956 / 10021 (same-cost leftover, 2026-09-16)
+
+Kyle: close 10956. Vendor applied the same $300 as invoice qty 6 @$50 vs
+receipt **23517** qty 2 @$150. Select the leftover; do not PPV; do not
+alter receipt unit price; do not leave HOLD. Live GET after Select
+Receipts: **23516** 2@200 + **23517** 2@150, Invoice_Amount **700.00**
+matches PDF. Outlook upgraded to **Entered in AI**. NOTE-27. Sheet
+`runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx` now **36 Success / 4 HOLD**.

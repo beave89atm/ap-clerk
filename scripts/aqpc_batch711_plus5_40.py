@@ -128,7 +128,6 @@ PRIOR_SHEET = ROOT / "runs" / "AP-run-2026-09-15-aqpc-batch711-35.json"
 HOLD_PDF_AMOUNTS = {
     10009: 10.0,
     10013: 199.0,
-    10021: 700.0,
     10038: 730.0,
 }
 OLDER_MONTHS = [
