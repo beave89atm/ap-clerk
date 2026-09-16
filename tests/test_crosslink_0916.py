@@ -337,3 +337,214 @@ def test_crosslink_combined_leftover_ppv_stays_in_gate():
     assert locked["select_zero"] is False
     assert sorted(h["receipt"]["id"] for h in locked["selectable"]) == [23605, 23794]
     assert locked["skipped"] == []
+
+
+class _FinishKimco:
+    target = "live"
+
+    def __init__(self, receipts_by_id: dict[int, dict], invoice: dict | None = None):
+        self.receipts_by_id = receipts_by_id
+        self.invoice = invoice or {
+            "id": 10102,
+            "values": {
+                "Invoice_Number": "28113",
+                "Vendor": {"id": 278, "text": "1276-Crosslink Powder Coating"},
+                "Purchase_Order": {"id": 1, "text": "PO59038-Crosslink Powder Coating"},
+                "Invoice_Type": 3,
+                "Invoice_Amount": 0.0,
+                "Invoice_Verification_Amount": 830.54,
+                "AP_Invoice_Batch": {"id": 715, "text": "API Agent - 9/16/26"},
+            },
+            "lists": {"APInvoiceLine": [], "InvoiceAdditionalCharges": []},
+        }
+        self.selected: list[tuple[int, list]] = []
+        self.fees: list[tuple[int, list]] = []
+        self.ppv: list[tuple[int, float]] = []
+        self.attachments = [{"name": "invoice-28113.pdf"}]
+
+    def get_item(self, service, item_id):
+        if service == "receipts":
+            return self.receipts_by_id[int(item_id)]
+        if service == "ap_invoices":
+            return self.invoice
+        raise KeyError(service)
+
+    def list_attachments(self, invoice_id):
+        return list(self.attachments)
+
+    def try_select_receipts(self, invoice_id, receipt_ids=None):
+        refs = list(receipt_ids or [])
+        self.selected.append((invoice_id, refs))
+        lines = []
+        for raw in refs:
+            rid = raw.get("id") if isinstance(raw, dict) else raw
+            rec = self.receipts_by_id[int(rid)]["values"]
+            lines.append(
+                {
+                    "values": {
+                        "Receipt": {"id": int(rid)},
+                        "Quantity": rec.get("Quantity_Received"),
+                        "Unit_Price": rec.get("Unit_Price"),
+                    }
+                }
+            )
+        self.invoice["lists"]["APInvoiceLine"] = lines
+        merch = 0.0
+        for line in lines:
+            q = line["values"]["Quantity"]
+            u = line["values"]["Unit_Price"]
+            merch = round(merch + q * u, 2)
+        self.invoice["values"]["Invoice_Amount"] = merch
+        return "selected"
+
+    def try_post_fees(self, invoice_id, fees=None):
+        self.fees.append((invoice_id, list(fees or [])))
+        charges = list(self.invoice["lists"].get("InvoiceAdditionalCharges") or [])
+        for fee in fees or []:
+            charges.append(
+                {
+                    "values": {
+                        "Additional_Charges": {"id": 11, "text": "F-Fees & Surcharges"},
+                        "Amount": fee.get("amount"),
+                        "Description": fee.get("name"),
+                    }
+                }
+            )
+        self.invoice["lists"]["InvoiceAdditionalCharges"] = charges
+        self.invoice["values"]["Invoice_Amount"] = 830.54
+        return "posted"
+
+    def try_post_ppv(self, invoice_id, amount):
+        self.ppv.append((invoice_id, float(amount)))
+        charges = list(self.invoice["lists"].get("InvoiceAdditionalCharges") or [])
+        charges.append(
+            {
+                "values": {
+                    "Additional_Charges": {"id": 13, "text": "Purchase Price Variance"},
+                    "Amount": amount,
+                    "Description": "Purchase Price Variance",
+                }
+            }
+        )
+        self.invoice["lists"]["InvoiceAdditionalCharges"] = charges
+        self.invoice["values"]["Invoice_Amount"] = 830.54
+        return "posted"
+
+
+def _receipt_record(rid: int, *, qty: float, unit: float, po: str, part: str) -> dict:
+    return {
+        "id": rid,
+        "values": {
+            "Name": f"PO{po}-01",
+            "Purchase_Order_Number": po,
+            "Quantity_Received": qty,
+            "Unit_Price": unit,
+            "Amount": round(qty * unit, 2),
+            "PO_Item_Number": part,
+            "Invoiced": False,
+        },
+    }
+
+
+def test_crosslink_finish_hydrates_null_qty_then_selects_fees_not_ppv():
+    """List-view qty=None must GET-hydrate before Select Receipts. Supply fee ≠ PPV."""
+    from crosslink_0916 import finish_hold_header, quality_crosslink_row
+
+    hydrated = {
+        23605: _receipt_record(23605, qty=3.0, unit=193.94, po="59038", part="PO59038-01"),
+        23794: _receipt_record(23794, qty=1.0, unit=193.94, po="59038", part="PO59038-01"),
+    }
+    client = _FinishKimco(hydrated)
+    list_view = [
+        {"id": 23605, "po": "59038", "part": "PO59038-01", "qty": None, "unit_price": None},
+        {"id": 23794, "po": "59038", "part": "PO59038-01", "qty": None, "unit_price": None},
+    ]
+    parsed = {
+        "invoice_number": "28113",
+        "po": "59038",
+        "amount": 830.54,
+        "lines": [
+            {"part": "1020249-1", "qty": 4.0, "unit_price": 205.58, "amount": 822.32}
+        ],
+        "fees": [{"name": "Packaging/Shop Supplies Recovery", "amount": 8.22, "fee": True}],
+        "graph_message_id": "AAMk-28113",
+    }
+    finish = finish_hold_header(client, parsed=parsed, kimco_id=10102, receipts=list_view)
+    assert finish["select_status"] == "selected"
+    assert sorted(finish["wanted"]) == [23605, 23794]
+    assert finish["fee_status"] == "posted"
+    assert client.fees and client.fees[0][1][0]["amount"] == 8.22
+    assert finish["ppv_status"] == "posted"
+    assert abs(finish["ppv_amount"] - 46.56) <= 0.02
+    assert client.ppv and abs(client.ppv[0][1] - 46.56) <= 0.02
+    row = quality_crosslink_row(
+        None,
+        parsed=parsed,
+        enter_row={"Vendor": VENDOR_NAME, "Invoice #": "28113", "KIMCO id": 10102},
+        proof=finish["after"],
+        finish=finish,
+    )
+    assert row["Result"] == "Success"
+    assert row["Flag status"] == "entered-in-ai"
+    assert "8.22" in str(row["Fees and surcharges"])
+
+
+def test_crosslink_finish_quality_does_not_invent_success():
+    """Header + PDF with zero receipts stays HOLD. invent=false."""
+    from crosslink_0916 import quality_crosslink_row
+
+    proof = {
+        "id": 10104,
+        "invoice_type": 3,
+        "vendor_id": 278,
+        "invoice_amount": 0.0,
+        "verification_amount": 1245.81,
+        "receipt_lines": [],
+        "attachments": ["invoice-28100.pdf"],
+        "fee_amounts": [],
+        "ppv_amounts": [],
+    }
+    row = quality_crosslink_row(
+        None,
+        parsed={
+            "invoice_number": "28100",
+            "po": "59022",
+            "amount": 1245.81,
+            "lines": [{"part": "1020249-1", "qty": 6.0, "unit_price": 205.58, "amount": 1233.48}],
+            "fees": [{"name": "Packaging/Shop Supplies Recovery", "amount": 12.33}],
+        },
+        enter_row={"Vendor": VENDOR_NAME, "Invoice #": "28100", "KIMCO id": 10104},
+        proof=proof,
+        finish={"select_status": "held-unfinished", "wanted": []},
+    )
+    assert row["Result"] == "HOLD"
+    assert row["Flag status"] == "entered-with-issues"
+    assert "invent" in row["Why"].lower() or "Do not invent" in row["Why"]
+
+
+def test_crosslink_over_ppv_finish_does_not_select():
+    """Kyle lock: over-gate leftover must not Select Receipts."""
+    from crosslink_0916 import finish_hold_header
+
+    recs = {
+        1: _receipt_record(1, qty=6.0, unit=50.0, po="59022", part="X"),
+    }
+    client = _FinishKimco(recs)
+    parsed = {
+        "invoice_number": "28100",
+        "po": "59022",
+        "amount": 1245.81,
+        "lines": [{"part": "X", "qty": 6.0, "unit_price": 205.58, "amount": 1233.48}],
+        "fees": [{"name": "Packaging/Shop Supplies Recovery", "amount": 12.33}],
+    }
+    finish = finish_hold_header(
+        client,
+        parsed=parsed,
+        kimco_id=10104,
+        receipts=[{"id": 1, "po": "59022", "qty": 6.0, "unit_price": 50.0, "amount": 300.0}],
+    )
+    assert finish["select_zero"] or finish["skipped_over_ppv"]
+    assert finish["select_status"] == "ppv-lock-select-zero"
+    assert client.selected == []
+    assert client.fees == []
+    assert client.ppv == []

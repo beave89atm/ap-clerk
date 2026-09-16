@@ -31,17 +31,33 @@ from ap_clerk.auth import format_presence, load_credentials  # noqa: E402
 from ap_clerk.cli import _optional_graph_client, _print_summary, run_enter  # noqa: E402
 from ap_clerk.graph import ALLOWED_MAILBOX, format_graph_presence, is_already_flagged  # noqa: E402
 from ap_clerk.inbox import sender_address, sender_name  # noqa: E402
-from ap_clerk.kimco import KimcoClient  # noqa: E402
+from ap_clerk.kimco import (  # noqa: E402
+    ADDITIONAL_CHARGE_LISTS,
+    FEE_CHARGE_LOOKUP_ID,
+    PPV_CHARGE_LOOKUP_ID,
+    KimcoClient,
+    fees_posted_cover_parsed,
+    fees_with_amounts,
+)
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
+    SHAWN_MCKIBBEN,
+    decide_ppv,
     distinctive_vendor_tokens,
     extract_subject_invoice_number,
+    filter_matches_outside_ppv_gate,
     invoice_number_key,
+    line_cost,
     lookup_id,
     lookup_text,
+    match_receipts,
+    money,
     names_match,
+    normalize_receipt,
     parse_iso_date,
+    receipt_cost,
+    receipt_select_refs,
 )
 
 LOGGER = logging.getLogger("ap_clerk.crosslink_0916")
@@ -69,6 +85,21 @@ KNOWN_ENTERED = {
 }
 # Locked after 2026-09-16 discovery: newest unflagged Crosslink not on KIMCO.
 PREFERRED_FIVE = ["28166", "28100", "28102", "28113", "28114"]
+# First-pass live headers on batch 715. 28166 already Success. The other four
+# HOLDed because list-view receipts omit qty/unit — finish hydrates via GET.
+CREATED_HEADERS = {
+    "28166": 10101,
+    "28113": 10102,
+    "28114": 10103,
+    "28100": 10104,
+    "28102": 10105,
+}
+HOLD_TO_FINISH = {
+    "28113": 10102,
+    "28114": 10103,
+    "28100": 10104,
+    "28102": 10105,
+}
 NOISE_SUBJECT = re.compile(
     r"statement|past due|friendly payment reminder|account with us",
     flags=re.I,
@@ -287,10 +318,617 @@ def verify_batch(client: KimcoClient) -> dict[str, Any]:
     }
 
 
+def hydrate_receipts(client: KimcoClient, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """List-view receipts omit qty/unit. Record GET fills those fields."""
+    out: list[dict[str, Any]] = []
+    for rec in rows:
+        if rec.get("qty") is not None and rec.get("unit_price") is not None:
+            out.append(rec)
+            continue
+        rid = rec.get("id")
+        if rid in (None, ""):
+            out.append(rec)
+            continue
+        item = client.get_item("receipts", int(rid))
+        filled = normalize_receipt(item)
+        merged = dict(rec)
+        for key in ("qty", "unit_price", "amount", "part", "po", "name"):
+            if merged.get(key) in (None, "") and filled.get(key) not in (None, ""):
+                merged[key] = filled.get(key)
+        out.append(merged)
+    return out
+
+
+def open_receipts_on_po(receipts: list[dict[str, Any]], po: str | None) -> list[dict[str, Any]]:
+    wanted = invoice_number_key(po or "")
+    if not wanted:
+        return []
+    open_rows: list[dict[str, Any]] = []
+    for rec in receipts:
+        if invoice_number_key(str(rec.get("po") or rec.get("name") or "")) != wanted:
+            continue
+        raw = rec.get("raw") if isinstance(rec.get("raw"), dict) else {}
+        invoiced = raw.get("Invoiced") or raw.get("invoiced")
+        if invoiced in {True, "true", 1, "1"}:
+            continue
+        open_rows.append(rec)
+    return open_rows
+
+
+def charges_from_item(item: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not isinstance(item, dict):
+        return []
+    out: list[dict[str, Any]] = []
+    lists = item.get("lists") if isinstance(item.get("lists"), dict) else {}
+    for key in ADDITIONAL_CHARGE_LISTS:
+        for raw in lists.get(key) or []:
+            if not isinstance(raw, dict):
+                continue
+            values = raw.get("values") if isinstance(raw.get("values"), dict) else raw
+            kind = (
+                values.get("Additional_Charges")
+                or values.get("Additional_Charge")
+                or values.get("Name")
+                or ""
+            )
+            lookup = None
+            text = ""
+            if isinstance(kind, dict):
+                lookup = lookup_id(kind)
+                text = str(lookup_text(kind) or "")
+            else:
+                text = str(kind or "")
+            out.append(
+                {
+                    "lookup_id": lookup,
+                    "text": text,
+                    "amount": money(values.get("Amount") or values.get("Charge_Amount")),
+                    "description": str(values.get("Description") or text),
+                }
+            )
+    return out
+
+
+def _is_fee_charge(charge: dict[str, Any]) -> bool:
+    lookup = charge.get("lookup_id")
+    blob = f"{charge.get('text') or ''} {charge.get('description') or ''}".lower()
+    if lookup == FEE_CHARGE_LOOKUP_ID:
+        return True
+    if lookup == PPV_CHARGE_LOOKUP_ID:
+        return False
+    return "fee" in blob or "surcharge" in blob
+
+
+def _is_ppv_charge(charge: dict[str, Any]) -> bool:
+    lookup = charge.get("lookup_id")
+    blob = f"{charge.get('text') or ''} {charge.get('description') or ''}".lower()
+    if lookup == PPV_CHARGE_LOOKUP_ID:
+        return True
+    return "purchase price variance" in blob or blob.strip() == "ppv"
+
+
+def crosslink_proof(client: KimcoClient, invoice_id: Any) -> dict[str, Any]:
+    proof = live_get_proof(client, invoice_id)
+    if not proof:
+        return proof
+    item = client.get_item("ap_invoices", int(invoice_id))
+    vals = item.get("values") or {}
+    charges = charges_from_item(item)
+    proof["verification_amount"] = money(vals.get("Invoice_Verification_Amount"))
+    proof["charges"] = charges
+    proof["fee_amounts"] = [c["amount"] for c in charges if _is_fee_charge(c) and c.get("amount") is not None]
+    proof["ppv_amounts"] = [c["amount"] for c in charges if _is_ppv_charge(c) and c.get("amount") is not None]
+    proof["fee_count"] = len(proof["fee_amounts"]) + len(proof["ppv_amounts"])
+    return proof
+
+
+def ppv_total_from_selectable(
+    selectable: list[dict[str, Any]],
+    *,
+    invoice_total: Any,
+) -> float:
+    running = 0.0
+    groups: dict[Any, list[dict[str, Any]]] = {}
+    for hit in selectable:
+        line = hit.get("line") if isinstance(hit.get("line"), dict) else {}
+        groups.setdefault(id(line) if line else id(hit), []).append(hit)
+    for hits in groups.values():
+        line = hits[0].get("line") if isinstance(hits[0].get("line"), dict) else {}
+        inv_amt = line_cost(line)
+        rec_amt = 0.0
+        rec_units: list[float] = []
+        rec_qty_sum = 0.0
+        have_rec = False
+        for hit in hits:
+            rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+            one = receipt_cost(rec)
+            unit = money(rec.get("unit_price"))
+            rq = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
+            if unit is not None:
+                rec_units.append(unit)
+            if rq is not None:
+                rec_qty_sum = round(rec_qty_sum + rq, 4)
+            if one is not None:
+                rec_amt = round(rec_amt + one, 2)
+                have_rec = True
+        if inv_amt is None or not have_rec:
+            continue
+        shared_unit = rec_units[0] if rec_units and all(u == rec_units[0] for u in rec_units) else None
+        decision = decide_ppv(
+            invoice_line_amount=inv_amt,
+            po_line_amount=rec_amt,
+            invoice_total=float(money(invoice_total) or 0.0),
+            ppv_already_on_bill=running,
+            po_unit_price=shared_unit,
+            invoice_unit_price=money(line.get("unit_price")),
+            qty=money(line.get("qty")) if money(line.get("qty")) is not None else rec_qty_sum,
+            label=str(line.get("label") or line.get("part") or ""),
+        )
+        if decision.get("action") == "ppv":
+            running = round(running + float(decision.get("ppv") or 0.0), 2)
+    return running
+
+
+def _receipt_ids_from_proof(proof: dict[str, Any]) -> set[int]:
+    out: set[int] = set()
+    for line in proof.get("receipt_lines") or []:
+        rid = line.get("receipt")
+        if isinstance(rid, dict):
+            rid = rid.get("id")
+        if rid not in (None, ""):
+            out.add(int(rid))
+    return out
+
+
+def format_receipts(proof: dict[str, Any]) -> str:
+    bits: list[str] = []
+    for line in proof.get("receipt_lines") or []:
+        rid = line.get("receipt")
+        if isinstance(rid, dict):
+            rid = rid.get("id")
+        qty = line.get("qty")
+        unit = line.get("unit")
+        if qty is not None and unit is not None:
+            bits.append(f"{rid} {qty:g}@{unit}")
+        else:
+            bits.append(str(rid))
+    return "; ".join(bits) if bits else "none"
+
+
+def pdf_for_invoice(inv: str, pdf_dir: Path) -> Path | None:
+    matches = sorted(pdf_dir.glob(f"*invoice-{inv}.pdf"))
+    return matches[0] if matches else None
+
+
+def parsed_from_disk(inv: str, pdf_dir: Path) -> dict[str, Any] | None:
+    path = pdf_for_invoice(inv, pdf_dir)
+    if path is None or not path.exists():
+        return None
+    parsed = parse_invoice_pdf(
+        path,
+        subject=f"Invoice #{inv} from Crosslink Powder Coating",
+        from_name=VENDOR_NAME,
+        from_address="ap@crosslinktx.com",
+    )
+    parsed["pdf_path"] = str(path)
+    parsed["vendor"] = VENDOR_NAME
+    if not parsed.get("invoice_number"):
+        parsed["invoice_number"] = inv
+    return parsed
+
+
+def finish_hold_header(
+    client: KimcoClient,
+    *,
+    parsed: dict[str, Any],
+    kimco_id: int,
+    receipts: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Hydrate PO receipts, Select Receipts, post Fees then in-gate PPV."""
+    proof = crosslink_proof(client, kimco_id)
+    have = _receipt_ids_from_proof(proof)
+    pool = hydrate_receipts(client, open_receipts_on_po(receipts, str(parsed.get("po") or "")))
+    match = match_receipts(
+        invoice_number=str(parsed.get("invoice_number") or ""),
+        invoice_lines=list(parsed.get("lines") or []),
+        receipts=pool,
+        po_number=str(parsed.get("po") or ""),
+        invoice_amount=parsed.get("amount"),
+    )
+    locked = filter_matches_outside_ppv_gate(
+        list(match.get("matched") or []),
+        invoice_total=parsed.get("amount"),
+    )
+    selectable = list(locked.get("selectable") or [])
+    skipped = list(locked.get("skipped") or [])
+    wanted_refs = receipt_select_refs(selectable)
+    wanted_ids: list[int] = []
+    for ref in wanted_refs:
+        rid = ref.get("id") if isinstance(ref, dict) else ref
+        if rid not in (None, "") and int(rid) not in have:
+            wanted_ids.append(int(rid))
+    select_status = "already-selected" if have and not wanted_ids else "held-unfinished"
+    if locked.get("select_zero") or (skipped and not selectable):
+        select_status = "ppv-lock-select-zero"
+    elif wanted_ids:
+        select_status = client.try_select_receipts(kimco_id, wanted_ids)
+
+    parsed_fees = list(parsed.get("fees") or [])
+    fee_status = "none"
+    if fees_with_amounts(parsed_fees):
+        already = fees_posted_cover_parsed(proof.get("fee_amounts") or [], parsed_fees)
+        if already:
+            fee_status = "already-posted"
+        elif select_status in {"selected", "already-selected"}:
+            fee_status = client.try_post_fees(kimco_id, fees_with_amounts(parsed_fees))
+        else:
+            fee_status = "held-no-select"
+
+    ppv_amt = ppv_total_from_selectable(selectable, invoice_total=parsed.get("amount"))
+    ppv_status = "none"
+    existing_ppv = sum(proof.get("ppv_amounts") or [])
+    if ppv_amt and abs(ppv_amt - existing_ppv) > 0.02:
+        if select_status in {"selected", "already-selected"}:
+            ppv_status = client.try_post_ppv(kimco_id, ppv_amt)
+        else:
+            ppv_status = "held-no-select"
+    elif ppv_amt and existing_ppv:
+        ppv_status = "already-posted"
+
+    after = crosslink_proof(client, kimco_id)
+    return {
+        "wanted": wanted_ids,
+        "select_status": select_status,
+        "fee_status": fee_status,
+        "ppv_status": ppv_status,
+        "ppv_amount": ppv_amt,
+        "match_how": match.get("hows") or match.get("how"),
+        "skipped_over_ppv": bool(skipped),
+        "select_zero": bool(locked.get("select_zero")),
+        "open_on_po": [
+            {
+                "id": r.get("id"),
+                "qty": r.get("qty"),
+                "unit_price": r.get("unit_price"),
+                "amount": r.get("amount"),
+                "part": r.get("part"),
+            }
+            for r in pool
+        ],
+        "after": after,
+    }
+
+
+def quality_crosslink_row(
+    graph,
+    *,
+    parsed: dict[str, Any],
+    enter_row: dict[str, Any],
+    proof: dict[str, Any],
+    finish: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Success only when Treyce would not rework. invent=false."""
+    out = dict(enter_row)
+    kid = proof.get("id") or enter_row.get("KIMCO id")
+    pdf_amt = money(parsed.get("amount"))
+    posted = money(proof.get("invoice_amount"))
+    ver = money(proof.get("verification_amount") or proof.get("verification"))
+    recs = proof.get("receipt_lines") or []
+    attach_ok = bool(proof.get("attachments"))
+    message_id = str(parsed.get("graph_message_id") or "")
+    extra = ""
+    if finish and finish.get("wanted"):
+        extra = (
+            f"Finish Select Receipts {finish.get('select_status')} "
+            f"ids={finish.get('wanted')} fees={finish.get('fee_status')} "
+            f"ppv={finish.get('ppv_status')}. "
+        )
+
+    merch_qty = 0.0
+    have_merch = False
+    for ln in parsed.get("lines") or []:
+        q = money(ln.get("qty"))
+        if q is not None:
+            merch_qty = round(merch_qty + q, 4)
+            have_merch = True
+    rec_qty = 0.0
+    have_rec = False
+    rec_merch = 0.0
+    for rec in recs:
+        q = money(rec.get("qty"))
+        u = money(rec.get("unit"))
+        if q is not None:
+            rec_qty = round(rec_qty + q, 4)
+            have_rec = True
+        if q is not None and u is not None:
+            rec_merch = round(rec_merch + q * u, 2)
+
+    qty_hold = have_merch and (not have_rec or abs(merch_qty - rec_qty) > 0.001)
+    fee_amts = list(proof.get("fee_amounts") or [])
+    ppv_amts = list(proof.get("ppv_amounts") or [])
+    parsed_fees = list(parsed.get("fees") or [])
+    fees_ok = fees_posted_cover_parsed(fee_amts, parsed_fees) if parsed_fees else True
+    supply_on_ppv = False
+    for fee in fees_with_amounts(parsed_fees):
+        for amt in ppv_amts:
+            if amt is not None and abs(amt - fee["amount"]) <= 0.02:
+                supply_on_ppv = True
+    charge_sum = round(sum(a or 0 for a in fee_amts) + sum(a or 0 for a in ppv_amts), 2)
+    rolled = round(rec_merch + charge_sum, 2)
+    amount_ok = False
+    if pdf_amt is not None:
+        if posted is not None and abs(posted - pdf_amt) <= 0.02:
+            amount_ok = True
+        elif ver is not None and abs(ver - pdf_amt) <= 0.02 and abs(rolled - pdf_amt) <= 0.02:
+            amount_ok = True
+    price_hold = bool((finish or {}).get("select_zero") or (finish or {}).get("skipped_over_ppv"))
+
+    finished = (
+        attach_ok
+        and recs
+        and have_rec
+        and not qty_hold
+        and fees_ok
+        and not supply_on_ppv
+        and amount_ok
+        and proof.get("invoice_type") == 3
+        and proof.get("vendor_id") == VENDOR_ID
+        and not price_hold
+        and (finish or {}).get("select_status") in {None, "selected", "already-selected"}
+    )
+    out["Amount"] = pdf_amt
+    out["KIMCO id"] = kid
+    out["Receipts"] = format_receipts(proof)
+    if parsed_fees:
+        out["Fees and surcharges"] = ", ".join(
+            f"{f.get('name')} {f.get('amount')}" for f in parsed_fees
+        )
+    else:
+        out["Fees and surcharges"] = enter_row.get("Fees and surcharges") or "none"
+    if (finish or {}).get("ppv_amount"):
+        out["PPV"] = f"{float(finish['ppv_amount']):.2f}"
+    elif ppv_amts:
+        out["PPV"] = ", ".join(f"{a:.2f}" for a in ppv_amts)
+    else:
+        out["PPV"] = enter_row.get("PPV") or "none"
+    out["Attach status"] = "attached" if attach_ok else enter_row.get("Attach status") or ""
+    out["Flag in Outlook"] = "Yes" if message_id else enter_row.get("Flag in Outlook") or "No"
+    out["Notes"] = ""
+    if finished:
+        out["Result"] = "Success"
+        out["Why"] = (
+            f"Finished bill (Invoice_Type 3). Header PO set. Select Receipts "
+            f"{format_receipts(proof)} on PO {parsed.get('po')}. "
+            f"Fees={out['Fees and surcharges']} (Additional Charge Fees id 11, "
+            f"not PPV). PPV={out['PPV']}. Attach status=attached. "
+            f"{extra}Flag status=entered-in-ai."
+        )
+        out["Flag status"] = "entered-in-ai"
+        if graph is not None and message_id:
+            out["outlook"] = graph.flag_matched(ALLOWED_MAILBOX, message_id)
+    elif price_hold:
+        out["Result"] = "HOLD"
+        out["Why"] = (
+            f"HOLD (price-does-not-match): leftover vs invoice line is over the "
+            f"PPV gate. Do not Select Receipts on that line. {SHAWN_MCKIBBEN}: "
+            "purchasing must unreceive, change the PO price, and re-receive. "
+            f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
+        )
+        out["Flag status"] = "entered-with-issues"
+        if graph is not None and message_id:
+            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    elif qty_hold:
+        out["Result"] = "HOLD"
+        out["Why"] = (
+            f"HOLD (receipt): PDF merch qty {merch_qty:g} vs selected "
+            f"{rec_qty:g} ({format_receipts(proof)}). "
+            "Do not invent Success. "
+            f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
+        )
+        out["Flag status"] = "entered-with-issues"
+        if graph is not None and message_id:
+            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    elif supply_on_ppv or not fees_ok:
+        out["Result"] = "HOLD"
+        out["Why"] = (
+            "HOLD (fees): Crosslink Packaging/Shop Supplies Recovery must be "
+            "Additional Charge Fees (id 11), never PPV (SH:27591 class). "
+            f"Posted fees={fee_amts} ppv={ppv_amts}. {extra}"
+            "Outlook Entered with issues. Flag status=entered-with-issues."
+        )
+        out["Flag status"] = "entered-with-issues"
+        if graph is not None and message_id:
+            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    else:
+        out["Result"] = "HOLD"
+        out["Why"] = (
+            f"HOLD after live GET of {kid}: PDF amount={pdf_amt} posted={posted} "
+            f"verification={ver} rolled={rolled} receipts={format_receipts(proof)} "
+            f"attach={attach_ok} type={proof.get('invoice_type')}. "
+            f"Do not invent Success. {extra}"
+            "Outlook Entered with issues. Flag status=entered-with-issues."
+        )
+        out["Flag status"] = "entered-with-issues"
+        if graph is not None and message_id and kid not in (None, ""):
+            out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    return out
+
+
+def graph_message_id_for(graph, inv: str) -> str:
+    needle = f"Invoice #{inv} from Crosslink Powder Coating"
+    try:
+        hits = graph.search_messages(ALLOWED_MAILBOX, needle, top=10)
+    except Exception as exc:  # noqa: BLE001 - finish still posts
+        LOGGER.info("Graph search for %s failed: %s", inv, type(exc).__name__)
+        return ""
+    best = ""
+    best_recv = ""
+    for msg in hits:
+        if is_already_flagged(msg) and "Entered with issues" not in (msg.get("categories") or []):
+            # Prefer the invoice email we already stamped this session.
+            cats = msg.get("categories") or []
+            if "Entered in AI" in cats:
+                return str(msg.get("id") or "")
+        subject = str(msg.get("subject") or "")
+        if invoice_number_key(extract_subject_invoice_number(subject) or "") != inv:
+            continue
+        if NOISE_SUBJECT.search(subject):
+            continue
+        recv = str(msg.get("receivedDateTime") or "")
+        if recv >= best_recv:
+            best_recv = recv
+            best = str(msg.get("id") or "")
+    return best
+
+
+def load_list_receipts(client: KimcoClient) -> list[dict[str, Any]]:
+    return [normalize_receipt(item) for item in client.list_items("receipts")]
+
+
+def prior_rows_from_sidecar(report_path: Path) -> list[dict[str, Any]]:
+    sidecar = report_path.with_suffix(".json")
+    if not sidecar.exists():
+        return []
+    payload = json.loads(sidecar.read_text())
+    return [dict(r) for r in payload.get("rows") or [] if isinstance(r, dict)]
+
+
+def run_finish_only(
+    client: KimcoClient,
+    graph,
+    report_path: Path,
+    batch_info: dict[str, Any],
+    *,
+    catalog: list[dict[str, Any]] | None = None,
+    entered: dict[str, int] | None = None,
+) -> int:
+    pdf_dir = ROOT / "runs" / "inbox-pdfs"
+    receipts = load_list_receipts(client)
+    prior = {str(r.get("Invoice #")): r for r in prior_rows_from_sidecar(report_path)}
+    rows: list[dict[str, Any]] = []
+    finishes: dict[str, Any] = {}
+    gets: dict[str, Any] = {}
+    parsed_all: list[dict[str, Any]] = []
+
+    keep_order = ["28166", "28113", "28114", "28100", "28102"]
+    for inv in keep_order:
+        kid = CREATED_HEADERS.get(inv)
+        if kid is None:
+            continue
+        parsed = parsed_from_disk(inv, pdf_dir)
+        if parsed is None:
+            print(f"Missing PDF for {inv}; cannot finish.", flush=True)
+            continue
+        mid = graph_message_id_for(graph, inv) if graph is not None else ""
+        if mid:
+            parsed["graph_message_id"] = mid
+        parsed_all.append(parsed)
+        enter_row = prior.get(inv) or {
+            "Vendor": VENDOR_NAME,
+            "Invoice #": inv,
+            "date": parsed.get("date"),
+            "PO": parsed.get("po") or "",
+            "Amount": parsed.get("amount"),
+            "Result": "HOLD",
+            "Why": "",
+            "KIMCO id": kid,
+            "Batch": f"{BATCH_NAME} ({KNOWN_BATCH_ID})",
+            "Fees and surcharges": "none",
+            "PPV": "none",
+            "Attach status": "",
+            "Flag status": "entered-with-issues",
+            "Flag in Outlook": "Yes",
+            "Notes": "",
+        }
+        if inv in HOLD_TO_FINISH:
+            finish = finish_hold_header(
+                client, parsed=parsed, kimco_id=kid, receipts=receipts
+            )
+            finishes[inv] = {
+                k: v for k, v in finish.items() if k != "after"
+            }
+            proof = finish.get("after") or crosslink_proof(client, kid)
+            row = quality_crosslink_row(
+                graph, parsed=parsed, enter_row=enter_row, proof=proof, finish=finish
+            )
+        else:
+            proof = crosslink_proof(client, kid)
+            row = quality_crosslink_row(
+                graph, parsed=parsed, enter_row=enter_row, proof=proof, finish=None
+            )
+        rows.append(row)
+        gets[str(kid)] = proof
+        print(
+            json.dumps(
+                {
+                    "invoice": inv,
+                    "kimco_id": kid,
+                    "result": row.get("Result"),
+                    "receipts": row.get("Receipts"),
+                    "fees": row.get("Fees and surcharges"),
+                    "ppv": row.get("PPV"),
+                    "finish": finishes.get(inv),
+                },
+                indent=2,
+                default=str,
+            ),
+            flush=True,
+        )
+
+    write_report(report_path, rows)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    sidecar = {
+        "proof": "crosslink-0916",
+        "invent": False,
+        "mail_send": False,
+        "vendor": VENDOR_NAME,
+        "vendor_id": VENDOR_ID,
+        "batch_name": BATCH_NAME,
+        "batch_id": KNOWN_BATCH_ID,
+        "batch": batch_info,
+        "discovered": len(catalog or []),
+        "catalog": catalog or [],
+        "kimco_already": entered or {},
+        "note30_left_alone": NOTE30_REMINDERS,
+        "chosen": keep_order,
+        "chosen_because": (
+            "Unflagged Crosslink Powder Coating only; not already on KIMCO; "
+            f"invoice date on/after {MIN_INVOICE_DATE}; cap {CAP}. "
+            "NOTE-30 reminders not recreated. Distinctive token Crosslink "
+            "(never MSC/RMP). First pass created headers; finish hydrated "
+            "list-view receipts then Select Receipts + Fees + in-gate PPV."
+        ),
+        "parsed": [summarize_parse(b) for b in parsed_all],
+        "older_not_entered": [],
+        "rows": rows,
+        "finishes": finishes,
+        "kimco_gets": gets,
+        "treyce_emailed": False,
+        "report": str(report_path),
+    }
+    prior_sidecar = report_path.with_suffix(".json")
+    if prior_sidecar.exists():
+        old = json.loads(prior_sidecar.read_text())
+        sidecar["discovered"] = old.get("discovered", sidecar["discovered"])
+        sidecar["catalog"] = old.get("catalog") or sidecar["catalog"]
+        sidecar["kimco_already"] = old.get("kimco_already") or sidecar["kimco_already"]
+        sidecar["older_not_entered"] = old.get("older_not_entered") or []
+    sidecar_path = report_path.with_suffix(".json")
+    sidecar_path.write_text(json.dumps(sidecar, indent=2, default=str) + "\n")
+    print(f"Wrote {sidecar_path}", flush=True)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Enter up to 5 Crosslink bills on 9/16 batch")
     parser.add_argument("--discover-only", action="store_true")
     parser.add_argument("--parse-only", action="store_true")
+    parser.add_argument(
+        "--finish-only",
+        action="store_true",
+        help="Hydrate + Select Receipts + Fees + in-gate PPV on first-pass HOLD headers.",
+    )
     parser.add_argument(
         "--report",
         default=str(ROOT / "runs" / "AP-run-2026-09-16-crosslink.xlsx"),
@@ -322,6 +960,8 @@ def main(argv: list[str] | None = None) -> int:
             "Will let run_enter find-or-create today's API Agent batch.",
             flush=True,
         )
+    if args.finish_only:
+        return run_finish_only(client, graph, Path(args.report), batch_info)
 
     entered = kimco_crosslink_numbers(client)
     entered.update({k: v for k, v in KNOWN_ENTERED.items() if k not in entered})
