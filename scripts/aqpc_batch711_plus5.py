@@ -303,6 +303,8 @@ def write_kyle_sheet(path: Path, rows: list[dict[str, Any]]) -> Path:
         "Incomplete": PatternFill("solid", fgColor="F8CBAD"),
         "Fail": PatternFill("solid", fgColor="FFC7CE"),
         "HOLD": PatternFill("solid", fgColor="FFEB9C"),
+        "Voided": PatternFill("solid", fgColor="D9D9D9"),
+        "Skipped": PatternFill("solid", fgColor="D9D9D9"),
     }
     for row_idx, row in enumerate(rows, start=2):
         mapped = {

@@ -25,6 +25,7 @@ from ap_clerk.graph import (
     AI_SKIPPED_CATEGORY,
     ALLOWED_MAILBOX,
     EMAIL_DENIED,
+    FLAG_NONE,
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     REPORT_TO,
@@ -56,6 +57,7 @@ from ap_clerk.gates import (
     GATE_PRICE,
     GATE_QTY,
     GATE_RECEIPT,
+    GATE_TOO_OLD,
     RESULT_FAIL,
     RESULT_HOLD,
     RESULT_SKIPPED,
@@ -120,6 +122,7 @@ from ap_clerk.rules import (
     should_create_header,
     vendor_match_score,
     parse_iso_date,
+    aqpc_invoice_too_old,
 )
 
 LOGGER = logging.getLogger("ap_clerk")
@@ -881,6 +884,25 @@ def _process_invoice(
             )
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if aqpc_invoice_too_old(
+        vendor=vendor,
+        invoice_date=inv.get("date") or inv.get("invoice_date"),
+        invoice_number=number,
+    ):
+        parsed_day = inv.get("date") or inv.get("invoice_date") or "unknown"
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        row["Why"] = why_skipped(
+            GATE_TOO_OLD,
+            f"AQPC invoice date {parsed_day} is before 2026-08-01 "
+            f"(or Kyle-voided too-old # {number}). Do not create a header. "
+            "Do not walk older payment-requests into KIMCO. Kyle reverse 2026-09-15. "
+            "Do not stamp Entered in AI / Entered with issues / AI Skipped 2.",
+        )
+        row["Flag in Outlook"] = "No"
+        row["Flag status"] = FLAG_NONE
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=False)
 
     existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
     confirmed_hits: list[dict[str, Any]] = []

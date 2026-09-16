@@ -16,6 +16,13 @@ not re-stamp categories — if the message already has Outlook `Entered in AI`,
 `flag.flagStatus=flagged`. Those messages do **not** consume the 10-email
 touch cap. Only unflagged / uncategorized (by those AP markers) messages count.
 
+**NOTE-28 AQPC too-old (Kyle 2026-09-16).** AQPC invoice date **before
+2026-08-01 → skip / do not create a header.** After Aug/Sep AQPC
+payment-requests are exhausted, **stop** — do not walk older mail into
+KIMCO. Kyle reversed 10040–10046 (10696 / 10523 / 10381 / 9502 / 9498 /
+9352 / 9343) as too-old. Do not re-enter them. Same-cost leftover 10956 /
+10021 stays (NOTE-27).
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -160,6 +167,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-25** Legacy Wire packing slip 114745 + PS-INV103979 / KIMCO **9995** + PS-INV103980 / KIMCO **9996** (live 9/15 batch 711) | **Honest miss:** matcher over-held on rolled qty / cost uniqueness instead of line matches. 114745 HOLD parse-error from `Receipt_114745.pdf` (signed packing slip, not an invoice). 103979 HOLD qty 77 from `77"` TUBE. 103980 HOLD “merchandise cost does not uniquely align” though every invoice line matched; freight never Fees; Select Receipts left `held-unfinished`. | Packing slip / POD / signed delivery receipt → disregard (no HOLD parse-error, no invented #). Invoice # exactly as on that PDF (`PS-INV*`). Select every line that matches part+qty+PO even if other open receipts exist on the PO. Do not HOLD cost-uniquely-align when line matches are clear. Freight → Additional Charge Fees. Still no first-open guess when lines do **not** match. Do not rewrite 9995/9996 | `test_never_repeat_legacy_receipt_114745_not_invoice` / `test_never_repeat_legacy_ps_inv103979_and_103980` |
 | **NOTE-26** Greentree Packaging & Lumber `Invoice from Greentree Packaging & Lumber` (live 9/15 batch 711) | **Honest miss / false statement skip:** sheet Why `Skipped (bill-vs-noise): statement`; Outlook `AI Skipped 2`; Attach `no-pdf-on-vm`; empty invoice #. Classifier treated preview/body `account statement` as noise **before** inspecting the attached invoice PDF (PDF-is-truth violated). Email consumed the 10-cap without entering the bill. | Subject Invoice/INV/bill hint (`Invoice from …`) **or** a real invoice PDF → never statement / never `AI Skipped 2`. If unsure, download/inspect the PDF first; prefer enter (header+attach) or bill HOLD over Skip. Leeco Account Statement / Julie Hencke `Past Due Invoices` still skip. Do not invent Success. Do not void unrelated rows | `test_never_repeat_greentree_invoice_from_not_statement` |
 | **NOTE-27** AQPC 10956 / KIMCO **10021** / PO 59016 / receipt **23517** (batch 711) | **Honest miss / false qty HOLD:** line 1 Rack 2@$200 selected 23516; line 2 plate invoice qty 6 @$50 = $300 vs leftover 23517 qty 2 @$150 = $300. Same cost, qty/unit inverted. Sheet stayed HOLD qty-does-not-match (posted $400 vs PDF $700). | When leftover receipt extended cost uniquely matches the invoice line total, Select Receipts even if qty and unit are inverted (same class as 11004 qty+unit swap). Do not PPV. Do not alter receipt unit price. Do not HOLD qty-does-not-match when the dollars already match. Never invent receipts. Kyle 2026-09-16: close 10956 with 23516+23517 | `test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit` |
+| **NOTE-28** AQPC invoice date before **2026-08-01** / KIMCO **10040–10046** (batch 711) | Discovery walked older AQPC payment-requests (10696 Jun 2026 … 9343 Apr 2025) into headers 10040–10046. | **Skip / do not create header** when AQPC invoice date is before 2026-08-01. After Aug/Sep is exhausted, stop — do not walk older payment-requests into KIMCO. Kyle reverse 2026-09-15/16: void 10040–10046; clear Outlook process categories; do not re-enter; sheet Result=Voided (too-old). Never Success. Never invent receipts. | `test_never_repeat_aqpc_too_old_before_2026_08_01` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -692,3 +700,12 @@ alter receipt unit price; do not leave HOLD. Live GET after Select
 Receipts: **23516** 2@200 + **23517** 2@150, Invoice_Amount **700.00**
 matches PDF. Outlook upgraded to **Entered in AI**. NOTE-27. Sheet
 `runs/AP-run-2026-09-15-aqpc-batch711-40.xlsx` now **36 Success / 4 HOLD**.
+
+### Void too-old AQPC 10040–10046 (Kyle 2026-09-16)
+
+Kyle: reverse the 7 older AQPC headers and **stop entering older AQPC**.
+Deselect receipts then DELETE/void each of **10040–10046**. Clear Outlook
+`Entered in AI` / `Entered with issues` (do not leave processed; do not
+AI Skipped 2; do not re-enter). NOTE-28. Sheet marks those rows
+**Voided** (`too-old / Kyle reverse 2026-09-15`). Remaining Aug–Sep
+rows stay active.

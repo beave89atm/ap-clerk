@@ -40,7 +40,15 @@ from ap_clerk.browser_pdf import format_intuit_session_presence  # noqa: E402
 from ap_clerk.cli import _optional_graph_client, _print_summary, run_enter  # noqa: E402
 from ap_clerk.graph import ALLOWED_MAILBOX, format_graph_presence, is_already_flagged  # noqa: E402
 from ap_clerk.kimco import KimcoClient  # noqa: E402
-from ap_clerk.rules import money, normalize_receipt  # noqa: E402
+from ap_clerk.rules import (  # noqa: E402
+    AQPC_MIN_INVOICE_DATE,
+    AQPC_TOO_OLD_INVOICES,
+    AQPC_TOO_OLD_KIMCO_IDS,
+    aqpc_discover_skip_invoice,
+    aqpc_invoice_too_old,
+    money,
+    normalize_receipt,
+)
 
 LOGGER = logging.getLogger("ap_clerk.aqpc_batch711_40")
 
@@ -82,11 +90,11 @@ ALREADY_ON_711 = {
     "10523",
 }
 KYLE_ENTERED = {"10917", "10918", "10920", "10921"}
-ALREADY = ALREADY_ON_711 | KYLE_ENTERED
-# Next unflagged not-on-KIMCO after 10523 (Graph gaps; skip already-flagged).
-# 10522–10382 already on KIMCO or missing. Next: 10381, then 9502 / 9498 /
-# 9352 / 9343 (Jun/Apr 2025 payment-requests never flagged).
-PREFERRED_FIVE = ["10381", "9502", "9498", "9352", "9343"]
+# Kyle 2026-09-16: voided too-old headers 10040–10046. Do not re-enter.
+TOO_OLD = set(AQPC_TOO_OLD_INVOICES)
+ALREADY = ALREADY_ON_711 | KYLE_ENTERED | TOO_OLD
+# After Aug/Sep AQPC is exhausted, stop. Do not walk older payment-requests.
+PREFERRED_FIVE: list[str] = []
 KNOWN_THIRTY_FIVE = [
     {"invoice": "11002", "kimco_id": 10007},
     {"invoice": "10999", "kimco_id": 10008},
@@ -130,15 +138,10 @@ HOLD_PDF_AMOUNTS = {
     10013: 199.0,
     10038: 730.0,
 }
-OLDER_MONTHS = [
-    (date(2026, 4, 1), date(2026, 4, 30)),
-    (date(2026, 3, 1), date(2026, 3, 31)),
-    (date(2026, 2, 1), date(2026, 2, 28)),
-    (date(2026, 1, 1), date(2026, 1, 31)),
-    (date(2025, 12, 1), date(2025, 12, 31)),
-    (date(2025, 11, 1), date(2025, 11, 30)),
-    (date(2025, 6, 1), date(2025, 6, 30)),
-    (date(2025, 4, 1), date(2025, 4, 30)),
+# NOTE-28: only Aug/Sep 2026 mail. Do not list older months into KIMCO.
+AUG_SEP_MONTHS = [
+    (date(2026, 8, 1), date(2026, 8, 31)),
+    (date(2026, 9, 1), date(2026, 9, 30)),
 ]
 
 
@@ -171,7 +174,7 @@ def find_aqpc_payment_requests(graph) -> list[dict[str, Any]]:
             _absorb(seen, graph.search_messages(ALLOWED_MAILBOX, needle, top=50))
         except Exception as exc:  # noqa: BLE001 - discovery continues
             LOGGER.info("Graph search %s failed: %s", needle[:40], type(exc).__name__)
-    for start, end in OLDER_MONTHS:
+    for start, end in AUG_SEP_MONTHS:
         try:
             _absorb(
                 seen,
@@ -186,13 +189,6 @@ def find_aqpc_payment_requests(graph) -> list[dict[str, Any]]:
             *PREFERRED_FIVE,
             *ALREADY_ON_711,
             *[str(n) for n in range(11006, 11016)],
-            *[str(n) for n in range(10480, 10523)],
-            *[str(n) for n in range(10524, 10580)],
-            "10381",
-            "9502",
-            "9498",
-            "9352",
-            "9343",
         ]
         if n not in found
     ]
@@ -219,7 +215,7 @@ def pick_five(
     by_inv: dict[str, list[dict[str, Any]]] = {}
     for msg in messages:
         inv = _subject_inv(str(msg.get("subject") or ""))
-        if not inv or inv in already:
+        if not inv or inv in already or aqpc_discover_skip_invoice(inv):
             continue
         if is_already_flagged(msg):
             continue
@@ -330,18 +326,36 @@ def main(argv: list[str] | None = None) -> int:
             flush=True,
         )
     if args.discover_only:
-        return 0 if len(picked) == 5 else 2
+        print(
+            f"NOTE-28: {len(picked)} remaining Aug/Sep AQPC "
+            f"(min invoice date {AQPC_MIN_INVOICE_DATE.isoformat()}; "
+            "will not walk older payment-requests).",
+            flush=True,
+        )
+        return 0
 
     enter_rows: list[dict[str, Any]] = []
     parsed: list[dict[str, Any]] = []
     invoices: list[dict[str, Any]] = []
     if not args.skip_enter:
-        if len(picked) != 5:
-            print(f"Need exactly 5 new AQPC emails; found {len(picked)}", flush=True)
-            return 2
+        if not picked:
+            print(
+                "Aug/Sep AQPC exhausted. NOTE-28: stop; do not walk older "
+                "payment-requests into KIMCO.",
+                flush=True,
+            )
         pdf_dir = ROOT / "runs" / "inbox-pdfs"
         pdf_dir.mkdir(parents=True, exist_ok=True)
         invoices = [bill_from_message(graph, msg, pdf_dir) for msg in picked]
+        invoices = [
+            inv
+            for inv in invoices
+            if not aqpc_invoice_too_old(
+                vendor=str(inv.get("vendor") or ""),
+                invoice_date=inv.get("date"),
+                invoice_number=str(inv.get("invoice_number") or ""),
+            )
+        ]
         parsed = [summarize_parse(inv) for inv in invoices]
         print(json.dumps({"parsed": parsed}, indent=2, default=str), flush=True)
         enter_rows = run_enter(
@@ -352,8 +366,9 @@ def main(argv: list[str] | None = None) -> int:
             graph_client=graph,
             mailbox=ALLOWED_MAILBOX,
             flag_outlook=True,
-        )
-        _print_summary(enter_rows)
+        ) if invoices else []
+        if enter_rows:
+            _print_summary(enter_rows)
 
     receipts = [normalize_receipt(item) for item in client.list_items("receipts")]
     prior = prior_rows_from_sheet()
@@ -362,6 +377,24 @@ def main(argv: list[str] | None = None) -> int:
     for spec in KNOWN_THIRTY_FIVE:
         kid = spec["kimco_id"]
         inv = spec["invoice"]
+        if kid in AQPC_TOO_OLD_KIMCO_IDS or inv in TOO_OLD:
+            old = prior.get(inv) or {}
+            row = dict(old) if old else {
+                "Vendor": "American Quality Powder Coating",
+                "Invoice #": inv,
+                "KIMCO id": kid,
+                "Batch": f"{BATCH_NAME} ({BATCH_ID})",
+            }
+            row["Result"] = "Voided"
+            row["Why"] = (
+                "Voided (too-old / Kyle reverse 2026-09-15). AQPC invoice date "
+                "before 2026-08-01. Header 10040–10046 reversed. Do not re-enter. NOTE-28."
+            )
+            row["Flag status"] = "cleared"
+            row["Flag in Outlook"] = "No"
+            row["Notes"] = "voided as too-old"
+            known_rows.append(row)
+            continue
         got = live_get_proof(client, kid)
         known_gets[str(kid)] = got
         old = prior.get(inv) or {}

@@ -11,6 +11,7 @@ from pathlib import Path
 
 from ap_clerk.cli import _matching_existing_invoices, _process_invoice, _resolve_vendor
 from ap_clerk.gates import (
+    GATE_TOO_OLD,
     GATE_AUTO_PAY,
     GATE_PDF_LINK,
     GATE_PREFLIGHT,
@@ -101,6 +102,12 @@ from ap_clerk.rules import (
     printed_invoice_number,
     should_create_header,
     vendor_match_score,
+    AQPC_MIN_INVOICE_DATE,
+    AQPC_TOO_OLD_INVOICES,
+    AQPC_TOO_OLD_KIMCO_IDS,
+    aqpc_discover_skip_invoice,
+    aqpc_invoice_too_old,
+    is_aqpc_vendor,
 )
 
 FIXTURE = json.loads(Path("fixtures/treyce-2026-09-10-never-repeat.json").read_text())
@@ -161,8 +168,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 28))
-    assert len(TREYCE_NOTES_V12) == 27
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 29))
+    assert len(TREYCE_NOTES_V12) == 28
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -195,6 +202,7 @@ def test_v12_registry_covers_all_notes():
         "legacy-packing-slip-and-line-receipts",
         "greentree-invoice-from-not-statement",
         "aqpc-10956-same-cost-inverted-qty-unit",
+        "aqpc-too-old-before-2026-08-01",
     }
 
 
@@ -3637,4 +3645,77 @@ def test_never_repeat_aqpc_10956_same_cost_inverted_qty_unit():
     assert by_amount.get(300.0) == 23517
     hows = " ".join(str(h) for h in (result.get("hows") or []))
     assert "same-cost" in hows or "inverted" in hows or 23517 in ids
+
+
+def test_never_repeat_aqpc_too_old_before_2026_08_01():
+    """NOTE-28: AQPC invoice date before 2026-08-01 is skip / no header."""
+    from datetime import date
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-28")
+    assert n["slug"] == "aqpc-too-old-before-2026-08-01"
+    assert n["never_success"] is True
+    assert n["do_not_void"] is False
+    assert set(n["voided_kimco_ids"]) == set(AQPC_TOO_OLD_KIMCO_IDS)
+    assert AQPC_MIN_INVOICE_DATE == date(2026, 8, 1)
+    assert is_aqpc_vendor("AMERICAN QUALITY POWDERCOATING")
+    assert is_aqpc_vendor(vendor_id=22)
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-06-08",
+        invoice_number="10696",
+    )
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date=date(2025, 4, 22),
+        invoice_number="9343",
+    )
+    assert aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date=None,
+        invoice_number="9352",
+    )
+    assert aqpc_discover_skip_invoice("10381")
+    assert not aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-08-01",
+        invoice_number="10900",
+    )
+    assert not aqpc_invoice_too_old(
+        vendor="American Quality Powder Coating",
+        invoice_date="2026-08-27",
+        invoice_number="10956",
+    )
+    assert not aqpc_invoice_too_old(
+        vendor="JMOR MACHINERY",
+        invoice_date="2025-04-22",
+        invoice_number="4779",
+    )
+    for number in AQPC_TOO_OLD_INVOICES:
+        row, client = _row(
+            {
+                "vendor": "American Quality Powder Coating",
+                "invoice_number": number,
+                "date": "2026-03-10" if number == "10381" else "2025-04-22",
+                "po": "57572",
+                "amount": 50.0,
+                "graph_message_id": f"msg-{number}",
+            }
+        )
+        assert row["Result"] == RESULT_SKIPPED, (number, row)
+        assert row["KIMCO id"] in ("", None)
+        assert "too-old" in str(row["Why"])
+        assert GATE_TOO_OLD in str(row["Why"])
+        assert not client.created
+        assert_never_success(row["Result"], note_id="NOTE-28", detail=row["Why"])
+    aug, _client = _row(
+        {
+            "vendor": "American Quality Powder Coating",
+            "invoice_number": "10956",
+            "date": "2026-08-27",
+            "po": "59016",
+            "amount": 700.0,
+        }
+    )
+    assert "too-old" not in str(aug.get("Why") or "")
+    assert aug["Result"] != RESULT_SKIPPED or "already" in str(aug.get("Why") or "").lower()
 

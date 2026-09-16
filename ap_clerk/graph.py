@@ -89,6 +89,7 @@ FLAG_ISSUES_ELIGIBLE = "issues-eligible"
 FLAG_SKIPPED = "skipped-not-success"
 FLAG_SKIP_ELIGIBLE = "skip-eligible"
 FLAG_AI_SKIPPED = "ai-skipped"
+FLAG_CLEARED = "cleared"
 FLAG_NONE = "none"
 FLAG_DENIED = "graph-denied"
 FLAG_NO_MESSAGE_ID = "no-message-id"
@@ -254,16 +255,17 @@ def decide_flag_status(*, result: str | None, kimco_id: Any, message_id: str | N
     return FLAG_SKIPPED
 
 
+def categories_without_process(existing: list[str] | None) -> list[str]:
+    """Keep human categories. Drop AP process markers and leftover AP Matched."""
+    drop = set(ALREADY_FLAGGED_CATEGORIES) | {LEGACY_AP_MATCHED_CATEGORY}
+    return [str(c) for c in (existing or []) if c and str(c) not in drop]
+
+
 def categories_for_status(existing: list[str] | None, *, add: str) -> list[str]:
     """Keep human categories. Drop AP Matched and the other process marker."""
     if add not in PROCESS_CATEGORIES:
         raise ValueError(f"Unsupported process category {add!r}")
-    drop = set(ALREADY_FLAGGED_CATEGORIES) | {LEGACY_AP_MATCHED_CATEGORY}
-    keep = [
-        str(c)
-        for c in (existing or [])
-        if c and str(c) not in drop
-    ]
+    keep = categories_without_process(existing)
     keep.append(add)
     return keep
 
@@ -658,6 +660,39 @@ class GraphClient:
     def flag_skipped(self, mailbox: str, message_id: str) -> str:
         """PATCH categories to include exact `AI Skipped 2`. Removes other process markers."""
         return self._patch_process_category(mailbox, message_id, AI_SKIPPED_CATEGORY)
+
+    def clear_process_categories(self, mailbox: str, message_id: str) -> str:
+        """Remove Entered in AI / Entered with issues / AI HOLD / AI Skipped.
+
+        Kyle 2026-09-16: voided too-old AQPC must not stay stamped as processed,
+        and must not be AI Skipped 2 (that would look done). Also clears a
+        leftover follow-up flag. Does not send mail.
+        """
+        mailbox = assert_allowed_mailbox(mailbox)
+        if not str(message_id or "").strip():
+            return FLAG_NO_MESSAGE_ID
+        try:
+            current = self.get_message(mailbox, message_id, select="id,categories,flag")
+        except GraphError:
+            return FLAG_DENIED
+        payload: dict[str, Any] = {
+            "categories": categories_without_process(message_categories(current)),
+        }
+        if has_followup_flagged(current):
+            payload["flag"] = {"flagStatus": "notFlagged"}
+        response = self.request(
+            "PATCH",
+            self._messages_url(mailbox, message_id),
+            json=payload,
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code == 403:
+            LOGGER.info("Graph category clear PATCH HTTP 403 (Mail.ReadWrite missing or denied)")
+            return FLAG_DENIED
+        if response.status_code >= 400:
+            LOGGER.info("Graph category clear PATCH HTTP %s", response.status_code)
+            return FLAG_DENIED
+        return FLAG_CLEARED
 
     def ensure_ai_skipped_category(self, mailbox: str = ALLOWED_MAILBOX) -> str:
         """POST master category `AI Skipped 2` (preset8).

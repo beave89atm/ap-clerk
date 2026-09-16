@@ -503,6 +503,34 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (10021,),
     },
+    {
+        "id": "NOTE-28",
+        "slug": "aqpc-too-old-before-2026-08-01",
+        "gate": "too-old",
+        "cases": (
+            "AQPC 10696 / 10040",
+            "10523 / 10041",
+            "10381 / 10042",
+            "9502 / 10043",
+            "9498 / 10044",
+            "9352 / 10045",
+            "9343 / 10046",
+        ),
+        "9_16_bug": (
+            "Plus-5 discovery walked older AQPC payment-requests (Jun 2026 "
+            "through Apr 2025) into batch 711 as headers 10040–10046."
+        ),
+        "expected": (
+            "AQPC invoice date before 2026-08-01 → skip / do not create a "
+            "header. After Aug/Sep AQPC is exhausted, stop — do not walk "
+            "older payment-requests into KIMCO. Kyle 2026-09-16: void/reverse "
+            "10040–10046; do not re-enter. Never Success. Never invent receipts."
+        ),
+        "never_success": True,
+        "do_not_void": False,
+        "leftover_kimco_ids": (),
+        "voided_kimco_ids": (10040, 10041, 10042, 10043, 10044, 10045, 10046),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

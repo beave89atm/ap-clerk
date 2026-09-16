@@ -21,6 +21,7 @@ from ap_clerk.kimco import (
     receipt_ids_from_invoice_lines,
     receipt_line_values_from_records,
     select_receipts_payload,
+    deselect_receipts_payload,
 )
 
 LIVE_URL = "https://live.kimcoerp.com"
@@ -397,3 +398,54 @@ def test_list_attachments_uses_record_url() -> None:
     assert req.call_args.args[0] == "GET"
     assert url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}/attachments")
     assert not url.rstrip("/").endswith(f"/api/v2/{LIVE_GUID}")
+
+
+def test_deselect_receipts_payload_deletes_line_ids() -> None:
+    payload = deselect_receipts_payload(
+        [
+            {"id": 501, "values": {"Receipt": {"id": 17800}, "Quantity": 1}},
+            {"id": 502, "values": {"Quantity": 1}},
+        ],
+        invoice_id=10042,
+    )
+    assert payload["id"] == 10042
+    assert payload["state"] == "Modified"
+    assert payload["lists"]["APInvoiceLine"] == [{"id": 501, "state": "Deleted"}]
+    assert deselect_receipts_payload([], invoice_id=10042) is None
+
+
+def test_try_void_invoice_deselects_then_deletes() -> None:
+    client = _live_client()
+    invoice = {
+        "id": 10042,
+        "values": {"Invoice_Number": "10381", "Void": False},
+        "lists": {
+            "APInvoiceLine": [
+                {"id": 501, "values": {"Receipt": {"id": 17800}, "Quantity": 1}},
+            ]
+        },
+    }
+    calls: list[tuple[str, str]] = []
+
+    def fake_request(method, url, **kwargs):
+        calls.append((method, url))
+        if method == "GET":
+            if any(item[0] == "DELETE" for item in calls):
+                return FakeResp(404, text="gone")
+            return FakeResp(200, invoice)
+        if method == "PUT":
+            body = kwargs.get("json") or {}
+            assert body["lists"]["APInvoiceLine"][0]["state"] == "Deleted"
+            return FakeResp(200, {"id": 10042})
+        if method == "DELETE":
+            assert url.endswith(f"/{LIVE_GUID}/10042")
+            return FakeResp(204)
+        return FakeResp(500)
+
+    with patch.object(client.session, "request", side_effect=fake_request):
+        result = client.try_void_invoice(10042)
+    assert result["deselect"] == "deselected"
+    assert result["delete"] == "deleted"
+    assert result["confirm"] == "gone"
+    assert result["status"] == "gone"
+    assert any(method == "DELETE" for method, _url in calls)

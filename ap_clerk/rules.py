@@ -187,6 +187,10 @@ VENDOR_ID_ALIASES = {
     # Confirmed 2026-09-08 via GET of live invoice 9496 (Vendor.id, not invented).
     "orthman": 434,
     "orthman conveying": 434,
+    # Confirmed 2026-09-15 via GET of live AQPC headers (Vendor.id 22).
+    "american quality powder": 22,
+    "american quality powdercoating": 22,
+    "american quality powder coating": 22,
 }
 
 # Listed KIMCO vendors that are recognized for never-skip without inventing a Vendor.id.
@@ -2077,6 +2081,75 @@ def extract_po_number(text: str | None) -> str | None:
 
 def invoice_number_key(value: str | None) -> str:
     return (value or "").strip().upper()
+
+
+# Kyle 2026-09-16: do not enter AQPC bills dated before Aug 2026. After
+# Aug/Sep payment-requests are exhausted, stop — do not walk older mail
+# into KIMCO. Voided too-old headers 10040–10046 stay on this list so a
+# missing PDF date cannot recreate them.
+AQPC_VENDOR_ID = 22
+AQPC_MIN_INVOICE_DATE = date(2026, 8, 1)
+AQPC_TOO_OLD_INVOICES = frozenset(
+    {"10696", "10523", "10381", "9502", "9498", "9352", "9343"}
+)
+AQPC_TOO_OLD_KIMCO_IDS = frozenset({10040, 10041, 10042, 10043, 10044, 10045, 10046})
+
+
+def coalesce_invoice_date(value: Any) -> date | None:
+    """PDF/KIMCO invoice date. Accepts date, datetime, or ISO YYYY-MM-DD…"""
+    if value in (None, ""):
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    text = str(value).strip()
+    if len(text) < 10:
+        return None
+    try:
+        return date.fromisoformat(text[:10])
+    except ValueError:
+        return None
+
+
+def is_aqpc_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """AMERICAN QUALITY POWDERCOATING / vendor 22."""
+    if vendor_id not in (None, "") and int(vendor_id) == AQPC_VENDOR_ID:
+        return True
+    blob = (name or "").upper()
+    return "QUALITY POWDER" in blob or "AQ POWDER" in blob
+
+
+def aqpc_invoice_too_old(
+    *,
+    vendor: str | None = None,
+    vendor_id: Any = None,
+    invoice_date: Any = None,
+    invoice_number: str | None = None,
+) -> bool:
+    """True when this AQPC bill must not get a KIMCO header.
+
+    Invoice date before 2026-08-01, or a Kyle-voided too-old number
+    (10696 / 10523 / 10381 / 9502 / 9498 / 9352 / 9343). Non-AQPC vendors
+    are never gated here. Missing date + unknown number is not too-old
+    (Aug/Sep 109xx still enter).
+    """
+    number = invoice_number_key(invoice_number)
+    has_vendor = bool(vendor) or vendor_id not in (None, "")
+    aqpc = is_aqpc_vendor(vendor, vendor_id)
+    if number in AQPC_TOO_OLD_INVOICES:
+        return aqpc if has_vendor else True
+    if not aqpc:
+        return False
+    parsed = coalesce_invoice_date(invoice_date)
+    if parsed is None:
+        return False
+    return parsed < AQPC_MIN_INVOICE_DATE
+
+
+def aqpc_discover_skip_invoice(invoice_number: str | None) -> bool:
+    """Discovery: never pick a Kyle-voided too-old AQPC invoice number."""
+    return invoice_number_key(invoice_number) in AQPC_TOO_OLD_INVOICES
 
 
 def invoice_type_for(po: Any) -> int:

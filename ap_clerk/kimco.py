@@ -456,6 +456,130 @@ class KimcoClient:
             return self._blocked_405("Additional Charge PPV", invoice_id)
         return f"blocked-{put.status_code}"
 
+    def try_deselect_receipts(self, invoice_id: int) -> str:
+        """Unlink Select Receipts lines on the invoice RECORD.
+
+        PUT child APInvoiceLine rows as `state: Deleted` (line id from GET).
+        Does not invent merchandise lines. Empty / no-receipt bills return none.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("Deselect Receipts requires an invoice record id")
+        invoice = self.get_item("ap_invoices", int(invoice_id))
+        payload = deselect_receipts_payload(
+            invoice_lines_from_record(invoice), invoice_id=invoice_id
+        )
+        if payload is None:
+            return "none"
+        url = self._record_url("ap_invoices", invoice_id)
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "deselected"
+        if put.status_code == 405:
+            return self._blocked_405("deselect receipts", invoice_id)
+        return f"blocked-{put.status_code}"
+
+    def try_delete_invoice(self, invoice_id: int) -> str:
+        """DELETE the invoice RECORD. OPTIONS Allow includes DELETE."""
+        if invoice_id in (None, ""):
+            raise KimcoError("Delete requires an invoice record id")
+        url = self._record_url("ap_invoices", invoice_id)
+        response = self.request("DELETE", url)
+        if response.status_code in {200, 202, 204}:
+            return "deleted"
+        if response.status_code == 404:
+            return "already-gone"
+        if response.status_code == 405:
+            return self._blocked_405("delete invoice", invoice_id)
+        return f"blocked-{response.status_code}"
+
+    def try_void_invoice(self, invoice_id: int) -> dict[str, Any]:
+        """Deselect receipts, then DELETE (or Void=true). Confirm GET gone/voided.
+
+        Kyle 2026-09-16: reverse too-old AQPC 10040–10046. Do not leave a
+        header with leftover selected receipts.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("Void requires an invoice record id")
+        out: dict[str, Any] = {"id": int(invoice_id), "deselect": "none", "delete": ""}
+        try:
+            before = self.get_item("ap_invoices", int(invoice_id))
+        except KimcoError as exc:
+            text = str(exc)
+            if "HTTP 404" in text:
+                out["status"] = "already-gone"
+                out["confirm"] = "gone"
+                return out
+            raise
+        vals = before.get("values") or {}
+        if vals.get("Void") is True:
+            out["status"] = "already-voided"
+            out["confirm"] = "voided"
+            return out
+        try:
+            out["deselect"] = self.try_deselect_receipts(int(invoice_id))
+        except KimcoError as exc:
+            if "HTTP 404" in str(exc):
+                out["status"] = "already-gone"
+                out["confirm"] = "gone"
+                return out
+            out["deselect"] = f"error-{type(exc).__name__}"
+        out["delete"] = self.try_delete_invoice(int(invoice_id))
+        if str(out["delete"]).startswith("blocked"):
+            body, status, err = self.update(
+                "ap_invoices",
+                invoice_id,
+                {"Void": True},
+            )
+            out["void_put"] = status
+            out["void_error"] = err
+            if status < 400 or (isinstance(body, dict) and (body.get("values") or {}).get("Void")):
+                out["delete"] = "voided"
+        confirm = self._confirm_voided_or_gone(int(invoice_id))
+        out["confirm"] = confirm
+        if confirm in {"gone", "voided"}:
+            out["status"] = confirm
+        else:
+            out["status"] = "half-state"
+        return out
+
+    def _confirm_voided_or_gone(self, invoice_id: int) -> str:
+        try:
+            after = self.get_item("ap_invoices", int(invoice_id))
+        except KimcoError as exc:
+            if "HTTP 404" in str(exc):
+                return "gone"
+            return f"get-error-{type(exc).__name__}"
+        vals = after.get("values") or {}
+        if vals.get("Void") is True:
+            return "voided"
+        return "present"
+
+
+def deselect_receipts_payload(
+    lines: list[dict[str, Any]] | None,
+    *,
+    invoice_id: int | str | None = None,
+) -> dict[str, Any] | None:
+    """Record PUT that deletes receipt-linked APInvoiceLine children."""
+    items: list[dict[str, Any]] = []
+    for raw in lines or []:
+        if not isinstance(raw, dict):
+            continue
+        line_id = raw.get("id")
+        if line_id in (None, "") and isinstance(raw.get("values"), dict):
+            line_id = raw["values"].get("id")
+        if line_id in (None, ""):
+            continue
+        if _receipt_id_from_line(raw) in (None, ""):
+            continue
+        items.append({"id": int(line_id), "state": "Deleted"})
+    if not items:
+        return None
+    payload: dict[str, Any] = {"state": "Modified", "lists": {"APInvoiceLine": items}}
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
+
 
 def fees_with_amounts(fees: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
     """Parsed fees that have a numeric amount (the ones that must be posted)."""
