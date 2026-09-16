@@ -375,8 +375,9 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "gaps do not skip receipts: qualifying unit-price variance "
             "posts Additional Charge PPV (≤10% of invoice total and ≤$100); "
             "do not invent a $0.02 PPV when amounts add cleanly. Over "
-            "threshold → HOLD price-does-not-match + @Shawn McKibben and "
-            "still select other good lines. 142043: receipt qty 6 / invoice "
+            "threshold → HOLD price-does-not-match + @Shawn McKibben; do "
+            "not Select Receipts on the over-PPV line (NOTE-29 / 11003 / "
+            "10991). Still select other in-gate lines. 142043: receipt qty 6 / invoice "
             "4 → select qty 4 if the API allows. Fees ≠ PPV. Never "
             "fail-close the whole bill to no-receipts HOLD when some lines "
             "match. Success only if every line is selected and no human "
@@ -530,6 +531,32 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": False,
         "leftover_kimco_ids": (),
         "voided_kimco_ids": (10040, 10041, 10042, 10043, 10044, 10045, 10046),
+    },
+    {
+        "id": "NOTE-29",
+        "slug": "over-ppv-do-not-select-receipts",
+        "gate": GATE_PRICE,
+        "cases": (
+            "AQPC 11003 / KIMCO 10009 / PO 59083 / receipt 24103",
+            "AQPC 10991 / KIMCO 10013 / PO 59148 / receipt 23967",
+        ),
+        "9_16_bug": (
+            "11003 selected leftover 24103 (2 @ $0.777 vs invoice 2 @ $5, "
+            "~84% / $8.45). 10991 selected 23967 (199 @ $0.75 vs invoice "
+            "199 @ $1, ~25% / $49.75). Selecting locked the receipt so "
+            "Shawn could not unreceive, fix the PO price, and re-receive."
+        ),
+        "expected": (
+            "If a leftover is outside the PPV gate (≤10% of invoice total "
+            "AND bill PPV ≤$100), do not Select Receipts for that line. "
+            "If the whole bill is over-gate, select zero receipts. Still "
+            "create header + attach PDF. HOLD price-does-not-match + "
+            "@Shawn McKibben. Outlook Entered with issues. Never Success. "
+            "Never invent receipts. Kyle 2026-09-16."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10009, 10013),
     },
 )
 

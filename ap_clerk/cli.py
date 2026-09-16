@@ -92,6 +92,7 @@ from ap_clerk.rules import (
     comments_for,
     due_date_from_terms,
     evaluate_bill_price_variance,
+    filter_matches_outside_ppv_gate,
     extract_po_number,
     flag_in_outlook_for,
     format_fees,
@@ -1156,6 +1157,37 @@ def _process_invoice(
         )
         combined_matched = list(one.get("matched") or [])
         combined_unmatched = list(one.get("unmatched_lines") or [])
+        ppv_lock = filter_matches_outside_ppv_gate(
+            combined_matched, invoice_total=amount
+        )
+        ppv_lock_note = ""
+        if ppv_lock.get("skipped"):
+            combined_matched = list(ppv_lock.get("selectable") or [])
+            ppv_lock_note = (
+                "Over-PPV leftover(s) not selected (locks the receipt; "
+                "Shawn cannot unreceive / fix PO price / re-receive). NOTE-29. "
+            )
+            if ppv_lock.get("select_zero"):
+                ppv_lock_note += (
+                    "Whole bill is over the PPV gate; Select Receipts posted zero. "
+                )
+            skip_reason = ""
+            for hit in ppv_lock.get("skipped") or []:
+                skip_reason = str(hit.get("ppv_skip_reason") or "").strip()
+                if skip_reason:
+                    break
+            lock_why = why_hold(
+                GATE_PRICE,
+                (skip_reason or PRICE_DOES_NOT_MATCH)
+                + " Receipts NOT selected per Kyle lock rule (NOTE-29).",
+            )
+            if PRICE_MISMATCH_PO_COMMENT not in lock_why:
+                lock_why = f"{lock_why} {PRICE_MISMATCH_PO_COMMENT}"
+            lock_why += " Create KIMCO header and attach PDF; do not finish the bill."
+            if issue_hold is None:
+                issue_hold = (GATE_PRICE, lock_why)
+            elif "NOTE-29" not in str(issue_hold[1]):
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {ppv_lock_note}")
         matched_pos = {
             str((hit.get("receipt") or {}).get("po") or (hit.get("line") or {}).get("po") or "")
             for hit in combined_matched
@@ -1207,6 +1239,7 @@ def _process_invoice(
                 + " Create KIMCO header and attach PDF; do not claim Success.",
             )
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        receipt_note += ppv_lock_note
         if unmatched_pos and combined_matched:
             receipt_note += (
                 f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "

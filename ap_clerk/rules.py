@@ -547,6 +547,96 @@ def evaluate_bill_price_variance(
     return result
 
 
+def ppv_gap_holds(
+    *,
+    invoice_line_amount: Any,
+    receipt_or_po_amount: Any,
+    invoice_total: Any,
+    ppv_already_on_bill: float = 0.0,
+    po_unit_price: Any = None,
+    label: str = "",
+) -> bool:
+    """True when this line is outside Kyle's PPV gate (do not Select Receipts)."""
+    inv_amt = money(invoice_line_amount)
+    rec_amt = money(receipt_or_po_amount)
+    total = money(invoice_total)
+    if inv_amt is None or rec_amt is None or total is None:
+        return False
+    decision = decide_ppv(
+        invoice_line_amount=inv_amt,
+        po_line_amount=rec_amt,
+        invoice_total=total,
+        ppv_already_on_bill=ppv_already_on_bill,
+        po_unit_price=po_unit_price,
+        label=label,
+    )
+    return bool(decision.get("hold"))
+
+
+def filter_matches_outside_ppv_gate(
+    matched: list[dict[str, Any]] | None,
+    *,
+    invoice_total: Any,
+) -> dict[str, Any]:
+    """Drop over-PPV matches so Select Receipts does not lock those leftovers.
+
+    Kyle 2026-09-16: selecting an over-PPV receipt locks it; Shawn cannot
+    unreceive, fix the PO price, and re-receive. Skip that line. If every
+    matched line (the whole bill) is over-gate, select zero receipts.
+    In-gate / exact-cost matches still select. Header + PDF still create.
+    """
+    selectable: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    running = 0.0
+    total = money(invoice_total)
+    for hit in matched or []:
+        if not isinstance(hit, dict):
+            continue
+        line = hit.get("line") if isinstance(hit.get("line"), dict) else {}
+        rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+        inv_amt = line_cost(line)
+        rec_amt = receipt_cost(rec)
+        select_qty = money(hit.get("select_qty"))
+        if select_qty is None:
+            select_qty = select_qty_from_receipt(line, rec)
+        if select_qty is not None:
+            unit = money(rec.get("unit_price"))
+            rec_qty = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
+            if unit is None and rec_qty and rec_amt is not None:
+                unit = round(rec_amt / rec_qty, 4)
+            if unit is not None:
+                rec_amt = round(select_qty * unit, 2)
+        label = str(line.get("label") or line.get("part") or rec.get("part") or "")
+        decision = decide_ppv(
+            invoice_line_amount=inv_amt if inv_amt is not None else 0.0,
+            po_line_amount=rec_amt if rec_amt is not None else 0.0,
+            invoice_total=float(total or 0.0),
+            ppv_already_on_bill=running,
+            po_unit_price=rec.get("unit_price"),
+            label=label,
+        ) if inv_amt is not None and rec_amt is not None and total is not None else {
+            "hold": False,
+            "action": "match",
+            "ppv": 0.0,
+            "reason": "",
+        }
+        if decision.get("hold"):
+            skipped.append({**hit, "ppv_skip_reason": decision.get("reason") or ""})
+            continue
+        selectable.append(hit)
+        if decision.get("action") == "ppv":
+            running = round(running + float(decision.get("ppv") or 0.0), 2)
+    bill_over = bool(skipped) and not selectable
+    if bill_over:
+        selectable = []
+    return {
+        "selectable": selectable,
+        "skipped": skipped,
+        "bill_over_ppv": bill_over,
+        "select_zero": bill_over,
+    }
+
+
 def _match_po_line(
     invoice_line: dict[str, Any],
     po_lines: list[dict[str, Any]],

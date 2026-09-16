@@ -38,6 +38,7 @@ from ap_clerk.kimco import KimcoClient  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
     decide_ppv,
+    filter_matches_outside_ppv_gate,
     invoice_number_key,
     line_cost,
     match_receipts,
@@ -256,8 +257,9 @@ def _price_hold_why(parsed: dict[str, Any], proof: dict[str, Any]) -> str:
                         f"({pct:.1f}% of invoice total / ${gap:.2f}). Do not post PPV. "
                         f"{SHAWN_MCKIBBEN}: purchasing must unreceive, change the PO price, "
                         "and re-receive. Do not alter receipt unit price in GI. "
-                        f"Header {kid} + PDF attached + receipt selected "
-                        f"(KIMCO Invoice_Amount is now {posted} from the receipt). "
+                        f"Header {kid} + PDF attached. Receipts NOT selected "
+                        f"(NOTE-29 Kyle lock rule: selecting locks the leftover so "
+                        f"Shawn cannot unreceive / fix PO price / re-receive). "
                         "Treyce would still rework the price. Outlook Entered with issues. "
                         "Flag status=entered-with-issues."
                     )
@@ -457,9 +459,71 @@ def try_finish_receipts(
             if len(hits) == 1:
                 used.add(int(hits[0]["id"]))
                 wanted.append(int(hits[0]["id"]))
+    reconstructed: list[dict[str, Any]] = []
+    unused_lines = list(parsed.get("lines") or [])
+    recs_by_id: dict[int, dict[str, Any]] = {}
+    for line in proof.get("receipt_lines") or []:
+        rid = line.get("receipt")
+        if isinstance(rid, dict):
+            rid = rid.get("id")
+        if rid in (None, ""):
+            continue
+        qty = money(line.get("qty"))
+        unit = money(line.get("unit") or line.get("unit_price"))
+        amount = (
+            round(qty * unit, 2) if qty is not None and unit is not None else money(line.get("amount"))
+        )
+        recs_by_id[int(rid)] = {
+            "id": int(rid),
+            "qty": qty,
+            "unit_price": unit,
+            "amount": amount,
+            "part": line.get("po_line") or line.get("part"),
+        }
+    for rec in list(pool) + list(receipts or []):
+        rid = rec.get("id")
+        if rid not in (None, ""):
+            recs_by_id.setdefault(int(rid), rec)
+    # Score new matches and already-selected leftovers (NOTE-29 release).
+    candidate_ids = list(dict.fromkeys([*wanted, *have]))
+    for rid in candidate_ids:
+        rec = recs_by_id.get(int(rid), {"id": rid})
+        line = None
+        rc = receipt_cost(rec)
+        rq = money(rec.get("qty"))
+        for ln in list(unused_lines):
+            if money(ln.get("qty")) == rq or line_cost(ln) == rc:
+                line = ln
+                unused_lines.remove(ln)
+                break
+        if line is None and unused_lines:
+            line = unused_lines.pop(0)
+        reconstructed.append({"line": line or {}, "receipt": rec})
+    locked = filter_matches_outside_ppv_gate(
+        reconstructed, invoice_total=parsed.get("amount")
+    )
+    deselect_status = ""
+    if locked.get("skipped") or locked.get("select_zero"):
+        selectable_ids: list[int] = []
+        for hit in locked.get("selectable") or []:
+            rid = (hit.get("receipt") or {}).get("id")
+            if rid not in (None, ""):
+                selectable_ids.append(int(rid))
+        skipped_ids = set()
+        for hit in locked.get("skipped") or []:
+            rid = (hit.get("receipt") or {}).get("id")
+            if rid not in (None, ""):
+                skipped_ids.add(int(rid))
+        selected_over = [rid for rid in have if rid in skipped_ids or locked.get("select_zero")]
+        if selected_over:
+            deselect_status = client.try_deselect_receipts(kimco_id)
+            have = []
+        wanted = [rid for rid in selectable_ids if rid not in have]
     status = "already-selected"
     if wanted:
         status = client.try_select_receipts(kimco_id, wanted)
+    elif deselect_status:
+        status = f"ppv-lock-{deselect_status}"
     after = live_get_proof(client, kimco_id)
     return {
         "wanted": wanted,

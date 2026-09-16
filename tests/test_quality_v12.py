@@ -107,6 +107,7 @@ from ap_clerk.rules import (
     AQPC_TOO_OLD_KIMCO_IDS,
     aqpc_discover_skip_invoice,
     aqpc_invoice_too_old,
+    filter_matches_outside_ppv_gate,
     is_aqpc_vendor,
 )
 
@@ -120,6 +121,7 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
 
         def __init__(self):
             self.created = []
+            self.selected = []
 
         def create(self, service, values):
             self.created.append(values)
@@ -137,7 +139,8 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
         def try_official_attach(self, *args, **kwargs):
             return attach
 
-        def try_select_receipts(self, *args, **kwargs):
+        def try_select_receipts(self, invoice_id, receipt_ids=None, **kwargs):
+            self.selected.append((invoice_id, list(receipt_ids or [])))
             return select
 
         def try_post_fees(self, *args, **kwargs):
@@ -168,8 +171,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 29))
-    assert len(TREYCE_NOTES_V12) == 28
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 30))
+    assert len(TREYCE_NOTES_V12) == 29
     assert len(TREYCE_FINISH_CHECKLIST) == 13
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -203,6 +206,7 @@ def test_v12_registry_covers_all_notes():
         "greentree-invoice-from-not-statement",
         "aqpc-10956-same-cost-inverted-qty-unit",
         "aqpc-too-old-before-2026-08-01",
+        "over-ppv-do-not-select-receipts",
     }
 
 
@@ -2098,7 +2102,8 @@ def test_never_repeat_3p_notes_142041_142044(tmp_path: Path):
         samples=samples,
         po_index=po_index_041,
     )
-    assert _selected_ids(client041) == {401, 402, 403, 404, 405}
+    # 403 / 29340-1 is over the $100 PPV cap ($111.60) — NOTE-29 skip.
+    assert _selected_ids(client041) == {401, 402, 404, 405}
     assert row041["Result"] != RESULT_SUCCESS
     assert_never_success(row041["Result"], note_id="NOTE-23", detail=row041["Why"])
     assert "no receipts after second pass" not in (row041["Why"] or "").lower()
@@ -3718,4 +3723,125 @@ def test_never_repeat_aqpc_too_old_before_2026_08_01():
     )
     assert "too-old" not in str(aug.get("Why") or "")
     assert aug["Result"] != RESULT_SKIPPED or "already" in str(aug.get("Why") or "").lower()
+
+
+def test_never_repeat_aqpc_over_ppv_does_not_select_receipts():
+    """NOTE-29: 11003 / 10991 over-PPV leftovers must not be Select Receipts'd."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-29")
+    assert n["slug"] == "over-ppv-do-not-select-receipts"
+    assert n["never_success"] is True
+    assert set(n["leftover_kimco_ids"]) == {10009, 10013}
+
+    cases = [
+        {
+            "invoice_number": "11003",
+            "po": "59083",
+            "amount": 10.0,
+            "qty": 2.0,
+            "unit": 5.0,
+            "rec_id": 24103,
+            "rec_unit": 0.777,
+            "rec_amt": 1.55,
+        },
+        {
+            "invoice_number": "10991",
+            "po": "59148",
+            "amount": 199.0,
+            "qty": 199.0,
+            "unit": 1.0,
+            "rec_id": 23967,
+            "rec_unit": 0.75,
+            "rec_amt": 149.25,
+        },
+    ]
+    for case in cases:
+        line = {
+            "part": "AMT-TEST",
+            "qty": case["qty"],
+            "unit_price": case["unit"],
+            "amount": case["amount"],
+        }
+        rec = {
+            "id": case["rec_id"],
+            "po": case["po"],
+            "part": f"PO{case['po']}-01",
+            "qty": case["qty"],
+            "unit_price": case["rec_unit"],
+            "amount": case["rec_amt"],
+        }
+        locked = filter_matches_outside_ppv_gate(
+            [{"line": line, "receipt": rec}],
+            invoice_total=case["amount"],
+        )
+        assert locked["select_zero"] is True, case
+        assert locked["selectable"] == []
+        assert locked["skipped"]
+
+        row, client = _row(
+            {
+                "vendor": "American Quality Powder Coating",
+                "invoice_number": case["invoice_number"],
+                "date": "2026-09-14",
+                "po": case["po"],
+                "amount": case["amount"],
+                "lines": [line],
+                "field_sources": {
+                    "invoice_number": "pdf",
+                    "date": "pdf",
+                    "amount": "pdf",
+                    "po": "pdf",
+                },
+            },
+            po_index={
+                case["po"]: {
+                    "id": 900,
+                    "text": f"PO{case['po']}-AQPC",
+                    "vendor_id": 22,
+                    "vendor_text": "AMERICAN QUALITY POWDERCOATING",
+                    "lines": [
+                        {
+                            "part": "AMT-TEST",
+                            "qty": case["qty"],
+                            "amount": case["rec_amt"],
+                            "unit_price": case["rec_unit"],
+                        }
+                    ],
+                }
+            },
+            samples=[
+                {
+                    "vendor_id": 22,
+                    "vendor_text": "American Quality Powder Coating",
+                    "invoice_id": 100,
+                    "po_text": "",
+                }
+            ],
+            receipts=[rec],
+        )
+        assert row["Result"] == RESULT_HOLD, (case["invoice_number"], row)
+        assert row["KIMCO id"] not in (None, "")
+        assert client.created
+        assert GATE_PRICE in row["Why"] or "price" in row["Why"].lower()
+        assert "NOTE-29" in row["Why"] or "not selected" in row["Why"].lower() or "zero" in row["Why"].lower()
+        selected_ids = []
+        for _inv, refs in client.selected:
+            for ref in refs:
+                selected_ids.append(ref.get("id") if isinstance(ref, dict) else ref)
+        assert case["rec_id"] not in selected_ids, (case["invoice_number"], client.selected)
+        assert_never_success(row["Result"], note_id="NOTE-29", detail=row["Why"])
+
+    in_gate = {
+        "line": {"part": "IN", "qty": 1.0, "unit_price": 10.0, "amount": 10.0},
+        "receipt": {"id": 1, "qty": 1.0, "unit_price": 9.50, "amount": 9.50},
+    }
+    over_gate = {
+        "line": {"part": "OUT", "qty": 1.0, "unit_price": 200.0, "amount": 200.0},
+        "receipt": {"id": 2, "qty": 1.0, "unit_price": 50.0, "amount": 50.0},
+    }
+    mixed = filter_matches_outside_ppv_gate(
+        [in_gate, over_gate], invoice_total=210.0
+    )
+    assert mixed["select_zero"] is False
+    assert [hit["receipt"]["id"] for hit in mixed["selectable"]] == [1]
+    assert [hit["receipt"]["id"] for hit in mixed["skipped"]] == [2]
 
