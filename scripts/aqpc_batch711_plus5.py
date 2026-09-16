@@ -138,7 +138,9 @@ def kimco_aqpc_numbers(client: KimcoClient) -> dict[str, int]:
     for item in client.list_items("ap_invoices"):
         vals = item.get("values") or {}
         vendor_id = lookup_id(vals.get("Vendor"))
-        vendor_txt = str(lookup_text(vals.get("Vendor")) or "").upper()
+        vendor_txt = str(
+            lookup_text(vals.get("Vendor") or vals.get("Vendor_$_Display_Name")) or ""
+        ).upper()
         if vendor_id != 22 and "QUALITY POWDER" not in vendor_txt:
             continue
         number = invoice_number_key(vals.get("Invoice_Number"))

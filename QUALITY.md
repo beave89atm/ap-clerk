@@ -449,3 +449,48 @@ qty/unit/total. 10956 line 1 (Rack 2@$200) selected **23516**; line 2
 Aluminum Plate invoice qty 6 @$50 vs PO59016-02 receipt **23517** qty 2
 @$150 — buyer qty HOLD, Entered with issues. Do not invent Success for
 10956. Do not void 10007–10021. 10009 / 10013 left for Shawn.
+
+### Another plus-5 AQPC on batch 711 (20-row sheet, 2026-09-15)
+
+Kyle: run another 5 AQPC only; add to batch **711**; update the sheet to
+**20 rows** (prior 15 + 5 new). Do not recreate 10007–10021
+(11002 / 10999 / 11003 HOLD / 11004 / 11005 / 10998 / 10991 HOLD / 10984 /
+10969 / 10968 / 10967 / 10964 / 10962 / 10958 / 10956 HOLD). Skip
+Kyle-entered 10917/10918/10920/10921. Guest Intuit View-details click
+(not `sale/viewed`). No Intuit login. No Treyce Mail.Send. `invent=false`.
+Sheet: `runs/AP-run-2026-09-15-aqpc-batch711-20.xlsx`
+(also `runs/AP-run-2026-09-15-aqpc-batch711.xlsx`).
+
+Chosen next unflagged payment-requests (Graph still has no 11006+;
+10951 not in mailbox): **10955, 10954, 10953, 10952, 10950**. Guest
+Playwright View-details (no Intuit login / no storage-state). Reused
+batch **711**. No Treyce Mail.Send. `invent=false`.
+
+| Invoice | KIMCO | Result | Receipts | Amount | PO |
+| --- | --- | --- | --- | --- | --- |
+| 11002 | **10007** | **Success** | 24104 100@3 | 300.00 | 59172 |
+| 10999 | **10008** | **Success** | 23978 12@10 | 120.00 | 59160 |
+| 11003 | **10009** | HOLD price-does-not-match | 24103 2@0.777 | PDF 10.00 / posted 1.55 | 59083 |
+| 11004 | **10010** | **Success** | 24106–24111 incl. swapped 24109/24110 | 2600.00 | 59165 |
+| 11005 | **10011** | **Success** | 24105 5@30 | 150.00 | 59118 |
+| 10998 | **10012** | **Success** | 23979–23982 qty 6@10 | 240.00 | 59158 |
+| 10991 | **10013** | HOLD price-does-not-match | 23967 199@0.75 | PDF 199.00 / posted 149.25 | 59148 |
+| 10984 | **10014** | **Success** | 23897 1@5 | 5.00 | 59098 |
+| 10969 | **10015** | **Success** | 23677 3@45 | 135.00 | 59079 |
+| 10968 | **10016** | **Success** | 23682 1@10 | 10.00 | 59080 |
+| 10967 | **10017** | **Success** | 23681 10@50 | 500.00 | 59075 |
+| 10964 | **10018** | **Success** | 23683 2@75 | 150.00 | 59076 |
+| 10962 | **10019** | **Success** | 23520 4@25 | 100.00 | 59042 |
+| 10958 | **10020** | **Success** | 23519 4@65 | 260.00 | 59051 |
+| 10956 | **10021** | HOLD qty-does-not-match | partial 23516 2@200 | PDF 700.00 / posted 400.00 | 59016 |
+| 10955 | **10022** | **Success** | 23518 5@65 | 325.00 | 59037 |
+| 10954 | **10023** | **Success** | 23515 8@15 | 120.00 | 59024 |
+| 10953 | **10024** | **Success** | 23514 3@65 | 195.00 | 59032 |
+| 10952 | **10025** | **Success** | 23481–23486 (3@445, 3@5, 3@5, 9@10, 3@10, 3@25) | 1560.00 | 59025 |
+| 10950 | **10026** | **Success** | 23457 2@50; 23895 1@50 | 150.00 | 59023 |
+
+**New five: 5 Success / 0 HOLD.** Live GET of 10022–10026 matches each PDF
+qty/unit/total. 10952/10950 first pass HOLD used rolled invoice qty and
+list-view receipts with null qty/cost; record GET matched every PO-suffix
+line, then Select Receipts. Outlook **Entered in AI**. Do not void
+10007–10026. 10009 / 10013 / 10021 left for Shawn / buyer.

@@ -67,7 +67,7 @@ KYLE_ENTERED = {"10917", "10918", "10920", "10921"}
 ALREADY = ALREADY_ON_711 | KYLE_ENTERED
 # Next newest unflagged AQPC payment-requests not already on KIMCO (no 11006+
 # last time). Discovery fills extras; these are the likely next numbers.
-PREFERRED_FIVE = ["10955", "10954", "10953", "10952", "10951"]
+PREFERRED_FIVE = ["10955", "10954", "10953", "10952", "10950"]
 KNOWN_FIFTEEN = [
     {"invoice": "11002", "kimco_id": 10007},
     {"invoice": "10999", "kimco_id": 10008},
@@ -192,7 +192,7 @@ def _open_receipts_on_po(receipts: list[dict[str, Any]], po: str | None) -> list
         return []
     open_rows: list[dict[str, Any]] = []
     for rec in receipts:
-        if invoice_number_key(str(rec.get("po") or "")) != wanted:
+        if invoice_number_key(str(rec.get("po") or rec.get("name") or "")) != wanted:
             continue
         raw = rec.get("raw") if isinstance(rec.get("raw"), dict) else {}
         invoiced = raw.get("Invoiced") or raw.get("invoiced")
@@ -200,6 +200,27 @@ def _open_receipts_on_po(receipts: list[dict[str, Any]], po: str | None) -> list
             continue
         open_rows.append(rec)
     return open_rows
+
+
+def _hydrate_receipts(client: KimcoClient, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """List-view receipts often omit qty/unit. Record GET fills those fields."""
+    out: list[dict[str, Any]] = []
+    for rec in rows:
+        if rec.get("qty") is not None and rec.get("unit_price") is not None:
+            out.append(rec)
+            continue
+        rid = rec.get("id")
+        if rid in (None, ""):
+            out.append(rec)
+            continue
+        item = client.get_item("receipts", int(rid))
+        filled = normalize_receipt(item)
+        merged = dict(rec)
+        for key in ("qty", "unit_price", "amount", "part", "po", "name"):
+            if merged.get(key) in (None, "") and filled.get(key) not in (None, ""):
+                merged[key] = filled.get(key)
+        out.append(merged)
+    return out
 
 
 def _price_hold_why(parsed: dict[str, Any], proof: dict[str, Any]) -> str:
@@ -358,11 +379,14 @@ def try_finish_receipts(
         if rid not in (None, "") and int(rid) not in have:
             wanted.append(int(rid))
     leftover_lines = list(parsed.get("lines") or [])
-    pool = [
-        r
-        for r in _open_receipts_on_po(receipts, str(parsed.get("po") or ""))
-        if r.get("id") not in have
-    ]
+    pool = _hydrate_receipts(
+        client,
+        [
+            r
+            for r in _open_receipts_on_po(receipts, str(parsed.get("po") or ""))
+            if r.get("id") not in have
+        ],
+    )
     if not wanted and leftover_lines and len(pool) == len(leftover_lines):
         line_keys = sorted(
             (
