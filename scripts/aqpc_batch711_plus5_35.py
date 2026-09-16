@@ -78,8 +78,10 @@ ALREADY_ON_711 = {
 KYLE_ENTERED = {"10917", "10918", "10920", "10921"}
 ALREADY = ALREADY_ON_711 | KYLE_ENTERED
 # Next newest unflagged AQPC payment-requests not already on KIMCO (no 11006+;
-# 10951 / 10949–10947 / 10931 / 10930 not in mailbox last time). Discovery fills extras.
-PREFERRED_FIVE = ["10926", "10925", "10924", "10923", "10922"]
+# 10951 / 10949–10947 / 10931 / 10930 / 10923 / 10922 / 10919 not in mailbox).
+# After 10924, Kyle 10921/20/18/17 and all 10916–10697 payment-requests are
+# already-flagged or already on KIMCO. Next unflagged not-on-KIMCO: 10696, 10523.
+PREFERRED_FIVE = ["10926", "10925", "10924", "10696", "10523"]
 KNOWN_THIRTY = [
     {"invoice": "11002", "kimco_id": 10007},
     {"invoice": "10999", "kimco_id": 10008},
@@ -157,6 +159,8 @@ def find_aqpc_payment_requests(graph) -> list[dict[str, Any]]:
             *ALREADY_ON_711,
             *[str(n) for n in range(11006, 11016)],
             *[str(n) for n in range(10870, 10927)],
+            "10696",
+            "10523",
         ]
         if n not in found
     ]
