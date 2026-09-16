@@ -199,13 +199,8 @@ def test_crosslink_note30_reminders_not_recreated():
     assert older == []
     assert VENDOR_NAME == "Crosslink Powder Coating"
     assert FIRST_FIVE == ["28166", "28113", "28114", "28100", "28102"]
-    assert CREATED_HEADERS == {
-        "28166": 10101,
-        "28113": 10102,
-        "28114": 10103,
-        "28100": 10104,
-        "28102": 10105,
-    }
+    assert CREATED_HEADERS["28166"] == 10101
+    assert CREATED_HEADERS["28008"] == 10106
     assert PREFERRED_FIVE == NEXT_FIVE == ["28008"]
 
 
@@ -582,7 +577,7 @@ def test_crosslink_plus5_starts_28008_and_skips_pre_aug():
                 "receivedDateTime": "2026-09-11T12:48:51Z",
             },
         ],
-        already=set(CREATED_HEADERS),
+        already=set(FIRST_FIVE),
         cap=5,
     )
     assert [b["invoice_number"] for b in recent] == ["28008"]

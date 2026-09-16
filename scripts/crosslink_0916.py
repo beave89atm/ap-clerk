@@ -87,6 +87,7 @@ KNOWN_ENTERED = {
     "28114": 10103,
     "28100": 10104,
     "28102": 10105,
+    "28008": 10106,
 }
 # First-pass Success on batch 715. Do not recreate.
 FIRST_FIVE = ["28166", "28113", "28114", "28100", "28102"]
@@ -96,6 +97,7 @@ CREATED_HEADERS = {
     "28114": 10103,
     "28100": 10104,
     "28102": 10105,
+    "28008": 10106,
 }
 # Second pass: 28008 first if still open. Discovery fills extras if more recent.
 NEXT_FIVE = ["28008"]

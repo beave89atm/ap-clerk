@@ -18,10 +18,12 @@
     {
       "invoice": "28166",
       "received": "2026-09-11T12:48:51Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10101,
       "note30_reminder": false,
       "hasAttachments": true,
       "from": "Greg Tunnell - Crosslink Powder Coating",
@@ -30,10 +32,12 @@
     {
       "invoice": "28114",
       "received": "2026-09-04T14:30:29Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10103,
       "note30_reminder": false,
       "hasAttachments": true,
       "from": "Greg Tunnell - Crosslink Powder Coating",
@@ -42,10 +46,12 @@
     {
       "invoice": "28113",
       "received": "2026-09-04T14:30:43Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10102,
       "note30_reminder": false,
       "hasAttachments": true,
       "from": "Greg Tunnell - Crosslink Powder Coating",
@@ -54,10 +60,12 @@
     {
       "invoice": "28102",
       "received": "2026-09-04T14:36:40Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10105,
       "note30_reminder": false,
       "hasAttachments": true,
       "from": "Greg Tunnell - Crosslink Powder Coating",
@@ -66,10 +74,12 @@
     {
       "invoice": "28100",
       "received": "2026-09-04T14:37:39Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10104,
       "note30_reminder": false,
       "hasAttachments": true,
       "from": "Greg Tunnell - Crosslink Powder Coating",
@@ -1000,199 +1010,119 @@
     "27755": 9758,
     "27943": 9977,
     "27944": 9978,
-    "27946": 9979
+    "27946": 9979,
+    "28166": 10101,
+    "28113": 10102,
+    "28114": 10103,
+    "28100": 10104,
+    "28102": 10105
   },
   "note30_left_alone": {
     "27447": 9382,
     "27448": 9384,
     "27591": 9587
   },
-  "chosen": [
+  "first_five": [
     "28166",
     "28113",
     "28114",
     "28100",
     "28102"
   ],
-  "chosen_because": "Unflagged Crosslink Powder Coating only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. NOTE-30 reminders not recreated. Distinctive token Crosslink (never MSC/RMP). First pass created headers; finish hydrated list-view receipts then Select Receipts + Fees + in-gate PPV.",
+  "first_headers": {
+    "28166": 10101,
+    "28113": 10102,
+    "28114": 10103,
+    "28100": 10104,
+    "28102": 10105
+  },
+  "chosen": [
+    "28008"
+  ],
+  "chosen_because": "Second Crosslink pass on batch 715. Start 28008 if still open. Unflagged Crosslink only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. Fewer than 5 recent remain \u2014 enter what's left and stop. Do not recreate 10101\u201310105 or NOTE-30. Distinctive token Crosslink (never MSC/RMP).",
   "parsed": [
     {
-      "invoice_number": "28166",
-      "date": "2026-09-09",
-      "po": "59087",
-      "amount": 200.0,
-      "lines": [
-        {
-          "part": "Customer Touchup",
-          "qty": 8.0,
-          "amount": 200.0,
-          "unit_price": 25.0,
-          "po": "59087",
-          "po_line": null,
-          "wo": null,
-          "label": "Customer Touchup Color Product PO # Unit Price Qty Line Total Customer Touchup",
-          "description": "Color Product PO # Unit Price Qty Line Total Customer Touchup"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-11_invoice-28166.pdf",
-      "pdf_bytes": null,
-      "download_method": null,
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": null,
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "28113",
-      "date": "2026-09-03",
-      "po": "59038",
-      "amount": 830.54,
-      "lines": [
-        {
-          "part": "1020249-1",
-          "qty": 4.0,
-          "amount": 822.32,
-          "unit_price": 205.58,
-          "po": "59038",
-          "po_line": null,
-          "wo": null,
-          "label": "1020249-1 Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zi",
-          "description": "Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - IFS"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Packaging/Shop Supplies Recovery",
-          "amount": 8.22,
-          "fee": true
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28113.pdf",
-      "pdf_bytes": null,
-      "download_method": null,
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": null,
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "28114",
-      "date": "2026-09-03",
-      "po": "59052",
-      "amount": 1174.02,
-      "lines": [
-        {
-          "part": "1020249-2",
-          "qty": 5.0,
-          "amount": 1162.4,
-          "unit_price": 232.48,
-          "po": "59052",
-          "po_line": null,
-          "wo": null,
-          "label": "1020249-2 Color Product PO # Unit Price Qty Line Total 1020249-2 Sandblasting Zi",
-          "description": "Color Product PO # Unit Price Qty Line Total 1020249-2 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - IFS"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Packaging/Shop Supplies Recovery",
-          "amount": 11.62,
-          "fee": true
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28114.pdf",
-      "pdf_bytes": null,
-      "download_method": null,
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": null,
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "28100",
-      "date": "2026-09-02",
-      "po": "59022",
-      "amount": 1245.81,
+      "invoice_number": "28008",
+      "date": "2026-08-25",
+      "po": "58981",
+      "amount": 1480.62,
       "lines": [
         {
           "part": "1020249-1",
           "qty": 6.0,
           "amount": 1233.48,
           "unit_price": 205.58,
-          "po": "59022",
+          "po": "58981",
           "po_line": null,
           "wo": null,
           "label": "1020249-1 Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zi",
           "description": "Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - IFS"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Packaging/Shop Supplies Recovery",
-          "amount": 12.33,
-          "fee": true
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28100.pdf",
-      "pdf_bytes": null,
-      "download_method": null,
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": null,
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "28102",
-      "date": "2026-09-02",
-      "po": "58902",
-      "amount": 2104.11,
-      "lines": [
-        {
-          "part": "1020249-1",
-          "qty": 8.0,
-          "amount": 1644.64,
-          "unit_price": 205.58,
-          "po": "58902",
-          "po_line": null,
-          "wo": null,
-          "label": "1020249-1 Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zi",
-          "description": "Color Product PO # Unit Price Qty Line Total 1020249-1 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - PPG"
         },
         {
           "part": "1020249-2",
-          "qty": 2.0,
-          "amount": 438.64,
-          "unit_price": 219.32,
-          "po": "58902",
+          "qty": 1.0,
+          "amount": 232.48,
+          "unit_price": 232.48,
+          "po": "58981",
           "po_line": null,
           "wo": null,
-          "label": "1020249-2 1020249-2 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - PPG",
-          "description": "1020249-2 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - PPG"
+          "label": "1020249-2 1020249-2 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - IFS",
+          "description": "1020249-2 Sandblasting Zinc Rich Epoxy Primer - Tiger Time White - IFS"
         }
       ],
       "fees": [
         {
           "name": "Packaging/Shop Supplies Recovery",
-          "amount": 20.83,
+          "amount": 14.66,
           "fee": true
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-04_invoice-28102.pdf",
-      "pdf_bytes": null,
-      "download_method": null,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-26_invoice-28008.pdf",
+      "pdf_bytes": 313961,
+      "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": null,
+      "subject": "Invoice #28008 for 58981 (#8360) from Crosslink Powder Coating",
       "graph_message_id_present": true
     }
   ],
-  "older_not_entered": [],
+  "older_not_entered": [
+    {
+      "invoice_number": "27557",
+      "date": "2026-07-17",
+      "po": null,
+      "amount": null,
+      "lines": [],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-07-20_invoice-27557.pdf",
+      "pdf_bytes": 360509,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice #27557 for Rework - 07-06-26 (#7761) from Crosslink Powder Coating",
+      "graph_message_id_present": true
+    }
+  ],
+  "leftover_pending": [
+    {
+      "invoice_number": "27557",
+      "date": "2026-07-17",
+      "po": null,
+      "amount": null,
+      "lines": [],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-07-20_invoice-27557.pdf",
+      "pdf_bytes": 360509,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice #27557 for Rework - 07-06-26 (#7761) from Crosslink Powder Coating",
+      "graph_message_id_present": true
+    }
+  ],
   "rows": [
     {
       "Vendor": "Crosslink Powder Coating",
@@ -1288,224 +1218,98 @@
       "Notes": "",
       "Receipts": "23229 8@193.94; 23230 2@219.32",
       "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Crosslink Powder Coating",
+      "Invoice #": "28008",
+      "date": "2026-08-25",
+      "PO": "58981",
+      "Amount": 1480.62,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23472 1@219.32; 23231 4@193.94; 23471 2@193.94 on PO 58981. Fees=Packaging/Shop Supplies Recovery 14.66 (Additional Charge Fees id 11, not PPV). PPV=83.00. Attach status=attached. Finish Select Receipts selected ids=[23472, 23231, 23471] fees=already-posted ppv=already-posted. Flag status=entered-in-ai.",
+      "KIMCO id": 10106,
+      "Batch": "API Agent - 9/16/26 (715)",
+      "Fees and surcharges": "Packaging/Shop Supplies Recovery 14.66",
+      "PPV": "83.00",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23472 1@219.32; 23231 4@193.94; 23471 2@193.94",
+      "outlook": "entered-in-ai"
+    }
+  ],
+  "new_rows": [
+    {
+      "Vendor": "Crosslink Powder Coating",
+      "Invoice #": "28008",
+      "date": "2026-08-25",
+      "PO": "58981",
+      "Amount": 1480.62,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set. Select Receipts 23472 1@219.32; 23231 4@193.94; 23471 2@193.94 on PO 58981. Fees=Packaging/Shop Supplies Recovery 14.66 (Additional Charge Fees id 11, not PPV). PPV=83.00. Attach status=attached. Finish Select Receipts selected ids=[23472, 23231, 23471] fees=already-posted ppv=already-posted. Flag status=entered-in-ai.",
+      "KIMCO id": 10106,
+      "Batch": "API Agent - 9/16/26 (715)",
+      "Fees and surcharges": "Packaging/Shop Supplies Recovery 14.66",
+      "PPV": "83.00",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23472 1@219.32; 23231 4@193.94; 23471 2@193.94",
+      "outlook": "entered-in-ai"
     }
   ],
   "finishes": {
-    "28113": {
-      "wanted": [],
-      "select_status": "already-selected",
-      "fee_status": "posted",
-      "ppv_status": "posted",
-      "ppv_amount": 46.56,
+    "28008": {
+      "wanted": [
+        23472,
+        23231,
+        23471
+      ],
+      "select_status": "selected",
+      "fee_status": "already-posted",
+      "ppv_status": "already-posted",
+      "ppv_amount": 83.0,
       "match_how": null,
       "skipped_over_ppv": false,
       "select_zero": false,
       "open_on_po": [
         {
-          "id": 23605,
-          "qty": 3.0,
+          "id": 23231,
+          "qty": 4.0,
           "unit_price": 193.94,
-          "amount": 581.82,
-          "part": "PO59038-01"
+          "amount": 775.76,
+          "part": "PO58981-01"
         },
         {
-          "id": 23794,
-          "qty": 1.0,
+          "id": 23471,
+          "qty": 2.0,
           "unit_price": 193.94,
-          "amount": 193.94,
-          "part": "PO59038-01"
-        }
-      ]
-    },
-    "28114": {
-      "wanted": [],
-      "select_status": "already-selected",
-      "fee_status": "posted",
-      "ppv_status": "posted",
-      "ppv_amount": 65.8,
-      "match_how": null,
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
+          "amount": 387.88,
+          "part": "PO58981-01"
+        },
         {
-          "id": 23675,
+          "id": 23472,
           "qty": 1.0,
           "unit_price": 219.32,
           "amount": 219.32,
-          "part": "PO59052-01"
-        },
-        {
-          "id": 23676,
-          "qty": 1.0,
-          "unit_price": 232.48,
-          "amount": 232.48,
-          "part": "PO59052-02"
-        },
-        {
-          "id": 23795,
-          "qty": 2.0,
-          "unit_price": 219.32,
-          "amount": 438.64,
-          "part": "PO59052-01"
-        },
-        {
-          "id": 23882,
-          "qty": 2.0,
-          "unit_price": 219.32,
-          "amount": 438.64,
-          "part": "PO59052-01"
-        }
-      ]
-    },
-    "28100": {
-      "wanted": [],
-      "select_status": "already-selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23674,
-          "qty": 6.0,
-          "unit_price": 205.58,
-          "amount": 1233.48,
-          "part": "PO59022-01"
-        },
-        {
-          "id": 23793,
-          "qty": 1.0,
-          "unit_price": 205.58,
-          "amount": 205.58,
-          "part": "PO59022-02"
-        }
-      ]
-    },
-    "28102": {
-      "wanted": [],
-      "select_status": "already-selected",
-      "fee_status": "posted",
-      "ppv_status": "posted",
-      "ppv_amount": 93.12,
-      "match_how": null,
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23229,
-          "qty": 8.0,
-          "unit_price": 193.94,
-          "amount": 1551.52,
-          "part": "PO58902-01"
-        },
-        {
-          "id": 23230,
-          "qty": 2.0,
-          "unit_price": 219.32,
-          "amount": 438.64,
-          "part": "PO58902-02"
+          "part": "PO58981-02"
         }
       ]
     }
   },
   "kimco_gets": {
-    "10101": {
-      "id": 10101,
-      "invoice_number": "28166",
+    "10106": {
+      "id": 10106,
+      "invoice_number": "28008",
       "vendor_id": 278,
       "vendor_text": "1276-Crosslink Powder Coating",
-      "po": "PO59087-Crosslink Powder Coating",
+      "po": "PO58981-Crosslink Powder Coating",
       "invoice_type": 3,
-      "invoice_amount": 200.0,
-      "verification": 200.0,
-      "invoice_date": "2026-09-09T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 715,
-      "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [
-        {
-          "qty": 8.0,
-          "unit": 25.0,
-          "receipt": 23924,
-          "po_line": null
-        }
-      ],
-      "fee_count": 0,
-      "charges": [],
-      "attachments": [
-        "2026-09-11_invoice-28166.pdf"
-      ],
-      "verification_amount": 200.0,
-      "fee_amounts": [],
-      "ppv_amounts": []
-    },
-    "10102": {
-      "id": 10102,
-      "invoice_number": "28113",
-      "vendor_id": 278,
-      "vendor_text": "1276-Crosslink Powder Coating",
-      "po": "PO59038-Crosslink Powder Coating",
-      "invoice_type": 3,
-      "invoice_amount": 830.54,
-      "verification": 830.54,
-      "invoice_date": "2026-09-03T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 715,
-      "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [
-        {
-          "qty": 3.0,
-          "unit": 193.94,
-          "receipt": 23605,
-          "po_line": null
-        },
-        {
-          "qty": 1.0,
-          "unit": 193.94,
-          "receipt": 23794,
-          "po_line": null
-        }
-      ],
-      "fee_count": 2,
-      "charges": [
-        {
-          "lookup_id": 11,
-          "text": "F-Fees & Surcharges",
-          "amount": 8.22,
-          "description": "F-Fees & Surcharges"
-        },
-        {
-          "lookup_id": 13,
-          "text": "Purchase Price Variance",
-          "amount": 46.56,
-          "description": "Purchase Price Variance"
-        }
-      ],
-      "attachments": [
-        "2026-09-04_invoice-28113.pdf"
-      ],
-      "verification_amount": 830.54,
-      "fee_amounts": [
-        8.22
-      ],
-      "ppv_amounts": [
-        46.56
-      ]
-    },
-    "10103": {
-      "id": 10103,
-      "invoice_number": "28114",
-      "vendor_id": 278,
-      "vendor_text": "1276-Crosslink Powder Coating",
-      "po": "PO59052-Crosslink Powder Coating",
-      "invoice_type": 3,
-      "invoice_amount": 1174.02,
-      "verification": 1174.02,
-      "invoice_date": "2026-09-03T00:00:00",
+      "invoice_amount": 1480.62,
+      "verification": 1480.62,
+      "invoice_date": "2026-08-25T00:00:00",
       "posted": null,
       "void": false,
       "batch_id": 715,
@@ -1514,113 +1318,19 @@
         {
           "qty": 1.0,
           "unit": 219.32,
-          "receipt": 23675,
+          "receipt": 23472,
           "po_line": null
         },
         {
-          "qty": 2.0,
-          "unit": 219.32,
-          "receipt": 23795,
-          "po_line": null
-        },
-        {
-          "qty": 2.0,
-          "unit": 219.32,
-          "receipt": 23882,
-          "po_line": null
-        }
-      ],
-      "fee_count": 2,
-      "charges": [
-        {
-          "lookup_id": 11,
-          "text": "F-Fees & Surcharges",
-          "amount": 11.62,
-          "description": "F-Fees & Surcharges"
-        },
-        {
-          "lookup_id": 13,
-          "text": "Purchase Price Variance",
-          "amount": 65.8,
-          "description": "Purchase Price Variance"
-        }
-      ],
-      "attachments": [
-        "2026-09-04_invoice-28114.pdf"
-      ],
-      "verification_amount": 1174.02,
-      "fee_amounts": [
-        11.62
-      ],
-      "ppv_amounts": [
-        65.8
-      ]
-    },
-    "10104": {
-      "id": 10104,
-      "invoice_number": "28100",
-      "vendor_id": 278,
-      "vendor_text": "1276-Crosslink Powder Coating",
-      "po": "PO59022-Crosslink Powder Coating",
-      "invoice_type": 3,
-      "invoice_amount": 1245.81,
-      "verification": 1245.81,
-      "invoice_date": "2026-09-02T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 715,
-      "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [
-        {
-          "qty": 6.0,
-          "unit": 205.58,
-          "receipt": 23674,
-          "po_line": null
-        }
-      ],
-      "fee_count": 1,
-      "charges": [
-        {
-          "lookup_id": 11,
-          "text": "F-Fees & Surcharges",
-          "amount": 12.33,
-          "description": "F-Fees & Surcharges"
-        }
-      ],
-      "attachments": [
-        "2026-09-04_invoice-28100.pdf"
-      ],
-      "verification_amount": 1245.81,
-      "fee_amounts": [
-        12.33
-      ],
-      "ppv_amounts": []
-    },
-    "10105": {
-      "id": 10105,
-      "invoice_number": "28102",
-      "vendor_id": 278,
-      "vendor_text": "1276-Crosslink Powder Coating",
-      "po": "PO58902-Crosslink Powder Coating",
-      "invoice_type": 3,
-      "invoice_amount": 2104.11,
-      "verification": 2104.11,
-      "invoice_date": "2026-09-02T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 715,
-      "batch_text": "API Agent - 9/16/26",
-      "receipt_lines": [
-        {
-          "qty": 8.0,
+          "qty": 4.0,
           "unit": 193.94,
-          "receipt": 23229,
+          "receipt": 23231,
           "po_line": null
         },
         {
           "qty": 2.0,
-          "unit": 219.32,
-          "receipt": 23230,
+          "unit": 193.94,
+          "receipt": 23471,
           "po_line": null
         }
       ],
@@ -1629,25 +1339,25 @@
         {
           "lookup_id": 11,
           "text": "F-Fees & Surcharges",
-          "amount": 20.83,
+          "amount": 14.66,
           "description": "F-Fees & Surcharges"
         },
         {
           "lookup_id": 13,
           "text": "Purchase Price Variance",
-          "amount": 93.12,
+          "amount": 83.0,
           "description": "Purchase Price Variance"
         }
       ],
       "attachments": [
-        "2026-09-04_invoice-28102.pdf"
+        "2026-08-26_invoice-28008.pdf"
       ],
-      "verification_amount": 2104.11,
+      "verification_amount": 1480.62,
       "fee_amounts": [
-        20.83
+        14.66
       ],
       "ppv_amounts": [
-        93.12
+        83.0
       ]
     }
   },
