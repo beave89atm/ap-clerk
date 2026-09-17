@@ -18,9 +18,13 @@ from ap_clerk.pdf_invoice import extract_jpsteel_bill, parse_invoice_text  # noq
 from ap_clerk.rules import names_match  # noqa: E402
 from jpsteel_0916 import (  # noqa: E402
     CAP,
+    CREATED_HEADERS,
     CROSSLINK_TODAY_NAME,
+    DO_NOT_WALK,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
+    KNOWN_BATCH_ID,
+    LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
     PREFERRED_BATCH_NAME,
     VENDOR_NAME,
@@ -29,6 +33,7 @@ from jpsteel_0916 import (  # noqa: E402
     is_jpsteel_message,
     is_jpsteel_vendor_text,
     match_jpsteel_inch_partial,
+    merge_sheet_rows,
     pick_recent,
     _qty_hold,
 )
@@ -183,6 +188,45 @@ def test_jpsteel_batch_is_dedicated_not_crosslink_715():
     assert not re.search(r"\(715\)", jpsteel_716)
     assert CROSSLINK_TODAY_NAME in jpsteel_716  # prefix only — must not abort 716
     assert jpsteel_716 != CROSSLINK_TODAY_NAME
+    assert KNOWN_BATCH_ID == 716
+    assert CREATED_HEADERS == {
+        "125315": 10107,
+        "125316": 10108,
+        "125314": 10109,
+        "125122": 10110,
+        "125051": 10111,
+    }
+    assert LEAVE_ALONE_HOLD_IDS == {10107, 10108, 10111}
+    assert DO_NOT_WALK == {"124506", "123248"}
+
+
+def test_jpsteel_plus5_stops_before_pre_aug_and_keeps_holds():
+    recent, older = pick_recent(
+        [
+            {
+                "invoice_number": "124506",
+                "date": "2026-07-28",
+                "receivedDateTime": "2026-07-29T13:44:29Z",
+            },
+            {
+                "invoice_number": "123248",
+                "date": "2026-05-06",
+                "receivedDateTime": "2026-05-06T22:46:30Z",
+            },
+        ],
+        already=set(CREATED_HEADERS) | set(DO_NOT_WALK),
+        cap=5,
+    )
+    assert recent == []
+    assert older == []
+
+    prior = [
+        {"Invoice #": "125315", "Result": "HOLD", "KIMCO id": 10107},
+        {"Invoice #": "125314", "Result": "Success", "KIMCO id": 10109},
+    ]
+    merged = merge_sheet_rows(prior, [{"Invoice #": "125400", "Result": "Success", "KIMCO id": 10112}])
+    assert [r["Invoice #"] for r in merged] == ["125315", "125314", "125400"]
+    assert merged[0]["KIMCO id"] == 10107
 
 
 def test_jpsteel_inches_are_not_rolled_qty():

@@ -69,6 +69,7 @@ LOGGER = logging.getLogger("ap_clerk.jpsteel_0916")
 
 PREFERRED_BATCH_NAME = "API Agent - 9/16/26 JPSteel"
 FALLBACK_BATCH_NAME = "API Agent - 9/16/26-2"
+KNOWN_BATCH_ID = 716
 # Kyle: Crosslink/morning run. Do not reuse.
 FORBIDDEN_BATCH_IDS = {715}
 CROSSLINK_TODAY_NAME = "API Agent - 9/16/26"
@@ -104,6 +105,10 @@ CREATED_HEADERS = {
     "125122": 10110,
     "125051": 10111,
 }
+# Kyle: leave these HOLDs for morning remedies. Do not finish/rework tonight.
+LEAVE_ALONE_HOLD_IDS = {10107, 10108, 10111}
+# Pre-Aug leftovers. Do not walk without asking (NOTE-28).
+DO_NOT_WALK = {"124506", "123248"}
 NOISE_SUBJECT = re.compile(
     r"statement|past due|account with us|remittance|payment reminder",
     flags=re.I,
@@ -1028,6 +1033,9 @@ def finish_entered_rows(
         if result in {"Fail", "Skipped"}:
             rows.append(enter_row)
             continue
+        if kid not in (None, "") and int(kid) in LEAVE_ALONE_HOLD_IDS:
+            rows.append(enter_row)
+            continue
         finish = finish_hold_header(
             client, parsed=parsed, kimco_id=int(kid), receipts=receipts
         )
@@ -1196,6 +1204,24 @@ def run_finish_only(
     return 0
 
 
+def prior_rows_from_sidecar(report_path: Path) -> list[dict[str, Any]]:
+    sidecar = report_path.with_suffix(".json")
+    if not sidecar.exists():
+        return []
+    payload = json.loads(sidecar.read_text())
+    return [dict(r) for r in payload.get("rows") or [] if isinstance(r, dict)]
+
+
+def merge_sheet_rows(
+    prior_rows: list[dict[str, Any]],
+    new_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Keep first-pass rows (including HOLDs), then append this pass. No dup #."""
+    seen = {str(r.get("Invoice #") or "") for r in new_rows}
+    keep = [r for r in prior_rows if str(r.get("Invoice #") or "") not in seen]
+    return keep + new_rows
+
+
 def _older_hold_rows(
     older: list[dict[str, Any]],
     batch_label: str,
@@ -1325,7 +1351,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(json.dumps({"discovered": len(catalog), "jpsteel_mail": catalog}, indent=2, default=str), flush=True)
 
-    already = set(entered) | set(KNOWN_HOLD)
+    already = set(entered) | set(KNOWN_HOLD) | set(CREATED_HEADERS) | set(DO_NOT_WALK)
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_entered = 0
@@ -1415,34 +1441,68 @@ def main(argv: list[str] | None = None) -> int:
         print("Refusing Crosslink today-name batch. Abort enter.", flush=True)
         return 2
 
+    if int(batch.get("id") or 0) != KNOWN_BATCH_ID:
+        print(
+            f"Expected batch {KNOWN_BATCH_ID}; got {batch.get('id')}. Abort.",
+            flush=True,
+        )
+        return 2
+
     report_path = Path(args.report)
     batch_label = f"{batch['name']} ({batch['id']})"
+    prior_rows = prior_rows_from_sidecar(report_path)
     if not recent:
         reason = (
             "No unflagged JPSteel invoices dated on/after 2026-08-01 that are "
-            "not already in KIMCO. Stopped — did not walk pre-Aug JPSteel "
-            "(AQPC NOTE-28 lesson)."
+            "not already in KIMCO. Stopped — did not walk pre-Aug 124506 / "
+            "123248 (AQPC NOTE-28). First-pass HOLDs 10107/10108/10111 left "
+            "alone for morning remedies."
         )
         print(reason, flush=True)
-        rows = _older_hold_rows(older, batch_label)
+        leftover_pending = [
+            {
+                "invoice_number": "124506",
+                "date": "2026-07-28",
+                "po": "58637",
+                "amount": 7396.75,
+                "why": "too-old (before 2026-08-01); not entered",
+            },
+            {
+                "invoice_number": "123248",
+                "date": "2026-05-06",
+                "po": "57950",
+                "amount": 495.80,
+                "why": "too-old; not entered",
+            },
+        ]
+        leftover_pending.extend(summarize_parse(b) for b in older if invoice_number_key(b.get("invoice_number")) not in DO_NOT_WALK)
+        rows = prior_rows
         write_report(report_path, rows)
         sidecar = {
-            "proof": "jpsteel-0916",
+            "proof": "jpsteel-0916-plus5",
             "invent": False,
             "mail_send": False,
             "vendor": VENDOR_NAME,
             "vendor_id": vendor_id,
-            "vendor_confirm": vendor_info,
+            "vendor_confirm": {
+                "vendor_id": vendor_id,
+                "vendor_text_samples": vendor_info.get("vendor_text_samples"),
+                "id_counts": vendor_info.get("id_counts"),
+            },
             "batch_name": batch["name"],
             "batch_id": batch["id"],
             "batch": verified,
             "forbidden_batch_ids": sorted(FORBIDDEN_BATCH_IDS),
+            "created_headers": CREATED_HEADERS,
+            "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
+            "do_not_walk": sorted(DO_NOT_WALK),
             "discovered": len(catalog),
             "catalog": catalog,
             "kimco_already": entered,
             "recent_picked": [],
-            "older_not_entered": [summarize_parse(b) for b in older],
-            "leftover_pending": [summarize_parse(b) for b in older],
+            "new_rows": [],
+            "older_not_entered": leftover_pending,
+            "leftover_pending": leftover_pending,
             "rows": rows,
             "blocker": reason,
             "treyce_emailed": False,
@@ -1451,7 +1511,8 @@ def main(argv: list[str] | None = None) -> int:
         report_path.with_suffix(".json").write_text(
             json.dumps(sidecar, indent=2, default=str) + "\n"
         )
-        print(f"Wrote {report_path} and sidecar (no enter).", flush=True)
+        print(f"Wrote {report_path} and sidecar (no new enter).", flush=True)
+        _print_summary(rows)
         return 0
 
     enter_rows = run_enter(
@@ -1479,7 +1540,7 @@ def main(argv: list[str] | None = None) -> int:
         receipts=receipts,
         vendor_id=int(vendor_id),
     )
-    rows = new_rows
+    rows = merge_sheet_rows(prior_rows, new_rows)
     write_report(report_path, rows)
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
@@ -1504,12 +1565,14 @@ def main(argv: list[str] | None = None) -> int:
         "catalog": catalog,
         "kimco_already": entered,
         "chosen": [invoice_number_key(b.get("invoice_number")) for b in recent],
+        "created_headers": CREATED_HEADERS,
+        "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
+        "do_not_walk": sorted(DO_NOT_WALK),
+        "new_rows": new_rows,
         "chosen_because": (
-            "Unflagged JPSteel / JP Steel only; not already on KIMCO; "
-            f"invoice date on/after {MIN_INVOICE_DATE}; cap {CAP}. "
-            "Dedicated batch (not 715). Distinctive token JPSteel "
-            "(never Morgan/Leeco/MSC/RMP). Fewer than 5 recent — enter "
-            "what's left and stop. Do not walk pre-Aug."
+            "Plus-5 on batch 716. Unflagged JPSteel only; not already on "
+            "KIMCO; invoice date on/after 2026-08-01; cap 5. First-pass "
+            "HOLDs 10107/10108/10111 left alone. Do not walk 124506/123248."
         ),
         "parsed": [summarize_parse(b) for b in recent],
         "older_not_entered": leftover_pending,
