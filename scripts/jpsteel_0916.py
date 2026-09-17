@@ -47,6 +47,7 @@ from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
+    blocked_400_not_a_hold_when_same_item_cover,
     decide_ppv,
     distinctive_vendor_tokens,
     extract_subject_invoice_number,
@@ -106,7 +107,9 @@ CREATED_HEADERS = {
     "125051": 10111,
 }
 # Kyle: leave these HOLDs for morning remedies. Do not finish/rework tonight.
-LEAVE_ALONE_HOLD_IDS = {10107, 10108, 10111}
+LEAVE_ALONE_HOLD_IDS = {10108, 10111}
+# Kyle 2026-09-17 finished 10107 live. GET-only — do not Select Receipts / edit.
+DO_NOT_MUTATE_IDS = {10107}
 # Pre-Aug leftovers. Do not walk without asking (NOTE-28).
 DO_NOT_WALK = {"124506", "123248"}
 NOISE_SUBJECT = re.compile(
@@ -916,6 +919,17 @@ def quality_jpsteel_row(
     vendor_ok = vendor_id not in (None, "") and proof.get("vendor_id") == vendor_id
     po = str(parsed.get("po") or enter_row.get("PO") or "").strip()
     needs_receipts = bool(po)
+    already_posted = bool(recs) and amount_ok and (not qty_hold if needs_receipts else True)
+    select_status = (finish or {}).get("select_status")
+    select_ok = already_posted or select_status in {None, "selected", "already-selected"}
+    try:
+        kid_int = int(kid) if kid not in (None, "") else None
+    except (TypeError, ValueError):
+        kid_int = None
+    do_not_stamp = kid_int in DO_NOT_MUTATE_IDS or bool((finish or {}).get("do_not_stamp_outlook"))
+    cover_blocked = blocked_400_not_a_hold_when_same_item_cover(
+        select_status, (finish or {}).get("matched")
+    )
 
     finished = (
         attach_ok
@@ -927,7 +941,7 @@ def quality_jpsteel_row(
         and (proof.get("invoice_type") == 3 if needs_receipts else proof.get("invoice_type") in {3, 4})
         and vendor_ok
         and not price_hold
-        and (finish or {}).get("select_status") in {None, "selected", "already-selected"}
+        and select_ok
     )
     out["Amount"] = pdf_amt
     out["KIMCO id"] = kid
@@ -949,17 +963,31 @@ def quality_jpsteel_row(
     out["Notes"] = ""
     if finished:
         out["Result"] = "Success"
-        out["Why"] = (
-            f"Finished bill (Invoice_Type {proof.get('invoice_type')}). "
-            f"Header PO set={po or 'none'}. Select Receipts "
-            f"{format_receipts(proof)} on PO {po or 'n/a'}. "
-            f"Fees={out['Fees and surcharges']} (Additional Charge Fees id 11, "
-            f"not PPV). PPV={out['PPV']}. Attach status=attached. "
-            f"{extra}Flag status=entered-in-ai."
-        )
+        if kid_int in DO_NOT_MUTATE_IDS:
+            out["Why"] = (
+                "Kyle finished Select Receipts 2026-09-17 (NOTE-37: combine "
+                f"same-item same-unit-cost {format_receipts(proof)} = PDF "
+                f"21@$33=$693). Live GET {kid} Invoice_Amount={posted} "
+                f"verification={ver} Type {proof.get('invoice_type')} "
+                f"vendor {proof.get('vendor_id')} batch "
+                f"{proof.get('batch_id') or '716'}. Did not Select Receipts / "
+                "edit / re-finish — Kyle's live state left alone. Outlook "
+                "left as Kyle set (not re-stamped)."
+            )
+        else:
+            out["Why"] = (
+                f"Finished bill (Invoice_Type {proof.get('invoice_type')}). "
+                f"Header PO set={po or 'none'}. Select Receipts "
+                f"{format_receipts(proof)} on PO {po or 'n/a'}. "
+                f"Fees={out['Fees and surcharges']} (Additional Charge Fees id 11, "
+                f"not PPV). PPV={out['PPV']}. Attach status=attached. "
+                f"{extra}Flag status=entered-in-ai."
+            )
         out["Flag status"] = "entered-in-ai"
-        if graph is not None and message_id:
+        if graph is not None and message_id and not do_not_stamp:
             out["outlook"] = graph.flag_matched(ALLOWED_MAILBOX, message_id)
+        else:
+            out["outlook"] = enter_row.get("outlook") or "left-as-kyle"
     elif price_hold:
         out["Result"] = "HOLD"
         out["Why"] = (
@@ -969,7 +997,7 @@ def quality_jpsteel_row(
             f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
         )
         out["Flag status"] = "entered-with-issues"
-        if graph is not None and message_id:
+        if graph is not None and message_id and not do_not_stamp:
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
     elif qty_hold:
         out["Result"] = "HOLD"
@@ -980,7 +1008,7 @@ def quality_jpsteel_row(
             f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
         )
         out["Flag status"] = "entered-with-issues"
-        if graph is not None and message_id:
+        if graph is not None and message_id and not do_not_stamp:
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
     elif fee_on_ppv or not fees_ok:
         out["Result"] = "HOLD"
@@ -991,8 +1019,18 @@ def quality_jpsteel_row(
             "Outlook Entered with issues. Flag status=entered-with-issues."
         )
         out["Flag status"] = "entered-with-issues"
-        if graph is not None and message_id:
+        if graph is not None and message_id and not do_not_stamp:
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
+    elif cover_blocked:
+        out["Result"] = "Incomplete"
+        out["Why"] = (
+            "NOTE-37: same-item same-unit-cost leftovers uniquely sum to the "
+            "invoice line. Do not HOLD as Select Receipts blocked-400 when that "
+            f"sum matches. {extra}Do not invent Success until live GET shows "
+            "the combined receipts. Outlook left alone."
+        )
+        out["Flag status"] = enter_row.get("Flag status") or "entered-with-issues"
+        out["outlook"] = enter_row.get("outlook") or "left-as-kyle"
     else:
         out["Result"] = "HOLD"
         out["Why"] = (
@@ -1004,7 +1042,7 @@ def quality_jpsteel_row(
             "Outlook Entered with issues. Flag status=entered-with-issues."
         )
         out["Flag status"] = "entered-with-issues"
-        if graph is not None and message_id and kid not in (None, ""):
+        if graph is not None and message_id and kid not in (None, "") and not do_not_stamp:
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
     return out
 
@@ -1033,7 +1071,7 @@ def finish_entered_rows(
         if result in {"Fail", "Skipped"}:
             rows.append(enter_row)
             continue
-        if kid not in (None, "") and int(kid) in LEAVE_ALONE_HOLD_IDS:
+        if kid not in (None, "") and int(kid) in LEAVE_ALONE_HOLD_IDS | DO_NOT_MUTATE_IDS:
             rows.append(enter_row)
             continue
         finish = finish_hold_header(
@@ -1495,6 +1533,7 @@ def main(argv: list[str] | None = None) -> int:
             "forbidden_batch_ids": sorted(FORBIDDEN_BATCH_IDS),
             "created_headers": CREATED_HEADERS,
             "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
+            "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
             "do_not_walk": sorted(DO_NOT_WALK),
             "discovered": len(catalog),
             "catalog": catalog,
@@ -1567,6 +1606,7 @@ def main(argv: list[str] | None = None) -> int:
         "chosen": [invoice_number_key(b.get("invoice_number")) for b in recent],
         "created_headers": CREATED_HEADERS,
         "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
+        "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
         "do_not_walk": sorted(DO_NOT_WALK),
         "new_rows": new_rows,
         "chosen_because": (

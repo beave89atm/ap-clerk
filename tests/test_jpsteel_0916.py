@@ -20,6 +20,7 @@ from jpsteel_0916 import (  # noqa: E402
     CAP,
     CREATED_HEADERS,
     CROSSLINK_TODAY_NAME,
+    DO_NOT_MUTATE_IDS,
     DO_NOT_WALK,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
@@ -196,7 +197,8 @@ def test_jpsteel_batch_is_dedicated_not_crosslink_715():
         "125122": 10110,
         "125051": 10111,
     }
-    assert LEAVE_ALONE_HOLD_IDS == {10107, 10108, 10111}
+    assert LEAVE_ALONE_HOLD_IDS == {10108, 10111}
+    assert DO_NOT_MUTATE_IDS == {10107}
     assert DO_NOT_WALK == {"124506", "123248"}
 
 
@@ -402,3 +404,76 @@ def test_jpsteel_parse_invoice_text_uses_pdf_truth():
     assert parsed["vendor"]
     assert "jp" in parsed["vendor"].lower()
     assert parsed["lines"][0]["qty"] == 21.0
+
+
+def test_jpsteel_125315_combine_same_item_receipts_is_not_blocked_400_hold():
+    """NOTE-37: matcher combines 8+13@$33; quality Success from Kyle GET; no Outlook stamp."""
+    from ap_clerk.rules import match_receipts
+    from jpsteel_0916 import quality_jpsteel_row
+
+    parsed = parse_invoice_text(
+        JPSTEEL_125315,
+        subject="JP Steel Invoice#  (125315) Transmission for KANNON MFG",
+        from_name="JP Steel",
+    )
+    match = match_receipts(
+        invoice_number="125315",
+        invoice_lines=list(parsed.get("lines") or []),
+        receipts=[
+            {"id": 24126, "po": "59128", "part": "PO59128-01", "qty": 8.0, "unit_price": 33.0, "amount": 264.0},
+            {"id": 24127, "po": "59128", "part": "PO59128-01", "qty": 13.0, "unit_price": 33.0, "amount": 429.0},
+        ],
+        po_number="59128",
+        invoice_amount=693.0,
+    )
+    assert sorted((h.get("receipt") or {}).get("id") for h in (match.get("matched") or [])) == [
+        24126,
+        24127,
+    ]
+    assert not match.get("hold_no_receipts")
+
+    class _NoGraph:
+        def flag_matched(self, *_a, **_k):
+            raise AssertionError("do not fight Outlook on Kyle-finished 10107")
+
+        def flag_issues(self, *_a, **_k):
+            raise AssertionError("do not fight Outlook on Kyle-finished 10107")
+
+    row = quality_jpsteel_row(
+        _NoGraph(),
+        parsed=parsed,
+        enter_row={
+            "Vendor": "JP Steel",
+            "Invoice #": "125315",
+            "date": "2026-09-15",
+            "PO": "59128",
+            "Amount": 693.0,
+            "Result": "HOLD",
+            "KIMCO id": 10107,
+            "Batch": "API Agent - 9/16/26 JPSteel (716)",
+            "Flag in Outlook": "Yes",
+            "outlook": "entered-with-issues",
+        },
+        proof={
+            "id": 10107,
+            "invoice_amount": 693.0,
+            "verification": 693.0,
+            "invoice_type": 3,
+            "vendor_id": 100,
+            "batch_id": 716,
+            "attachments": ["2026-09-16_Invoice_125315.pdf"],
+            "receipt_lines": [
+                {"qty": 8.0, "unit": 33.0, "receipt": 24126},
+                {"qty": 13.0, "unit": 33.0, "receipt": 24127},
+            ],
+        },
+        finish=None,
+        vendor_id=100,
+    )
+    assert row["Result"] == "Success"
+    assert row["KIMCO id"] == 10107
+    assert "Kyle finished" in row["Why"]
+    assert "NOTE-37" in row["Why"]
+    assert "24126" in row["Why"] or "24126" in row["Receipts"]
+    assert row["outlook"] == "left-as-kyle" or row["outlook"] == "entered-with-issues"
+    assert "not re-stamped" in row["Why"] or row["outlook"] == "left-as-kyle"

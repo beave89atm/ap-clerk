@@ -24,6 +24,7 @@ from ap_clerk.gates import (
     GATE_PREFLIGHT,
     GATE_PRICE,
     GATE_QTY,
+    GATE_RECEIPT,
     GATE_VENDOR,
     RESULT_FAIL,
     RESULT_HOLD,
@@ -187,9 +188,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 37))
-    assert len(TREYCE_NOTES_V12) == 36
-    assert len(TREYCE_FINISH_CHECKLIST) == 13
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 38))
+    assert len(TREYCE_NOTES_V12) == 37
+    assert len(TREYCE_FINISH_CHECKLIST) == 14
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -230,6 +231,7 @@ def test_v12_registry_covers_all_notes():
         "metal-supermarkets-inches-qty",
         "oneal-per-line-ppv-not-rolled",
         "gas-labeled-total-amount-due",
+        "jpsteel-125315-combine-same-item-receipts",
     }
 
 
@@ -658,6 +660,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "posted-vendor-matches-parsed",
         "all-pos-selected",
         "partial-select-receipts-never-fail-close",
+        "combine-same-item-same-unit-receipts",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4372,4 +4375,90 @@ def test_never_repeat_gas_labeled_total_amount_due():
 
     invented = prefer_after_tax_amount("Gas and Supply\nINVOICE 0011062611\nno totals here\n", None)
     assert invented in (None, 0, 0.0)
+
+
+def test_never_repeat_jpsteel_125315_combine_same_item_receipts():
+    """NOTE-37: 21@$33 = 24126 8@$33 + 24127 13@$33. Combine; do not HOLD blocked-400."""
+    from ap_clerk.rules import (
+        SAME_ITEM_COVER_HOW,
+        blocked_400_not_a_hold_when_same_item_cover,
+        match_combine_same_item_receipts,
+        match_receipts,
+        match_same_unit_qty_cover,
+    )
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-37")
+    assert n["slug"] == "jpsteel-125315-combine-same-item-receipts"
+    assert n["gate"] == GATE_RECEIPT
+    assert n["do_not_mutate"] is True
+    assert n["kyle_finished_kimco_ids"] == (10107,)
+    assert "combine" in n["expected"].lower()
+    assert "blocked-400" in n["expected"]
+    assert "24126" in n["9_17_bug"] and "24127" in n["9_17_bug"]
+
+    line = {
+        "part": "21684-1",
+        "qty": 21.0,
+        "unit_price": 33.0,
+        "amount": 693.0,
+    }
+    leftovers = [
+        {
+            "id": 24126,
+            "po": "59128",
+            "part": "PO59128-01",
+            "qty": 8.0,
+            "unit_price": 33.0,
+            "amount": 264.0,
+        },
+        {
+            "id": 24127,
+            "po": "59128",
+            "part": "PO59128-01",
+            "qty": 13.0,
+            "unit_price": 33.0,
+            "amount": 429.0,
+        },
+    ]
+    cover = match_combine_same_item_receipts(line, leftovers)
+    assert cover is not None
+    assert sorted(r["id"] for r in cover) == [24126, 24127]
+    assert match_same_unit_qty_cover(line, leftovers) == cover
+
+    match = match_receipts(
+        invoice_number="125315",
+        invoice_lines=[line],
+        receipts=leftovers,
+        po_number="59128",
+        invoice_amount=693.0,
+    )
+    assert not match.get("hold_no_receipts")
+    assert not match.get("unmatched_lines")
+    ids = sorted((h.get("receipt") or {}).get("id") for h in (match.get("matched") or []))
+    assert ids == [24126, 24127]
+    assert all("same-unit" in str(h.get("how") or "") or "same-item" in str(h.get("how") or "") for h in match["matched"])
+    assert "125315" in SAME_ITEM_COVER_HOW
+    assert blocked_400_not_a_hold_when_same_item_cover("blocked-400", match["matched"]) is True
+    assert blocked_400_not_a_hold_when_same_item_cover("selected", match["matched"]) is False
+
+    # False HOLD Why is the never-repeat miss — not Success, and not "can't combine".
+    false_hold_why = (
+        "HOLD (receipt): Select Receipts blocked-400 on same-PO-line split "
+        "24126 8@$33 + 24127 13@$33 (PDF 21@$33=$693)."
+    )
+    assert "blocked-400" in false_hold_why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-37", detail=false_hold_why)
+
+    ok, why = treyce_finish_selfcheck({"same_item_cover_blocked_400": True})
+    assert ok is False
+    assert "NOTE-37" in why or "24126" in why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-37", detail=why)
+
+    # Unique sum only — do not guess two covers at the same unit.
+    amb = match_combine_same_item_receipts(
+        line,
+        leftovers
+        + [{"id": 9, "po": "59128", "qty": 8.0, "unit_price": 33.0, "amount": 264.0}],
+    )
+    assert amb is None
 

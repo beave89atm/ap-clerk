@@ -693,6 +693,32 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-37",
+        "slug": "jpsteel-125315-combine-same-item-receipts",
+        "gate": GATE_RECEIPT,
+        "cases": (
+            "JPSteel 125315 / KIMCO 10107 / PO 59128 / receipts 24126+24127",
+        ),
+        "9_17_bug": (
+            "First-pass HOLD Select Receipts blocked-400 on same-PO-line split "
+            "24126 8@$33 + 24127 13@$33 though PDF is one line 21@$33=$693. "
+            "Kyle 2026-09-17: combining same-item same-unit-cost leftovers is "
+            "acceptable. He finished 10107 live; do not re-Select / edit."
+        ),
+        "expected": (
+            "Combine receipt lines of the same item and same unit cost to match "
+            "one invoice line (21@$33 = 8@$33 + 13@$33). Select both leftovers "
+            "when the unique qty/cost sum matches. Do not HOLD as Select "
+            "Receipts blocked-400 when that sum matches. Never invent receipts. "
+            "Kyle already finished 10107 — GET-only; do not mutate."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "do_not_mutate": True,
+        "leftover_kimco_ids": (),
+        "kyle_finished_kimco_ids": (10107,),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -765,6 +791,15 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "whole bill after one unmatched line. Never HOLD no-receipts when "
             "some lines have matching PO receipts (3P 9988–9991). Partial "
             "select → Entered with issues, not a zero-receipt HOLD."
+        ),
+    },
+    {
+        "id": "combine-same-item-same-unit-receipts",
+        "check": (
+            "Combine same-item same-unit-cost receipt leftovers to match one "
+            "invoice line (JPSteel 125315: 24126 8@$33 + 24127 13@$33 = "
+            "21@$33=$693). Do not HOLD Select Receipts blocked-400 when that "
+            "unique sum matches. Kyle 2026-09-17."
         ),
     },
 )

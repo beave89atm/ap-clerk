@@ -1349,14 +1349,25 @@ def _unique_qty_subset(
     return found[0] if found else None
 
 
+SAME_ITEM_COVER_HOW = (
+    "combine same-item same-unit-cost leftovers "
+    "(same-unit qty cover; not first-open; 125315 class)"
+)
+
+
 def match_same_unit_qty_cover(
     line: dict[str, Any] | None,
     receipts: list[dict[str, Any]],
 ) -> list[dict[str, Any]] | None:
-    """Cover one leftover invoice qty with same-unit leftovers (Crosslink 28113/28114).
+    """Cover one leftover invoice qty with same-unit leftovers.
 
-    28113: qty 4 ↔ 3@193.94 + 1@193.94. 28114: qty 5 ↔ 1+2+2 @219.32
-    (leave the 1@232.48 exact-unit leftover). Do not mix units. Do not
+    Crosslink 28113: qty 4 ↔ 3@193.94 + 1@193.94. 28114: qty 5 ↔ 1+2+2
+    @219.32 (leave the 1@232.48 exact-unit leftover).
+
+    JPSteel 125315 / NOTE-37 (Kyle 2026-09-17): one invoice line 21@$33
+    ↔ leftovers 24126 8@$33 + 24127 13@$33. Combining same-item
+    same-unit-cost receipt lines is required. Do not HOLD Select Receipts
+    blocked-400 when that unique sum matches. Do not mix units. Do not
     guess when two same-unit groups (or two subsets) both cover.
     """
     if not isinstance(line, dict):
@@ -1392,6 +1403,42 @@ def match_same_unit_qty_cover(
     if len(covers) == 1:
         return covers[0][1]
     return None
+
+
+def match_combine_same_item_receipts(
+    line: dict[str, Any] | None,
+    receipts: list[dict[str, Any]],
+) -> list[dict[str, Any]] | None:
+    """NOTE-37: same-item same-unit-cost leftovers → one invoice line.
+
+    Alias of match_same_unit_qty_cover with the JPSteel 125315 name.
+    """
+    return match_same_unit_qty_cover(line, receipts)
+
+
+def is_same_item_cover_match(hit: dict[str, Any] | None) -> bool:
+    """True when a Select Receipts hit is the 125315 / 28113 combine class."""
+    if not isinstance(hit, dict):
+        return False
+    how = str(hit.get("how") or "")
+    pass_name = str(hit.get("pass") or "")
+    return (
+        "same-unit" in how
+        or "same-item" in how
+        or "125315" in how
+        or pass_name == "same-unit-cover"
+    )
+
+
+def blocked_400_not_a_hold_when_same_item_cover(
+    select_status: str | None,
+    matched: list[dict[str, Any]] | None,
+) -> bool:
+    """Kyle: do not HOLD blocked-400 when the unique same-item sum matches."""
+    status = str(select_status or "")
+    if "blocked-400" not in status:
+        return False
+    return any(is_same_item_cover_match(hit) for hit in (matched or []))
 
 
 def match_unique_same_cost_pairs(
@@ -2251,7 +2298,7 @@ def match_receipts(
                     rec,
                     score=50,
                     pass_name="same-unit-cover",
-                    how="same-unit leftover qty cover (not first-open)",
+                    how=SAME_ITEM_COVER_HOW,
                 )
                 used_cover.add(id(rec))
             second_pass = True

@@ -1,5 +1,5 @@
 {
-  "proof": "jpsteel-0916-plus5",
+  "proof": "jpsteel-0916-kyle-125315",
   "invent": false,
   "mail_send": false,
   "vendor": "JP Steel",
@@ -34,7 +34,6 @@
     "125051": 10111
   },
   "leave_alone_holds": [
-    10107,
     10108,
     10111
   ],
@@ -1261,17 +1260,17 @@
       "date": "2026-09-15",
       "PO": "59128",
       "Amount": 693.0,
-      "Result": "HOLD",
-      "Why": "HOLD (receipt): Select Receipts blocked-400 on same-PO-line split 24126 8@$33 + 24127 13@$33 (PDF 21@$33=$693, verification=693.00). Header+PDF on batch 716. Do not invent Success. @Shawn McKibben can Select Receipts in GI. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Result": "Success",
+      "Why": "Kyle finished Select Receipts 2026-09-17 (NOTE-37: combine same-item same-unit-cost 24126 8@33.0; 24127 13@33.0 = PDF 21@$33=$693). Live GET 10107 Invoice_Amount=693.0 verification=693.0 Type 3 vendor 100 batch 716. Did not Select Receipts / edit / re-finish \u2014 Kyle's live state left alone. Outlook left as Kyle set (not re-stamped).",
       "KIMCO id": 10107,
       "Batch": "API Agent - 9/16/26 JPSteel (716)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "none",
+      "Receipts": "24126 8@33.0; 24127 13@33.0",
       "outlook": "entered-with-issues"
     },
     {
@@ -1351,9 +1350,45 @@
       "outlook": "entered-with-issues"
     }
   ],
-  "blocker": "No unflagged JPSteel invoices dated on/after 2026-08-01 that are not already in KIMCO. Stopped \u2014 did not walk pre-Aug 124506 / 123248 (AQPC NOTE-28). First-pass HOLDs 10107/10108/10111 left alone for morning remedies.",
+  "blocker": "Kyle 2026-09-17 finished 10107 live. Sheet 125315 \u2192 Success from GET-only. Did not Select Receipts / edit 10107. HOLDs 10108/10111 left alone. NOTE-37 combine same-item same-unit-cost receipts.",
   "treyce_emailed": false,
   "report": "runs/AP-run-2026-09-16-jpsteel.xlsx",
   "plus5_new_headers": [],
-  "plus5_new_count": 0
+  "plus5_new_count": 0,
+  "do_not_mutate": [
+    10107
+  ],
+  "live_get_10107": {
+    "id": 10107,
+    "invoice_number": "125315",
+    "invoice_amount": 693.0,
+    "verification": 693.0,
+    "invoice_type": 3,
+    "vendor_id": 100,
+    "vendor_text": "1098-JP STEEL",
+    "po": "PO59128-JP STEEL",
+    "batch_id": 716,
+    "batch_text": "API Agent - 9/16/26 JPSteel",
+    "receipts": "24126 8@33.0; 24127 13@33.0",
+    "receipt_lines": [
+      {
+        "qty": 8.0,
+        "unit": 33.0,
+        "receipt": 24126,
+        "po_line": null
+      },
+      {
+        "qty": 13.0,
+        "unit": 33.0,
+        "receipt": 24127,
+        "po_line": null
+      }
+    ],
+    "attachments": [
+      "2026-09-16_Invoice_125315.pdf"
+    ],
+    "void": false,
+    "read_only": true,
+    "mutated": false
+  }
 }
