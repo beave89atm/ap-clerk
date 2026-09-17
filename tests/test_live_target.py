@@ -234,6 +234,12 @@ def test_cli_live_auth_success_runs_enter(
     assert "follow-up flag" in out.lower() or "No follow-up flag" in out
     assert report.exists()
     sheet = load_workbook(report).active
-    assert sheet.cell(1, 13).value == "Flag in Outlook"
+    headers = [sheet.cell(1, col).value for col in range(1, 18)]
+    assert headers[5] == "Result"
+    assert headers[7] == "Exception category"
+    assert headers[8] == "Exception owner"
+    assert headers[14] == "Flag in Outlook"
     assert sheet.cell(2, 6).value == "Success"
-    assert sheet.cell(2, 13).value == "Yes"
+    assert sheet.cell(2, 8).value in (None, "")
+    assert sheet.cell(2, 9).value in (None, "")
+    assert sheet.cell(2, 15).value == "Yes"
