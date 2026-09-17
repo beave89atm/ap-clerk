@@ -499,6 +499,91 @@ def test_legacy_wire_10113_does_not_steal_10114_qty17():
     assert picked_018 == [24189, 24190]
 
 
+def test_legacy_wire_10113_success_after_invented_ppv_removed():
+    """Qty-17 of leftover 18@$36 + 27@$44. No −$85 PPV. Amount = PDF."""
+    row = quality_legacy_row(
+        None,
+        parsed={
+            "invoice_number": "PS-INV104019",
+            "amount": 2600.0,
+            "po": "59030",
+            "lines": [
+                {"part": "A-02390-000", "qty": 17.0, "unit_price": 36.0, "amount": 612.0},
+                {"part": "A-06809-000", "qty": 27.0, "unit_price": 44.0, "amount": 1188.0},
+            ],
+            "fees": [{"name": "Freight Charge - Wholesale - In", "amount": 800.0, "fee": True}],
+        },
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "PS-INV104019",
+            "PO": "59030",
+            "Amount": 2600.0,
+            "KIMCO id": 10113,
+            "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
+        },
+        proof={
+            "id": 10113,
+            "invoice_number": "PS-INV104019",
+            "invoice_amount": 2600.0,
+            "verification": 2600.0,
+            "invoice_type": 3,
+            "vendor_id": 292,
+            "attachments": ["Sales Invoice PS-INV104019.pdf"],
+            "receipt_lines": [
+                {"qty": 17.0, "unit": 36.0, "receipt": 24188},
+                {"qty": 27.0, "unit": 44.0, "receipt": 24191},
+            ],
+            "fee_amounts": [800.0],
+            "ppv_amounts": [],
+        },
+        finish={"select_status": "already-selected", "fee_status": "already-posted", "ppv_amount": 0.0},
+        vendor_id=292,
+    )
+    assert row["Result"] == "Success"
+    assert row["PPV"] == "none"
+    assert "24188" in str(row.get("Receipts") or "")
+    assert "-85" not in str(row.get("Why") or "")
+
+    still_invented = quality_legacy_row(
+        None,
+        parsed={
+            "invoice_number": "PS-INV104019",
+            "amount": 2600.0,
+            "po": "59030",
+            "lines": [
+                {"part": "A-02390-000", "qty": 17.0, "unit_price": 36.0, "amount": 612.0},
+                {"part": "A-06809-000", "qty": 27.0, "unit_price": 44.0, "amount": 1188.0},
+            ],
+            "fees": [{"name": "Freight Charge - Wholesale - In", "amount": 800.0, "fee": True}],
+        },
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "PS-INV104019",
+            "PO": "59030",
+            "Amount": 2600.0,
+            "KIMCO id": 10113,
+        },
+        proof={
+            "id": 10113,
+            "invoice_number": "PS-INV104019",
+            "invoice_amount": 2685.0,
+            "verification": 2600.0,
+            "invoice_type": 3,
+            "vendor_id": 292,
+            "attachments": ["Sales Invoice PS-INV104019.pdf"],
+            "receipt_lines": [
+                {"qty": 17.0, "unit": 36.0, "receipt": 24188},
+                {"qty": 27.0, "unit": 44.0, "receipt": 24191},
+            ],
+            "fee_amounts": [800.0],
+            "ppv_amounts": [-85.0, 170.0],
+        },
+        finish={"select_status": "already-selected"},
+        vendor_id=292,
+    )
+    assert still_invented["Result"] != "Success"
+
+
 def test_legacy_wire_10116_leave_alone_stays_hold():
     row = quality_legacy_row(
         None,
