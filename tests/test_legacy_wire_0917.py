@@ -33,6 +33,8 @@ from legacy_wire_0917 import (  # noqa: E402
     CREATED_HEADERS,
     DO_NOT_MUTATE_IDS,
     FALLBACK_BATCH_NAME,
+    FINISH_10126,
+    FINISH_10126_ID,
     FINISH_ORDER,
     FIRST_FIVE,
     FORBIDDEN_BATCH_IDS,
@@ -820,3 +822,34 @@ def test_legacy_wire_plus5_merges_prior_rows_and_leaves_10116():
     success = apply_exception_category_owner(dict(merged[0]))
     assert success[COL_EXCEPTION_CATEGORY] == ""
     assert success[COL_EXCEPTION_OWNER] == ""
+
+
+def test_finish_10126_constants_and_sheet_replace():
+    """Kyle 2026-09-17: finish 10126 on 717 after Shawn reprice. No Transfer AP."""
+    assert FINISH_10126 == "PS-INV104010"
+    assert FINISH_10126_ID == 10126
+    assert PLUS5_HEADERS[FINISH_10126] == 10126
+    assert 10126 not in LEAVE_ALONE_HOLD_IDS
+    prior = [
+        {
+            "Invoice #": "PS-INV104010",
+            "Result": "HOLD",
+            "KIMCO id": 10126,
+            "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
+        },
+        {"Invoice #": "PS-INV104009", "Result": "HOLD", "KIMCO id": 10127},
+    ]
+    new = [
+        {
+            "Invoice #": "PS-INV104010",
+            "Result": "Success",
+            "KIMCO id": 10126,
+            "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
+        }
+    ]
+    merged = merge_sheet_rows(prior, new)
+    row = next(r for r in merged if r["KIMCO id"] == 10126)
+    assert row["Result"] == "Success"
+    assert "717" in row["Batch"]
+    assert "Transfer AP" not in row["Batch"]
+    assert next(r for r in merged if r["KIMCO id"] == 10127)["Result"] == "HOLD"

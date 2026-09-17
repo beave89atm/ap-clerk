@@ -65,6 +65,7 @@ from ap_clerk.rules import (  # noqa: E402
     filter_matches_outside_ppv_gate,
     invoice_number_key,
     length_qty_equivalent,
+    usable_open_leftovers,
     line_cost,
     lookup_id,
     lookup_text,
@@ -696,6 +697,9 @@ def open_receipts_on_po(receipts: list[dict[str, Any]], po: str | None) -> list[
         invoiced = raw.get("Invoiced") or raw.get("invoiced")
         if invoiced in {True, "true", 1, "1"}:
             continue
+        qty = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
+        if qty is not None and qty <= 0:
+            continue
         open_rows.append(rec)
     return open_rows
 
@@ -922,7 +926,9 @@ def finish_hold_header(
         }
     proof = legacy_proof(client, kimco_id)
     have = _receipt_ids_from_proof(proof)
-    pool = hydrate_receipts(client, open_receipts_on_po(receipts, str(parsed.get("po") or "")))
+    pool = usable_open_leftovers(
+        hydrate_receipts(client, open_receipts_on_po(receipts, str(parsed.get("po") or "")))
+    )
     match = match_receipts(
         invoice_number=str(parsed.get("invoice_number") or ""),
         invoice_lines=list(parsed.get("lines") or []),
@@ -1761,6 +1767,179 @@ def _older_hold_rows(older: list[dict[str, Any]], batch_label: str) -> list[dict
     return rows
 
 
+FINISH_10126 = "PS-INV104010"
+FINISH_10126_ID = 10126
+FINISH_10126_PDF = 1195.5
+
+
+def ensure_on_legacy_wire_batch(
+    client: KimcoClient, proof: dict[str, Any]
+) -> dict[str, Any]:
+    """Keep 10126 on batch 717. Reverse Transfer AP if someone already moved it."""
+    bid = proof.get("batch_id")
+    name = str(proof.get("batch_text") or "").strip()
+    if bid == KNOWN_BATCH_ID:
+        return {"status": "already-on-717", "batch_id": bid, "batch_text": name}
+    if name.casefold() == "transfer ap":
+        _body, status, error = client.update(
+            "ap_invoices",
+            FINISH_10126_ID,
+            {
+                "state": "Modified",
+                "id": FINISH_10126_ID,
+                "values": {"AP_Invoice_Batch": {"id": KNOWN_BATCH_ID}},
+            },
+        )
+        after = legacy_proof(client, FINISH_10126_ID)
+        return {
+            "status": "reversed-from-transfer-ap",
+            "put": status,
+            "error": error,
+            "batch_id": after.get("batch_id"),
+            "batch_text": after.get("batch_text"),
+        }
+    return {"status": "unexpected-batch", "batch_id": bid, "batch_text": name}
+
+
+def run_finish_10126(
+    client: KimcoClient,
+    graph,
+    report_path: Path,
+    batch_info: dict[str, Any],
+    *,
+    vendor_id: int,
+    vendor_info: dict[str, Any],
+) -> int:
+    """Shawn repriced PO 59008. Finish 10126 only. No Transfer AP. No Mail.Send."""
+    kid = FINISH_10126_ID
+    inv = FINISH_10126
+    proof = legacy_proof(client, kid)
+    if exact_invoice_number(proof.get("invoice_number")) != inv:
+        print(
+            f"GET {kid} is {proof.get('invoice_number')}, not {inv}. Abort.",
+            flush=True,
+        )
+        return 2
+    batch_move = ensure_on_legacy_wire_batch(client, proof)
+    print(json.dumps({"batch_move": batch_move}, indent=2, default=str), flush=True)
+    if batch_move.get("status") == "unexpected-batch":
+        print("10126 is not on 717 or Transfer AP. Will not invent a batch. Abort.", flush=True)
+        return 2
+    proof = legacy_proof(client, kid)
+    if proof.get("batch_id") != KNOWN_BATCH_ID:
+        print(
+            f"10126 still off batch 717 (id={proof.get('batch_id')} "
+            f"{proof.get('batch_text')!r}). Abort.",
+            flush=True,
+        )
+        return 2
+
+    pdf_dir = ROOT / "runs" / "inbox-pdfs"
+    pdf_path = download_invoice_pdf(graph, inv, pdf_dir)
+    if pdf_path is None:
+        print(f"Missing PDF for {inv}; cannot finish.", flush=True)
+        return 2
+    parsed = parse_invoice_pdf(
+        pdf_path,
+        subject=f"Legacy Wire Products - Sales Invoice {inv}",
+        from_name=VENDOR_NAME,
+    )
+    parsed["pdf_path"] = str(pdf_path)
+    parsed["vendor"] = VENDOR_NAME
+    parsed["invoice_number"] = inv
+    message_id = find_invoice_message_id(graph, inv)
+    if message_id:
+        parsed["graph_message_id"] = message_id
+
+    receipts = load_list_receipts(client)
+    finish = finish_hold_header(
+        client, parsed=parsed, kimco_id=kid, receipts=receipts
+    )
+    proof = finish.get("after") or legacy_proof(client, kid)
+    live_batch = proof.get("batch_text") or batch_info.get("name")
+    live_bid = proof.get("batch_id") or batch_info.get("id")
+    enter_row = {
+        "Vendor": VENDOR_NAME,
+        "Invoice #": inv,
+        "date": parsed.get("date"),
+        "PO": parsed.get("po") or "59008",
+        "Amount": parsed.get("amount") or FINISH_10126_PDF,
+        "Result": "HOLD",
+        "Why": "",
+        "KIMCO id": kid,
+        "Batch": f"{live_batch} ({live_bid})",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "Shawn repriced PO 59008; finished on batch 717. No Transfer AP.",
+        "outlook": "entered-with-issues",
+    }
+    row = quality_legacy_row(
+        graph,
+        parsed=parsed,
+        enter_row=enter_row,
+        proof=proof,
+        finish=finish,
+        vendor_id=vendor_id,
+    )
+    if row.get("Result") == "Success":
+        row["Notes"] = enter_row["Notes"]
+    print(
+        json.dumps(
+            {
+                "invoice": inv,
+                "kimco_id": kid,
+                "result": row.get("Result"),
+                "receipts": row.get("Receipts"),
+                "live_amount": proof.get("invoice_amount"),
+                "verification": proof.get("verification") or proof.get("verification_amount"),
+                "batch_id": proof.get("batch_id"),
+                "batch_text": proof.get("batch_text"),
+                "ppv": row.get("PPV"),
+                "outlook": row.get("outlook") or row.get("Flag status"),
+                "select_status": finish.get("select_status"),
+                "wanted": finish.get("wanted"),
+                "why": row.get("Why"),
+            },
+            indent=2,
+            default=str,
+        ),
+        flush=True,
+    )
+
+    prior_rows = prior_rows_from_sidecar(report_path)
+    rows = merge_sheet_rows(prior_rows, [row])
+    write_report(report_path, rows)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+
+    sidecar_path = report_path.with_suffix(".json")
+    prior = json.loads(sidecar_path.read_text()) if sidecar_path.exists() else {}
+    sidecar = dict(prior)
+    sidecar.update(
+        {
+            "proof": "legacy-wire-0917-10126-success",
+            "invent": False,
+            "mail_send": False,
+            "shawn_repriced": True,
+            "transfer_ap": False,
+            "comment_added": False,
+            "finish_10126": {
+                k: v for k, v in finish.items() if k != "after"
+            },
+            "kimco_get_10126": proof,
+            "batch_move": batch_move,
+            "rows": rows,
+            "report": str(report_path),
+        }
+    )
+    sidecar_path.write_text(json.dumps(sidecar, indent=2, default=str) + "\n")
+    print(f"Wrote {sidecar_path}", flush=True)
+    return 0 if row.get("Result") == "Success" else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Enter up to 5 Legacy Wire bills on a dedicated 9/17 batch"
@@ -1777,6 +1956,11 @@ def main(argv: list[str] | None = None) -> int:
         "--finish-receipts",
         action="store_true",
         help="Select new leftovers on 10112–10115, stamp Outlook on Success, leave 10116.",
+    )
+    parser.add_argument(
+        "--finish-10126",
+        action="store_true",
+        help="Finish PS-INV104010 / 10126 after Shawn reprice. Stay on batch 717.",
     )
     parser.add_argument(
         "--report",
@@ -1841,6 +2025,28 @@ def main(argv: list[str] | None = None) -> int:
             print("Created/found batch is 715 or 716 — abort.", flush=True)
             return 2
         return 0
+
+    if args.finish_10126:
+        batch = create_legacy_wire_batch(client)
+        verified = verify_batch(client, int(batch["id"]), str(batch["name"]))
+        print(json.dumps({"batch": batch, "verified": verified}, indent=2, default=str), flush=True)
+        if verified.get("is_forbidden") or batch.get("id") in FORBIDDEN_BATCH_IDS:
+            print("Refusing batch 715/716. Abort 10126 finish.", flush=True)
+            return 2
+        if int(batch.get("id") or 0) != KNOWN_BATCH_ID:
+            print(
+                f"Expected batch {KNOWN_BATCH_ID}; got {batch.get('id')}. Abort 10126 finish.",
+                flush=True,
+            )
+            return 2
+        return run_finish_10126(
+            client,
+            graph,
+            Path(args.report),
+            verified,
+            vendor_id=int(vendor_id),
+            vendor_info=vendor_info,
+        )
 
     if args.refresh_sheet or args.finish_receipts:
         batch = create_legacy_wire_batch(client)
