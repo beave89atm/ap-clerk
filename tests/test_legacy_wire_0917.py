@@ -17,7 +17,9 @@ if str(ROOT / "scripts") not in sys.path:
 
 from ap_clerk.pdf_invoice import extract_legacy_wire_bill, parse_invoice_text  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
+    decide_ppv,
     extract_subject_invoice_number,
+    filter_matches_outside_ppv_gate,
     match_receipts,
     names_match,
     rounding_ppv_to_hit_pdf_total,
@@ -625,6 +627,42 @@ def test_legacy_wire_10116_leave_alone_stays_hold():
     assert "price-does-not-match" in row["Why"]
     assert "Shawn" in row["Why"]
     assert row["Receipts"] == "none"
+
+
+def test_legacy_wire_10116_one_at_41_vs_one_at_100_is_over_ppv_gate():
+    """Kyle lock: leftover 1@$41 vs invoice 1@$100 on $114.28 is 51.6% — select zero."""
+    from kyle_10116_leftover import one_at_41_vs_one_at_100
+
+    gate = one_at_41_vs_one_at_100()
+    assert gate["variance"] == 59.0
+    assert gate["pct_of_invoice"] == 51.6
+    assert gate["pct_limit"] == 11.43
+    assert gate["decision"]["hold"] is True
+    assert gate["select_zero"] is True
+    assert gate["bill_over_ppv"] is True
+    assert gate["kyle_lock_rule"] is True
+    decision = decide_ppv(
+        invoice_line_amount=100.0,
+        po_line_amount=41.0,
+        invoice_total=114.28,
+        invoice_unit_price=100.0,
+        po_unit_price=41.0,
+        qty=1.0,
+        label="A-05480-001",
+    )
+    assert decision["hold"] is True
+    assert "51.6%" in decision["reason"]
+    locked = filter_matches_outside_ppv_gate(
+        [
+            {
+                "line": {"part": "A-05480-001", "qty": 1.0, "unit_price": 100.0, "amount": 100.0},
+                "receipt": {"id": 23747, "qty": 1.0, "unit_price": 41.0, "amount": 41.0},
+            }
+        ],
+        invoice_total=114.28,
+    )
+    assert locked["select_zero"] is True
+    assert not locked["selectable"]
 
 
 def test_legacy_wire_no_receipt_why_names_this_invoice():
