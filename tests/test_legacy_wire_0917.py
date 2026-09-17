@@ -24,6 +24,7 @@ from ap_clerk.rules import (  # noqa: E402
 )
 from legacy_wire_0917 import (  # noqa: E402
     CAP,
+    CREATED_HEADERS,
     DO_NOT_MUTATE_IDS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
@@ -225,6 +226,13 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
     assert not re.search(r"\((715|716)\)", cell)
     assert KNOWN_ENTERED == {"PS-INV103979": 9995, "PS-INV103980": 9996}
     assert DO_NOT_MUTATE_IDS == {9995, 9996}
+    assert CREATED_HEADERS == {
+        "PS-INV104020": 10112,
+        "PS-INV104019": 10113,
+        "PS-INV104018": 10114,
+        "PS-INV104015": 10115,
+        "PS-INV104017": 10116,
+    }
 
 
 def test_legacy_wire_inches_are_not_rolled_qty():
@@ -445,3 +453,43 @@ def test_legacy_wire_freight_as_fees_not_ppv_is_success():
     )
     assert hold_fees["Result"] == "HOLD"
     assert "fees" in hold_fees["Why"].lower()
+
+
+def test_legacy_wire_no_receipt_why_names_this_invoice():
+    """Why-must-be-true: empty leftovers are not the 77\" TUBE slogan."""
+    row = quality_legacy_row(
+        None,
+        parsed={
+            "invoice_number": "PS-INV104020",
+            "amount": 1029.0,
+            "po": "59034",
+            "lines": [{"part": "75-10-201007", "qty": 19.0, "unit_price": 41.0, "amount": 779.0}],
+            "fees": [{"name": "Freight Charge", "amount": 250.0, "fee": True}],
+        },
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "PS-INV104020",
+            "PO": "59034",
+            "Amount": 1029.0,
+            "KIMCO id": 10112,
+        },
+        proof={
+            "id": 10112,
+            "invoice_number": "PS-INV104020",
+            "invoice_amount": 250.0,
+            "verification": 1029.0,
+            "invoice_type": 3,
+            "vendor_id": 292,
+            "attachments": ["Sales Invoice PS-INV104020.pdf"],
+            "receipt_lines": [],
+            "fee_amounts": [250.0],
+            "ppv_amounts": [],
+        },
+        finish={"select_status": "held-unfinished"},
+        vendor_id=292,
+    )
+    assert row["Result"] == "HOLD"
+    assert "PS-INV104020" in row["Why"]
+    assert "59034" in row["Why"]
+    assert "77" not in row["Why"]
+    assert "TUBE" not in row["Why"]

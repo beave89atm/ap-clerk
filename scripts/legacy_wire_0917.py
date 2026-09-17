@@ -96,6 +96,14 @@ KNOWN_ENTERED = {
     "PS-INV103979": 9995,
     "PS-INV103980": 9996,
 }
+# First-pass headers on batch 717. Do not recreate.
+CREATED_HEADERS = {
+    "PS-INV104020": 10112,
+    "PS-INV104019": 10113,
+    "PS-INV104018": 10114,
+    "PS-INV104015": 10115,
+    "PS-INV104017": 10116,
+}
 DO_NOT_MUTATE_IDS = {9995, 9996}
 # Digit-only shortcuts that must never be written as the invoice #.
 _PS_INV = re.compile(r"^PS-INV(\d{5,})$", flags=re.I)
@@ -364,6 +372,18 @@ def bills_from_message(graph, message: dict[str, Any], pdf_dir: Path) -> list[di
         )
         pdf_text = str(parsed.get("pdf_text") or parsed.get("text") or "")
         if is_packing_slip_attachment(filename=filename, text=pdf_text):
+            ignored.append(filename)
+            continue
+        # Signed scans that inherit the subject PS-INV# but have no invoice face.
+        if (
+            not parsed.get("date")
+            and parsed.get("amount") in (None, "")
+            and not parsed.get("lines")
+            and (
+                re.search(r"_dragged_|receipt_", filename, flags=re.I)
+                or classify_attachment(filename=filename, text=pdf_text) != "invoice"
+            )
+        ):
             ignored.append(filename)
             continue
         parsed["pdf_path"] = str(dest)
@@ -714,6 +734,19 @@ def _receipt_ids_from_proof(proof: dict[str, Any]) -> set[int]:
     return out
 
 
+def _merch_summary(parsed: dict[str, Any]) -> str:
+    bits: list[str] = []
+    for ln in parsed.get("lines") or []:
+        q = money(ln.get("qty"))
+        u = money(ln.get("unit_price"))
+        part = str(ln.get("part") or ln.get("label") or "")
+        if q is not None and u is not None:
+            bits.append(f"{part} {q:g}@{u:g}".strip())
+        elif q is not None:
+            bits.append(f"{part} qty {q:g}".strip())
+    return "; ".join(bits) if bits else "no merch lines"
+
+
 def format_receipts(proof: dict[str, Any]) -> str:
     bits: list[str] = []
     for line in proof.get("receipt_lines") or []:
@@ -1052,13 +1085,27 @@ def quality_legacy_row(
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
     elif qty_hold:
         out["Result"] = "HOLD"
-        out["Why"] = (
-            f"HOLD (receipt): PDF merch qty vs selected "
-            f"({format_receipts(proof)}). Inches on the description "
-            "(Legacy 77\" TUBE / Metal Supermarkets class) are not rolled qty. "
-            "Do not invent Success. "
-            f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
-        )
+        if not recs:
+            invented = ""
+            if ppv_amts:
+                invented = (
+                    f" Live GET still has invented PPV {ppv_amts} with no receipts "
+                    "(Removed PUT rolled back). Treyce should delete that PPV. "
+                )
+            out["Why"] = (
+                f"HOLD (receipt): no matching leftover receipts selected on PO "
+                f"{po or 'n/a'} for Legacy Wire invoice #{pdf_number}. "
+                f"PDF merch={_merch_summary(parsed)}; selected=none. "
+                "Do not first-open guess. Do not invent Success. "
+                f"{invented}{extra}Outlook Entered with issues. Flag status=entered-with-issues."
+            )
+        else:
+            out["Why"] = (
+                f"HOLD (receipt): PDF merch {_merch_summary(parsed)} vs selected "
+                f"({format_receipts(proof)}) on PO {po or 'n/a'}. "
+                "Inches on a description are not rolled qty. Do not invent Success. "
+                f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
+            )
         out["Flag status"] = "entered-with-issues"
         if graph is not None and message_id and not do_not_stamp:
             out["outlook"] = graph.flag_issues(ALLOWED_MAILBOX, message_id)
@@ -1145,6 +1192,214 @@ def finish_entered_rows(
     return rows, finishes, gets
 
 
+def remove_ppv_without_receipts(client: KimcoClient, kimco_id: int) -> str:
+    """Remove invented PPV when no receipts are selected. Leave Fees alone."""
+    item = client.get_item("ap_invoices", int(kimco_id))
+    recs = []
+    for line in (item.get("lists") or {}).get("APInvoiceLine") or []:
+        lv = line.get("values") if isinstance(line, dict) else {}
+        if lv.get("Receipt") not in (None, "", {}):
+            recs.append(lv.get("Receipt"))
+    if recs:
+        return "keep-has-receipts"
+    from ap_clerk.kimco import _ppv_charge_removals
+
+    name, charges = _ppv_charge_removals(item)
+    if not name or not charges:
+        return "none"
+    payload = {
+        "state": "Modified",
+        "id": int(kimco_id),
+        "lists": {name: charges},
+    }
+    url = client._record_url("ap_invoices", int(kimco_id))
+    put = client.request("PUT", url, json=payload)
+    if put.status_code >= 400:
+        return f"blocked-{put.status_code}"
+    after = client.get_item("ap_invoices", int(kimco_id))
+    _, leftover = _ppv_charge_removals(after)
+    if leftover:
+        return "removed-rolled-back"
+    return "removed"
+
+
+def leftover_from_catalog(
+    catalog: list[dict[str, Any]],
+    *,
+    entered: dict[str, int],
+    chosen: set[str],
+) -> list[dict[str, Any]]:
+    """Unflagged bills still pending after the cap. Do not walk pre-Aug."""
+    already = already_set(entered)
+    pending: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for row in catalog:
+        inv = exact_invoice_number(row.get("invoice"))
+        if not inv or inv in seen or inv in chosen:
+            continue
+        if row.get("flagged") or (inv in already or already.intersection(invoice_aliases(inv))):
+            continue
+        seen.add(inv)
+        pending.append(
+            {
+                "invoice_number": inv,
+                "received": row.get("received"),
+                "subject": row.get("subject"),
+                "why": "unflagged leftover after first-pass cap 5; not entered",
+            }
+        )
+    return pending
+
+
+def run_refresh_sheet(
+    client: KimcoClient,
+    graph,
+    report_path: Path,
+    batch_info: dict[str, Any],
+    *,
+    vendor_id: int,
+    vendor_info: dict[str, Any],
+) -> int:
+    """Re-GET first-pass headers. Remove invented no-receipt PPV. No recreate."""
+    pdf_dir = ROOT / "runs" / "inbox-pdfs"
+    receipts = load_list_receipts(client)
+    rows: list[dict[str, Any]] = []
+    finishes: dict[str, Any] = {}
+    gets: dict[str, Any] = {}
+    parsed_all: list[dict[str, Any]] = []
+    batch_label = f"{batch_info.get('name')} ({batch_info.get('id')})"
+    ppv_fix: dict[str, str] = {}
+
+    for inv, kid in CREATED_HEADERS.items():
+        matches = sorted(pdf_dir.glob(f"*Sales_Invoice_{inv}.pdf")) or sorted(
+            pdf_dir.glob(f"*{inv}*.pdf")
+        )
+        if not matches:
+            print(f"Missing PDF for {inv}; cannot refresh.", flush=True)
+            continue
+        parsed = parse_invoice_pdf(
+            matches[0],
+            subject=f"Legacy Wire Products - Sales Invoice {inv}",
+            from_name=VENDOR_NAME,
+        )
+        parsed["pdf_path"] = str(matches[0])
+        parsed["vendor"] = VENDOR_NAME
+        parsed["invoice_number"] = inv
+        parsed_all.append(parsed)
+        proof_before = legacy_proof(client, kid)
+        if not (proof_before.get("receipt_lines") or []) and (proof_before.get("ppv_amounts") or []):
+            ppv_fix[inv] = remove_ppv_without_receipts(client, kid)
+        finish = finish_hold_header(
+            client, parsed=parsed, kimco_id=kid, receipts=receipts
+        )
+        # First-pass Outlook already stamped. Do not restamp.
+        finish["do_not_stamp_outlook"] = True
+        finishes[inv] = {k: v for k, v in finish.items() if k != "after"}
+        proof = finish.get("after") or legacy_proof(client, kid)
+        enter_row = {
+            "Vendor": VENDOR_NAME,
+            "Invoice #": inv,
+            "date": parsed.get("date"),
+            "PO": parsed.get("po") or "",
+            "Amount": parsed.get("amount"),
+            "Result": "HOLD",
+            "Why": "",
+            "KIMCO id": kid,
+            "Batch": batch_label,
+            "Fees and surcharges": "none",
+            "PPV": "none",
+            "Attach status": "",
+            "Flag status": "entered-with-issues",
+            "Flag in Outlook": "Yes",
+            "Notes": "",
+            "outlook": "left-as-kyle",
+        }
+        row = quality_legacy_row(
+            None,
+            parsed=parsed,
+            enter_row=enter_row,
+            proof=proof,
+            finish=finish,
+            vendor_id=vendor_id,
+        )
+        row["outlook"] = "left-as-kyle"
+        rows.append(row)
+        gets[str(kid)] = proof
+        print(
+            json.dumps(
+                {
+                    "invoice": inv,
+                    "kimco_id": kid,
+                    "result": row.get("Result"),
+                    "receipts": row.get("Receipts"),
+                    "fees": row.get("Fees and surcharges"),
+                    "ppv": row.get("PPV"),
+                    "ppv_fix": ppv_fix.get(inv),
+                    "why": row.get("Why"),
+                },
+                indent=2,
+                default=str,
+            ),
+            flush=True,
+        )
+
+    leftover_pending = leftover_from_catalog(
+        [],
+        entered=dict(vendor_info.get("entered") or {}),
+        chosen=set(CREATED_HEADERS),
+    )
+    sidecar_path = report_path.with_suffix(".json")
+    prior = {}
+    if sidecar_path.exists():
+        prior = json.loads(sidecar_path.read_text())
+        leftover_pending = list(prior.get("leftover_pending") or leftover_pending)
+        catalog = list(prior.get("catalog") or [])
+        leftover_pending = leftover_from_catalog(
+            catalog,
+            entered=dict(prior.get("kimco_already") or vendor_info.get("entered") or {}),
+            chosen=set(CREATED_HEADERS),
+        ) or leftover_pending
+
+    write_report(report_path, rows)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    sidecar = {
+        "proof": "legacy-wire-0917",
+        "invent": False,
+        "mail_send": False,
+        "vendor": VENDOR_NAME,
+        "vendor_id": vendor_id,
+        "vendor_confirm": {
+            "vendor_id": vendor_id,
+            "vendor_text_samples": vendor_info.get("vendor_text_samples"),
+            "id_counts": vendor_info.get("id_counts"),
+        },
+        "batch_name": batch_info.get("name"),
+        "batch_id": batch_info.get("id"),
+        "batch": batch_info,
+        "forbidden_batch_ids": sorted(FORBIDDEN_BATCH_IDS),
+        "created_headers": CREATED_HEADERS,
+        "known_entered": KNOWN_ENTERED,
+        "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
+        "chosen": list(CREATED_HEADERS),
+        "parsed": [summarize_parse(b) for b in parsed_all],
+        "rows": rows,
+        "new_rows": rows,
+        "finishes": finishes,
+        "kimco_gets": gets,
+        "ppv_fix": ppv_fix,
+        "leftover_pending": leftover_pending,
+        "catalog": prior.get("catalog"),
+        "kimco_already": prior.get("kimco_already"),
+        "discovered": prior.get("discovered"),
+        "treyce_emailed": False,
+        "report": str(report_path),
+    }
+    sidecar_path.write_text(json.dumps(sidecar, indent=2, default=str) + "\n")
+    print(f"Wrote {sidecar_path}", flush=True)
+    return 0
+
+
 def leftover_slip_rows(slips: list[dict[str, Any]], batch_label: str) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for bill in slips:
@@ -1216,6 +1471,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--parse-only", action="store_true")
     parser.add_argument("--create-batch-only", action="store_true")
     parser.add_argument(
+        "--refresh-sheet",
+        action="store_true",
+        help="Re-GET first-pass headers 10112–10116, fix Why, do not recreate.",
+    )
+    parser.add_argument(
         "--report",
         default=str(ROOT / "runs" / "AP-run-2026-09-17-legacy-wire.xlsx"),
     )
@@ -1278,6 +1538,22 @@ def main(argv: list[str] | None = None) -> int:
             print("Created/found batch is 715 or 716 — abort.", flush=True)
             return 2
         return 0
+
+    if args.refresh_sheet:
+        batch = create_legacy_wire_batch(client)
+        verified = verify_batch(client, int(batch["id"]), str(batch["name"]))
+        print(json.dumps({"batch": batch, "verified": verified}, indent=2, default=str), flush=True)
+        if verified.get("is_forbidden") or batch.get("id") in FORBIDDEN_BATCH_IDS:
+            print("Refusing batch 715/716. Abort refresh.", flush=True)
+            return 2
+        return run_refresh_sheet(
+            client,
+            graph,
+            Path(args.report),
+            verified,
+            vendor_id=int(vendor_id),
+            vendor_info=vendor_info,
+        )
 
     entered = dict(vendor_info.get("entered") or {})
     entered.update(KNOWN_ENTERED)
@@ -1398,7 +1674,12 @@ def main(argv: list[str] | None = None) -> int:
     report_path = Path(args.report)
     batch_label = f"{batch['name']} ({batch['id']})"
 
-    leftover_pending = [summarize_parse(b) for b in older]
+    leftover_pending = leftover_from_catalog(
+        catalog,
+        entered=entered,
+        chosen={exact_invoice_number(b.get("invoice_number")) for b in recent},
+    )
+    leftover_pending.extend(summarize_parse(b) for b in older)
     leftover_pending.extend(
         {
             "invoice_number": "",
