@@ -1,0 +1,183 @@
+{
+  "proof": "kyle-10116-leftover",
+  "invent": false,
+  "writes": false,
+  "mail_send": false,
+  "invoice_id": 10116,
+  "po": "58807",
+  "kyle_typed": "IV-PS-INV104017",
+  "live_invoice_number": "PS-INV104017",
+  "pdf": {
+    "invoice_number": "PS-INV104017",
+    "amount": 114.28,
+    "line": {
+      "part": "A-05480-001",
+      "qty": 1.0,
+      "unit_price": 100.0,
+      "amount": 100.0,
+      "description": "ASSEMBLY, BIFOLD GATE- 77\"(2\"TUBE)"
+    }
+  },
+  "live_get_10116": {
+    "id": 10116,
+    "Invoice_Number": "PS-INV104017",
+    "Amount": 14.28,
+    "Verification": 114.28,
+    "Batch": "API Agent - 9/17/26 Legacy Wire",
+    "Batch_id": 717,
+    "receipt_lines_count": 0,
+    "receipt_lines": [],
+    "Additional_Charges": [
+      {
+        "lookup_id": 11,
+        "text": "F-Fees & Surcharges",
+        "amount": 14.28,
+        "description": "F-Fees & Surcharges",
+        "kind": "Fees"
+      }
+    ],
+    "Fees": [
+      {
+        "lookup_id": 11,
+        "text": "F-Fees & Surcharges",
+        "amount": 14.28,
+        "description": "F-Fees & Surcharges",
+        "kind": "Fees"
+      }
+    ],
+    "PPV": [],
+    "Void": false,
+    "Posted": null,
+    "Open": true,
+    "po": "PO58807-Legacy Wire Products",
+    "vendor": "1290-Legacy Wire Products",
+    "invoice_type": 3,
+    "attachments": [
+      "2026-09-08_Sales_Invoice_PS-INV104017.pdf"
+    ],
+    "comments": "API Agent"
+  },
+  "po_58807_receipts": [
+    {
+      "id": 23746,
+      "part": "PO58807-01",
+      "name": "PO58807-Legacy Wire Products - 2026/9/3",
+      "po": "58807",
+      "qty": 24.0,
+      "unit_price": 41.0,
+      "amount": 984.0,
+      "Invoiced": true,
+      "Selected": true,
+      "Locked": true,
+      "Invoiced_bool": true,
+      "Selected_bool": true,
+      "Locked_bool": true,
+      "AP_Invoice_Number": "PS-INV103979",
+      "Quantity_Remaining": -24.0
+    },
+    {
+      "id": 23747,
+      "part": "PO58807-03",
+      "name": "PO58807-Legacy Wire Products - 2026/9/3",
+      "po": "58807",
+      "qty": 1.0,
+      "unit_price": 41.0,
+      "amount": 41.0,
+      "Invoiced": true,
+      "Selected": true,
+      "Locked": true,
+      "Invoiced_bool": true,
+      "Selected_bool": true,
+      "Locked_bool": true,
+      "AP_Invoice_Number": "PS-INV103979",
+      "Quantity_Remaining": -1.0
+    }
+  ],
+  "po_58807_open_leftovers": [],
+  "po_58807_lines": [
+    {
+      "id": 16864,
+      "display": "PO58807-01",
+      "line": "01",
+      "description": "PowderCoating",
+      "qty": 24.0,
+      "received": 24.0,
+      "remaining": 0.0,
+      "unit_price": 41.0,
+      "amount": 984.0,
+      "closed": true,
+      "wo": "SO34743.01.W000 - 75-10-201007",
+      "po": "PO58807-Legacy Wire Products"
+    },
+    {
+      "id": 16865,
+      "display": "PO58807-02",
+      "line": "02",
+      "description": "PowderCoating",
+      "qty": 3.0,
+      "received": 0.0,
+      "remaining": 3.0,
+      "unit_price": 100.0,
+      "amount": 300.0,
+      "closed": false,
+      "wo": "SO34610.01.W000 - A-05480-002",
+      "po": "PO58807-Legacy Wire Products"
+    },
+    {
+      "id": 16866,
+      "display": "PO58807-03",
+      "line": "03",
+      "description": "PowderCoating",
+      "qty": 1.0,
+      "received": 1.0,
+      "remaining": 0.0,
+      "unit_price": 41.0,
+      "amount": 41.0,
+      "closed": true,
+      "wo": "SO34793.01.W000 - A-09129-000",
+      "po": "PO58807-Legacy Wire Products"
+    }
+  ],
+  "already_on_9995": {
+    "id": 9995,
+    "Invoice_Number": "PS-INV103979",
+    "Amount": 1271.75,
+    "Void": false,
+    "Posted": true,
+    "receipt_lines": [
+      {
+        "qty": 24.0,
+        "unit": 41.0,
+        "receipt": 23746,
+        "po_line": null
+      },
+      {
+        "qty": 1.0,
+        "unit": 41.0,
+        "receipt": 23747,
+        "po_line": null
+      }
+    ]
+  },
+  "ppv_gate": {
+    "invoice": "1@$100=$100",
+    "leftover": "23747 1@$41=$41",
+    "variance": 59.0,
+    "pct_of_invoice": 51.6,
+    "pct_limit": 11.43,
+    "abs_limit": 100.0,
+    "decision": {
+      "action": "hold",
+      "ppv": 0.0,
+      "hold": true,
+      "reason": "HOLD: price does not match (51.6% of invoice total). Do not post PPV. Purchasing must unreceive, change the PO price, and re-receive. Comment the PO line for @Shawn McKibben. Do not alter receipt unit price in GI.",
+      "po_comment": "@Shawn McKibben price does not match. Purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI (breaks WO cost, material cost, and PO clearing)."
+    },
+    "select_zero": true,
+    "bill_over_ppv": true,
+    "kyle_lock_rule": true
+  },
+  "deliberately_did_not_select": true,
+  "why_no_select": "NOTE-29 Kyle lock: leftover 1@$41 vs invoice 1@$100 is 51.6% of $114.28 (over \u226410% / $11.43). Select Receipts would lock 23747. Live record GET also shows 23747 already Invoiced/Selected/Locked on 9995. PO58807-02 3@$100 was never received.",
+  "kyle_plain": "Kyle: you searched IV-PS-INV104017. The live bill is PS-INV104017 / KIMCO 10116 on batch API Agent - 9/17/26 Legacy Wire (717). No sales receipts are selected on purpose (NOTE-29 / Kyle lock). The only qty-1 leftover on PO 58807 is receipt 23747 1@$41, already Selected/Invoiced/Locked on posted 9995 PS-INV103979. Invoice 104017 is 1@$100 for the bifold. $59 gap is 51.6% of the $114.28 bill (gate \u226410% / $11.43). Selecting 23747 would lock a receipt Shawn cannot unreceive, and it is already on another bill. PO58807-02 is 3@$100 for A-05480-002 and Received_Quantity=0. Shawn: receive the $100 bifold line, then AP can Select Receipts. Do not invent PPV. Do not steal 23747 from 103979."
+}
