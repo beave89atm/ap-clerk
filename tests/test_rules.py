@@ -18,11 +18,15 @@ from ap_clerk.rules import (
     invoice_type_for,
     is_fee_or_surcharge,
     known_vendor_id,
+    leftover_extended_is_stale,
+    leftovers_are_identical,
     match_receipts,
     pick_receipts_by_qty_cost,
     names_match,
     printed_invoice_number,
+    receipt_select_refs,
     should_create_header,
+    usable_open_leftovers,
     vendor_match_score,
 )
 
@@ -554,3 +558,47 @@ def test_legacy_inch_dimension_is_not_invoice_qty():
     assert {hit["receipt"]["id"] for hit in result["matched"]} == {24, 1}
     assert result["hold_no_receipts"] is False
     assert "qty 77" not in (result["why"] or "")
+
+
+def test_shawn_reprice_drops_stale_and_negative_leftovers():
+    """PO 59008: old 23678 amount still $0.75×qty; unreceive 24204; new 24207 @ $1.50."""
+    stale = {"id": 23678, "qty": 299.0, "unit_price": 1.5, "amount": 224.25}
+    unreceive = {"id": 24204, "qty": -299.0, "unit_price": 1.5, "amount": -224.25}
+    fresh = {"id": 24207, "qty": 299.0, "unit_price": 1.5, "amount": 448.5}
+    assert leftover_extended_is_stale(stale) is True
+    assert leftover_extended_is_stale(fresh) is False
+    assert leftovers_are_identical([fresh, {"id": 24209, "qty": 299.0, "unit_price": 1.5, "amount": 448.5}])
+    usable = usable_open_leftovers([stale, unreceive, fresh])
+    assert [r["id"] for r in usable] == [24207]
+
+
+def test_match_10126_after_shawn_reprice_selects_new_leftovers():
+    """Two identical 299@$1.50 lines each take one identical leftover. Not first-open."""
+    lines = [
+        {"qty": 299.0, "unit_price": 1.5, "amount": 448.5, "label": "MD23-1780"},
+        {"qty": 199.0, "unit_price": 1.5, "amount": 298.5, "label": "MD04-2301"},
+        {"qty": 299.0, "unit_price": 1.5, "amount": 448.5, "label": "MD23-1779"},
+    ]
+    receipts = [
+        {"id": 23678, "po": "59008", "part": "PO59008-01", "qty": 299.0, "unit_price": 1.5, "amount": 224.25},
+        {"id": 23679, "po": "59008", "part": "PO59008-02", "qty": 199.0, "unit_price": 1.5, "amount": 149.25},
+        {"id": 23680, "po": "59008", "part": "PO59008-03", "qty": 299.0, "unit_price": 1.5, "amount": 224.25},
+        {"id": 24204, "po": "59008", "part": "PO59008-01", "qty": -299.0, "unit_price": 1.5, "amount": -224.25},
+        {"id": 24205, "po": "59008", "part": "PO59008-02", "qty": -199.0, "unit_price": 1.5, "amount": -149.25},
+        {"id": 24206, "po": "59008", "part": "PO59008-03", "qty": -299.0, "unit_price": 1.5, "amount": -224.25},
+        {"id": 24207, "po": "59008", "part": "PO59008-01", "qty": 299.0, "unit_price": 1.5, "amount": 448.5},
+        {"id": 24208, "po": "59008", "part": "PO59008-02", "qty": 199.0, "unit_price": 1.5, "amount": 298.5},
+        {"id": 24209, "po": "59008", "part": "PO59008-03", "qty": 299.0, "unit_price": 1.5, "amount": 448.5},
+    ]
+    result = match_receipts(
+        invoice_number="PS-INV104010",
+        invoice_lines=lines,
+        receipts=usable_open_leftovers(receipts),
+        po_number="59008",
+        invoice_amount=1195.5,
+    )
+    ids = {hit["receipt"]["id"] for hit in result["matched"]}
+    assert ids == {24207, 24208, 24209}
+    assert receipt_select_refs(result["matched"])
+    assert result.get("hold_no_receipts") is False
+    assert not result.get("unmatched")

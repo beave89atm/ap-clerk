@@ -1592,6 +1592,60 @@ def _receipt_qty(receipt: dict[str, Any] | None) -> float | None:
     return money(receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity"))
 
 
+def leftover_extended_is_stale(receipt: dict[str, Any] | None) -> bool:
+    """True when stored amount disagrees with qty × unit (repriced PO, old receive).
+
+    Live 10126 / PO 59008: Shawn unreceived 23678–23680 ($0.75 extended) and
+    re-received 24207–24209 at $1.50. List unit flipped to 1.50 on the old
+    rows but Amount stayed $0.75 × qty. Do not Select those stale leftovers.
+    """
+    if not isinstance(receipt, dict):
+        return False
+    qty = _receipt_qty(receipt)
+    unit = _receipt_unit(receipt)
+    amount = receipt_cost(receipt)
+    if qty is None or unit is None or amount is None:
+        return False
+    expected = round(qty * unit, 2)
+    return abs(amount - expected) > COST_ALIGN_TOLERANCE
+
+
+def usable_open_leftovers(receipts: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Drop unreceive (qty ≤ 0) and stale qty×unit≠amount leftovers."""
+    out: list[dict[str, Any]] = []
+    for rec in receipts or []:
+        if not isinstance(rec, dict):
+            continue
+        qty = _receipt_qty(rec)
+        if qty is not None and qty <= 0:
+            continue
+        if leftover_extended_is_stale(rec):
+            continue
+        out.append(rec)
+    return out
+
+
+def leftovers_are_identical(rows: list[dict[str, Any]] | None) -> bool:
+    """Same qty, unit, and extended cost. Taking one is not first-open."""
+    cleaned = [r for r in (rows or []) if isinstance(r, dict)]
+    if len(cleaned) < 2:
+        return True
+    first = cleaned[0]
+    qty = _receipt_qty(first)
+    unit = _receipt_unit(first)
+    cost = receipt_cost(first)
+    if qty is None or unit is None or cost is None:
+        return False
+    for rec in cleaned[1:]:
+        if not _same_qty(_receipt_qty(rec), qty):
+            return False
+        if not _same_unit(_receipt_unit(rec), unit):
+            return False
+        if not costs_align(receipt_cost(rec), cost):
+            return False
+    return True
+
+
 def select_qty_from_receipt(inv_line: dict[str, Any] | None, receipt: dict[str, Any] | None) -> float | None:
     """Invoice qty when the open receipt has more (142043: need 4, receipt is 6)."""
     if not inv_line or not receipt:
@@ -2140,6 +2194,15 @@ def match_receipts(
                     score=55,
                     pass_name=pass_name,
                     how="line qty + amount + PO (not first-open)",
+                )
+                return True
+            if len(cost_hits) > 1 and leftovers_are_identical(cost_hits):
+                _record_match(
+                    inv_line,
+                    cost_hits[0],
+                    score=55,
+                    pass_name=pass_name,
+                    how="line qty + amount + PO (identical leftovers; take one)",
                 )
                 return True
             if pass_name == "first":

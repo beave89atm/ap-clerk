@@ -37,6 +37,12 @@ bill PPV ≤$100), **do not Select Receipts** for that line (selecting
 locks the receipt; Shawn cannot unreceive / fix PO / re-receive). Whole
 bill over-gate → select **zero**. Still header + PDF. HOLD
 `price-does-not-match`. Live released 10009 / 24103 and 10013 / 23967.
+**After Shawn unreceives / reprices / re-receives** (Legacy **PS-INV104010 /
+10126** / PO 59008, 2026-09-17): Select the new leftovers (24207 / 24208 /
+24209 @ $1.50). Drop unreceive qty ≤ 0 and stale rows whose Amount is still
+the old $0.75 extended while unit shows $1.50. Two identical 299@$1.50
+invoice lines each take one identical leftover — not first-open. Stay on
+batch 717. Do not Transfer AP.
 
 **NOTE-37 combine same-item receipts (Kyle 2026-09-17).** It is
 acceptable to combine receipt lines of the **same item** and **same
