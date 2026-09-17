@@ -5,6 +5,7 @@ No network I/O. Tests import this so note ids stay one source of truth.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from ap_clerk.gates import (
@@ -748,6 +749,35 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (),
     },
+    {
+        "id": "NOTE-39",
+        "slug": "exception-category-owner-at-hold",
+        "gate": "exception-category",
+        "cases": (
+            "price HOLD → price_variance / Shawn McKibben",
+            "missing receipts HOLD → missing_receipt / Ruben Perez",
+            "already-entered HOLD → already_entered / none / review",
+            "pdf-behind-link HOLD → pdf_capture / AP",
+            "qty HOLD → quantity_variance / buyer",
+        ),
+        "9_17_bug": (
+            "HOLD / Incomplete Why strings were unstructured slogans. "
+            "Treyce could not sort the sheet by cause; exception rate by "
+            "category was unmeasurable (Kyle product bar #4 and #6)."
+        ),
+        "expected": (
+            "Every HOLD / Incomplete / Entered-with-issues row gets a stable "
+            "Exception category slug and Exception owner at creation "
+            "(Stampli-style categorize-at-creation). Why embeds "
+            "`category=…; owner=…` plus vendor / invoice # / PO / next action. "
+            "Excel columns Exception category and Exception owner. Empty for "
+            "Success and true Skipped noise. Optional workbook summary counts "
+            "by category only — never invent Success/touchless rates. "
+            "Map existing gates only; do not invent new HOLD reasons. "
+            "Kyle bar: exception Why with owner; measure exception rate by cause."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -847,6 +877,128 @@ MONDAY_LIVE10_BASICS: tuple[dict[str, str], ...] = (
     {"id": "already-entered-why", "note": "NOTE-17", "test": "test_never_repeat_insight_1809_already_entered"},
     {"id": "ai-skipped-true-noise-only", "note": "NOTE-18", "test": "test_never_repeat_ai_skipped_noise"},
 )
+
+
+COL_EXCEPTION_CATEGORY = "Exception category"
+COL_EXCEPTION_OWNER = "Exception owner"
+
+# Stable slugs + who acts next. Map existing gates only; do not invent HOLD reasons.
+EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
+    "price_variance": "Shawn McKibben",
+    "missing_receipt": "Ruben Perez",
+    "quantity_variance": "buyer",
+    "missing_po": "Misty McCoy / Transfer AP",
+    "vendor_mismatch": "AP / vendor master",
+    "already_entered": "none / review",
+    "pdf_capture": "AP",
+    "auto_pay": "none",
+    "partial_match": "AP / Treyce",
+    "other": "AP",
+}
+
+_EXCEPTION_PREFIX_RE = re.compile(
+    r"category=(?P<category>[a-z0-9_]+);\s*owner=(?P<owner>[^.]*)",
+    re.I,
+)
+
+
+def exception_prefix(category: str, owner: str) -> str:
+    return f"category={category}; owner={owner}"
+
+
+def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str] | None:
+    """Map a sheet row to (category, owner). None = leave columns blank.
+
+    Success and true Skipped noise stay blank. HOLD / Incomplete / Fail /
+    Entered-with-issues get a stable slug from existing gate Why text.
+    """
+    result_s = (result or "").strip()
+    why_s = (why or "").strip()
+    if result_s == RESULT_SUCCESS:
+        return None
+    if result_s == RESULT_SKIPPED or result_s in {"Noise"}:
+        return None
+
+    already = _EXCEPTION_PREFIX_RE.search(why_s)
+    if already:
+        slug = already.group("category").strip().lower()
+        owner = already.group("owner").strip()
+        if slug in EXCEPTION_CATEGORY_OWNERS:
+            return slug, owner or EXCEPTION_CATEGORY_OWNERS[slug]
+
+    why_l = why_s.lower()
+    if (
+        GATE_ALREADY_ENTERED in why_l
+        or "already-entered" in why_l
+        or "already entered" in why_l
+    ):
+        return "already_entered", EXCEPTION_CATEGORY_OWNERS["already_entered"]
+    if GATE_AUTO_PAY in why_l or "auto pay" in why_l:
+        return "auto_pay", EXCEPTION_CATEGORY_OWNERS["auto_pay"]
+    if GATE_PDF_LINK in why_l or GATE_PREFLIGHT in why_l or "parse-error" in why_l:
+        return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
+    if GATE_VENDOR in why_l or "vendor-mismatch" in why_l:
+        return "vendor_mismatch", EXCEPTION_CATEGORY_OWNERS["vendor_mismatch"]
+    if (
+        "misty mccoy" in why_l
+        or "transfer ap" in why_l
+        or "no-po-on-pdf" in why_l
+        or "no po on pdf" in why_l
+        or "po number is missing" in why_l
+    ):
+        return "missing_po", EXCEPTION_CATEGORY_OWNERS["missing_po"]
+    if GATE_PRICE in why_l or "price does not match" in why_l:
+        return "price_variance", EXCEPTION_CATEGORY_OWNERS["price_variance"]
+    if GATE_QTY in why_l or "qty does not match" in why_l:
+        return "quantity_variance", EXCEPTION_CATEGORY_OWNERS["quantity_variance"]
+    if (
+        "selected vs unmatched" in why_l
+        or ("partial" in why_l and "select receipts" in why_l)
+        or ("unmatched invoice line" in why_l and "selected receipts" in why_l)
+    ):
+        return "partial_match", EXCEPTION_CATEGORY_OWNERS["partial_match"]
+    if (
+        "no receipts" in why_l
+        or "no open receipt" in why_l
+        or "parts not received" in why_l
+    ):
+        return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
+    if "no-pdf" in why_l or "no pdf" in why_l:
+        return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
+    return "other", EXCEPTION_CATEGORY_OWNERS["other"]
+
+
+def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
+    """Stamp Exception category/owner and embed `category=…; owner=…` on Why.
+
+    Success / true Skipped noise leave both columns blank and Why unchanged.
+    Idempotent if Why already embeds the prefix.
+    """
+    result = str(row.get("Result") or "")
+    why = str(row.get("Why") or "").strip()
+    classified = classify_exception(result=result, why=why)
+    if classified is None:
+        row[COL_EXCEPTION_CATEGORY] = ""
+        row[COL_EXCEPTION_OWNER] = ""
+        return row
+    category, owner = classified
+    row[COL_EXCEPTION_CATEGORY] = category
+    row[COL_EXCEPTION_OWNER] = owner
+    prefix = exception_prefix(category, owner)
+    if prefix not in why:
+        row["Why"] = f"{prefix}. {why}" if why else prefix
+    return row
+
+
+def exception_category_counts(rows: list[dict[str, Any]]) -> list[tuple[str, int]]:
+    """Pareto counts by Exception category. Counts only — no rates."""
+    tallies: dict[str, int] = {}
+    for row in rows:
+        category = str(row.get(COL_EXCEPTION_CATEGORY) or "").strip()
+        if not category:
+            continue
+        tallies[category] = tallies.get(category, 0) + 1
+    return sorted(tallies.items(), key=lambda item: (-item[1], item[0]))
 
 
 def note_ids() -> tuple[str, ...]:

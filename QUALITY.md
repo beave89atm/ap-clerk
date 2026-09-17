@@ -52,6 +52,16 @@ JPSteel **125316 / 10108**: posted $1,580.83 vs PDF $1,580.73 → PPV
 **−$0.10**. Do not HOLD. Two-cent gaps stay a match (no invented PPV).
 Over-PPV lock (NOTE-29) still applies.
 
+**NOTE-39 exception category + owner at HOLD (2026-09-17).** Every
+HOLD / Incomplete / Entered-with-issues row gets a stable **Exception
+category** slug and **Exception owner** at creation (Stampli-style
+categorize-at-creation; Kyle product bar #4 / #6). Why embeds
+`category=…; owner=…` plus vendor / invoice # / PO / next action. Excel
+columns `Exception category` and `Exception owner` (empty for Success
+and true Skipped noise). Workbook **Exception counts** sheet is counts
+by category only — never invent Success/touchless rates. Map existing
+gates only; do not invent new HOLD reasons.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -219,6 +229,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-36** Gas & Supply multi-invoice PDFs (0040374117 / 0011062620 / 0040372952 / 0011054481 / 0040374112 / 0011062611) | Preflight-parse HOLD `gas_misc_ambiguous` with empty amounts; PDFs on disk. One note: 0040372952 is only 1 invoice. | Extract after-tax totals from labeled Total / Amount Due (including stacked label-then-amount). Never invent totals. A single-invoice Gas PDF is not “multiple Misc invoices”. | `test_never_repeat_gas_labeled_total_amount_due` |
 | **NOTE-37** JPSteel **125315** / KIMCO **10107** / PO 59128 / leftovers **24126** 8@$33 + **24127** 13@$33 (Kyle 2026-09-17) | HOLD Select Receipts **blocked-400** on same-PO-line split though PDF is one line 21@$33=$693. Combining same-item same-unit-cost leftovers is acceptable; Kyle finished 10107 live. | Combine same-item same-unit-cost receipt lines to match one invoice line. Do not HOLD blocked-400 when the unique qty/cost sum matches. Never invent receipts. Do not re-Select / edit 10107 (GET-only). | `test_never_repeat_jpsteel_125315_combine_same_item_receipts` |
 | **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
+| **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

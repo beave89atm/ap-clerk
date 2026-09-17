@@ -77,10 +77,16 @@ from ap_clerk.pdf_links import (
     extract_https_links,
 )
 from ap_clerk.quality_v12 import (
+    COL_EXCEPTION_CATEGORY,
+    COL_EXCEPTION_OWNER,
+    EXCEPTION_CATEGORY_OWNERS,
     MONDAY_LIVE10_BASICS,
     TREYCE_FINISH_CHECKLIST,
     TREYCE_NOTES_V12,
+    apply_exception_category_owner,
     assert_never_success,
+    classify_exception,
+    exception_prefix,
     note_ids,
 )
 from ap_clerk.rules import (
@@ -188,8 +194,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 39))
-    assert len(TREYCE_NOTES_V12) == 38
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40))
+    assert len(TREYCE_NOTES_V12) == 39
     assert len(TREYCE_FINISH_CHECKLIST) == 14
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -233,6 +239,7 @@ def test_v12_registry_covers_all_notes():
         "gas-labeled-total-amount-due",
         "jpsteel-125315-combine-same-item-receipts",
         "jpsteel-125316-rounding-ppv-not-hold",
+        "exception-category-owner-at-hold",
     }
 
 
@@ -4512,4 +4519,242 @@ def test_never_repeat_jpsteel_125316_rounding_ppv():
         "($0.10 unit-rounding). Do not invent Success."
     )
     assert_never_success(RESULT_HOLD, note_id="NOTE-38", detail=false_hold)
+
+
+def _assert_exception_tagged(row, *, category: str, owner: str, note_id: str = "NOTE-39"):
+    assert row["Result"] != RESULT_SUCCESS
+    assert_never_success(row["Result"], note_id=note_id, detail=row.get("Why") or "")
+    assert row[COL_EXCEPTION_CATEGORY] == category
+    assert row[COL_EXCEPTION_OWNER] == owner
+    prefix = exception_prefix(category, owner)
+    assert prefix in (row.get("Why") or "")
+    assert category in EXCEPTION_CATEGORY_OWNERS
+    assert EXCEPTION_CATEGORY_OWNERS[category] == owner
+
+
+def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
+    """NOTE-39: HOLD rows get category+owner at creation; Success leaves them blank."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-39")
+    assert n["slug"] == "exception-category-owner-at-hold"
+    assert n["never_success"] is True
+    assert "Stampli" in n["expected"]
+    assert "Kyle" in n["expected"]
+    assert set(EXCEPTION_CATEGORY_OWNERS) == {
+        "price_variance",
+        "missing_receipt",
+        "quantity_variance",
+        "missing_po",
+        "vendor_mismatch",
+        "already_entered",
+        "pdf_capture",
+        "auto_pay",
+        "partial_match",
+        "other",
+    }
+
+    # Price HOLD (NOTE-06 / over-gate) → Shawn McKibben
+    emj = NOTES["NOTE-06"]
+    price_row, _ = _row(
+        {
+            "vendor": emj["vendor"],
+            "invoice_number": emj["invoice_number"],
+            "date": "2026-08-16",
+            "po": "58000",
+            "amount": emj["amount"],
+            "lines": [{"part": "STEEL", "amount": emj["po_amount"]}],
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        kimco=_kimco(),
+        po_index={
+            "58000": {
+                "id": 8,
+                "text": "58000-EMJ",
+                "vendor_id": 208,
+                "vendor_text": "EMJ",
+                "lines": [{"part": "STEEL", "amount": emj["amount"], "unit_price": emj["amount"], "qty": 1}],
+            }
+        },
+        samples=[{"vendor_id": 208, "vendor_text": "EMJ", "invoice_id": 9, "po_text": ""}],
+    )
+    _assert_exception_tagged(
+        price_row,
+        category="price_variance",
+        owner="Shawn McKibben",
+    )
+    assert GATE_PRICE in price_row["Why"] or PRICE_DOES_NOT_MATCH in price_row["Why"]
+
+    # Missing receipts HOLD → Ruben Perez
+    class CreateHold:
+        target = "live"
+
+        def create(self, service, values):
+            return 8801, {"id": 8801, "values": values}, 200, ""
+
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Remit_To_Address": {"id": 1, "text": "remit"},
+                    "Terms_Code": {"id": 2, "text": "Net 30"},
+                    "Vendor": {"id": 9, "text": "Fastenal Company"},
+                },
+            }
+
+        def try_official_attach(self, *args, **kwargs):
+            return "no-pdf-on-vm"
+
+        def try_select_receipts(self, *args, **kwargs):
+            return "held-unfinished"
+
+        def try_post_fees(self, *args, **kwargs):
+            return "none"
+
+    missing_row, _ = _row(
+        {
+            "vendor": "Fastenal Company",
+            "invoice_number": "TXFT000000",
+            "date": "2026-08-26",
+            "po": "58700",
+            "amount": 40.0,
+            "lines": [{"part": "NEED-THIS", "qty": 6}],
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        kimco=CreateHold(),
+        po_index={"58700": {"id": 3, "text": "58700-FASTENAL", "vendor_id": 9, "lines": []}},
+        receipts=[{"slip": "OTHER", "qty": 6, "part": "DIFFERENT", "po_line": 1}],
+        samples=[{"vendor_id": 9, "vendor_text": "Fastenal Company", "invoice_id": 100, "po_text": ""}],
+    )
+    _assert_exception_tagged(
+        missing_row,
+        category="missing_receipt",
+        owner="Ruben Perez",
+    )
+    assert "no receipts" in missing_row["Why"].lower()
+
+    # Already-entered HOLD (NOTE-17) → none / review
+    insight = NOTES["NOTE-17"]
+    pdf_path = tmp_path / "Invoice_1809.pdf"
+    pdf_path.write_bytes(b"%PDF-1.4 insight 1809")
+    already_row, _ = _row(
+        {
+            "vendor": insight["vendor"],
+            "invoice_number": "1809",
+            "date": "2026-08-16",
+            "amount": 10.0,
+            "pdf_path": str(pdf_path),
+            "pdf_on_disk": True,
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": ""},
+        },
+        invoice_by_number={
+            "1809": [
+                {
+                    "id": insight["kimco_id"],
+                    "values": {
+                        "Invoice_Number": "1809",
+                        "Vendor": {"id": 1, "text": insight["vendor"]},
+                    },
+                }
+            ]
+        },
+    )
+    _assert_exception_tagged(
+        already_row,
+        category="already_entered",
+        owner="none / review",
+    )
+    assert GATE_ALREADY_ENTERED in already_row["Why"] or "already-entered" in already_row["Why"]
+
+    # pdf-behind-link HOLD (NOTE-09) → AP
+    aqpc = NOTES["NOTE-09"]
+    pdf_row, _ = _row(
+        {
+            "vendor": aqpc["vendor"],
+            "invoice_number": "",
+            "hold_reason": "pdf-behind-link",
+            "pdf_behind_link": True,
+            "pdf_link_host": aqpc["link_host"],
+            "browser_tried": True,
+            "browser_failure": "login-required",
+            "action": "hold",
+        }
+    )
+    _assert_exception_tagged(pdf_row, category="pdf_capture", owner="AP")
+    assert GATE_PDF_LINK in pdf_row["Why"] or "pdf-behind-link" in pdf_row["Why"]
+
+    # Qty HOLD (NOTE-03 Capital) → buyer
+    capital = NOTES["NOTE-03"]
+    qty_row, _ = _row(
+        {
+            "vendor": capital["vendor"],
+            "invoice_number": capital["invoice_number"],
+            "date": "2026-08-16",
+            "po": capital["po"],
+            "amount": 425.0,
+            "fees": [{"name": "Handling", "amount": capital["fee_amount"]}],
+            "lines": [{"part": "BLADE", "qty": capital["invoice_qty"], "amount": 400.0}],
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        kimco=_kimco(),
+        po_index={
+            capital["po"]: {
+                "id": 45,
+                "text": f"{capital['po']}-CAPITAL",
+                "vendor_id": 45,
+                "vendor_text": "Capital Machine",
+                "lines": [{"part": "BLADE", "qty": capital["po_qty"], "amount": 400.0, "unit_price": 200.0}],
+            }
+        },
+        samples=[{"vendor_id": 45, "vendor_text": "Capital Machine", "invoice_id": 9, "po_text": ""}],
+        receipts=[{"po": capital["po"], "slip": capital["invoice_number"], "part": "BLADE", "qty": capital["po_qty"], "id": 1}],
+    )
+    _assert_exception_tagged(qty_row, category="quantity_variance", owner="buyer")
+    assert GATE_QTY in qty_row["Why"] or "qty" in qty_row["Why"].lower()
+
+    # Success leaves Exception category/owner blank
+    success_pdf = tmp_path / "TXFT499356.pdf"
+    success_pdf.write_bytes(b"%PDF-1.4 finished")
+    success_row, _ = _row(
+        {
+            "vendor": "Fastenal Company",
+            "invoice_number": "TXFT499356",
+            "date": "2026-08-26",
+            "po": "58700",
+            "amount": 40.0,
+            "pdf_path": str(success_pdf),
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf", "po": "pdf"},
+        },
+        kimco=_kimco(attach="attached", select="selected"),
+        po_index={"58700": {"id": 3, "text": "58700-FASTENAL", "vendor_id": 9, "lines": []}},
+        receipts=[{"slip": "TXFT499356", "qty": 6, "part": "FAST-1", "po_line": 2, "po": "58700", "id": 44}],
+        samples=[{"vendor_id": 9, "vendor_text": "Fastenal Company", "invoice_id": 100, "po_text": ""}],
+    )
+    assert success_row["Result"] == RESULT_SUCCESS
+    assert success_row[COL_EXCEPTION_CATEGORY] == ""
+    assert success_row[COL_EXCEPTION_OWNER] == ""
+    assert "category=" not in (success_row.get("Why") or "")
+
+    # Remaining gate map (no new HOLD reasons)
+    assert classify_exception(
+        result=RESULT_HOLD, why="HOLD (vendor-mismatch): parsed MSC, posted RMP."
+    ) == ("vendor_mismatch", "AP / vendor master")
+    assert classify_exception(
+        result=RESULT_HOLD,
+        why="HOLD (po): @Misty McCoy PO number is missing. Transfer to Transfer AP.",
+    ) == ("missing_po", "Misty McCoy / Transfer AP")
+    assert classify_exception(
+        result=RESULT_HOLD, why="HOLD (auto-pay): Toyota Commercial Finance / auto-pay."
+    ) == ("auto_pay", "none")
+    assert classify_exception(
+        result=RESULT_INCOMPLETE,
+        why="Selected vs unmatched: matched 1, unmatched 1. Partial Select Receipts leftovers.",
+    ) == ("partial_match", "AP / Treyce")
+    assert classify_exception(
+        result=RESULT_INCOMPLETE, why="Incomplete (finish): attach blocked-405."
+    ) == ("other", "AP")
+    assert classify_exception(result=RESULT_SKIPPED, why="Skipped (bill-vs-noise): statement.") is None
+    stamped = apply_exception_category_owner(
+        {"Result": RESULT_HOLD, "Why": "HOLD (price-does-not-match): gap."}
+    )
+    assert stamped[COL_EXCEPTION_CATEGORY] == "price_variance"
+    assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
 

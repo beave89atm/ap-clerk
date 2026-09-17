@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from ap_clerk.daily import result_counts
+from ap_clerk.quality_v12 import apply_exception_category_owner
 from ap_clerk.gates import (
     GATE_QTY,
     RESULT_HOLD,
@@ -191,7 +192,7 @@ def finish_existing_header(
         out["Result"] = RESULT_INCOMPLETE
         out["Why"] = why_incomplete("paused dry-run row has no KIMCO id.")
         out["Flag in Outlook"] = flag_in_outlook_for(out["Result"])
-        return out
+        return apply_exception_category_owner(out)
 
     try:
         record = client.get_item("ap_invoices", int(invoice_id))
@@ -199,7 +200,7 @@ def finish_existing_header(
         out["Result"] = RESULT_INCOMPLETE
         out["Why"] = why_incomplete(f"could not GET record {invoice_id}: {exc}")
         out["Flag in Outlook"] = flag_in_outlook_for(out["Result"])
-        return out
+        return apply_exception_category_owner(out)
 
     lines = invoice_lines_from_record(record)
     existing_receipt_ids = receipt_ids_from_invoice_lines(lines)
@@ -393,7 +394,7 @@ def finish_existing_header(
             )
             + f" API finish of paused dry-run header {invoice_id}."
         )
-        return out
+        return apply_exception_category_owner(out)
     result, finish_why = finish_gate(
         header_created=True,
         attach_status=attach_status,
@@ -429,7 +430,7 @@ def finish_existing_header(
             f"{finish_why} API finish of paused dry-run header {invoice_id}. "
             f"{line_note}{receipt_note}{fee_note} Attach status={attach_status}."
         ).strip()
-    return out
+    return apply_exception_category_owner(out)
 
 
 def resolve_message_id(

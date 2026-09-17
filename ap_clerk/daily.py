@@ -30,6 +30,7 @@ from ap_clerk.cursor import DailyCursor, cursor_after_messages
 from ap_clerk.graph import ALLOWED_MAILBOX, EMAIL_DENIED, FLAG_DENIED, REPORT_TO
 from ap_clerk.inbox import HARD_EMAIL_CAP
 from ap_clerk.gates import RESULT_HOLD
+from ap_clerk.quality_v12 import apply_exception_category_owner
 
 DEFAULT_DAILY_LIMIT = HARD_EMAIL_CAP
 GROK_BOT_LAUNCH = "python -m ap_clerk daily --live --limit 30"
@@ -111,23 +112,25 @@ def cursor_from_run(
 
 def hold_row_for_mailbox_block(*, why: str, batch_name: str, as_of: date) -> dict[str, Any]:
     """One HOLD row when Graph/mailbox blocks the run. Never Success."""
-    return {
-        "Vendor": "",
-        "Invoice #": "",
-        "date": as_of.isoformat(),
-        "PO": "",
-        "Amount": "",
-        "Result": RESULT_HOLD,
-        "Why": why,
-        "KIMCO id": "",
-        "Batch": f"{batch_name} (not created)",
-        "Fees and surcharges": "none",
-        "PPV": "none",
-        "Attach status": "no-pdf-on-vm",
-        "Flag in Outlook": "No",
-        "Flag status": FLAG_DENIED,
-        "Notes": "",
-    }
+    return apply_exception_category_owner(
+        {
+            "Vendor": "",
+            "Invoice #": "",
+            "date": as_of.isoformat(),
+            "PO": "",
+            "Amount": "",
+            "Result": RESULT_HOLD,
+            "Why": why,
+            "KIMCO id": "",
+            "Batch": f"{batch_name} (not created)",
+            "Fees and surcharges": "none",
+            "PPV": "none",
+            "Attach status": "no-pdf-on-vm",
+            "Flag in Outlook": "No",
+            "Flag status": FLAG_DENIED,
+            "Notes": "",
+        }
+    )
 
 
 def write_email_sidecar(report_path: Path, status: str, *, subject: str, to: str = REPORT_TO) -> Path:

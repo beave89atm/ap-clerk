@@ -46,6 +46,11 @@ from ap_clerk.inbox import (
     skip_rows_for_report,
 )
 from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
+from ap_clerk.quality_v12 import (
+    COL_EXCEPTION_CATEGORY,
+    COL_EXCEPTION_OWNER,
+    apply_exception_category_owner,
+)
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
     GATE_ALREADY_ENTERED,
@@ -423,7 +428,7 @@ def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, An
     result = RESULT_HOLD
     if why.lower().startswith("fail"):
         result = RESULT_FAIL
-    return {
+    row = {
         "Vendor": inv.get("vendor"),
         "Invoice #": inv.get("invoice_number"),
         "date": inv.get("date"),
@@ -431,6 +436,8 @@ def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, An
         "Amount": inv.get("amount"),
         "Result": result,
         "Why": why,
+        COL_EXCEPTION_CATEGORY: "",
+        COL_EXCEPTION_OWNER: "",
         "KIMCO id": "",
         "Batch": batch_name,
         "Fees and surcharges": format_fees(inv.get("fees")),
@@ -440,6 +447,7 @@ def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, An
         "Flag in Outlook": flag_in_outlook_for(result),
         "Notes": "",
     }
+    return apply_exception_category_owner(row)
 
 
 def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
@@ -807,7 +815,7 @@ def _finish_row(
         apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
     else:
         row["Flag status"] = FLAG_SKIPPED
-    return row
+    return apply_exception_category_owner(row)
 
 
 def _process_invoice(
@@ -840,6 +848,8 @@ def _process_invoice(
         "Amount": amount,
         "Result": RESULT_HOLD,
         "Why": "",
+        COL_EXCEPTION_CATEGORY: "",
+        COL_EXCEPTION_OWNER: "",
         "KIMCO id": "",
         "Batch": batch_label,
         "Fees and surcharges": fees,
