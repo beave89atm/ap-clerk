@@ -1,5 +1,5 @@
 {
-  "proof": "jpsteel-0916-kyle-125315",
+  "proof": "jpsteel-0916-note38-rounding-ppv",
   "invent": false,
   "mail_send": false,
   "vendor": "JP Steel",
@@ -33,10 +33,7 @@
     "125122": 10110,
     "125051": 10111
   },
-  "leave_alone_holds": [
-    10108,
-    10111
-  ],
+  "leave_alone_holds": [],
   "do_not_walk": [
     "123248",
     "124506"
@@ -1279,18 +1276,18 @@
       "date": "2026-09-15",
       "PO": "59154",
       "Amount": 1580.73,
-      "Result": "HOLD",
-      "Why": "HOLD after live GET of 10108: PDF/verification=$1,580.73 posted=$1,580.83 ($0.10 unit-rounding). Receipts 24128 1445in @0.7709 + 24129 1245in @0.375 on PO 59154 (partial of 14400/14940; cut length 289\"/249\" was not qty). Do not invent Success. Outlook Entered with issues.",
+      "Result": "Success",
+      "Why": "NOTE-38: signed PPV -$0.10 posted so Invoice_Amount hits PDF $1,580.73 (was $1,580.83). Receipts 24128 1445@0.7709; 24129 1245@0.375 already matched. Live GET 10108 Invoice_Amount=1580.73 verification=1580.73 Type 3. Outlook Entered in AI. Success.",
       "KIMCO id": 10108,
       "Batch": "API Agent - 9/16/26 JPSteel (716)",
       "Fees and surcharges": "none",
-      "PPV": "none",
+      "PPV": "-0.10",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "24128 1445@0.7709; 24129 1245@0.375",
-      "outlook": "entered-with-issues"
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "JP Steel",
@@ -1299,7 +1296,7 @@
       "PO": "59104",
       "Amount": 2530.0,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59104. Select Receipts 24122 2@115.0; 24123 20@115.0 on PO 59104. Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24122, 24123] fees=none ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59104. Select Receipts 24122 2@115.0; 24123 20@115.0 on PO 59104. Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10109,
       "Batch": "API Agent - 9/16/26 JPSteel (716)",
       "Fees and surcharges": "none",
@@ -1318,7 +1315,7 @@
       "PO": "59018",
       "Amount": 832.03,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59018. Select Receipts 23706 520@0.2708; 23707 2880@0.24 on PO 59018. Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23706, 23707] fees=none ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59018. Select Receipts 23706 520@0.2708; 23707 2880@0.24 on PO 59018. Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
       "KIMCO id": 10110,
       "Batch": "API Agent - 9/16/26 JPSteel (716)",
       "Fees and surcharges": "none",
@@ -1336,21 +1333,21 @@
       "date": "2026-08-27",
       "PO": "58937",
       "Amount": 1130.4,
-      "Result": "HOLD",
-      "Why": "HOLD after live GET of 10111: PDF/verification=$1,130.40 posted=$1,130.34 ($0.06). Receipts 23559 576in @0.6598 + 23560 864in @0.8684 on PO 58937 lines 03/04 (line-order swap vs SO 1/2). Do not invent Success. Outlook Entered with issues.",
+      "Result": "Success",
+      "Why": "NOTE-38: signed PPV +$0.06 posted so Invoice_Amount hits PDF $1,130.40 (was $1,130.34). Receipts 23559 576@0.6598; 23560 864@0.8684 already matched. Live GET 10111 Invoice_Amount=1130.40 verification=1130.40 Type 3. Outlook Entered in AI. Success.",
       "KIMCO id": 10111,
       "Batch": "API Agent - 9/16/26 JPSteel (716)",
       "Fees and surcharges": "none",
-      "PPV": "none",
+      "PPV": "0.06",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "23559 576@0.6598; 23560 864@0.8684",
-      "outlook": "entered-with-issues"
+      "outlook": "entered-in-ai"
     }
   ],
-  "blocker": "Kyle 2026-09-17 finished 10107 live. Sheet 125315 \u2192 Success from GET-only. Did not Select Receipts / edit 10107. HOLDs 10108/10111 left alone. NOTE-37 combine same-item same-unit-cost receipts.",
+  "blocker": "NOTE-38: posted signed PPV on 10108 and 10111 so Invoice_Amount hits PDF. 10107 GET-only (Kyle finished). No Mail.Send.",
   "treyce_emailed": false,
   "report": "runs/AP-run-2026-09-16-jpsteel.xlsx",
   "plus5_new_headers": [],
@@ -1360,35 +1357,109 @@
   ],
   "live_get_10107": {
     "id": 10107,
-    "invoice_number": "125315",
     "invoice_amount": 693.0,
-    "verification": 693.0,
-    "invoice_type": 3,
-    "vendor_id": 100,
-    "vendor_text": "1098-JP STEEL",
-    "po": "PO59128-JP STEEL",
-    "batch_id": 716,
-    "batch_text": "API Agent - 9/16/26 JPSteel",
     "receipts": "24126 8@33.0; 24127 13@33.0",
-    "receipt_lines": [
-      {
-        "qty": 8.0,
-        "unit": 33.0,
-        "receipt": 24126,
-        "po_line": null
-      },
-      {
-        "qty": 13.0,
-        "unit": 33.0,
-        "receipt": 24127,
-        "po_line": null
-      }
-    ],
-    "attachments": [
-      "2026-09-16_Invoice_125315.pdf"
-    ],
-    "void": false,
     "read_only": true,
     "mutated": false
+  },
+  "rounding_ppv": {
+    "125316": {
+      "ppv_amount": -0.1,
+      "ppv_status": "posted",
+      "decision": {
+        "action": "ppv",
+        "ppv": -0.1,
+        "hold": false,
+        "reason": "Additional Charge Purchase Price Variance -0.10 (signed; |var| 0.10 is 0.0% of invoice total and bill PPV -0.10 is under $100)",
+        "po_comment": ""
+      },
+      "before": {
+        "invoice_amount": 1580.83,
+        "verification": 1580.73,
+        "receipts": "24128 1445@0.7709; 24129 1245@0.375",
+        "ppv_amounts": []
+      },
+      "after_amount": 1580.73,
+      "outlook": "entered-in-ai"
+    },
+    "125051": {
+      "ppv_amount": 0.06,
+      "ppv_status": "posted",
+      "decision": {
+        "action": "ppv",
+        "ppv": 0.06,
+        "hold": false,
+        "reason": "Additional Charge Purchase Price Variance 0.06 (signed; |var| 0.06 is 0.0% of invoice total and bill PPV 0.06 is under $100)",
+        "po_comment": ""
+      },
+      "before": {
+        "invoice_amount": 1130.34,
+        "verification": 1130.4,
+        "receipts": "23559 576@0.6598; 23560 864@0.8684",
+        "ppv_amounts": []
+      },
+      "after_amount": 1130.4,
+      "outlook": "entered-in-ai"
+    }
+  },
+  "kimco_gets": {
+    "125315": {
+      "id": 10107,
+      "invoice_amount": 693.0,
+      "verification": 693.0,
+      "receipts": "24126 8@33.0; 24127 13@33.0",
+      "ppv_amounts": [],
+      "attachments": [
+        "2026-09-16_Invoice_125315.pdf"
+      ]
+    },
+    "125316": {
+      "id": 10108,
+      "invoice_amount": 1580.73,
+      "verification": 1580.73,
+      "receipts": "24128 1445@0.7709; 24129 1245@0.375",
+      "ppv_amounts": [
+        -0.1
+      ],
+      "attachments": [
+        "2026-09-16_Invoice_125316.pdf"
+      ]
+    },
+    "125314": {
+      "id": 10109,
+      "invoice_amount": 2530.0,
+      "verification": 2530.0,
+      "receipts": "24122 2@115.0; 24123 20@115.0",
+      "ppv_amounts": [],
+      "attachments": [
+        "2026-09-16_Invoice_125314.pdf"
+      ]
+    },
+    "125122": {
+      "id": 10110,
+      "invoice_amount": 832.02,
+      "verification": 832.03,
+      "receipts": "23706 520@0.2708; 23707 2880@0.24",
+      "ppv_amounts": [],
+      "attachments": [
+        "2026-09-02_Invoice_125122.pdf"
+      ]
+    },
+    "125051": {
+      "id": 10111,
+      "invoice_amount": 1130.4,
+      "verification": 1130.4,
+      "receipts": "23559 576@0.6598; 23560 864@0.8684",
+      "ppv_amounts": [
+        0.06
+      ],
+      "attachments": [
+        "2026-08-28_Invoice_125051.pdf"
+      ]
+    }
+  },
+  "outlook": {
+    "125316": "entered-in-ai",
+    "125051": "entered-in-ai"
   }
 }
