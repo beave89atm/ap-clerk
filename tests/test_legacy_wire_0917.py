@@ -43,22 +43,30 @@ from legacy_wire_0917 import (  # noqa: E402
     KNOWN_ENTERED,
     LEAVE_ALONE_HOLD_IDS,
     PLUS5_HEADERS,
+    PLUS10_HEADERS,
+    PLUS10_SEARCH,
     MIN_INVOICE_DATE,
     NEXT_FIVE,
     PREFERRED_BATCH_NAME,
     PREFERRED_NEXT,
     RUBEN_PEREZ,
+    TRANSFER_AP_PRIOR_ID_HINT,
     VENDOR_NAME,
     _qty_hold,
     already_set,
+    apply_over_ppv_transfer_ap,
     blob_has_legacy_wire,
     exact_invoice_number,
+    find_transfer_ap_batch,
     invoice_aliases,
     is_legacy_wire_invoice_email,
     is_legacy_wire_message,
     is_legacy_wire_vendor_text,
+    is_over_ppv_price_hold,
     is_packing_slip_attachment,
+    leftover_from_catalog,
     merge_sheet_rows,
+    over_ppv_hold_comment,
     pick_recent,
     prefer_candidate_messages,
     quality_legacy_row,
@@ -251,7 +259,7 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
         "PS-INV104015": 10115,
         "PS-INV104017": 10116,
     }
-    assert LEAVE_ALONE_HOLD_IDS == {10116}
+    assert LEAVE_ALONE_HOLD_IDS == {10116, 10123, 10125, 10127}
     assert FINISH_ORDER.index("PS-INV104018") < FINISH_ORDER.index("PS-INV104019")
     assert FINISH_ORDER[-1] == "PS-INV104017"
     assert KNOWN_BATCH_ID == 717
@@ -283,6 +291,10 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
     }
     for inv in PLUS5_HEADERS:
         assert inv in already
+    assert PLUS10_HEADERS == {}
+    assert "PS-INV104014" in PLUS10_SEARCH
+    assert "PS-INV104021" in PLUS10_SEARCH
+    assert TRANSFER_AP_PRIOR_ID_HINT == 375
 
 
 def test_legacy_wire_inches_are_not_rolled_qty():
@@ -853,3 +865,157 @@ def test_finish_10126_constants_and_sheet_replace():
     assert "717" in row["Batch"]
     assert "Transfer AP" not in row["Batch"]
     assert next(r for r in merged if r["KIMCO id"] == 10127)["Result"] == "HOLD"
+
+
+def test_over_ppv_hold_comment_tags_shawn_and_says_receipts_not_selected():
+    text = over_ppv_hold_comment(
+        invoice_number="PS-INV104100",
+        po="59100",
+        pdf_amount=250.0,
+    )
+    assert "@Shawn McKibben" in text
+    assert "price-does-not-match" in text
+    assert "over the PPV gate" in text
+    assert "NOT selected" in text
+    assert "PS-INV104100" in text
+    assert "59100" in text
+    assert "250.00" in text
+
+
+def test_find_transfer_ap_batch_looks_up_name_never_invents_375():
+    found = find_transfer_ap_batch(
+        [
+            {
+                "id": 375,
+                "values": {"AP_Invoice_Batch_ID": "TRANSFER AP"},
+            }
+        ]
+    )
+    assert found == {"found": True, "id": 375, "name": "TRANSFER AP", "invent": False}
+
+    titled = find_transfer_ap_batch(
+        [{"id": 401, "values": {"AP_Invoice_Batch_ID": "Transfer AP"}}]
+    )
+    assert titled["found"] is True
+    assert titled["id"] == 401
+    assert titled["invent"] is False
+
+    missing = find_transfer_ap_batch(
+        [{"id": 717, "values": {"AP_Invoice_Batch_ID": "API Agent - 9/17/26 Legacy Wire"}}]
+    )
+    assert missing["found"] is False
+    assert missing["id"] is None
+    assert missing["invent"] is False
+    assert missing["hint_ignored"] == 375
+
+
+def test_is_over_ppv_price_hold_not_missing_receipt():
+    assert is_over_ppv_price_hold(
+        {"Result": "HOLD", "Exception category": "price_variance"},
+        {"select_zero": True, "skipped_over_ppv": True},
+    )
+    assert is_over_ppv_price_hold(
+        {"Result": "HOLD", "Why": "HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate."},
+        {"select_zero": True},
+    )
+    assert not is_over_ppv_price_hold(
+        {"Result": "HOLD", "Exception category": "missing_receipt", "Why": "HOLD (receipt): no open receipt"},
+        {"select_zero": False, "skipped_over_ppv": False},
+    )
+    assert not is_over_ppv_price_hold(
+        {"Result": "Success", "Exception category": ""},
+        {"select_zero": False},
+    )
+
+
+def test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new():
+    assert (
+        apply_over_ppv_transfer_ap(
+            object(), kimco_id=10116, comment="@Shawn McKibben test"
+        )["status"]
+        == "leave-alone"
+    )
+    assert (
+        apply_over_ppv_transfer_ap(
+            object(), kimco_id=10123, comment="@Shawn McKibben test"
+        )["status"]
+        == "leave-alone"
+    )
+
+    class _Fake:
+        def list_items(self, _name):
+            return [{"id": 375, "values": {"AP_Invoice_Batch_ID": "TRANSFER AP"}}]
+
+        def update(self, _svc, _kid, payload):
+            self.payload = payload
+            return {}, 200, ""
+
+        def get_item(self, _svc, kid):
+            return {
+                "id": kid,
+                "values": {
+                    "Comments": self.payload["values"]["Comments"],
+                    "AP_Invoice_Batch": {"id": 375, "text": "TRANSFER AP"},
+                },
+                "lists": {},
+            }
+
+        def _record_url(self, _svc, _kid, suffix=""):
+            return f"https://live.example/{_kid}/{suffix}"
+
+        def request(self, _method, _url):
+            class _Resp:
+                status_code = 404
+
+            return _Resp()
+
+    fake = _Fake()
+    comment = over_ppv_hold_comment(
+        invoice_number="PS-INV104100", po="59100", pdf_amount=99
+    )
+    out = apply_over_ppv_transfer_ap(fake, kimco_id=10140, comment=comment)
+    assert out["status"] == "moved"
+    assert out["batch_id"] == 375
+    assert out["batch_name"] == "TRANSFER AP"
+    assert out["invent"] is False
+    assert "@Shawn McKibben" in out["comment"]
+    assert out["mention_notify"]["comments_persisted"] is True
+    assert out["mention_notify"]["worked"] is False
+    assert "not confirmed" in out["mention_notify"]["report"]
+
+
+def test_leftover_from_catalog_skips_entered_and_pre_aug():
+    catalog = [
+        {
+            "invoice": "PS-INV104020",
+            "flagged": False,
+            "received": "2026-09-09T19:28:55Z",
+            "subject": "Legacy Wire Products - Sales Invoice PS-INV104020",
+        },
+        {
+            "invoice": "PS-INV104013",
+            "flagged": False,
+            "received": "2026-09-03T17:54:28Z",
+            "subject": "Legacy Wire Products - Sales Invoice PS-INV104013",
+        },
+        {
+            "invoice": "PS-INV104100",
+            "flagged": False,
+            "received": "2026-09-16T12:00:00Z",
+            "subject": "Legacy Wire Products - Sales Invoice PS-INV104100",
+        },
+        {
+            "invoice": "PS-INV103800",
+            "flagged": False,
+            "received": "2026-07-15T12:00:00Z",
+            "subject": "Legacy Wire Products - Sales Invoice PS-INV103800",
+        },
+        {
+            "invoice": "PS-INV104101",
+            "flagged": True,
+            "received": "2026-09-16T13:00:00Z",
+            "subject": "Legacy Wire Products - Sales Invoice PS-INV104101",
+        },
+    ]
+    pending = leftover_from_catalog(catalog, entered={}, chosen=set())
+    assert [p["invoice_number"] for p in pending] == ["PS-INV104100"]
