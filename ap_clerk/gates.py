@@ -826,6 +826,12 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)} "
             "(3P multi-PO). Fix: Select Receipts per PO. Never silent Success."
         )
+    if check.get("same_item_cover_blocked_400"):
+        failures.append(
+            "Select Receipts blocked-400 on a unique same-item same-unit-cost "
+            "cover (JPSteel 125315 / 24126 8@$33 + 24127 13@$33 = 21@$33). "
+            "Combine those leftovers. Do not HOLD as unmatched. NOTE-37."
+        )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),

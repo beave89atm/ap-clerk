@@ -624,6 +624,45 @@ def decide_ppv(
     }
 
 
+def rounding_ppv_to_hit_pdf_total(
+    pdf_total: Any,
+    posted_amount: Any,
+    *,
+    receipts_selected: bool = True,
+) -> dict[str, Any]:
+    """NOTE-38: posted Invoice_Amount ≠ PDF after receipts already match.
+
+    JPSteel 125316 / 10108: posted $1,580.83 vs PDF $1,580.73 → signed PPV
+    −$0.10 so Invoice_Amount hits the PDF. Same class 125051 / 10111
+    ($1,130.34 vs $1,130.40 → +$0.06). Do not HOLD unit-rounding. Two-cent
+    gaps stay a match (no invented PPV). Over-PPV lock (NOTE-29) still
+    applies — do not Select Receipts on over-gate lines.
+    """
+    if not receipts_selected:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "hold": True,
+            "reason": "Receipts not selected; do not invent PPV to close a total.",
+            "po_comment": "",
+        }
+    pdf = money(pdf_total)
+    posted = money(posted_amount)
+    if pdf is None or posted is None:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "hold": True,
+            "reason": "PDF or posted amount missing; do not invent PPV.",
+            "po_comment": "",
+        }
+    return decide_ppv(
+        invoice_line_amount=pdf,
+        po_line_amount=posted,
+        invoice_total=pdf,
+    )
+
+
 def evaluate_bill_price_variance(
     invoice_lines: list[dict[str, Any]] | None,
     po_lines: list[dict[str, Any]] | None,
@@ -1349,14 +1388,25 @@ def _unique_qty_subset(
     return found[0] if found else None
 
 
+SAME_ITEM_COVER_HOW = (
+    "combine same-item same-unit-cost leftovers "
+    "(same-unit qty cover; not first-open; 125315 class)"
+)
+
+
 def match_same_unit_qty_cover(
     line: dict[str, Any] | None,
     receipts: list[dict[str, Any]],
 ) -> list[dict[str, Any]] | None:
-    """Cover one leftover invoice qty with same-unit leftovers (Crosslink 28113/28114).
+    """Cover one leftover invoice qty with same-unit leftovers.
 
-    28113: qty 4 ↔ 3@193.94 + 1@193.94. 28114: qty 5 ↔ 1+2+2 @219.32
-    (leave the 1@232.48 exact-unit leftover). Do not mix units. Do not
+    Crosslink 28113: qty 4 ↔ 3@193.94 + 1@193.94. 28114: qty 5 ↔ 1+2+2
+    @219.32 (leave the 1@232.48 exact-unit leftover).
+
+    JPSteel 125315 / NOTE-37 (Kyle 2026-09-17): one invoice line 21@$33
+    ↔ leftovers 24126 8@$33 + 24127 13@$33. Combining same-item
+    same-unit-cost receipt lines is required. Do not HOLD Select Receipts
+    blocked-400 when that unique sum matches. Do not mix units. Do not
     guess when two same-unit groups (or two subsets) both cover.
     """
     if not isinstance(line, dict):
@@ -1392,6 +1442,42 @@ def match_same_unit_qty_cover(
     if len(covers) == 1:
         return covers[0][1]
     return None
+
+
+def match_combine_same_item_receipts(
+    line: dict[str, Any] | None,
+    receipts: list[dict[str, Any]],
+) -> list[dict[str, Any]] | None:
+    """NOTE-37: same-item same-unit-cost leftovers → one invoice line.
+
+    Alias of match_same_unit_qty_cover with the JPSteel 125315 name.
+    """
+    return match_same_unit_qty_cover(line, receipts)
+
+
+def is_same_item_cover_match(hit: dict[str, Any] | None) -> bool:
+    """True when a Select Receipts hit is the 125315 / 28113 combine class."""
+    if not isinstance(hit, dict):
+        return False
+    how = str(hit.get("how") or "")
+    pass_name = str(hit.get("pass") or "")
+    return (
+        "same-unit" in how
+        or "same-item" in how
+        or "125315" in how
+        or pass_name == "same-unit-cover"
+    )
+
+
+def blocked_400_not_a_hold_when_same_item_cover(
+    select_status: str | None,
+    matched: list[dict[str, Any]] | None,
+) -> bool:
+    """Kyle: do not HOLD blocked-400 when the unique same-item sum matches."""
+    status = str(select_status or "")
+    if "blocked-400" not in status:
+        return False
+    return any(is_same_item_cover_match(hit) for hit in (matched or []))
 
 
 def match_unique_same_cost_pairs(
@@ -2251,7 +2337,7 @@ def match_receipts(
                     rec,
                     score=50,
                     pass_name="same-unit-cover",
-                    how="same-unit leftover qty cover (not first-open)",
+                    how=SAME_ITEM_COVER_HOW,
                 )
                 used_cover.add(id(rec))
             second_pass = True

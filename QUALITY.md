@@ -38,6 +38,20 @@ locks the receipt; Shawn cannot unreceive / fix PO / re-receive). Whole
 bill over-gate → select **zero**. Still header + PDF. HOLD
 `price-does-not-match`. Live released 10009 / 24103 and 10013 / 23967.
 
+**NOTE-37 combine same-item receipts (Kyle 2026-09-17).** It is
+acceptable to combine receipt lines of the **same item** and **same
+unit cost** to match one invoice line. JPSteel **125315 / 10107**: PDF
+21@$33=$693; leftovers **24126** 8@$33 + **24127** 13@$33. Do **not**
+HOLD as Select Receipts blocked-400 when that unique sum matches. Kyle
+finished 10107 live — GET-only; do not re-Select / edit.
+
+**NOTE-38 rounding PPV not HOLD (Kyle 2026-09-17).** When receipts
+already match and posted Invoice_Amount ≠ PDF by unit-rounding, post
+signed **Purchase Price Variance** so the live amount hits the PDF.
+JPSteel **125316 / 10108**: posted $1,580.83 vs PDF $1,580.73 → PPV
+**−$0.10**. Do not HOLD. Two-cent gaps stay a match (no invented PPV).
+Over-PPV lock (NOTE-29) still applies.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -104,6 +118,9 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
    cannot unreceive, fix the PO price, and re-receive). If the whole bill
    is over-gate, select **zero** receipts. Still create header + attach
    PDF. AQPC **11003 / 10009** and **10991 / 10013** are the class.
+   **Kyle 2026-09-17 (NOTE-38):** small unit-rounding / posted≠PDF when
+   lines otherwise match → signed PPV to hit the PDF total, not HOLD
+   (JPSteel 125316 −$0.10). Do not invent PPV for a ≤$0.02 gap.
 7. **Vendor PDF attached** on the header.
 8. **Select Receipts posted** when the PO path applies. Receipt qty and
    merchandise cost must match the invoice. Never first-open /
@@ -114,6 +131,10 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
    lines have matching PO receipts (3P 9988–9991). Partial select is
    required: leftover lines stay HOLD / Incomplete / Entered with issues
    with Why naming selected vs unmatched.
+   **Kyle 2026-09-17 (NOTE-37):** combine same-item same-unit-cost
+   leftovers to match one invoice line (JPSteel 125315: 24126 8@$33 +
+   24127 13@$33 = 21@$33). Do not HOLD blocked-400 when that unique sum
+   matches.
 9. **Posted vendor matches parsed** — GET after create; posted name/id is the
    parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
 
@@ -196,6 +217,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-34** Metal Supermarkets **1091102** / KIMCO **10049** / PO 58919 | HOLD qty 262.74 (dollar amount) vs PO 32. Invoice is **1 @ 32 inches**; PO has **32 inches**. | Do not HOLD qty-does-not-match when PDF unit is inches/length and PO qty is the inch measure (Legacy Wire rolled-qty class). Do not use invoice dollars as qty. Finish 10049 if leftovers match. | `test_never_repeat_metal_supermarkets_inches_qty` |
 | **NOTE-35** O’Neal **14748440** / KIMCO **10050** / PO 58964 | HOLD $714.60 price-does-not-match (bogus rolled variance). Line 1 matches 20 @ 248.4845. Line 2 qty 6; unit **901.97 vs 901.9** → **PPV +0.42**. | PPV is the **per-line unit/amount gap**, not a rolled total. Post PPV +0.42 on `InvoiceAdditionalCharges` lookup **id 13**. Do not HOLD $714.60. Over-PPV lock still applies for true over-gate gaps. Finish 10050 with line 1 receipt + PPV $0.42 if still open. | `test_never_repeat_oneal_per_line_ppv` |
 | **NOTE-36** Gas & Supply multi-invoice PDFs (0040374117 / 0011062620 / 0040372952 / 0011054481 / 0040374112 / 0011062611) | Preflight-parse HOLD `gas_misc_ambiguous` with empty amounts; PDFs on disk. One note: 0040372952 is only 1 invoice. | Extract after-tax totals from labeled Total / Amount Due (including stacked label-then-amount). Never invent totals. A single-invoice Gas PDF is not “multiple Misc invoices”. | `test_never_repeat_gas_labeled_total_amount_due` |
+| **NOTE-37** JPSteel **125315** / KIMCO **10107** / PO 59128 / leftovers **24126** 8@$33 + **24127** 13@$33 (Kyle 2026-09-17) | HOLD Select Receipts **blocked-400** on same-PO-line split though PDF is one line 21@$33=$693. Combining same-item same-unit-cost leftovers is acceptable; Kyle finished 10107 live. | Combine same-item same-unit-cost receipt lines to match one invoice line. Do not HOLD blocked-400 when the unique qty/cost sum matches. Never invent receipts. Do not re-Select / edit 10107 (GET-only). | `test_never_repeat_jpsteel_125315_combine_same_item_receipts` |
+| **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

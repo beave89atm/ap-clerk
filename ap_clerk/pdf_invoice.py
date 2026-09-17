@@ -846,6 +846,104 @@ def looks_like_crosslink(text: str, vendor: str = "") -> bool:
     return bool(re.search(r"crosslink", blob, flags=re.I))
 
 
+_JPSTEEL_TAIL = re.compile(
+    r"(?P<weight>[\d,]+\.\d{2})\s+"
+    r"\$(?P<price>[\d,]+\.\d{2})\s+"
+    r"\$(?P<ext>[\d,]+\.\d{2})\s+"
+    r"E(?P<inch>[\d.]+)\"?\s+[EF]\s+"
+    r"(?P<pcs>\d+)\s+(?P<soline>\d+)\s+P"
+    r"(?:\s+(?P<lenft>[\d.]+)'(?P<totft>[\d.]+)')?",
+)
+_JPSTEEL_STOP = re.compile(
+    r"Invoice Totals|Tag#|Mill Tag|Country Of Origin|ACH INFORMATION|Messages:",
+    flags=re.I,
+)
+
+
+def looks_like_jpsteel(text: str, vendor: str = "") -> bool:
+    blob = f"{vendor}\n{text or ''}"
+    if re.search(r"jp\s*steel|jpsteel\.us", blob, flags=re.I):
+        return True
+    return bool(re.search(r"Invoice No:\s*\d{5,6}", blob) and re.search(r"Customer P\.O\.#:", blob))
+
+
+def extract_jpsteel_bill(text: str) -> list[dict[str, Any]]:
+    """JP Steel Enmark invoice lines. PDF-is-truth.
+
+    Piece-priced: ``21 x $33.00 = $693.00`` → qty is pieces.
+    Foot-priced: ``240.00' x $2.88 = $691.20`` → qty is rolled inches
+    (240*12=2880) so PO/receipt inches match. Per-piece cut length
+    (``E289"`` / ``9.875"``) is never qty.
+    """
+    blob = text or ""
+    if not blob:
+        return []
+    lines: list[dict[str, Any]] = []
+    last = 0
+    for match in _JPSTEEL_TAIL.finditer(blob):
+        window = blob[last : match.start()]
+        last = match.end()
+        if _JPSTEEL_STOP.search(window) and "BOL No" not in window[-80:]:
+            # Keep description after the last BOL; drop Tag# / totals noise.
+            bol = list(re.finditer(r"BOL No:", window, flags=re.I))
+            if bol:
+                window = window[bol[-1].start() :]
+        desc = re.sub(r"\s+", " ", window)
+        desc = re.sub(r".*BOL No:\s*\d+\s*-+\s*", "", desc, flags=re.I)
+        desc = re.sub(r"Tag#.*", "", desc, flags=re.I)
+        desc = desc.strip(" -\n\t")
+        if not desc or desc.lower().startswith("invoice"):
+            continue
+        price = parse_money(match.group("price"))
+        ext = parse_money(match.group("ext"))
+        pcs = parse_money(match.group("pcs"))
+        tot_ft = parse_money(match.group("totft"))
+        cut_in = parse_money(match.group("inch"))
+        so_line = int(match.group("soline"))
+        if price is None or ext is None or pcs is None:
+            continue
+        piece_priced = abs(round(price * pcs, 2) - ext) <= 0.05
+        foot_priced = (
+            tot_ft is not None and abs(round(price * tot_ft, 2) - ext) <= 0.05
+        )
+        if piece_priced:
+            qty = pcs
+            unit = price
+            qty_uom = "pcs"
+        elif foot_priced:
+            raw_in = round(tot_ft * 12.0, 4)
+            qty = float(round(raw_in)) if abs(raw_in - round(raw_in)) <= 0.05 else raw_in
+            unit = round(price / 12.0, 6)
+            qty_uom = "in"
+        else:
+            qty = pcs
+            unit = price
+            qty_uom = "pcs"
+        part = ""
+        part_hit = re.search(r"\b(\d{4,6}-\d)\b", desc)
+        if part_hit:
+            part = part_hit.group(1)
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": ext,
+                "unit_price": unit,
+                "po_line": None,
+                "so_line": so_line,
+                "wo": None,
+                "label": desc[:80],
+                "description": desc[:160],
+                "qty_uom": qty_uom,
+                "pcs": pcs,
+                "billed_unit_price": price,
+                "length_inches": cut_in,
+                "total_feet": tot_ft,
+            }
+        )
+    return lines
+
+
 def extract_crosslink_bill(text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """Crosslink Line-Name table: part/qty/unit merch + one Supplies Recovery fee.
 
@@ -1966,6 +2064,10 @@ def parse_invoice_text(
         # Crosslink supply-fee rows must replace generic keyword hits
         # (46.250" TALL is not a Recovery fee; SH:27591 class).
         fees = xl_fees
+    if looks_like_jpsteel(pdf_text, vendor):
+        jp_lines = extract_jpsteel_bill(pdf_text)
+        if jp_lines:
+            lines = jp_lines
     if looks_like_aqpc_intuit(pdf_text, vendor):
         aqpc_lines = extract_aqpc_intuit_lines(pdf_text)
         if aqpc_lines:
