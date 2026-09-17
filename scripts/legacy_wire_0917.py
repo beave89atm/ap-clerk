@@ -1454,25 +1454,43 @@ def run_refresh_sheet(
             continue
 
         proof_before = legacy_proof(client, kid)
-        if proof_before.get("ppv_amounts"):
-            needed = False
-            if not (proof_before.get("receipt_lines") or []):
-                needed = True
-            elif inv == "PS-INV104019":
-                needed = True
-            if needed:
-                ppv_fix[inv] = remove_invented_ppv(client, kid)
+        # 10113: leftover 18@$36 / selected qty 17 is same-unit cover, not PPV.
+        # Never re-post the invented −$85 / +$170 once receipts are on the bill.
+        if inv == "PS-INV104019" and (proof_before.get("ppv_amounts") or []):
+            ppv_fix[inv] = remove_invented_ppv(client, kid)
+            proof_before = legacy_proof(client, kid)
+        elif proof_before.get("ppv_amounts") and not (proof_before.get("receipt_lines") or []):
+            ppv_fix[inv] = remove_invented_ppv(client, kid)
+            proof_before = legacy_proof(client, kid)
 
-        finish = finish_hold_header(
-            client, parsed=parsed, kimco_id=kid, receipts=receipts
-        )
-        after_ppv = finish.get("after") or {}
-        if inv == "PS-INV104019" and (after_ppv.get("ppv_amounts") or []):
-            extra = remove_invented_ppv(client, kid)
-            ppv_fix[inv] = f"{ppv_fix.get(inv) or ''}+after:{extra}".strip("+")
-            finish["after"] = legacy_proof(client, kid)
-            finish["ppv_status"] = extra
-            finish["ppv_amount"] = 0.0
+        already_selected = bool(proof_before.get("receipt_lines"))
+        if already_selected:
+            finish = {
+                "wanted": [],
+                "select_status": "already-selected",
+                "fee_status": "already-posted",
+                "ppv_status": "removed" if ppv_fix.get(inv) else "none",
+                "ppv_amount": 0.0 if inv == "PS-INV104019" else sum(
+                    proof_before.get("ppv_amounts") or []
+                ),
+                "match_how": "live-get-already-selected",
+                "matched": [],
+                "skipped_over_ppv": False,
+                "select_zero": False,
+                "open_on_po": [],
+            }
+            finish["after"] = proof_before
+        else:
+            finish = finish_hold_header(
+                client, parsed=parsed, kimco_id=kid, receipts=receipts
+            )
+            after_ppv = finish.get("after") or {}
+            if inv == "PS-INV104019" and (after_ppv.get("ppv_amounts") or []):
+                extra = remove_invented_ppv(client, kid)
+                ppv_fix[inv] = f"{ppv_fix.get(inv) or ''}+after:{extra}".strip("+")
+                finish["after"] = legacy_proof(client, kid)
+                finish["ppv_status"] = extra
+                finish["ppv_amount"] = 0.0
         finish["do_not_stamp_outlook"] = not stamp_outlook
         finishes[inv] = {k: v for k, v in finish.items() if k != "after"}
         proof = finish.get("after") or legacy_proof(client, kid)
