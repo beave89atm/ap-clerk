@@ -120,6 +120,14 @@ NEXT_FIVE = (
     "PS-INV104009",
 )
 PREFERRED_NEXT = NEXT_FIVE
+# Plus-5 headers on batch 717. Do not recreate.
+PLUS5_HEADERS = {
+    "PS-INV104013": 10123,
+    "PS-INV104012": 10124,
+    "PS-INV104011": 10125,
+    "PS-INV104010": 10126,
+    "PS-INV104009": 10127,
+}
 # Kyle: Shawn/Ruben — PO58807-02 never received. Receipts not selected. GET-only.
 LEAVE_ALONE_HOLD_IDS = {10116}
 # 10114 (9@41 + 17@41) before 10113 (17@36 cover of 18@36) so qty-17
@@ -361,7 +369,7 @@ def confirm_legacy_wire_vendor(client: KimcoClient) -> dict[str, Any]:
 
 def already_set(entered: dict[str, int]) -> set[str]:
     out: set[str] = set()
-    for number in list(entered) + list(KNOWN_ENTERED) + list(CREATED_HEADERS):
+    for number in list(entered) + list(KNOWN_ENTERED) + list(CREATED_HEADERS) + list(PLUS5_HEADERS):
         out |= invoice_aliases(number)
     return out
 
@@ -1415,7 +1423,9 @@ def leftover_from_catalog(
         inv = exact_invoice_number(row.get("invoice"))
         if not inv or inv in seen or inv in chosen:
             continue
-        if inv in CREATED_HEADERS or already.intersection(invoice_aliases(inv) | {inv}):
+        if inv in CREATED_HEADERS or inv in PLUS5_HEADERS or already.intersection(
+            invoice_aliases(inv) | {inv}
+        ):
             continue
         if row.get("flagged"):
             continue

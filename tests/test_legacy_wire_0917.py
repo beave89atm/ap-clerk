@@ -40,6 +40,7 @@ from legacy_wire_0917 import (  # noqa: E402
     KNOWN_BATCH_ID,
     KNOWN_ENTERED,
     LEAVE_ALONE_HOLD_IDS,
+    PLUS5_HEADERS,
     MIN_INVOICE_DATE,
     NEXT_FIVE,
     PREFERRED_BATCH_NAME,
@@ -271,6 +272,15 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
     for inv in CREATED_HEADERS:
         assert inv in already
         assert CREATED_HEADERS[inv] in {10112, 10113, 10114, 10115, 10116}
+    assert PLUS5_HEADERS == {
+        "PS-INV104013": 10123,
+        "PS-INV104012": 10124,
+        "PS-INV104011": 10125,
+        "PS-INV104010": 10126,
+        "PS-INV104009": 10127,
+    }
+    for inv in PLUS5_HEADERS:
+        assert inv in already
 
 
 def test_legacy_wire_inches_are_not_rolled_qty():
@@ -751,9 +761,12 @@ def test_legacy_wire_plus5_prefers_pending_list():
             "receivedDateTime": "2026-07-16T12:00:00Z",
         },
     ]
+    first_pass_already: set[str] = set()
+    for number in list(KNOWN_ENTERED) + list(CREATED_HEADERS):
+        first_pass_already |= invoice_aliases(number)
     recent, older, slips = pick_recent(
         bills,
-        already=already_set({}),
+        already=first_pass_already,
         cap=5,
         preferred=NEXT_FIVE,
     )
