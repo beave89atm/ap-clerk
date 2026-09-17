@@ -7,11 +7,14 @@ Prefer name `API Agent - 9/17/26 Legacy Wire`; fall back to
 PDF attachments only. No Mail.Send. invent=false.
 
 Skip already-flagged mail, already-entered invoices (including Kyle's
-9995 / 9996 and first-pass 10112–10116), and signed packing slips /
-receipt scans. Prefer invoice dates on/after 2026-08-01. Plus-5 prefers
-PS-INV104013 / 104012 / 104011 / 104010 / 104009 if still open. If
-fewer than 5 recent remain, enter what's left and stop — do not walk
-pre-Aug (NOTE-28). Leave 10116 HOLD alone.
+9995 / 9996, first-pass 10112–10116, plus-5 10123–10127), and signed
+packing slips / receipt scans. Prefer invoice dates on/after 2026-08-01.
+If fewer than 5 recent remain, enter what's left and stop — do not walk
+pre-Aug (NOTE-28). Leave HOLDs 10116 / 10123 / 10125 / 10127 alone.
+
+NOTE-40: new over-PPV HOLDs move to Transfer AP (lookup by name; prior
+fact 375 is a hint only — never invent). Comments + @Shawn McKibben.
+Still do not Select Receipts on over-gate lines (NOTE-29).
 """
 
 from __future__ import annotations
@@ -58,6 +61,7 @@ from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
+    TRANSFER_AP_BATCH_NAME,
     blocked_400_not_a_hold_when_same_item_cover,
     decide_ppv,
     distinctive_vendor_tokens,
@@ -129,8 +133,20 @@ PLUS5_HEADERS = {
     "PS-INV104010": 10126,
     "PS-INV104009": 10127,
 }
-# Kyle: Shawn/Ruben — PO58807-02 never received. Receipts not selected. GET-only.
-LEAVE_ALONE_HOLD_IDS = {10116}
+# Kyle: leave existing HOLDs alone unless finishing after Ruben (not this task).
+# 10116 price_variance / Shawn. 10123 / 10125 / 10127 missing_receipt / Ruben.
+LEAVE_ALONE_HOLD_IDS = {10116, 10123, 10125, 10127}
+# Next plus-5 after 10123–10127. Filled from live discovery (not invented).
+PLUS10_HEADERS: dict[str, int] = {}
+# Graph needles for gap / newer PS-INV# that list-from-Aug-1 might miss.
+PLUS10_SEARCH = (
+    *tuple(f"PS-INV{n}" for n in range(104000, 104009)),
+    "PS-INV104014",
+    "PS-INV104016",
+    *tuple(f"PS-INV{n}" for n in range(104021, 104031)),
+)
+# Prior fact only. Re-lookup Transfer AP by name. Never invent this id.
+TRANSFER_AP_PRIOR_ID_HINT = 375
 # 10114 (9@41 + 17@41) before 10113 (17@36 cover of 18@36) so qty-17
 # leftover 24190 cannot be stolen. Reload receipts after each select.
 FINISH_ORDER = (
@@ -262,7 +278,7 @@ def find_legacy_wire_messages(graph) -> list[dict[str, Any]]:
         "Sales Invoice PS-INV",
         "Legacy Wire Products - Sales Invoice",
         "ar@legacywire.com",
-        *[f"Sales Invoice {inv}" for inv in NEXT_FIVE],
+        *[f"Sales Invoice {inv}" for inv in (*NEXT_FIVE, *PLUS10_SEARCH)],
     ]
     for needle in needles:
         try:
@@ -370,7 +386,13 @@ def confirm_legacy_wire_vendor(client: KimcoClient) -> dict[str, Any]:
 
 def already_set(entered: dict[str, int]) -> set[str]:
     out: set[str] = set()
-    for number in list(entered) + list(KNOWN_ENTERED) + list(CREATED_HEADERS) + list(PLUS5_HEADERS):
+    for number in (
+        list(entered)
+        + list(KNOWN_ENTERED)
+        + list(CREATED_HEADERS)
+        + list(PLUS5_HEADERS)
+        + list(PLUS10_HEADERS)
+    ):
         out |= invoice_aliases(number)
     return out
 
@@ -1298,6 +1320,30 @@ def finish_entered_rows(
             finish=finish,
             vendor_id=vendor_id,
         )
+        if is_over_ppv_price_hold(row, finish):
+            comment = over_ppv_hold_comment(
+                invoice_number=inv,
+                po=str(parsed.get("po") or enter_row.get("PO") or ""),
+                pdf_amount=parsed.get("amount") or enter_row.get("Amount"),
+            )
+            transfer = apply_over_ppv_transfer_ap(
+                client,
+                kimco_id=int(kid),
+                comment=comment,
+            )
+            finishes[inv]["transfer_ap"] = transfer
+            mention = transfer.get("mention_notify") or {}
+            if transfer.get("status") == "moved":
+                row["Batch"] = (
+                    f"{transfer.get('batch_name')} ({transfer.get('batch_id')})"
+                )
+                proof = legacy_proof(client, kid)
+            row["Why"] = (
+                f"{row.get('Why')} Transfer AP status={transfer.get('status')} "
+                f"batch_id={transfer.get('batch_id')} "
+                f"comment={transfer.get('comment')!r} "
+                f"@mention={mention.get('report') or mention}."
+            )
         rows.append(row)
         gets[str(kid)] = proof
         receipts = load_list_receipts(client)
@@ -1429,11 +1475,17 @@ def leftover_from_catalog(
         inv = exact_invoice_number(row.get("invoice"))
         if not inv or inv in seen or inv in chosen:
             continue
-        if inv in CREATED_HEADERS or inv in PLUS5_HEADERS or already.intersection(
-            invoice_aliases(inv) | {inv}
+        if (
+            inv in CREATED_HEADERS
+            or inv in PLUS5_HEADERS
+            or inv in PLUS10_HEADERS
+            or already.intersection(invoice_aliases(inv) | {inv})
         ):
             continue
         if row.get("flagged"):
+            continue
+        received = _parse_date(str(row.get("received") or "")[:10])
+        if received is not None and received < MIN_INVOICE_DATE:
             continue
         seen.add(inv)
         pending.append(
@@ -1441,10 +1493,201 @@ def leftover_from_catalog(
                 "invoice_number": inv,
                 "received": row.get("received"),
                 "subject": row.get("subject"),
-                "why": "unflagged leftover after plus-5 cap 5; not entered",
+                "why": "unflagged leftover after plus-10 cap 5; not entered",
             }
         )
     return pending
+
+
+def over_ppv_hold_comment(
+    *,
+    invoice_number: str,
+    po: str | None,
+    pdf_amount: Any,
+) -> str:
+    """KIMCO Comments text for a new over-PPV HOLD. Always @tags Shawn."""
+    amt = money(pdf_amount)
+    amt_txt = f"{amt:.2f}" if amt is not None else "unknown"
+    inv = exact_invoice_number(invoice_number) or str(invoice_number or "")
+    return (
+        f"{SHAWN_MCKIBBEN} HOLD (price-does-not-match) on Legacy Wire {inv} "
+        f"PO {po or 'n/a'} PDF ${amt_txt}. Leftover vs invoice line is over the "
+        "PPV gate. Receipts were NOT selected so purchasing can unreceive, "
+        "change the PO price, and re-receive. Do not alter receipt unit price in GI."
+    )
+
+
+def find_transfer_ap_batch(batches: list[dict[str, Any]]) -> dict[str, Any]:
+    """Lookup Transfer AP by name. Never invent id 375."""
+    hits: list[dict[str, Any]] = []
+    wanted = TRANSFER_AP_BATCH_NAME.casefold()
+    for item in batches or []:
+        vals = item.get("values") if isinstance(item.get("values"), dict) else {}
+        name = str(
+            (vals or {}).get("AP_Invoice_Batch_ID")
+            or (vals or {}).get("Name")
+            or item.get("name")
+            or ""
+        ).strip()
+        if name.casefold() != wanted:
+            continue
+        if item.get("id") in (None, ""):
+            continue
+        hits.append({"id": int(item["id"]), "name": name})
+    if len(hits) == 1:
+        return {
+            "found": True,
+            "id": hits[0]["id"],
+            "name": hits[0]["name"],
+            "invent": False,
+        }
+    if len(hits) > 1:
+        return {"found": False, "ambiguous": True, "hits": hits, "invent": False}
+    return {
+        "found": False,
+        "id": None,
+        "name": None,
+        "invent": False,
+        "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
+    }
+
+
+def is_over_ppv_price_hold(
+    row: dict[str, Any],
+    finish: dict[str, Any] | None,
+) -> bool:
+    """True only for price-variance / over-gate HOLD. Not missing-receipt."""
+    if str(row.get("Exception category") or "") == "price_variance":
+        return True
+    if str(row.get("Result") or "") != "HOLD":
+        return False
+    finish = finish or {}
+    why = str(row.get("Why") or "").lower()
+    if "price-does-not-match" in why or "over the ppv gate" in why:
+        return True
+    return bool(finish.get("select_zero") or finish.get("skipped_over_ppv"))
+
+
+def probe_mention_notify(
+    client: KimcoClient,
+    kimco_id: int,
+    after: dict[str, Any],
+) -> dict[str, Any]:
+    """Report exactly whether @mention notify can be confirmed. invent=false."""
+    vals = after.get("values") if isinstance(after.get("values"), dict) else {}
+    comments = str((vals or {}).get("Comments") or "")
+    tagged = SHAWN_MCKIBBEN in comments
+    mention_value_keys = sorted(
+        k for k in (vals or {}) if re.search(r"mention|notif|tagged", str(k), flags=re.I)
+    )
+    mention_list_keys = sorted(
+        k
+        for k in (after.get("lists") or {})
+        if re.search(r"comment|mention|notif", str(k), flags=re.I)
+    )
+    probes: list[dict[str, Any]] = []
+    for suffix in ("comments", "mentions", "notifications"):
+        try:
+            url = client._record_url("ap_invoices", int(kimco_id), suffix)
+            resp = client.request("GET", url)
+            probes.append({"suffix": suffix, "http": resp.status_code})
+        except Exception as exc:  # noqa: BLE001 - probe only
+            probes.append({"suffix": suffix, "http": None, "error": type(exc).__name__})
+    if tagged and mention_value_keys:
+        report = (
+            f"Comments persisted {SHAWN_MCKIBBEN}. Record has mention-ish fields "
+            f"{mention_value_keys}. Dedicated GET probes={probes}."
+        )
+        worked = "fields-present-notify-unconfirmed"
+    elif tagged:
+        report = (
+            f"Comments persisted {SHAWN_MCKIBBEN}. No mention/notify field on the "
+            f"record. Dedicated GET comments/mentions/notifications → {probes}. "
+            "@mention notify not confirmed — cannot claim a user alert fired."
+        )
+        worked = False
+    else:
+        report = (
+            f"Comments did not persist {SHAWN_MCKIBBEN}. @mention notify did not work."
+        )
+        worked = False
+    return {
+        "worked": worked,
+        "comments_persisted": tagged,
+        "mention_value_keys": mention_value_keys,
+        "mention_list_keys": mention_list_keys,
+        "probes": probes,
+        "report": report,
+    }
+
+
+def apply_over_ppv_transfer_ap(
+    client: KimcoClient,
+    *,
+    kimco_id: int,
+    comment: str,
+    leave_alone_ids: set[int] | None = None,
+) -> dict[str, Any]:
+    """Move a new over-PPV HOLD to Transfer AP and stamp @Shawn Comments.
+
+    Lookup batch by name. Prior fact 375 is never a fallback. NOTE-29: do not
+    Select Receipts here.
+    """
+    blocked = set(leave_alone_ids or LEAVE_ALONE_HOLD_IDS) | set(DO_NOT_MUTATE_IDS)
+    if int(kimco_id) in blocked:
+        return {"status": "leave-alone", "kimco_id": int(kimco_id), "invent": False}
+    try:
+        batches = client.list_items("ap_batches")
+    except KimcoError as exc:
+        return {
+            "status": "batch-list-failed",
+            "error": str(exc)[:240],
+            "invent": False,
+        }
+    found = find_transfer_ap_batch(batches)
+    if not found.get("found"):
+        return {
+            "status": "batch-not-found",
+            "lookup": found,
+            "invent": False,
+            "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
+        }
+    bid = int(found["id"])
+    body, status, error = client.update(
+        "ap_invoices",
+        int(kimco_id),
+        {
+            "state": "Modified",
+            "id": int(kimco_id),
+            "values": {
+                "AP_Invoice_Batch": {"id": bid},
+                "Comments": comment,
+            },
+        },
+    )
+    try:
+        after = client.get_item("ap_invoices", int(kimco_id))
+    except KimcoError:
+        after = {}
+    vals = after.get("values") if isinstance(after.get("values"), dict) else {}
+    comments_after = str((vals or {}).get("Comments") or "")
+    mention = probe_mention_notify(client, int(kimco_id), after or {})
+    live_bid = lookup_id((vals or {}).get("AP_Invoice_Batch"))
+    live_name = lookup_text((vals or {}).get("AP_Invoice_Batch"))
+    moved = status < 400 and live_bid == bid
+    return {
+        "status": "moved" if moved else f"blocked-{status}",
+        "kimco_id": int(kimco_id),
+        "batch_id": live_bid if live_bid not in (None, "") else bid,
+        "batch_name": live_name or found.get("name"),
+        "comment": comments_after or comment,
+        "comment_requested": comment,
+        "put": status,
+        "error": error,
+        "put_body_keys": sorted(body) if isinstance(body, dict) else [],
+        "mention_notify": mention,
+        "invent": False,
+    }
 
 
 def run_refresh_sheet(
@@ -2221,7 +2464,7 @@ def main(argv: list[str] | None = None) -> int:
         rows = merge_sheet_rows(prior_rows, leftover_slip_rows(slips, batch_label))
         write_report(report_path, rows)
         sidecar = {
-            "proof": "legacy-wire-0917-plus5",
+            "proof": "legacy-wire-0917-plus10",
             "invent": False,
             "mail_send": False,
             "vendor": VENDOR_NAME,
@@ -2239,6 +2482,8 @@ def main(argv: list[str] | None = None) -> int:
             "created_headers": CREATED_HEADERS,
             "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
             "preferred_next": list(NEXT_FIVE),
+            "plus5_headers": dict(PLUS5_HEADERS),
+            "plus10_headers": dict(PLUS10_HEADERS),
             "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
             "discovered": len(catalog),
             "catalog": catalog,
@@ -2292,7 +2537,7 @@ def main(argv: list[str] | None = None) -> int:
     _print_summary(rows)
 
     sidecar = {
-        "proof": "legacy-wire-0917-plus5",
+        "proof": "legacy-wire-0917-plus10",
         "invent": False,
         "mail_send": False,
         "vendor": VENDOR_NAME,
@@ -2314,14 +2559,23 @@ def main(argv: list[str] | None = None) -> int:
         "created_headers": CREATED_HEADERS,
         "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
         "preferred_next": list(NEXT_FIVE),
+        "plus5_headers": dict(PLUS5_HEADERS),
+        "plus10_headers": {
+            exact_invoice_number(r.get("Invoice #")): r.get("KIMCO id")
+            for r in new_rows
+            if exact_invoice_number(r.get("Invoice #"))
+            and r.get("KIMCO id") not in (None, "")
+        }
+        or dict(PLUS10_HEADERS),
         "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
         "new_rows": new_rows,
         "chosen_because": (
-            "Plus-5 on batch 717. Prefer pending PS-INV104013 / 104012 / "
-            "104011 / 104010 / 104009 if still open. Unflagged Legacy Wire "
-            "only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. "
-            "First-pass 10112–10115 Success and 10116 HOLD left alone. "
-            "Packing slips ignored. Do not walk pre-Aug. Do not reuse 715/716."
+            "Plus-10 on batch 717. First-pass 10112–10115 Success + 10126 "
+            "Success + 10124 Success left as-is. HOLDs 10116/10123/10125/10127 "
+            "left alone. Next 5 unflagged Legacy Wire Aug 1+ not on KIMCO. "
+            "Over-PPV HOLD → Transfer AP (name lookup) + @Shawn comment. "
+            "NOTE-29: do not Select Receipts on over-gate lines. Packing slips "
+            "ignored. Do not walk pre-Aug. Do not reuse 715/716. No Mail.Send."
         ),
         "parsed": [summarize_parse(b) for b in recent],
         "older_not_entered": leftover_pending,

@@ -1,5 +1,5 @@
 {
-  "proof": "legacy-wire-0917-10126-success",
+  "proof": "legacy-wire-0917-plus10",
   "invent": false,
   "mail_send": false,
   "vendor": "Legacy Wire Products",
@@ -19,13 +19,49 @@
     "id": 717,
     "name": "API Agent - 9/17/26 Legacy Wire",
     "status": 0,
-    "unposted": 4,
+    "unposted": 9,
     "matches_expected": true,
     "is_forbidden": false
   },
   "forbidden_batch_ids": [
     715,
     716
+  ],
+  "known_entered": {
+    "PS-INV103979": 9995,
+    "PS-INV103980": 9996
+  },
+  "created_headers": {
+    "PS-INV104020": 10112,
+    "PS-INV104019": 10113,
+    "PS-INV104018": 10114,
+    "PS-INV104015": 10115,
+    "PS-INV104017": 10116
+  },
+  "leave_alone_holds": [
+    10116,
+    10123,
+    10125,
+    10127
+  ],
+  "preferred_next": [
+    "PS-INV104013",
+    "PS-INV104012",
+    "PS-INV104011",
+    "PS-INV104010",
+    "PS-INV104009"
+  ],
+  "plus5_headers": {
+    "PS-INV104013": 10123,
+    "PS-INV104012": 10124,
+    "PS-INV104011": 10125,
+    "PS-INV104010": 10126,
+    "PS-INV104009": 10127
+  },
+  "plus10_headers": {},
+  "do_not_mutate": [
+    9995,
+    9996
   ],
   "discovered": 50,
   "catalog": [
@@ -97,10 +133,12 @@
     {
       "invoice": "PS-INV104013",
       "received": "2026-09-03T17:54:28Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10123,
       "hasAttachments": true,
       "from": "Giovanny",
       "subject": "Legacy Wire Products - Sales Invoice PS-INV104013"
@@ -108,10 +146,12 @@
     {
       "invoice": "PS-INV104012",
       "received": "2026-09-03T17:46:56Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10124,
       "hasAttachments": true,
       "from": "Giovanny",
       "subject": "Legacy Wire Products - Sales Invoice PS-INV104012"
@@ -119,10 +159,12 @@
     {
       "invoice": "PS-INV104011",
       "received": "2026-09-02T20:37:00Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10125,
       "hasAttachments": true,
       "from": "Giovanny",
       "subject": "Legacy Wire Products - Sales Invoice PS-INV104011"
@@ -130,10 +172,12 @@
     {
       "invoice": "PS-INV104010",
       "received": "2026-09-02T19:54:16Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10126,
       "hasAttachments": true,
       "from": "Giovanny",
       "subject": "Legacy Wire Products - Sales Invoice PS-INV104010"
@@ -141,10 +185,12 @@
     {
       "invoice": "PS-INV104009",
       "received": "2026-09-02T19:07:54Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
-      "already_kimco": null,
+      "already_kimco": 10127,
       "hasAttachments": true,
       "from": "Giovanny",
       "subject": "Legacy Wire Products - Sales Invoice PS-INV104009"
@@ -1162,322 +1208,20 @@
     "PS-INV104015": 10115,
     "104015": 10115,
     "PS-INV104017": 10116,
-    "104017": 10116
-  },
-  "chosen": [
-    "PS-INV104013",
-    "PS-INV104012",
-    "PS-INV104011",
-    "PS-INV104010",
-    "PS-INV104009"
-  ],
-  "known_entered": {
-    "PS-INV103979": 9995,
-    "PS-INV103980": 9996
-  },
-  "created_headers": {
-    "PS-INV104020": 10112,
-    "PS-INV104019": 10113,
-    "PS-INV104018": 10114,
-    "PS-INV104015": 10115,
-    "PS-INV104017": 10116,
+    "104017": 10116,
     "PS-INV104013": 10123,
+    "104013": 10123,
     "PS-INV104012": 10124,
+    "104012": 10124,
     "PS-INV104011": 10125,
+    "104011": 10125,
     "PS-INV104010": 10126,
-    "PS-INV104009": 10127
+    "104010": 10126,
+    "PS-INV104009": 10127,
+    "104009": 10127
   },
-  "leave_alone_holds": [
-    10116
-  ],
-  "preferred_next": [
-    "PS-INV104013",
-    "PS-INV104012",
-    "PS-INV104011",
-    "PS-INV104010",
-    "PS-INV104009"
-  ],
-  "do_not_mutate": [
-    9995,
-    9996
-  ],
-  "new_rows": [
-    {
-      "Vendor": "Legacy Wire Products",
-      "Invoice #": "PS-INV104013",
-      "date": "2026-09-03",
-      "PO": "58748",
-      "Amount": 315.9,
-      "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 58748 for Legacy Wire invoice #PS-INV104013. PDF merch=A-05480-001 3@100; selected=none. Do not first-open guess. Do not invent Success. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Ruben Perez",
-      "KIMCO id": 10123,
-      "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
-      "Fees and surcharges": "Freight Charge - Wholesale - In 15.9",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
-    },
-    {
-      "Vendor": "Legacy Wire Products",
-      "Invoice #": "PS-INV104012",
-      "date": "2026-09-03",
-      "PO": "58717",
-      "Amount": 210.6,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=58717. Select Receipts 23647 2@100.0 on PO 58717. Invoice #=PS-INV104012 (exact PDF, not stripped). Fees=Freight Charge - Wholesale - In 10.6 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[{'id': 23647, 'qty': 2.0}] fees=already-posted ppv=none. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10124,
-      "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
-      "Fees and surcharges": "Freight Charge - Wholesale - In 10.6",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "23647 2@100.0",
-      "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "Legacy Wire Products",
-      "Invoice #": "PS-INV104011",
-      "date": "2026-09-01",
-      "PO": "59063",
-      "Amount": 875.0,
-      "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59063 for Legacy Wire invoice #PS-INV104011. PDF merch=Excl. Tax KANNON- WIF-10180 WIF-10180 Hitch Bolt Mirror Jet Black 09/01/26 25@35; selected=none. Do not first-open guess. Do not invent Success. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Ruben Perez",
-      "KIMCO id": 10125,
-      "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
-    },
-    {
-      "Vendor": "Legacy Wire Products",
-      "Invoice #": "PS-INV104010",
-      "date": "2026-09-01",
-      "PO": "59008",
-      "Amount": 1195.5,
-      "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues.",
-      "Exception category": "price_variance",
-      "Exception owner": "Shawn McKibben",
-      "KIMCO id": 10126,
-      "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
-    },
-    {
-      "Vendor": "Legacy Wire Products",
-      "Invoice #": "PS-INV104009",
-      "date": "2026-09-01",
-      "PO": "58973",
-      "Amount": 75.0,
-      "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 58973 for Legacy Wire invoice #PS-INV104009. PDF merch=Excl. Tax KANNON- MD20-1627 MD20-1627 BRACKET:  BK08 PFB735S2 FLAT BLACK 08/19/2 100@0.75; selected=none. Do not first-open guess. Do not invent Success. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Ruben Perez",
-      "KIMCO id": 10127,
-      "Batch": "API Agent - 9/17/26 Legacy Wire (717)",
-      "Fees and surcharges": "none",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
-    }
-  ],
-  "chosen_because": "Plus-5 on batch 717. Prefer pending PS-INV104013 / 104012 / 104011 / 104010 / 104009 if still open. Unflagged Legacy Wire only; not already on KIMCO; invoice date on/after 2026-08-01; cap 5. First-pass 10112\u201310115 Success and 10116 HOLD left alone. Packing slips ignored. Do not walk pre-Aug. Do not reuse 715/716.",
-  "parsed": [
-    {
-      "invoice_number": "PS-INV104013",
-      "date": "2026-09-03",
-      "po": "58748",
-      "amount": 315.9,
-      "lines": [
-        {
-          "part": "A-05480-001",
-          "qty": 3.0,
-          "amount": 300.0,
-          "unit_price": 100.0,
-          "po_line": null,
-          "wo": null,
-          "label": "A-05480-001",
-          "description": "05480-002 A-05480-001- ASSEMBLY, BIFOLD GATE- 77\"(2\"TUBE):BLACK TEXTURE POWDER SRFM12783CN 09/01/26"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Freight Charge - Wholesale - In",
-          "amount": 15.9,
-          "fee": true
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Sales_Invoice_PS-INV104013.pdf",
-      "pdf_bytes": 402131,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Legacy Wire Products - Sales Invoice PS-INV104013",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "PS-INV104012",
-      "date": "2026-09-03",
-      "po": "58717",
-      "amount": 210.6,
-      "lines": [
-        {
-          "part": "A-05480-001",
-          "qty": 2.0,
-          "amount": 200.0,
-          "unit_price": 100.0,
-          "po_line": null,
-          "wo": null,
-          "label": "A-05480-001",
-          "description": "05480-002 A-05480-001- ASSEMBLY, BIFOLD GATE- 77\"(2\"TUBE):BLACK TEXTURE POWDER SRFM12783CN 09/01/26"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Freight Charge - Wholesale - In",
-          "amount": 10.6,
-          "fee": true
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Sales_Invoice_PS-INV104012.pdf",
-      "pdf_bytes": 402397,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Legacy Wire Products - Sales Invoice PS-INV104012",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "PS-INV104011",
-      "date": "2026-09-01",
-      "po": "59063",
-      "amount": 875.0,
-      "lines": [
-        {
-          "part": "",
-          "qty": 25.0,
-          "amount": 875.0,
-          "unit_price": 35.0,
-          "po_line": null,
-          "wo": null,
-          "label": "Excl. Tax KANNON- WIF-10180 WIF-10180 Hitch Bolt Mirror Jet Black 09/01/26",
-          "description": "Excl. Tax KANNON- WIF-10180 WIF-10180 Hitch Bolt Mirror Jet Black 09/01/26"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-02_Sales_Invoice_PS-INV104011.pdf",
-      "pdf_bytes": 401461,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Legacy Wire Products - Sales Invoice PS-INV104011",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "PS-INV104010",
-      "date": "2026-09-01",
-      "po": "59008",
-      "amount": 1195.5,
-      "lines": [
-        {
-          "part": "",
-          "qty": 299.0,
-          "amount": 448.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "Excl. Tax KANNON- MD23-1780 MD07-1623-1780 BRACKET BK08 PFB735S2 FLAT BLACK 09/0",
-          "description": "Excl. Tax KANNON- MD23-1780 MD07-1623-1780 BRACKET BK08 PFB735S2 FLAT BLACK 09/01/26"
-        },
-        {
-          "part": "",
-          "qty": 199.0,
-          "amount": 298.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26",
-          "description": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26"
-        },
-        {
-          "part": "",
-          "qty": 299.0,
-          "amount": 448.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "298.50 KANNON- MD23-1779 MD23-1779 BRACKET   BK08 PFB735S2 FLAT BLACK 09/01/26",
-          "description": "298.50 KANNON- MD23-1779 MD23-1779 BRACKET   BK08 PFB735S2 FLAT BLACK 09/01/26"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-02_Sales_Invoice_PS-INV104010.pdf",
-      "pdf_bytes": 401498,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Legacy Wire Products - Sales Invoice PS-INV104010",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "PS-INV104009",
-      "date": "2026-09-01",
-      "po": "58973",
-      "amount": 75.0,
-      "lines": [
-        {
-          "part": "",
-          "qty": 100.0,
-          "amount": 75.0,
-          "unit_price": 0.75,
-          "po_line": null,
-          "wo": null,
-          "label": "Excl. Tax KANNON- MD20-1627 MD20-1627 BRACKET:  BK08 PFB735S2 FLAT BLACK 08/19/2",
-          "description": "Excl. Tax KANNON- MD20-1627 MD20-1627 BRACKET:  BK08 PFB735S2 FLAT BLACK 08/19/26"
-        }
-      ],
-      "fees": [],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-02_Sales_Invoice_PS-INV104009.pdf",
-      "pdf_bytes": 401405,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Legacy Wire Products - Sales Invoice PS-INV104009",
-      "graph_message_id_present": true
-    }
-  ],
+  "recent_picked": [],
+  "new_rows": [],
   "older_not_entered": [],
   "leftover_pending": [],
   "packing_slips_ignored": [],
@@ -1501,7 +1245,10 @@
       "outlook": "entered-in-ai",
       "Receipts": "24187 19@41.0",
       "Exception category": "",
-      "Exception owner": ""
+      "Exception owner": "",
+      "_live_invoice_amount": 1029.0,
+      "_live_verification": 1029.0,
+      "_live_receipts": "24187 19@41.0"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1522,7 +1269,10 @@
       "outlook": "entered-in-ai",
       "Receipts": "24188 17@36.0; 24191 27@44.0",
       "Exception category": "",
-      "Exception owner": ""
+      "Exception owner": "",
+      "_live_invoice_amount": 2600.0,
+      "_live_verification": 2600.0,
+      "_live_receipts": "24188 17@36.0; 24191 27@44.0"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1543,7 +1293,10 @@
       "outlook": "entered-in-ai",
       "Receipts": "24189 9@41.0; 24190 17@41.0",
       "Exception category": "",
-      "Exception owner": ""
+      "Exception owner": "",
+      "_live_invoice_amount": 1437.42,
+      "_live_verification": 1437.42,
+      "_live_receipts": "24189 9@41.0; 24190 17@41.0"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1564,7 +1317,10 @@
       "outlook": "entered-in-ai",
       "Receipts": "24192 100@0.777",
       "Exception category": "",
-      "Exception owner": ""
+      "Exception owner": "",
+      "_live_invoice_amount": 220.85,
+      "_live_verification": 220.85,
+      "_live_receipts": "24192 100@0.777"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1585,7 +1341,10 @@
       "outlook": "left-as-kyle",
       "Receipts": "none",
       "Exception category": "price_variance",
-      "Exception owner": "Shawn McKibben"
+      "Exception owner": "Shawn McKibben",
+      "_live_invoice_amount": 14.28,
+      "_live_verification": 114.28,
+      "_live_receipts": "none"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1606,7 +1365,10 @@
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "none",
-      "outlook": "entered-with-issues"
+      "outlook": "entered-with-issues",
+      "_live_invoice_amount": 15.9,
+      "_live_verification": 315.9,
+      "_live_receipts": "none"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1627,7 +1389,10 @@
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "23647 2@100.0",
-      "outlook": "entered-in-ai"
+      "outlook": "entered-in-ai",
+      "_live_invoice_amount": 210.6,
+      "_live_verification": 210.6,
+      "_live_receipts": "23647 2@100.0"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1648,7 +1413,10 @@
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "none",
-      "outlook": "entered-with-issues"
+      "outlook": "entered-with-issues",
+      "_live_invoice_amount": 0.0,
+      "_live_verification": 875.0,
+      "_live_receipts": "none"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1669,7 +1437,10 @@
       "Flag in Outlook": "Yes",
       "Notes": "",
       "Receipts": "none",
-      "outlook": "entered-with-issues"
+      "outlook": "entered-with-issues",
+      "_live_invoice_amount": 0.0,
+      "_live_verification": 75.0,
+      "_live_receipts": "none"
     },
     {
       "Vendor": "Legacy Wire Products",
@@ -1690,204 +1461,229 @@
       "outlook": "entered-in-ai",
       "Receipts": "24207 299@1.5; 24208 199@1.5; 24209 299@1.5",
       "Exception category": "",
-      "Exception owner": ""
+      "Exception owner": "",
+      "_live_invoice_amount": 1195.5,
+      "_live_verification": 1195.5,
+      "_live_receipts": "24207 299@1.5; 24208 199@1.5; 24209 299@1.5"
     }
   ],
-  "finishes": {
-    "PS-INV104013": {
-      "wanted": [],
-      "select_status": "held-unfinished",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": []
-    },
-    "PS-INV104012": {
-      "wanted": [
+  "blocker": "No unflagged Legacy Wire invoices dated on/after 2026-08-01 that are not already in KIMCO. Stopped \u2014 did not walk pre-Aug leftovers (AQPC NOTE-28). Packing slips ignored (not actioned).",
+  "treyce_emailed": false,
+  "report": "/workspace/runs/AP-run-2026-09-17-legacy-wire.xlsx",
+  "kimco_gets_refresh": {
+    "10112": {
+      "id": 10112,
+      "invoice_number": "PS-INV104020",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO59034-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 1029.0,
+      "verification": 1029.0,
+      "invoice_date": "2026-09-04T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 717,
+      "batch_text": "API Agent - 9/17/26 Legacy Wire",
+      "receipt_lines": [
         {
-          "id": 23647,
-          "qty": 2.0
-        }
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "A-05480-001",
-            "qty": 2.0,
-            "amount": 200.0,
-            "unit_price": 100.0,
-            "po_line": null,
-            "wo": null,
-            "label": "A-05480-001",
-            "description": "05480-002 A-05480-001- ASSEMBLY, BIFOLD GATE- 77\"(2\"TUBE):BLACK TEXTURE POWDER SRFM12783CN 09/01/26"
-          },
-          "receipt": {
-            "id": 23647,
-            "slip": "PO58717-Legacy Wire Products - 2026/9/2",
-            "part": "PO58717-03",
-            "description": "PO58717-Legacy Wire Products - 2026/9/2",
-            "label": "PO58717-Legacy Wire Products - 2026/9/2",
-            "qty": 19.0,
-            "unit_price": 100.0,
-            "amount": 1900.0,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "58717",
-            "wo": "",
-            "name": "PO58717-Legacy Wire Products - 2026/9/2",
-            "raw": {
-              "Name": "PO58717-Legacy Wire Products - 2026/9/2",
-              "PO_Item_Number": {
-                "id": 16629,
-                "text": "PO58717-03",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 55,
-          "pass": "first",
-          "how": "line qty cover + same unit + PO (not first-open)",
-          "select_qty": 2.0
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23645,
-          "qty": 12.0,
-          "unit_price": 41.0,
-          "amount": 492.0,
-          "part": "PO58717-01"
-        },
-        {
-          "id": 23646,
-          "qty": 28.0,
-          "unit_price": 41.0,
-          "amount": 1148.0,
-          "part": "PO58717-02"
-        },
-        {
-          "id": 23647,
           "qty": 19.0,
-          "unit_price": 100.0,
-          "amount": 1900.0,
-          "part": "PO58717-03"
-        }
-      ]
-    },
-    "PS-INV104011": {
-      "wanted": [],
-      "select_status": "held-unfinished",
-      "fee_status": "none",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": []
-    },
-    "PS-INV104010": {
-      "wanted": [],
-      "select_status": "ppv-lock-select-zero",
-      "fee_status": "none",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "",
-            "qty": 199.0,
-            "amount": 298.5,
-            "unit_price": 1.5,
-            "po_line": null,
-            "wo": null,
-            "label": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26",
-            "description": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26"
-          },
-          "receipt": {
-            "id": 23679,
-            "slip": "PO59008-Legacy Wire Products - 2026/9/2",
-            "part": "PO59008-02",
-            "description": "PO59008-Legacy Wire Products - 2026/9/2",
-            "label": "PO59008-Legacy Wire Products - 2026/9/2",
-            "qty": 199.0,
-            "unit_price": 0.75,
-            "amount": 149.25,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59008",
-            "wo": "",
-            "name": "PO59008-Legacy Wire Products - 2026/9/2",
-            "raw": {
-              "Name": "PO59008-Legacy Wire Products - 2026/9/2",
-              "PO_Item_Number": {
-                "id": 17364,
-                "text": "PO59008-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 50,
-          "pass": "same-unit-cover",
-          "how": "combine same-item same-unit-cost leftovers (same-unit qty cover; not first-open; 125315 class)"
+          "unit": 41.0,
+          "receipt": 24187,
+          "po_line": null
         }
       ],
-      "skipped_over_ppv": true,
-      "select_zero": true,
-      "open_on_po": [
+      "fee_count": 1,
+      "charges": [
         {
-          "id": 23678,
-          "qty": 299.0,
-          "unit_price": 0.75,
-          "amount": 224.25,
-          "part": "PO59008-01"
-        },
-        {
-          "id": 23679,
-          "qty": 199.0,
-          "unit_price": 0.75,
-          "amount": 149.25,
-          "part": "PO59008-02"
-        },
-        {
-          "id": 23680,
-          "qty": 299.0,
-          "unit_price": 0.75,
-          "amount": 224.25,
-          "part": "PO59008-03"
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 250.0,
+          "description": "F-Fees & Surcharges"
         }
+      ],
+      "attachments": [
+        "2026-09-09_Sales_Invoice_PS-INV104020.pdf"
+      ],
+      "verification_amount": 1029.0,
+      "fee_amounts": [
+        250.0
+      ],
+      "ppv_amounts": []
+    },
+    "10113": {
+      "id": 10113,
+      "invoice_number": "PS-INV104019",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO59030-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 2600.0,
+      "verification": 2600.0,
+      "invoice_date": "2026-09-04T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 717,
+      "batch_text": "API Agent - 9/17/26 Legacy Wire",
+      "receipt_lines": [
+        {
+          "qty": 17.0,
+          "unit": 36.0,
+          "receipt": 24188,
+          "po_line": null
+        },
+        {
+          "qty": 27.0,
+          "unit": 44.0,
+          "receipt": 24191,
+          "po_line": null
+        }
+      ],
+      "fee_count": 1,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 800.0,
+          "description": "F-Fees & Surcharges"
+        }
+      ],
+      "attachments": [
+        "2026-09-08_Sales_Invoice_PS-INV104019.pdf"
+      ],
+      "verification_amount": 2600.0,
+      "fee_amounts": [
+        800.0
+      ],
+      "ppv_amounts": []
+    },
+    "10114": {
+      "id": 10114,
+      "invoice_number": "PS-INV104018",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO59030-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 1437.42,
+      "verification": 1437.42,
+      "invoice_date": "2026-09-04T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 717,
+      "batch_text": "API Agent - 9/17/26 Legacy Wire",
+      "receipt_lines": [
+        {
+          "qty": 9.0,
+          "unit": 41.0,
+          "receipt": 24189,
+          "po_line": null
+        },
+        {
+          "qty": 17.0,
+          "unit": 41.0,
+          "receipt": 24190,
+          "po_line": null
+        }
+      ],
+      "fee_count": 1,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 371.42,
+          "description": "F-Fees & Surcharges"
+        }
+      ],
+      "attachments": [
+        "2026-09-08_Sales_Invoice_PS-INV104018.pdf"
+      ],
+      "verification_amount": 1437.42,
+      "fee_amounts": [
+        371.42
+      ],
+      "ppv_amounts": []
+    },
+    "10115": {
+      "id": 10115,
+      "invoice_number": "PS-INV104015",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO58977-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 220.85,
+      "verification": 220.85,
+      "invoice_date": "2026-09-04T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 375,
+      "batch_text": "TRANSFER AP",
+      "receipt_lines": [
+        {
+          "qty": 100.0,
+          "unit": 0.777,
+          "receipt": 24192,
+          "po_line": null
+        }
+      ],
+      "fee_count": 2,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 142.85,
+          "description": "F-Fees & Surcharges"
+        },
+        {
+          "lookup_id": 13,
+          "text": "Purchase Price Variance",
+          "amount": 0.3,
+          "description": "Purchase Price Variance"
+        }
+      ],
+      "attachments": [
+        "2026-09-08_Sales_Invoice_PS-INV104015.pdf"
+      ],
+      "verification_amount": 220.85,
+      "fee_amounts": [
+        142.85
+      ],
+      "ppv_amounts": [
+        0.3
       ]
     },
-    "PS-INV104009": {
-      "wanted": [],
-      "select_status": "held-unfinished",
-      "fee_status": "none",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": []
-    }
-  },
-  "kimco_gets": {
+    "10116": {
+      "id": 10116,
+      "invoice_number": "PS-INV104017",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO58807-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 14.28,
+      "verification": 114.28,
+      "invoice_date": "2026-09-03T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 717,
+      "batch_text": "API Agent - 9/17/26 Legacy Wire",
+      "receipt_lines": [],
+      "fee_count": 1,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 14.28,
+          "description": "F-Fees & Surcharges"
+        }
+      ],
+      "attachments": [
+        "2026-09-08_Sales_Invoice_PS-INV104017.pdf"
+      ],
+      "verification_amount": 114.28,
+      "fee_amounts": [
+        14.28
+      ],
+      "ppv_amounts": []
+    },
     "10123": {
       "id": 10123,
       "invoice_number": "PS-INV104013",
@@ -1985,30 +1781,6 @@
       "fee_amounts": [],
       "ppv_amounts": []
     },
-    "10126": {
-      "id": 10126,
-      "invoice_number": "PS-INV104010",
-      "vendor_id": 292,
-      "vendor_text": "1290-Legacy Wire Products",
-      "po": "PO59008-Legacy Wire Products",
-      "invoice_type": 3,
-      "invoice_amount": 0.0,
-      "verification": 1195.5,
-      "invoice_date": "2026-09-01T00:00:00",
-      "posted": null,
-      "void": false,
-      "batch_id": 717,
-      "batch_text": "API Agent - 9/17/26 Legacy Wire",
-      "receipt_lines": [],
-      "fee_count": 0,
-      "charges": [],
-      "attachments": [
-        "2026-09-02_Sales_Invoice_PS-INV104010.pdf"
-      ],
-      "verification_amount": 1195.5,
-      "fee_amounts": [],
-      "ppv_amounts": []
-    },
     "10127": {
       "id": 10127,
       "invoice_number": "PS-INV104009",
@@ -2032,225 +1804,58 @@
       "verification_amount": 75.0,
       "fee_amounts": [],
       "ppv_amounts": []
+    },
+    "10126": {
+      "id": 10126,
+      "invoice_number": "PS-INV104010",
+      "vendor_id": 292,
+      "vendor_text": "1290-Legacy Wire Products",
+      "po": "PO59008-Legacy Wire Products",
+      "invoice_type": 3,
+      "invoice_amount": 1195.5,
+      "verification": 1195.5,
+      "invoice_date": "2026-09-01T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 717,
+      "batch_text": "API Agent - 9/17/26 Legacy Wire",
+      "receipt_lines": [
+        {
+          "qty": 299.0,
+          "unit": 1.5,
+          "receipt": 24207,
+          "po_line": null
+        },
+        {
+          "qty": 199.0,
+          "unit": 1.5,
+          "receipt": 24208,
+          "po_line": null
+        },
+        {
+          "qty": 299.0,
+          "unit": 1.5,
+          "receipt": 24209,
+          "po_line": null
+        }
+      ],
+      "fee_count": 0,
+      "charges": [],
+      "attachments": [
+        "2026-09-02_Sales_Invoice_PS-INV104010.pdf"
+      ],
+      "verification_amount": 1195.5,
+      "fee_amounts": [],
+      "ppv_amounts": []
     }
   },
-  "treyce_emailed": false,
-  "report": "/workspace/runs/AP-run-2026-09-17-legacy-wire.xlsx",
-  "plus5_headers": {
-    "PS-INV104013": 10123,
-    "PS-INV104012": 10124,
-    "PS-INV104011": 10125,
-    "PS-INV104010": 10126,
-    "PS-INV104009": 10127
+  "transfer_ap_lookup": {
+    "found": true,
+    "id": 375,
+    "name": "TRANSFER AP",
+    "invent": false
   },
-  "shawn_repriced": true,
-  "transfer_ap": false,
-  "comment_added": false,
-  "finish_10126": {
-    "wanted": [
-      24207,
-      24208,
-      24209
-    ],
-    "select_status": "selected",
-    "fee_status": "none",
-    "ppv_status": "none",
-    "ppv_amount": 0.0,
-    "match_how": null,
-    "matched": [
-      {
-        "line": {
-          "part": "",
-          "qty": 299.0,
-          "amount": 448.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "Excl. Tax KANNON- MD23-1780 MD07-1623-1780 BRACKET BK08 PFB735S2 FLAT BLACK 09/0",
-          "description": "Excl. Tax KANNON- MD23-1780 MD07-1623-1780 BRACKET BK08 PFB735S2 FLAT BLACK 09/01/26"
-        },
-        "receipt": {
-          "id": 24207,
-          "slip": "PO59008-Legacy Wire Products - 2026/9/17",
-          "part": "PO59008-01",
-          "description": "PO59008-Legacy Wire Products - 2026/9/17",
-          "label": "PO59008-Legacy Wire Products - 2026/9/17",
-          "qty": 299.0,
-          "unit_price": 1.5,
-          "amount": 448.5,
-          "cost": null,
-          "po_line": null,
-          "line": null,
-          "line_no": null,
-          "po": "59008",
-          "wo": "",
-          "name": "PO59008-Legacy Wire Products - 2026/9/17",
-          "raw": {
-            "Name": "PO59008-Legacy Wire Products - 2026/9/17",
-            "PO_Item_Number": {
-              "id": 17363,
-              "text": "PO59008-01",
-              "isAbstract": false
-            }
-          }
-        },
-        "score": 55,
-        "pass": "first",
-        "how": "line qty + amount + PO (identical leftovers; take one)"
-      },
-      {
-        "line": {
-          "part": "",
-          "qty": 199.0,
-          "amount": 298.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26",
-          "description": "448.50 KANNON- MD04-2301 MD04-2301 SPACER  BK08 PFB735S2 FLAT BLACK 09/01/26"
-        },
-        "receipt": {
-          "id": 24208,
-          "slip": "PO59008-Legacy Wire Products - 2026/9/17",
-          "part": "PO59008-02",
-          "description": "PO59008-Legacy Wire Products - 2026/9/17",
-          "label": "PO59008-Legacy Wire Products - 2026/9/17",
-          "qty": 199.0,
-          "unit_price": 1.5,
-          "amount": 298.5,
-          "cost": null,
-          "po_line": null,
-          "line": null,
-          "line_no": null,
-          "po": "59008",
-          "wo": "",
-          "name": "PO59008-Legacy Wire Products - 2026/9/17",
-          "raw": {
-            "Name": "PO59008-Legacy Wire Products - 2026/9/17",
-            "PO_Item_Number": {
-              "id": 17364,
-              "text": "PO59008-02",
-              "isAbstract": false
-            }
-          }
-        },
-        "score": 55,
-        "pass": "first",
-        "how": "line qty + PO (not first-open; extra PO receipts ignored)"
-      },
-      {
-        "line": {
-          "part": "",
-          "qty": 299.0,
-          "amount": 448.5,
-          "unit_price": 1.5,
-          "po_line": null,
-          "wo": null,
-          "label": "298.50 KANNON- MD23-1779 MD23-1779 BRACKET   BK08 PFB735S2 FLAT BLACK 09/01/26",
-          "description": "298.50 KANNON- MD23-1779 MD23-1779 BRACKET   BK08 PFB735S2 FLAT BLACK 09/01/26"
-        },
-        "receipt": {
-          "id": 24209,
-          "slip": "PO59008-Legacy Wire Products - 2026/9/17",
-          "part": "PO59008-03",
-          "description": "PO59008-Legacy Wire Products - 2026/9/17",
-          "label": "PO59008-Legacy Wire Products - 2026/9/17",
-          "qty": 299.0,
-          "unit_price": 1.5,
-          "amount": 448.5,
-          "cost": null,
-          "po_line": null,
-          "line": null,
-          "line_no": null,
-          "po": "59008",
-          "wo": "",
-          "name": "PO59008-Legacy Wire Products - 2026/9/17",
-          "raw": {
-            "Name": "PO59008-Legacy Wire Products - 2026/9/17",
-            "PO_Item_Number": {
-              "id": 17365,
-              "text": "PO59008-03",
-              "isAbstract": false
-            }
-          }
-        },
-        "score": 55,
-        "pass": "first",
-        "how": "line qty + PO (not first-open; extra PO receipts ignored)"
-      }
-    ],
-    "skipped_over_ppv": false,
-    "select_zero": false,
-    "open_on_po": [
-      {
-        "id": 24207,
-        "qty": 299.0,
-        "unit_price": 1.5,
-        "amount": 448.5,
-        "part": "PO59008-01"
-      },
-      {
-        "id": 24208,
-        "qty": 199.0,
-        "unit_price": 1.5,
-        "amount": 298.5,
-        "part": "PO59008-02"
-      },
-      {
-        "id": 24209,
-        "qty": 299.0,
-        "unit_price": 1.5,
-        "amount": 448.5,
-        "part": "PO59008-03"
-      }
-    ]
-  },
-  "kimco_get_10126": {
-    "id": 10126,
-    "invoice_number": "PS-INV104010",
-    "vendor_id": 292,
-    "vendor_text": "1290-Legacy Wire Products",
-    "po": "PO59008-Legacy Wire Products",
-    "invoice_type": 3,
-    "invoice_amount": 1195.5,
-    "verification": 1195.5,
-    "invoice_date": "2026-09-01T00:00:00",
-    "posted": null,
-    "void": false,
-    "batch_id": 717,
-    "batch_text": "API Agent - 9/17/26 Legacy Wire",
-    "receipt_lines": [
-      {
-        "qty": 299.0,
-        "unit": 1.5,
-        "receipt": 24207,
-        "po_line": null
-      },
-      {
-        "qty": 199.0,
-        "unit": 1.5,
-        "receipt": 24208,
-        "po_line": null
-      },
-      {
-        "qty": 299.0,
-        "unit": 1.5,
-        "receipt": 24209,
-        "po_line": null
-      }
-    ],
-    "fee_count": 0,
-    "charges": [],
-    "attachments": [
-      "2026-09-02_Sales_Invoice_PS-INV104010.pdf"
-    ],
-    "verification_amount": 1195.5,
-    "fee_amounts": [],
-    "ppv_amounts": []
-  },
-  "batch_move": {
-    "status": "already-on-717",
-    "batch_id": 717,
-    "batch_text": "API Agent - 9/17/26 Legacy Wire"
-  }
+  "transfer_ap_hint_ignored": 375,
+  "refresh_all": true,
+  "refresh_mutated": false
 }
