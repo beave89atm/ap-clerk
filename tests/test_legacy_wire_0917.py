@@ -27,9 +27,11 @@ from legacy_wire_0917 import (  # noqa: E402
     CREATED_HEADERS,
     DO_NOT_MUTATE_IDS,
     FALLBACK_BATCH_NAME,
+    FINISH_ORDER,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
     KNOWN_ENTERED,
+    LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
     PREFERRED_BATCH_NAME,
     VENDOR_NAME,
@@ -233,6 +235,9 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
         "PS-INV104015": 10115,
         "PS-INV104017": 10116,
     }
+    assert LEAVE_ALONE_HOLD_IDS == {10116}
+    assert FINISH_ORDER.index("PS-INV104018") < FINISH_ORDER.index("PS-INV104019")
+    assert FINISH_ORDER[-1] == "PS-INV104017"
 
 
 def test_legacy_wire_inches_are_not_rolled_qty():
@@ -453,6 +458,88 @@ def test_legacy_wire_freight_as_fees_not_ppv_is_success():
     )
     assert hold_fees["Result"] == "HOLD"
     assert "fees" in hold_fees["Why"].lower()
+
+
+def test_legacy_wire_10113_does_not_steal_10114_qty17():
+    """17@$36 takes 18@$36 qty 17. Do not steal leftover 17@$41 (10114)."""
+    receipts = [
+        {"id": 24188, "po": "59030", "part": "PO59030-01", "qty": 18.0, "unit_price": 36.0, "amount": 648.0},
+        {"id": 24189, "po": "59030", "part": "PO59030-02", "qty": 9.0, "unit_price": 41.0, "amount": 369.0},
+        {"id": 24190, "po": "59030", "part": "PO59030-03", "qty": 17.0, "unit_price": 41.0, "amount": 697.0},
+        {"id": 24191, "po": "59030", "part": "PO59030-04", "qty": 27.0, "unit_price": 44.0, "amount": 1188.0},
+    ]
+    match_019 = match_receipts(
+        invoice_number="PS-INV104019",
+        invoice_lines=[
+            {"part": "A-02390-000", "qty": 17.0, "unit_price": 36.0, "amount": 612.0},
+            {"part": "A-06809-000", "qty": 27.0, "unit_price": 44.0, "amount": 1188.0},
+        ],
+        receipts=receipts,
+        po_number="59030",
+        invoice_amount=1800.0,
+    )
+    picked_019 = sorted(
+        ((h.get("receipt") or {}).get("id"), h.get("select_qty"))
+        for h in (match_019.get("matched") or [])
+    )
+    assert picked_019 == [(24188, 17.0), (24191, None)]
+    assert not match_019.get("hold_no_receipts")
+
+    match_018 = match_receipts(
+        invoice_number="PS-INV104018",
+        invoice_lines=[
+            {"part": "75-10-201007", "qty": 9.0, "unit_price": 41.0, "amount": 369.0},
+            {"part": "75-10-201007", "qty": 17.0, "unit_price": 41.0, "amount": 697.0},
+        ],
+        receipts=receipts,
+        po_number="59030",
+        invoice_amount=1066.0,
+    )
+    picked_018 = sorted((h.get("receipt") or {}).get("id") for h in (match_018.get("matched") or []))
+    assert picked_018 == [24189, 24190]
+
+
+def test_legacy_wire_10116_leave_alone_stays_hold():
+    row = quality_legacy_row(
+        None,
+        parsed={
+            "invoice_number": "PS-INV104017",
+            "amount": 114.28,
+            "po": "58807",
+            "lines": [{"part": "A-05480-001", "qty": 1.0, "unit_price": 100.0, "amount": 100.0}],
+            "fees": [{"name": "Freight Charge", "amount": 14.28, "fee": True}],
+        },
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "PS-INV104017",
+            "PO": "58807",
+            "Amount": 114.28,
+            "KIMCO id": 10116,
+        },
+        proof={
+            "id": 10116,
+            "invoice_number": "PS-INV104017",
+            "invoice_amount": 14.28,
+            "verification": 114.28,
+            "invoice_type": 3,
+            "vendor_id": 292,
+            "attachments": ["Sales Invoice PS-INV104017.pdf"],
+            "receipt_lines": [],
+            "fee_amounts": [14.28],
+            "ppv_amounts": [],
+        },
+        finish={
+            "select_status": "leave-alone",
+            "select_zero": True,
+            "skipped_over_ppv": True,
+            "do_not_stamp_outlook": True,
+        },
+        vendor_id=292,
+    )
+    assert row["Result"] == "HOLD"
+    assert "price-does-not-match" in row["Why"]
+    assert "Shawn" in row["Why"]
+    assert row["Receipts"] == "none"
 
 
 def test_legacy_wire_no_receipt_why_names_this_invoice():

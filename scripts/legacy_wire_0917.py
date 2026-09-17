@@ -73,6 +73,7 @@ from ap_clerk.rules import (  # noqa: E402
     receipt_cost,
     receipt_select_refs,
     rounding_ppv_to_hit_pdf_total,
+    select_qty_from_receipt,
 )
 
 LOGGER = logging.getLogger("ap_clerk.legacy_wire_0917")
@@ -104,6 +105,17 @@ CREATED_HEADERS = {
     "PS-INV104015": 10115,
     "PS-INV104017": 10116,
 }
+# Kyle: Shawn price-does-not-match. Receipts not selected. GET-only.
+LEAVE_ALONE_HOLD_IDS = {10116}
+# 10114 (9@41 + 17@41) before 10113 (17@36 cover of 18@36) so qty-17
+# leftover 24190 cannot be stolen. Reload receipts after each select.
+FINISH_ORDER = (
+    "PS-INV104020",
+    "PS-INV104018",
+    "PS-INV104015",
+    "PS-INV104019",
+    "PS-INV104017",
+)
 DO_NOT_MUTATE_IDS = {9995, 9996}
 # Digit-only shortcuts that must never be written as the invoice #.
 _PS_INV = re.compile(r"^PS-INV(\d{5,})$", flags=re.I)
@@ -696,12 +708,20 @@ def ppv_total_from_selectable(
         for hit in hits:
             rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
             one = receipt_cost(rec)
+            select_qty = money(hit.get("select_qty"))
+            if select_qty is None:
+                select_qty = select_qty_from_receipt(line, rec)
             unit = money(rec.get("unit_price"))
             rq = money(rec.get("qty") if rec.get("qty") is not None else rec.get("quantity"))
+            if unit is None and rq and one is not None:
+                unit = round(one / rq, 4)
+            if select_qty is not None and unit is not None:
+                one = round(select_qty * unit, 2)
+                rec_qty_sum = round(rec_qty_sum + select_qty, 4)
+            elif rq is not None:
+                rec_qty_sum = round(rec_qty_sum + rq, 4)
             if unit is not None:
                 rec_units.append(unit)
-            if rq is not None:
-                rec_qty_sum = round(rec_qty_sum + rq, 4)
             if one is not None:
                 rec_amt = round(rec_amt + one, 2)
                 have_rec = True
@@ -1171,7 +1191,7 @@ def finish_entered_rows(
         if result in {"Fail", "Skipped"}:
             rows.append(enter_row)
             continue
-        if kid not in (None, "") and int(kid) in DO_NOT_MUTATE_IDS:
+        if kid not in (None, "") and int(kid) in LEAVE_ALONE_HOLD_IDS | DO_NOT_MUTATE_IDS:
             rows.append(enter_row)
             continue
         finish = finish_hold_header(
@@ -1192,18 +1212,13 @@ def finish_entered_rows(
     return rows, finishes, gets
 
 
-def remove_ppv_without_receipts(client: KimcoClient, kimco_id: int) -> str:
-    """Remove invented PPV when no receipts are selected. Leave Fees alone."""
-    item = client.get_item("ap_invoices", int(kimco_id))
-    recs = []
-    for line in (item.get("lists") or {}).get("APInvoiceLine") or []:
-        lv = line.get("values") if isinstance(line, dict) else {}
-        if lv.get("Receipt") not in (None, "", {}):
-            recs.append(lv.get("Receipt"))
-    if recs:
-        return "keep-has-receipts"
+def remove_invented_ppv(client: KimcoClient, kimco_id: int) -> str:
+    """Remove invented PPV (10113 −$85). Leave Fees alone. Persist if rolled back."""
     from ap_clerk.kimco import _ppv_charge_removals
 
+    if int(kimco_id) in LEAVE_ALONE_HOLD_IDS | DO_NOT_MUTATE_IDS:
+        return "leave-alone"
+    item = client.get_item("ap_invoices", int(kimco_id))
     name, charges = _ppv_charge_removals(item)
     if not name or not charges:
         return "none"
@@ -1218,9 +1233,94 @@ def remove_ppv_without_receipts(client: KimcoClient, kimco_id: int) -> str:
         return f"blocked-{put.status_code}"
     after = client.get_item("ap_invoices", int(kimco_id))
     _, leftover = _ppv_charge_removals(after)
-    if leftover:
+    if not leftover:
+        return "removed"
+    orig_ver = money((item.get("values") or {}).get("Invoice_Verification_Amount"))
+    persist = {
+        "state": "Modified",
+        "id": int(kimco_id),
+        "values": {"Invoice_Verification_Amount": 0},
+        "lists": {name: charges},
+    }
+    put2 = client.request("PUT", url, json=persist)
+    if put2.status_code >= 400:
         return "removed-rolled-back"
-    return "removed"
+    after2 = client.get_item("ap_invoices", int(kimco_id))
+    _, leftover2 = _ppv_charge_removals(after2)
+    if orig_ver not in (None, 0, 0.0):
+        client.update(
+            "ap_invoices",
+            kimco_id,
+            {
+                "state": "Modified",
+                "id": int(kimco_id),
+                "values": {"Invoice_Verification_Amount": orig_ver},
+            },
+        )
+    if leftover2:
+        return "removed-rolled-back"
+    return "removed-persisted"
+
+
+def remove_ppv_without_receipts(client: KimcoClient, kimco_id: int) -> str:
+    """Remove invented PPV when no receipts are selected. Leave Fees alone."""
+    item = client.get_item("ap_invoices", int(kimco_id))
+    recs = []
+    for line in (item.get("lists") or {}).get("APInvoiceLine") or []:
+        lv = line.get("values") if isinstance(line, dict) else {}
+        if lv.get("Receipt") not in (None, "", {}):
+            recs.append(lv.get("Receipt"))
+    if recs:
+        return "keep-has-receipts"
+    return remove_invented_ppv(client, kimco_id)
+
+
+def find_invoice_message_id(graph, invoice_number: str) -> str:
+    """Graph id for Outlook stamp. Search only; no Mail.Send."""
+    if graph is None:
+        return ""
+    wanted = exact_invoice_number(invoice_number)
+    if not wanted:
+        return ""
+    try:
+        hits = graph.search_messages(
+            ALLOWED_MAILBOX, f"Legacy Wire Products - Sales Invoice {wanted}", top=8
+        )
+    except Exception:  # noqa: BLE001 - stamp is best-effort
+        return ""
+    for msg in hits:
+        subject = str(msg.get("subject") or "")
+        if wanted in subject and is_legacy_wire_message(msg):
+            return str(msg.get("id") or "")
+    return ""
+
+
+def download_invoice_pdf(graph, invoice_number: str, pdf_dir: Path) -> Path | None:
+    """Attachment PDF for a first-pass header. invent=false — exact PS-INV#."""
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    matches = sorted(pdf_dir.glob(f"*Sales_Invoice_{invoice_number}.pdf")) or sorted(
+        pdf_dir.glob(f"*{invoice_number}*.pdf")
+    )
+    if matches:
+        return matches[0]
+    if graph is None:
+        return None
+    mid = find_invoice_message_id(graph, invoice_number)
+    if not mid:
+        return None
+    try:
+        pdfs = graph.download_pdf_attachments(ALLOWED_MAILBOX, mid)
+    except Exception:  # noqa: BLE001 - refresh can still GET
+        return None
+    for filename, content in pdfs:
+        if invoice_number.lower() not in (filename or "").lower():
+            continue
+        if is_packing_slip_attachment(filename=filename):
+            continue
+        dest = pdf_dir / f"2026-09-17_{_safe_filename(filename)}"
+        dest.write_bytes(content)
+        return dest
+    return None
 
 
 def leftover_from_catalog(
@@ -1259,43 +1359,125 @@ def run_refresh_sheet(
     *,
     vendor_id: int,
     vendor_info: dict[str, Any],
+    stamp_outlook: bool = False,
 ) -> int:
-    """Re-GET first-pass headers. Remove invented no-receipt PPV. No recreate."""
+    """Re-GET first-pass headers. Select new leftovers. Leave 10116 alone."""
     pdf_dir = ROOT / "runs" / "inbox-pdfs"
+    pdf_dir.mkdir(parents=True, exist_ok=True)
     receipts = load_list_receipts(client)
-    rows: list[dict[str, Any]] = []
+    rows_by_inv: dict[str, dict[str, Any]] = {}
     finishes: dict[str, Any] = {}
     gets: dict[str, Any] = {}
     parsed_all: list[dict[str, Any]] = []
     batch_label = f"{batch_info.get('name')} ({batch_info.get('id')})"
     ppv_fix: dict[str, str] = {}
 
-    for inv, kid in CREATED_HEADERS.items():
-        matches = sorted(pdf_dir.glob(f"*Sales_Invoice_{inv}.pdf")) or sorted(
-            pdf_dir.glob(f"*{inv}*.pdf")
-        )
-        if not matches:
+    for inv in FINISH_ORDER:
+        kid = CREATED_HEADERS[inv]
+        pdf_path = download_invoice_pdf(graph, inv, pdf_dir)
+        if pdf_path is None:
             print(f"Missing PDF for {inv}; cannot refresh.", flush=True)
             continue
         parsed = parse_invoice_pdf(
-            matches[0],
+            pdf_path,
             subject=f"Legacy Wire Products - Sales Invoice {inv}",
             from_name=VENDOR_NAME,
         )
-        parsed["pdf_path"] = str(matches[0])
+        parsed["pdf_path"] = str(pdf_path)
         parsed["vendor"] = VENDOR_NAME
         parsed["invoice_number"] = inv
+        message_id = find_invoice_message_id(graph, inv)
+        if message_id:
+            parsed["graph_message_id"] = message_id
         parsed_all.append(parsed)
+
+        if kid in LEAVE_ALONE_HOLD_IDS:
+            proof = legacy_proof(client, kid)
+            finish = {
+                "wanted": [],
+                "select_status": "leave-alone",
+                "fee_status": "already-posted",
+                "ppv_status": "none",
+                "ppv_amount": 0.0,
+                "skipped_over_ppv": True,
+                "select_zero": True,
+                "do_not_stamp_outlook": True,
+            }
+            finishes[inv] = dict(finish)
+            live_batch = proof.get("batch_text") or batch_info.get("name")
+            live_bid = proof.get("batch_id") or batch_info.get("id")
+            enter_row = {
+                "Vendor": VENDOR_NAME,
+                "Invoice #": inv,
+                "date": parsed.get("date"),
+                "PO": parsed.get("po") or "",
+                "Amount": parsed.get("amount"),
+                "Result": "HOLD",
+                "Why": "",
+                "KIMCO id": kid,
+                "Batch": f"{live_batch} ({live_bid})",
+                "Fees and surcharges": "none",
+                "PPV": "none",
+                "Attach status": "",
+                "Flag status": "entered-with-issues",
+                "Flag in Outlook": "Yes",
+                "Notes": "Left alone (Shawn price-does-not-match; receipts not selected).",
+                "outlook": "left-as-kyle",
+            }
+            row = quality_legacy_row(
+                None,
+                parsed=parsed,
+                enter_row=enter_row,
+                proof=proof,
+                finish=finish,
+                vendor_id=vendor_id,
+            )
+            row["outlook"] = "left-as-kyle"
+            row["Notes"] = enter_row["Notes"]
+            rows_by_inv[inv] = row
+            gets[str(kid)] = proof
+            print(
+                json.dumps(
+                    {
+                        "invoice": inv,
+                        "kimco_id": kid,
+                        "result": row.get("Result"),
+                        "receipts": row.get("Receipts"),
+                        "leave_alone": True,
+                        "why": row.get("Why"),
+                    },
+                    indent=2,
+                    default=str,
+                ),
+                flush=True,
+            )
+            continue
+
         proof_before = legacy_proof(client, kid)
-        if not (proof_before.get("receipt_lines") or []) and (proof_before.get("ppv_amounts") or []):
-            ppv_fix[inv] = remove_ppv_without_receipts(client, kid)
+        if proof_before.get("ppv_amounts"):
+            needed = False
+            if not (proof_before.get("receipt_lines") or []):
+                needed = True
+            elif inv == "PS-INV104019":
+                needed = True
+            if needed:
+                ppv_fix[inv] = remove_invented_ppv(client, kid)
+
         finish = finish_hold_header(
             client, parsed=parsed, kimco_id=kid, receipts=receipts
         )
-        # First-pass Outlook already stamped. Do not restamp.
-        finish["do_not_stamp_outlook"] = True
+        after_ppv = finish.get("after") or {}
+        if inv == "PS-INV104019" and (after_ppv.get("ppv_amounts") or []):
+            extra = remove_invented_ppv(client, kid)
+            ppv_fix[inv] = f"{ppv_fix.get(inv) or ''}+after:{extra}".strip("+")
+            finish["after"] = legacy_proof(client, kid)
+            finish["ppv_status"] = extra
+            finish["ppv_amount"] = 0.0
+        finish["do_not_stamp_outlook"] = not stamp_outlook
         finishes[inv] = {k: v for k, v in finish.items() if k != "after"}
         proof = finish.get("after") or legacy_proof(client, kid)
+        live_batch = proof.get("batch_text") or batch_info.get("name")
+        live_bid = proof.get("batch_id") or batch_info.get("id")
         enter_row = {
             "Vendor": VENDOR_NAME,
             "Invoice #": inv,
@@ -1305,7 +1487,7 @@ def run_refresh_sheet(
             "Result": "HOLD",
             "Why": "",
             "KIMCO id": kid,
-            "Batch": batch_label,
+            "Batch": f"{live_batch} ({live_bid})",
             "Fees and surcharges": "none",
             "PPV": "none",
             "Attach status": "",
@@ -1315,16 +1497,18 @@ def run_refresh_sheet(
             "outlook": "left-as-kyle",
         }
         row = quality_legacy_row(
-            None,
+            graph if stamp_outlook else None,
             parsed=parsed,
             enter_row=enter_row,
             proof=proof,
             finish=finish,
             vendor_id=vendor_id,
         )
-        row["outlook"] = "left-as-kyle"
-        rows.append(row)
+        if not stamp_outlook:
+            row["outlook"] = "left-as-kyle"
+        rows_by_inv[inv] = row
         gets[str(kid)] = proof
+        receipts = load_list_receipts(client)
         print(
             json.dumps(
                 {
@@ -1332,9 +1516,11 @@ def run_refresh_sheet(
                     "kimco_id": kid,
                     "result": row.get("Result"),
                     "receipts": row.get("Receipts"),
+                    "live_amount": proof.get("invoice_amount"),
                     "fees": row.get("Fees and surcharges"),
                     "ppv": row.get("PPV"),
                     "ppv_fix": ppv_fix.get(inv),
+                    "outlook": row.get("outlook") or row.get("Flag status"),
                     "why": row.get("Why"),
                 },
                 indent=2,
@@ -1342,6 +1528,8 @@ def run_refresh_sheet(
             ),
             flush=True,
         )
+
+    rows = [rows_by_inv[inv] for inv in CREATED_HEADERS if inv in rows_by_inv]
 
     leftover_pending = leftover_from_catalog(
         [],
@@ -1381,6 +1569,8 @@ def run_refresh_sheet(
         "created_headers": CREATED_HEADERS,
         "known_entered": KNOWN_ENTERED,
         "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
+        "leave_alone_holds": sorted(LEAVE_ALONE_HOLD_IDS),
+        "finish_order": list(FINISH_ORDER),
         "chosen": list(CREATED_HEADERS),
         "parsed": [summarize_parse(b) for b in parsed_all],
         "rows": rows,
@@ -1476,6 +1666,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Re-GET first-pass headers 10112–10116, fix Why, do not recreate.",
     )
     parser.add_argument(
+        "--finish-receipts",
+        action="store_true",
+        help="Select new leftovers on 10112–10115, stamp Outlook on Success, leave 10116.",
+    )
+    parser.add_argument(
         "--report",
         default=str(ROOT / "runs" / "AP-run-2026-09-17-legacy-wire.xlsx"),
     )
@@ -1539,7 +1734,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         return 0
 
-    if args.refresh_sheet:
+    if args.refresh_sheet or args.finish_receipts:
         batch = create_legacy_wire_batch(client)
         verified = verify_batch(client, int(batch["id"]), str(batch["name"]))
         print(json.dumps({"batch": batch, "verified": verified}, indent=2, default=str), flush=True)
@@ -1553,6 +1748,7 @@ def main(argv: list[str] | None = None) -> int:
             verified,
             vendor_id=int(vendor_id),
             vendor_info=vendor_info,
+            stamp_outlook=bool(args.finish_receipts),
         )
 
     entered = dict(vendor_info.get("entered") or {})
