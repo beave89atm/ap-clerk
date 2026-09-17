@@ -719,6 +719,35 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "leftover_kimco_ids": (),
         "kyle_finished_kimco_ids": (10107,),
     },
+    {
+        "id": "NOTE-38",
+        "slug": "jpsteel-125316-rounding-ppv-not-hold",
+        "gate": GATE_PRICE,
+        "cases": (
+            "JPSteel 125316 / KIMCO 10108 / PO 59154 posted $1,580.83 vs PDF $1,580.73",
+            "JPSteel 125051 / KIMCO 10111 posted $1,130.34 vs PDF $1,130.40",
+        ),
+        "9_17_bug": (
+            "First-pass HOLD after live GET of 10108: PDF/verification $1,580.73 "
+            "vs posted $1,580.83 ($0.10 unit-rounding) though receipts 24128/"
+            "24129 already matched. Same class 10111: posted $1,130.34 vs PDF "
+            "$1,130.40 ($0.06). Kyle 2026-09-17: those gaps are exactly what "
+            "signed PPV is for — never HOLD as rounding."
+        ),
+        "expected": (
+            "When Select Receipts already match and posted Invoice_Amount ≠ PDF "
+            "by in-gate unit-rounding, must post signed Additional Charge "
+            "Purchase Price Variance (lookup id 13) so Invoice_Amount hits the "
+            "PDF (125316 / 10108: −$0.10; 125051 / 10111: +$0.06) and report "
+            "Success. Never HOLD as rounding. Two-cent gaps stay a match (no "
+            "invented PPV). Over-PPV lock (NOTE-29) still applies — do not "
+            "Select Receipts on over-gate lines. Never invent receipts. "
+            "Do not mutate 10107."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

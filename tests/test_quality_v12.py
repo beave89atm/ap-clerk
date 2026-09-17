@@ -188,8 +188,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 38))
-    assert len(TREYCE_NOTES_V12) == 37
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 39))
+    assert len(TREYCE_NOTES_V12) == 38
     assert len(TREYCE_FINISH_CHECKLIST) == 14
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -232,6 +232,7 @@ def test_v12_registry_covers_all_notes():
         "oneal-per-line-ppv-not-rolled",
         "gas-labeled-total-amount-due",
         "jpsteel-125315-combine-same-item-receipts",
+        "jpsteel-125316-rounding-ppv-not-hold",
     }
 
 
@@ -4461,4 +4462,54 @@ def test_never_repeat_jpsteel_125315_combine_same_item_receipts():
         + [{"id": 9, "po": "59128", "qty": 8.0, "unit_price": 33.0, "amount": 264.0}],
     )
     assert amb is None
+
+
+def test_never_repeat_jpsteel_125316_rounding_ppv():
+    """NOTE-38: posted≠PDF unit-rounding → signed PPV, not HOLD. Over-gate still locks."""
+    from ap_clerk.kimco import PPV_CHARGE_LOOKUP_ID, ppv_payload
+    from ap_clerk.rules import rounding_ppv_to_hit_pdf_total
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-38")
+    assert n["slug"] == "jpsteel-125316-rounding-ppv-not-hold"
+    assert n["gate"] == GATE_PRICE
+    assert "−$0.10" in n["expected"] or "-$0.10" in n["expected"] or "0.10" in n["expected"]
+    assert "NOTE-29" in n["expected"]
+
+    hit = rounding_ppv_to_hit_pdf_total(1580.73, 1580.83, receipts_selected=True)
+    assert hit["action"] == "ppv"
+    assert hit["ppv"] == -0.10
+    assert hit["hold"] is False
+
+    same = rounding_ppv_to_hit_pdf_total(1130.40, 1130.34, receipts_selected=True)
+    assert same["action"] == "ppv"
+    assert same["ppv"] == 0.06
+    assert same["hold"] is False
+    assert "125051" in n["9_17_bug"] or "10111" in n["9_17_bug"]
+    assert "0.06" in n["expected"]
+
+    two_cent = rounding_ppv_to_hit_pdf_total(832.03, 832.02, receipts_selected=True)
+    assert two_cent["action"] == "match"
+    assert two_cent["ppv"] == 0.0
+
+    no_receipts = rounding_ppv_to_hit_pdf_total(1580.73, 1580.83, receipts_selected=False)
+    assert no_receipts["hold"] is True
+    assert no_receipts["ppv"] == 0.0
+    assert_never_success(RESULT_HOLD, note_id="NOTE-38", detail=no_receipts["reason"])
+
+    over = rounding_ppv_to_hit_pdf_total(100.0, 250.0, receipts_selected=True)
+    assert over["action"] == "hold"
+    assert over["ppv"] == 0.0
+    assert_never_success(RESULT_HOLD, note_id="NOTE-38", detail=over["reason"])
+
+    payload = ppv_payload(-0.10, invoice_id=10108)
+    child = payload["lists"]["InvoiceAdditionalCharges"][0]["values"]
+    assert child["Additional_Charges"]["id"] == PPV_CHARGE_LOOKUP_ID
+    assert child["Amount"] == -0.10
+    assert child["Price"] == -0.10
+
+    false_hold = (
+        "HOLD after live GET of 10108: PDF/verification=$1,580.73 posted=$1,580.83 "
+        "($0.10 unit-rounding). Do not invent Success."
+    )
+    assert_never_success(RESULT_HOLD, note_id="NOTE-38", detail=false_hold)
 

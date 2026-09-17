@@ -624,6 +624,45 @@ def decide_ppv(
     }
 
 
+def rounding_ppv_to_hit_pdf_total(
+    pdf_total: Any,
+    posted_amount: Any,
+    *,
+    receipts_selected: bool = True,
+) -> dict[str, Any]:
+    """NOTE-38: posted Invoice_Amount ≠ PDF after receipts already match.
+
+    JPSteel 125316 / 10108: posted $1,580.83 vs PDF $1,580.73 → signed PPV
+    −$0.10 so Invoice_Amount hits the PDF. Same class 125051 / 10111
+    ($1,130.34 vs $1,130.40 → +$0.06). Do not HOLD unit-rounding. Two-cent
+    gaps stay a match (no invented PPV). Over-PPV lock (NOTE-29) still
+    applies — do not Select Receipts on over-gate lines.
+    """
+    if not receipts_selected:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "hold": True,
+            "reason": "Receipts not selected; do not invent PPV to close a total.",
+            "po_comment": "",
+        }
+    pdf = money(pdf_total)
+    posted = money(posted_amount)
+    if pdf is None or posted is None:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "hold": True,
+            "reason": "PDF or posted amount missing; do not invent PPV.",
+            "po_comment": "",
+        }
+    return decide_ppv(
+        invoice_line_amount=pdf,
+        po_line_amount=posted,
+        invoice_total=pdf,
+    )
+
+
 def evaluate_bill_price_variance(
     invoice_lines: list[dict[str, Any]] | None,
     po_lines: list[dict[str, Any]] | None,

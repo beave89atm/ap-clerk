@@ -197,7 +197,7 @@ def test_jpsteel_batch_is_dedicated_not_crosslink_715():
         "125122": 10110,
         "125051": 10111,
     }
-    assert LEAVE_ALONE_HOLD_IDS == {10108, 10111}
+    assert LEAVE_ALONE_HOLD_IDS == set()
     assert DO_NOT_MUTATE_IDS == {10107}
     assert DO_NOT_WALK == {"124506", "123248"}
 
@@ -477,3 +477,78 @@ def test_jpsteel_125315_combine_same_item_receipts_is_not_blocked_400_hold():
     assert "24126" in row["Why"] or "24126" in row["Receipts"]
     assert row["outlook"] == "left-as-kyle" or row["outlook"] == "entered-with-issues"
     assert "not re-stamped" in row["Why"] or row["outlook"] == "left-as-kyle"
+
+
+def test_jpsteel_125316_rounding_ppv_hits_pdf_and_skips_10107():
+    """NOTE-38: −$0.10 PPV for 10108; finish_rounding_ppv_only never writes 10107."""
+    from ap_clerk.rules import rounding_ppv_to_hit_pdf_total
+    from jpsteel_0916 import DO_NOT_MUTATE_IDS, finish_rounding_ppv_only, quality_jpsteel_row
+
+    decision = rounding_ppv_to_hit_pdf_total(1580.73, 1580.83)
+    assert decision["ppv"] == -0.10
+
+    class _Client:
+        def __init__(self):
+            self.posted = []
+
+        def try_post_ppv(self, invoice_id, amount):
+            self.posted.append((invoice_id, amount))
+            return "posted"
+
+    # finish_rounding_ppv_only GETs via jpsteel_proof — stub by patching that name.
+    import jpsteel_0916 as mod
+
+    proof_10107 = {
+        "id": 10107,
+        "invoice_amount": 693.0,
+        "verification": 693.0,
+        "receipt_lines": [{"qty": 8.0, "unit": 33.0, "receipt": 24126}],
+        "ppv_amounts": [],
+    }
+    orig = mod.jpsteel_proof
+    mod.jpsteel_proof = lambda _c, kid: proof_10107
+    try:
+        out = finish_rounding_ppv_only(_Client(), kimco_id=10107, pdf_amount=693.0)
+    finally:
+        mod.jpsteel_proof = orig
+    assert out["ppv_status"] == "do-not-mutate"
+    assert out["mutated"] is False
+    assert 10107 in DO_NOT_MUTATE_IDS
+
+    parsed = parse_invoice_text(
+        JPSTEEL_125316,
+        subject="JP Steel Invoice#  (125316) Transmission for KANNON MFG",
+        from_name="JP Steel",
+    )
+    row = quality_jpsteel_row(
+        None,
+        parsed=parsed,
+        enter_row={
+            "Vendor": "JP Steel",
+            "Invoice #": "125316",
+            "PO": "59154",
+            "Amount": 1580.73,
+            "Result": "HOLD",
+            "KIMCO id": 10108,
+            "Batch": "API Agent - 9/16/26 JPSteel (716)",
+        },
+        proof={
+            "id": 10108,
+            "invoice_amount": 1580.73,
+            "verification": 1580.73,
+            "invoice_type": 3,
+            "vendor_id": 100,
+            "batch_id": 716,
+            "attachments": ["2026-09-16_Invoice_125316.pdf"],
+            "receipt_lines": [
+                {"qty": 1445.0, "unit": 0.7709, "receipt": 24128},
+                {"qty": 1245.0, "unit": 0.375, "receipt": 24129},
+            ],
+            "ppv_amounts": [-0.10],
+        },
+        finish={"select_status": "already-selected", "ppv_amount": -0.10, "ppv_status": "posted"},
+        vendor_id=100,
+    )
+    assert row["Result"] == "Success"
+    assert row["KIMCO id"] == 10108
+    assert row["PPV"] == "-0.10"

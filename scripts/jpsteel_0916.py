@@ -49,6 +49,7 @@ from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
     blocked_400_not_a_hold_when_same_item_cover,
     decide_ppv,
+    rounding_ppv_to_hit_pdf_total,
     distinctive_vendor_tokens,
     extract_subject_invoice_number,
     filter_matches_outside_ppv_gate,
@@ -106,8 +107,8 @@ CREATED_HEADERS = {
     "125122": 10110,
     "125051": 10111,
 }
-# Kyle: leave these HOLDs for morning remedies. Do not finish/rework tonight.
-LEAVE_ALONE_HOLD_IDS = {10108, 10111}
+# Morning HOLDs not in the rounding-PPV class. 10108/10111 finish via NOTE-38.
+LEAVE_ALONE_HOLD_IDS: set[int] = set()
 # Kyle 2026-09-17 finished 10107 live. GET-only — do not Select Receipts / edit.
 DO_NOT_MUTATE_IDS = {10107}
 # Pre-Aug leftovers. Do not walk without asking (NOTE-28).
@@ -841,6 +842,19 @@ def finish_hold_header(
         ppv_status = "already-posted"
 
     after = jpsteel_proof(client, kimco_id)
+    # NOTE-38: receipts already match; posted ≠ PDF unit-rounding → signed PPV.
+    if (
+        kimco_id not in DO_NOT_MUTATE_IDS
+        and select_status in {"selected", "already-selected"}
+        and (after.get("receipt_lines") or [])
+    ):
+        round_ppv = finish_rounding_ppv_only(
+            client, kimco_id=kimco_id, pdf_amount=parsed.get("amount")
+        )
+        if round_ppv.get("ppv_amount"):
+            ppv_amt = round_ppv["ppv_amount"]
+            ppv_status = round_ppv.get("ppv_status") or ppv_status
+            after = round_ppv.get("after") or after
     return {
         "wanted": wanted,
         "select_status": select_status,
@@ -861,6 +875,60 @@ def finish_hold_header(
             for r in pool
         ],
         "after": after,
+    }
+
+
+def finish_rounding_ppv_only(
+    client: KimcoClient,
+    *,
+    kimco_id: int,
+    pdf_amount: Any,
+) -> dict[str, Any]:
+    """NOTE-38: post signed PPV so Invoice_Amount hits the PDF. No Select Receipts.
+
+    Never mutates 10107. invent=false.
+    """
+    if int(kimco_id) in DO_NOT_MUTATE_IDS:
+        return {
+            "ppv_amount": 0.0,
+            "ppv_status": "do-not-mutate",
+            "decision": {"action": "skip", "ppv": 0.0},
+            "after": jpsteel_proof(client, kimco_id),
+            "mutated": False,
+        }
+    before = jpsteel_proof(client, kimco_id)
+    recs = before.get("receipt_lines") or []
+    decision = rounding_ppv_to_hit_pdf_total(
+        pdf_amount,
+        before.get("invoice_amount"),
+        receipts_selected=bool(recs),
+    )
+    existing = round(sum(before.get("ppv_amounts") or []), 2)
+    needed = money(decision.get("ppv")) or 0.0
+    status = "none"
+    if decision.get("action") == "ppv" and needed:
+        remaining = round(needed - existing, 2)
+        if abs(remaining) <= 0.02:
+            status = "already-posted"
+        else:
+            status = client.try_post_ppv(int(kimco_id), remaining)
+    elif decision.get("action") == "match":
+        status = "match"
+    elif decision.get("action") == "hold":
+        status = "over-ppv-lock"
+    after = jpsteel_proof(client, kimco_id)
+    return {
+        "ppv_amount": needed if decision.get("action") == "ppv" else 0.0,
+        "ppv_status": status,
+        "decision": decision,
+        "before": {
+            "invoice_amount": before.get("invoice_amount"),
+            "verification": before.get("verification") or before.get("verification_amount"),
+            "receipts": format_receipts(before),
+            "ppv_amounts": before.get("ppv_amounts"),
+        },
+        "after": after,
+        "mutated": status == "posted",
     }
 
 
