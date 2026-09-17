@@ -647,12 +647,23 @@ def test_excel_notes_column_stays_empty_for_treyce(tmp_path: Path):
             }
         ],
     )
-    sheet = load_workbook(path).active
-    headers = [sheet.cell(1, col).value for col in range(1, 16)]
+    book = load_workbook(path)
+    sheet = book.active
+    headers = [sheet.cell(1, col).value for col in range(1, 18)]
     assert headers[5] == "Result"
+    assert headers[6] == "Why"
+    assert headers[7] == "Exception category"
+    assert headers[8] == "Exception owner"
     assert headers[-1] == "Notes"
     assert sheet.cell(2, 6).value == RESULT_INCOMPLETE
-    assert not sheet.cell(2, 15).value
+    assert sheet.cell(2, 8).value == "other"
+    assert sheet.cell(2, 9).value == "AP"
+    assert not sheet.cell(2, 17).value
+    counts = book["Exception counts"]
+    assert counts.cell(1, 1).value == "Exception category"
+    assert counts.cell(1, 2).value == "Count"
+    assert counts.cell(2, 1).value == "other"
+    assert counts.cell(2, 2).value == 1
 
 
 def test_process_invoice_cannot_return_success_without_finished_bill():
