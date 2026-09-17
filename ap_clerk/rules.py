@@ -957,6 +957,32 @@ def _same_qty(left: Any, right: Any) -> bool:
     return a is not None and b is not None and a == b
 
 
+UNIT_ALIGN_TOLERANCE = 0.005
+
+
+def _same_unit(left: Any, right: Any, *, tolerance: float = UNIT_ALIGN_TOLERANCE) -> bool:
+    """Same unit price within mill-rounding (0.777 vs 0.78)."""
+    a, b = money(left), money(right)
+    return a is not None and b is not None and abs(a - b) <= tolerance
+
+
+def _inferred_unit(qty: Any, amount: Any) -> float | None:
+    q = money(qty)
+    a = money(amount)
+    if q in (None, 0) or a is None:
+        return None
+    return round(a / q, 4)
+
+
+def _receipt_unit(receipt: dict[str, Any] | None) -> float | None:
+    if not isinstance(receipt, dict):
+        return None
+    unit = money(receipt.get("unit_price"))
+    if unit is not None:
+        return unit
+    return _inferred_unit(_receipt_qty(receipt), receipt_cost(receipt))
+
+
 _DESC_STOP = {
     "the",
     "and",
@@ -1686,17 +1712,28 @@ def pick_receipts_by_qty_cost(
     differ = len(qtys - {None}) > 1 or len(costs - {None}) > 1
 
     if invoice_qty is not None:
+        inferred = _inferred_unit(invoice_qty, invoice_amount)
         qty_hits = [
             r
             for r in candidates
             if _same_qty(_receipt_qty(r), invoice_qty)
         ]
+        if inferred is not None and qty_hits:
+            unit_hits = [r for r in qty_hits if _same_unit(_receipt_unit(r), inferred)]
+            if unit_hits:
+                qty_hits = unit_hits
+            elif allow_qty_cover and any(_receipt_unit(r) is not None for r in qty_hits):
+                qty_hits = []
         if not qty_hits and allow_qty_cover:
             qty_hits = [
                 r
                 for r in candidates
                 if (rq := _receipt_qty(r)) is not None and rq > invoice_qty
             ]
+            if inferred is not None:
+                unit_cover = [r for r in qty_hits if _same_unit(_receipt_unit(r), inferred)]
+                if unit_cover:
+                    qty_hits = unit_cover
         if len(qty_hits) == 1:
             ok, reason = _receipt_aligns(
                 qty_hits[0], invoice_qty, invoice_amount, qty_already_ok=True, **align_kw
@@ -2039,6 +2076,9 @@ def match_receipts(
         line_amt = _line_amount(inv_line)
         if line_qty is None:
             return False
+        inv_unit = money(inv_line.get("unit_price"))
+        if inv_unit is None:
+            inv_unit = _inferred_unit(line_qty, line_amt)
         pool: list[dict[str, Any]] = []
         for receipt in normalized:
             if id(receipt) in used:
@@ -2050,6 +2090,38 @@ def match_receipts(
                 continue
             if _same_qty(_receipt_qty(receipt), line_qty):
                 pool.append(receipt)
+        # Same qty + different unit is another invoice line (Legacy 10113
+        # 17@$36 vs leftover 17@$41 for 10114). Do not steal it.
+        if inv_unit is not None and pool:
+            unit_pool = [r for r in pool if _same_unit(_receipt_unit(r), inv_unit)]
+            if unit_pool:
+                pool = unit_pool
+            elif any(_receipt_unit(r) is not None for r in pool):
+                pool = []
+        if not pool and inv_unit is not None:
+            cover: list[dict[str, Any]] = []
+            for receipt in normalized:
+                if id(receipt) in used:
+                    continue
+                rec_po = receipt_po(receipt)
+                if search_po and rec_po and rec_po != str(search_po):
+                    continue
+                if _part_conflicts(inv_line, receipt):
+                    continue
+                rq = _receipt_qty(receipt)
+                if rq is None or rq < line_qty:
+                    continue
+                if _same_unit(_receipt_unit(receipt), inv_unit):
+                    cover.append(receipt)
+            if len(cover) == 1:
+                _record_match(
+                    inv_line,
+                    cover[0],
+                    score=55,
+                    pass_name=pass_name,
+                    how="line qty cover + same unit + PO (not first-open)",
+                )
+                return True
         if len(pool) == 1:
             _record_match(
                 inv_line,
