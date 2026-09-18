@@ -34,6 +34,8 @@ from gas_supply_0917 import (  # noqa: E402
     PLUS5_HEADERS,
     PLUS10_HEADERS,
     PLUS10_HOLDS,
+    PLUS15_HEADERS,
+    PLUS15_HOLDS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
@@ -401,6 +403,8 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
     }
     assert PLUS10_HEADERS == {"0040438494": 10136}
     assert PLUS10_HOLDS == frozenset({"0040438057", "0040438056", "0040438055", "0040438053"})
+    assert PLUS15_HOLDS == frozenset({"0040417672", "0040414962"})
+    assert PLUS15_HEADERS == {"0040414821": 10137}
     first_pass_only = set(CREATED_HEADERS) | {"0040430010", "0040424839"}
     bills = [
         {"invoice_number": "0040435122", "date": "2026-09-15"},

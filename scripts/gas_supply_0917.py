@@ -169,6 +169,11 @@ PLUS10_HEADERS = {
 }
 # Plus-10 HOLDs (Shawn PO 59081). Leave alone — do not recreate.
 PLUS10_HOLDS = frozenset({"0040438057", "0040438056", "0040438055", "0040438053"})
+# Plus-15: remaining Aug 1+ window was PO-cited (no finishable no-PO).
+PLUS15_HOLDS = frozenset({"0040417672", "0040414962"})
+PLUS15_HEADERS = {
+    "0040414821": 10137,  # Type 3 over-PPV → Transfer AP 375; receipts not selected
+}
 # 10134 missing_receipt / Ruben on PO 58948. Leave alone.
 LEAVE_ALONE_HOLD_IDS = {10134}
 DO_NOT_MUTATE_IDS = (
@@ -540,6 +545,8 @@ def already_entered_numbers() -> set[str]:
         | set(KNOWN_HOLD)
         | set(PLUS10_HEADERS)
         | set(PLUS10_HOLDS)
+        | set(PLUS15_HOLDS)
+        | set(PLUS15_HEADERS)
     )
 
 
