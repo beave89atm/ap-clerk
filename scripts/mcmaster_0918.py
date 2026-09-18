@@ -468,7 +468,7 @@ def preflight_match(bill: dict[str, Any], receipts: list[dict[str, Any]] | None)
     selectable = list(locked.get("selectable") or [])
     merch = [ln for ln in lines if money(ln.get("qty")) not in (None, 0)]
     all_lines = bool(merch) and len(selectable) >= len(merch)
-    clean = bool(selectable) and not skipped and not locked.get("select_zero") and (all_lines or not merch)
+    clean = bool(merch) and bool(selectable) and not skipped and not locked.get("select_zero") and all_lines
     return {
         "clean": clean,
         "matched": selectable,

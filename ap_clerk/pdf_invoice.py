@@ -177,7 +177,12 @@ NON_INVOICE_ATTACHMENT_KINDS = frozenset(
 # (Eastern Metal 818600 / 818601).
 _PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b(?!\s+NUMBER)", flags=re.I)
 _INVOICE_DOC_HINT = re.compile(
-    r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|total-?due|bill\s+to)\b",
+    r"\b(invoice\s*(number|no\.?|#|total|date)|invoice\s+\d{5,}|amount\s+due|total-?due|bill(?:ed)?\s+to)\b",
+    flags=re.I,
+)
+# McMaster email attachment: Invoice 72094446 for PO 59224.PDF — vendor invoice, not a PO.
+_MCMASTER_INVOICE_FILE_RE = re.compile(
+    r"invoice[_\s-]*\d{6,}[_\s-]+for[_\s-]+po",
     flags=re.I,
 )
 
@@ -252,11 +257,14 @@ def filename_looks_like_invoice(filename: str) -> bool:
 def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
     """True for a PO/packing-list attachment that must not be entered as a vendor invoice."""
     name = filename or ""
+    if _MCMASTER_INVOICE_FILE_RE.search(name):
+        return False
     if PO_DOCUMENT_FILE_RE.search(name):
         return True
     blob = text or ""
-    # Invoice forms print "INVOICE" plus a Purchase Order Number box.
-    if re.search(r"(?:^|\n)\s*INVOICE\b", blob) or _INVOICE_DOC_HINT.search(blob):
+    # Invoice forms print "INVOICE" / "Invoice" plus a Purchase Order Number box.
+    # McMaster title-case "Invoice" + "Purchase Order 59224" is still an invoice.
+    if re.search(r"(?:^|\n)\s*INVOICE\b", blob, flags=re.I) or _INVOICE_DOC_HINT.search(blob):
         return False
     if _PO_DOC_HEADING.search(blob) and not _INVOICE_DOC_HINT.search(blob):
         return True
@@ -1096,6 +1104,89 @@ _LINE_SKIP_RE = re.compile(
     r"ship(?:ping)?\s+date|prepaid|page\s+\d|bill\s+to|ship\s+to",
     flags=re.I,
 )
+
+
+_MCMASTER_START = re.compile(
+    r"^(\d+)\s+([0-9]{3,}[A-Z][0-9A-Z]+)\s+(.*)$",
+    flags=re.I | re.M,
+)
+_MCMASTER_UOM = r"(Packs?|Each|Pairs?|Box(?:es)?|Ft|Feet|Foot|Tubes?)"
+_MCMASTER_QTY_BLOCK = re.compile(
+    rf"^(\d+(?:\.\d+)?)\s*\n"
+    rf"{_MCMASTER_UOM}\s*\n"
+    rf"(\d+(?:\.\d+)?)\s+0\s+([\d.]+)\s*\n"
+    rf"(?:Per\s+\w+|Each|Pair)\s*\n"
+    rf"([\d,]+\.\d{{2}})",
+    flags=re.I | re.M,
+)
+_MCMASTER_INLINE_QTY = re.compile(
+    rf"^(\d+)\s+([0-9]{{3,}}[A-Z][0-9A-Z]+)\s+(.+?)\s+(\d+(?:\.\d+)?)\s*\n"
+    rf"{_MCMASTER_UOM}\s*\n"
+    rf"(\d+(?:\.\d+)?)\s+0\s+([\d.]+)\s*\n"
+    rf"(?:Per\s+\w+|Each|Pair)\s*\n"
+    rf"([\d,]+\.\d{{2}})",
+    flags=re.I | re.M,
+)
+
+
+def looks_like_mcmaster(text: str, vendor: str = "") -> bool:
+    blob = f"{vendor}\n{text or ''}"
+    return bool(re.search(r"mcmaster", blob, flags=re.I))
+
+
+def extract_mcmaster_lines(text: str) -> list[dict[str, Any]]:
+    """McMaster face-page merch rows: part + ordered qty + unit + extended.
+
+    Extracted text wraps the description, then:
+    `6 / Packs / 6 0 7.00 / Per Pack / 42.00`. Shipping is a fee, not a line.
+    """
+    blob = text or ""
+    if not blob or "Line Product Ordered" not in blob:
+        return []
+    starts = list(_MCMASTER_START.finditer(blob))
+    if not starts:
+        return []
+    lines: list[dict[str, Any]] = []
+    cut = re.search(r"\nMerchandise\b", blob, flags=re.I)
+    end_all = cut.start() if cut else len(blob)
+    for index, match in enumerate(starts):
+        if match.start() >= end_all:
+            continue
+        nxt = starts[index + 1].start() if index + 1 < len(starts) else end_all
+        section = blob[match.start() : min(nxt, end_all)]
+        inline = _MCMASTER_INLINE_QTY.search(section)
+        qty_hit = None if inline else _MCMASTER_QTY_BLOCK.search(section)
+        if inline:
+            qty = parse_money(inline.group(4))
+            unit = parse_money(inline.group(7))
+            amount = parse_money(inline.group(8))
+            desc = re.sub(r"\s+", " ", inline.group(3)).strip()
+            part = inline.group(2)
+            po_line = int(inline.group(1))
+        elif qty_hit:
+            qty = parse_money(qty_hit.group(1))
+            unit = parse_money(qty_hit.group(4))
+            amount = parse_money(qty_hit.group(5))
+            desc = re.sub(r"\s+", " ", match.group(3)).strip()
+            part = match.group(2)
+            po_line = int(match.group(1))
+        else:
+            continue
+        if qty in (None, 0) or amount in (None, 0):
+            continue
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "unit_price": unit,
+                "amount": amount,
+                "po_line": po_line,
+                "wo": None,
+                "label": f"{part} {desc}".strip()[:120],
+                "description": desc[:160],
+            }
+        )
+    return lines
 
 
 def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
@@ -2072,6 +2163,10 @@ def parse_invoice_text(
         aqpc_lines = extract_aqpc_intuit_lines(pdf_text)
         if aqpc_lines:
             lines = aqpc_lines
+    if looks_like_mcmaster(pdf_text, vendor):
+        mc_lines = extract_mcmaster_lines(pdf_text)
+        if mc_lines:
+            lines = mc_lines
     if looks_like_legacy_sales_invoice(pdf_text) or "legacy wire" in vendor_l:
         legacy_lines, legacy_fees = extract_legacy_wire_bill(pdf_text)
         if legacy_lines:

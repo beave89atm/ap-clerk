@@ -14,6 +14,11 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 
+from ap_clerk.pdf_invoice import (  # noqa: E402
+    extract_mcmaster_lines,
+    is_purchase_order_document,
+    parse_invoice_text,
+)
 from ap_clerk.rules import names_match  # noqa: E402
 from mcmaster_0918 import (  # noqa: E402
     CAP,
@@ -190,6 +195,53 @@ def test_mcmaster_pick_cap_and_forbidden_batches():
     assert FORBIDDEN_BATCH_IDS == {715, 716, 717, 720}
     assert "API Agent - 9/17/26 Gas & Supply" in FORBIDDEN_REUSE_NAMES
     assert VENDOR_NAME == "McMaster-Carr Supply Company"
+
+
+_MCMASTER_FACE = """ Invoice
+McMaster-Carr Supply Company
+Billed to
+KANNON MANUFACTURING INC
+Purchase Order 59224
+Total $131.21
+Invoice 72094446
+Invoice Date 9/17/26
+Line Product Ordered Shipped Balance Price Total
+1 3616N12 Horizontal-Surface-Mount Level, 2-1/2" Long x 1"
+Wide, Black, Packs of 2
+6
+Packs
+6 0 7.00
+Per Pack
+42.00
+2 2151A27 Magnetic Level for Tight Spaces, 10" Long 1
+Each
+1 0 23.18
+Each
+23.18
+Merchandise  106.62
+Shipping  24.59
+Total  $131.21
+"""
+
+
+def test_mcmaster_invoice_is_not_a_purchase_order_doc():
+    assert is_purchase_order_document(text=_MCMASTER_FACE, filename="Invoice_72094446_for_PO_59224.PDF") is False
+    assert is_purchase_order_document(filename="Invoice 72094446 for PO 59224.PDF") is False
+    parsed = parse_invoice_text(
+        _MCMASTER_FACE,
+        filename="Invoice_72094446_for_PO_59224.PDF",
+        subject="Invoice for Your Order 59224",
+        from_name="McMaster-Carr",
+    )
+    assert parsed["is_purchase_order_doc"] is False
+    assert parsed["invoice_number"] == "72094446"
+    assert parsed["po"] == "59224"
+    assert parsed["amount"] == 131.21
+    parts = [str(ln.get("part") or "") for ln in parsed.get("lines") or []]
+    assert "3616N12" in parts
+    assert "2151A27" in parts
+    assert any(abs(float(ln.get("amount") or 0) - 42.00) < 0.01 for ln in parsed["lines"])
+    assert extract_mcmaster_lines(_MCMASTER_FACE)
 
 
 def test_mcmaster_over_ppv_comment_tags_shawn():
