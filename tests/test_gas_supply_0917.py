@@ -52,6 +52,7 @@ from gas_supply_0917 import (  # noqa: E402
     is_gas_vendor_text,
     is_over_ppv_price_hold,
     leftover_from_catalog,
+    pick_plus10,
     pick_plus5,
     pick_recent,
     quality_gas_row,
@@ -369,7 +370,7 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
         "0040431060": 10130,
         "0040425657": 10131,
     }
-    assert KNOWN_HOLD == {"0040430010"}
+    assert KNOWN_HOLD == {"0040430010", "0040424839"}
     assert PLUS5_PREFERRED == (
         "0040425612",
         "0040424839",
@@ -383,6 +384,7 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
         "0040423658": 10134,
         "0040421569": 10135,
     }
+    first_pass_only = set(CREATED_HEADERS) | {"0040430010", "0040424839"}
     bills = [
         {"invoice_number": "0040435122", "date": "2026-09-15"},
         {"invoice_number": "0040430010", "date": "2026-09-11", "po": "59081"},
@@ -393,11 +395,43 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
         {"invoice_number": "0040423658", "date": "2026-09-09", "po": "58948", "amount": 173.5},
         {"invoice_number": "0040421569", "date": "2026-09-08", "amount": 331.5},
     ]
-    chosen, leftover = pick_plus5(bills, already=already_entered_numbers(), cap=5)
-    assert [b["invoice_number"] for b in chosen] == list(PLUS5_PREFERRED)
+    chosen, leftover = pick_plus5(bills, already=first_pass_only, cap=5)
+    assert [b["invoice_number"] for b in chosen] == [
+        "0040425612",
+        "0040424382",
+        "0040423658",
+        "0040421569",
+        "0040429000",
+    ]
     assert "0040435122" not in [b["invoice_number"] for b in leftover]
     assert "0040430010" not in [b["invoice_number"] for b in leftover]
-    assert [b["invoice_number"] for b in leftover] == ["0040429000"]
+    assert "0040424839" not in [b["invoice_number"] for b in leftover]
+
+
+def test_plus10_discovers_next_window_after_plus5():
+    bills = [
+        {"invoice_number": "0040435122", "date": "2026-09-15"},
+        {"invoice_number": "0040425612", "date": "2026-09-09"},
+        {"invoice_number": "0040424839", "date": "2026-09-09", "po": "59081"},
+        {"invoice_number": "0040423658", "date": "2026-09-09", "po": "58948"},
+        {"invoice_number": "0040420801", "date": "2026-09-07", "amount": 100.0},
+        {"invoice_number": "0040420800", "date": "2026-09-07", "amount": 110.0},
+        {"invoice_number": "0040419999", "date": "2026-09-05", "amount": 120.0},
+        {"invoice_number": "0040418888", "date": "2026-09-04", "amount": 130.0},
+        {"invoice_number": "0040417777", "date": "2026-09-03", "amount": 140.0},
+        {"invoice_number": "0040320000", "date": "2026-07-15", "amount": 9.0},
+    ]
+    chosen, leftover = pick_plus10(bills, already=already_entered_numbers(), cap=5)
+    assert [b["invoice_number"] for b in chosen] == [
+        "0040420801",
+        "0040420800",
+        "0040419999",
+        "0040418888",
+        "0040417777",
+    ]
+    assert [b["invoice_number"] for b in leftover] == ["0040320000"]
+    catalog = leftover_from_catalog(leftover)
+    assert catalog == []
 
 
 def test_missing_po_owner_is_shawn_not_misty():
@@ -422,6 +456,7 @@ def test_leftover_from_catalog_dedupes():
             {"invoice_number": "0040424382", "date": "2026-09-09", "amount": 335.0},
             {"invoice_number": "0040424382", "date": "2026-09-09", "amount": 335.0},
             {"invoice_number": "0040423658", "date": "2026-09-09", "po": "58948"},
+            {"invoice_number": "0040320000", "date": "2026-07-15", "amount": 9.0},
         ]
     )
     assert [r["invoice_number"] for r in leftover] == ["0040424382", "0040423658"]
