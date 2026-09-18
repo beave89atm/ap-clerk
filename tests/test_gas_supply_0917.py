@@ -473,6 +473,8 @@ def test_plus15_prefers_no_po_over_po_cited():
         {"invoice_number": "0040437952", "date": "2026-09-17", "po": "59006", "amount": 241.46},
         {"invoice_number": "0040438494", "date": "2026-09-17", "amount": 331.5},
         {"invoice_number": "0040438057", "date": "2026-09-17", "po": "59081"},
+        {"invoice_number": "0040412279", "date": "2026-08-31", "amount": None, "lines": []},
+        {"invoice_number": "0040401083", "date": "2026-08-31", "hold_reason": "CHECK STOP"},
         {"invoice_number": "0040420801", "date": "2026-09-07", "amount": 88.0},
         {"invoice_number": "0040420800", "date": "2026-09-07", "amount": 99.0},
         {"invoice_number": "0040419001", "date": "2026-09-04", "amount": 111.0},
@@ -494,6 +496,8 @@ def test_plus15_prefers_no_po_over_po_cited():
     assert "0040438494" not in leftover_invs
     assert "0040438057" not in leftover_invs
     assert "0040435122" not in leftover_invs
+    assert "0040412279" not in leftover_invs
+    assert "0040401083" not in leftover_invs
 
 
 def test_merchandise_lines_skip_fuel_surcharge():

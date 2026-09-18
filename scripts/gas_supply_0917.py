@@ -465,6 +465,8 @@ def bills_from_message(graph, message: dict[str, Any], pdf_dir: Path) -> list[di
         for bill in [parsed, *extras]:
             if bill.get("is_purchase_order_doc") or bill.get("is_receipt_scan_doc"):
                 continue
+            if bill.get("is_statement_doc"):
+                continue
             if bill.get("check_stop") and not bill.get("invoice_number"):
                 continue
             if not names_match(VENDOR_NAME, str(bill.get("vendor") or "")):
@@ -624,6 +626,34 @@ def _eligible_aug1(
     return eligible, older
 
 
+def is_pickable_gas_bill(bill: dict[str, Any]) -> bool:
+    """Real invoice page with a #. Skip statement aging / CHECK STOP notices."""
+    if bill.get("is_statement_doc"):
+        return False
+    inv = exact_invoice_number(bill.get("invoice_number"))
+    if not inv:
+        return False
+    hold = str(bill.get("hold_reason") or "").upper()
+    has_amt = bill.get("amount") not in (None, "")
+    has_lines = bool(bill.get("lines") or [])
+    has_po = bool(str(bill.get("po") or "").strip())
+    if hold == "CHECK STOP" and not has_amt and not has_lines:
+        return False
+    # Aging / STATEMENT pages leak invoice #s with no total and no merch.
+    if not has_po and not has_amt and not has_lines:
+        return False
+    return True
+
+
+def is_finishable_nopo(bill: dict[str, Any]) -> bool:
+    """No-PO shop-supply page we can Lines-K (has after-tax amount)."""
+    if not is_pickable_gas_bill(bill):
+        return False
+    if str(bill.get("po") or "").strip():
+        return False
+    return bill.get("amount") not in (None, "")
+
+
 def pick_plus15(
     parsed_bills: list[dict[str, Any]],
     *,
@@ -634,10 +664,12 @@ def pick_plus15(
 
     If the remaining Aug 1+ window is PO-cited, fill honestly (HOLD missing_po
     when the PO is not live). Do not prefer 59081 leftovers over a no-PO bill.
+    Statement / CHECK STOP pages are not bills.
     """
     blocked = set(already) | already_entered_numbers()
     eligible, older = _eligible_aug1(parsed_bills, blocked=blocked)
-    no_po = [b for b in eligible if not str(b.get("po") or "").strip()]
+    eligible = [b for b in eligible if is_pickable_gas_bill(b)]
+    no_po = [b for b in eligible if is_finishable_nopo(b)]
     with_po = [b for b in eligible if str(b.get("po") or "").strip()]
     chosen = (no_po + with_po)[:cap]
     chosen_invs = {exact_invoice_number(b.get("invoice_number")) for b in chosen}
@@ -658,6 +690,8 @@ def leftover_from_catalog(
             continue
         inv_date = _parse_date(bill.get("date"))
         if inv_date is None or inv_date < MIN_INVOICE_DATE:
+            continue
+        if not is_pickable_gas_bill(bill):
             continue
         seen.add(inv)
         out.append(
@@ -1923,16 +1957,14 @@ def main(argv: list[str] | None = None) -> int:
     for msg in candidates:
         parsed_bills.extend(bills_from_message(graph, msg, pdf_dir))
         recent_so_far, leftover_so_far = pick_plus15(parsed_bills, already=already, cap=CAP)
-        no_po_picked = [
-            b for b in recent_so_far if not str(b.get("po") or "").strip()
-        ]
+        no_po_picked = [b for b in recent_so_far if is_finishable_nopo(b)]
         leftover_no_po = [
             x for x in leftover_from_catalog(leftover_so_far) if not x.get("po")
         ]
         if len(no_po_picked) >= CAP:
             break
-        if not leftover_no_po and msg is candidates[-1]:
-            break
+        if len(recent_so_far) >= CAP and not leftover_no_po:
+            continue
     print(json.dumps({"parsed_candidates": [summarize_parse(b) for b in parsed_bills]}, indent=2, default=str), flush=True)
 
     recent, leftover_bills = pick_plus15(parsed_bills, already=already, cap=CAP)
