@@ -627,7 +627,8 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Treyce commented @Misty McCoy and transferred to Transfer AP."
         ),
         "expected": (
-            "No-PO-on-PDF → comment @Misty McCoy (buyer) and Transfer AP batch. "
+            "No-PO-on-PDF → comment @Shawn McKibben (purchasing) and Transfer AP "
+            "batch (destination only). Misty McCoy is not a hard default. "
             "Not a fake receipt HOLD. Do not invent a PO. Never Success."
         ),
         "never_success": True,
@@ -755,6 +756,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "gate": "exception-category",
         "cases": (
             "price HOLD → price_variance / Shawn McKibben",
+            "missing / bad PO / PO not on live → missing_po / Shawn McKibben",
             "missing receipts HOLD → missing_receipt / Ruben Perez",
             "already-entered HOLD → already_entered / none / review",
             "pdf-behind-link HOLD → pdf_capture / AP",
@@ -774,7 +776,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Success and true Skipped noise. Optional workbook summary counts "
             "by category only — never invent Success/touchless rates. "
             "Map existing gates only; do not invent new HOLD reasons. "
-            "Kyle bar: exception Why with owner; measure exception rate by cause."
+            "Shawn McKibben oversees Purchasing: price_variance, missing_po "
+            "(PO not on live, missing/bad PO). Transfer AP is a destination "
+            "batch only — not the Exception owner. Misty McCoy is not a hard "
+            "default. Kyle bar: exception Why with owner; measure exception "
+            "rate by cause."
         ),
         "never_success": True,
     },
@@ -883,11 +889,14 @@ COL_EXCEPTION_CATEGORY = "Exception category"
 COL_EXCEPTION_OWNER = "Exception owner"
 
 # Stable slugs + who acts next. Map existing gates only; do not invent HOLD reasons.
+# Shawn McKibben oversees all Purchasing (Kyle 2026-09-18). Transfer AP is a
+# destination batch only — never the Exception owner. Misty McCoy is not a
+# hard default for missing_po or Transfer AP contact.
 EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
     "price_variance": "Shawn McKibben",
     "missing_receipt": "Ruben Perez",
     "quantity_variance": "buyer",
-    "missing_po": "Misty McCoy / Transfer AP",
+    "missing_po": "Shawn McKibben",
     "vendor_mismatch": "AP / vendor master",
     "already_entered": "none / review",
     "pdf_capture": "AP",
@@ -895,6 +904,10 @@ EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
     "partial_match": "AP / Treyce",
     "other": "AP",
 }
+
+PURCHASING_EXCEPTION_CATEGORIES: frozenset[str] = frozenset(
+    {"price_variance", "missing_po"}
+)
 
 _EXCEPTION_PREFIX_RE = re.compile(
     r"category=(?P<category>[a-z0-9_]+);\s*owner=(?P<owner>[^.]*)",
@@ -904,6 +917,17 @@ _EXCEPTION_PREFIX_RE = re.compile(
 
 def exception_prefix(category: str, owner: str) -> str:
     return f"category={category}; owner={owner}"
+
+
+def canonical_exception_owner(category: str, owner: str | None = None) -> str:
+    """Shawn owns purchasing/PO issues. Misty McCoy is not a hard default."""
+    mapped = EXCEPTION_CATEGORY_OWNERS[category]
+    extracted = (owner or "").strip()
+    if category in PURCHASING_EXCEPTION_CATEGORIES:
+        return mapped
+    if "misty" in extracted.lower():
+        return mapped
+    return extracted or mapped
 
 
 def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str] | None:
@@ -924,7 +948,7 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         slug = already.group("category").strip().lower()
         owner = already.group("owner").strip()
         if slug in EXCEPTION_CATEGORY_OWNERS:
-            return slug, owner or EXCEPTION_CATEGORY_OWNERS[slug]
+            return slug, canonical_exception_owner(slug, owner)
 
     why_l = why_s.lower()
     if (
@@ -945,6 +969,8 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or "no-po-on-pdf" in why_l
         or "no po on pdf" in why_l
         or "po number is missing" in why_l
+        or "hold (po)" in why_l
+        or "not findable on live" in why_l
     ):
         return "missing_po", EXCEPTION_CATEGORY_OWNERS["missing_po"]
     if GATE_PRICE in why_l or "price does not match" in why_l:
@@ -972,7 +998,8 @@ def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
     """Stamp Exception category/owner and embed `category=…; owner=…` on Why.
 
     Success / true Skipped noise leave both columns blank and Why unchanged.
-    Idempotent if Why already embeds the prefix.
+    Idempotent if Why already embeds the canonical prefix. Rewrites a stale
+    `missing_po` Misty McCoy / Transfer AP prefix to Shawn McKibben.
     """
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
@@ -985,8 +1012,14 @@ def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
     row[COL_EXCEPTION_CATEGORY] = category
     row[COL_EXCEPTION_OWNER] = owner
     prefix = exception_prefix(category, owner)
-    if prefix not in why:
-        row["Why"] = f"{prefix}. {why}" if why else prefix
+    already = _EXCEPTION_PREFIX_RE.search(why)
+    if already:
+        old = already.group(0)
+        if old != prefix:
+            why = why[: already.start()] + prefix + why[already.end() :]
+        row["Why"] = why.strip()
+        return row
+    row["Why"] = f"{prefix}. {why}" if why else prefix
     return row
 
 
