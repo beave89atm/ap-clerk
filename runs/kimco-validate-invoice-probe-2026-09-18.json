@@ -1,0 +1,79 @@
+{
+  "kind": "live-validate-invoice-probe",
+  "as_of": "2026-09-18",
+  "invent": false,
+  "mail_send": false,
+  "live_writes": false,
+  "host": "https://live.kimcoerp.com",
+  "ap_invoice_guid": "bcca4094b6ec4564942b19f5d7bb255c",
+  "example_ui": {
+    "invoice_number": "PS-INV104018",
+    "kimco_id": 10114,
+    "buttons_named_by_kyle": [
+      "Validate Invoice",
+      "Transfer AP Invoice",
+      "Select Receipts"
+    ],
+    "expected_ribbon": "Passed validation"
+  },
+  "repo_search": {
+    "ap_clerk_quality_readme_scripts": "zero matches for Validate Invoice / Passed validation / Invoice_Validation before this probe",
+    "dropbox": "zero files for KIMCO Validate Invoice"
+  },
+  "field": {
+    "name": "Invoice_Validation",
+    "present_on_live_and_prototype_header": true,
+    "list_view_returns_it": false,
+    "value_on_all_sampled_records": null,
+    "sampled_ids": [2, 3, 10, 100, 1000, 5000, 9000, 9663, 9676, 9677, 9931, 9968, 10003, 10007, 10010, 10108, 10114, 10115, 10116, 10122, 10123, 10126],
+    "notes": "Null on unposted API Success (10114/10116), Kyle-posted 10003, Treyce-posted 10122 (Maint 9/17/26), and old closed Status=2 bills. Posted/Closed is not Passed validation."
+  },
+  "record_options_10114": {
+    "http": 405,
+    "Allow": "DELETE, GET, PUT"
+  },
+  "suffix_gets_on_10114": {
+    "validate": 404,
+    "validation": 404,
+    "validations": 404,
+    "validateInvoice": 404,
+    "ValidateInvoice": 404,
+    "actions": 404,
+    "buttons": 404,
+    "commands": 404,
+    "execute": 404,
+    "schema": 404,
+    "mutation_after_GET_validate": "none"
+  },
+  "list_suffixes_treated_as_item_id": {
+    "GET /schema": "400 errors.i The value 'schema' is not valid.",
+    "GET /actions": "400 errors.i The value 'actions' is not valid."
+  },
+  "metadata_endpoints": {
+    "/api/v2/lists": 422,
+    "/api/v2/forms": 422,
+    "/api/v2/actions": 422,
+    "/api/v2/buttons": 422,
+    "/api/v2/metadata": 422,
+    "note": "API token can GET records; cannot read list/form/button schema."
+  },
+  "query_params_on_GET_10114_no_effect": [
+    "action=ValidateInvoice",
+    "action=Validate",
+    "command=ValidateInvoice",
+    "include=actions",
+    "expand=actions"
+  ],
+  "frontend": {
+    "client_js": "Button labels Validate Invoice / Select Receipts / Transfer AP / Passed validation are not in /client/*.js. Labels come from server form config."
+  },
+  "api_path_proven": false,
+  "ui_only_today": true,
+  "do_not": [
+    "POST or PUT a guessed Validate body",
+    "Treat Invoice_Validation null as Failed (false-HOLD on posted bills)",
+    "Invent Success as Passed validation",
+    "Mail.Send"
+  ],
+  "smallest_next_step": "Kyle clicks Validate Invoice once on 10114 (or any known Success). GET-diff Invoice_Validation / lists / comments. If a stable passed token appears, add GET-only QUALITY gate. If the click uses an idempotent record PUT/POST, wrap that path — never invent it."
+}

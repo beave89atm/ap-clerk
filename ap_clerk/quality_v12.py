@@ -778,6 +778,27 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-41",
+        "slug": "validate-invoice-passed-validation",
+        "gate": "validation",
+        "cases": (
+            "Kyle 2026-09-18: after Success, click Validate Invoice; blue ribbon Passed validation",
+            "PS-INV104018 / KIMCO 10114 screenshot",
+        ),
+        "9_18_bug": (
+            "API Success never ran Validate Invoice. No execute path proven. "
+            "Invoice_Validation is null even on posted/closed bills."
+        ),
+        "expected": (
+            "Do not POST/PUT a guessed Validate. Do not treat null "
+            "Invoice_Validation as Failed or as Passed. GET-only until a "
+            "live UI click proves the passed token (or an idempotent API). "
+            "Until then Validate is UI-only; keep Treyce-load Success."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -999,6 +1020,37 @@ def exception_category_counts(rows: list[dict[str, Any]]) -> list[tuple[str, int
             continue
         tallies[category] = tallies.get(category, 0) + 1
     return sorted(tallies.items(), key=lambda item: (-item[1], item[0]))
+
+
+def invoice_validation_value(record: Any) -> Any:
+    """Header Invoice_Validation from a record GET. None if missing/empty."""
+    vals = record.get("values") if isinstance(record, dict) else None
+    if not isinstance(vals, dict):
+        return None
+    val = vals.get("Invoice_Validation")
+    if val in (None, "", {}, []):
+        return None
+    return val
+
+
+def invoice_validation_gate(record: Any) -> dict[str, Any]:
+    """NOTE-41 GET-only. Passed token is not proven — null is unknown, not fail.
+
+    Never invent Success as Passed. Never treat null as Failed (posted bills
+    are also null). Do not call any Validate execute path from here.
+    """
+    raw = invoice_validation_value(record)
+    return {
+        "passed": None,
+        "unknown": True,
+        "raw": raw,
+        "invent_success": False,
+        "execute": False,
+        "why": (
+            "Invoice_Validation is unknown; Validate Invoice API not proven. "
+            "UI-only until a live click GET-diff proves the passed token."
+        ),
+    }
 
 
 def note_ids() -> tuple[str, ...]:

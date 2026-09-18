@@ -252,6 +252,15 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | Note | Limitation | Gate if we cannot finish |
 | --- | --- | --- |
 | NOTE-10 | Shared-total-only Gas packs (no per-invoice Amount Due) | HOLD `preflight-parse` when `gas_misc_ambiguous` |
+| **NOTE-41** Kyle final check: UI **Validate Invoice** → blue ribbon **Passed validation** (example PS-INV104018 / 10114). Live GET 2026-09-18: header field `Invoice_Validation` exists but is **null** on unposted Success, Kyle-posted, Treyce-posted, and old closed bills. No `/validate` `/actions` `/buttons` record suffix (404). OPTIONS Allow is still `DELETE, GET, PUT` only. Token cannot read list/form metadata (422). | Execute path **not proven**. Do **not** POST/PUT a guessed Validate. Do **not** treat null `Invoice_Validation` as Failed (would false-HOLD posted bills). Do **not** invent Success as Passed. | Until a GET-diff after one real UI click (or a proven idempotent API): **UI-only**. Keep current Treyce-load Success. After the passed token is known, GET `Invoice_Validation` before Success; else HOLD/Incomplete `validation` with Why. |
+
+### NOTE-41 Validate Invoice (Kyle 2026-09-18 — investigate only)
+
+Kyle’s last check after we call a batch Success: open each bill, click **Validate Invoice**, wait for the blue ribbon **Passed validation**. Sibling UI buttons **Select Receipts** and **Transfer AP Invoice** already have proven record-PUT APIs. Validate does not.
+
+Probe facts (`runs/kimco-validate-invoice-probe-2026-09-18.json`): GET/OPTIONS only; GET `/validate` on 10114 was 404 and did not mutate. `Invoice_Validation` stayed null. No Mail.Send.
+
+**Smallest next step:** Kyle clicks Validate once on a known Success (10114). Then GET-diff that record. If the field (or a child list) gets a stable passed value, wire a GET-only gate. If a network trace shows a PUT/POST that is idempotent, wrap that — never invent the body.
 
 ### AQPC / Intuit payment-request links (guest — no login)
 
