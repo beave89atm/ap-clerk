@@ -108,12 +108,14 @@ PRICE_MISMATCH_PO_COMMENT = (
 # Receipts; all charges are Additional Charge Freight External (not Fees).
 FREIGHT_VENDOR_TOKENS = frozenset({"priority 1", "priority1"})
 
-# Treyce 2026-09-16: no-PO-on-PDF (EMJ Z250741432) → buyer comment + Transfer AP.
-# Never invent a PO. Never fake a receipt HOLD.
+# Treyce 2026-09-16: no-PO-on-PDF (EMJ Z250741432) → purchasing comment + Transfer AP.
+# Kyle 2026-09-18: Shawn McKibben oversees Purchasing. Transfer AP is the
+# destination batch only. Misty McCoy is not a hard default.
+# Historical Treyce tag on EMJ Z250741432 — classify signal, not the owner.
 MISTY_MCCOY = "@Misty McCoy"
 TRANSFER_AP_BATCH_NAME = "Transfer AP"
 NO_PO_ON_PDF_BUYER_COMMENT = (
-    "@Misty McCoy PO number is missing from this invoice. "
+    f"{SHAWN_MCKIBBEN} PO number is missing from this invoice. "
     "Transfer to Transfer AP. Do not invent a PO or fake a receipt HOLD."
 )
 GATE_NO_PO_TRANSFER = "no-po-on-pdf-transfer-ap"
@@ -408,7 +410,11 @@ def should_transfer_ap_missing_po(
     freight: bool = False,
     gas_misc: bool = False,
 ) -> bool:
-    """No-PO-on-PDF → buyer comment + Transfer AP. Not a fake receipt HOLD."""
+    """No-PO-on-PDF → purchasing comment + Transfer AP batch. Not a fake receipt HOLD.
+
+    Owner for contact is Shawn McKibben. Transfer AP is the destination
+    batch only. Misty McCoy is not a hard default.
+    """
     if freight or gas_misc or is_freight_vendor(vendor):
         return False
     if not vendor_expects_printed_po(vendor):

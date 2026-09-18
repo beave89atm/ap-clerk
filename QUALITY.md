@@ -28,7 +28,8 @@ QUALITY gates. Weekday FIFO is paused — code/tests/QUALITY first.
 Leave Crosslink 27447/27448/27591 already-entered HOLD alone (no Success
 invent). Priority 1 freight → Freight External, no Select Receipts.
 McNichols vendor only from the PO link (partial name match). EMJ no-PO-on-PDF
-→ `@Misty McCoy` + Transfer AP, not a fake receipt HOLD. Inches qty and
+→ `@Shawn McKibben` + Transfer AP batch (destination; Misty McCoy is not a
+hard default), not a fake receipt HOLD. Inches qty and
 per-line PPV. Gas labeled Total / Amount Due — never invent totals.
 
 **NOTE-29 over-PPV do not lock receipts (Kyle 2026-09-16).** If leftover
@@ -58,7 +59,7 @@ JPSteel **125316 / 10108**: posted $1,580.83 vs PDF $1,580.73 → PPV
 **−$0.10**. Do not HOLD. Two-cent gaps stay a match (no invented PPV).
 Over-PPV lock (NOTE-29) still applies.
 
-**NOTE-39 exception category + owner at HOLD (2026-09-17).** Every
+**NOTE-39 exception category + owner at HOLD (2026-09-17; Kyle 2026-09-18).** Every
 HOLD / Incomplete / Entered-with-issues row gets a stable **Exception
 category** slug and **Exception owner** at creation (Stampli-style
 categorize-at-creation; Kyle product bar #4 / #6). Why embeds
@@ -66,7 +67,10 @@ categorize-at-creation; Kyle product bar #4 / #6). Why embeds
 columns `Exception category` and `Exception owner` (empty for Success
 and true Skipped noise). Workbook **Exception counts** sheet is counts
 by category only — never invent Success/touchless rates. Map existing
-gates only; do not invent new HOLD reasons.
+gates only; do not invent new HOLD reasons. **Shawn McKibben** oversees
+Purchasing: `price_variance`, PO not on live, missing/bad PO
+(`missing_po`). Transfer AP is a destination batch only — not the
+Exception owner. **Misty McCoy is not a hard default.**
 
 **NOTE-40 over-PPV HOLD Transfer AP + @Shawn (Kyle 2026-09-17).** On a
 new `price_variance` / over-PPV-gate HOLD, keep NOTE-29 (do not Select
@@ -238,13 +242,13 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-30** Crosslink 27447 / 27448 / 27591 reminder emails (AP-run-2026-09-16) | Already-entered HOLD (9382 / 9384 / 9587). Treyce: correct; these are reminders. | Keep HOLD `already-entered`. Do not create another header. Do not invent Success. Leave Crosslink alone. | `test_never_repeat_crosslink_reminder_already_entered` |
 | **NOTE-31** Priority 1 **18030910** / KIMCO **10047** $235.77 | Incomplete: Fees & Surcharges Freight Charge blocked-400. Priority 1 is a freight company. | Enter **without Select Receipts**. All charges → Additional Charge **Freight External** on live list `InvoiceAdditionalCharges` lookup **id 1** (not Fees & Surcharges id 11). Never Success if posted as Fees. Finish 10047 this way if still open. | `test_never_repeat_priority1_freight_external` |
 | **NOTE-32** McNichols **2559543** / PO **58935** | Fail vendor missing for `billings@e.mcnichols.com` though PO exists as `PO58935-MCNICHOLS CO.`. Treyce: vendor **1116-MCNICHOLS**. | If email domain/name fails but PO exists and PO vendor name is a **partial match**, create with that PO vendor. Never invent a vendor id — only from the PO vendor link. | `test_never_repeat_mcnichols_vendor_from_po_partial` |
-| **NOTE-33** EMJ **Z250741432** / KIMCO **10048** | PO missing from PDF (RFQ 081026.3). Daily Success reversed to a fake receipt HOLD. Treyce commented **@Misty McCoy** and transferred to **Transfer AP**. | No-PO-on-PDF → buyer comment `@Misty McCoy` + Transfer AP batch. Not a fake receipt HOLD. Do not invent a PO. Never Success. | `test_never_repeat_emj_no_po_transfer_ap` |
+| **NOTE-33** EMJ **Z250741432** / KIMCO **10048** | PO missing from PDF (RFQ 081026.3). Daily Success reversed to a fake receipt HOLD. Treyce commented **@Misty McCoy** and transferred to **Transfer AP**. | No-PO-on-PDF → purchasing comment `@Shawn McKibben` + Transfer AP batch (destination). Misty McCoy is not a hard default. Not a fake receipt HOLD. Do not invent a PO. Never Success. | `test_never_repeat_emj_no_po_transfer_ap` |
 | **NOTE-34** Metal Supermarkets **1091102** / KIMCO **10049** / PO 58919 | HOLD qty 262.74 (dollar amount) vs PO 32. Invoice is **1 @ 32 inches**; PO has **32 inches**. | Do not HOLD qty-does-not-match when PDF unit is inches/length and PO qty is the inch measure (Legacy Wire rolled-qty class). Do not use invoice dollars as qty. Finish 10049 if leftovers match. | `test_never_repeat_metal_supermarkets_inches_qty` |
 | **NOTE-35** O’Neal **14748440** / KIMCO **10050** / PO 58964 | HOLD $714.60 price-does-not-match (bogus rolled variance). Line 1 matches 20 @ 248.4845. Line 2 qty 6; unit **901.97 vs 901.9** → **PPV +0.42**. | PPV is the **per-line unit/amount gap**, not a rolled total. Post PPV +0.42 on `InvoiceAdditionalCharges` lookup **id 13**. Do not HOLD $714.60. Over-PPV lock still applies for true over-gate gaps. Finish 10050 with line 1 receipt + PPV $0.42 if still open. | `test_never_repeat_oneal_per_line_ppv` |
 | **NOTE-36** Gas & Supply multi-invoice PDFs (0040374117 / 0011062620 / 0040372952 / 0011054481 / 0040374112 / 0011062611) | Preflight-parse HOLD `gas_misc_ambiguous` with empty amounts; PDFs on disk. One note: 0040372952 is only 1 invoice. | Extract after-tax totals from labeled Total / Amount Due (including stacked label-then-amount). Never invent totals. A single-invoice Gas PDF is not “multiple Misc invoices”. | `test_never_repeat_gas_labeled_total_amount_due` |
 | **NOTE-37** JPSteel **125315** / KIMCO **10107** / PO 59128 / leftovers **24126** 8@$33 + **24127** 13@$33 (Kyle 2026-09-17) | HOLD Select Receipts **blocked-400** on same-PO-line split though PDF is one line 21@$33=$693. Combining same-item same-unit-cost leftovers is acceptable; Kyle finished 10107 live. | Combine same-item same-unit-cost receipt lines to match one invoice line. Do not HOLD blocked-400 when the unique qty/cost sum matches. Never invent receipts. Do not re-Select / edit 10107 (GET-only). | `test_never_repeat_jpsteel_125315_combine_same_item_receipts` |
 | **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
-| **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
+| **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6; Kyle 2026-09-18 Shawn owns Purchasing) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable. `missing_po` / Transfer AP contact was wrongly hard-defaulted to Misty McCoy. | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Shawn McKibben, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Shawn oversees Purchasing (price variance, PO not on live, missing/bad PO). Transfer AP is a destination batch only. Misty McCoy is not a hard default. Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
 | **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp **Comments** explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben**. Report exactly whether @mention notify worked. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
 
 ### Deferred (failing-safe stubs — not silent skips)
