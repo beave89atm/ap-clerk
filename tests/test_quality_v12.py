@@ -197,9 +197,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40))
-    assert len(TREYCE_NOTES_V12) == 39
-    assert len(TREYCE_FINISH_CHECKLIST) == 14
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42",)
+    assert len(TREYCE_NOTES_V12) == 40
+    assert len(TREYCE_FINISH_CHECKLIST) == 15
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -243,6 +243,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125315-combine-same-item-receipts",
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
+        "gas-misc-lines-k-shop-supplies",
     }
 
 
@@ -672,6 +673,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "all-pos-selected",
         "partial-select-receipts-never-fail-close",
         "combine-same-item-same-unit-receipts",
+        "gas-misc-lines-k-shop-supplies",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4814,4 +4816,12 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     )
     assert stamped[COL_EXCEPTION_CATEGORY] == "price_variance"
     assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
+
+
+def test_never_repeat_note42_gas_misc_lines_k():
+    """NOTE-42: Gas Type 4 header-only must never report Success."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-42")
+    assert n["never_success"] is True
+    assert "header-only" in n["expected"].lower() or "Header-only" in n["expected"]
+    assert_never_success(RESULT_INCOMPLETE, note_id="NOTE-42", detail="header-only Lines-K empty")
 

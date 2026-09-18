@@ -23,6 +23,9 @@ or HOLD 0040430010. Purchasing owner is Shawn McKibben — do not tag Misty.
 
 Plus-10: next 5 after the plus-5 leftovers. Discover the next Aug 1+
 window. Leave 0040430010 / 0040424839 / 10134 alone.
+
+NOTE-42: Type 4 Gas Misc Success requires nonempty Lines-K (desc/qty/cost
++ Shop Supplies - G&S). Header-only is Incomplete, never Success.
 """
 
 from __future__ import annotations
@@ -56,6 +59,10 @@ from ap_clerk.kimco import (  # noqa: E402
     KimcoError,
     fees_posted_cover_parsed,
     fees_with_amounts,
+)
+from ap_clerk.misc_lines import (  # noqa: E402
+    misc_line_snapshot,
+    type4_shop_supplies_lines_ok,
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
 from ap_clerk.quality_v12 import (  # noqa: E402
@@ -804,6 +811,7 @@ def gas_proof(client: KimcoClient, invoice_id: Any) -> dict[str, Any]:
     ]
     proof["fee_count"] = len(proof["fee_amounts"]) + len(proof["ppv_amounts"])
     proof["comments"] = str(vals.get("Comments") or "")
+    proof["misc_lines"] = misc_line_snapshot(item)
     return proof
 
 
@@ -1250,20 +1258,19 @@ def quality_gas_row(
     rolled = round(rec_merch + charge_sum, 2)
     po = str(parsed.get("po") or enter_row.get("PO") or "").strip()
     needs_receipts = bool(po)
+    type4_misc = (not needs_receipts) and proof.get("invoice_type") == 4
+    misc_lines = list(proof.get("misc_lines") or [])
+    lines_k_ok = type4_shop_supplies_lines_ok(misc_lines) if type4_misc else True
     amount_ok = False
     if pdf_amt is not None:
         if posted is not None and abs(posted - pdf_amt) <= 0.02:
             amount_ok = True
         elif (
-            not needs_receipts
+            not type4_misc
             and ver is not None
             and abs(ver - pdf_amt) <= 0.02
-            and proof.get("invoice_type") == 4
+            and abs(rolled - pdf_amt) <= 0.02
         ):
-            # Unposted Type 4 Misc: Invoice_Amount stays 0 until the batch posts.
-            # Finish is header + PDF + verification (README no-PO API-only).
-            amount_ok = True
-        elif ver is not None and abs(ver - pdf_amt) <= 0.02 and abs(rolled - pdf_amt) <= 0.02:
             amount_ok = True
     price_hold = bool((finish or {}).get("select_zero") or (finish or {}).get("skipped_over_ppv"))
     vendor_ok = vendor_id not in (None, "") and proof.get("vendor_id") == vendor_id
@@ -1297,6 +1304,7 @@ def quality_gas_row(
         and not price_hold
         and select_ok
         and number_ok
+        and lines_k_ok
         and pdf_amt not in (None, "")
     )
     out["Amount"] = pdf_amt
@@ -1323,7 +1331,7 @@ def quality_gas_row(
         out["Why"] = (
             f"Finished bill (Invoice_Type {proof.get('invoice_type')}). "
             f"Header PO set={po or 'none'}. "
-            f"{'Select Receipts ' + format_receipts(proof) + ' on PO ' + (po or 'n/a') + '. ' if needs_receipts else 'Misc Type 4 Shop Supplies - G&S (no PO). '}"
+            f"{'Select Receipts ' + format_receipts(proof) + ' on PO ' + (po or 'n/a') + '. ' if needs_receipts else 'Misc Type 4 Lines-K Shop Supplies - G&S (no PO). '}"
             f"Invoice #={pdf_number} (exact PDF). Amount={pdf_amt} after-tax "
             f"(never merchandise subtotal). "
             f"Fees={out['Fees and surcharges']} (Additional Charge Fees id 11, "
@@ -1366,6 +1374,17 @@ def quality_gas_row(
             "HOLD (fees): Gas fuel/surcharge amounts must be Additional Charge "
             "Fees (id 11), never PPV. "
             f"Posted fees={fee_amts} ppv={ppv_amts}. {extra}"
+            "Outlook Entered with issues. Flag status=entered-with-issues."
+        )
+        out["Flag status"] = "entered-with-issues"
+    elif type4_misc and not lines_k_ok:
+        out["Result"] = "Incomplete"
+        out["Why"] = (
+            "NOTE-42: Gas Misc Type 4 header-only is incomplete. Lines-K must "
+            "have description, qty, unit cost, and live category Shop Supplies "
+            "- G&S before Success. Fuel surcharge stays Additional Charge Fees "
+            f"id 11. Posted lines={len(misc_lines)} amount={posted} "
+            f"verification={ver} pdf={pdf_amt}. {extra}"
             "Outlook Entered with issues. Flag status=entered-with-issues."
         )
         out["Flag status"] = "entered-with-issues"
