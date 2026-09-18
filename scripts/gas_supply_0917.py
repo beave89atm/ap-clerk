@@ -148,8 +148,10 @@ PLUS5_HEADERS = {
     "0040423658": 10134,
     "0040421569": 10135,
 }
-# Filled from live plus-10 discovery (not invented).
-PLUS10_HEADERS: dict[str, int] = {}
+# Plus-10 headers on batch 720. 0040438057/8056/8055/8053 HOLD missing_po (no header).
+PLUS10_HEADERS = {
+    "0040438494": 10136,
+}
 # 10134 missing_receipt / Ruben on PO 58948. Leave alone.
 LEAVE_ALONE_HOLD_IDS = {10134}
 DO_NOT_MUTATE_IDS = set(CREATED_HEADERS.values()) | set(PLUS5_HEADERS.values())

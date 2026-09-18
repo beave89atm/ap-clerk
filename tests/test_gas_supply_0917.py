@@ -32,6 +32,7 @@ from gas_supply_0917 import (  # noqa: E402
     CAP,
     CREATED_HEADERS,
     PLUS5_HEADERS,
+    PLUS10_HEADERS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
@@ -384,6 +385,7 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
         "0040423658": 10134,
         "0040421569": 10135,
     }
+    assert PLUS10_HEADERS == {"0040438494": 10136}
     first_pass_only = set(CREATED_HEADERS) | {"0040430010", "0040424839"}
     bills = [
         {"invoice_number": "0040435122", "date": "2026-09-15"},
