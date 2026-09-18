@@ -138,6 +138,13 @@ PLUS5_PREFERRED = (
     "0040423658",
     "0040421569",
 )
+# Plus-5 headers on batch 720. 0040424839 is HOLD missing_po (no header).
+PLUS5_HEADERS = {
+    "0040425612": 10132,
+    "0040424382": 10133,
+    "0040423658": 10134,
+    "0040421569": 10135,
+}
 LEAVE_ALONE_HOLD_IDS: set[int] = set()
 DO_NOT_MUTATE_IDS = set(CREATED_HEADERS.values())
 NOISE_SUBJECT = re.compile(
