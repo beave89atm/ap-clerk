@@ -209,6 +209,15 @@ def test_note39_hold_gets_category_owner_success_blank():
     assert hold[COL_EXCEPTION_CATEGORY] == "missing_receipt"
     assert hold[COL_EXCEPTION_OWNER] == "Ruben Perez"
     assert "category=missing_receipt" in hold["Why"]
+    missing_po = apply_exception_category_owner(
+        {
+            "Result": "HOLD",
+            "Why": "HOLD (po): PO 59081 is on the invoice but not findable on live.",
+        }
+    )
+    assert missing_po[COL_EXCEPTION_CATEGORY] == "missing_po"
+    assert missing_po[COL_EXCEPTION_OWNER] == "Shawn McKibben"
+    assert "Misty" not in missing_po[COL_EXCEPTION_OWNER]
     success = apply_exception_category_owner({"Result": "Success", "Why": "Finished bill"})
     assert success[COL_EXCEPTION_CATEGORY] == ""
     assert success[COL_EXCEPTION_OWNER] == ""

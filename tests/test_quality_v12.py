@@ -82,10 +82,12 @@ from ap_clerk.quality_v12 import (
     COL_EXCEPTION_OWNER,
     EXCEPTION_CATEGORY_OWNERS,
     MONDAY_LIVE10_BASICS,
+    PURCHASING_EXCEPTION_CATEGORIES,
     TREYCE_FINISH_CHECKLIST,
     TREYCE_NOTES_V12,
     apply_exception_category_owner,
     assert_never_success,
+    canonical_exception_owner,
     classify_exception,
     exception_prefix,
     note_ids,
@@ -4103,9 +4105,11 @@ def test_never_repeat_mcnichols_vendor_from_po_partial():
 
 
 def test_never_repeat_emj_no_po_transfer_ap():
-    """NOTE-33: no PO on PDF → @Misty McCoy + Transfer AP, not a fake receipt HOLD."""
+    """NOTE-33: no PO on PDF → @Shawn McKibben + Transfer AP batch, not a fake receipt HOLD."""
     n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-33")
     assert n["slug"] == "emj-no-po-on-pdf-transfer-ap"
+    assert "Shawn McKibben" in n["expected"]
+    assert "Misty McCoy is not a hard default" in n["expected"]
     assert is_rfq_not_kimco_po("RFQ 081026.3")
     assert is_rfq_not_kimco_po("081026.3")
     assert not is_rfq_not_kimco_po("58913")
@@ -4154,11 +4158,15 @@ def test_never_repeat_emj_no_po_transfer_ap():
     )
     assert row["Result"] == RESULT_HOLD, row
     assert row["KIMCO id"] not in (None, "")
-    assert "Misty McCoy" in row["Why"] or NO_PO_ON_PDF_BUYER_COMMENT.split()[0] in row["Why"]
+    assert "Shawn McKibben" in row["Why"]
+    assert "@Shawn McKibben" in NO_PO_ON_PDF_BUYER_COMMENT
+    assert "Misty McCoy" not in row["Why"]
+    assert "Misty McCoy" not in NO_PO_ON_PDF_BUYER_COMMENT
     assert "Transfer AP" in row["Why"]
     assert GATE_PO in row["Why"] or "no-po" in row["Why"].lower() or "missing" in row["Why"].lower()
     assert "receipt" not in row["Why"].lower() or "do not invent" in row["Why"].lower() or "fake" in row["Why"].lower()
     assert not client.selected
+    _assert_exception_tagged(row, category="missing_po", owner="Shawn McKibben")
     assert_never_success(row["Result"], note_id="NOTE-33", detail=row["Why"])
 
 
@@ -4564,18 +4572,24 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     assert n["never_success"] is True
     assert "Stampli" in n["expected"]
     assert "Kyle" in n["expected"]
-    assert set(EXCEPTION_CATEGORY_OWNERS) == {
-        "price_variance",
-        "missing_receipt",
-        "quantity_variance",
-        "missing_po",
-        "vendor_mismatch",
-        "already_entered",
-        "pdf_capture",
-        "auto_pay",
-        "partial_match",
-        "other",
+    assert EXCEPTION_CATEGORY_OWNERS == {
+        "price_variance": "Shawn McKibben",
+        "missing_receipt": "Ruben Perez",
+        "quantity_variance": "buyer",
+        "missing_po": "Shawn McKibben",
+        "vendor_mismatch": "AP / vendor master",
+        "already_entered": "none / review",
+        "pdf_capture": "AP",
+        "auto_pay": "none",
+        "partial_match": "AP / Treyce",
+        "other": "AP",
     }
+    assert PURCHASING_EXCEPTION_CATEGORIES == frozenset({"price_variance", "missing_po"})
+    assert "Misty" not in " ".join(EXCEPTION_CATEGORY_OWNERS.values())
+    assert "Transfer AP" not in " ".join(EXCEPTION_CATEGORY_OWNERS.values())
+    assert canonical_exception_owner("missing_po", "Misty McCoy / Transfer AP") == "Shawn McKibben"
+    assert "Shawn McKibben" in n["expected"]
+    assert "Misty McCoy is not a hard default" in n["expected"]
 
     # Price HOLD (NOTE-06 / over-gate) → Shawn McKibben
     emj = NOTES["NOTE-06"]
@@ -4765,7 +4779,25 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     assert classify_exception(
         result=RESULT_HOLD,
         why="HOLD (po): @Misty McCoy PO number is missing. Transfer to Transfer AP.",
-    ) == ("missing_po", "Misty McCoy / Transfer AP")
+    ) == ("missing_po", "Shawn McKibben")
+    assert classify_exception(
+        result=RESULT_HOLD,
+        why="HOLD (po): PO 59081 is on the invoice but not findable on live by vendor + part/WO.",
+    ) == ("missing_po", "Shawn McKibben")
+    remapped = apply_exception_category_owner(
+        {
+            "Result": RESULT_HOLD,
+            "Why": (
+                "category=missing_po; owner=Misty McCoy / Transfer AP. "
+                "HOLD (po): PO 59081 not findable on live."
+            ),
+        }
+    )
+    assert remapped[COL_EXCEPTION_CATEGORY] == "missing_po"
+    assert remapped[COL_EXCEPTION_OWNER] == "Shawn McKibben"
+    assert remapped["Why"].startswith("category=missing_po; owner=Shawn McKibben")
+    assert remapped["Why"].count("category=") == 1
+    assert "Misty McCoy" not in remapped["Why"]
     assert classify_exception(
         result=RESULT_HOLD, why="HOLD (auto-pay): Toyota Commercial Finance / auto-pay."
     ) == ("auto_pay", "none")
