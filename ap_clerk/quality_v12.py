@@ -784,6 +784,33 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-42",
+        "slug": "gas-misc-lines-k-shop-supplies",
+        "gate": "misc-lines",
+        "cases": (
+            "Gas 0040421569 / 10135 Kyle 2026-09-18 checked Lines-K",
+            "batch 720 remaining Type 4 Successes 10128–10133 / 10136",
+        ),
+        "9_18_bug": (
+            "Gas & Supply Type 4 Misc bills were Result=Success with header "
+            "+ Invoice_Verification_Amount matching the PDF after-tax total "
+            "and empty Lines-K. Kyle: header-only is incomplete. Standing "
+            "rule: do not mark Gas Misc Success until Lines-K exist."
+        ),
+        "expected": (
+            "Gas & Supply Type 4 Misc Success requires nonempty Lines-K: "
+            "description, qty, unit cost, and live category Shop Supplies - "
+            "G&S (lookup by name; id 31 is a hint only). Fuel surcharge / "
+            "freight stay Additional Charge Fees id 11 — not a merch line. "
+            "After lines, Invoice_Amount equals the PDF after-tax total. "
+            "Header-only cannot be Success — Incomplete until Lines-K are "
+            "entered. Do not rework 10135 after Kyle checked it. invent=false."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10128, 10129, 10130, 10131, 10132, 10133, 10136),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -865,6 +892,15 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "invoice line (JPSteel 125315: 24126 8@$33 + 24127 13@$33 = "
             "21@$33=$693). Do not HOLD Select Receipts blocked-400 when that "
             "unique sum matches. Kyle 2026-09-17."
+        ),
+    },
+    {
+        "id": "gas-misc-lines-k-shop-supplies",
+        "check": (
+            "Gas & Supply Type 4 Misc Success requires nonempty Lines-K "
+            "(description, qty, unit cost) with live category Shop Supplies - "
+            "G&S. Header-only is Incomplete, never Success (NOTE-42). Fuel "
+            "surcharge stays Additional Charge Fees."
         ),
     },
 )

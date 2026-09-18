@@ -245,8 +245,8 @@ def test_is_over_ppv_not_missing_receipt():
     )
 
 
-def test_quality_gas_misc_success_verification_when_invoice_amount_zero():
-    """Unposted Type 4: Invoice_Amount 0, verification = PDF after-tax. Success."""
+def test_quality_gas_misc_header_only_never_success():
+    """NOTE-42: Type 4 header-only (empty Lines-K) cannot be Success."""
     row = quality_gas_row(
         None,
         parsed={
@@ -274,14 +274,17 @@ def test_quality_gas_misc_success_verification_when_invoice_amount_zero():
             "vendor_id": 71,
             "attachments": ["g1378.pdf"],
             "receipt_lines": [],
+            "misc_lines": [],
             "fee_amounts": [],
             "ppv_amounts": [],
         },
         finish={"select_status": "no-po-misc", "select_zero": False, "skipped_over_ppv": False},
         vendor_id=71,
     )
-    assert row["Result"] == "Success"
-    assert row[COL_EXCEPTION_CATEGORY] == ""
+    assert row["Result"] == "Incomplete"
+    assert row["Result"] != "Success"
+    assert "NOTE-42" in row["Why"]
+    assert row[COL_EXCEPTION_CATEGORY] == "other"
 
 
 def test_quality_gas_misc_success_no_receipts():
@@ -313,6 +316,14 @@ def test_quality_gas_misc_success_no_receipts():
             "vendor_id": 71,
             "attachments": ["billing01_A3050_c_0040434973.pdf"],
             "receipt_lines": [],
+            "misc_lines": [
+                {
+                    "desc": "AR90CD300 300 COMP.GAS",
+                    "qty": 4.0,
+                    "unit": 48.0,
+                    "misc": {"id": 31, "text": "Shop Supplies - G&S-."},
+                }
+            ],
             "fee_amounts": [],
             "ppv_amounts": [],
         },
@@ -322,6 +333,7 @@ def test_quality_gas_misc_success_no_receipts():
     assert row["Result"] == "Success"
     assert row[COL_EXCEPTION_CATEGORY] == ""
     assert "Shop Supplies" in row["Why"]
+    assert "Lines-K" in row["Why"]
 
 
 def test_quality_gas_missing_receipt_tags_ruben():

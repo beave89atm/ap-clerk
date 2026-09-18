@@ -134,3 +134,99 @@ def payload_has_receipt(payload: dict[str, Any]) -> bool:
         if values.get("Receipt") not in (None, "", {}):
             return True
     return False
+
+
+def misc_line_snapshot(item: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """Lines-K rows from a Type 4 record GET. Empty means header-only."""
+    rows: list[dict[str, Any]] = []
+    lists = item.get("lists") if isinstance(item, dict) else {}
+    for line in (lists or {}).get("APInvoiceLine") or []:
+        values = (line.get("values") if isinstance(line, dict) else None) or {}
+        rows.append(
+            {
+                "id": line.get("id") if isinstance(line, dict) else None,
+                "desc": values.get("Misc_Description"),
+                "qty": values.get("Quantity"),
+                "unit": values.get("Unit_Price"),
+                "ext": values.get("Extended_Amount"),
+                "misc": values.get("MFG_Miscellaneous_Item"),
+                "gl": values.get("Purchase_GL_Account"),
+                "receipt": values.get("Receipt"),
+            }
+        )
+    return rows
+
+
+def _line_qty_price(line: dict[str, Any]) -> tuple[Any, Any]:
+    qty = line.get("qty")
+    if qty in (None, ""):
+        qty = line.get("Quantity") or line.get("quantity")
+    price = line.get("unit")
+    if price in (None, ""):
+        price = line.get("unit_price")
+    if price in (None, ""):
+        price = line.get("Unit_Price")
+    return qty, price
+
+
+def _line_misc_lookup(line: dict[str, Any]) -> dict[str, Any] | None:
+    misc = line.get("misc")
+    if misc in (None, ""):
+        misc = line.get("MFG_Miscellaneous_Item")
+    return lookup_id_text(misc) if isinstance(misc, dict) else None
+
+
+def type4_shop_supplies_lines_ok(lines: list[dict[str, Any]] | None) -> bool:
+    """NOTE-42: nonempty Lines-K with desc/qty/cost + Shop Supplies - G&S.
+
+    Header-only (empty) is not OK. Fuel/surcharge rows are not merch lines
+    and should not be in this list.
+    """
+    if not lines:
+        return False
+    for line in lines:
+        if not isinstance(line, dict):
+            return False
+        desc = str(
+            line.get("desc")
+            or line.get("Misc_Description")
+            or line.get("description")
+            or line.get("label")
+            or ""
+        ).strip()
+        qty, price = _line_qty_price(line)
+        if not desc or qty in (None, "") or price in (None, ""):
+            return False
+        misc = _line_misc_lookup(line)
+        name = str((misc or {}).get("text") or "")
+        mid = (misc or {}).get("id")
+        if name:
+            if not is_shop_supplies_gs_name(name):
+                return False
+        elif mid != SHOP_SUPPLIES_GS_ITEM_HINT:
+            return False
+    return True
+
+
+def existing_misc_lines_match_pdf(
+    existing: list[dict[str, Any]] | None,
+    pdf_lines: list[dict[str, Any]] | None,
+) -> bool:
+    """True when live Lines-K already match this invoice's PDF merch lines."""
+    if not type4_shop_supplies_lines_ok(existing):
+        return False
+    wanted = list(pdf_lines or [])
+    have = list(existing or [])
+    if len(have) != len(wanted):
+        return False
+    for live, pdf in zip(have, wanted):
+        lq, lp = _line_qty_price(live)
+        pq, pp = _line_qty_price(pdf)
+        try:
+            if abs(float(lq) - float(pq)) > 0.02:
+                return False
+            if abs(float(lp) - float(pp)) > 0.02:
+                return False
+        except (TypeError, ValueError):
+            return False
+    return True

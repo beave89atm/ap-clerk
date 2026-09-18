@@ -7,10 +7,13 @@ import pytest
 from ap_clerk.kimco import KimcoError
 from ap_clerk.misc_lines import (
     collect_shop_supplies_gs_from_records,
+    existing_misc_lines_match_pdf,
     is_shop_supplies_gs_name,
     misc_add_item_payload,
     misc_line_description,
+    misc_line_snapshot,
     payload_has_receipt,
+    type4_shop_supplies_lines_ok,
 )
 
 
@@ -140,3 +143,33 @@ def test_misc_line_description_includes_part() -> None:
     assert misc_line_description(
         {"part": "AR90CD300", "description": "300 COMP.GAS N.O.S. 2.2 UN1956"}
     ) == "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+
+
+def test_type4_shop_supplies_lines_ok_rejects_header_only() -> None:
+    assert type4_shop_supplies_lines_ok([]) is False
+    assert type4_shop_supplies_lines_ok(None) is False
+    assert type4_shop_supplies_lines_ok(
+        [{"desc": "AR90CD300", "qty": 8, "unit": 28, "misc": {"id": 31, "text": "Shop Supplies - G&S-."}}]
+    )
+    assert type4_shop_supplies_lines_ok(
+        [{"desc": "AR90CD300", "qty": 8, "unit": 28, "misc": {"id": 28, "text": "Uniforms & Safety-."}}]
+    ) is False
+    record = {
+        "lists": {
+            "APInvoiceLine": [
+                {
+                    "id": 20694,
+                    "values": {
+                        "Misc_Description": "AR90CD300 300 COMP.GAS",
+                        "Quantity": 8.0,
+                        "Unit_Price": 28.0,
+                        "MFG_Miscellaneous_Item": {"id": 31, "text": "Shop Supplies - G&S-."},
+                    },
+                }
+            ]
+        }
+    }
+    snap = misc_line_snapshot(record)
+    assert type4_shop_supplies_lines_ok(snap)
+    assert existing_misc_lines_match_pdf(snap, [{"qty": 8.0, "unit_price": 28.0}])
+    assert not existing_misc_lines_match_pdf(snap, [{"qty": 8.0, "unit_price": 28.0}, {"qty": 1, "unit_price": 1}])
