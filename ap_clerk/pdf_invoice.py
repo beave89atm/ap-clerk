@@ -1098,6 +1098,47 @@ _LINE_SKIP_RE = re.compile(
 )
 
 
+_GAS_ITEM_LINE = re.compile(
+    r"(?m)^(?P<part>\$?[A-Z0-9][A-Z0-9._/-]{2,})\s+"
+    r"(?P<qty>\d+(?:\.\d+)?)\s+\d+\s+"
+    r"(?:(?P<ship>\d+)\s+(?P<ret>\d+)\s+)?"
+    r"(?P<desc>.+?)\s+"
+    r"(?P<uom>EA|CYL|LB|GAL|CS)\s+"
+    r"(?P<unit>[\d,]+\.\d{2})\s+"
+    r"(?P<ext>[\d,]+\.\d{2})\s+N\b",
+)
+
+
+def extract_gas_item_lines(text: str) -> list[dict[str, Any]]:
+    """Gas merchandise rows. Fuel surcharge is a fee, not a receipt line."""
+    lines: list[dict[str, Any]] = []
+    for match in _GAS_ITEM_LINE.finditer(text or ""):
+        part = str(match.group("part") or "").strip()
+        desc = re.sub(r"\s{2,}", " ", str(match.group("desc") or "")).strip()
+        blob = f"{part} {desc}"
+        if is_fee_or_surcharge(blob) or part.startswith("$SUR"):
+            continue
+        qty = parse_money(match.group("qty"))
+        amount = parse_money(match.group("ext"))
+        unit = parse_money(match.group("unit"))
+        if qty in (None, 0, 0.0) or amount in (None,):
+            continue
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amount,
+                "unit_price": unit,
+                "po_line": None,
+                "wo": None,
+                "label": desc[:80] or part,
+                "description": desc[:160] or part,
+                "qty_uom": str(match.group("uom") or "").lower(),
+            }
+        )
+    return lines
+
+
 def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
     """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts.
 
@@ -1106,6 +1147,10 @@ def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
     """
     lines: list[dict[str, Any]] = []
     seen: set[str] = set()
+    if re.search(r"gas\s+and\s+supply|gasandsupply", text or "", flags=re.I):
+        gas_lines = extract_gas_item_lines(text)
+        if gas_lines:
+            return gas_lines
     raw_rows = [raw.strip() for raw in (text or "").splitlines() if raw.strip()]
     for index, stripped in enumerate(raw_rows):
         if _LINE_SKIP_RE.search(stripped) and not _STEEL_LINE_RE.search(stripped):
@@ -1495,6 +1540,7 @@ def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str
 _AFTER_TAX_LABEL = re.compile(
     r"(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|grand\s+total|"
     r"total\s+to\s+be\s+paid|total\s+this\s+invoice|total\s+amount\s+due|"
+    r"amount\s+this\s+invoice(?:\s+including\s+tax)?|"
     r"please\s+pay\s+this\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
     flags=re.I,
 )
@@ -1506,8 +1552,20 @@ _BEFORE_TAX_LABEL = re.compile(
 _AFTER_TAX_STACKED = re.compile(
     r"(?m)^[ \t]*(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|"
     r"grand\s+total|total\s+to\s+be\s+paid|total\s+this\s+invoice|"
-    r"total\s+amount\s+due|please\s+pay\s+this\s+amount|total)\b"
+    r"total\s+amount\s+due|amount\s+this\s+invoice(?:\s+including\s+tax)?|"
+    r"please\s+pay\s+this\s+amount|total)\b"
     r"[^\n]{0,40}\n(?:[ \t]*[A-Za-z][^\n]*\n){0,3}[ \t]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+# Printed invoice # sits on the date/account header. 0011xxxxxx-00 is the order #.
+_GAS_HEADER_INV = re.compile(
+    r"(?m)\d{1,2}/\d{1,2}/\d{2}\s+[A-Z]\d{4}\s+(00\d{8})\b"
+)
+_GAS_ORDER_SUFFIX = re.compile(r"00\d{8}-\d{2}")
+# Form columns: TAXABLE AMOUNT | AMOUNT THIS INVOICE INCLUDING TAX
+# Footer after TAX CD is: <tax> <including-tax total>
+_GAS_INCLUDING_TAX_FOOTER = re.compile(
+    r"TAX\s*CD:[^\n]*\n\s*([\d,]+\.\d{2})\s+([\d,]+\.\d{2})",
     flags=re.I,
 )
 
@@ -1545,6 +1603,31 @@ def _bare_grand_totals(text: str) -> list[float]:
     return found
 
 
+def gas_amount_including_tax(text: str) -> float | None:
+    """Labeled Amount This Invoice Including Tax from the TAX CD footer.
+
+    Never invent. Never take Subtotal / Merchandise. Requires the including-tax
+    form header (or AMOUNT THIS INVOICE) plus the two-amount TAX CD footer.
+    """
+    blob = text or ""
+    if not re.search(
+        r"amount\s+this\s+invoice|including\s+tax|gas\s+and\s+supply",
+        blob,
+        flags=re.I,
+    ):
+        return None
+    match = _GAS_INCLUDING_TAX_FOOTER.search(blob)
+    if not match:
+        return None
+    tax = parse_money(match.group(1))
+    total = parse_money(match.group(2))
+    if total in (None, 0, 0.0):
+        return None
+    if tax is not None and tax > total + 0.001:
+        return None
+    return total
+
+
 def prefer_after_tax_amount(text: str, current: float | None = None) -> float | None:
     """Final total / amount due after tax. Never a subtotal when a grand total exists.
 
@@ -1559,9 +1642,14 @@ def prefer_after_tax_amount(text: str, current: float | None = None) -> float | 
     after = [a for a in after if a not in (None, 0, 0.0)]
     after.extend(_bare_grand_totals(text))
     after.extend(_stacked_after_tax_totals(text))
+    including = gas_amount_including_tax(text)
+    if including not in (None, 0, 0.0):
+        after.append(including)
     before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
     before = [a for a in before if a not in (None, 0, 0.0)]
     grand = [a for a in after if a not in before]
+    if including not in (None, 0, 0.0) and including not in grand:
+        grand.append(including)
     if current in before:
         if grand:
             return max(grand)
@@ -1569,6 +1657,8 @@ def prefer_after_tax_amount(text: str, current: float | None = None) -> float | 
             return max(after)
         return None
     if current in (None, 0, 0.0):
+        if including not in (None, 0, 0.0):
+            return including
         if grand:
             return max(grand)
         if after:
@@ -1578,12 +1668,24 @@ def prefer_after_tax_amount(text: str, current: float | None = None) -> float | 
 
 
 def gas_invoice_numbers(text: str) -> list[str]:
-    """Distinct Gas & Supply 00xxxxxxxx invoice numbers in PDF order."""
+    """Distinct printed invoice numbers (date + account + 00xxxxxxxx).
+
+    Order numbers like 0011118988-00 are not invoices. A one-invoice PDF
+    that also prints the order # is not multiple Misc (NOTE-36).
+    """
     numbers: list[str] = []
-    for hit in _INV_GAS.findall(text or ""):
+    for hit in _GAS_HEADER_INV.findall(text or ""):
         token = _usable_invoice_number(hit)
         if token and token not in numbers:
             numbers.append(token)
+    if numbers:
+        return numbers
+    orderish = {m[:10] for m in _GAS_ORDER_SUFFIX.findall(text or "")}
+    for hit in _INV_GAS.findall(text or ""):
+        token = _usable_invoice_number(hit)
+        if not token or token in numbers or token in orderish:
+            continue
+        numbers.append(token)
     return numbers
 
 
@@ -1613,9 +1715,10 @@ def _split_gas_invoice_sections(text: str, numbers: list[str]) -> list[tuple[str
     sections: list[tuple[str, str, int, int]] = []
     for index, (start, number) in enumerate(hits):
         end = hits[index + 1][0] if index + 1 < len(hits) else len(blob)
-        if index == 0:
-            header = blob.rfind("ORIGINAL INVOICE", 0, start)
-            window_start = header if header >= 0 else 0
+        prev_end = hits[index - 1][0] if index else 0
+        header = blob.rfind("ORIGINAL INVOICE", prev_end, start)
+        if header >= 0:
+            window_start = header
         else:
             line_start = blob.rfind("\n", 0, start)
             window_start = line_start + 1 if line_start >= 0 else start

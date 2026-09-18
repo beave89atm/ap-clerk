@@ -64,6 +64,7 @@ from ap_clerk.pdf_invoice import (
     extract_invoice_lines,
     extract_fees,
     extract_legacy_wire_bill,
+    gas_invoice_numbers,
     is_account_statement_document,
     parse_invoice_text,
     prefer_after_tax_amount,
@@ -4383,6 +4384,30 @@ def test_never_repeat_gas_labeled_total_amount_due():
 
     invented = prefer_after_tax_amount("Gas and Supply\nINVOICE 0011062611\nno totals here\n", None)
     assert invented in (None, 0, 0.0)
+
+    # Live 9/16 pack: order # 0011118988-00 is not a second invoice.
+    # Amount This Invoice Including Tax is the TAX CD footer, never Subtotal-only invent.
+    live_one = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\n"
+        "INVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n"
+        "AMOUNT THIS INVOICE INCLUDING TAX\n"
+        "09/15/26   A3050      0040434973\n"
+        "     0011118988-00      PINNACLE PROPANE\n"
+        "PRO7.5C             8     0    8    8 UN1075 LIQUEFIED PETROLEUM    CYL        24.00     192.00 N\n"
+        "                                                                 Subtotal                    192.00\n"
+        "  TAX CD: 000000000TXDF15 TAX DESCRP: TX/Denton/ EXMPT CD:  0 EXMPT/CERT:\n"
+        "       0.00                                                                                  192.00\n"
+    )
+    assert gas_invoice_numbers(live_one) == ["0040434973"]
+    assert prefer_after_tax_amount(live_one, None) == 192.00
+    live_bills = expand_gas_misc_invoices(
+        live_one, {**parse_invoice_text(live_one, from_name="Gas and Supply North Texas, LLC"),
+                   "vendor": "Gas and Supply North Texas, LLC"}
+    )
+    assert len(live_bills) == 1
+    assert live_bills[0]["invoice_number"] == "0040434973"
+    assert live_bills[0]["amount"] == 192.00
+    assert not live_bills[0].get("gas_misc_ambiguous")
 
 
 def test_never_repeat_jpsteel_125315_combine_same_item_receipts():
