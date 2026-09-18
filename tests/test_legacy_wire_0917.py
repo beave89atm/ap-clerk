@@ -41,7 +41,9 @@ from legacy_wire_0917 import (  # noqa: E402
     FORBIDDEN_REUSE_NAMES,
     KNOWN_BATCH_ID,
     KNOWN_ENTERED,
+    HOLD_RETRY,
     LEAVE_ALONE_HOLD_IDS,
+    SUCCESS_LEAVE_ALONE_IDS,
     PLUS5_HEADERS,
     PLUS10_HEADERS,
     PLUS10_SEARCH,
@@ -260,6 +262,13 @@ def test_legacy_wire_batch_is_dedicated_not_715_or_716():
         "PS-INV104017": 10116,
     }
     assert LEAVE_ALONE_HOLD_IDS == {10116, 10123, 10125, 10127}
+    assert HOLD_RETRY == {
+        "PS-INV104017": 10116,
+        "PS-INV104013": 10123,
+        "PS-INV104011": 10125,
+        "PS-INV104009": 10127,
+    }
+    assert SUCCESS_LEAVE_ALONE_IDS == {10112, 10113, 10114, 10115, 10124, 10126}
     assert FINISH_ORDER.index("PS-INV104018") < FINISH_ORDER.index("PS-INV104019")
     assert FINISH_ORDER[-1] == "PS-INV104017"
     assert KNOWN_BATCH_ID == 717
