@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from ap_clerk.cli import (
     _matching_existing_invoices,
     _process_invoice,
@@ -87,6 +89,7 @@ from ap_clerk.quality_v12 import (
     assert_never_success,
     classify_exception,
     exception_prefix,
+    invoice_validation_gate,
     note_ids,
 )
 from ap_clerk.rules import (
@@ -194,8 +197,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40))
-    assert len(TREYCE_NOTES_V12) == 39
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-41",)
+    assert len(TREYCE_NOTES_V12) == 40
     assert len(TREYCE_FINISH_CHECKLIST) == 14
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -240,6 +243,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125315-combine-same-item-receipts",
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
+        "validate-invoice-passed-validation",
     }
 
 
@@ -4757,4 +4761,18 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     )
     assert stamped[COL_EXCEPTION_CATEGORY] == "price_variance"
     assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
+
+
+def test_never_repeat_note41_validate_invoice_null_is_unknown_not_passed():
+    """NOTE-41: Invoice_Validation null is unknown. Do not invent Passed or Failed."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-41")
+    assert n["never_success"] is True
+    gate = invoice_validation_gate({"values": {"Invoice_Validation": None, "Posted": True}})
+    assert gate["passed"] is None
+    assert gate["unknown"] is True
+    assert gate["invent_success"] is False
+    assert gate["execute"] is False
+    assert invoice_validation_gate({"values": {}})["passed"] is None
+    with pytest.raises(AssertionError):
+        assert_never_success(RESULT_SUCCESS, note_id="NOTE-41")
 
