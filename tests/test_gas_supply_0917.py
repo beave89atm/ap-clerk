@@ -33,6 +33,9 @@ from gas_supply_0917 import (  # noqa: E402
     CREATED_HEADERS,
     PLUS5_HEADERS,
     PLUS10_HEADERS,
+    PLUS10_HOLDS,
+    PLUS15_HEADERS,
+    PLUS15_HOLDS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
@@ -54,6 +57,7 @@ from gas_supply_0917 import (  # noqa: E402
     is_over_ppv_price_hold,
     leftover_from_catalog,
     pick_plus10,
+    pick_plus15,
     pick_plus5,
     pick_recent,
     quality_gas_row,
@@ -398,6 +402,9 @@ def test_plus5_skips_first_pass_and_prefers_leftovers():
         "0040421569": 10135,
     }
     assert PLUS10_HEADERS == {"0040438494": 10136}
+    assert PLUS10_HOLDS == frozenset({"0040438057", "0040438056", "0040438055", "0040438053"})
+    assert PLUS15_HOLDS == frozenset({"0040417672", "0040414962"})
+    assert PLUS15_HEADERS == {"0040414821": 10137}
     first_pass_only = set(CREATED_HEADERS) | {"0040430010", "0040424839"}
     bills = [
         {"invoice_number": "0040435122", "date": "2026-09-15"},
@@ -462,6 +469,53 @@ def test_missing_po_owner_is_shawn_not_misty():
     assert row[COL_EXCEPTION_OWNER] == PURCHASING_OWNER == "Shawn McKibben"
     assert "Misty" not in row["Why"]
     assert "category=missing_po; owner=Shawn McKibben" in row["Why"]
+
+
+def test_plus15_prefers_no_po_over_po_cited():
+    bills = [
+        {"invoice_number": "0040438052", "date": "2026-09-17", "po": "59081", "amount": 5178.55},
+        {"invoice_number": "0040437952", "date": "2026-09-17", "po": "59006", "amount": 241.46},
+        {"invoice_number": "0040438494", "date": "2026-09-17", "amount": 331.5},
+        {"invoice_number": "0040438057", "date": "2026-09-17", "po": "59081"},
+        {"invoice_number": "0040412279", "date": "2026-08-31", "amount": None, "lines": []},
+        {"invoice_number": "0040401083", "date": "2026-08-31", "hold_reason": "CHECK STOP"},
+        {"invoice_number": "0040420801", "date": "2026-09-07", "amount": 88.0},
+        {"invoice_number": "0040420800", "date": "2026-09-07", "amount": 99.0},
+        {"invoice_number": "0040419001", "date": "2026-09-04", "amount": 111.0},
+        {"invoice_number": "0040419000", "date": "2026-09-04", "po": "59081", "amount": 50.0},
+        {"invoice_number": "0040418000", "date": "2026-09-03", "amount": 70.0},
+        {"invoice_number": "0040320000", "date": "2026-07-15", "amount": 9.0},
+    ]
+    chosen, leftover = pick_plus15(bills, already=already_entered_numbers(), cap=5)
+    assert [b["invoice_number"] for b in chosen] == [
+        "0040420801",
+        "0040420800",
+        "0040419001",
+        "0040418000",
+        "0040438052",
+    ]
+    assert all(not b.get("po") for b in chosen[:4])
+    assert chosen[4]["po"] == "59081"
+    leftover_invs = [b["invoice_number"] for b in leftover]
+    assert "0040438494" not in leftover_invs
+    assert "0040438057" not in leftover_invs
+    assert "0040435122" not in leftover_invs
+    assert "0040412279" not in leftover_invs
+    assert "0040401083" not in leftover_invs
+
+
+def test_merchandise_lines_skip_fuel_surcharge():
+    from gas_supply_0917 import merchandise_lines_from_parsed
+
+    lines = merchandise_lines_from_parsed(
+        {
+            "lines": [
+                {"part": "PRO7.5C", "description": "UN1075", "qty": 5, "unit_price": 24},
+                {"part": "$SUR485005", "description": "FUEL SURCHARGE", "qty": 1, "unit_price": 17.5},
+            ]
+        }
+    )
+    assert [ln["part"] for ln in lines] == ["PRO7.5C"]
 
 
 def test_leftover_from_catalog_dedupes():

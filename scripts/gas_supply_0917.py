@@ -24,6 +24,9 @@ or HOLD 0040430010. Purchasing owner is Shawn McKibben — do not tag Misty.
 Plus-10: next 5 after the plus-5 leftovers. Discover the next Aug 1+
 window. Leave 0040430010 / 0040424839 / 10134 alone.
 
+Plus-15: next 5 after plus-10. Prefer no-PO shop-supply bills and finish
+Lines-K (NOTE-42). Leave plus-10 HOLDs 0040438057/56/55/53 alone.
+
 NOTE-42: Type 4 Gas Misc Success requires nonempty Lines-K (desc/qty/cost
 + Shop Supplies - G&S). Header-only is Incomplete, never Success.
 """
@@ -61,7 +64,11 @@ from ap_clerk.kimco import (  # noqa: E402
     fees_with_amounts,
 )
 from ap_clerk.misc_lines import (  # noqa: E402
+    collect_shop_supplies_gs_from_records,
+    existing_misc_lines_match_pdf,
+    misc_add_item_payload,
     misc_line_snapshot,
+    payload_has_receipt,
     type4_shop_supplies_lines_ok,
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
@@ -73,6 +80,7 @@ from ap_clerk.quality_v12 import (  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
+    is_fee_or_surcharge,
     TRANSFER_AP_BATCH_NAME,
     blocked_400_not_a_hold_when_same_item_cover,
     decide_ppv,
@@ -159,9 +167,20 @@ PLUS5_HEADERS = {
 PLUS10_HEADERS = {
     "0040438494": 10136,
 }
+# Plus-10 HOLDs (Shawn PO 59081). Leave alone — do not recreate.
+PLUS10_HOLDS = frozenset({"0040438057", "0040438056", "0040438055", "0040438053"})
+# Plus-15: remaining Aug 1+ window was PO-cited (no finishable no-PO).
+PLUS15_HOLDS = frozenset({"0040417672", "0040414962"})
+PLUS15_HEADERS = {
+    "0040414821": 10137,  # Type 3 over-PPV → Transfer AP 375; receipts not selected
+}
 # 10134 missing_receipt / Ruben on PO 58948. Leave alone.
 LEAVE_ALONE_HOLD_IDS = {10134}
-DO_NOT_MUTATE_IDS = set(CREATED_HEADERS.values()) | set(PLUS5_HEADERS.values())
+DO_NOT_MUTATE_IDS = (
+    set(CREATED_HEADERS.values()) | set(PLUS5_HEADERS.values()) | set(PLUS10_HEADERS.values())
+)
+# Live Type 4 shop-supplies lookup (hint only). 10135 Kyle-checked.
+LINES_K_LOOKUP_IDS = (9966, 9970, 10135)
 NOISE_SUBJECT = re.compile(
     r"past due|account with us|remittance|payment reminder|"
     r"over\s+100\s*\+\s*days|chk#|thank you for your payment|"
@@ -451,6 +470,8 @@ def bills_from_message(graph, message: dict[str, Any], pdf_dir: Path) -> list[di
         for bill in [parsed, *extras]:
             if bill.get("is_purchase_order_doc") or bill.get("is_receipt_scan_doc"):
                 continue
+            if bill.get("is_statement_doc"):
+                continue
             if bill.get("check_stop") and not bill.get("invoice_number"):
                 continue
             if not names_match(VENDOR_NAME, str(bill.get("vendor") or "")):
@@ -517,12 +538,15 @@ def pick_recent(
 
 
 def already_entered_numbers() -> set[str]:
-    """First-pass + plus-5 Success/HOLD. Do not pick again."""
+    """First-pass + plus-5 + plus-10 Success/HOLD. Do not pick again."""
     return (
         set(CREATED_HEADERS)
         | set(PLUS5_HEADERS)
         | set(KNOWN_HOLD)
         | set(PLUS10_HEADERS)
+        | set(PLUS10_HOLDS)
+        | set(PLUS15_HOLDS)
+        | set(PLUS15_HEADERS)
     )
 
 
@@ -580,6 +604,88 @@ def pick_plus10(
     return pick_recent(parsed_bills, already=blocked, cap=cap)
 
 
+def _eligible_aug1(
+    parsed_bills: list[dict[str, Any]],
+    *,
+    blocked: set[str],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    eligible: list[dict[str, Any]] = []
+    older: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for bill in parsed_bills:
+        inv = exact_invoice_number(bill.get("invoice_number"))
+        if not inv or inv in blocked or inv in seen:
+            continue
+        seen.add(inv)
+        inv_date = _parse_date(bill.get("date"))
+        if inv_date is None or inv_date < MIN_INVOICE_DATE:
+            older.append(bill)
+            continue
+        eligible.append(bill)
+    eligible.sort(
+        key=lambda b: (
+            str(b.get("date") or ""),
+            str(b.get("receivedDateTime") or ""),
+            exact_invoice_number(b.get("invoice_number")),
+        ),
+        reverse=True,
+    )
+    return eligible, older
+
+
+def is_pickable_gas_bill(bill: dict[str, Any]) -> bool:
+    """Real invoice page with a #. Skip statement aging / CHECK STOP notices."""
+    if bill.get("is_statement_doc"):
+        return False
+    inv = exact_invoice_number(bill.get("invoice_number"))
+    if not inv:
+        return False
+    hold = str(bill.get("hold_reason") or "").upper()
+    has_amt = bill.get("amount") not in (None, "")
+    has_lines = bool(bill.get("lines") or [])
+    has_po = bool(str(bill.get("po") or "").strip())
+    if hold == "CHECK STOP" and not has_amt and not has_lines:
+        return False
+    # Aging / STATEMENT pages leak invoice #s with no total and no merch.
+    if not has_po and not has_amt and not has_lines:
+        return False
+    return True
+
+
+def is_finishable_nopo(bill: dict[str, Any]) -> bool:
+    """No-PO shop-supply page we can Lines-K (has after-tax amount)."""
+    if not is_pickable_gas_bill(bill):
+        return False
+    if str(bill.get("po") or "").strip():
+        return False
+    return bill.get("amount") not in (None, "")
+
+
+def pick_plus15(
+    parsed_bills: list[dict[str, Any]],
+    *,
+    already: set[str],
+    cap: int = CAP,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Next 5 after plus-10. Prefer no-PO shop-supply bills we can Lines-K.
+
+    If the remaining Aug 1+ window is PO-cited, fill honestly (HOLD missing_po
+    when the PO is not live). Do not prefer 59081 leftovers over a no-PO bill.
+    Statement / CHECK STOP pages are not bills.
+    """
+    blocked = set(already) | already_entered_numbers()
+    eligible, older = _eligible_aug1(parsed_bills, blocked=blocked)
+    eligible = [b for b in eligible if is_pickable_gas_bill(b)]
+    no_po = [b for b in eligible if is_finishable_nopo(b)]
+    with_po = [b for b in eligible if str(b.get("po") or "").strip()]
+    chosen = (no_po + with_po)[:cap]
+    chosen_invs = {exact_invoice_number(b.get("invoice_number")) for b in chosen}
+    leftover = [
+        b for b in eligible if exact_invoice_number(b.get("invoice_number")) not in chosen_invs
+    ] + older
+    return chosen, leftover
+
+
 def leftover_from_catalog(
     leftover_bills: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -592,6 +698,8 @@ def leftover_from_catalog(
         inv_date = _parse_date(bill.get("date"))
         if inv_date is None or inv_date < MIN_INVOICE_DATE:
             continue
+        if not is_pickable_gas_bill(bill):
+            continue
         seen.add(inv)
         out.append(
             {
@@ -600,10 +708,78 @@ def leftover_from_catalog(
                 "po": bill.get("po"),
                 "amount": bill.get("amount"),
                 "received": bill.get("receivedDateTime"),
-                "why": "unflagged leftover after plus-10 cap 5; not entered",
+                "why": "unflagged leftover after plus-15 cap 5; not entered",
             }
         )
     return out
+
+
+def merchandise_lines_from_parsed(parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """PDF merch rows only. Fuel surcharge is Fees, not Lines-K."""
+    out: list[dict[str, Any]] = []
+    for line in parsed.get("lines") or []:
+        blob = f"{line.get('part') or ''} {line.get('description') or line.get('label') or ''}"
+        if is_fee_or_surcharge(blob) or str(line.get("part") or "").startswith("$SUR"):
+            continue
+        out.append(line)
+    return out
+
+
+def apply_type4_misc_lines(
+    client: KimcoClient,
+    *,
+    parsed: dict[str, Any],
+    kimco_id: int,
+    vendor_id: int,
+    proof: dict[str, Any],
+    lookup_cache: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """NOTE-42: Type 4 no-PO needs Lines-K + Shop Supplies - G&S before Success."""
+    if parsed.get("po") or proof.get("invoice_type") != 4:
+        return {"status": "skip-not-type4"}
+    if int(kimco_id) in DO_NOT_MUTATE_IDS and type4_shop_supplies_lines_ok(
+        proof.get("misc_lines") or []
+    ):
+        return {"status": "already-ok", "skipped_existing": True}
+    merch = merchandise_lines_from_parsed(parsed)
+    existing = list(proof.get("misc_lines") or [])
+    if existing_misc_lines_match_pdf(existing, merch):
+        return {"status": "already-ok", "lines": len(existing)}
+    if existing:
+        return {
+            "status": "blocker",
+            "why": "Lines-K already has items that do not match this PDF",
+        }
+    if not merch:
+        return {"status": "blocker", "why": "No merchandise PDF lines for this invoice"}
+    found = (lookup_cache or {}).get("found")
+    if not found:
+        records = [client.get_item("ap_invoices", iid) for iid in LINES_K_LOOKUP_IDS]
+        found = collect_shop_supplies_gs_from_records(records)
+        if lookup_cache is not None:
+            lookup_cache["found"] = found
+    if int((found.get("misc_item") or {}).get("id") or 0) != 31:
+        return {
+            "status": "blocker",
+            "why": f"Live Shop Supplies - G&S id is not 31: {found}",
+        }
+    payload = misc_add_item_payload(
+        merch,
+        invoice_id=int(kimco_id),
+        vendor_id=int(vendor_id),
+        misc_item=found["misc_item"],
+        gl_account=found.get("gl_account"),
+    )
+    if payload_has_receipt(payload):
+        raise KimcoError("Refusing payload that includes Receipt")
+    put = client.request("PUT", client._record_url("ap_invoices", kimco_id), json=payload)
+    return {
+        "status": "added" if put.status_code < 400 else "blocker",
+        "http": put.status_code,
+        "lines": len(merch),
+        "category": found.get("misc_item"),
+        "why": None if put.status_code < 400 else f"PUT HTTP {put.status_code}",
+    }
 
 
 def apply_gas_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
@@ -1474,6 +1650,7 @@ def finish_entered_rows(
     rows: list[dict[str, Any]] = []
     finishes: dict[str, Any] = {}
     gets: dict[str, Any] = {}
+    lines_k_lookup: dict[str, Any] = {}
     by_inv = {exact_invoice_number(b.get("invoice_number")): b for b in parsed_bills}
     for enter_row in enter_rows:
         inv = exact_invoice_number(enter_row.get("Invoice #"))
@@ -1519,6 +1696,18 @@ def finish_entered_rows(
             fee_status = client.try_post_fees(int(kid), fees_with_amounts(parsed.get("fees") or []))
             finishes[inv]["fee_status"] = fee_status
             proof = gas_proof(client, kid)
+        if not parsed.get("po") and proof.get("invoice_type") == 4:
+            lines_k = apply_type4_misc_lines(
+                client,
+                parsed=parsed,
+                kimco_id=int(kid),
+                vendor_id=int(vendor_id or 0),
+                proof=proof,
+                lookup_cache=lines_k_lookup,
+            )
+            finishes[inv]["lines_k"] = lines_k
+            if lines_k.get("status") in {"added", "already-ok"}:
+                proof = gas_proof(client, kid)
         row = quality_gas_row(
             graph,
             parsed=parsed,
@@ -1774,13 +1963,18 @@ def main(argv: list[str] | None = None) -> int:
     parsed_bills: list[dict[str, Any]] = []
     for msg in candidates:
         parsed_bills.extend(bills_from_message(graph, msg, pdf_dir))
-        recent_so_far, leftover_so_far = pick_plus10(parsed_bills, already=already, cap=CAP)
-        leftover_aug = leftover_from_catalog(leftover_so_far)
-        if len(recent_so_far) >= CAP and len(leftover_aug) >= 5:
+        recent_so_far, leftover_so_far = pick_plus15(parsed_bills, already=already, cap=CAP)
+        no_po_picked = [b for b in recent_so_far if is_finishable_nopo(b)]
+        leftover_no_po = [
+            x for x in leftover_from_catalog(leftover_so_far) if not x.get("po")
+        ]
+        if len(no_po_picked) >= CAP:
             break
+        if len(recent_so_far) >= CAP and not leftover_no_po:
+            continue
     print(json.dumps({"parsed_candidates": [summarize_parse(b) for b in parsed_bills]}, indent=2, default=str), flush=True)
 
-    recent, leftover_bills = pick_plus10(parsed_bills, already=already, cap=CAP)
+    recent, leftover_bills = pick_plus15(parsed_bills, already=already, cap=CAP)
     print(
         json.dumps(
             {
@@ -1818,7 +2012,7 @@ def main(argv: list[str] | None = None) -> int:
         print(reason, flush=True)
         write_report(report_path, prior_rows)
         sidecar = {
-            "proof": "gas-supply-0917-plus10",
+            "proof": "gas-supply-0917-plus15",
             "invent": False,
             "mail_send": False,
             "vendor": VENDOR_NAME,
@@ -1879,7 +2073,7 @@ def main(argv: list[str] | None = None) -> int:
     _print_summary(rows)
 
     sidecar = {
-        "proof": "gas-supply-0917-plus10",
+        "proof": "gas-supply-0917-plus15",
         "invent": False,
         "mail_send": False,
         "vendor": VENDOR_NAME,
@@ -1898,18 +2092,18 @@ def main(argv: list[str] | None = None) -> int:
         "kimco_already_count": len(entered),
         "chosen": [exact_invoice_number(b.get("invoice_number")) for b in recent],
         "chosen_because": (
-            "Plus-10: next unflagged Gas & Supply after plus-5 leftovers. "
-            "Skip 10128–10135 Success and HOLDs 0040430010 / 0040424839 / "
-            "10134. Discover next Aug 1+ window; if fewer than 5 enter what "
-            "is left and stop (NOTE-28). Multi-invoice PDFs split. After-tax "
-            "Amount This Invoice Including Tax. Order # 0011xxxxxx-00 is not "
-            "an invoice. Over-PPV → Transfer AP + @Shawn. Missing receipts → "
-            "@Ruben. missing_po owner=Shawn McKibben (do not tag Misty). "
-            "No Mail.Send."
+            "Plus-15: next 5 unflagged Gas & Supply after plus-10. Prefer "
+            "no-PO Type 4 shop-supply bills and finish Lines-K (NOTE-42). "
+            "Skip Success 10128–10133 / 10135 / 10136 and HOLDs 0040430010 / "
+            "0040424839 / 0040423658/10134 / 0040438057/56/55/53. If the "
+            "window is PO-cited, HOLD missing_po / Shawn honestly. "
+            "Multi-invoice PDFs split. After-tax Amount This Invoice "
+            "Including Tax. No Mail.Send."
         ),
         "plus5_preferred": list(PLUS5_PREFERRED),
         "plus5_headers": dict(PLUS5_HEADERS),
         "plus10_headers": dict(PLUS10_HEADERS),
+        "plus10_holds": sorted(PLUS10_HOLDS),
         "created_headers": dict(CREATED_HEADERS),
         "known_hold": sorted(KNOWN_HOLD),
         "parsed": [summarize_parse(b) for b in recent],
