@@ -1,0 +1,1257 @@
+{
+  "proof": "gas-supply-0917-refresh",
+  "invent": false,
+  "mail_send": false,
+  "vendor": "Gas and Supply North Texas, LLC",
+  "vendor_id": 71,
+  "vendor_confirm": {
+    "vendor_id": 71,
+    "vendor_text_samples": [
+      "1069-GAS AND SUPPLY"
+    ],
+    "id_counts": {
+      "71": 10
+    }
+  },
+  "batch_name": "API Agent - 9/17/26 Gas & Supply",
+  "batch_id": 720,
+  "batch": {
+    "id": 720,
+    "name": "API Agent - 9/17/26 Gas & Supply",
+    "status": 0,
+    "unposted": 4,
+    "matches_expected": true,
+    "is_forbidden": false
+  },
+  "forbidden_batch_ids": [
+    715,
+    716,
+    717
+  ],
+  "discovered": 50,
+  "catalog": [
+    {
+      "invoice": "",
+      "received": "2026-09-17T21:54:34Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": false,
+      "from": "Natalie Chavez",
+      "from_addr": "natalie.chavez@gasandsupply.com",
+      "subject": "Re: Over 100+ days--A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-17T16:42:38Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": false,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Fwd: Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-17T16:31:19Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": false,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "[A3050] - KANNON MANUFACTURING INC"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-16T20:31:52Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": false,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "CHK#18570 iao $15,719.29"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-16T04:50:53Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-16T04:49:24Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-15T04:37:22Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-12T05:13:26Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-10T04:40:48Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-10T04:38:50Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-09T04:41:12Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-08T18:06:27Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account F5147"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-08T18:06:09Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account G1378"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-08T18:05:38Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-04T04:36:58Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-03T20:41:31Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "gigi.pineda@gasandsupply.com",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Gas and Supply past due invoices A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-03T04:50:29Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T20:48:52Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": false,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Re: Past Due Notice for Account G1378"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T20:47:25Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "gigi.pineda@gasandsupply.com",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Copies of invoices A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T11:42:01Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T11:36:46Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T11:13:52Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-09-01T10:08:02Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-28T04:52:37Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-27T04:59:09Z",
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-27T04:57:06Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-25T04:40:37Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-21T04:53:24Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-21T04:51:22Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-20T14:07:43Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "natalie.chavez@gasandsupply.com",
+      "from_addr": "natalie.chavez@gasandsupply.com",
+      "subject": "Over 100+ days--A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-20T04:57:35Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-20T04:55:38Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-19T04:40:00Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-18T04:40:03Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-17T14:02:24Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account G1378"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-17T14:02:03Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account A3050"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-13T04:42:28Z",
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "flagStatus": "flagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-11T04:47:16Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-07T04:41:32Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-06T04:40:05Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-03T10:03:01Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-03T09:34:48Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-08-01T10:09:28Z",
+      "flagged": true,
+      "categories": [
+        "AI HOLD"
+      ],
+      "flagStatus": "notFlagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-31T04:43:33Z",
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "flagStatus": "flagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-30T04:43:31Z",
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "flagStatus": "flagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-29T04:41:59Z",
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
+      "flagStatus": "flagged",
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-28T15:48:59Z",
+      "flagged": false,
+      "categories": [
+        "Problems/Issues"
+      ],
+      "flagStatus": null,
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "Gigi Pineda",
+      "from_addr": "gigi.pineda@gasandsupply.com",
+      "subject": "Past Due Notice for Account G1378"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-28T04:39:21Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": null,
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-25T05:07:00Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": null,
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    },
+    {
+      "invoice": "",
+      "received": "2026-07-24T04:48:27Z",
+      "flagged": false,
+      "categories": [],
+      "flagStatus": null,
+      "already_kimco": null,
+      "hasAttachments": true,
+      "from": "billing@gasandsupply.com",
+      "from_addr": "billing@gasandsupply.com",
+      "subject": "Gas&Supply Invoice/Statement"
+    }
+  ],
+  "kimco_already_count": 547,
+  "chosen": [
+    "0040435122",
+    "0040434973",
+    "0040431060",
+    "0040430010",
+    "0040425657"
+  ],
+  "chosen_because": "Unflagged Gas & Supply Invoice/Statement PDFs only; not already on KIMCO vendor 71; invoice date on/after 2026-08-01; cap 5 bills. Multi-invoice PDFs split. After-tax Amount This Invoice Including Tax. Order # 0011xxxxxx-00 is not an invoice. Over-PPV \u2192 Transfer AP + @Shawn. Missing receipts \u2192 @Ruben parent email. No Mail.Send.",
+  "parsed": [
+    {
+      "invoice_number": "0040435122",
+      "date": "2026-09-15",
+      "po": null,
+      "amount": 120.0,
+      "lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 5.0,
+          "amount": 120.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-16_billing01_G1378_c.pdf",
+      "pdf_bytes": 10600,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Gas&Supply Invoice/Statement",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "0040434973",
+      "date": "2026-09-15",
+      "po": null,
+      "amount": 192.0,
+      "lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 8.0,
+          "amount": 192.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-16_billing01_A3050_c.pdf",
+      "pdf_bytes": 10588,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Gas&Supply Invoice/Statement",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "0040431060",
+      "date": "2026-09-14",
+      "po": null,
+      "amount": 245.5,
+      "lines": [
+        {
+          "part": "AR90CD300",
+          "qty": 6.0,
+          "amount": 168.0,
+          "unit_price": 28.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "description": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty_uom": "cyl"
+        },
+        {
+          "part": "ARG300",
+          "qty": 2.0,
+          "amount": 60.0,
+          "unit_price": 30.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 SZ ARGON UN1006 HAZARDOUS",
+          "description": "300 SZ ARGON UN1006 HAZARDOUS",
+          "qty_uom": "cyl"
+        }
+      ],
+      "fees": [
+        {
+          "name": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N",
+          "amount": 17.5
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-15_billing01_A3050_c.pdf",
+      "pdf_bytes": 10773,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Gas&Supply Invoice/Statement",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "0040430010",
+      "date": "2026-09-11",
+      "po": "59081",
+      "amount": 14.0,
+      "lines": [
+        {
+          "part": "MLW49-56-7240",
+          "qty": 1.0,
+          "amount": 14.0,
+          "unit_price": 14.0,
+          "po_line": null,
+          "wo": null,
+          "label": "MILWAUKEE 7/16 IN. QUICK CHANGE",
+          "description": "MILWAUKEE 7/16 IN. QUICK CHANGE",
+          "qty_uom": "ea"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-12_billing01_A3050_c.pdf",
+      "pdf_bytes": 10549,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Gas&Supply Invoice/Statement",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "0040425657",
+      "date": "2026-09-09",
+      "po": null,
+      "amount": 216.0,
+      "lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 9.0,
+          "amount": 216.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-10_billing01_G1378_c.pdf",
+      "pdf_bytes": 10601,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Gas&Supply Invoice/Statement",
+      "graph_message_id_present": true
+    }
+  ],
+  "leftover_pending": [
+    {
+      "invoice_number": "0040425612",
+      "date": "2026-09-09",
+      "po": null,
+      "amount": 240.0,
+      "received": "2026-09-10T04:38:50Z",
+      "why": "unflagged leftover after cap 5; not entered"
+    },
+    {
+      "invoice_number": "0040424839",
+      "date": "2026-09-09",
+      "po": "59081",
+      "amount": 224.94,
+      "received": "2026-09-10T04:38:50Z",
+      "why": "unflagged leftover after cap 5; not entered"
+    },
+    {
+      "invoice_number": "0040424382",
+      "date": "2026-09-09",
+      "po": null,
+      "amount": 335.0,
+      "received": "2026-09-10T04:38:50Z",
+      "why": "unflagged leftover after cap 5; not entered"
+    },
+    {
+      "invoice_number": "0040423658",
+      "date": "2026-09-09",
+      "po": "58948",
+      "amount": 173.5,
+      "received": "2026-09-10T04:38:50Z",
+      "why": "unflagged leftover after cap 5; not entered"
+    },
+    {
+      "invoice_number": "0040421569",
+      "date": "2026-09-08",
+      "po": null,
+      "amount": 331.5,
+      "received": "2026-09-09T04:41:12Z",
+      "why": "unflagged leftover after cap 5; not entered"
+    }
+  ],
+  "new_rows": [
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040435122",
+      "date": "2026-09-15",
+      "PO": "",
+      "Amount": 120.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040435122 (exact PDF). Amount=120.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10128,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040434973",
+      "date": "2026-09-15",
+      "PO": "",
+      "Amount": 192.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040434973 (exact PDF). Amount=192.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10129,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040431060",
+      "date": "2026-09-14",
+      "PO": "",
+      "Amount": 245.5,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040431060 (exact PDF). Amount=245.5 after-tax (never merchandise subtotal). Fees=$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N 17.5 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10130,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N 17.5",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040430010",
+      "date": "2026-09-11",
+      "PO": "59081",
+      "Amount": 14.0,
+      "Result": "HOLD",
+      "Why": "category=missing_po; owner=Misty McCoy / Transfer AP. HOLD (po): PO 59081 is on the invoice but not findable on live by vendor + part/WO. Will not enter as Misc Type 4 (Willbanks 209663/209664; RMP 1470159).",
+      "Exception category": "missing_po",
+      "Exception owner": "Misty McCoy / Transfer AP",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "outlook": "ai-hold"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040425657",
+      "date": "2026-09-09",
+      "PO": "",
+      "Amount": 216.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040425657 (exact PDF). Amount=216.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10131,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    }
+  ],
+  "rows": [
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040435122",
+      "date": "2026-09-15",
+      "PO": "",
+      "Amount": 120.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040435122 (exact PDF). Amount=120.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10128,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040434973",
+      "date": "2026-09-15",
+      "PO": "",
+      "Amount": 192.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040434973 (exact PDF). Amount=192.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10129,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040431060",
+      "date": "2026-09-14",
+      "PO": "",
+      "Amount": 245.5,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040431060 (exact PDF). Amount=245.5 after-tax (never merchandise subtotal). Fees=$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N 17.5 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10130,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N 17.5",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040430010",
+      "date": "2026-09-11",
+      "PO": "59081",
+      "Amount": 14.0,
+      "Result": "HOLD",
+      "Why": "category=missing_po; owner=Misty McCoy / Transfer AP. HOLD (po): PO 59081 is on the invoice but not findable on live by vendor + part/WO. Will not enter as Misc Type 4 (Willbanks 209663/209664; RMP 1470159).",
+      "Exception category": "missing_po",
+      "Exception owner": "Misty McCoy / Transfer AP",
+      "KIMCO id": "",
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "pdf-on-vm",
+      "Flag status": "ai-hold",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "outlook": "ai-hold"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040425657",
+      "date": "2026-09-09",
+      "PO": "",
+      "Amount": 216.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 4). Header PO set=none. Misc Type 4 Shop Supplies - G&S (no PO). Invoice #=0040425657 (exact PDF). Amount=216.0 after-tax (never merchandise subtotal). Fees=none (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10131,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-in-ai"
+    }
+  ],
+  "finishes": {
+    "0040435122": {
+      "wanted": [],
+      "select_status": "no-po-misc",
+      "fee_status": "none",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "matched": [],
+      "open_on_po": []
+    },
+    "0040434973": {
+      "wanted": [],
+      "select_status": "no-po-misc",
+      "fee_status": "none",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "matched": [],
+      "open_on_po": []
+    },
+    "0040431060": {
+      "wanted": [],
+      "select_status": "no-po-misc",
+      "fee_status": "none",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "matched": [],
+      "open_on_po": []
+    },
+    "0040425657": {
+      "wanted": [],
+      "select_status": "no-po-misc",
+      "fee_status": "none",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "matched": [],
+      "open_on_po": []
+    }
+  },
+  "kimco_gets": {
+    "10128": {
+      "id": 10128,
+      "invoice_number": "0040435122",
+      "vendor_id": 71,
+      "vendor_text": "1069-GAS AND SUPPLY",
+      "po": null,
+      "invoice_type": 4,
+      "invoice_amount": 0.0,
+      "verification": 120.0,
+      "invoice_date": "2026-09-15T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 720,
+      "batch_text": "API Agent - 9/17/26 Gas & Supply",
+      "receipt_lines": [],
+      "fee_count": 0,
+      "charges": [],
+      "attachments": [
+        "0_gas_2026-09-16_billing01_G1378_c.pdf"
+      ],
+      "verification_amount": 120.0,
+      "fee_amounts": [],
+      "ppv_amounts": [],
+      "comments": "API Agent"
+    },
+    "10129": {
+      "id": 10129,
+      "invoice_number": "0040434973",
+      "vendor_id": 71,
+      "vendor_text": "1069-GAS AND SUPPLY",
+      "po": null,
+      "invoice_type": 4,
+      "invoice_amount": 0.0,
+      "verification": 192.0,
+      "invoice_date": "2026-09-15T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 720,
+      "batch_text": "API Agent - 9/17/26 Gas & Supply",
+      "receipt_lines": [],
+      "fee_count": 0,
+      "charges": [],
+      "attachments": [
+        "0_gas_2026-09-16_billing01_A3050_c.pdf"
+      ],
+      "verification_amount": 192.0,
+      "fee_amounts": [],
+      "ppv_amounts": [],
+      "comments": "API Agent"
+    },
+    "10130": {
+      "id": 10130,
+      "invoice_number": "0040431060",
+      "vendor_id": 71,
+      "vendor_text": "1069-GAS AND SUPPLY",
+      "po": null,
+      "invoice_type": 4,
+      "invoice_amount": 17.5,
+      "verification": 245.5,
+      "invoice_date": "2026-09-14T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 720,
+      "batch_text": "API Agent - 9/17/26 Gas & Supply",
+      "receipt_lines": [],
+      "fee_count": 1,
+      "charges": [
+        {
+          "lookup_id": 11,
+          "text": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "description": "F-Fees & Surcharges"
+        }
+      ],
+      "attachments": [
+        "0_gas_2026-09-15_billing01_A3050_c.pdf"
+      ],
+      "verification_amount": 245.5,
+      "fee_amounts": [
+        17.5
+      ],
+      "ppv_amounts": [],
+      "comments": "API Agent"
+    },
+    "10131": {
+      "id": 10131,
+      "invoice_number": "0040425657",
+      "vendor_id": 71,
+      "vendor_text": "1069-GAS AND SUPPLY",
+      "po": null,
+      "invoice_type": 4,
+      "invoice_amount": 0.0,
+      "verification": 216.0,
+      "invoice_date": "2026-09-09T00:00:00",
+      "posted": null,
+      "void": false,
+      "batch_id": 720,
+      "batch_text": "API Agent - 9/17/26 Gas & Supply",
+      "receipt_lines": [],
+      "fee_count": 0,
+      "charges": [],
+      "attachments": [
+        "0_gas_2026-09-10_billing01_G1378_c.pdf"
+      ],
+      "verification_amount": 216.0,
+      "fee_amounts": [],
+      "ppv_amounts": [],
+      "comments": "API Agent"
+    }
+  },
+  "parent_outlook": {
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uD7AAA=": "entered-in-ai",
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uD6AAA=": "entered-in-ai",
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDdAAA=": "entered-in-ai",
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOX-Ds5AAA=": "ai-hold",
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX236AAA=": "entered-in-ai"
+  },
+  "treyce_emailed": false,
+  "report": "/workspace/runs/AP-run-2026-09-17-gas-supply.xlsx"
+}

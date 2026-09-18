@@ -1102,16 +1102,25 @@ def quality_gas_row(
                 fee_on_ppv = True
     charge_sum = round(sum(a or 0 for a in fee_amts) + sum(a or 0 for a in ppv_amts), 2)
     rolled = round(rec_merch + charge_sum, 2)
+    po = str(parsed.get("po") or enter_row.get("PO") or "").strip()
+    needs_receipts = bool(po)
     amount_ok = False
     if pdf_amt is not None:
         if posted is not None and abs(posted - pdf_amt) <= 0.02:
+            amount_ok = True
+        elif (
+            not needs_receipts
+            and ver is not None
+            and abs(ver - pdf_amt) <= 0.02
+            and proof.get("invoice_type") == 4
+        ):
+            # Unposted Type 4 Misc: Invoice_Amount stays 0 until the batch posts.
+            # Finish is header + PDF + verification (README no-PO API-only).
             amount_ok = True
         elif ver is not None and abs(ver - pdf_amt) <= 0.02 and abs(rolled - pdf_amt) <= 0.02:
             amount_ok = True
     price_hold = bool((finish or {}).get("select_zero") or (finish or {}).get("skipped_over_ppv"))
     vendor_ok = vendor_id not in (None, "") and proof.get("vendor_id") == vendor_id
-    po = str(parsed.get("po") or enter_row.get("PO") or "").strip()
-    needs_receipts = bool(po)
     already_posted = bool(recs) and amount_ok and (not qty_hold if needs_receipts else True)
     select_status = (finish or {}).get("select_status")
     select_ok = (
@@ -1307,10 +1316,24 @@ def finish_entered_rows(
         parsed = by_inv.get(inv) or {}
         result = str(enter_row.get("Result") or "")
         if kid in (None, "") or not parsed:
-            rows.append(apply_exception_category_owner(dict(enter_row)))
+            cleaned = dict(enter_row)
+            cleaned["Why"] = re.sub(
+                r"^category=[a-z0-9_]+;\s*owner=[^.]*\.\s*",
+                "",
+                str(cleaned.get("Why") or ""),
+                flags=re.I,
+            )
+            rows.append(apply_exception_category_owner(cleaned))
             continue
         if result in {"Fail", "Skipped"}:
-            rows.append(apply_exception_category_owner(dict(enter_row)))
+            cleaned = dict(enter_row)
+            cleaned["Why"] = re.sub(
+                r"^category=[a-z0-9_]+;\s*owner=[^.]*\.\s*",
+                "",
+                str(cleaned.get("Why") or ""),
+                flags=re.I,
+            )
+            rows.append(apply_exception_category_owner(cleaned))
             continue
         finish = finish_hold_header(
             client, parsed=parsed, kimco_id=int(kid), receipts=receipts
@@ -1381,6 +1404,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--discover-only", action="store_true")
     parser.add_argument("--parse-only", action="store_true")
     parser.add_argument("--create-batch-only", action="store_true")
+    parser.add_argument("--refresh-sheet", action="store_true")
     parser.add_argument(
         "--report",
         default=str(ROOT / "runs" / "AP-run-2026-09-17-gas-supply.xlsx"),
@@ -1426,6 +1450,99 @@ def main(argv: list[str] | None = None) -> int:
     if vendor_id in (None, ""):
         print("Live Gas & Supply vendor id not confirmed. Will not invent. Stop.", flush=True)
         return 2
+
+    if args.refresh_sheet:
+        report_path = Path(args.report)
+        sidecar_path = report_path.with_suffix(".json")
+        if not sidecar_path.exists():
+            print(f"Missing sidecar {sidecar_path}", flush=True)
+            return 2
+        prior = json.loads(sidecar_path.read_text())
+        batch = {
+            "id": prior.get("batch_id"),
+            "name": prior.get("batch_name"),
+        }
+        verified = verify_batch(client, int(batch["id"]), str(batch["name"]))
+        print(json.dumps({"refresh_batch": verified}, indent=2, default=str), flush=True)
+        if verified.get("is_forbidden") or int(batch["id"]) in FORBIDDEN_BATCH_IDS:
+            print("Refusing forbidden batch on refresh.", flush=True)
+            return 2
+        parsed_by_inv = {
+            exact_invoice_number(p.get("invoice_number")): p
+            for p in (prior.get("parsed") or [])
+        }
+        messages = find_gas_messages(graph)
+        attach_index: list[tuple[str, str, str]] = []
+        for msg in messages:
+            if not msg.get("hasAttachments"):
+                continue
+            mid = str(msg.get("id") or "")
+            recv = str(msg.get("receivedDateTime") or "")
+            try:
+                names = graph.list_attachment_names(ALLOWED_MAILBOX, mid)
+            except Exception:  # noqa: BLE001
+                names = []
+            for name in names:
+                attach_index.append((mid, recv, str(name or "").lower()))
+        receipts = load_list_receipts(client)
+        enter_rows = list(prior.get("new_rows") or prior.get("rows") or [])
+        recent = []
+        for row in enter_rows:
+            inv = exact_invoice_number(row.get("Invoice #"))
+            parsed = dict(parsed_by_inv.get(inv) or {})
+            parsed.setdefault("invoice_number", inv)
+            parsed.setdefault("amount", row.get("Amount"))
+            parsed.setdefault("po", row.get("PO") or None)
+            parsed.setdefault("vendor", VENDOR_NAME)
+            path = str(parsed.get("pdf_path") or "").lower()
+            if not parsed.get("graph_message_id") and path:
+                stem = Path(path).name.lower()
+                day_hit = re.search(r"20\d{2}-\d{2}-\d{2}", path)
+                day = day_hit.group(0) if day_hit else ""
+                for mid, recv, aname in attach_index:
+                    if day and day not in recv:
+                        continue
+                    if aname and (aname in stem or stem.endswith(aname)):
+                        parsed["graph_message_id"] = mid
+                        break
+                    if "g1378" in stem and "g1378" in aname:
+                        parsed["graph_message_id"] = mid
+                        break
+                    if "a3050" in stem and "a3050" in aname:
+                        parsed["graph_message_id"] = mid
+                        break
+            recent.append(parsed)
+        new_rows, finishes, gets = finish_entered_rows(
+            client,
+            graph,
+            parsed_bills=recent,
+            enter_rows=enter_rows,
+            receipts=receipts,
+            vendor_id=int(vendor_id),
+        )
+        parent_stamps = stamp_parent_emails(graph, new_rows, recent)
+        leftover_pending = list(prior.get("leftover_pending") or [])
+        write_report(report_path, new_rows)
+        print(f"Wrote {report_path}", flush=True)
+        _print_summary(new_rows)
+        prior.update(
+            {
+                "proof": "gas-supply-0917-refresh",
+                "invent": False,
+                "mail_send": False,
+                "batch": verified,
+                "new_rows": new_rows,
+                "rows": new_rows,
+                "finishes": finishes,
+                "kimco_gets": gets,
+                "parent_outlook": parent_stamps,
+                "leftover_pending": leftover_pending,
+                "report": str(report_path),
+            }
+        )
+        sidecar_path.write_text(json.dumps(prior, indent=2, default=str) + "\n")
+        print(f"Wrote {sidecar_path}", flush=True)
+        return 0
 
     if args.create_batch_only:
         batch = create_gas_supply_batch(client)

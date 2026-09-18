@@ -945,6 +945,8 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or "no-po-on-pdf" in why_l
         or "no po on pdf" in why_l
         or "po number is missing" in why_l
+        or "hold (po)" in why_l
+        or "not findable on live" in why_l
     ):
         return "missing_po", EXCEPTION_CATEGORY_OWNERS["missing_po"]
     if GATE_PRICE in why_l or "price does not match" in why_l:

@@ -225,6 +225,45 @@ def test_is_over_ppv_not_missing_receipt():
     )
 
 
+def test_quality_gas_misc_success_verification_when_invoice_amount_zero():
+    """Unposted Type 4: Invoice_Amount 0, verification = PDF after-tax. Success."""
+    row = quality_gas_row(
+        None,
+        parsed={
+            "invoice_number": "0040435122",
+            "amount": 120.0,
+            "po": None,
+            "fees": [],
+            "lines": [],
+            "graph_message_id": "",
+        },
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "0040435122",
+            "PO": "",
+            "Amount": 120.0,
+            "Result": "HOLD",
+            "KIMCO id": 10128,
+        },
+        proof={
+            "id": 10128,
+            "invoice_number": "0040435122",
+            "invoice_amount": 0.0,
+            "verification_amount": 120.0,
+            "invoice_type": 4,
+            "vendor_id": 71,
+            "attachments": ["g1378.pdf"],
+            "receipt_lines": [],
+            "fee_amounts": [],
+            "ppv_amounts": [],
+        },
+        finish={"select_status": "no-po-misc", "select_zero": False, "skipped_over_ppv": False},
+        vendor_id=71,
+    )
+    assert row["Result"] == "Success"
+    assert row[COL_EXCEPTION_CATEGORY] == ""
+
+
 def test_quality_gas_misc_success_no_receipts():
     row = quality_gas_row(
         None,
