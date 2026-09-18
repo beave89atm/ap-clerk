@@ -59,6 +59,13 @@ from ap_clerk.pdf_invoice import (  # noqa: E402
 )
 from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
+from ap_clerk.transfer_ap import (  # noqa: E402
+    TRANSFER_AP_PRIOR_ID_HINT as SHARED_TRANSFER_AP_HINT,
+    build_over_ppv_transfer_ap_payload,
+    find_transfer_ap_batch,
+    log_dry_run_payload,
+    over_ppv_hold_comment as shared_over_ppv_hold_comment,
+)
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
     TRANSFER_AP_BATCH_NAME,
@@ -146,7 +153,7 @@ PLUS10_SEARCH = (
     *tuple(f"PS-INV{n}" for n in range(104021, 104031)),
 )
 # Prior fact only. Re-lookup Transfer AP by name. Never invent this id.
-TRANSFER_AP_PRIOR_ID_HINT = 375
+TRANSFER_AP_PRIOR_ID_HINT = SHARED_TRANSFER_AP_HINT
 # 10114 (9@41 + 17@41) before 10113 (17@36 cover of 18@36) so qty-17
 # leftover 24190 cannot be stolen. Reload receipts after each select.
 FINISH_ORDER = (
@@ -1506,50 +1513,12 @@ def over_ppv_hold_comment(
     pdf_amount: Any,
 ) -> str:
     """KIMCO Comments text for a new over-PPV HOLD. Always @tags Shawn."""
-    amt = money(pdf_amount)
-    amt_txt = f"{amt:.2f}" if amt is not None else "unknown"
-    inv = exact_invoice_number(invoice_number) or str(invoice_number or "")
-    return (
-        f"{SHAWN_MCKIBBEN} HOLD (price-does-not-match) on Legacy Wire {inv} "
-        f"PO {po or 'n/a'} PDF ${amt_txt}. Leftover vs invoice line is over the "
-        "PPV gate. Receipts were NOT selected so purchasing can unreceive, "
-        "change the PO price, and re-receive. Do not alter receipt unit price in GI."
+    return shared_over_ppv_hold_comment(
+        invoice_number=exact_invoice_number(invoice_number) or str(invoice_number or ""),
+        po=po,
+        pdf_amount=pdf_amount,
+        vendor="Legacy Wire",
     )
-
-
-def find_transfer_ap_batch(batches: list[dict[str, Any]]) -> dict[str, Any]:
-    """Lookup Transfer AP by name. Never invent id 375."""
-    hits: list[dict[str, Any]] = []
-    wanted = TRANSFER_AP_BATCH_NAME.casefold()
-    for item in batches or []:
-        vals = item.get("values") if isinstance(item.get("values"), dict) else {}
-        name = str(
-            (vals or {}).get("AP_Invoice_Batch_ID")
-            or (vals or {}).get("Name")
-            or item.get("name")
-            or ""
-        ).strip()
-        if name.casefold() != wanted:
-            continue
-        if item.get("id") in (None, ""):
-            continue
-        hits.append({"id": int(item["id"]), "name": name})
-    if len(hits) == 1:
-        return {
-            "found": True,
-            "id": hits[0]["id"],
-            "name": hits[0]["name"],
-            "invent": False,
-        }
-    if len(hits) > 1:
-        return {"found": False, "ambiguous": True, "hits": hits, "invent": False}
-    return {
-        "found": False,
-        "id": None,
-        "name": None,
-        "invent": False,
-        "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
-    }
 
 
 def is_over_ppv_price_hold(
@@ -1627,15 +1596,17 @@ def apply_over_ppv_transfer_ap(
     kimco_id: int,
     comment: str,
     leave_alone_ids: set[int] | None = None,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     """Move a new over-PPV HOLD to Transfer AP and stamp @Shawn Comments.
 
     Lookup batch by name. Prior fact 375 is never a fallback. NOTE-29: do not
-    Select Receipts here.
+    Select Receipts here. dry_run=True builds/logs the PUT body and returns
+    without PUT/PATCH/POST.
     """
     blocked = set(leave_alone_ids or LEAVE_ALONE_HOLD_IDS) | set(DO_NOT_MUTATE_IDS)
     if int(kimco_id) in blocked:
-        return {"status": "leave-alone", "kimco_id": int(kimco_id), "invent": False}
+        return {"status": "leave-alone", "kimco_id": int(kimco_id), "invent": False, "dry_run": dry_run}
     try:
         batches = client.list_items("ap_batches")
     except KimcoError as exc:
@@ -1643,6 +1614,7 @@ def apply_over_ppv_transfer_ap(
             "status": "batch-list-failed",
             "error": str(exc)[:240],
             "invent": False,
+            "dry_run": dry_run,
         }
     found = find_transfer_ap_batch(batches)
     if not found.get("found"):
@@ -1651,19 +1623,34 @@ def apply_over_ppv_transfer_ap(
             "lookup": found,
             "invent": False,
             "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
+            "dry_run": dry_run,
         }
     bid = int(found["id"])
+    payload = build_over_ppv_transfer_ap_payload(
+        kimco_id=int(kimco_id),
+        batch_id=bid,
+        comment=comment,
+    )
+    if dry_run:
+        log_dry_run_payload(payload)
+        return {
+            "status": "dry-run",
+            "kimco_id": int(kimco_id),
+            "batch_id": bid,
+            "batch_name": found.get("name"),
+            "comment": comment,
+            "payload": payload,
+            "put": None,
+            "error": "",
+            "mention_notify": {"worked": None, "report": "dry-run: no PUT, notify not probed"},
+            "invent": False,
+            "writes": False,
+            "dry_run": True,
+        }
     body, status, error = client.update(
         "ap_invoices",
         int(kimco_id),
-        {
-            "state": "Modified",
-            "id": int(kimco_id),
-            "values": {
-                "AP_Invoice_Batch": {"id": bid},
-                "Comments": comment,
-            },
-        },
+        payload,
     )
     try:
         after = client.get_item("ap_invoices", int(kimco_id))
