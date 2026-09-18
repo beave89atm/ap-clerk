@@ -1103,9 +1103,9 @@ _GAS_ITEM_LINE = re.compile(
     r"(?P<qty>\d+(?:\.\d+)?)\s+\d+\s+"
     r"(?:(?P<ship>\d+)\s+(?P<ret>\d+)\s+)?"
     r"(?P<desc>.+?)\s+"
-    r"(?P<uom>EA|CYL|LB|GAL|CS)\s+"
-    r"(?P<unit>[\d,]+\.\d{2})\s+"
-    r"(?P<ext>[\d,]+\.\d{2})\s+N\b",
+    r"(?P<uom>EA|CYL|LB|GAL|CS|PR|PK|FT|BOX|SET|KIT|BG|RL)\s+"
+    r"(?P<unit>[\d,]+\.\d{2,})\s+"
+    r"(?:(?P<ext>[\d,]+\.\d{2})\s+N\b)?",
 )
 
 
@@ -1121,7 +1121,10 @@ def extract_gas_item_lines(text: str) -> list[dict[str, Any]]:
         qty = parse_money(match.group("qty"))
         amount = parse_money(match.group("ext"))
         unit = parse_money(match.group("unit"))
-        if qty in (None, 0, 0.0) or amount in (None,):
+        if amount is None and qty not in (None, "") and unit not in (None, ""):
+            amount = round(float(qty) * float(unit), 2)
+        # Billed merch only. Qty 0 / $0 backorder is not a PO-match line here.
+        if qty in (None, 0, 0.0) or amount in (None, 0, 0.0):
             continue
         lines.append(
             {

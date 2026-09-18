@@ -28,6 +28,10 @@ from ap_clerk.quality_v12 import (  # noqa: E402
     apply_exception_category_owner,
 )
 from ap_clerk.rules import names_match  # noqa: E402
+from gas_hold_lines_for_shawn import (  # noqa: E402
+    format_hold_line_item,
+    rows_from_parsed,
+)
 from gas_supply_0917 import (  # noqa: E402
     CAP,
     CREATED_HEADERS,
@@ -193,6 +197,23 @@ def test_gas_item_lines_skip_fuel_surcharge_fee():
     parts = [ln["part"] for ln in lines]
     assert parts == ["AR90CD300", "ARG300"]
     assert all(ln["amount"] in {168.0, 60.0} for ln in lines)
+
+
+def test_gas_item_lines_shop_supply_uom_and_extra_unit_decimals():
+    text = (
+        "PFXPXTW1425R        1     0           1/4 X 25' GRADE R TWIN HOSE     EA        36.115      36.12 N\n"
+        "MIL269767           1     0           MILLER 269767 26'6 WATER HOSE    EA      108.8211     108.82 N\n"
+        "TIL48M             12     0           PREMIUM TOP GRAIN GOATSKIN      PR         15.96     191.52 N\n"
+        "MIL269771           0     1           MILLER 269771 GAS HOSE           EA       98.7055       0.00 N\n"
+        "GHS4000A            3     0           GRIFFIN HEAT SHIELD 4000A TIG    EA       11.3014      33.90 N\n"
+    )
+    lines = extract_gas_item_lines(text)
+    by_part = {ln["part"]: ln for ln in lines}
+    assert set(by_part) == {"PFXPXTW1425R", "MIL269767", "TIL48M", "GHS4000A"}
+    assert by_part["PFXPXTW1425R"]["qty"] == 1.0
+    assert by_part["PFXPXTW1425R"]["unit_price"] == 36.12
+    assert by_part["GHS4000A"]["amount"] == 33.90
+    assert "MIL269771" not in by_part
 
 
 def test_forbidden_batches_are_715_716_717():
@@ -528,3 +549,27 @@ def test_leftover_from_catalog_dedupes():
         ]
     )
     assert [r["invoice_number"] for r in leftover] == ["0040424382", "0040423658"]
+
+
+def test_hold_line_item_format_and_empty_merch_note():
+    text = format_hold_line_item(
+        {
+            "part": "DEWDCW210B",
+            "description": 'DEWALT 20V MAX XR 5" CORDLESS',
+            "qty": 1.0,
+            "unit_price": 173.5,
+        }
+    )
+    assert text.startswith("DEWDCW210B")
+    assert "qty 1" in text
+    assert "@ 173.50" in text
+    rows = rows_from_parsed(
+        {"invoice_number": "0040438057", "po": "59081", "merch": [], "fees": [], "blocker": None}
+    )
+    assert rows == [
+        {
+            "INV#": "0040438057",
+            "line item": "(no merch lines on this invoice PDF)",
+            "PO#": "59081",
+        }
+    ]
