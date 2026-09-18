@@ -17,6 +17,9 @@ NOTE-39 exception category/owner on the sheet.
 NOTE-40: new over-PPV HOLDs move to Transfer AP (lookup by name; prior
 fact 375 is a hint only — never invent). Comments + @Shawn McKibben.
 Missing receipts → HOLD missing_receipt / @Ruben Perez (parent email).
+
+Plus-5 (Kyle 2026-09-17): reuse batch 720. Do not recreate 10128–10131
+or HOLD 0040430010. Purchasing owner is Shawn McKibben — do not tag Misty.
 """
 
 from __future__ import annotations
@@ -52,7 +55,11 @@ from ap_clerk.kimco import (  # noqa: E402
     fees_with_amounts,
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
-from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
+from ap_clerk.quality_v12 import (  # noqa: E402
+    COL_EXCEPTION_CATEGORY,
+    COL_EXCEPTION_OWNER,
+    apply_exception_category_owner,
+)
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
     SHAWN_MCKIBBEN,
@@ -81,10 +88,14 @@ LOGGER = logging.getLogger("ap_clerk.gas_supply_0917")
 
 PREFERRED_BATCH_NAME = "API Agent - 9/17/26 Gas & Supply"
 FALLBACK_BATCH_NAME = "API Agent - 9/17/26-G"
+# First-pass live batch. Plus-5 reuses this id/name — never 715/716/717.
+KNOWN_BATCH_ID = 720
 # Live confirm 2026-09-18 via record GET (10087 / 0040379954). Hint only.
 VENDOR_ID_HINT = 71
 VENDOR_NAME = "Gas and Supply North Texas, LLC"
 VENDOR_SHORT = "Gas and Supply"
+# Kyle 2026-09-17: Shawn owns purchasing. Misty is not a hard missing_po rule.
+PURCHASING_OWNER = "Shawn McKibben"
 # Kyle: do not reuse these dedicated / weekday batches.
 FORBIDDEN_BATCH_IDS = {715, 716, 717}
 FORBIDDEN_REUSE_NAMES = {
@@ -110,9 +121,25 @@ MIN_INVOICE_DATE = date(2026, 8, 1)
 CAP = 5
 RUBEN_PEREZ = "@Ruben Perez"
 TRANSFER_AP_PRIOR_ID_HINT = 375
+# First-pass Success headers on batch 720. Do not recreate.
+CREATED_HEADERS = {
+    "0040435122": 10128,
+    "0040434973": 10129,
+    "0040431060": 10130,
+    "0040425657": 10131,
+}
+# First-pass HOLD: PO 59081 not on live. Leave alone. Do not tag Misty.
+KNOWN_HOLD = {"0040430010"}
+# Next plus-5 leftovers if still unflagged / not on KIMCO.
+PLUS5_PREFERRED = (
+    "0040425612",
+    "0040424839",
+    "0040424382",
+    "0040423658",
+    "0040421569",
+)
 LEAVE_ALONE_HOLD_IDS: set[int] = set()
-DO_NOT_MUTATE_IDS: set[int] = set()
-CREATED_HEADERS: dict[str, int] = {}
+DO_NOT_MUTATE_IDS = set(CREATED_HEADERS.values())
 NOISE_SUBJECT = re.compile(
     r"past due|account with us|remittance|payment reminder|"
     r"over\s+100\s*\+\s*days|chk#|thank you for your payment|"
@@ -467,6 +494,54 @@ def pick_recent(
     return recent[:cap], older + recent[cap:]
 
 
+def already_entered_numbers() -> set[str]:
+    """First-pass Success + leave-alone HOLD. Do not pick again."""
+    return set(CREATED_HEADERS) | set(KNOWN_HOLD)
+
+
+def pick_plus5(
+    parsed_bills: list[dict[str, Any]],
+    *,
+    already: set[str],
+    preferred: tuple[str, ...] = PLUS5_PREFERRED,
+    cap: int = CAP,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Prefer leftover invoices if still open; fill from newest Aug 1+."""
+    blocked = set(already) | already_entered_numbers()
+    by_inv: dict[str, dict[str, Any]] = {}
+    for bill in parsed_bills:
+        inv = exact_invoice_number(bill.get("invoice_number"))
+        if not inv or inv in blocked or inv in by_inv:
+            continue
+        inv_date = _parse_date(bill.get("date"))
+        if inv_date is None or inv_date < MIN_INVOICE_DATE:
+            continue
+        by_inv[inv] = bill
+    chosen: list[dict[str, Any]] = []
+    for inv in preferred:
+        bill = by_inv.get(inv)
+        if bill:
+            chosen.append(bill)
+        if len(chosen) >= cap:
+            break
+    if len(chosen) < cap:
+        rest, _older = pick_recent(
+            parsed_bills,
+            already=blocked | {exact_invoice_number(b.get("invoice_number")) for b in chosen},
+            cap=cap - len(chosen),
+        )
+        chosen.extend(rest)
+    chosen_invs = {exact_invoice_number(b.get("invoice_number")) for b in chosen}
+    leftover = [
+        b
+        for b in parsed_bills
+        if exact_invoice_number(b.get("invoice_number"))
+        and exact_invoice_number(b.get("invoice_number")) not in chosen_invs
+        and exact_invoice_number(b.get("invoice_number")) not in blocked
+    ]
+    return chosen[:cap], leftover
+
+
 def leftover_from_catalog(
     leftover_bills: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
@@ -484,14 +559,51 @@ def leftover_from_catalog(
                 "po": bill.get("po"),
                 "amount": bill.get("amount"),
                 "received": bill.get("receivedDateTime"),
-                "why": "unflagged leftover after cap 5; not entered",
+                "why": "unflagged leftover after plus-5 cap 5; not entered",
             }
         )
     return out
 
 
+def apply_gas_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
+    """NOTE-39 columns. Purchasing / missing_po owner is Shawn — never Misty."""
+    out = apply_exception_category_owner(dict(row))
+    if str(out.get(COL_EXCEPTION_CATEGORY) or "") != "missing_po":
+        return out
+    out[COL_EXCEPTION_OWNER] = PURCHASING_OWNER
+    why = str(out.get("Why") or "")
+    why = re.sub(
+        r"category=missing_po;\s*owner=[^.]*",
+        f"category=missing_po; owner={PURCHASING_OWNER}",
+        why,
+        count=1,
+        flags=re.I,
+    )
+    why = re.sub(r"@?Misty McCoy(?:\s*/\s*Transfer AP)?", PURCHASING_OWNER, why)
+    out["Why"] = why
+    return out
+
+
 def create_gas_supply_batch(client: KimcoClient) -> dict[str, Any]:
-    """New dedicated batch. Never 715 / 716 / 717."""
+    """Reuse batch 720 when it still has the Gas & Supply name. Never 715/716/717."""
+    try:
+        known = verify_batch(client, KNOWN_BATCH_ID, PREFERRED_BATCH_NAME)
+    except KimcoError:
+        known = None
+    if (
+        known
+        and known.get("matches_expected")
+        and not known.get("is_forbidden")
+        and int(known.get("id") or 0) == KNOWN_BATCH_ID
+    ):
+        return {
+            "id": KNOWN_BATCH_ID,
+            "name": PREFERRED_BATCH_NAME,
+            "created": False,
+            "status": known.get("status"),
+            "unposted": known.get("unposted"),
+        }
+
     batches = client.list_items("ap_batches")
     by_name: dict[str, dict[str, Any]] = {}
     for item in batches:
@@ -1261,7 +1373,7 @@ def quality_gas_row(
             out["outlook"] = graph.flag_hold(ALLOWED_MAILBOX, message_id)
     else:
         out["outlook"] = enter_row.get("outlook") or "parent-pending"
-    return apply_exception_category_owner(out)
+    return apply_gas_exception_category_owner(out)
 
 
 def stamp_parent_emails(graph, rows: list[dict[str, Any]], parsed_bills: list[dict[str, Any]]) -> dict[str, str]:
@@ -1323,7 +1435,7 @@ def finish_entered_rows(
                 str(cleaned.get("Why") or ""),
                 flags=re.I,
             )
-            rows.append(apply_exception_category_owner(cleaned))
+            rows.append(apply_gas_exception_category_owner(cleaned))
             continue
         if result in {"Fail", "Skipped"}:
             cleaned = dict(enter_row)
@@ -1333,7 +1445,7 @@ def finish_entered_rows(
                 str(cleaned.get("Why") or ""),
                 flags=re.I,
             )
-            rows.append(apply_exception_category_owner(cleaned))
+            rows.append(apply_gas_exception_category_owner(cleaned))
             continue
         finish = finish_hold_header(
             client, parsed=parsed, kimco_id=int(kid), receipts=receipts
@@ -1375,7 +1487,7 @@ def finish_entered_rows(
                 f"comment={transfer.get('comment')!r} "
                 f"@mention={mention.get('report') or mention}."
             )
-            row = apply_exception_category_owner(row)
+            row = apply_gas_exception_category_owner(row)
         rows.append(row)
         gets[str(kid)] = proof
         receipts = load_list_receipts(client)
@@ -1563,7 +1675,7 @@ def main(argv: list[str] | None = None) -> int:
     catalog.sort(key=lambda r: str(r.get("received") or ""), reverse=True)
     print(json.dumps({"discovered": len(catalog), "gas_mail": catalog}, indent=2, default=str), flush=True)
 
-    already = set(entered) | set(CREATED_HEADERS)
+    already = set(entered) | already_entered_numbers()
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_noise = 0
@@ -1603,12 +1715,12 @@ def main(argv: list[str] | None = None) -> int:
     parsed_bills: list[dict[str, Any]] = []
     for msg in candidates:
         parsed_bills.extend(bills_from_message(graph, msg, pdf_dir))
-        recent_so_far, _ = pick_recent(parsed_bills, already=already, cap=CAP)
+        recent_so_far, _ = pick_plus5(parsed_bills, already=already, cap=CAP)
         if len(recent_so_far) >= CAP and str(msg.get("receivedDateTime") or "") < "2026-09-10":
             break
     print(json.dumps({"parsed_candidates": [summarize_parse(b) for b in parsed_bills]}, indent=2, default=str), flush=True)
 
-    recent, leftover_bills = pick_recent(parsed_bills, already=already, cap=CAP)
+    recent, leftover_bills = pick_plus5(parsed_bills, already=already, cap=CAP)
     print(
         json.dumps(
             {
@@ -1646,7 +1758,7 @@ def main(argv: list[str] | None = None) -> int:
         print(reason, flush=True)
         write_report(report_path, prior_rows)
         sidecar = {
-            "proof": "gas-supply-0917",
+            "proof": "gas-supply-0917-plus5",
             "invent": False,
             "mail_send": False,
             "vendor": VENDOR_NAME,
@@ -1707,7 +1819,7 @@ def main(argv: list[str] | None = None) -> int:
     _print_summary(rows)
 
     sidecar = {
-        "proof": "gas-supply-0917",
+        "proof": "gas-supply-0917-plus5",
         "invent": False,
         "mail_send": False,
         "vendor": VENDOR_NAME,
@@ -1726,12 +1838,18 @@ def main(argv: list[str] | None = None) -> int:
         "kimco_already_count": len(entered),
         "chosen": [exact_invoice_number(b.get("invoice_number")) for b in recent],
         "chosen_because": (
-            "Unflagged Gas & Supply Invoice/Statement PDFs only; not already "
-            "on KIMCO vendor 71; invoice date on/after 2026-08-01; cap 5 bills. "
+            "Plus-5 leftovers first if still open (0040425612 / 4839 / 4382 / "
+            "3658 / 1569). Skip 10128–10131 and HOLD 0040430010. Unflagged "
+            "Gas & Supply Invoice/Statement PDFs only; not already on KIMCO "
+            "vendor 71; invoice date on/after 2026-08-01; cap 5 bills. "
             "Multi-invoice PDFs split. After-tax Amount This Invoice Including "
             "Tax. Order # 0011xxxxxx-00 is not an invoice. Over-PPV → Transfer "
-            "AP + @Shawn. Missing receipts → @Ruben parent email. No Mail.Send."
+            "AP + @Shawn. Missing receipts → @Ruben. missing_po owner=Shawn "
+            "McKibben (do not tag Misty). No Mail.Send."
         ),
+        "plus5_preferred": list(PLUS5_PREFERRED),
+        "created_headers": dict(CREATED_HEADERS),
+        "known_hold": sorted(KNOWN_HOLD),
         "parsed": [summarize_parse(b) for b in recent],
         "leftover_pending": leftover_pending,
         "new_rows": new_rows,

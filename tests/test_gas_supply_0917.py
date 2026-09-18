@@ -30,13 +30,20 @@ from ap_clerk.quality_v12 import (  # noqa: E402
 from ap_clerk.rules import names_match  # noqa: E402
 from gas_supply_0917 import (  # noqa: E402
     CAP,
+    CREATED_HEADERS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
+    KNOWN_BATCH_ID,
+    KNOWN_HOLD,
     MIN_INVOICE_DATE,
+    PLUS5_PREFERRED,
     PREFERRED_BATCH_NAME,
+    PURCHASING_OWNER,
     TRANSFER_AP_PRIOR_ID_HINT,
     VENDOR_NAME,
+    already_entered_numbers,
+    apply_gas_exception_category_owner,
     blob_has_gas_supply,
     find_transfer_ap_batch,
     is_gas_invoice_email,
@@ -44,6 +51,7 @@ from gas_supply_0917 import (  # noqa: E402
     is_gas_vendor_text,
     is_over_ppv_price_hold,
     leftover_from_catalog,
+    pick_plus5,
     pick_recent,
     quality_gas_row,
 )
@@ -341,6 +349,55 @@ def test_quality_gas_missing_receipt_tags_ruben():
     assert row["Result"] == "HOLD"
     assert row[COL_EXCEPTION_CATEGORY] == "missing_receipt"
     assert "@Ruben Perez" in row["Why"]
+
+
+def test_plus5_skips_first_pass_and_prefers_leftovers():
+    assert KNOWN_BATCH_ID == 720
+    assert CREATED_HEADERS == {
+        "0040435122": 10128,
+        "0040434973": 10129,
+        "0040431060": 10130,
+        "0040425657": 10131,
+    }
+    assert KNOWN_HOLD == {"0040430010"}
+    assert PLUS5_PREFERRED == (
+        "0040425612",
+        "0040424839",
+        "0040424382",
+        "0040423658",
+        "0040421569",
+    )
+    bills = [
+        {"invoice_number": "0040435122", "date": "2026-09-15"},
+        {"invoice_number": "0040430010", "date": "2026-09-11", "po": "59081"},
+        {"invoice_number": "0040429000", "date": "2026-09-10", "amount": 99.0},
+        {"invoice_number": "0040425612", "date": "2026-09-09", "amount": 240.0},
+        {"invoice_number": "0040424839", "date": "2026-09-09", "po": "59081", "amount": 224.94},
+        {"invoice_number": "0040424382", "date": "2026-09-09", "amount": 335.0},
+        {"invoice_number": "0040423658", "date": "2026-09-09", "po": "58948", "amount": 173.5},
+        {"invoice_number": "0040421569", "date": "2026-09-08", "amount": 331.5},
+    ]
+    chosen, leftover = pick_plus5(bills, already=already_entered_numbers(), cap=5)
+    assert [b["invoice_number"] for b in chosen] == list(PLUS5_PREFERRED)
+    assert "0040435122" not in [b["invoice_number"] for b in leftover]
+    assert "0040430010" not in [b["invoice_number"] for b in leftover]
+    assert [b["invoice_number"] for b in leftover] == ["0040429000"]
+
+
+def test_missing_po_owner_is_shawn_not_misty():
+    row = apply_gas_exception_category_owner(
+        {
+            "Result": "HOLD",
+            "Why": (
+                "HOLD (po): PO 59081 is on the invoice but not findable on live "
+                "by vendor + part/WO. Will not enter as Misc Type 4."
+            ),
+        }
+    )
+    assert row[COL_EXCEPTION_CATEGORY] == "missing_po"
+    assert row[COL_EXCEPTION_OWNER] == PURCHASING_OWNER == "Shawn McKibben"
+    assert "Misty" not in row["Why"]
+    assert "category=missing_po; owner=Shawn McKibben" in row["Why"]
 
 
 def test_leftover_from_catalog_dedupes():
