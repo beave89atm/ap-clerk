@@ -295,7 +295,7 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
     assert CREATED_HEADERS["72094446"] == 10142
     assert PLUS5_HEADERS["72068812"] == 10143
     assert PLUS5_HEADERS["71839575"] == 10147
-    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10146, 10148, 10152}
+    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10146, 10148, 10152, 10154}
     assert RETRY_HEADERS == {
         "71080498": 10139,
         "72094446": 10142,
@@ -304,7 +304,7 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
         "72013304": 10146,
         "71839575": 10147,
     }
-    assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147, 10149, 10150, 10151}
+    assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147, 10149, 10150, 10151, 10153, 10155, 10156, 10157}
     assert 720 in FORBIDDEN_BATCH_IDS
 
 
@@ -535,11 +535,19 @@ def test_never_repeat_missing_receipt_never_transfer_ap():
         "71098307",
         "70907154",
     )
-    assert PLUS15_HEADERS == {}
-    assert EXISTING_HEADER_IDS == set(range(10138, 10153))
+    assert PLUS15_HEADERS == {
+        "71254641": 10153,
+        "71236251": 10154,
+        "71183051": 10155,
+        "71098307": 10156,
+        "70907154": 10157,
+    }
+    assert EXISTING_HEADER_IDS == set(range(10138, 10158))
     assert 10142 in EXISTING_HEADER_IDS
     assert 10148 in EXISTING_HEADER_IDS
     assert 10152 in EXISTING_HEADER_IDS
+    assert 10154 in EXISTING_HEADER_IDS
+    assert 10157 in EXISTING_HEADER_IDS
 
     bills = [
         {
