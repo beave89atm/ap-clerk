@@ -79,6 +79,7 @@ LOGGER = logging.getLogger("ap_clerk.mcmaster_0918")
 
 PREFERRED_BATCH_NAME = "API Agent - 9/18/26 McMaster"
 FALLBACK_BATCH_NAME = "API Agent - 9/18/26"
+KNOWN_BATCH_ID = 721
 # Kyle: Crosslink 715 / JPSteel 716 / Legacy 717 / Gas 720. Do not reuse.
 FORBIDDEN_BATCH_IDS = {715, 716, 717, 720}
 FORBIDDEN_REUSE_NAMES = {
@@ -123,9 +124,27 @@ CENSUS_POS = {
 # Prior fact only. Re-lookup Transfer AP by name. Never invent this id.
 TRANSFER_AP_PRIOR_ID_HINT = 375
 RUBEN_PEREZ = "@Ruben Perez"
-LEAVE_ALONE_HOLD_IDS: set[int] = set()
-DO_NOT_MUTATE_IDS: set[int] = set()
-CREATED_HEADERS: dict[str, int] = {}
+# First-pass headers on batch 721. Do not recreate.
+CREATED_HEADERS = {
+    "71647463": 10138,
+    "71080498": 10139,
+    "71001379": 10140,
+    "70747918": 10141,
+    "72094446": 10142,
+}
+# Kyle: leave existing HOLDs alone (Ruben missing_receipt / Shawn Transfer AP).
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142}
+# Kyle-checked Successes. GET-only — do not re-Select / edit.
+DO_NOT_MUTATE_IDS = {10138, 10141}
+# Plus-5 leftovers from the 9/18 first pass, newest first.
+PREFERRED_NEXT = (
+    "72068812",
+    "72087570",
+    "72012111",
+    "72013304",
+    "71839575",
+)
+PLUS5_HEADERS: dict[str, int] = {}
 
 CREDIT_SUBJECT = re.compile(
     r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",
@@ -485,8 +504,9 @@ def pick_recent(
     already: set[str],
     cap: int = CAP,
     receipts: list[dict[str, Any]] | None = None,
+    preferred: tuple[str, ...] | list[str] | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
-    """Newest clean PO+receipt matches first, then newest other invoices.
+    """PREFERRED_NEXT leftovers first if still open, then newest clean matches.
 
     Credits are leftovers, not entered. Pre-Aug dates are older, not entered.
     """
@@ -524,7 +544,15 @@ def pick_recent(
     rest = [b for b in recent if not b.get("_clean")]
     clean.sort(key=lambda b: (str(b.get("date") or ""), str(b.get("receivedDateTime") or "")), reverse=True)
     rest.sort(key=lambda b: (str(b.get("date") or ""), str(b.get("receivedDateTime") or "")), reverse=True)
-    ordered = clean + rest
+    extras = clean + rest
+    if preferred:
+        by_inv = {exact_invoice_number(b.get("invoice_number")): b for b in extras}
+        pref_keys = [exact_invoice_number(n) for n in preferred if exact_invoice_number(n)]
+        ordered = [by_inv[n] for n in pref_keys if n in by_inv]
+        used = {exact_invoice_number(b.get("invoice_number")) for b in ordered}
+        ordered.extend(b for b in extras if exact_invoice_number(b.get("invoice_number")) not in used)
+    else:
+        ordered = extras
     leftover = ordered[cap:]
     return ordered[:cap], older + leftover, credits
 
@@ -1084,6 +1112,13 @@ def finish_entered_rows(
         if result in {"Fail", "Skipped"}:
             rows.append(enter_row)
             continue
+        try:
+            kid_int = int(kid)
+        except (TypeError, ValueError):
+            kid_int = None
+        if kid_int in LEAVE_ALONE_HOLD_IDS | DO_NOT_MUTATE_IDS:
+            rows.append(enter_row)
+            continue
         finish = finish_hold_header(
             client, parsed=parsed, kimco_id=int(kid), receipts=receipts
         )
@@ -1132,7 +1167,7 @@ def leftover_from_catalog(
     for bill in older + [b for b in parsed_bills if exact_invoice_number(b.get("invoice_number")) not in chosen]:
         inv = exact_invoice_number(bill.get("invoice_number")) or str(bill.get("invoice_number") or "")
         key = inv or str(bill.get("subject") or "")[:40]
-        if key in seen or inv in chosen:
+        if key in seen or inv in chosen or inv in CREATED_HEADERS or inv in PLUS5_HEADERS:
             continue
         seen.add(key)
         why = "unflagged leftover after cap 5; not entered"
@@ -1214,8 +1249,8 @@ def main(argv: list[str] | None = None) -> int:
     print(format_presence(creds.presence), flush=True)
     print(format_graph_presence(), flush=True)
     print(
-        "Target: live. McMaster-Carr only. New batch (not 715/716/717/720). "
-        "No Mail.Send. invent=false.",
+        "Target: live. McMaster-Carr only. Batch 721 (not 715/716/717/720). "
+        "No Gas. No Mail.Send. invent=false.",
         flush=True,
     )
     if not creds.ready:
@@ -1271,7 +1306,7 @@ def main(argv: list[str] | None = None) -> int:
     catalog.sort(key=lambda r: str(r.get("received") or ""), reverse=True)
     print(json.dumps({"discovered": len(catalog), "mcmaster_mail": catalog}, indent=2, default=str), flush=True)
 
-    already = set(entered) | set(CREATED_HEADERS)
+    already = set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS)
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_entered = 0
@@ -1323,7 +1358,11 @@ def main(argv: list[str] | None = None) -> int:
     except KimcoError:
         receipts = []
     recent, older, credits = pick_recent(
-        parsed_bills, already=already, cap=CAP, receipts=receipts
+        parsed_bills,
+        already=already,
+        cap=CAP,
+        receipts=receipts,
+        preferred=PREFERRED_NEXT,
     )
     print(
         json.dumps(
@@ -1349,6 +1388,9 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     if str(batch.get("name")) in FORBIDDEN_REUSE_NAMES:
         print("Refusing leftover weekday batch name. Abort enter.", flush=True)
+        return 2
+    if int(batch.get("id") or 0) != KNOWN_BATCH_ID:
+        print(f"Expected batch {KNOWN_BATCH_ID}; got {batch.get('id')}. Abort.", flush=True)
         return 2
 
     report_path = Path(args.report)
