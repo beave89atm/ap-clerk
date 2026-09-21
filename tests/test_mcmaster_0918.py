@@ -23,11 +23,17 @@ from ap_clerk.rules import names_match  # noqa: E402
 from mcmaster_0918 import (  # noqa: E402
     CAP,
     CENSUS_POS,
+    CREATED_HEADERS,
+    DO_NOT_MUTATE_IDS,
     FALLBACK_BATCH_NAME,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
+    KNOWN_BATCH_ID,
+    LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
+    PLUS5_HEADERS,
     PREFERRED_BATCH_NAME,
+    PREFERRED_NEXT,
     VENDOR_NAME,
     blob_has_mcmaster,
     exact_invoice_number,
@@ -242,6 +248,46 @@ def test_mcmaster_invoice_is_not_a_purchase_order_doc():
     assert "2151A27" in parts
     assert any(abs(float(ln.get("amount") or 0) - 42.00) < 0.01 for ln in parsed["lines"])
     assert extract_mcmaster_lines(_MCMASTER_FACE)
+
+
+def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
+    bills = [
+        {
+            "invoice_number": inv,
+            "date": "2026-09-17",
+            "receivedDateTime": "2026-09-18T06:00:00Z",
+            "po": "58221",
+            "amount": 10.0,
+            "subject": f"Invoice for Your Order {inv}",
+        }
+        for inv in (*PREFERRED_NEXT, "71668723")
+    ]
+    recent, leftover, credits = pick_recent(
+        bills + [
+            {
+                "invoice_number": "71647463",
+                "date": "2026-09-10",
+                "po": "59161",
+                "amount": 111.31,
+                "subject": "Invoice for Your Order 59161",
+            }
+        ],
+        already=set(CREATED_HEADERS),
+        cap=5,
+        receipts=None,
+        preferred=PREFERRED_NEXT,
+    )
+    assert [b["invoice_number"] for b in recent] == list(PREFERRED_NEXT)
+    assert "71647463" not in [b["invoice_number"] for b in recent]
+    assert leftover[0]["invoice_number"] == "71668723"
+    assert credits == []
+    assert KNOWN_BATCH_ID == 721
+    assert CREATED_HEADERS["72094446"] == 10142
+    assert PLUS5_HEADERS["72068812"] == 10143
+    assert PLUS5_HEADERS["71839575"] == 10147
+    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10144, 10145, 10146, 10147}
+    assert DO_NOT_MUTATE_IDS == {10138, 10141}
+    assert 720 in FORBIDDEN_BATCH_IDS
 
 
 def test_mcmaster_over_ppv_comment_tags_shawn():
