@@ -184,8 +184,17 @@ PLUS10_HEADERS = {
     "71668723": 10151,
     "71401129": 10152,
 }
-# Every first-pass + plus-5 header. Plus-10 must not mutate these.
-EXISTING_HEADER_IDS = set(range(10138, 10148))
+# Next leftover window after plus-10 (Kyle 2026-09-21).
+PREFERRED_PLUS15 = (
+    "71254641",
+    "71236251",
+    "71183051",
+    "71098307",
+    "70907154",
+)
+PLUS15_HEADERS: dict[str, int] = {}
+# Every header already on the 9/18 McMaster sheet. Plus-15 must not mutate these.
+EXISTING_HEADER_IDS = set(range(10138, 10153))
 
 CREDIT_SUBJECT = re.compile(
     r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",
@@ -1273,6 +1282,7 @@ def leftover_from_catalog(
             or inv in CREATED_HEADERS
             or inv in PLUS5_HEADERS
             or inv in PLUS10_HEADERS
+            or inv in PLUS15_HEADERS
         ):
             continue
         seen.add(key)
@@ -1412,7 +1422,9 @@ def main(argv: list[str] | None = None) -> int:
     catalog.sort(key=lambda r: str(r.get("received") or ""), reverse=True)
     print(json.dumps({"discovered": len(catalog), "mcmaster_mail": catalog}, indent=2, default=str), flush=True)
 
-    already = set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS)
+    already = (
+        set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS) | set(PLUS15_HEADERS)
+    )
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_entered = 0
