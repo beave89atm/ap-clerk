@@ -73,6 +73,12 @@ def test_noise_and_flagged_subjects_are_not_invoices():
     assert not is_oneal_invoice_email(
         {"subject": "O'Neal Steel statement / past due", "from": {"emailAddress": {"name": "O'Neal Steel"}}}
     )
+    assert not is_oneal_invoice_email(
+        {"subject": "Payment status requested - 14748440", "from": {"emailAddress": {"name": "O'Neal Steel"}}}
+    )
+    assert not is_oneal_invoice_email(
+        {"subject": "O'Neal Steel Credit Invoice For Account # 14748440", "from": {"emailAddress": {"name": "O'Neal Steel"}}}
+    )
 
 
 def test_pick_recent_cap_5_skips_pre_august_and_already():

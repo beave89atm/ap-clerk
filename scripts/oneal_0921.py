@@ -99,11 +99,14 @@ CAP = 5
 _ONEAL_INV = re.compile(r"\b(15\d{6})\b")
 _KIMCO_PO = re.compile(r"^5[7-9]\d{3}$")
 NOISE_SUBJECT = re.compile(
-    r"statement|past due|account with us|remittance|payment reminder",
+    r"statement|past due|account with us|remittance|payment reminder|"
+    r"payment status|payment confirmation|pending payment|"
+    r"reminder for payment|market informer|offset notice",
     flags=re.I,
 )
 CREDIT_SUBJECT = re.compile(
-    r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",
+    r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b|"
+    r"\bcredit invoice\b",
     flags=re.I,
 )
 
