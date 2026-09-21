@@ -137,10 +137,19 @@ CREATED_HEADERS = {
     "70747918": 10141,
     "72094446": 10142,
 }
-# Kyle: leave existing HOLDs alone (Ruben missing_receipt / Shawn Transfer AP).
-LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10144, 10145, 10146, 10147}
-# Kyle-checked Successes. GET-only — do not re-Select / edit.
-DO_NOT_MUTATE_IDS = {10138, 10141}
+# Transfer AP price_variance + receipt-retry HOLDs that still cannot finish.
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146}
+# Finished Successes. GET-only — do not re-Select / edit.
+DO_NOT_MUTATE_IDS = {10138, 10141, 10144, 10145, 10147}
+# Kyle 2026-09-21: receipts now entered — finish these existing headers.
+RETRY_HEADERS = {
+    "71080498": 10139,
+    "72094446": 10142,
+    "72087570": 10144,
+    "72012111": 10145,
+    "72013304": 10146,
+    "71839575": 10147,
+}
 # Plus-5 leftovers from the 9/18 first pass, newest first.
 PREFERRED_NEXT = (
     "72068812",
