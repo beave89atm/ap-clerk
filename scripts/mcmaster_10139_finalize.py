@@ -29,14 +29,11 @@ from ap_clerk.auth import format_presence, load_credentials  # noqa: E402
 from ap_clerk.cli import _optional_graph_client  # noqa: E402
 from ap_clerk.graph import ALLOWED_MAILBOX, format_graph_presence  # noqa: E402
 from ap_clerk.kimco import (  # noqa: E402
-    ADDITIONAL_CHARGE_FIELD,
     ADDITIONAL_CHARGE_LIST,
-    FEE_CHARGE_CODE,
     FEE_CHARGE_LOOKUP_ID,
     FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID,
     KimcoClient,
     KimcoError,
-    additional_charge_lookup,
 )
 from ap_clerk.comments_tab import (  # noqa: E402
     COMMENT_TAB_LIST,
@@ -142,11 +139,12 @@ def replace_wrong_freight_with_fees(
     kimco_id: int,
     fee_amount: float,
 ) -> dict[str, Any]:
-    """Rewrite Freight External on 10139 to Additional Charge Fees id 11.
+    """Remove Freight External on 10139 so Fees id 11 can post.
 
     Kyle selected receipt 24247. A prior finish posted Freight External
     $22.24. PDF shipping is $22.35 → Fees id 11 (NOTE-44). McMaster is not
-    a freight vendor.
+    a freight vendor. Live Modified 1→11 returned 200 then rolled back —
+    Remove the child, then post Fees.
     """
     refuse_other_header(kimco_id)
     item = client.get_item("ap_invoices", int(kimco_id))
@@ -156,55 +154,24 @@ def replace_wrong_freight_with_fees(
     amt = money(fee_amount)
     if amt is None:
         return {"status": "no-fee-amount", "kimco_id": int(kimco_id), "wrong_ids": [c.get("id") for c in wrong]}
-    lookup = additional_charge_lookup()
-    items = [
-        {
-            "id": int(ch["id"]),
-            "state": "Modified",
-            "values": {
-                ADDITIONAL_CHARGE_FIELD: lookup,
-                "Name": FEE_CHARGE_CODE,
-                "Quantity": 1.0,
-                "Price": amt,
-                "Amount": amt,
-            },
-        }
-        for ch in wrong
-        if ch.get("id") not in (None, "")
-    ]
-    payload = {
+    removed = [{"id": int(ch["id"]), "state": "Removed"} for ch in wrong if ch.get("id") not in (None, "")]
+    remove_payload = {
         "state": "Modified",
         "id": int(kimco_id),
-        "lists": {ADDITIONAL_CHARGE_LIST: items},
+        "lists": {ADDITIONAL_CHARGE_LIST: removed},
     }
-    _body, status, error = client.update("ap_invoices", int(kimco_id), payload)
-    after = client.get_item("ap_invoices", int(kimco_id))
-    leftover = freight_external_charges(after)
-    if leftover:
-        removed = [{"id": int(ch["id"]), "state": "Removed"} for ch in leftover if ch.get("id") not in (None, "")]
-        remove_payload = {
-            "state": "Modified",
-            "id": int(kimco_id),
-            "lists": {ADDITIONAL_CHARGE_LIST: removed},
-        }
-        _body2, status2, error2 = client.update("ap_invoices", int(kimco_id), remove_payload)
-        confirm = client.get_item("ap_invoices", int(kimco_id))
-        leftover = freight_external_charges(confirm)
-        return {
-            "status": "removed" if not leftover else f"blocked-{status2 or status}",
-            "kimco_id": int(kimco_id),
-            "put": status2 or status,
-            "error": (error2 or error or "")[:240],
-            "leftover": [c.get("id") for c in leftover],
-        }
+    _body, status, error = client.update("ap_invoices", int(kimco_id), remove_payload)
+    confirm = client.get_item("ap_invoices", int(kimco_id))
+    leftover = freight_external_charges(confirm)
     return {
-        "status": "rewritten",
+        "status": "removed" if not leftover else f"blocked-{status}",
         "kimco_id": int(kimco_id),
         "put": status,
         "error": (error or "")[:240],
+        "leftover": [c.get("id") for c in leftover],
         "fee_lookup": FEE_CHARGE_LOOKUP_ID,
         "fee_amount": amt,
-        "rewritten_ids": [c.get("id") for c in items],
+        "removed_ids": [row.get("id") for row in removed],
     }
 
 

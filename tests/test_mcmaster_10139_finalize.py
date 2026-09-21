@@ -41,8 +41,8 @@ def test_finalize_targets_10139_only():
     assert TARGET_PO == "59056"
     assert TARGET_AMOUNT == 395.31
     assert ALLOWED_WRITE_IDS == {10139}
-    assert 10139 in LEAVE_ALONE_HOLD_IDS
-    assert 10139 not in DO_NOT_MUTATE_IDS
+    assert 10139 not in LEAVE_ALONE_HOLD_IDS
+    assert 10139 in DO_NOT_MUTATE_IDS
     other_holds = {10140, 10142, 10143, 10146, 10148, 10152, 10154, 10158, 10159}
     assert other_holds <= LEAVE_ALONE_HOLD_IDS
     assert 23841 in FIRST_OPEN_DO_NOT_USE
@@ -142,24 +142,14 @@ def test_replace_wrong_freight_rewrites_to_fees_id_11():
         def update(self, _svc, _kid, payload):
             self.payloads.append(payload)
             rows = payload["lists"]["InvoiceAdditionalCharges"]
-            self.item = {
-                "id": 10139,
-                "lists": {
-                    "InvoiceAdditionalCharges": [
-                        {
-                            "id": rows[0]["id"],
-                            "values": rows[0]["values"],
-                        }
-                    ]
-                },
-            }
+            assert rows[0]["state"] == "Removed"
+            self.item = {"id": 10139, "lists": {"InvoiceAdditionalCharges": []}}
             return {}, 200, ""
 
     fake = _Fake()
     out = replace_wrong_freight_with_fees(fake, kimco_id=10139, fee_amount=22.35)
-    assert out["status"] == "rewritten"
-    assert fake.payloads[0]["lists"]["InvoiceAdditionalCharges"][0]["values"]["Additional_Charges"]["id"] == 11
-    assert fake.payloads[0]["lists"]["InvoiceAdditionalCharges"][0]["values"]["Amount"] == 22.35
+    assert out["status"] == "removed"
+    assert fake.payloads[0]["lists"]["InvoiceAdditionalCharges"][0]["id"] == 5389
     with pytest.raises(KimcoError, match="10139 only"):
         replace_wrong_freight_with_fees(fake, kimco_id=10142, fee_amount=22.35)
 
