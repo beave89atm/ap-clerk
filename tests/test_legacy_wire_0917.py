@@ -943,21 +943,28 @@ def test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new():
     )
 
     class _Fake:
+        def __init__(self):
+            self.payloads = []
+            self.tab = []
+
         def list_items(self, _name):
             return [{"id": 375, "values": {"AP_Invoice_Batch_ID": "TRANSFER AP"}}]
 
         def update(self, _svc, _kid, payload):
-            self.payload = payload
+            self.payloads.append(payload)
+            rows = (payload.get("lists") or {}).get("Comments_1") or []
+            if rows:
+                self.tab = [{"id": 884, "values": rows[0]["values"]}]
             return {}, 200, ""
 
         def get_item(self, _svc, kid):
             return {
                 "id": kid,
                 "values": {
-                    "Comments": self.payload["values"]["Comments"],
+                    "Comments": "HEADER STRING MUST NOT COUNT AS TAB",
                     "AP_Invoice_Batch": {"id": 375, "text": "TRANSFER AP"},
                 },
-                "lists": {},
+                "lists": {"Comments_1": list(self.tab)},
             }
 
         def _record_url(self, _svc, _kid, suffix=""):
@@ -978,10 +985,15 @@ def test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new():
     assert out["batch_id"] == 375
     assert out["batch_name"] == "TRANSFER AP"
     assert out["invent"] is False
-    assert "@Shawn McKibben" in out["comment"]
+    assert "Comments" not in fake.payloads[0].get("values", {})
+    assert fake.payloads[0]["values"] == {"AP_Invoice_Batch": {"id": 375}}
+    assert "Comments_1" in fake.payloads[1]["lists"]
     assert out["mention_notify"]["comments_persisted"] is True
+    assert out["mention_notify"]["tab_persisted"] is True
     assert out["mention_notify"]["worked"] is False
     assert "not confirmed" in out["mention_notify"]["report"]
+    assert "Comments tab persisted" in out["mention_notify"]["report"]
+    assert "Comments persisted" not in out["mention_notify"]["report"]
 
 
 def test_leftover_from_catalog_skips_entered_and_pre_aug():

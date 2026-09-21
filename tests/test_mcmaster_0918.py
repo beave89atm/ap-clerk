@@ -41,6 +41,7 @@ from mcmaster_0918 import (  # noqa: E402
     is_mcmaster_invoice_email,
     is_mcmaster_message,
     is_mcmaster_vendor_text,
+    apply_over_ppv_transfer_ap,
     is_over_ppv_price_hold,
     over_ppv_hold_comment,
     pick_recent,
@@ -302,3 +303,51 @@ def test_mcmaster_over_ppv_comment_tags_shawn():
         {"Result": "HOLD", "Why": "HOLD (receipt): no open receipt leftover", "Exception category": "missing_receipt"},
         {},
     )
+
+
+def test_mcmaster_transfer_ap_writes_comments_tab_not_header_string():
+    class _Fake:
+        def __init__(self):
+            self.payloads = []
+            self.tab = []
+
+        def list_items(self, _name):
+            return [{"id": 375, "values": {"AP_Invoice_Batch_ID": "TRANSFER AP"}}]
+
+        def update(self, _svc, _kid, payload):
+            self.payloads.append(payload)
+            rows = (payload.get("lists") or {}).get("Comments_1") or []
+            if rows:
+                self.tab = [{"id": 886, "values": rows[0]["values"]}]
+            return {}, 200, ""
+
+        def get_item(self, _svc, kid):
+            return {
+                "id": kid,
+                "values": {
+                    "Comments": "@Shawn McKibben HEADER MUST NOT COUNT",
+                    "AP_Invoice_Batch": {"id": 375, "text": "TRANSFER AP"},
+                },
+                "lists": {"Comments_1": list(self.tab)},
+            }
+
+        def _record_url(self, _svc, _kid, suffix=""):
+            return f"https://live.example/{_kid}/{suffix}"
+
+        def request(self, _method, _url):
+            class _Resp:
+                status_code = 404
+
+            return _Resp()
+
+    fake = _Fake()
+    comment = over_ppv_hold_comment(
+        invoice_number="72068812", po="58221", pdf_amount=336.49
+    )
+    out = apply_over_ppv_transfer_ap(fake, kimco_id=10999, comment=comment)
+    assert out["status"] == "moved"
+    assert "Comments" not in fake.payloads[0].get("values", {})
+    assert "Comments_1" in fake.payloads[1]["lists"]
+    assert out["mention_notify"]["tab_persisted"] is True
+    assert "Comments persisted" not in out["mention_notify"]["report"]
+    assert apply_over_ppv_transfer_ap(fake, kimco_id=10140, comment=comment)["status"] == "leave-alone"

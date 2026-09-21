@@ -1617,7 +1617,12 @@
               "http": 404
             }
           ],
-          "report": "Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired."
+          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 886, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "tab_persisted": true,
+          "header_string_ignored": true,
+          "item_ids": [
+            886
+          ]
         },
         "invent": false
       }
@@ -1728,7 +1733,7 @@
       "PO": "58221",
       "Amount": 336.49,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.'. Comments tab persisted @Shawn McKibben (list Comments_1 item 886, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Exception category": "price_variance",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10143,
@@ -1738,7 +1743,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "Comments tab persisted @Shawn McKibben (list Comments_1 item 886, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -2014,7 +2019,7 @@
       "PO": "59069",
       "Amount": 85.82,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71001379 PO 59069 PDF $85.82. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71001379 PO 59069 PDF $85.82. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.'. Comments tab persisted @Shawn McKibben (list Comments_1 item 884, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Exception category": "price_variance",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10140,
@@ -2024,7 +2029,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "Comments tab persisted @Shawn McKibben (list Comments_1 item 884, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Receipts": "23904 72@0.991",
       "outlook": "entered-with-issues"
     },
@@ -2077,7 +2082,7 @@
       "PO": "58221",
       "Amount": 336.49,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.'. Comments tab persisted @Shawn McKibben (list Comments_1 item 886, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Exception category": "price_variance",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10143,
@@ -2087,7 +2092,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "Comments tab persisted @Shawn McKibben (list Comments_1 item 886, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -2175,5 +2180,19 @@
       "Receipts": "none",
       "outlook": "entered-with-issues"
     }
-  ]
+  ],
+  "comments_tab_backfill": {
+    "10140": {
+      "invoice": "71001379",
+      "item_id": 884,
+      "list": "Comments_1"
+    },
+    "10143": {
+      "invoice": "72068812",
+      "item_id": 886,
+      "list": "Comments_1"
+    },
+    "invent": false,
+    "notify_confirmed": false
+  }
 }

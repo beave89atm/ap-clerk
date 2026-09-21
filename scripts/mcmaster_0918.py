@@ -42,6 +42,11 @@ from ap_clerk.kimco import (  # noqa: E402
     fees_with_amounts,
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
+from ap_clerk.comments_tab import (  # noqa: E402
+    add_invoice_comment_tab,
+    comment_tab_proof,
+    transfer_ap_batch_only_payload,
+)
 from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
 from ap_clerk.rules import (  # noqa: E402
@@ -998,12 +1003,8 @@ def is_over_ppv_price_hold(row: dict[str, Any], finish: dict[str, Any] | None) -
 
 
 def probe_mention_notify(client: KimcoClient, kimco_id: int, after: dict[str, Any]) -> dict[str, Any]:
-    vals = after.get("values") if isinstance(after.get("values"), dict) else {}
-    comments = str((vals or {}).get("Comments") or "")
-    tagged = SHAWN_MCKIBBEN in comments
-    mention_value_keys = sorted(
-        k for k in (vals or {}) if re.search(r"mention|notif|tagged", str(k), flags=re.I)
-    )
+    """Comments TAB proof only. Header Comments string is the wrong surface."""
+    proof = comment_tab_proof(after)
     probes: list[dict[str, Any]] = []
     for suffix in ("comments", "mentions", "notifications"):
         try:
@@ -1012,29 +1013,8 @@ def probe_mention_notify(client: KimcoClient, kimco_id: int, after: dict[str, An
             probes.append({"suffix": suffix, "http": resp.status_code})
         except Exception as exc:  # noqa: BLE001
             probes.append({"suffix": suffix, "http": None, "error": type(exc).__name__})
-    if tagged and mention_value_keys:
-        report = (
-            f"Comments persisted {SHAWN_MCKIBBEN}. Record has mention-ish fields "
-            f"{mention_value_keys}. Dedicated GET probes={probes}."
-        )
-        worked: Any = "fields-present-notify-unconfirmed"
-    elif tagged:
-        report = (
-            f"Comments persisted {SHAWN_MCKIBBEN}. No mention/notify field on the "
-            f"record. Dedicated GET comments/mentions/notifications → {probes}. "
-            "@mention notify not confirmed — cannot claim a user alert fired."
-        )
-        worked = False
-    else:
-        report = f"Comments did not persist {SHAWN_MCKIBBEN}. @mention notify did not work."
-        worked = False
-    return {
-        "worked": worked,
-        "comments_persisted": tagged,
-        "mention_value_keys": mention_value_keys,
-        "probes": probes,
-        "report": report,
-    }
+    proof["probes"] = probes
+    return proof
 
 
 def apply_over_ppv_transfer_ap(
@@ -1058,24 +1038,20 @@ def apply_over_ppv_transfer_ap(
             "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
         }
     bid = int(found["id"])
+    batch_payload = transfer_ap_batch_only_payload(invoice_id=int(kimco_id), batch_id=bid)
+    if "Comments" in (batch_payload.get("values") or {}):
+        return {"status": "refused-header-comments", "kimco_id": int(kimco_id), "invent": False}
     body, status, error = client.update(
         "ap_invoices",
         int(kimco_id),
-        {
-            "state": "Modified",
-            "id": int(kimco_id),
-            "values": {
-                "AP_Invoice_Batch": {"id": bid},
-                "Comments": comment,
-            },
-        },
+        batch_payload,
     )
+    tab = add_invoice_comment_tab(client, invoice_id=int(kimco_id), body=comment)
     try:
         after = client.get_item("ap_invoices", int(kimco_id))
     except KimcoError:
         after = {}
     vals = after.get("values") if isinstance(after.get("values"), dict) else {}
-    comments_after = str((vals or {}).get("Comments") or "")
     mention = probe_mention_notify(client, int(kimco_id), after or {})
     live_bid = lookup_id((vals or {}).get("AP_Invoice_Batch"))
     live_name = lookup_text((vals or {}).get("AP_Invoice_Batch"))
@@ -1085,8 +1061,9 @@ def apply_over_ppv_transfer_ap(
         "kimco_id": int(kimco_id),
         "batch_id": live_bid if live_bid not in (None, "") else bid,
         "batch_name": live_name or found.get("name"),
-        "comment": comments_after or comment,
+        "comment": (mention.get("report") or comment),
         "comment_requested": comment,
+        "comment_tab": tab,
         "put": status,
         "error": error,
         "put_body_keys": sorted(body) if isinstance(body, dict) else [],

@@ -71,11 +71,13 @@ gates only; do not invent new HOLD reasons.
 **NOTE-40 over-PPV HOLD Transfer AP + @Shawn (Kyle 2026-09-17).** On a
 new `price_variance` / over-PPV-gate HOLD, keep NOTE-29 (do not Select
 Receipts). Move that AP invoice to the **Transfer AP** batch after a
-live name lookup (do not invent id 375). Add a **Comments** note that
-@tags **Shawn McKibben** and says why: price mismatch, over the PPV
-gate, receipts not selected so he can unreceive / reprice / re-receive.
-Report exactly whether the @mention notify worked. Existing Legacy Wire
-HOLDs 10116 / 10123 / 10125 / 10127 stay put. No Mail.Send.
+live name lookup (do not invent id 375). Add a **Comments tab** item
+(`lists.Comments_1` + `@Shawn McKibben` mention-node) that says why:
+price mismatch, over the PPV gate, receipts not selected so he can
+unreceive / reprice / re-receive. Never stamp the header `Comments`
+string as notify (NOTE-43). Report exactly whether the Comments tab
+GET-proved and whether @mention notify can be confirmed. Existing
+Legacy Wire HOLDs 10116 / 10123 / 10125 / 10127 stay put. No Mail.Send.
 
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
@@ -245,7 +247,8 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-37** JPSteel **125315** / KIMCO **10107** / PO 59128 / leftovers **24126** 8@$33 + **24127** 13@$33 (Kyle 2026-09-17) | HOLD Select Receipts **blocked-400** on same-PO-line split though PDF is one line 21@$33=$693. Combining same-item same-unit-cost leftovers is acceptable; Kyle finished 10107 live. | Combine same-item same-unit-cost receipt lines to match one invoice line. Do not HOLD blocked-400 when the unique qty/cost sum matches. Never invent receipts. Do not re-Select / edit 10107 (GET-only). | `test_never_repeat_jpsteel_125315_combine_same_item_receipts` |
 | **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
 | **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
-| **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp **Comments** explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben**. Report exactly whether @mention notify worked. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
+| **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp the **Comments tab** (`lists.Comments_1`) explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben** with the mention-node. Never the header `Comments` string (NOTE-43). Report exactly whether the tab GET-proved. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
+| **NOTE-43** Comments tab ≠ header `Comments` string (Kyle 2026-09-21 McMaster 71001379 / 10140) | Transfer AP move worked. Agent PATCHed header `values.Comments` and reported "Comments persisted". Kyle opened the Comments **tab** — "Comments currently has no items". Dedicated GET `.../comments` / `mentions` / `notifications` → 404. Same miss on 72068812 / 10143. | The UI Add Comment list is `lists.Comments_1`. PUT `{state:Added, values:{HtmlValue, Entity 203 AP Invoice, ObjectId, FormId 218}}` then **GET-prove** the tab row. Shawn mention-id **104** from existing tab comments (9931/10009). Header `Comments` is the wrong surface — never report "Comments persisted" for that field. User-alert/notify API still unconfirmed. | `test_never_report_comments_persisted_for_header_string` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

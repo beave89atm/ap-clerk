@@ -12,9 +12,10 @@ packing slips / receipt scans. Prefer invoice dates on/after 2026-08-01.
 If fewer than 5 recent remain, enter what's left and stop — do not walk
 pre-Aug (NOTE-28). Leave HOLDs 10116 / 10123 / 10125 / 10127 alone.
 
-NOTE-40: new over-PPV HOLDs move to Transfer AP (lookup by name; prior
-fact 375 is a hint only — never invent). Comments + @Shawn McKibben.
-Still do not Select Receipts on over-gate lines (NOTE-29).
+NOTE-40 / NOTE-43: new over-PPV HOLDs move to Transfer AP (lookup by
+name; prior fact 375 is a hint only — never invent). Stamp the Comments
+TAB (lists.Comments_1 + @Shawn mention-node), never the header Comments
+string. Still do not Select Receipts on over-gate lines (NOTE-29).
 """
 
 from __future__ import annotations
@@ -56,6 +57,11 @@ from ap_clerk.pdf_invoice import (  # noqa: E402
     classify_attachment,
     is_receipt_scan_document,
     parse_invoice_pdf,
+)
+from ap_clerk.comments_tab import (  # noqa: E402
+    add_invoice_comment_tab,
+    comment_tab_proof,
+    transfer_ap_batch_only_payload,
 )
 from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
@@ -1573,18 +1579,8 @@ def probe_mention_notify(
     kimco_id: int,
     after: dict[str, Any],
 ) -> dict[str, Any]:
-    """Report exactly whether @mention notify can be confirmed. invent=false."""
-    vals = after.get("values") if isinstance(after.get("values"), dict) else {}
-    comments = str((vals or {}).get("Comments") or "")
-    tagged = SHAWN_MCKIBBEN in comments
-    mention_value_keys = sorted(
-        k for k in (vals or {}) if re.search(r"mention|notif|tagged", str(k), flags=re.I)
-    )
-    mention_list_keys = sorted(
-        k
-        for k in (after.get("lists") or {})
-        if re.search(r"comment|mention|notif", str(k), flags=re.I)
-    )
+    """Comments TAB proof only. Header Comments string is the wrong surface."""
+    proof = comment_tab_proof(after)
     probes: list[dict[str, Any]] = []
     for suffix in ("comments", "mentions", "notifications"):
         try:
@@ -1593,32 +1589,8 @@ def probe_mention_notify(
             probes.append({"suffix": suffix, "http": resp.status_code})
         except Exception as exc:  # noqa: BLE001 - probe only
             probes.append({"suffix": suffix, "http": None, "error": type(exc).__name__})
-    if tagged and mention_value_keys:
-        report = (
-            f"Comments persisted {SHAWN_MCKIBBEN}. Record has mention-ish fields "
-            f"{mention_value_keys}. Dedicated GET probes={probes}."
-        )
-        worked = "fields-present-notify-unconfirmed"
-    elif tagged:
-        report = (
-            f"Comments persisted {SHAWN_MCKIBBEN}. No mention/notify field on the "
-            f"record. Dedicated GET comments/mentions/notifications → {probes}. "
-            "@mention notify not confirmed — cannot claim a user alert fired."
-        )
-        worked = False
-    else:
-        report = (
-            f"Comments did not persist {SHAWN_MCKIBBEN}. @mention notify did not work."
-        )
-        worked = False
-    return {
-        "worked": worked,
-        "comments_persisted": tagged,
-        "mention_value_keys": mention_value_keys,
-        "mention_list_keys": mention_list_keys,
-        "probes": probes,
-        "report": report,
-    }
+    proof["probes"] = probes
+    return proof
 
 
 def apply_over_ppv_transfer_ap(
@@ -1628,10 +1600,10 @@ def apply_over_ppv_transfer_ap(
     comment: str,
     leave_alone_ids: set[int] | None = None,
 ) -> dict[str, Any]:
-    """Move a new over-PPV HOLD to Transfer AP and stamp @Shawn Comments.
+    """Move a new over-PPV HOLD to Transfer AP and stamp the Comments tab.
 
     Lookup batch by name. Prior fact 375 is never a fallback. NOTE-29: do not
-    Select Receipts here.
+    Select Receipts here. NOTE-43: never write header Comments as notify.
     """
     blocked = set(leave_alone_ids or LEAVE_ALONE_HOLD_IDS) | set(DO_NOT_MUTATE_IDS)
     if int(kimco_id) in blocked:
@@ -1653,24 +1625,20 @@ def apply_over_ppv_transfer_ap(
             "hint_ignored": TRANSFER_AP_PRIOR_ID_HINT,
         }
     bid = int(found["id"])
+    batch_payload = transfer_ap_batch_only_payload(invoice_id=int(kimco_id), batch_id=bid)
+    if "Comments" in (batch_payload.get("values") or {}):
+        return {"status": "refused-header-comments", "kimco_id": int(kimco_id), "invent": False}
     body, status, error = client.update(
         "ap_invoices",
         int(kimco_id),
-        {
-            "state": "Modified",
-            "id": int(kimco_id),
-            "values": {
-                "AP_Invoice_Batch": {"id": bid},
-                "Comments": comment,
-            },
-        },
+        batch_payload,
     )
+    tab = add_invoice_comment_tab(client, invoice_id=int(kimco_id), body=comment)
     try:
         after = client.get_item("ap_invoices", int(kimco_id))
     except KimcoError:
         after = {}
     vals = after.get("values") if isinstance(after.get("values"), dict) else {}
-    comments_after = str((vals or {}).get("Comments") or "")
     mention = probe_mention_notify(client, int(kimco_id), after or {})
     live_bid = lookup_id((vals or {}).get("AP_Invoice_Batch"))
     live_name = lookup_text((vals or {}).get("AP_Invoice_Batch"))
@@ -1680,8 +1648,9 @@ def apply_over_ppv_transfer_ap(
         "kimco_id": int(kimco_id),
         "batch_id": live_bid if live_bid not in (None, "") else bid,
         "batch_name": live_name or found.get("name"),
-        "comment": comments_after or comment,
+        "comment": (mention.get("report") or comment),
         "comment_requested": comment,
+        "comment_tab": tab,
         "put": status,
         "error": error,
         "put_body_keys": sorted(body) if isinstance(body, dict) else [],
