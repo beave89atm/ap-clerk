@@ -21,8 +21,11 @@ from ap_clerk.quality_v12 import exception_owner_for  # noqa: E402
 from ap_clerk.rules import chicago_today  # noqa: E402
 from oneal_0921 import (  # noqa: E402
     CAP,
+    CREATED_HEADERS,
+    DO_NOT_MUTATE_IDS,
     FORBIDDEN_BATCH_IDS,
     FORBIDDEN_REUSE_NAMES,
+    LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
     VENDOR_NAME,
     exact_invoice_number,
@@ -42,6 +45,18 @@ def test_preferred_batch_name_is_chicago_oneal_suffix():
     today = chicago_today()
     assert preferred_batch_name().endswith(" O'Neal")
     assert str(today.month) in preferred_batch_name()
+
+
+def test_first_five_headers_are_locked():
+    assert CREATED_HEADERS == {
+        "15469453": 10160,
+        "15457895": 10161,
+        "15457907": 10162,
+        "15464707": 10163,
+        "15464854": 10164,
+    }
+    assert LEAVE_ALONE_HOLD_IDS == {10160, 10161, 10162, 10163}
+    assert DO_NOT_MUTATE_IDS == {10164}
 
 
 def test_forbidden_batches_include_gas_mcmaster_transfer_ap():

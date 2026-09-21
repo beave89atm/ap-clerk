@@ -122,9 +122,15 @@ FORBIDDEN_REUSE_NAMES = {
     "API Agent - 9/18/26 McMaster",
 }
 
-CREATED_HEADERS: dict[str, int] = {}
-LEAVE_ALONE_HOLD_IDS: set[int] = set()
-DO_NOT_MUTATE_IDS: set[int] = set()
+CREATED_HEADERS = {
+    "15469453": 10160,
+    "15457895": 10161,
+    "15457907": 10162,
+    "15464707": 10163,
+    "15464854": 10164,
+}
+LEAVE_ALONE_HOLD_IDS = {10160, 10161, 10162, 10163}
+DO_NOT_MUTATE_IDS = {10164}
 
 
 def preferred_batch_name(day: date | None = None) -> str:
