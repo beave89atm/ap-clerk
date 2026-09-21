@@ -624,13 +624,51 @@ def decide_ppv(
     }
 
 
+def uom_pack_mismatch_in_gate_ppv(
+    *,
+    invoice_total: Any,
+    posted_or_receipt_amount: Any,
+    pdf_amount: Any | None = None,
+    uom_pack_mismatch: bool = True,
+    receipts_selected: bool = True,
+) -> dict[str, Any]:
+    """NOTE-46: 72 inches ordered vs 2×3 foot bars invoiced.
+
+    When PO UOM/pack differs from the invoice and the dollar gap is only
+    cents / still within the PPV gate, Select Receipts + signed PPV +
+    Success. Do not HOLD price_variance. Do not Transfer AP. Over-gate
+    still NOTE-29 / NOTE-40.
+    """
+    if not uom_pack_mismatch:
+        return {
+            "action": "n/a",
+            "ppv": 0.0,
+            "hold": False,
+            "success_not_price_hold": False,
+            "transfer_ap": False,
+            "note": "NOTE-46",
+        }
+    pdf = money(pdf_amount if pdf_amount is not None else invoice_total)
+    posted = money(posted_or_receipt_amount)
+    decision = rounding_ppv_to_hit_pdf_total(
+        pdf, posted, receipts_selected=receipts_selected
+    )
+    in_gate = (not decision.get("hold")) and decision.get("action") in {"ppv", "match"}
+    return {
+        **decision,
+        "success_not_price_hold": bool(in_gate and receipts_selected),
+        "transfer_ap": False if in_gate else bool(decision.get("hold")),
+        "note": "NOTE-46",
+    }
+
+
 def rounding_ppv_to_hit_pdf_total(
     pdf_total: Any,
     posted_amount: Any,
     *,
     receipts_selected: bool = True,
 ) -> dict[str, Any]:
-    """NOTE-38: posted Invoice_Amount ≠ PDF after receipts already match.
+    """NOTE-38 / NOTE-46: posted Invoice_Amount ≠ PDF after receipts already match.
 
     JPSteel 125316 / 10108: posted $1,580.83 vs PDF $1,580.73 → signed PPV
     −$0.10 so Invoice_Amount hits the PDF. Same class 125051 / 10111
