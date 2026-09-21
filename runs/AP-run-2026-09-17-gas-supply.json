@@ -1,5 +1,5 @@
 {
-  "proof": "gas-supply-0917-po-59081-reverify",
+  "proof": "gas-supply-0917-po-59081-shawn-said-received-rescan",
   "invent": false,
   "mail_send": false,
   "vendor": "Gas and Supply North Texas, LLC",
@@ -1133,7 +1133,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1154,7 +1154,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1175,7 +1175,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1196,7 +1196,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1217,7 +1217,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1238,7 +1238,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1259,7 +1259,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     },
@@ -1280,7 +1280,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "2026-09-21 recscan after Shawn said he received 59081/59006: receipts list still 24311, newest id 24314, 24315-24600 HTTP 404, extracted 59081=0 59006=0, purchase_lines Received_Quantity=0, Receipts_Counter=0, poLineReceiptsForCounting empty. Shawn receive not visible in GI. No Select. Not Success.",
       "Receipts": "none",
       "outlook": "parent-pending"
     }
@@ -2196,5 +2196,38 @@
       }
     ],
     "no_success": "Received_Quantity 0 on every PO line; zero GI leftovers; Type 3 HOLD missing_receipt stays on 720"
+  },
+  "po_59081_shawn_said_received": {
+    "invent": false,
+    "writes": false,
+    "mail_send": false,
+    "shawn_said_received": true,
+    "visible_in_gi": false,
+    "receipts_list_total": 24311,
+    "newest_receipt_id": 24314,
+    "first_404_receipt_id": 24315,
+    "probed_404_through": 24600,
+    "higher_samples_404": [
+      25000,
+      25500,
+      26000,
+      27000,
+      30000
+    ],
+    "extracted": {
+      "59081": 0,
+      "59006": 0,
+      "58948": 10
+    },
+    "needle_hits": 0,
+    "purchase_lines_received_sum": {
+      "59081": 0.0,
+      "59006": 0.0
+    },
+    "receipts_counter": 0,
+    "po_line_modified_still": "2026-09-21T13:12\u201313:26 (PO create; no later receive stamp)",
+    "headers_10165_10172": "Type 3 batch 720 verification=PDF amount Invoice_Amount=0 receipt_lines=0",
+    "finished": false,
+    "success_invented": false
   }
 }
