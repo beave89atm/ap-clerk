@@ -15,6 +15,9 @@ import logging
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
+
+import requests
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -96,9 +99,21 @@ def download_kimco_pdf(client: KimcoClient, kimco_id: int, invoice_number: str) 
             candidates.append(client._record_url("ap_invoices", int(kimco_id), f"attachments/{aid}"))
             candidates.append(client._record_url("ap_invoices", int(kimco_id), f"attachments/{aid}/content"))
         for href in candidates:
-            resp = client.request("GET", href)
+            host = (urlparse(href).hostname or "").lower()
+            try:
+                if "kimcoerp.com" in host:
+                    resp = client.request("GET", href)
+                elif host.endswith("blob.core.windows.net"):
+                    # Short-lived SAS URL returned by GET .../attachments.
+                    resp = requests.get(href, timeout=60)
+                else:
+                    LOGGER.info("skip non-kimco attachment host %s", host)
+                    continue
+            except Exception as exc:  # noqa: BLE001
+                LOGGER.info("attachment GET failed host=%s err=%s", host, type(exc).__name__)
+                continue
             if resp.status_code != 200:
-                LOGGER.info("GET attachment %s HTTP %s", href, resp.status_code)
+                LOGGER.info("GET attachment host=%s HTTP %s", host, resp.status_code)
                 continue
             data = resp.content or b""
             if data[:5] != b"%PDF-":
