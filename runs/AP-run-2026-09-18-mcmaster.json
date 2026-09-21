@@ -19,7 +19,7 @@
     "id": 721,
     "name": "API Agent - 9/18/26 McMaster",
     "status": 0,
-    "unposted": 0,
+    "unposted": 8,
     "matches_expected": true,
     "is_forbidden": false
   },
@@ -30,11 +30,11 @@
     720
   ],
   "created_headers": {
-    "71647463": 10138,
-    "71080498": 10139,
-    "71001379": 10140,
-    "70747918": 10141,
-    "72094446": 10142
+    "72068812": 10143,
+    "72087570": 10144,
+    "72012111": 10145,
+    "72013304": 10146,
+    "71839575": 10147
   },
   "discovered": 49,
   "catalog": [
@@ -42,8 +42,10 @@
       "invoice": "",
       "po": "59224",
       "received": "2026-09-18T06:43:57Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -210,8 +212,10 @@
       "invoice": "",
       "po": "59161",
       "received": "2026-09-11T07:47:50Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -308,8 +312,10 @@
       "invoice": "",
       "po": "59056",
       "received": "2026-09-01T07:12:35Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -322,8 +328,10 @@
       "invoice": "",
       "po": "59069",
       "received": "2026-08-29T06:38:05Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -394,8 +402,10 @@
       "invoice": "",
       "po": "59019",
       "received": "2026-08-26T06:49:47Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -1350,284 +1360,175 @@
     "70128135": 9914,
     "70091829": 9915,
     "70519504": 10069,
-    "65254062": 10100
+    "65254062": 10100,
+    "71647463": 10138,
+    "71080498": 10139,
+    "71001379": 10140,
+    "70747918": 10141,
+    "72094446": 10142
   },
   "recent_picked": [
     {
-      "invoice_number": "71647463",
-      "date": "2026-09-10",
-      "po": "59161",
-      "amount": 111.31,
-      "lines": [
-        {
-          "part": "8701K65",
-          "qty": 1.0,
-          "unit_price": 94.54,
-          "amount": 94.54,
-          "po_line": 1,
-          "wo": null,
-          "label": "8701K65 Slippery UHMW Polyethylene Rod 5-1/2\"",
-          "description": "Slippery UHMW Polyethylene Rod 5-1/2\""
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 16.77
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-11_Invoice_71647463_for_PO_59161.PDF",
-      "pdf_bytes": 24239,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59161",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71080498",
-      "date": "2026-08-31",
-      "po": "59056",
-      "amount": 395.31,
-      "lines": [
-        {
-          "part": "9565K38",
-          "qty": 18.0,
-          "unit_price": 20.72,
-          "amount": 372.96,
-          "po_line": 1,
-          "wo": null,
-          "label": "9565K38 Polyethylene Square Plug, Snap-in, for 1.74\" to",
-          "description": "Polyethylene Square Plug, Snap-in, for 1.74\" to"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 22.35
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-01_Invoice_71080498_for_PO_59056.PDF",
-      "pdf_bytes": 24261,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59056",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71001379",
-      "date": "2026-08-28",
-      "po": "59069",
-      "amount": 85.82,
-      "lines": [
-        {
-          "part": "7767T315",
-          "qty": 2.0,
-          "unit_price": 35.69,
-          "amount": 71.38,
-          "po_line": 1,
-          "wo": null,
-          "label": "7767T315 Low-Carbon Steel Round Tube, 1/8\" Wall",
-          "description": "Low-Carbon Steel Round Tube, 1/8\" Wall"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 14.44
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-29_Invoice_71001379_for_PO_59069.PDF",
-      "pdf_bytes": 24182,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59069",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "70747918",
-      "date": "2026-08-25",
-      "po": "59019",
-      "amount": 736.8,
-      "lines": [
-        {
-          "part": "44605K235",
-          "qty": 800.0,
-          "unit_price": 0.84,
-          "amount": 672.0,
-          "po_line": 1,
-          "wo": null,
-          "label": "44605K235 Low-Pressure Pipe Fitting, Steel, Plug with Hex",
-          "description": "Low-Pressure Pipe Fitting, Steel, Plug with Hex"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 64.8
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-26_Invoice_70747918_for_PO_59019.PDF",
-      "pdf_bytes": 24288,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59019",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "72094446",
+      "invoice_number": "72068812",
       "date": "2026-09-17",
-      "po": "59224",
-      "amount": 131.21,
+      "po": "58221",
+      "amount": 336.49,
       "lines": [
         {
-          "part": "3616N12",
-          "qty": 6.0,
-          "unit_price": 7.0,
-          "amount": 42.0,
+          "part": "4082T15",
+          "qty": 19.0,
+          "unit_price": 17.71,
+          "amount": 336.49,
           "po_line": 1,
           "wo": null,
-          "label": "3616N12 Horizontal-Surface-Mount Level, 2-1/2\" Long x 1\"",
-          "description": "Horizontal-Surface-Mount Level, 2-1/2\" Long x 1\""
-        },
+          "label": "4082T15 Brass Body On/Off Valve with T-Handle, 3/4 NPT",
+          "description": "Brass Body On/Off Valve with T-Handle, 3/4 NPT"
+        }
+      ],
+      "fees": [],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-18_Invoice_72068812_for_PO_58221.PDF",
+      "pdf_bytes": 24222,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 58221",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "72087570",
+      "date": "2026-09-17",
+      "po": "59235",
+      "amount": 30.32,
+      "lines": [
         {
-          "part": "2151A27",
-          "qty": 1.0,
-          "unit_price": 23.18,
-          "amount": 23.18,
-          "po_line": 2,
+          "part": "91306A416",
+          "qty": 3.0,
+          "unit_price": 6.01,
+          "amount": 18.03,
+          "po_line": 1,
           "wo": null,
-          "label": "2151A27 Magnetic Level for Tight Spaces, 10\" Long",
-          "description": "Magnetic Level for Tight Spaces, 10\" Long"
-        },
-        {
-          "part": "5513T12",
-          "qty": 1.0,
-          "unit_price": 6.32,
-          "amount": 6.32,
-          "po_line": 3,
-          "wo": null,
-          "label": "5513T12 Easy-Install Wire Rope Clamp-Not for Lifting, 18-8",
-          "description": "Easy-Install Wire Rope Clamp-Not for Lifting, 18-8"
-        },
-        {
-          "part": "93320A385",
-          "qty": 2.0,
-          "unit_price": 17.56,
-          "amount": 35.12,
-          "po_line": 4,
-          "wo": null,
-          "label": "93320A385 Polished Unthreaded Spacers, 1\" OD, 1\" Long, for",
-          "description": "Polished Unthreaded Spacers, 1\" OD, 1\" Long, for"
+          "label": "91306A416 Zinc-Plated Button Head Hex-Drive Screw, Alloy",
+          "description": "Zinc-Plated Button Head Hex-Drive Screw, Alloy"
         }
       ],
       "fees": [
         {
           "name": "Shipping",
-          "amount": 24.59
+          "amount": 12.29
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-18_Invoice_72094446_for_PO_59224.PDF",
-      "pdf_bytes": 24630,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-18_Invoice_72087570_for_PO_59235.PDF",
+      "pdf_bytes": 24291,
       "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice for Your Order 59224",
+      "subject": "Invoice for Your Order 59235",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "72012111",
+      "date": "2026-09-16",
+      "po": "59219",
+      "amount": 217.39,
+      "lines": [
+        {
+          "part": "91247A860",
+          "qty": 40.0,
+          "unit_price": 4.67,
+          "amount": 186.8,
+          "po_line": 1,
+          "wo": null,
+          "label": "91247A860 Medium-Strength Grade 5 Steel Hex Head Screw,",
+          "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 30.59
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-17_Invoice_72012111_for_PO_59219.PDF",
+      "pdf_bytes": 24298,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 59219",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "72013304",
+      "date": "2026-09-16",
+      "po": "58221",
+      "amount": 443.49,
+      "lines": [
+        {
+          "part": "4082T15",
+          "qty": 24.0,
+          "unit_price": 17.71,
+          "amount": 425.04,
+          "po_line": 1,
+          "wo": null,
+          "label": "4082T15 Brass Body On/Off Valve with T-Handle, 3/4 NPT",
+          "description": "Brass Body On/Off Valve with T-Handle, 3/4 NPT"
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 18.45
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-17_Invoice_72013304_for_PO_58221.PDF",
+      "pdf_bytes": 24235,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 58221",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "71839575",
+      "date": "2026-09-14",
+      "po": "59191",
+      "amount": 217.39,
+      "lines": [
+        {
+          "part": "91247A860",
+          "qty": 40.0,
+          "unit_price": 4.67,
+          "amount": 186.8,
+          "po_line": 1,
+          "wo": null,
+          "label": "91247A860 Medium-Strength Grade 5 Steel Hex Head Screw,",
+          "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 30.59
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-15_Invoice_71839575_for_PO_59191.PDF",
+      "pdf_bytes": 24267,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 59191",
       "graph_message_id_present": true
     }
   ],
   "finishes": {
-    "71647463": {
-      "wanted": [],
-      "select_status": "already-selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "8701K65",
-            "qty": 1.0,
-            "unit_price": 94.54,
-            "amount": 94.54,
-            "po_line": 1,
-            "wo": null,
-            "label": "8701K65 Slippery UHMW Polyethylene Rod 5-1/2\"",
-            "description": "Slippery UHMW Polyethylene Rod 5-1/2\""
-          },
-          "receipt": {
-            "id": 24242,
-            "slip": "PO59161-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59161-01",
-            "description": "PO59161-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59161-MCMASTER-CARR - 2026/9/18",
-            "qty": 1.0,
-            "unit_price": 94.54,
-            "amount": 94.54,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59161",
-            "wo": "",
-            "name": "PO59161-MCMASTER-CARR - 2026/9/18",
-            "raw": {
-              "Name": "PO59161-MCMASTER-CARR - 2026/9/18",
-              "PO_Item_Number": {
-                "id": 17719,
-                "text": "PO59161-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 24242,
-          "qty": 1.0,
-          "unit_price": 94.54,
-          "part": "PO59161-01"
-        }
-      ]
-    },
-    "71080498": {
-      "wanted": [],
-      "select_status": "held-unfinished",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23841,
-          "qty": 16.0,
-          "unit_price": 0.0,
-          "part": "PO59056-01"
-        }
-      ]
-    },
-    "71001379": {
+    "72068812": {
       "wanted": [],
       "select_status": "ppv-lock-select-zero",
-      "fee_status": "already-posted",
+      "fee_status": "none",
       "ppv_status": "none",
       "ppv_amount": 0.0,
       "match_how": null,
@@ -1636,19 +1537,61 @@
       "select_zero": true,
       "open_on_po": [
         {
-          "id": 23904,
-          "qty": 72.0,
-          "unit_price": 0.99,
-          "part": "PO59069-01"
+          "id": 20397,
+          "qty": 10.0,
+          "unit_price": 20.0,
+          "part": "PO58221-01"
+        },
+        {
+          "id": 20398,
+          "qty": 9.0,
+          "unit_price": 20.0,
+          "part": "PO58221-02"
+        },
+        {
+          "id": 20399,
+          "qty": 10.0,
+          "unit_price": 30.0,
+          "part": "PO58221-03"
+        },
+        {
+          "id": 20400,
+          "qty": 10.0,
+          "unit_price": 20.0,
+          "part": "PO58221-04"
+        },
+        {
+          "id": 20401,
+          "qty": 9.0,
+          "unit_price": 15.0,
+          "part": "PO58221-05"
+        },
+        {
+          "id": 20402,
+          "qty": 9.0,
+          "unit_price": 30.0,
+          "part": "PO58221-06"
+        },
+        {
+          "id": 20403,
+          "qty": 9.0,
+          "unit_price": 20.0,
+          "part": "PO58221-07"
+        },
+        {
+          "id": 20404,
+          "qty": 6.0,
+          "unit_price": 50.0,
+          "part": "PO58221-08"
         }
       ],
       "transfer_ap": {
         "status": "moved",
-        "kimco_id": 10140,
+        "kimco_id": 10143,
         "batch_id": 375,
         "batch_name": "TRANSFER AP",
-        "comment": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71001379 PO 59069 PDF $85.82. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
-        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71001379 PO 59069 PDF $85.82. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+        "comment": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
         "put": 200,
         "error": "",
         "put_body_keys": [
@@ -1679,67 +1622,92 @@
         "invent": false
       }
     },
-    "70747918": {
+    "72087570": {
       "wanted": [],
-      "select_status": "already-selected",
+      "select_status": "held-unfinished",
       "fee_status": "already-posted",
       "ppv_status": "none",
       "ppv_amount": 0.0,
       "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "44605K235",
-            "qty": 800.0,
-            "unit_price": 0.84,
-            "amount": 672.0,
-            "po_line": 1,
-            "wo": null,
-            "label": "44605K235 Low-Pressure Pipe Fitting, Steel, Plug with Hex",
-            "description": "Low-Pressure Pipe Fitting, Steel, Plug with Hex"
-          },
-          "receipt": {
-            "id": 23410,
-            "slip": "PO59019-MCMASTER-CARR - 2026/8/26",
-            "part": "PO59019-01",
-            "description": "PO59019-MCMASTER-CARR - 2026/8/26",
-            "label": "PO59019-MCMASTER-CARR - 2026/8/26",
-            "qty": 800.0,
-            "unit_price": 0.84,
-            "amount": 672.0,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59019",
-            "wo": "",
-            "name": "PO59019-MCMASTER-CARR - 2026/8/26",
-            "raw": {
-              "Name": "PO59019-MCMASTER-CARR - 2026/8/26",
-              "PO_Item_Number": {
-                "id": 17380,
-                "text": "PO59019-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
+      "matched": [],
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": []
+    },
+    "72012111": {
+      "wanted": [],
+      "select_status": "held-unfinished",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "matched": [],
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": []
+    },
+    "72013304": {
+      "wanted": [],
+      "select_status": "held-unfinished",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "matched": [],
       "skipped_over_ppv": false,
       "select_zero": false,
       "open_on_po": [
         {
-          "id": 23410,
-          "qty": 800.0,
-          "unit_price": 0.84,
-          "part": "PO59019-01"
+          "id": 20397,
+          "qty": 10.0,
+          "unit_price": 20.0,
+          "part": "PO58221-01"
+        },
+        {
+          "id": 20398,
+          "qty": 9.0,
+          "unit_price": 20.0,
+          "part": "PO58221-02"
+        },
+        {
+          "id": 20399,
+          "qty": 10.0,
+          "unit_price": 30.0,
+          "part": "PO58221-03"
+        },
+        {
+          "id": 20400,
+          "qty": 10.0,
+          "unit_price": 20.0,
+          "part": "PO58221-04"
+        },
+        {
+          "id": 20401,
+          "qty": 9.0,
+          "unit_price": 15.0,
+          "part": "PO58221-05"
+        },
+        {
+          "id": 20402,
+          "qty": 9.0,
+          "unit_price": 30.0,
+          "part": "PO58221-06"
+        },
+        {
+          "id": 20403,
+          "qty": 9.0,
+          "unit_price": 20.0,
+          "part": "PO58221-07"
+        },
+        {
+          "id": 20404,
+          "qty": 6.0,
+          "unit_price": 50.0,
+          "part": "PO58221-08"
         }
       ]
     },
-    "72094446": {
+    "71839575": {
       "wanted": [],
       "select_status": "held-unfinished",
       "fee_status": "already-posted",
@@ -1755,38 +1723,17 @@
   "new_rows": [
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71647463",
-      "date": "2026-09-10",
-      "PO": "59161",
-      "Amount": 111.31,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59161. Select Receipts 24242 1@94.54 on PO 59161. Invoice #=71647463 (exact PDF, not subject Order #). Fees=Shipping 16.77 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10138,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 16.77",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "24242 1@94.54",
-      "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71080498",
-      "date": "2026-08-31",
-      "PO": "59056",
-      "Amount": 395.31,
+      "Invoice #": "72068812",
+      "date": "2026-09-17",
+      "PO": "58221",
+      "Amount": 336.49,
       "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59056 for McMaster invoice #71080498. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Ruben Perez",
-      "KIMCO id": 10139,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 22.35",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
+      "Exception category": "price_variance",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10143,
+      "Batch": "TRANSFER AP (375)",
+      "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
@@ -1797,59 +1744,80 @@
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71001379",
-      "date": "2026-08-28",
-      "PO": "59069",
-      "Amount": 85.82,
+      "Invoice #": "72087570",
+      "date": "2026-09-17",
+      "PO": "59235",
+      "Amount": 30.32,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71001379 PO 59069 PDF $85.82. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
-      "Exception category": "price_variance",
-      "Exception owner": "Shawn McKibben",
-      "KIMCO id": 10140,
-      "Batch": "TRANSFER AP (375)",
-      "Fees and surcharges": "Shipping 14.44",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59235 for McMaster invoice #72087570. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10144,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 12.29",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "23904 72@0.991",
+      "Receipts": "none",
       "outlook": "entered-with-issues"
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "70747918",
-      "date": "2026-08-25",
-      "PO": "59019",
-      "Amount": 736.8,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59019. Select Receipts 23410 800@0.84 on PO 59019. Invoice #=70747918 (exact PDF, not subject Order #). Fees=Shipping 64.8 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10141,
+      "Invoice #": "72012111",
+      "date": "2026-09-16",
+      "PO": "59219",
+      "Amount": 217.39,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59219 for McMaster invoice #72012111. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10145,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 64.8",
+      "Fees and surcharges": "Shipping 30.59",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
+      "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "23410 800@0.84",
-      "outlook": "entered-in-ai"
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "72094446",
-      "date": "2026-09-17",
-      "PO": "59224",
-      "Amount": 131.21,
+      "Invoice #": "72013304",
+      "date": "2026-09-16",
+      "PO": "58221",
+      "Amount": 443.49,
       "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59224 for McMaster invoice #72094446. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 58221 for McMaster invoice #72013304. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
       "Exception category": "missing_receipt",
       "Exception owner": "Ruben Perez",
-      "KIMCO id": 10142,
+      "KIMCO id": 10146,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 24.59",
+      "Fees and surcharges": "Shipping 18.45",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71839575",
+      "date": "2026-09-14",
+      "PO": "59191",
+      "Amount": 217.39,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59191 for McMaster invoice #71839575. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10147,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 30.59",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
@@ -1860,51 +1828,6 @@
     }
   ],
   "leftover_pending": [
-    {
-      "invoice_number": "72068812",
-      "po": "58221",
-      "date": "2026-09-17",
-      "amount": 336.49,
-      "received": "2026-09-18T06:43:57Z",
-      "subject": "Invoice for Your Order 58221",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "72087570",
-      "po": "59235",
-      "date": "2026-09-17",
-      "amount": 30.32,
-      "received": "2026-09-18T06:43:52Z",
-      "subject": "Invoice for Your Order 59235",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "72012111",
-      "po": "59219",
-      "date": "2026-09-16",
-      "amount": 217.39,
-      "received": "2026-09-17T06:50:25Z",
-      "subject": "Invoice for Your Order 59219",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "72013304",
-      "po": "58221",
-      "date": "2026-09-16",
-      "amount": 443.49,
-      "received": "2026-09-17T06:50:24Z",
-      "subject": "Invoice for Your Order 58221",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "71839575",
-      "po": "59191",
-      "date": "2026-09-14",
-      "amount": 217.39,
-      "received": "2026-09-15T07:14:53Z",
-      "subject": "Invoice for Your Order 59191",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
     {
       "invoice_number": "71743140",
       "po": "59159",
@@ -2139,6 +2062,111 @@
       "KIMCO id": 10142,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
       "Fees and surcharges": "Shipping 24.59",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "72068812",
+      "date": "2026-09-17",
+      "PO": "58221",
+      "Amount": 336.49,
+      "Result": "HOLD",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 72068812 PO 58221 PDF $336.49. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.' @mention=Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired..",
+      "Exception category": "price_variance",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10143,
+      "Batch": "TRANSFER AP (375)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "72087570",
+      "date": "2026-09-17",
+      "PO": "59235",
+      "Amount": 30.32,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59235 for McMaster invoice #72087570. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10144,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 12.29",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "72012111",
+      "date": "2026-09-16",
+      "PO": "59219",
+      "Amount": 217.39,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59219 for McMaster invoice #72012111. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10145,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 30.59",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "72013304",
+      "date": "2026-09-16",
+      "PO": "58221",
+      "Amount": 443.49,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 58221 for McMaster invoice #72013304. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10146,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 18.45",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71839575",
+      "date": "2026-09-14",
+      "PO": "59191",
+      "Amount": 217.39,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): no open receipt leftover on PO 59191 for McMaster invoice #71839575. Do not first-open guess. @Ruben Perez: receiving must receive the PO so AP can Select Receipts. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Ruben Perez",
+      "KIMCO id": 10147,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 30.59",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",

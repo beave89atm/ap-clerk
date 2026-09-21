@@ -31,6 +31,7 @@ from mcmaster_0918 import (  # noqa: E402
     KNOWN_BATCH_ID,
     LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
+    PLUS5_HEADERS,
     PREFERRED_BATCH_NAME,
     PREFERRED_NEXT,
     VENDOR_NAME,
@@ -282,7 +283,9 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
     assert credits == []
     assert KNOWN_BATCH_ID == 721
     assert CREATED_HEADERS["72094446"] == 10142
-    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142}
+    assert PLUS5_HEADERS["72068812"] == 10143
+    assert PLUS5_HEADERS["71839575"] == 10147
+    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10144, 10145, 10146, 10147}
     assert DO_NOT_MUTATE_IDS == {10138, 10141}
     assert 720 in FORBIDDEN_BATCH_IDS
 

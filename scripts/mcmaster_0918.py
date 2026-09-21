@@ -133,7 +133,7 @@ CREATED_HEADERS = {
     "72094446": 10142,
 }
 # Kyle: leave existing HOLDs alone (Ruben missing_receipt / Shawn Transfer AP).
-LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142}
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10144, 10145, 10146, 10147}
 # Kyle-checked Successes. GET-only — do not re-Select / edit.
 DO_NOT_MUTATE_IDS = {10138, 10141}
 # Plus-5 leftovers from the 9/18 first pass, newest first.
@@ -144,7 +144,13 @@ PREFERRED_NEXT = (
     "72013304",
     "71839575",
 )
-PLUS5_HEADERS: dict[str, int] = {}
+PLUS5_HEADERS = {
+    "72068812": 10143,
+    "72087570": 10144,
+    "72012111": 10145,
+    "72013304": 10146,
+    "71839575": 10147,
+}
 
 CREDIT_SUBJECT = re.compile(
     r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",
