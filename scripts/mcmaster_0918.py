@@ -142,9 +142,9 @@ CREATED_HEADERS = {
     "72094446": 10142,
 }
 # Transfer AP price_variance + receipt-retry HOLDs that still cannot finish.
-LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146}
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146, 10148, 10152}
 # Finished Successes. GET-only — do not re-Select / edit.
-DO_NOT_MUTATE_IDS = {10138, 10141, 10144, 10145, 10147}
+DO_NOT_MUTATE_IDS = {10138, 10141, 10144, 10145, 10147, 10149, 10150, 10151}
 # Kyle 2026-09-21: receipts now entered — finish these existing headers.
 RETRY_HEADERS = {
     "71080498": 10139,
@@ -177,7 +177,13 @@ PREFERRED_PLUS10 = (
     "71668723",
     "71401129",
 )
-PLUS10_HEADERS: dict[str, int] = {}
+PLUS10_HEADERS = {
+    "71743140": 10148,
+    "71740547": 10149,
+    "71642803": 10150,
+    "71668723": 10151,
+    "71401129": 10152,
+}
 # Every first-pass + plus-5 header. Plus-10 must not mutate these.
 EXISTING_HEADER_IDS = set(range(10138, 10148))
 
