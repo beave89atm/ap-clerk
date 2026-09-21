@@ -245,6 +245,14 @@ def test_jpsteel_inches_are_not_rolled_qty():
     # Explicit length_inches 32 vs receipt qty 32 is allowed (Metal Supermarkets class).
     parsed_len = {"lines": [{"part": "BAR", "qty": 1.0, "length_inches": 32.0}]}
     assert _qty_hold(parsed_len, [{"qty": 32.0}]) is False
+    # NOTE-44: shipping/surcharge rows are Fees, not merch qty.
+    parsed_fees = {
+        "lines": [
+            {"part": "4082T15", "qty": 40.0, "label": "4082T15"},
+            {"part": "SHIP", "qty": 1.0, "label": "Shipping"},
+        ]
+    }
+    assert _qty_hold(parsed_fees, [{"qty": 40.0}]) is False
 
 
 JPSTEEL_125315 = """

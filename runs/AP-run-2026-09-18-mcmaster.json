@@ -1,5 +1,5 @@
 {
-  "proof": "mcmaster-receipt-retry",
+  "proof": "mcmaster-fees-not-missing-receipt",
   "invent": false,
   "mail_send": false,
   "vendor": "McMaster-Carr Supply Company",
@@ -701,7 +701,7 @@
       "PO": "59235",
       "Amount": 30.32,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59235. Select Receipts 24249 3@6.01 on PO 59235. Invoice #=72087570 (exact PDF, not subject Order #). Fees=Shipping 12.29 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24249] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59235. Select Receipts 24249 3@6.01 on PO 59235. Invoice #=72087570 (exact PDF, not subject Order #). Fees=Shipping 12.29 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=30.32 matches PDF (merch 18.03 + Fees 12.29). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10144,
@@ -722,7 +722,7 @@
       "PO": "59219",
       "Amount": 217.39,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59219. Select Receipts 24244 40@4.67 on PO 59219. Invoice #=72012111 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24244] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59219. Select Receipts 24244 40@4.67 on PO 59219. Invoice #=72012111 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=217.39 matches PDF (merch 186.80 + Fees 30.59). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10145,
@@ -764,7 +764,7 @@
       "PO": "59191",
       "Amount": 217.39,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59191. Select Receipts 24245 40@4.67 on PO 59191. Invoice #=71839575 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[{'id': 24245, 'qty': 40.0}] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59191. Select Receipts 24245 40@4.67 on PO 59191. Invoice #=71839575 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=217.39 matches PDF (merch 186.80 + Fees 30.59). Kyle 2026-09-21: Validate Invoice passed in live UI (Invoice_Validation GET is always null \u2014 NOTE-41). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10147,
@@ -913,7 +913,7 @@
       "PO": "59235",
       "Amount": 30.32,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59235. Select Receipts 24249 3@6.01 on PO 59235. Invoice #=72087570 (exact PDF, not subject Order #). Fees=Shipping 12.29 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24249] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59235. Select Receipts 24249 3@6.01 on PO 59235. Invoice #=72087570 (exact PDF, not subject Order #). Fees=Shipping 12.29 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=30.32 matches PDF (merch 18.03 + Fees 12.29). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10144,
@@ -934,7 +934,7 @@
       "PO": "59219",
       "Amount": 217.39,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59219. Select Receipts 24244 40@4.67 on PO 59219. Invoice #=72012111 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24244] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59219. Select Receipts 24244 40@4.67 on PO 59219. Invoice #=72012111 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=217.39 matches PDF (merch 186.80 + Fees 30.59). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10145,
@@ -976,7 +976,7 @@
       "PO": "59191",
       "Amount": 217.39,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59191. Select Receipts 24245 40@4.67 on PO 59191. Invoice #=71839575 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[{'id': 24245, 'qty': 40.0}] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59191. Select Receipts 24245 40@4.67 on PO 59191. Invoice #=71839575 (exact PDF, not subject Order #). Fees=Shipping 30.59 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Posted=217.39 matches PDF (merch 186.80 + Fees 30.59). Kyle 2026-09-21: Validate Invoice passed in live UI (Invoice_Validation GET is always null \u2014 NOTE-41). Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
       "KIMCO id": 10147,
@@ -1856,5 +1856,49 @@
       "credit": false,
       "pay_reminder": false
     }
-  ]
+  ],
+  "note44": {
+    "kyle": "2026-09-21 Fees are not missing merch lines",
+    "live_get": {
+      "10147": {
+        "invoice": "71839575",
+        "posted": 217.39,
+        "verification": 217.39,
+        "receipts": "24245 40@4.67",
+        "fees": "id 11 Shipping 30.59",
+        "ppv": "none",
+        "invoice_validation": null,
+        "batch": "API Agent - 9/18/26 McMaster (721)"
+      },
+      "10144": {
+        "invoice": "72087570",
+        "posted": 30.32,
+        "verification": 30.32,
+        "receipts": "24249 3@6.01",
+        "fees": "id 11 Shipping 12.29",
+        "ppv": "none",
+        "invoice_validation": null,
+        "batch": "API Agent - 9/18/26 McMaster (721)"
+      },
+      "10145": {
+        "invoice": "72012111",
+        "posted": 217.39,
+        "verification": 217.39,
+        "receipts": "24244 40@4.67",
+        "fees": "id 11 Shipping 30.59",
+        "ppv": "none",
+        "invoice_validation": null,
+        "batch": "API Agent - 9/18/26 McMaster (721)"
+      },
+      "10142_unchanged": {
+        "invoice": "72094446",
+        "posted": 42.15,
+        "verification": 131.21,
+        "receipts": "24248 1@17.56",
+        "fees": "id 11 Shipping 24.59",
+        "ppv": "none",
+        "result": "HOLD missing_receipt"
+      }
+    }
+  }
 }

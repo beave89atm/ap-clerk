@@ -21,6 +21,8 @@ from ap_clerk.rules import (
     leftover_extended_is_stale,
     leftovers_are_identical,
     match_receipts,
+    merch_lines_excluding_fees,
+    non_receipt_dollars_are_additional_charge_fees,
     pick_receipts_by_qty_cost,
     names_match,
     printed_invoice_number,
@@ -52,6 +54,38 @@ def test_vendor_name_matching():
     assert not names_match("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY")
     assert not names_match("MSC Industrial Supply", "1320-RMP INDUSTRIAL SUPPLY")
     assert vendor_match_score("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY") == 0
+
+
+def test_never_repeat_fees_are_not_missing_receipt():
+    """NOTE-44: Fees/surcharges are Additional Charge Fees, not missing merch."""
+    merch = [{"part": "4082T15", "qty": 40.0, "label": "4082T15 socket cap"}]
+    with_ship = merch + [{"part": "SHIP", "qty": 1.0, "label": "Shipping", "amount": 30.59, "fee": True}]
+    assert merch_lines_excluding_fees(with_ship) == merch
+    recs_ok = [{"id": 24245, "qty": 40.0, "unit": 4.67}]
+    assert non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=217.39,
+        receipt_lines=recs_ok,
+        posted_fee_amounts=[30.59],
+        parsed_fees=[{"name": "Shipping", "amount": 30.59}],
+    )
+    assert non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=217.39,
+        receipt_lines=recs_ok,
+        posted_fee_amounts=[],
+        parsed_fees=[{"name": "Shipping", "amount": 30.59}],
+    )
+    assert not non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=217.39,
+        receipt_lines=[],
+        posted_fee_amounts=[30.59],
+        parsed_fees=[{"name": "Shipping", "amount": 30.59}],
+    )
+    assert not non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=131.21,
+        receipt_lines=[{"id": 24248, "qty": 1.0, "unit": 17.56}],
+        posted_fee_amounts=[24.59],
+        parsed_fees=[{"name": "Shipping", "amount": 24.59}],
+    )
 
 
 def test_fees_are_not_ppv():

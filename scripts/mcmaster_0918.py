@@ -61,6 +61,7 @@ from ap_clerk.rules import (  # noqa: E402
     lookup_text,
     match_receipts,
     money,
+    non_receipt_dollars_are_additional_charge_fees,
     names_match,
     normalize_receipt,
     parse_iso_date,
@@ -761,6 +762,22 @@ def finish_hold_header(
     }
 
 
+def _format_select_wanted(wanted: list[Any] | None) -> str:
+    """Receipt ids for Why — never dump a raw dict list."""
+    bits: list[str] = []
+    for ref in wanted or []:
+        if isinstance(ref, dict):
+            rid = ref.get("id")
+            qty = ref.get("qty")
+            if qty not in (None, ""):
+                bits.append(f"{rid} qty={qty}")
+            else:
+                bits.append(str(rid))
+        else:
+            bits.append(str(ref))
+    return "[" + ", ".join(bits) + "]"
+
+
 def quality_mcmaster_row(
     graph,
     *,
@@ -783,7 +800,8 @@ def quality_mcmaster_row(
     if finish and finish.get("wanted"):
         extra = (
             f"Finish Select Receipts {finish.get('select_status')} "
-            f"ids={finish.get('wanted')} fees={finish.get('fee_status')} "
+            f"ids={_format_select_wanted(finish.get('wanted'))} "
+            f"fees={finish.get('fee_status')} "
             f"ppv={finish.get('ppv_status')}. "
         )
     rec_merch = 0.0
@@ -792,10 +810,17 @@ def quality_mcmaster_row(
         u = money(rec.get("unit"))
         if q is not None and u is not None:
             rec_merch = round(rec_merch + q * u, 2)
-    qty_hold = _qty_hold(parsed, recs) if recs or parsed.get("lines") else bool(parsed.get("po"))
     fee_amts = list(proof.get("fee_amounts") or [])
     ppv_amts = list(proof.get("ppv_amounts") or [])
     parsed_fees = list(parsed.get("fees") or [])
+    qty_hold = _qty_hold(parsed, recs) if recs or parsed.get("lines") else bool(parsed.get("po"))
+    if qty_hold and non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=pdf_amt,
+        receipt_lines=recs,
+        posted_fee_amounts=fee_amts,
+        parsed_fees=parsed_fees,
+    ):
+        qty_hold = False
     fees_ok = fees_posted_cover_parsed(fee_amts, parsed_fees) if parsed_fees else True
     fee_on_ppv = False
     for fee in fees_with_amounts(parsed_fees):
@@ -868,8 +893,9 @@ def quality_mcmaster_row(
             f"{format_receipts(proof)} on PO {po or 'n/a'}. "
             f"Invoice #={pdf_number} (exact PDF, not subject Order #). "
             f"Fees={out['Fees and surcharges']} (Additional Charge Fees id "
-            f"{FEE_CHARGE_LOOKUP_ID}, not PPV). PPV={out['PPV']}. "
-            f"Attach status=attached. {extra}Flag status=entered-in-ai."
+            f"{FEE_CHARGE_LOOKUP_ID}, not missing merch lines / not PPV). "
+            f"PPV={out['PPV']}. Attach status=attached. {extra}"
+            "Flag status=entered-in-ai."
         )
         out["Flag status"] = "entered-in-ai"
         if graph is not None and message_id:

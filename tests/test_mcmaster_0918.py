@@ -46,6 +46,7 @@ from mcmaster_0918 import (  # noqa: E402
     is_over_ppv_price_hold,
     over_ppv_hold_comment,
     pick_recent,
+    quality_mcmaster_row,
     subject_po,
 )
 
@@ -298,6 +299,94 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
     }
     assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147}
     assert 720 in FORBIDDEN_BATCH_IDS
+
+
+def test_never_repeat_fees_are_not_missing_receipt():
+    """NOTE-44: 10147-class Fees are Success; 10142 merch leftovers stay HOLD."""
+    parsed_10147 = {
+        "invoice_number": "71839575",
+        "po": "59191",
+        "amount": 217.39,
+        "lines": [
+            {"part": "4082T15", "qty": 40.0, "unit_price": 4.67, "amount": 186.80, "label": "4082T15"},
+            {"part": "SHIP", "qty": 1.0, "label": "Shipping", "amount": 30.59},
+        ],
+        "fees": [{"name": "Shipping", "amount": 30.59}],
+    }
+    proof_10147 = {
+        "id": 10147,
+        "invoice_number": "71839575",
+        "invoice_amount": 217.39,
+        "verification_amount": 217.39,
+        "invoice_type": 3,
+        "vendor_id": 117,
+        "attachments": ["Invoice_71839575.PDF"],
+        "receipt_lines": [{"receipt": 24245, "qty": 40.0, "unit": 4.67}],
+        "fee_amounts": [30.59],
+        "ppv_amounts": [],
+    }
+    enter = {
+        "Vendor": VENDOR_NAME,
+        "Invoice #": "71839575",
+        "PO": "59191",
+        "KIMCO id": 10147,
+        "Result": "HOLD",
+        "Exception category": "missing_receipt",
+    }
+    row = quality_mcmaster_row(
+        None,
+        parsed=parsed_10147,
+        enter_row=enter,
+        proof=proof_10147,
+        finish={"select_status": "already-selected", "wanted": [{"id": 24245, "qty": 40.0}]},
+        vendor_id=117,
+    )
+    assert row["Result"] == "Success"
+    assert "missing_receipt" not in str(row.get("Exception category") or "")
+    assert "24245" in row["Why"]
+    assert "not missing merch" in row["Why"]
+    assert "[{'id'" not in row["Why"]
+
+    parsed_10142 = {
+        "invoice_number": "72094446",
+        "po": "59224",
+        "amount": 131.21,
+        "lines": [
+            {"part": "3616N12", "qty": 6.0, "unit_price": 7.0, "amount": 42.0, "label": "3616N12"},
+            {"part": "2151A27", "qty": 1.0, "unit_price": 23.18, "amount": 23.18, "label": "2151A27"},
+            {"part": "5513T12", "qty": 1.0, "unit_price": 6.32, "amount": 6.32, "label": "5513T12"},
+            {"part": "93320A385", "qty": 2.0, "unit_price": 17.56, "amount": 35.12, "label": "93320A385"},
+        ],
+        "fees": [{"name": "Shipping", "amount": 24.59}],
+    }
+    proof_10142 = {
+        "id": 10142,
+        "invoice_number": "72094446",
+        "invoice_amount": 42.15,
+        "verification_amount": 131.21,
+        "invoice_type": 3,
+        "vendor_id": 117,
+        "attachments": ["Invoice_72094446.PDF"],
+        "receipt_lines": [{"receipt": 24248, "qty": 1.0, "unit": 17.56}],
+        "fee_amounts": [24.59],
+        "ppv_amounts": [],
+    }
+    hold = quality_mcmaster_row(
+        None,
+        parsed=parsed_10142,
+        enter_row={
+            "Vendor": VENDOR_NAME,
+            "Invoice #": "72094446",
+            "PO": "59224",
+            "KIMCO id": 10142,
+            "Result": "HOLD",
+        },
+        proof=proof_10142,
+        finish={"select_status": "already-selected", "wanted": []},
+        vendor_id=117,
+    )
+    assert hold["Result"] == "HOLD"
+    assert hold.get("Exception category") == "missing_receipt"
 
 
 def test_mcmaster_over_ppv_comment_tags_shawn():

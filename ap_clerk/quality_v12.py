@@ -825,7 +825,9 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
         "id": "all-invoice-lines-selected",
         "check": (
             "Every merchandise invoice line has a Select Receipts match. "
-            "Unmatched lines are named on Why and never silent Success (EMJ Z250725432)."
+            "Unmatched merch lines are named on Why and never silent Success (EMJ Z250725432). "
+            "Shipping/surcharges are Additional Charge Fees id 11, not missing merch lines "
+            "(NOTE-44 / McMaster 71839575 / 10147)."
         ),
     },
     {
@@ -961,6 +963,7 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         "no receipts" in why_l
         or "no open receipt" in why_l
         or "parts not received" in why_l
+        or "hold (receipt)" in why_l
     ):
         return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
     if "no-pdf" in why_l or "no pdf" in why_l:
