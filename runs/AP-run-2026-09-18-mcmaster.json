@@ -1,5 +1,5 @@
 {
-  "proof": "mcmaster-plus5-0921",
+  "proof": "mcmaster-plus15-0921",
   "invent": false,
   "mail_send": false,
   "vendor": "McMaster-Carr Supply Company",
@@ -10,7 +10,7 @@
     "id": 721,
     "name": "API Agent - 9/18/26 McMaster",
     "status": 0,
-    "unposted": 8,
+    "unposted": 12,
     "matches_expected": true,
     "is_forbidden": false
   },
@@ -30,28 +30,33 @@
     10144,
     10145,
     10146,
-    10147
+    10147,
+    10148,
+    10149,
+    10150,
+    10151,
+    10152
   ],
-  "preferred_plus10": [
-    "71743140",
-    "71740547",
-    "71642803",
-    "71668723",
-    "71401129"
+  "preferred_plus15": [
+    "71254641",
+    "71236251",
+    "71183051",
+    "71098307",
+    "70907154"
   ],
-  "plus10_headers": {
-    "71743140": 10148,
-    "71740547": 10149,
-    "71642803": 10150,
-    "71668723": 10151,
-    "71401129": 10152
+  "plus15_headers": {
+    "71254641": 10153,
+    "71236251": 10154,
+    "71183051": 10155,
+    "71098307": 10156,
+    "70907154": 10157
   },
   "created_headers": {
-    "71743140": 10148,
-    "71740547": 10149,
-    "71642803": 10150,
-    "71668723": 10151,
-    "71401129": 10152
+    "71254641": 10153,
+    "71236251": 10154,
+    "71183051": 10155,
+    "71098307": 10156,
+    "70907154": 10157
   },
   "discovered": 49,
   "catalog": [
@@ -183,8 +188,10 @@
       "invoice": "",
       "po": "59159",
       "received": "2026-09-12T06:31:28Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -197,8 +204,10 @@
       "invoice": "",
       "po": "59120",
       "received": "2026-09-12T06:31:26Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -211,8 +220,10 @@
       "invoice": "",
       "po": "59159",
       "received": "2026-09-11T07:47:51Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -225,8 +236,10 @@
       "invoice": "",
       "po": "59120",
       "received": "2026-09-11T07:47:50Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -255,8 +268,10 @@
       "invoice": "",
       "po": "59125",
       "received": "2026-09-05T06:21:34Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -1397,512 +1412,603 @@
     "72087570": 10144,
     "72012111": 10145,
     "72013304": 10146,
-    "71839575": 10147
+    "71839575": 10147,
+    "71743140": 10148,
+    "71740547": 10149,
+    "71642803": 10150,
+    "71668723": 10151,
+    "71401129": 10152
   },
   "recent_picked": [
     {
-      "invoice_number": "71743140",
-      "date": "2026-09-11",
-      "po": "59159",
-      "amount": 35.85,
+      "invoice_number": "71254641",
+      "date": "2026-09-02",
+      "po": "59103",
+      "amount": 931.89,
       "lines": [
         {
-          "part": "71535K205",
-          "qty": 1.0,
-          "unit_price": 22.24,
-          "amount": 22.24,
+          "part": "7208K55",
+          "qty": 10.0,
+          "unit_price": 63.34,
+          "amount": 633.4,
           "po_line": 1,
           "wo": null,
-          "label": "71535K205 Electronic Equipment Power Cord, NEMA 5-15",
-          "description": "Electronic Equipment Power Cord, NEMA 5-15"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 13.61
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-12_Invoice_71743140_for_PO_59159.PDF",
-      "pdf_bytes": 24241,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59159",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71740547",
-      "date": "2026-09-11",
-      "po": "59120",
-      "amount": 151.44,
-      "lines": [
-        {
-          "part": "6280K693",
-          "qty": 5.0,
-          "unit_price": 29.25,
-          "amount": 146.25,
-          "po_line": 30,
-          "wo": null,
-          "label": "6280K693 Steel Single-Strand Sprocket for ANSI 40 Roller",
-          "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 5.19
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-12_Invoice_71740547_for_PO_59120.PDF",
-      "pdf_bytes": 24267,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59120",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71642803",
-      "date": "2026-09-10",
-      "po": "59159",
-      "amount": 186.22,
-      "lines": [
-        {
-          "part": "71535K34",
-          "qty": 1.0,
-          "unit_price": 32.28,
-          "amount": 32.28,
-          "po_line": 1,
-          "wo": null,
-          "label": "71535K34 Electronic Equipment Power Cord, NEMA 5-15",
-          "description": "Electronic Equipment Power Cord, NEMA 5-15"
-        },
-        {
-          "part": "8415N62",
-          "qty": 6.0,
-          "unit_price": 17.6,
-          "amount": 105.6,
-          "po_line": 2,
-          "wo": null,
-          "label": "8415N62 Carbon Steel Turnbuckle-Style Connecting Rod, 2\"",
-          "description": "Carbon Steel Turnbuckle-Style Connecting Rod, 2\""
-        },
-        {
-          "part": "98750A481",
-          "qty": 6.0,
-          "unit_price": 2.91,
-          "amount": 17.46,
-          "po_line": 3,
-          "wo": null,
-          "label": "98750A481 Grade B7 Medium-Strength Steel Threaded Rod,",
-          "description": "Grade B7 Medium-Strength Steel Threaded Rod,"
-        },
-        {
-          "part": "95625A307",
-          "qty": 1.0,
-          "unit_price": 11.2,
-          "amount": 11.2,
-          "po_line": 4,
-          "wo": null,
-          "label": "95625A307 Medium-Strength Left-Hand Threaded Rod, Grade",
-          "description": "Medium-Strength Left-Hand Threaded Rod, Grade"
-        },
-        {
-          "part": "94846A210",
-          "qty": 1.0,
-          "unit_price": 6.17,
-          "amount": 6.17,
-          "po_line": 5,
-          "wo": null,
-          "label": "94846A210 Medium-Strength Steel Thin-Profile Hex Nut,",
-          "description": "Medium-Strength Steel Thin-Profile Hex Nut,"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 13.51
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-11_Invoice_71642803_for_PO_59159.PDF",
-      "pdf_bytes": 24798,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59159",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71668723",
-      "date": "2026-09-10",
-      "po": "59120",
-      "amount": 5832.28,
-      "lines": [
-        {
-          "part": "8304T11",
-          "qty": 20.0,
-          "unit_price": 19.05,
-          "amount": 381.0,
-          "po_line": 1,
-          "wo": null,
-          "label": "8304T11 Recessed Tie-Down D-Ring",
-          "description": "Recessed Tie-Down D-Ring"
-        },
-        {
-          "part": "6494K16",
-          "qty": 20.0,
-          "unit_price": 63.93,
-          "amount": 1278.6,
-          "po_line": 2,
-          "wo": null,
-          "label": "6494K16 Mounted Ball Bearing with Nickel-Plated Iron",
-          "description": "Mounted Ball Bearing with Nickel-Plated Iron"
-        },
-        {
-          "part": "6280K817",
-          "qty": 5.0,
-          "unit_price": 43.98,
-          "amount": 219.9,
-          "po_line": 3,
-          "wo": null,
-          "label": "6280K817 Steel Single-Strand Sprocket for ANSI 40 Roller",
-          "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-        },
-        {
-          "part": "6236K357",
-          "qty": 5.0,
-          "unit_price": 103.9,
-          "amount": 519.5,
-          "po_line": 4,
-          "wo": null,
-          "label": "6236K357 Steel Single-Strand Sprocket for ANSI 40 Roller",
-          "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-        },
-        {
-          "part": "6280K693",
-          "qty": 5.0,
-          "unit_price": 29.25,
-          "amount": 146.25,
-          "po_line": 5,
-          "wo": null,
-          "label": "6280K693 Steel Single-Strand Sprocket for ANSI 40 Roller",
-          "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-        },
-        {
-          "part": "6280K641",
-          "qty": 10.0,
-          "unit_price": 21.67,
-          "amount": 216.7,
-          "po_line": 6,
-          "wo": null,
-          "label": "6280K641 Steel Single-Strand Sprocket for ANSI 40 Roller",
-          "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-        },
-        {
-          "part": "91259A714",
-          "qty": 20.0,
-          "unit_price": 3.37,
-          "amount": 67.4,
-          "po_line": 7,
-          "wo": null,
-          "label": "91259A714 Alloy Steel Shoulder Screw, 1/2\" Shoulder",
-          "description": "Alloy Steel Shoulder Screw, 1/2\" Shoulder"
-        },
-        {
-          "part": "92415A147",
-          "qty": 10.0,
-          "unit_price": 8.35,
-          "amount": 83.5,
-          "po_line": 8,
-          "wo": null,
-          "label": "92415A147 Steel Unthreaded Spacers, 1\" OD, 1/2\" Long, for",
-          "description": "Steel Unthreaded Spacers, 1\" OD, 1/2\" Long, for"
-        },
-        {
-          "part": "92620A716",
-          "qty": 1.0,
-          "unit_price": 14.75,
-          "amount": 14.75,
-          "po_line": 9,
-          "wo": null,
-          "label": "92620A716 High-Strength Zinc Yellow-Chromate Plated Hex",
-          "description": "High-Strength Zinc Yellow-Chromate Plated Hex"
-        },
-        {
-          "part": "93560A180",
-          "qty": 1.0,
-          "unit_price": 37.25,
-          "amount": 37.25,
-          "po_line": 10,
-          "wo": null,
-          "label": "93560A180 Steel Hex Weld Nut, 1/2\"-13 Thread Size, Packs of",
-          "description": "Steel Hex Weld Nut, 1/2\"-13 Thread Size, Packs of"
-        },
-        {
-          "part": "3125K533",
-          "qty": 5.0,
-          "unit_price": 129.16,
-          "amount": 645.8,
-          "po_line": 11,
-          "wo": null,
-          "label": "3125K533 Push/Pull Control Cable, Panel Mount, 5/16\"-24",
-          "description": "Push/Pull Control Cable, Panel Mount, 5/16\"-24"
-        },
-        {
-          "part": "6071K13",
-          "qty": 10.0,
-          "unit_price": 7.49,
-          "amount": 74.9,
-          "po_line": 12,
-          "wo": null,
-          "label": "6071K13 Clevis Rod End, 5/16\"-24 Thread, 2-1/4\" Shank",
-          "description": "Clevis Rod End, 5/16\"-24 Thread, 2-1/4\" Shank"
-        },
-        {
-          "part": "7208K54",
-          "qty": 15.0,
-          "unit_price": 59.77,
-          "amount": 896.55,
-          "po_line": 13,
-          "wo": null,
-          "label": "7208K54 Light-Duty Mounted Steel Ball Bearing with",
+          "label": "7208K55 Light-Duty Mounted Steel Ball Bearing with",
           "description": "Light-Duty Mounted Steel Ball Bearing with"
         },
         {
-          "part": "93560A140",
+          "part": "93023A667",
+          "qty": 5.0,
+          "unit_price": 23.64,
+          "amount": 118.2,
+          "po_line": 2,
+          "wo": null,
+          "label": "93023A667 Carbon Steel Acme Coupling Nut, Right Hand,",
+          "description": "Carbon Steel Acme Coupling Nut, Right Hand,"
+        },
+        {
+          "part": "91253A624",
           "qty": 1.0,
-          "unit_price": 25.25,
-          "amount": 25.25,
-          "po_line": 14,
+          "unit_price": 11.27,
+          "amount": 11.27,
+          "po_line": 3,
           "wo": null,
-          "label": "93560A140 Steel Hex Weld Nut, 1/4\"-20 Thread Size, 13/32\"",
-          "description": "Steel Hex Weld Nut, 1/4\"-20 Thread Size, 13/32\""
+          "label": "91253A624 Black-Oxide Alloy Steel Hex-Drive Flat Head",
+          "description": "Black-Oxide Alloy Steel Hex-Drive Flat Head"
         },
         {
-          "part": "6473K56",
-          "qty": 5.0,
-          "unit_price": 46.81,
-          "amount": 234.05,
-          "po_line": 15,
-          "wo": null,
-          "label": "6473K56 Aluminum Unthreaded Through-Hole-Mount Crank",
-          "description": "Aluminum Unthreaded Through-Hole-Mount Crank"
-        },
-        {
-          "part": "6261K173",
-          "qty": 5.0,
-          "unit_price": 47.04,
-          "amount": 235.2,
-          "po_line": 16,
-          "wo": null,
-          "label": "6261K173 Roller Chain, Single Strand, ANSI Number 40, 1/2\"",
-          "description": "Roller Chain, Single Strand, ANSI Number 40, 1/2\""
-        },
-        {
-          "part": "6261K173",
-          "qty": 5.0,
-          "unit_price": 35.28,
-          "amount": 176.4,
-          "po_line": 17,
-          "wo": null,
-          "label": "6261K173 Roller Chain, Single Strand, ANSI Number 40, 1/2\"",
-          "description": "Roller Chain, Single Strand, ANSI Number 40, 1/2\""
-        },
-        {
-          "part": "92620A761",
+          "part": "3028T31",
           "qty": 4.0,
-          "unit_price": 16.02,
-          "amount": 64.08,
-          "po_line": 18,
+          "unit_price": 4.95,
+          "amount": 19.8,
+          "po_line": 4,
           "wo": null,
-          "label": "92620A761 High-Strength Zinc Yellow-Chromate Plated Hex",
-          "description": "High-Strength Zinc Yellow-Chromate Plated Hex"
+          "label": "3028T31 Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000",
+          "description": "Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000"
         },
         {
-          "part": "95615A230",
+          "part": "52725A37",
           "qty": 2.0,
-          "unit_price": 12.51,
-          "amount": 25.02,
-          "po_line": 19,
+          "unit_price": 65.88,
+          "amount": 131.76,
+          "po_line": 5,
           "wo": null,
-          "label": "95615A230 Medium-Strength Steel Nylon-Insert Locknut,",
-          "description": "Medium-Strength Steel Nylon-Insert Locknut,"
-        },
-        {
-          "part": "92141A034",
-          "qty": 2.0,
-          "unit_price": 8.75,
-          "amount": 17.5,
-          "po_line": 20,
-          "wo": null,
-          "label": "92141A034 18-8 Stainless Steel Washer for 9/16\" Screw,",
-          "description": "18-8 Stainless Steel Washer for 9/16\" Screw,"
-        },
-        {
-          "part": "93560A160",
-          "qty": 1.0,
-          "unit_price": 30.95,
-          "amount": 30.95,
-          "po_line": 21,
-          "wo": null,
-          "label": "93560A160 Steel Hex Weld Nut, 3/8\"-16 Thread Size, 17/32\"",
-          "description": "Steel Hex Weld Nut, 3/8\"-16 Thread Size, 17/32\""
-        },
-        {
-          "part": "92865A624",
-          "qty": 2.0,
-          "unit_price": 16.61,
-          "amount": 33.22,
-          "po_line": 22,
-          "wo": null,
-          "label": "92865A624 Medium-Strength Grade 5 Steel Hex Head Screw,",
-          "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
-        },
-        {
-          "part": "98164A213",
-          "qty": 8.0,
-          "unit_price": 10.1,
-          "amount": 80.8,
-          "po_line": 23,
-          "wo": null,
-          "label": "98164A213 316 Stainless Steel Button Head Hex-Drive Screw,",
-          "description": "316 Stainless Steel Button Head Hex-Drive Screw,"
-        },
-        {
-          "part": "92949A581",
-          "qty": 4.0,
-          "unit_price": 8.35,
-          "amount": 33.4,
-          "po_line": 24,
-          "wo": null,
-          "label": "92949A581 18-8 Stainless Steel Button Head Hex-Drive",
-          "description": "18-8 Stainless Steel Button Head Hex-Drive"
-        },
-        {
-          "part": "6261K193",
-          "qty": 10.0,
-          "unit_price": 1.84,
-          "amount": 18.4,
-          "po_line": 25,
-          "wo": null,
-          "label": "6261K193 Connecting Link for ANSI Number 40 Single",
-          "description": "Connecting Link for ANSI Number 40 Single"
-        },
-        {
-          "part": "9283K34",
-          "qty": 2.0,
-          "unit_price": 11.34,
-          "amount": 22.68,
-          "po_line": 26,
-          "wo": null,
-          "label": "9283K34 Polyethylene Plastic Snap-in Round Plug, 1.23\" to",
-          "description": "Polyethylene Plastic Snap-in Round Plug, 1.23\" to"
-        },
-        {
-          "part": "97135A220",
-          "qty": 5.0,
-          "unit_price": 5.24,
-          "amount": 26.2,
-          "po_line": 27,
-          "wo": null,
-          "label": "97135A220 High-Strength Steel Nylon-Insert Locknut, Grade",
-          "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
-        },
-        {
-          "part": "90630A110",
-          "qty": 2.0,
-          "unit_price": 4.58,
-          "amount": 9.16,
-          "po_line": 28,
-          "wo": null,
-          "label": "90630A110 High-Strength Steel Nylon-Insert Locknut, Grade",
-          "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
-        },
-        {
-          "part": "90630A121",
-          "qty": 3.0,
-          "unit_price": 4.66,
-          "amount": 13.98,
-          "po_line": 29,
-          "wo": null,
-          "label": "90630A121 High-Strength Steel Nylon-Insert Locknut, Grade",
-          "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
+          "label": "52725A37 35-Piece Hex Shank Bit Assortment with Adapter",
+          "description": "35-Piece Hex Shank Bit Assortment with Adapter"
         }
       ],
       "fees": [
         {
           "name": "Shipping",
-          "amount": 203.89
+          "amount": 17.46
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-11_Invoice_71668723_for_PO_59120.PDF",
-      "pdf_bytes": 29828,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Invoice_71254641_for_PO_59103.PDF",
+      "pdf_bytes": 24774,
       "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice for Your Order 59120",
+      "subject": "Invoice for Your Order 59103",
       "graph_message_id_present": true
     },
     {
-      "invoice_number": "71401129",
-      "date": "2026-09-04",
-      "po": "59125",
-      "amount": 257.72,
+      "invoice_number": "71236251",
+      "date": "2026-09-02",
+      "po": "59103",
+      "amount": 91.25,
       "lines": [
         {
-          "part": "1432N25",
-          "qty": 8.0,
-          "unit_price": 10.89,
-          "amount": 87.12,
-          "po_line": 1,
+          "part": "7262A61",
+          "qty": 2.0,
+          "unit_price": 39.09,
+          "amount": 78.18,
+          "po_line": 6,
           "wo": null,
-          "label": "1432N25 Low-Pressure 304 Stainless Steel Pipe Fitting with",
-          "description": "Low-Pressure 304 Stainless Steel Pipe Fitting with"
-        },
-        {
-          "part": "4464K355",
-          "qty": 8.0,
-          "unit_price": 8.08,
-          "amount": 64.64,
-          "po_line": 2,
-          "wo": null,
-          "label": "4464K355 304 Stainless Steel Threaded Pipe Fitting,",
-          "description": "304 Stainless Steel Threaded Pipe Fitting,"
-        },
-        {
-          "part": "4464K511",
-          "qty": 16.0,
-          "unit_price": 5.71,
-          "amount": 91.36,
-          "po_line": 3,
-          "wo": null,
-          "label": "4464K511 304 Stainless Steel Threaded Pipe Fitting,",
-          "description": "304 Stainless Steel Threaded Pipe Fitting,"
+          "label": "7262A61 Bit Screwdriver with Bit Storage in Pouch, 5-1/2\"",
+          "description": "Bit Screwdriver with Bit Storage in Pouch, 5-1/2\""
         }
       ],
       "fees": [
         {
           "name": "Shipping",
-          "amount": 14.6
+          "amount": 13.07
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-05_Invoice_71401129_for_PO_59125.PDF",
-      "pdf_bytes": 24489,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Invoice_71236251_for_PO_59103.PDF",
+      "pdf_bytes": 24259,
       "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice for Your Order 59125",
+      "subject": "Invoice for Your Order 59103",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "71183051",
+      "date": "2026-09-01",
+      "po": "59089",
+      "amount": 191.43,
+      "lines": [
+        {
+          "part": "8947T16",
+          "qty": 8.0,
+          "unit_price": 2.2,
+          "amount": 17.6,
+          "po_line": 1,
+          "wo": null,
+          "label": "8947T16 Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,",
+          "description": "Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,"
+        },
+        {
+          "part": "98750A100",
+          "qty": 12.0,
+          "unit_price": 1.21,
+          "amount": 14.52,
+          "po_line": 2,
+          "wo": null,
+          "label": "98750A100 Grade B7 Medium-Strength Steel Threaded Rod,",
+          "description": "Grade B7 Medium-Strength Steel Threaded Rod,"
+        },
+        {
+          "part": "90264A485",
+          "qty": 6.0,
+          "unit_price": 1.88,
+          "amount": 11.28,
+          "po_line": 3,
+          "wo": null,
+          "label": "90264A485 Zinc-Plated Steel Coupling Nut, Low-Strength,",
+          "description": "Zinc-Plated Steel Coupling Nut, Low-Strength,"
+        },
+        {
+          "part": "94846A209",
+          "qty": 1.0,
+          "unit_price": 5.67,
+          "amount": 5.67,
+          "po_line": 4,
+          "wo": null,
+          "label": "94846A209 Medium-Strength Steel Thin-Profile Hex Nut,",
+          "description": "Medium-Strength Steel Thin-Profile Hex Nut,"
+        },
+        {
+          "part": "5522A23",
+          "qty": 2.0,
+          "unit_price": 15.88,
+          "amount": 31.76,
+          "po_line": 5,
+          "wo": null,
+          "label": "5522A23 3/8\" Square Drive Socket Extension, 6\" Long,",
+          "description": "3/8\" Square Drive Socket Extension, 6\" Long,"
+        },
+        {
+          "part": "5522A38",
+          "qty": 2.0,
+          "unit_price": 18.52,
+          "amount": 37.04,
+          "po_line": 6,
+          "wo": null,
+          "label": "5522A38 3/8\" Square Drive Socket Extension, 8\" Long,",
+          "description": "3/8\" Square Drive Socket Extension, 8\" Long,"
+        },
+        {
+          "part": "2667A415",
+          "qty": 2.0,
+          "unit_price": 2.68,
+          "amount": 5.36,
+          "po_line": 7,
+          "wo": null,
+          "label": "2667A415 Thread-Repairing Die Nut for Tight Spots, 1/2\"-13",
+          "description": "Thread-Repairing Die Nut for Tight Spots, 1/2\"-13"
+        },
+        {
+          "part": "2667A417",
+          "qty": 2.0,
+          "unit_price": 2.52,
+          "amount": 5.04,
+          "po_line": 8,
+          "wo": null,
+          "label": "2667A417 Thread-Repairing Die Nut for Tight Spots, 5/8\"-11",
+          "description": "Thread-Repairing Die Nut for Tight Spots, 5/8\"-11"
+        },
+        {
+          "part": "2667A413",
+          "qty": 2.0,
+          "unit_price": 2.05,
+          "amount": 4.1,
+          "po_line": 9,
+          "wo": null,
+          "label": "2667A413 Thread-Repairing Die Nut for Tight Spots, 3/8\"-16",
+          "description": "Thread-Repairing Die Nut for Tight Spots, 3/8\"-16"
+        },
+        {
+          "part": "3575A23",
+          "qty": 1.0,
+          "unit_price": 44.53,
+          "amount": 44.53,
+          "po_line": 10,
+          "wo": null,
+          "label": "3575A23 Smooth Handle Chisel for Metal, 5-Piece Set,",
+          "description": "Smooth Handle Chisel for Metal, 5-Piece Set,"
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 14.53
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-02_Invoice_71183051_for_PO_59089.PDF",
+      "pdf_bytes": 26291,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 59089",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "71098307",
+      "date": "2026-08-31",
+      "po": "59078",
+      "amount": 82.57,
+      "lines": [
+        {
+          "part": "90126A031",
+          "qty": 4.0,
+          "unit_price": 8.1,
+          "amount": 32.4,
+          "po_line": 1,
+          "wo": null,
+          "label": "90126A031 Zinc-Plated Steel SAE Washer for 3/8\" Screw",
+          "description": "Zinc-Plated Steel SAE Washer for 3/8\" Screw"
+        },
+        {
+          "part": "92865A724",
+          "qty": 4.0,
+          "unit_price": 8.91,
+          "amount": 35.64,
+          "po_line": 2,
+          "wo": null,
+          "label": "92865A724 Medium-Strength Grade 5 Steel Hex Head Screw,",
+          "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 14.53
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-01_Invoice_71098307_for_PO_59078.PDF",
+      "pdf_bytes": 24420,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 59078",
+      "graph_message_id_present": true
+    },
+    {
+      "invoice_number": "70907154",
+      "date": "2026-08-27",
+      "po": "59046",
+      "amount": 123.78,
+      "lines": [
+        {
+          "part": "92949A444",
+          "qty": 6.0,
+          "unit_price": 14.52,
+          "amount": 87.12,
+          "po_line": 1,
+          "wo": null,
+          "label": "92949A444 18-8 Stainless Steel Button Head Hex-Drive",
+          "description": "18-8 Stainless Steel Button Head Hex-Drive"
+        },
+        {
+          "part": "92141A030",
+          "qty": 1.0,
+          "unit_price": 7.53,
+          "amount": 7.53,
+          "po_line": 2,
+          "wo": null,
+          "label": "92141A030 18-8 Stainless Steel Washer for 5/16\" Screw,",
+          "description": "18-8 Stainless Steel Washer for 5/16\" Screw,"
+        },
+        {
+          "part": "91845A030",
+          "qty": 1.0,
+          "unit_price": 9.01,
+          "amount": 9.01,
+          "po_line": 3,
+          "wo": null,
+          "label": "91845A030 Corrosion-Resistant 18-8 Stainless Steel Hex Nut,",
+          "description": "Corrosion-Resistant 18-8 Stainless Steel Hex Nut,"
+        },
+        {
+          "part": "92146A030",
+          "qty": 1.0,
+          "unit_price": 5.74,
+          "amount": 5.74,
+          "po_line": 4,
+          "wo": null,
+          "label": "92146A030 18-8 Stainless Steel Split Lock Washer for 5/16\"",
+          "description": "18-8 Stainless Steel Split Lock Washer for 5/16\""
+        }
+      ],
+      "fees": [
+        {
+          "name": "Shipping",
+          "amount": 14.38
+        }
+      ],
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-28_Invoice_70907154_for_PO_59046.PDF",
+      "pdf_bytes": 24614,
+      "download_method": "attachment",
+      "hold_reason": "",
+      "browser_tried": null,
+      "browser_failure": null,
+      "subject": "Invoice for Your Order 59046",
       "graph_message_id_present": true
     }
   ],
   "finishes": {
-    "71743140": {
+    "71254641": {
+      "wanted": [
+        23835,
+        23836,
+        23837,
+        23838,
+        23839
+      ],
+      "select_status": "selected",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "matched": [
+        {
+          "line": {
+            "part": "7208K55",
+            "qty": 10.0,
+            "unit_price": 63.34,
+            "amount": 633.4,
+            "po_line": 1,
+            "wo": null,
+            "label": "7208K55 Light-Duty Mounted Steel Ball Bearing with",
+            "description": "Light-Duty Mounted Steel Ball Bearing with"
+          },
+          "receipt": {
+            "id": 23835,
+            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59103-01",
+            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "qty": 10.0,
+            "unit_price": 63.34,
+            "amount": 633.4,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59103",
+            "wo": "",
+            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17556,
+                "text": "PO59103-01",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "93023A667",
+            "qty": 5.0,
+            "unit_price": 23.64,
+            "amount": 118.2,
+            "po_line": 2,
+            "wo": null,
+            "label": "93023A667 Carbon Steel Acme Coupling Nut, Right Hand,",
+            "description": "Carbon Steel Acme Coupling Nut, Right Hand,"
+          },
+          "receipt": {
+            "id": 23836,
+            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59103-02",
+            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "qty": 5.0,
+            "unit_price": 23.64,
+            "amount": 118.2,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59103",
+            "wo": "",
+            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17557,
+                "text": "PO59103-02",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "91253A624",
+            "qty": 1.0,
+            "unit_price": 11.27,
+            "amount": 11.27,
+            "po_line": 3,
+            "wo": null,
+            "label": "91253A624 Black-Oxide Alloy Steel Hex-Drive Flat Head",
+            "description": "Black-Oxide Alloy Steel Hex-Drive Flat Head"
+          },
+          "receipt": {
+            "id": 23837,
+            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59103-03",
+            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "qty": 1.0,
+            "unit_price": 11.27,
+            "amount": 11.27,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59103",
+            "wo": "",
+            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17558,
+                "text": "PO59103-03",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "3028T31",
+            "qty": 4.0,
+            "unit_price": 4.95,
+            "amount": 19.8,
+            "po_line": 4,
+            "wo": null,
+            "label": "3028T31 Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000",
+            "description": "Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000"
+          },
+          "receipt": {
+            "id": 23838,
+            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59103-04",
+            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "qty": 4.0,
+            "unit_price": 4.95,
+            "amount": 19.8,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59103",
+            "wo": "",
+            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17559,
+                "text": "PO59103-04",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "52725A37",
+            "qty": 2.0,
+            "unit_price": 65.88,
+            "amount": 131.76,
+            "po_line": 5,
+            "wo": null,
+            "label": "52725A37 35-Piece Hex Shank Bit Assortment with Adapter",
+            "description": "35-Piece Hex Shank Bit Assortment with Adapter"
+          },
+          "receipt": {
+            "id": 23839,
+            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59103-05",
+            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "qty": 2.0,
+            "unit_price": 65.88,
+            "amount": 131.76,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59103",
+            "wo": "",
+            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17560,
+                "text": "PO59103-05",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        }
+      ],
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23835,
+          "qty": 10.0,
+          "unit_price": 63.34,
+          "part": "PO59103-01"
+        },
+        {
+          "id": 23836,
+          "qty": 5.0,
+          "unit_price": 23.64,
+          "part": "PO59103-02"
+        },
+        {
+          "id": 23837,
+          "qty": 1.0,
+          "unit_price": 11.27,
+          "part": "PO59103-03"
+        },
+        {
+          "id": 23838,
+          "qty": 4.0,
+          "unit_price": 4.95,
+          "part": "PO59103-04"
+        },
+        {
+          "id": 23839,
+          "qty": 2.0,
+          "unit_price": 65.88,
+          "part": "PO59103-05"
+        },
+        {
+          "id": 23840,
+          "qty": 2.0,
+          "unit_price": 0.0,
+          "part": "PO59103-06"
+        }
+      ]
+    },
+    "71236251": {
       "wanted": [],
       "select_status": "ppv-lock-select-zero",
       "fee_status": "already-posted",
@@ -1914,48 +2020,54 @@
       "select_zero": true,
       "open_on_po": [
         {
-          "id": 24234,
+          "id": 23835,
+          "qty": 10.0,
+          "unit_price": 63.34,
+          "part": "PO59103-01"
+        },
+        {
+          "id": 23836,
+          "qty": 5.0,
+          "unit_price": 23.64,
+          "part": "PO59103-02"
+        },
+        {
+          "id": 23837,
           "qty": 1.0,
-          "unit_price": 32.28,
-          "part": "PO59159-01"
+          "unit_price": 11.27,
+          "part": "PO59103-03"
         },
         {
-          "id": 24235,
-          "qty": 6.0,
-          "unit_price": 17.6,
-          "part": "PO59159-02"
+          "id": 23838,
+          "qty": 4.0,
+          "unit_price": 4.95,
+          "part": "PO59103-04"
         },
         {
-          "id": 24236,
-          "qty": 6.0,
-          "unit_price": 2.91,
-          "part": "PO59159-03"
+          "id": 23839,
+          "qty": 2.0,
+          "unit_price": 65.88,
+          "part": "PO59103-05"
         },
         {
-          "id": 24237,
-          "qty": 1.0,
-          "unit_price": 11.2,
-          "part": "PO59159-04"
-        },
-        {
-          "id": 24238,
-          "qty": 1.0,
-          "unit_price": 6.17,
-          "part": "PO59159-05"
+          "id": 23840,
+          "qty": 2.0,
+          "unit_price": 0.0,
+          "part": "PO59103-06"
         }
       ],
       "transfer_ap": {
         "status": "moved",
-        "kimco_id": 10148,
+        "kimco_id": 10154,
         "batch_id": 375,
         "batch_name": "TRANSFER AP",
-        "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 887, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
-        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71743140 PO 59159 PDF $35.85. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+        "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71236251 PO 59103 PDF $91.25. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
         "comment_tab": {
           "status": "added",
           "put": 200,
           "error": "",
-          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on McMaster-Carr 71743140 PO 59159 PDF $35.85. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
+          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on McMaster-Carr 71236251 PO 59103 PDF $91.25. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
           "put_body_keys": [
             "id",
             "lists",
@@ -1969,13 +2081,13 @@
           "header_string_ignored": true,
           "header_has_shawn": false,
           "item_ids": [
-            887
+            889
           ],
           "mention_node": true,
           "mention_id": 104,
           "worked": false,
           "notify_confirmed": false,
-          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 887, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
         },
         "put": 200,
         "error": "",
@@ -1990,13 +2102,13 @@
           "header_string_ignored": true,
           "header_has_shawn": false,
           "item_ids": [
-            887
+            889
           ],
           "mention_node": true,
           "mention_id": 104,
           "worked": false,
           "notify_confirmed": false,
-          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 887, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
           "probes": [
             {
               "suffix": "comments",
@@ -2016,9 +2128,18 @@
         "mail_send": false
       }
     },
-    "71740547": {
+    "71183051": {
       "wanted": [
-        23997
+        23783,
+        23784,
+        23785,
+        23786,
+        23787,
+        23788,
+        23789,
+        23790,
+        23791,
+        23792
       ],
       "select_status": "selected",
       "fee_status": "already-posted",
@@ -2028,288 +2149,36 @@
       "matched": [
         {
           "line": {
-            "part": "6280K693",
-            "qty": 5.0,
-            "unit_price": 29.25,
-            "amount": 146.25,
-            "po_line": 30,
-            "wo": null,
-            "label": "6280K693 Steel Single-Strand Sprocket for ANSI 40 Roller",
-            "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-          },
-          "receipt": {
-            "id": 23997,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-05",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 29.25,
-            "amount": 146.25,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17602,
-                "text": "PO59120-05",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 65,
-          "pass": "named-po",
-          "how": "invoice qty 5"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23993,
-          "qty": 3.0,
-          "unit_price": 29.25,
-          "part": "PO59120-30"
-        },
-        {
-          "id": 23994,
-          "qty": 10.0,
-          "unit_price": 19.05,
-          "part": "PO59120-01"
-        },
-        {
-          "id": 23995,
-          "qty": 5.0,
-          "unit_price": 46.81,
-          "part": "PO59120-15"
-        },
-        {
-          "id": 23996,
-          "qty": 4.0,
-          "unit_price": 8.35,
-          "part": "PO59120-24"
-        },
-        {
-          "id": 23997,
-          "qty": 5.0,
-          "unit_price": 29.25,
-          "part": "PO59120-05"
-        },
-        {
-          "id": 23998,
-          "qty": 2.0,
-          "unit_price": 29.25,
-          "part": "PO59120-30"
-        },
-        {
-          "id": 23999,
-          "qty": 10.0,
-          "unit_price": 19.05,
-          "part": "PO59120-01"
-        },
-        {
-          "id": 24000,
-          "qty": 20.0,
-          "unit_price": 63.93,
-          "part": "PO59120-02"
-        },
-        {
-          "id": 24001,
-          "qty": 5.0,
-          "unit_price": 43.98,
-          "part": "PO59120-03"
-        },
-        {
-          "id": 24002,
-          "qty": 5.0,
-          "unit_price": 103.9,
-          "part": "PO59120-04"
-        },
-        {
-          "id": 24003,
-          "qty": 10.0,
-          "unit_price": 21.67,
-          "part": "PO59120-06"
-        },
-        {
-          "id": 24004,
-          "qty": 20.0,
-          "unit_price": 3.37,
-          "part": "PO59120-07"
-        },
-        {
-          "id": 24005,
-          "qty": 10.0,
-          "unit_price": 8.35,
-          "part": "PO59120-08"
-        },
-        {
-          "id": 24006,
-          "qty": 1.0,
-          "unit_price": 14.75,
-          "part": "PO59120-09"
-        },
-        {
-          "id": 24007,
-          "qty": 1.0,
-          "unit_price": 37.25,
-          "part": "PO59120-10"
-        },
-        {
-          "id": 24008,
-          "qty": 5.0,
-          "unit_price": 129.16,
-          "part": "PO59120-11"
-        },
-        {
-          "id": 24009,
-          "qty": 10.0,
-          "unit_price": 7.49,
-          "part": "PO59120-12"
-        },
-        {
-          "id": 24010,
-          "qty": 15.0,
-          "unit_price": 59.77,
-          "part": "PO59120-13"
-        },
-        {
-          "id": 24011,
-          "qty": 1.0,
-          "unit_price": 25.25,
-          "part": "PO59120-14"
-        },
-        {
-          "id": 24012,
-          "qty": 5.0,
-          "unit_price": 47.04,
-          "part": "PO59120-16"
-        },
-        {
-          "id": 24013,
-          "qty": 5.0,
-          "unit_price": 35.28,
-          "part": "PO59120-17"
-        },
-        {
-          "id": 24014,
-          "qty": 4.0,
-          "unit_price": 16.02,
-          "part": "PO59120-18"
-        },
-        {
-          "id": 24015,
-          "qty": 2.0,
-          "unit_price": 12.51,
-          "part": "PO59120-19"
-        },
-        {
-          "id": 24016,
-          "qty": 2.0,
-          "unit_price": 8.75,
-          "part": "PO59120-20"
-        },
-        {
-          "id": 24017,
-          "qty": 1.0,
-          "unit_price": 30.95,
-          "part": "PO59120-21"
-        },
-        {
-          "id": 24018,
-          "qty": 2.0,
-          "unit_price": 16.61,
-          "part": "PO59120-22"
-        },
-        {
-          "id": 24019,
-          "qty": 8.0,
-          "unit_price": 10.1,
-          "part": "PO59120-23"
-        },
-        {
-          "id": 24020,
-          "qty": 10.0,
-          "unit_price": 1.84,
-          "part": "PO59120-25"
-        },
-        {
-          "id": 24021,
-          "qty": 1.0,
-          "unit_price": 11.34,
-          "part": "PO59120-26"
-        },
-        {
-          "id": 24022,
-          "qty": 5.0,
-          "unit_price": 5.24,
-          "part": "PO59120-27"
-        },
-        {
-          "id": 24023,
-          "qty": 2.0,
-          "unit_price": 4.58,
-          "part": "PO59120-28"
-        },
-        {
-          "id": 24024,
-          "qty": 3.0,
-          "unit_price": 4.66,
-          "part": "PO59120-29"
-        }
-      ]
-    },
-    "71642803": {
-      "wanted": [
-        24234,
-        24235,
-        24236,
-        24237,
-        24238
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "71535K34",
-            "qty": 1.0,
-            "unit_price": 32.28,
-            "amount": 32.28,
+            "part": "8947T16",
+            "qty": 8.0,
+            "unit_price": 2.2,
+            "amount": 17.6,
             "po_line": 1,
             "wo": null,
-            "label": "71535K34 Electronic Equipment Power Cord, NEMA 5-15",
-            "description": "Electronic Equipment Power Cord, NEMA 5-15"
+            "label": "8947T16 Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,",
+            "description": "Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,"
           },
           "receipt": {
-            "id": 24234,
-            "slip": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59159-01",
-            "description": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "qty": 1.0,
-            "unit_price": 32.28,
-            "amount": 32.28,
+            "id": 23783,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-01",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 8.0,
+            "unit_price": 2.2,
+            "amount": 17.6,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59159",
+            "po": "59089",
             "wo": "",
-            "name": "PO59159-MCMASTER-CARR - 2026/9/18",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59159-MCMASTER-CARR - 2026/9/18",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17711,
-                "text": "PO59159-01",
+                "id": 17530,
+                "text": "PO59089-01",
                 "isAbstract": false
               }
             }
@@ -2320,76 +2189,36 @@
         },
         {
           "line": {
-            "part": "8415N62",
-            "qty": 6.0,
-            "unit_price": 17.6,
-            "amount": 105.6,
+            "part": "98750A100",
+            "qty": 12.0,
+            "unit_price": 1.21,
+            "amount": 14.52,
             "po_line": 2,
             "wo": null,
-            "label": "8415N62 Carbon Steel Turnbuckle-Style Connecting Rod, 2\"",
-            "description": "Carbon Steel Turnbuckle-Style Connecting Rod, 2\""
-          },
-          "receipt": {
-            "id": 24235,
-            "slip": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59159-02",
-            "description": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "qty": 6.0,
-            "unit_price": 17.6,
-            "amount": 105.6,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59159",
-            "wo": "",
-            "name": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "raw": {
-              "Name": "PO59159-MCMASTER-CARR - 2026/9/18",
-              "PO_Item_Number": {
-                "id": 17712,
-                "text": "PO59159-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "98750A481",
-            "qty": 6.0,
-            "unit_price": 2.91,
-            "amount": 17.46,
-            "po_line": 3,
-            "wo": null,
-            "label": "98750A481 Grade B7 Medium-Strength Steel Threaded Rod,",
+            "label": "98750A100 Grade B7 Medium-Strength Steel Threaded Rod,",
             "description": "Grade B7 Medium-Strength Steel Threaded Rod,"
           },
           "receipt": {
-            "id": 24236,
-            "slip": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59159-03",
-            "description": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "qty": 6.0,
-            "unit_price": 2.91,
-            "amount": 17.46,
+            "id": 23784,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-02",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 12.0,
+            "unit_price": 1.21,
+            "amount": 14.52,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59159",
+            "po": "59089",
             "wo": "",
-            "name": "PO59159-MCMASTER-CARR - 2026/9/18",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59159-MCMASTER-CARR - 2026/9/18",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17713,
-                "text": "PO59159-03",
+                "id": 17540,
+                "text": "PO59089-02",
                 "isAbstract": false
               }
             }
@@ -2400,36 +2229,36 @@
         },
         {
           "line": {
-            "part": "95625A307",
-            "qty": 1.0,
-            "unit_price": 11.2,
-            "amount": 11.2,
-            "po_line": 4,
+            "part": "90264A485",
+            "qty": 6.0,
+            "unit_price": 1.88,
+            "amount": 11.28,
+            "po_line": 3,
             "wo": null,
-            "label": "95625A307 Medium-Strength Left-Hand Threaded Rod, Grade",
-            "description": "Medium-Strength Left-Hand Threaded Rod, Grade"
+            "label": "90264A485 Zinc-Plated Steel Coupling Nut, Low-Strength,",
+            "description": "Zinc-Plated Steel Coupling Nut, Low-Strength,"
           },
           "receipt": {
-            "id": 24237,
-            "slip": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59159-04",
-            "description": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "qty": 1.0,
-            "unit_price": 11.2,
-            "amount": 11.2,
+            "id": 23785,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-03",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 6.0,
+            "unit_price": 1.88,
+            "amount": 11.28,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59159",
+            "po": "59089",
             "wo": "",
-            "name": "PO59159-MCMASTER-CARR - 2026/9/18",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59159-MCMASTER-CARR - 2026/9/18",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17714,
-                "text": "PO59159-04",
+                "id": 17541,
+                "text": "PO59089-03",
                 "isAbstract": false
               }
             }
@@ -2440,151 +2269,36 @@
         },
         {
           "line": {
-            "part": "94846A210",
+            "part": "94846A209",
             "qty": 1.0,
-            "unit_price": 6.17,
-            "amount": 6.17,
-            "po_line": 5,
+            "unit_price": 5.67,
+            "amount": 5.67,
+            "po_line": 4,
             "wo": null,
-            "label": "94846A210 Medium-Strength Steel Thin-Profile Hex Nut,",
+            "label": "94846A209 Medium-Strength Steel Thin-Profile Hex Nut,",
             "description": "Medium-Strength Steel Thin-Profile Hex Nut,"
           },
           "receipt": {
-            "id": 24238,
-            "slip": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "part": "PO59159-05",
-            "description": "PO59159-MCMASTER-CARR - 2026/9/18",
-            "label": "PO59159-MCMASTER-CARR - 2026/9/18",
+            "id": 23786,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-04",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
             "qty": 1.0,
-            "unit_price": 6.17,
-            "amount": 6.17,
+            "unit_price": 5.67,
+            "amount": 5.67,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59159",
+            "po": "59089",
             "wo": "",
-            "name": "PO59159-MCMASTER-CARR - 2026/9/18",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59159-MCMASTER-CARR - 2026/9/18",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17715,
-                "text": "PO59159-05",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 24234,
-          "qty": 1.0,
-          "unit_price": 32.28,
-          "part": "PO59159-01"
-        },
-        {
-          "id": 24235,
-          "qty": 6.0,
-          "unit_price": 17.6,
-          "part": "PO59159-02"
-        },
-        {
-          "id": 24236,
-          "qty": 6.0,
-          "unit_price": 2.91,
-          "part": "PO59159-03"
-        },
-        {
-          "id": 24237,
-          "qty": 1.0,
-          "unit_price": 11.2,
-          "part": "PO59159-04"
-        },
-        {
-          "id": 24238,
-          "qty": 1.0,
-          "unit_price": 6.17,
-          "part": "PO59159-05"
-        }
-      ]
-    },
-    "71668723": {
-      "wanted": [
-        24000,
-        24001,
-        24002,
-        23997,
-        24003,
-        24004,
-        24005,
-        24006,
-        24007,
-        24008,
-        24009,
-        24010,
-        24011,
-        23995,
-        24012,
-        24013,
-        24014,
-        24015,
-        24016,
-        24017,
-        24018,
-        24019,
-        23996,
-        24020,
-        24022,
-        24023,
-        24024,
-        23994,
-        23999,
-        23998
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "posted",
-      "ppv_amount": -35.82,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "6494K16",
-            "qty": 20.0,
-            "unit_price": 63.93,
-            "amount": 1278.6,
-            "po_line": 2,
-            "wo": null,
-            "label": "6494K16 Mounted Ball Bearing with Nickel-Plated Iron",
-            "description": "Mounted Ball Bearing with Nickel-Plated Iron"
-          },
-          "receipt": {
-            "id": 24000,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-02",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 20.0,
-            "unit_price": 63.93,
-            "amount": 1278.6,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17599,
-                "text": "PO59120-02",
+                "id": 17542,
+                "text": "PO59089-04",
                 "isAbstract": false
               }
             }
@@ -2595,116 +2309,36 @@
         },
         {
           "line": {
-            "part": "6280K817",
-            "qty": 5.0,
-            "unit_price": 43.98,
-            "amount": 219.9,
-            "po_line": 3,
-            "wo": null,
-            "label": "6280K817 Steel Single-Strand Sprocket for ANSI 40 Roller",
-            "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-          },
-          "receipt": {
-            "id": 24001,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-03",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 43.98,
-            "amount": 219.9,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17600,
-                "text": "PO59120-03",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6236K357",
-            "qty": 5.0,
-            "unit_price": 103.9,
-            "amount": 519.5,
-            "po_line": 4,
-            "wo": null,
-            "label": "6236K357 Steel Single-Strand Sprocket for ANSI 40 Roller",
-            "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
-          },
-          "receipt": {
-            "id": 24002,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-04",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 103.9,
-            "amount": 519.5,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17601,
-                "text": "PO59120-04",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6280K693",
-            "qty": 5.0,
-            "unit_price": 29.25,
-            "amount": 146.25,
+            "part": "5522A23",
+            "qty": 2.0,
+            "unit_price": 15.88,
+            "amount": 31.76,
             "po_line": 5,
             "wo": null,
-            "label": "6280K693 Steel Single-Strand Sprocket for ANSI 40 Roller",
-            "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
+            "label": "5522A23 3/8\" Square Drive Socket Extension, 6\" Long,",
+            "description": "3/8\" Square Drive Socket Extension, 6\" Long,"
           },
           "receipt": {
-            "id": 23997,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-05",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 29.25,
-            "amount": 146.25,
+            "id": 23787,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-05",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 2.0,
+            "unit_price": 15.88,
+            "amount": 31.76,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17602,
-                "text": "PO59120-05",
+                "id": 17543,
+                "text": "PO59089-05",
                 "isAbstract": false
               }
             }
@@ -2715,36 +2349,36 @@
         },
         {
           "line": {
-            "part": "6280K641",
-            "qty": 10.0,
-            "unit_price": 21.67,
-            "amount": 216.7,
+            "part": "5522A38",
+            "qty": 2.0,
+            "unit_price": 18.52,
+            "amount": 37.04,
             "po_line": 6,
             "wo": null,
-            "label": "6280K641 Steel Single-Strand Sprocket for ANSI 40 Roller",
-            "description": "Steel Single-Strand Sprocket for ANSI 40 Roller"
+            "label": "5522A38 3/8\" Square Drive Socket Extension, 8\" Long,",
+            "description": "3/8\" Square Drive Socket Extension, 8\" Long,"
           },
           "receipt": {
-            "id": 24003,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-06",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 21.67,
-            "amount": 216.7,
+            "id": 23788,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-06",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 2.0,
+            "unit_price": 18.52,
+            "amount": 37.04,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17603,
-                "text": "PO59120-06",
+                "id": 17544,
+                "text": "PO59089-06",
                 "isAbstract": false
               }
             }
@@ -2755,36 +2389,36 @@
         },
         {
           "line": {
-            "part": "91259A714",
-            "qty": 20.0,
-            "unit_price": 3.37,
-            "amount": 67.4,
+            "part": "2667A415",
+            "qty": 2.0,
+            "unit_price": 2.68,
+            "amount": 5.36,
             "po_line": 7,
             "wo": null,
-            "label": "91259A714 Alloy Steel Shoulder Screw, 1/2\" Shoulder",
-            "description": "Alloy Steel Shoulder Screw, 1/2\" Shoulder"
+            "label": "2667A415 Thread-Repairing Die Nut for Tight Spots, 1/2\"-13",
+            "description": "Thread-Repairing Die Nut for Tight Spots, 1/2\"-13"
           },
           "receipt": {
-            "id": 24004,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-07",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 20.0,
-            "unit_price": 3.37,
-            "amount": 67.4,
+            "id": 23789,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-07",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 2.0,
+            "unit_price": 2.68,
+            "amount": 5.36,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17604,
-                "text": "PO59120-07",
+                "id": 17545,
+                "text": "PO59089-07",
                 "isAbstract": false
               }
             }
@@ -2795,36 +2429,36 @@
         },
         {
           "line": {
-            "part": "92415A147",
-            "qty": 10.0,
-            "unit_price": 8.35,
-            "amount": 83.5,
+            "part": "2667A417",
+            "qty": 2.0,
+            "unit_price": 2.52,
+            "amount": 5.04,
             "po_line": 8,
             "wo": null,
-            "label": "92415A147 Steel Unthreaded Spacers, 1\" OD, 1/2\" Long, for",
-            "description": "Steel Unthreaded Spacers, 1\" OD, 1/2\" Long, for"
+            "label": "2667A417 Thread-Repairing Die Nut for Tight Spots, 5/8\"-11",
+            "description": "Thread-Repairing Die Nut for Tight Spots, 5/8\"-11"
           },
           "receipt": {
-            "id": 24005,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-08",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 8.35,
-            "amount": 83.5,
+            "id": 23790,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-08",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 2.0,
+            "unit_price": 2.52,
+            "amount": 5.04,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17605,
-                "text": "PO59120-08",
+                "id": 17546,
+                "text": "PO59089-08",
                 "isAbstract": false
               }
             }
@@ -2835,36 +2469,36 @@
         },
         {
           "line": {
-            "part": "92620A716",
-            "qty": 1.0,
-            "unit_price": 14.75,
-            "amount": 14.75,
+            "part": "2667A413",
+            "qty": 2.0,
+            "unit_price": 2.05,
+            "amount": 4.1,
             "po_line": 9,
             "wo": null,
-            "label": "92620A716 High-Strength Zinc Yellow-Chromate Plated Hex",
-            "description": "High-Strength Zinc Yellow-Chromate Plated Hex"
+            "label": "2667A413 Thread-Repairing Die Nut for Tight Spots, 3/8\"-16",
+            "description": "Thread-Repairing Die Nut for Tight Spots, 3/8\"-16"
           },
           "receipt": {
-            "id": 24006,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-09",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 1.0,
-            "unit_price": 14.75,
-            "amount": 14.75,
+            "id": 23791,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-09",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "qty": 2.0,
+            "unit_price": 2.05,
+            "amount": 4.1,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17606,
-                "text": "PO59120-09",
+                "id": 17547,
+                "text": "PO59089-09",
                 "isAbstract": false
               }
             }
@@ -2875,36 +2509,36 @@
         },
         {
           "line": {
-            "part": "93560A180",
+            "part": "3575A23",
             "qty": 1.0,
-            "unit_price": 37.25,
-            "amount": 37.25,
+            "unit_price": 44.53,
+            "amount": 44.53,
             "po_line": 10,
             "wo": null,
-            "label": "93560A180 Steel Hex Weld Nut, 1/2\"-13 Thread Size, Packs of",
-            "description": "Steel Hex Weld Nut, 1/2\"-13 Thread Size, Packs of"
+            "label": "3575A23 Smooth Handle Chisel for Metal, 5-Piece Set,",
+            "description": "Smooth Handle Chisel for Metal, 5-Piece Set,"
           },
           "receipt": {
-            "id": 24007,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-10",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "id": 23792,
+            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "part": "PO59089-10",
+            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
+            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
             "qty": 1.0,
-            "unit_price": 37.25,
-            "amount": 37.25,
+            "unit_price": 44.53,
+            "amount": 44.53,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59120",
+            "po": "59089",
             "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
+            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
             "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
+              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
               "PO_Item_Number": {
-                "id": 17607,
-                "text": "PO59120-10",
+                "id": 17548,
+                "text": "PO59089-10",
                 "isAbstract": false
               }
             }
@@ -2912,1052 +2546,79 @@
           "score": 75,
           "pass": "first",
           "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "3125K533",
-            "qty": 5.0,
-            "unit_price": 129.16,
-            "amount": 645.8,
-            "po_line": 11,
-            "wo": null,
-            "label": "3125K533 Push/Pull Control Cable, Panel Mount, 5/16\"-24",
-            "description": "Push/Pull Control Cable, Panel Mount, 5/16\"-24"
-          },
-          "receipt": {
-            "id": 24008,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-11",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 129.16,
-            "amount": 645.8,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17610,
-                "text": "PO59120-11",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6071K13",
-            "qty": 10.0,
-            "unit_price": 7.49,
-            "amount": 74.9,
-            "po_line": 12,
-            "wo": null,
-            "label": "6071K13 Clevis Rod End, 5/16\"-24 Thread, 2-1/4\" Shank",
-            "description": "Clevis Rod End, 5/16\"-24 Thread, 2-1/4\" Shank"
-          },
-          "receipt": {
-            "id": 24009,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-12",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 7.49,
-            "amount": 74.9,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17611,
-                "text": "PO59120-12",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "7208K54",
-            "qty": 15.0,
-            "unit_price": 59.77,
-            "amount": 896.55,
-            "po_line": 13,
-            "wo": null,
-            "label": "7208K54 Light-Duty Mounted Steel Ball Bearing with",
-            "description": "Light-Duty Mounted Steel Ball Bearing with"
-          },
-          "receipt": {
-            "id": 24010,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-13",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 15.0,
-            "unit_price": 59.77,
-            "amount": 896.55,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17612,
-                "text": "PO59120-13",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "93560A140",
-            "qty": 1.0,
-            "unit_price": 25.25,
-            "amount": 25.25,
-            "po_line": 14,
-            "wo": null,
-            "label": "93560A140 Steel Hex Weld Nut, 1/4\"-20 Thread Size, 13/32\"",
-            "description": "Steel Hex Weld Nut, 1/4\"-20 Thread Size, 13/32\""
-          },
-          "receipt": {
-            "id": 24011,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-14",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 1.0,
-            "unit_price": 25.25,
-            "amount": 25.25,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17613,
-                "text": "PO59120-14",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6473K56",
-            "qty": 5.0,
-            "unit_price": 46.81,
-            "amount": 234.05,
-            "po_line": 15,
-            "wo": null,
-            "label": "6473K56 Aluminum Unthreaded Through-Hole-Mount Crank",
-            "description": "Aluminum Unthreaded Through-Hole-Mount Crank"
-          },
-          "receipt": {
-            "id": 23995,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-15",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 46.81,
-            "amount": 234.05,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17614,
-                "text": "PO59120-15",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6261K173",
-            "qty": 5.0,
-            "unit_price": 47.04,
-            "amount": 235.2,
-            "po_line": 16,
-            "wo": null,
-            "label": "6261K173 Roller Chain, Single Strand, ANSI Number 40, 1/2\"",
-            "description": "Roller Chain, Single Strand, ANSI Number 40, 1/2\""
-          },
-          "receipt": {
-            "id": 24012,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-16",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 47.04,
-            "amount": 235.2,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17615,
-                "text": "PO59120-16",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6261K173",
-            "qty": 5.0,
-            "unit_price": 35.28,
-            "amount": 176.4,
-            "po_line": 17,
-            "wo": null,
-            "label": "6261K173 Roller Chain, Single Strand, ANSI Number 40, 1/2\"",
-            "description": "Roller Chain, Single Strand, ANSI Number 40, 1/2\""
-          },
-          "receipt": {
-            "id": 24013,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-17",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 35.28,
-            "amount": 176.4,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17616,
-                "text": "PO59120-17",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92620A761",
-            "qty": 4.0,
-            "unit_price": 16.02,
-            "amount": 64.08,
-            "po_line": 18,
-            "wo": null,
-            "label": "92620A761 High-Strength Zinc Yellow-Chromate Plated Hex",
-            "description": "High-Strength Zinc Yellow-Chromate Plated Hex"
-          },
-          "receipt": {
-            "id": 24014,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-18",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 4.0,
-            "unit_price": 16.02,
-            "amount": 64.08,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17617,
-                "text": "PO59120-18",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "95615A230",
-            "qty": 2.0,
-            "unit_price": 12.51,
-            "amount": 25.02,
-            "po_line": 19,
-            "wo": null,
-            "label": "95615A230 Medium-Strength Steel Nylon-Insert Locknut,",
-            "description": "Medium-Strength Steel Nylon-Insert Locknut,"
-          },
-          "receipt": {
-            "id": 24015,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-19",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 2.0,
-            "unit_price": 12.51,
-            "amount": 25.02,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17618,
-                "text": "PO59120-19",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92141A034",
-            "qty": 2.0,
-            "unit_price": 8.75,
-            "amount": 17.5,
-            "po_line": 20,
-            "wo": null,
-            "label": "92141A034 18-8 Stainless Steel Washer for 9/16\" Screw,",
-            "description": "18-8 Stainless Steel Washer for 9/16\" Screw,"
-          },
-          "receipt": {
-            "id": 24016,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-20",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 2.0,
-            "unit_price": 8.75,
-            "amount": 17.5,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17619,
-                "text": "PO59120-20",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "93560A160",
-            "qty": 1.0,
-            "unit_price": 30.95,
-            "amount": 30.95,
-            "po_line": 21,
-            "wo": null,
-            "label": "93560A160 Steel Hex Weld Nut, 3/8\"-16 Thread Size, 17/32\"",
-            "description": "Steel Hex Weld Nut, 3/8\"-16 Thread Size, 17/32\""
-          },
-          "receipt": {
-            "id": 24017,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-21",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 1.0,
-            "unit_price": 30.95,
-            "amount": 30.95,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17620,
-                "text": "PO59120-21",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92865A624",
-            "qty": 2.0,
-            "unit_price": 16.61,
-            "amount": 33.22,
-            "po_line": 22,
-            "wo": null,
-            "label": "92865A624 Medium-Strength Grade 5 Steel Hex Head Screw,",
-            "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
-          },
-          "receipt": {
-            "id": 24018,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-22",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 2.0,
-            "unit_price": 16.61,
-            "amount": 33.22,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17621,
-                "text": "PO59120-22",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "98164A213",
-            "qty": 8.0,
-            "unit_price": 10.1,
-            "amount": 80.8,
-            "po_line": 23,
-            "wo": null,
-            "label": "98164A213 316 Stainless Steel Button Head Hex-Drive Screw,",
-            "description": "316 Stainless Steel Button Head Hex-Drive Screw,"
-          },
-          "receipt": {
-            "id": 24019,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-23",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 8.0,
-            "unit_price": 10.1,
-            "amount": 80.8,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17622,
-                "text": "PO59120-23",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92949A581",
-            "qty": 4.0,
-            "unit_price": 8.35,
-            "amount": 33.4,
-            "po_line": 24,
-            "wo": null,
-            "label": "92949A581 18-8 Stainless Steel Button Head Hex-Drive",
-            "description": "18-8 Stainless Steel Button Head Hex-Drive"
-          },
-          "receipt": {
-            "id": 23996,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-24",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 4.0,
-            "unit_price": 8.35,
-            "amount": 33.4,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17623,
-                "text": "PO59120-24",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "6261K193",
-            "qty": 10.0,
-            "unit_price": 1.84,
-            "amount": 18.4,
-            "po_line": 25,
-            "wo": null,
-            "label": "6261K193 Connecting Link for ANSI Number 40 Single",
-            "description": "Connecting Link for ANSI Number 40 Single"
-          },
-          "receipt": {
-            "id": 24020,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-25",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 1.84,
-            "amount": 18.4,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17624,
-                "text": "PO59120-25",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "97135A220",
-            "qty": 5.0,
-            "unit_price": 5.24,
-            "amount": 26.2,
-            "po_line": 27,
-            "wo": null,
-            "label": "97135A220 High-Strength Steel Nylon-Insert Locknut, Grade",
-            "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
-          },
-          "receipt": {
-            "id": 24022,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-27",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 5.0,
-            "unit_price": 5.24,
-            "amount": 26.2,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17626,
-                "text": "PO59120-27",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "90630A110",
-            "qty": 2.0,
-            "unit_price": 4.58,
-            "amount": 9.16,
-            "po_line": 28,
-            "wo": null,
-            "label": "90630A110 High-Strength Steel Nylon-Insert Locknut, Grade",
-            "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
-          },
-          "receipt": {
-            "id": 24023,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-28",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 2.0,
-            "unit_price": 4.58,
-            "amount": 9.16,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17627,
-                "text": "PO59120-28",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "90630A121",
-            "qty": 3.0,
-            "unit_price": 4.66,
-            "amount": 13.98,
-            "po_line": 29,
-            "wo": null,
-            "label": "90630A121 High-Strength Steel Nylon-Insert Locknut, Grade",
-            "description": "High-Strength Steel Nylon-Insert Locknut, Grade"
-          },
-          "receipt": {
-            "id": 24024,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-29",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 3.0,
-            "unit_price": 4.66,
-            "amount": 13.98,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17628,
-                "text": "PO59120-29",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "8304T11",
-            "qty": 20.0,
-            "unit_price": 19.05,
-            "amount": 381.0,
-            "po_line": 1,
-            "wo": null,
-            "label": "8304T11 Recessed Tie-Down D-Ring",
-            "description": "Recessed Tie-Down D-Ring"
-          },
-          "receipt": {
-            "id": 23994,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-01",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 19.05,
-            "amount": 190.5,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17597,
-                "text": "PO59120-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 50,
-          "pass": "same-unit-cover",
-          "how": "combine same-item same-unit-cost leftovers (same-unit qty cover; not first-open; 125315 class)"
-        },
-        {
-          "line": {
-            "part": "8304T11",
-            "qty": 20.0,
-            "unit_price": 19.05,
-            "amount": 381.0,
-            "po_line": 1,
-            "wo": null,
-            "label": "8304T11 Recessed Tie-Down D-Ring",
-            "description": "Recessed Tie-Down D-Ring"
-          },
-          "receipt": {
-            "id": 23999,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-01",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 10.0,
-            "unit_price": 19.05,
-            "amount": 190.5,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17597,
-                "text": "PO59120-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 50,
-          "pass": "same-unit-cover",
-          "how": "combine same-item same-unit-cost leftovers (same-unit qty cover; not first-open; 125315 class)"
-        },
-        {
-          "line": {
-            "part": "9283K34",
-            "qty": 2.0,
-            "unit_price": 11.34,
-            "amount": 22.68,
-            "po_line": 26,
-            "wo": null,
-            "label": "9283K34 Polyethylene Plastic Snap-in Round Plug, 1.23\" to",
-            "description": "Polyethylene Plastic Snap-in Round Plug, 1.23\" to"
-          },
-          "receipt": {
-            "id": 23998,
-            "slip": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "part": "PO59120-30",
-            "description": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "label": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "qty": 2.0,
-            "unit_price": 29.25,
-            "amount": 58.5,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59120",
-            "wo": "",
-            "name": "PO59120-MCMASTER-CARR - 2026/9/14",
-            "raw": {
-              "Name": "PO59120-MCMASTER-CARR - 2026/9/14",
-              "PO_Item_Number": {
-                "id": 17629,
-                "text": "PO59120-30",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 50,
-          "pass": "same-unit-cover",
-          "how": "combine same-item same-unit-cost leftovers (same-unit qty cover; not first-open; 125315 class)"
         }
       ],
       "skipped_over_ppv": false,
       "select_zero": false,
       "open_on_po": [
         {
-          "id": 23993,
-          "qty": 3.0,
-          "unit_price": 29.25,
-          "part": "PO59120-30"
-        },
-        {
-          "id": 23994,
-          "qty": 10.0,
-          "unit_price": 19.05,
-          "part": "PO59120-01"
-        },
-        {
-          "id": 23995,
-          "qty": 5.0,
-          "unit_price": 46.81,
-          "part": "PO59120-15"
-        },
-        {
-          "id": 23996,
-          "qty": 4.0,
-          "unit_price": 8.35,
-          "part": "PO59120-24"
-        },
-        {
-          "id": 23997,
-          "qty": 5.0,
-          "unit_price": 29.25,
-          "part": "PO59120-05"
-        },
-        {
-          "id": 23998,
-          "qty": 2.0,
-          "unit_price": 29.25,
-          "part": "PO59120-30"
-        },
-        {
-          "id": 23999,
-          "qty": 10.0,
-          "unit_price": 19.05,
-          "part": "PO59120-01"
-        },
-        {
-          "id": 24000,
-          "qty": 20.0,
-          "unit_price": 63.93,
-          "part": "PO59120-02"
-        },
-        {
-          "id": 24001,
-          "qty": 5.0,
-          "unit_price": 43.98,
-          "part": "PO59120-03"
-        },
-        {
-          "id": 24002,
-          "qty": 5.0,
-          "unit_price": 103.9,
-          "part": "PO59120-04"
-        },
-        {
-          "id": 24003,
-          "qty": 10.0,
-          "unit_price": 21.67,
-          "part": "PO59120-06"
-        },
-        {
-          "id": 24004,
-          "qty": 20.0,
-          "unit_price": 3.37,
-          "part": "PO59120-07"
-        },
-        {
-          "id": 24005,
-          "qty": 10.0,
-          "unit_price": 8.35,
-          "part": "PO59120-08"
-        },
-        {
-          "id": 24006,
-          "qty": 1.0,
-          "unit_price": 14.75,
-          "part": "PO59120-09"
-        },
-        {
-          "id": 24007,
-          "qty": 1.0,
-          "unit_price": 37.25,
-          "part": "PO59120-10"
-        },
-        {
-          "id": 24008,
-          "qty": 5.0,
-          "unit_price": 129.16,
-          "part": "PO59120-11"
-        },
-        {
-          "id": 24009,
-          "qty": 10.0,
-          "unit_price": 7.49,
-          "part": "PO59120-12"
-        },
-        {
-          "id": 24010,
-          "qty": 15.0,
-          "unit_price": 59.77,
-          "part": "PO59120-13"
-        },
-        {
-          "id": 24011,
-          "qty": 1.0,
-          "unit_price": 25.25,
-          "part": "PO59120-14"
-        },
-        {
-          "id": 24012,
-          "qty": 5.0,
-          "unit_price": 47.04,
-          "part": "PO59120-16"
-        },
-        {
-          "id": 24013,
-          "qty": 5.0,
-          "unit_price": 35.28,
-          "part": "PO59120-17"
-        },
-        {
-          "id": 24014,
-          "qty": 4.0,
-          "unit_price": 16.02,
-          "part": "PO59120-18"
-        },
-        {
-          "id": 24015,
-          "qty": 2.0,
-          "unit_price": 12.51,
-          "part": "PO59120-19"
-        },
-        {
-          "id": 24016,
-          "qty": 2.0,
-          "unit_price": 8.75,
-          "part": "PO59120-20"
-        },
-        {
-          "id": 24017,
-          "qty": 1.0,
-          "unit_price": 30.95,
-          "part": "PO59120-21"
-        },
-        {
-          "id": 24018,
-          "qty": 2.0,
-          "unit_price": 16.61,
-          "part": "PO59120-22"
-        },
-        {
-          "id": 24019,
+          "id": 23783,
           "qty": 8.0,
-          "unit_price": 10.1,
-          "part": "PO59120-23"
+          "unit_price": 2.2,
+          "part": "PO59089-01"
         },
         {
-          "id": 24020,
-          "qty": 10.0,
-          "unit_price": 1.84,
-          "part": "PO59120-25"
+          "id": 23784,
+          "qty": 12.0,
+          "unit_price": 1.21,
+          "part": "PO59089-02"
         },
         {
-          "id": 24021,
+          "id": 23785,
+          "qty": 6.0,
+          "unit_price": 1.88,
+          "part": "PO59089-03"
+        },
+        {
+          "id": 23786,
           "qty": 1.0,
-          "unit_price": 11.34,
-          "part": "PO59120-26"
+          "unit_price": 5.67,
+          "part": "PO59089-04"
         },
         {
-          "id": 24022,
-          "qty": 5.0,
-          "unit_price": 5.24,
-          "part": "PO59120-27"
-        },
-        {
-          "id": 24023,
+          "id": 23787,
           "qty": 2.0,
-          "unit_price": 4.58,
-          "part": "PO59120-28"
+          "unit_price": 15.88,
+          "part": "PO59089-05"
         },
         {
-          "id": 24024,
-          "qty": 3.0,
-          "unit_price": 4.66,
-          "part": "PO59120-29"
+          "id": 23788,
+          "qty": 2.0,
+          "unit_price": 18.52,
+          "part": "PO59089-06"
+        },
+        {
+          "id": 23789,
+          "qty": 2.0,
+          "unit_price": 2.68,
+          "part": "PO59089-07"
+        },
+        {
+          "id": 23790,
+          "qty": 2.0,
+          "unit_price": 2.52,
+          "part": "PO59089-08"
+        },
+        {
+          "id": 23791,
+          "qty": 2.0,
+          "unit_price": 2.05,
+          "part": "PO59089-09"
+        },
+        {
+          "id": 23792,
+          "qty": 1.0,
+          "unit_price": 44.53,
+          "part": "PO59089-10"
         }
       ]
     },
-    "71401129": {
+    "71098307": {
       "wanted": [
-        23939,
-        23940,
-        23941
+        23701,
+        23702
       ],
-      "select_status": "blocked-400",
+      "select_status": "selected",
       "fee_status": "already-posted",
       "ppv_status": "none",
       "ppv_amount": 0.0,
@@ -3965,36 +2626,36 @@
       "matched": [
         {
           "line": {
-            "part": "1432N25",
-            "qty": 8.0,
-            "unit_price": 10.89,
-            "amount": 87.12,
+            "part": "90126A031",
+            "qty": 4.0,
+            "unit_price": 8.1,
+            "amount": 32.4,
             "po_line": 1,
             "wo": null,
-            "label": "1432N25 Low-Pressure 304 Stainless Steel Pipe Fitting with",
-            "description": "Low-Pressure 304 Stainless Steel Pipe Fitting with"
+            "label": "90126A031 Zinc-Plated Steel SAE Washer for 3/8\" Screw",
+            "description": "Zinc-Plated Steel SAE Washer for 3/8\" Screw"
           },
           "receipt": {
-            "id": 23939,
-            "slip": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "part": "PO59125-01",
-            "description": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "label": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "qty": 8.0,
-            "unit_price": 10.89,
-            "amount": 87.12,
+            "id": 23701,
+            "slip": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "part": "PO59078-01",
+            "description": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "label": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "qty": 4.0,
+            "unit_price": 8.1,
+            "amount": 32.4,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59125",
+            "po": "59078",
             "wo": "",
-            "name": "PO59125-MCMASTER-CARR - 2026/9/10",
+            "name": "PO59078-MCMASTER-CARR - 2026/9/2",
             "raw": {
-              "Name": "PO59125-MCMASTER-CARR - 2026/9/10",
+              "Name": "PO59078-MCMASTER-CARR - 2026/9/2",
               "PO_Item_Number": {
-                "id": 17636,
-                "text": "PO59125-01",
+                "id": 17520,
+                "text": "PO59078-01",
                 "isAbstract": false
               }
             }
@@ -4005,76 +2666,36 @@
         },
         {
           "line": {
-            "part": "4464K355",
-            "qty": 8.0,
-            "unit_price": 8.08,
-            "amount": 64.64,
+            "part": "92865A724",
+            "qty": 4.0,
+            "unit_price": 8.91,
+            "amount": 35.64,
             "po_line": 2,
             "wo": null,
-            "label": "4464K355 304 Stainless Steel Threaded Pipe Fitting,",
-            "description": "304 Stainless Steel Threaded Pipe Fitting,"
+            "label": "92865A724 Medium-Strength Grade 5 Steel Hex Head Screw,",
+            "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
           },
           "receipt": {
-            "id": 23940,
-            "slip": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "part": "PO59125-02",
-            "description": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "label": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "qty": 8.0,
-            "unit_price": 8.08,
-            "amount": 64.64,
+            "id": 23702,
+            "slip": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "part": "PO59078-02",
+            "description": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "label": "PO59078-MCMASTER-CARR - 2026/9/2",
+            "qty": 4.0,
+            "unit_price": 8.91,
+            "amount": 35.64,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59125",
+            "po": "59078",
             "wo": "",
-            "name": "PO59125-MCMASTER-CARR - 2026/9/10",
+            "name": "PO59078-MCMASTER-CARR - 2026/9/2",
             "raw": {
-              "Name": "PO59125-MCMASTER-CARR - 2026/9/10",
+              "Name": "PO59078-MCMASTER-CARR - 2026/9/2",
               "PO_Item_Number": {
-                "id": 17639,
-                "text": "PO59125-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "4464K511",
-            "qty": 16.0,
-            "unit_price": 5.71,
-            "amount": 91.36,
-            "po_line": 3,
-            "wo": null,
-            "label": "4464K511 304 Stainless Steel Threaded Pipe Fitting,",
-            "description": "304 Stainless Steel Threaded Pipe Fitting,"
-          },
-          "receipt": {
-            "id": 23941,
-            "slip": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "part": "PO59125-03",
-            "description": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "label": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "qty": 16.0,
-            "unit_price": 5.71,
-            "amount": 91.36,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59125",
-            "wo": "",
-            "name": "PO59125-MCMASTER-CARR - 2026/9/10",
-            "raw": {
-              "Name": "PO59125-MCMASTER-CARR - 2026/9/10",
-              "PO_Item_Number": {
-                "id": 17640,
-                "text": "PO59125-03",
+                "id": 17521,
+                "text": "PO59078-02",
                 "isAbstract": false
               }
             }
@@ -4088,67 +2709,258 @@
       "select_zero": false,
       "open_on_po": [
         {
-          "id": 23939,
-          "qty": 8.0,
-          "unit_price": 10.89,
-          "part": "PO59125-01"
+          "id": 23701,
+          "qty": 4.0,
+          "unit_price": 8.1,
+          "part": "PO59078-01"
         },
         {
-          "id": 23940,
-          "qty": 8.0,
-          "unit_price": 8.08,
-          "part": "PO59125-02"
+          "id": 23702,
+          "qty": 4.0,
+          "unit_price": 8.91,
+          "part": "PO59078-02"
+        }
+      ]
+    },
+    "70907154": {
+      "wanted": [
+        23826,
+        23827,
+        23828,
+        23829
+      ],
+      "select_status": "selected",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "matched": [
+        {
+          "line": {
+            "part": "92949A444",
+            "qty": 6.0,
+            "unit_price": 14.52,
+            "amount": 87.12,
+            "po_line": 1,
+            "wo": null,
+            "label": "92949A444 18-8 Stainless Steel Button Head Hex-Drive",
+            "description": "18-8 Stainless Steel Button Head Hex-Drive"
+          },
+          "receipt": {
+            "id": 23826,
+            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59046-01",
+            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "qty": 6.0,
+            "unit_price": 14.52,
+            "amount": 87.12,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59046",
+            "wo": "",
+            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17642,
+                "text": "PO59046-01",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
         },
         {
-          "id": 23941,
-          "qty": 16.0,
-          "unit_price": 5.71,
-          "part": "PO59125-03"
+          "line": {
+            "part": "92141A030",
+            "qty": 1.0,
+            "unit_price": 7.53,
+            "amount": 7.53,
+            "po_line": 2,
+            "wo": null,
+            "label": "92141A030 18-8 Stainless Steel Washer for 5/16\" Screw,",
+            "description": "18-8 Stainless Steel Washer for 5/16\" Screw,"
+          },
+          "receipt": {
+            "id": 23827,
+            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59046-02",
+            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "qty": 1.0,
+            "unit_price": 7.53,
+            "amount": 7.53,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59046",
+            "wo": "",
+            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17643,
+                "text": "PO59046-02",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "91845A030",
+            "qty": 1.0,
+            "unit_price": 9.01,
+            "amount": 9.01,
+            "po_line": 3,
+            "wo": null,
+            "label": "91845A030 Corrosion-Resistant 18-8 Stainless Steel Hex Nut,",
+            "description": "Corrosion-Resistant 18-8 Stainless Steel Hex Nut,"
+          },
+          "receipt": {
+            "id": 23828,
+            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59046-03",
+            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "qty": 1.0,
+            "unit_price": 9.01,
+            "amount": 9.01,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59046",
+            "wo": "",
+            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17644,
+                "text": "PO59046-03",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
+        },
+        {
+          "line": {
+            "part": "92146A030",
+            "qty": 1.0,
+            "unit_price": 5.74,
+            "amount": 5.74,
+            "po_line": 4,
+            "wo": null,
+            "label": "92146A030 18-8 Stainless Steel Split Lock Washer for 5/16\"",
+            "description": "18-8 Stainless Steel Split Lock Washer for 5/16\""
+          },
+          "receipt": {
+            "id": 23829,
+            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "part": "PO59046-04",
+            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "qty": 1.0,
+            "unit_price": 5.74,
+            "amount": 5.74,
+            "cost": null,
+            "po_line": null,
+            "line": null,
+            "line_no": null,
+            "po": "59046",
+            "wo": "",
+            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
+            "raw": {
+              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
+              "PO_Item_Number": {
+                "id": 17645,
+                "text": "PO59046-04",
+                "isAbstract": false
+              }
+            }
+          },
+          "score": 75,
+          "pass": "first",
+          "how": "part/PO-WO/slip"
         }
       ],
-      "missing_receipt_comment": {
-        "status": "added",
-        "put": 200,
-        "error": "",
-        "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on McMaster-Carr 71401129 PO 59125 PDF $257.72. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. No email.</p>",
-        "put_body_keys": [
-          "id",
-          "lists",
-          "url",
-          "values"
-        ],
-        "invent": false,
-        "mail_send": false,
-        "tab_persisted": true,
-        "comments_persisted": true,
-        "header_string_ignored": true,
-        "header_has_shawn": false,
-        "item_ids": [
-          888
-        ],
-        "mention_node": true,
-        "mention_id": 104,
-        "worked": false,
-        "notify_confirmed": false,
-        "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 888, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
-        "transfer_ap": false
-      }
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [
+        {
+          "id": 23826,
+          "qty": 6.0,
+          "unit_price": 14.52,
+          "part": "PO59046-01"
+        },
+        {
+          "id": 23827,
+          "qty": 1.0,
+          "unit_price": 7.53,
+          "part": "PO59046-02"
+        },
+        {
+          "id": 23828,
+          "qty": 1.0,
+          "unit_price": 9.01,
+          "part": "PO59046-03"
+        },
+        {
+          "id": 23829,
+          "qty": 1.0,
+          "unit_price": 5.74,
+          "part": "PO59046-04"
+        }
+      ]
     }
   },
   "new_rows": [
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71743140",
-      "date": "2026-09-11",
-      "PO": "59159",
-      "Amount": 35.85,
+      "Invoice #": "71254641",
+      "date": "2026-09-02",
+      "PO": "59103",
+      "Amount": 931.89,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59103. Select Receipts 23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88 on PO 59103. Invoice #=71254641 (exact PDF, not subject Order #). Fees=Shipping 17.46 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23835, 23836, 23837, 23838, 23839] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10153,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 17.46",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71236251",
+      "date": "2026-09-02",
+      "PO": "59103",
+      "Amount": 91.25,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 887, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 887, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
       "Exception category": "price_variance",
       "Exception owner": "Shawn McKibben",
-      "KIMCO id": 10148,
+      "KIMCO id": 10154,
       "Batch": "TRANSFER AP (375)",
-      "Fees and surcharges": "Shipping 13.61",
+      "Fees and surcharges": "Shipping 13.07",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
@@ -4159,135 +2971,69 @@
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71740547",
-      "date": "2026-09-11",
-      "PO": "59120",
-      "Amount": 151.44,
+      "Invoice #": "71183051",
+      "date": "2026-09-01",
+      "PO": "59089",
+      "Amount": 191.43,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59120. Select Receipts 23997 5@29.25 on PO 59120. Invoice #=71740547 (exact PDF, not subject Order #). Fees=Shipping 5.19 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23997] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59089. Select Receipts 23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05 on PO 59089. Invoice #=71183051 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23783, 23784, 23785, 23786, 23787, 23788, 23789, 23790, 23791, 23792] fees=already-posted ppv=none. Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
-      "KIMCO id": 10149,
+      "KIMCO id": 10155,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 5.19",
+      "Fees and surcharges": "Shipping 14.53",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "23997 5@29.25",
+      "Receipts": "23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05",
       "outlook": "entered-in-ai"
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71642803",
-      "date": "2026-09-10",
-      "PO": "59159",
-      "Amount": 186.22,
+      "Invoice #": "71098307",
+      "date": "2026-08-31",
+      "PO": "59078",
+      "Amount": 82.57,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59159. Select Receipts 24234 1@32.28; 24235 6@17.6; 24236 6@2.91; 24237 1@11.2; 24238 1@6.17 on PO 59159. Invoice #=71642803 (exact PDF, not subject Order #). Fees=Shipping 13.51 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[24234, 24235, 24236, 24237, 24238] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59078. Select Receipts 23701 4@8.1; 23702 4@8.91 on PO 59078. Invoice #=71098307 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23701, 23702] fees=already-posted ppv=none. Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
-      "KIMCO id": 10150,
+      "KIMCO id": 10156,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 13.51",
+      "Fees and surcharges": "Shipping 14.53",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "24234 1@32.28; 24235 6@17.6; 24236 6@2.91; 24237 1@11.2; 24238 1@6.17",
+      "Receipts": "23701 4@8.1; 23702 4@8.91",
       "outlook": "entered-in-ai"
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71668723",
-      "date": "2026-09-10",
-      "PO": "59120",
-      "Amount": 5832.28,
+      "Invoice #": "70907154",
+      "date": "2026-08-27",
+      "PO": "59046",
+      "Amount": 123.78,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59120. Select Receipts 24000 20@63.93; 24008 5@129.16; 24009 10@7.49; 24010 15@59.77; 24011 1@25.25; 23995 5@46.81; 24012 5@47.04; 24013 5@35.28; 24014 4@16.02; 24015 2@12.51; 24016 2@8.75; 24001 5@43.98; 24017 1@30.95; 24018 2@16.61; 24019 8@10.1; 23996 4@8.35; 24020 10@1.84; 24022 5@5.24; 24023 2@4.58; 24024 3@4.66; 23994 10@19.05; 23999 10@19.05; 24002 5@103.9; 23998 2@29.25; 23997 5@29.25; 24003 10@21.67; 24004 20@3.37; 24005 10@8.35; 24006 1@14.75; 24007 1@37.25 on PO 59120. Invoice #=71668723 (exact PDF, not subject Order #). Fees=Shipping 203.89 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=-35.82. Attach status=attached. Finish Select Receipts selected ids=[24000, 24001, 24002, 23997, 24003, 24004, 24005, 24006, 24007, 24008, 24009, 24010, 24011, 23995, 24012, 24013, 24014, 24015, 24016, 24017, 24018, 24019, 23996, 24020, 24022, 24023, 24024, 23994, 23999, 23998] fees=already-posted ppv=posted. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59046. Select Receipts 23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74 on PO 59046. Invoice #=70907154 (exact PDF, not subject Order #). Fees=Shipping 14.38 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23826, 23827, 23828, 23829] fees=already-posted ppv=none. Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
-      "KIMCO id": 10151,
+      "KIMCO id": 10157,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 203.89",
-      "PPV": "-35.82",
+      "Fees and surcharges": "Shipping 14.38",
+      "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "24000 20@63.93; 24008 5@129.16; 24009 10@7.49; 24010 15@59.77; 24011 1@25.25; 23995 5@46.81; 24012 5@47.04; 24013 5@35.28; 24014 4@16.02; 24015 2@12.51; 24016 2@8.75; 24001 5@43.98; 24017 1@30.95; 24018 2@16.61; 24019 8@10.1; 23996 4@8.35; 24020 10@1.84; 24022 5@5.24; 24023 2@4.58; 24024 3@4.66; 23994 10@19.05; 23999 10@19.05; 24002 5@103.9; 23998 2@29.25; 23997 5@29.25; 24003 10@21.67; 24004 20@3.37; 24005 10@8.35; 24006 1@14.75; 24007 1@37.25",
+      "Receipts": "23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74",
       "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71401129",
-      "date": "2026-09-04",
-      "PO": "59125",
-      "Amount": 257.72,
-      "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): no open receipt leftover on PO 59125 for McMaster invoice #71401129. Do not first-open guess. @Shawn McKibben: receiving must receive the PO so AP can Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. Finish Select Receipts blocked-400 ids=[23939, 23940, 23941] fees=already-posted ppv=none. Outlook Entered with issues. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 888, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False batch_still=API Agent - 9/18/26 McMaster mail_send=False.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Shawn McKibben",
-      "KIMCO id": 10152,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 14.6",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-with-issues",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
     }
   ],
   "leftover_pending": [
-    {
-      "invoice_number": "71254641",
-      "po": "59103",
-      "date": "2026-09-02",
-      "amount": 931.89,
-      "received": "2026-09-03T06:50:45Z",
-      "subject": "Invoice for Your Order 59103",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "71236251",
-      "po": "59103",
-      "date": "2026-09-02",
-      "amount": 91.25,
-      "received": "2026-09-03T06:50:45Z",
-      "subject": "Invoice for Your Order 59103",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "71183051",
-      "po": "59089",
-      "date": "2026-09-01",
-      "amount": 191.43,
-      "received": "2026-09-02T06:52:01Z",
-      "subject": "Invoice for Your Order 59089",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "71098307",
-      "po": "59078",
-      "date": "2026-08-31",
-      "amount": 82.57,
-      "received": "2026-09-01T07:12:37Z",
-      "subject": "Invoice for Your Order 59078",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "70907154",
-      "po": "59046",
-      "date": "2026-08-27",
-      "amount": 123.78,
-      "received": "2026-08-28T06:49:12Z",
-      "subject": "Invoice for Your Order 59046",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
     {
       "invoice_number": "70759737",
       "po": "59014",
@@ -4649,6 +3395,111 @@
       "Notes": "",
       "Receipts": "none",
       "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71254641",
+      "date": "2026-09-02",
+      "PO": "59103",
+      "Amount": 931.89,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59103. Select Receipts 23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88 on PO 59103. Invoice #=71254641 (exact PDF, not subject Order #). Fees=Shipping 17.46 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23835, 23836, 23837, 23838, 23839] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10153,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 17.46",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71236251",
+      "date": "2026-09-02",
+      "PO": "59103",
+      "Amount": 91.25,
+      "Result": "HOLD",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+      "Exception category": "price_variance",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10154,
+      "Batch": "TRANSFER AP (375)",
+      "Fees and surcharges": "Shipping 13.07",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71183051",
+      "date": "2026-09-01",
+      "PO": "59089",
+      "Amount": 191.43,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59089. Select Receipts 23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05 on PO 59089. Invoice #=71183051 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23783, 23784, 23785, 23786, 23787, 23788, 23789, 23790, 23791, 23792] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10155,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 14.53",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "71098307",
+      "date": "2026-08-31",
+      "PO": "59078",
+      "Amount": 82.57,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59078. Select Receipts 23701 4@8.1; 23702 4@8.91 on PO 59078. Invoice #=71098307 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23701, 23702] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10156,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 14.53",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23701 4@8.1; 23702 4@8.91",
+      "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "70907154",
+      "date": "2026-08-27",
+      "PO": "59046",
+      "Amount": 123.78,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59046. Select Receipts 23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74 on PO 59046. Invoice #=70907154 (exact PDF, not subject Order #). Fees=Shipping 14.38 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23826, 23827, 23828, 23829] fees=already-posted ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10157,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 14.38",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-in-ai",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74",
+      "outlook": "entered-in-ai"
     }
   ],
   "note45": "missing_receipt Comments_1 @Shawn 104, no Transfer AP; over-PPV Transfer AP + @Shawn; no Mail.Send"
