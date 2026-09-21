@@ -1133,8 +1133,10 @@ def apply_over_ppv_transfer_ap(
     *,
     kimco_id: int,
     comment: str,
+    allow_ids: set[int] | None = None,
 ) -> dict[str, Any]:
-    if int(kimco_id) in set(LEAVE_ALONE_HOLD_IDS) | set(DO_NOT_MUTATE_IDS):
+    blocked = (set(LEAVE_ALONE_HOLD_IDS) | set(DO_NOT_MUTATE_IDS)) - set(allow_ids or ())
+    if int(kimco_id) in blocked:
         return {"status": "leave-alone", "kimco_id": int(kimco_id), "invent": False}
     try:
         batches = client.list_items("ap_batches")
