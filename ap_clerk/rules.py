@@ -92,11 +92,20 @@ def is_noise_reason(reason: str | None) -> bool:
     collapsed = key.replace("_", " ")
     return key in NOISE_REASONS or collapsed in {item.replace("_", " ") for item in NOISE_REASONS}
 
-# Kyle 2026-08-28: PPV is signed Additional Charge Purchase Price Variance.
-# Post only when |line variance| <= 10% of invoice total AND |bill PPV| <= $100.
-PPV_MAX_PCT_OF_INVOICE = 0.10
-PPV_MAX_ABS_ON_BILL = 100.00
+# Kyle 2026-09-21 NOTE-47: PPV gate is |total signed PPV on the bill| under $75.
+# Delete the 10%-of-invoice-total rule. Old $100 cap is replaced by $75.
+# |total| < $75 → Select + post signed PPV + Success. |total| >= $75 → do not
+# Select those lines; HOLD price_variance. Negative PPV allowed; gate on abs $.
+PPV_MAX_ABS_ON_BILL = 75.00
 PRICE_DOES_NOT_MATCH = "price does not match"
+
+
+def ppv_abs_over_gate(ppv_total: Any) -> bool:
+    """NOTE-47: over-gate when |signed bill PPV| is $75 or more."""
+    amt = money(ppv_total)
+    if amt is None:
+        return False
+    return abs(amt) >= PPV_MAX_ABS_ON_BILL
 SHAWN_MCKIBBEN = "@Shawn McKibben"
 PRICE_MISMATCH_PO_COMMENT = (
     "@Shawn McKibben price does not match. Purchasing must unreceive, change the PO price, "
@@ -587,25 +596,16 @@ def decide_ppv(
             "reason": "Invoice line matches PO line",
             "po_comment": "",
         }
-    total = money(invoice_total) or 0.0
-    pct_limit = round(abs(total) * PPV_MAX_PCT_OF_INVOICE, 2)
     abs_var = abs(variance)
     next_bill_ppv = round((money(ppv_already_on_bill) or 0.0) + variance, 2)
-    over_pct = total > 0 and abs_var > pct_limit
-    over_abs = abs(next_bill_ppv) > PPV_MAX_ABS_ON_BILL or abs_var > PPV_MAX_ABS_ON_BILL
-    if over_pct or over_abs:
-        why_bits = []
-        if over_pct:
-            pct = (abs_var / total) * 100 if total else 0
-            why_bits.append(f"{pct:.1f}% of invoice total")
-        if over_abs:
-            why_bits.append(f"${abs_var:.2f} exceeds ${PPV_MAX_ABS_ON_BILL:.0f}")
+    if ppv_abs_over_gate(next_bill_ppv):
         return {
             "action": "hold",
             "ppv": 0.0,
             "hold": True,
             "reason": (
-                f"HOLD: {PRICE_DOES_NOT_MATCH} ({', '.join(why_bits)}). "
+                f"HOLD: {PRICE_DOES_NOT_MATCH} "
+                f"(|bill PPV| ${abs(next_bill_ppv):.2f} is $75 or more). "
                 "Do not post PPV. Purchasing must unreceive, change the PO price, and re-receive. "
                 f"Comment the PO line for {SHAWN_MCKIBBEN}. Do not alter receipt unit price in GI."
             ),
@@ -617,8 +617,7 @@ def decide_ppv(
         "hold": False,
         "reason": (
             f"Additional Charge Purchase Price Variance {variance:.2f} "
-            f"(signed; |var| {abs_var:.2f} is {((abs_var / total) * 100) if total else 0:.1f}% "
-            f"of invoice total and bill PPV {next_bill_ppv:.2f} is under ${PPV_MAX_ABS_ON_BILL:.0f})"
+            f"(signed; |bill PPV| {abs(next_bill_ppv):.2f} is under ${PPV_MAX_ABS_ON_BILL:.0f})"
         ),
         "po_comment": "",
     }
@@ -634,10 +633,10 @@ def uom_pack_mismatch_in_gate_ppv(
 ) -> dict[str, Any]:
     """NOTE-46: 72 inches ordered vs 2×3 foot bars invoiced.
 
-    When PO UOM/pack differs from the invoice and the dollar gap is only
-    cents / still within the PPV gate, Select Receipts + signed PPV +
-    Success. Do not HOLD price_variance. Do not Transfer AP. Over-gate
-    still NOTE-29 / NOTE-40.
+    When PO UOM/pack differs from the invoice and the dollar gap is
+    still under the $75 PPV gate (NOTE-47), Select Receipts + signed
+    PPV + Success. Do not HOLD price_variance. Do not Transfer AP.
+    Over-gate (|bill PPV| $75 or more) still NOTE-29 / NOTE-40.
     """
     if not uom_pack_mismatch:
         return {
@@ -674,7 +673,8 @@ def rounding_ppv_to_hit_pdf_total(
     −$0.10 so Invoice_Amount hits the PDF. Same class 125051 / 10111
     ($1,130.34 vs $1,130.40 → +$0.06). Do not HOLD unit-rounding. Two-cent
     gaps stay a match (no invented PPV). Over-PPV lock (NOTE-29) still
-    applies — do not Select Receipts on over-gate lines.
+    applies — do not Select Receipts when |bill PPV| is $75 or more
+    (NOTE-47).
     """
     if not receipts_selected:
         return {
@@ -815,10 +815,11 @@ def filter_matches_outside_ppv_gate(
 ) -> dict[str, Any]:
     """Drop over-PPV matches so Select Receipts does not lock those leftovers.
 
-    Kyle 2026-09-16: selecting an over-PPV receipt locks it; Shawn cannot
-    unreceive, fix the PO price, and re-receive. Skip that line. If every
-    matched line (the whole bill) is over-gate, select zero receipts.
-    In-gate / exact-cost matches still select. Header + PDF still create.
+    Kyle 2026-09-16 / NOTE-47: selecting an over-PPV receipt locks it;
+    Shawn cannot unreceive, fix the PO price, and re-receive. Skip that
+    line when |bill PPV| is $75 or more. If every matched line is
+    over-gate, select zero receipts. In-gate / exact-cost matches still
+    select. Header + PDF still create.
 
     Same-unit leftover covers (Crosslink 28113 3+1, 28114 1+2+2) are one
     invoice line. Compare the combined receipt cost to the line, not each

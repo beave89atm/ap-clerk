@@ -461,8 +461,9 @@ class KimcoClient:
     def try_post_ppv(self, invoice_id: int, amount: float | None) -> str:
         """Post Additional Charge Purchase Price Variance on the invoice RECORD.
 
-        Signed; not Fees. Random-length mill extras that pass Kyle's ≤10% /
-        ≤$100 rule use this (EMJ Z250725432), never F-Fees & Surcharges.
+        Signed; not Fees. Random-length mill extras that pass Kyle's
+        |bill PPV| under $75 gate (NOTE-47) use this (EMJ Z250725432),
+        never F-Fees & Surcharges.
         """
         if invoice_id in (None, ""):
             raise KimcoError("PPV post requires an invoice record id")

@@ -211,7 +211,10 @@ def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
 
 
 def test_kyle_ppv_rule_2026_08_28():
-    """Kyle: |var| <= 10% of invoice total AND bill PPV <= $100. Signed PPV."""
+    """NOTE-47: |bill PPV| under $75. Signed PPV. 10% and $100 deleted."""
+    from ap_clerk.rules import PPV_MAX_ABS_ON_BILL, ppv_abs_over_gate
+
+    assert PPV_MAX_ABS_ON_BILL == 75.00
     emj = decide_ppv(invoice_line_amount=752.10, po_line_amount=770.16, invoice_total=752.10)
     assert emj["action"] == "ppv"
     assert emj["ppv"] == -18.06
@@ -227,10 +230,20 @@ def test_kyle_ppv_rule_2026_08_28():
     assert PRICE_DOES_NOT_MATCH in over_abs["reason"]
     assert SHAWN_MCKIBBEN in over_abs["reason"]
     assert "Do not alter receipt unit price in GI" in over_abs["reason"]
+    assert "10%" not in over_abs["reason"]
 
-    over_pct = decide_ppv(invoice_line_amount=350.00, po_line_amount=400.00, invoice_total=400.00)
-    assert over_pct["hold"] is True
-    assert PRICE_DOES_NOT_MATCH in over_pct["reason"]
+    # Old 10% rule would HOLD $50 on a $400 bill (12.5%). NOTE-47: in-gate.
+    was_over_pct = decide_ppv(invoice_line_amount=350.00, po_line_amount=400.00, invoice_total=400.00)
+    assert was_over_pct["hold"] is False
+    assert was_over_pct["action"] == "ppv"
+    assert was_over_pct["ppv"] == -50.00
+
+    at_gate = decide_ppv(invoice_line_amount=325.00, po_line_amount=400.00, invoice_total=400.00)
+    assert at_gate["hold"] is True
+    assert ppv_abs_over_gate(-75.00) is True
+    assert ppv_abs_over_gate(75.00) is True
+    assert ppv_abs_over_gate(-74.99) is False
+    assert ppv_abs_over_gate(74.99) is False
 
     zero_po = decide_ppv(
         invoice_line_amount=100.00,

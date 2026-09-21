@@ -57,7 +57,7 @@ Hard rules from Treyce’s 2026-09-10 notes. Full never-repeat table and Treyce-
 5. **Bill vs noise** — vendor invoices with a PDF must enter (American Quality Powder Coating). **KIMCO-listed vendor + invoice never skip:** From/subject matches a listed vendor and there is a PDF, link-PDF, or Invoice/INV subject → enter or HOLD with a real Why; never Skipped / `AI Skipped 2`. `AI Skipped 2` is only for true non-vendor noise. AQPC payment-request mail (`invoice 10917` / `10918` / `10920` / `10921`) must extract the https Intuit/payment-request link, unauth GET, then guest browser click-through if the GET hits an auth/bot wall or intermediate HTML (open the link, click View/Download invoice — **no** Intuit/QuickBooks sign-in); PDF → header + attach; true failure after guest browser is HOLD `pdf-behind-link` (vendor / # / host + guest browser tried), never Skipped / `no-pdf-on-vm`, never “set `AP_CLERK_INTUIT_STORAGE_STATE`”. Subject `Invoice`/`INV #` **or** an invoice PDF attached is never not-a-bill (Eastern Metal `818600` / `818601`; 3P `142041`). **Hard email cap 10 until further notice (Kyle 2026-09-11):** stop after 10 mailbox messages touched (Success + HOLD + Incomplete + Fail + Skipped/noise). Do **not** walk past noise to fill N bill attempts. Bill-attempt mode is suspended. Note each of those ≤10 on the Excel sheet with Why. Noise is `Skipped` with Outlook **`AI Skipped 2`** (never `AI HOLD`) and **consumes** the cap. **Skip already-flagged:** leave alone (no reprocess, no re-stamp) if the message already has `Entered in AI`, `AI HOLD`, `Entered with issues`, `AI Skipped 2`, leftover `AI Skipped`, or `flag.flagStatus=flagged`; those do **not** consume the cap.
 6. **Teaching loop** — every Treyce note above has a regression test. `tests/` fails if Success is returned without attach + receipts (when PO).
 
-**Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s ≤10% of invoice total **and** ≤$100 rule; else price-does-not-match HOLD + `@Shawn McKibben`. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410, MSC 128). Known alias beats fuzzy sample seeding. `names_match` requires distinctive tokens — generic words (`industrial`, `supply`, `steel`, …) are not enough (MSC ≠ RMP). After header create, GET the invoice: posted vendor must match parsed (or alias) or Result is HOLD `vendor-mismatch`, never Success.
+**Also:** fees/surcharges (including freight) are never double-counted as PPV in Excel. PPV only under Kyle’s **|bill PPV| under $75** gate (NOTE-47); else price-does-not-match HOLD + `@Shawn McKibben`. The 10%-of-invoice-total rule is deleted; the old $100 cap is replaced by $75. Vendor lookup uses the PO vendor id and known aliases when the printed name fails (NSA 1386, Coherent 1410, MSC 128). Known alias beats fuzzy sample seeding. `names_match` requires distinctive tokens — generic words (`industrial`, `supply`, `steel`, …) are not enough (MSC ≠ RMP). After header create, GET the invoice: posted vendor must match parsed (or alias) or Result is HOLD `vendor-mismatch`, never Success.
 
 ## Prototype (default)
 
@@ -135,7 +135,7 @@ Routine is paused. If daily is invoked: **hard-clamp to 10 emails** (Kyle 2026-0
 - Noise among the ≤10 touched emails is Excel `Skipped` with Outlook **`AI Skipped 2`** (Flag in Outlook = Yes). It **consumes** the email cap. Do **not** walk past noise to fill 10 bills. Never `AI HOLD` for noise.
 - Persist `runs/daily-cursor.json` (last processed `receivedDateTime` + message id). The next weekday continues after the previous run. It does not restart at 7/28 every morning.
 
-**Enter on LIVE KIMCO (`--live`):** batch `API Agent - M/D/YY` America/Chicago. Same header rules as the 8/27 live test, plus Treyce 8/28 / Kyle PPV: no-PO still gets a header; Select Receipts when a PO exists (part + PO/WO line, slip # = invoice # before HOLD-no-receipts); fees and surcharges vs signed PPV (10% of invoice total **and** ≤ $100, else price-does-not-match HOLD); invoice # as printed; invoice date from the PDF not the email; vendor from the live PO / aliases 1386 and 1410; PDF attach; HOLD also for CHECK STOP / statements / PODs / dups / not-a-bill / price does not match.
+**Enter on LIVE KIMCO (`--live`):** batch `API Agent - M/D/YY` America/Chicago. Same header rules as the 8/27 live test, plus Treyce 8/28 / Kyle PPV: no-PO still gets a header; Select Receipts when a PO exists (part + PO/WO line, slip # = invoice # before HOLD-no-receipts); fees and surcharges vs signed PPV (|bill PPV| under $75, else price-does-not-match HOLD); invoice # as printed; invoice date from the PDF not the email; vendor from the live PO / aliases 1386 and 1410; PDF attach; HOLD also for CHECK STOP / statements / PODs / dups / not-a-bill / price does not match.
 
 **Email:** after the run, send `runs/AP-run-YYYY-MM-DD.xlsx` to `Treyce at kannonmfg.com` FROM `accountspayable@kannonmfg.com` via Graph `sendMail`. Subject `AP run YYYY-MM-DD`. Body is short: Success / Fail / HOLD counts and batch id. If Application `Mail.Send` is missing (403), the xlsx is still written and the run records `email-denied` without crashing the enter path.
 
@@ -298,18 +298,19 @@ Fees and surcharges (shop supplies, packaging recovery, fuel/energy surcharge, f
 
 When an invoice **line** amount does not match the PO **line** amount:
 
-- Post Additional Charge **Purchase Price Variance** (signed; negative is allowed) **only if both**: `|variance|` ≤ 10% of the **invoice total** **and** total PPV on that bill ≤ **$100**.
-- If the variance is **over 10% of invoice total or over $100**, do **not** post PPV. **HOLD / AI HOLD** as **price does not match**. Purchasing must unreceive, change the PO price, and re-receive. Add a comment on the PO line for **@Shawn McKibben**. Do **not** alter receipt unit price in GI (that breaks WO cost, material cost, and PO clearing).
+- Post Additional Charge **Purchase Price Variance** (signed; negative is allowed) **only if** `|total PPV on the bill|` is **under $75** (NOTE-47). The 10%-of-invoice-total rule is deleted. The old $100 cap is replaced by $75.
+- If `|total PPV|` is **$75 or more**, do **not** post PPV and do **not** Select those over-gate receipt lines. **HOLD** as **price does not match**. Move to Transfer AP + Comments_1 `@Shawn McKibben` mention-id 104. Purchasing must unreceive, change the PO price, and re-receive. Do **not** alter receipt unit price in GI (that breaks WO cost, material cost, and PO clearing).
 - **$0 PO unit price** is a price-does-not-match HOLD (Modern Heat pattern), not a PPV.
 
 Worked examples:
 
 | Case | Decision |
 | --- | --- |
-| EMJ 770.16 vs 752.10 on a $752.10 invoice (2.4%, under $100) | PPV **−18.06** |
+| EMJ 770.16 vs 752.10 on a $752.10 invoice (\|PPV\| $18.06 under $75) | PPV **−18.06** |
 | O'Neal $0.10 rounding | PPV **−0.10** |
-| $120 gap on a $2000 invoice (6% but >$100) | price does not match |
-| $50 gap on a $400 invoice (12.5%) | price does not match |
+| $50 gap on a $400 invoice (was 12.5% / old 10% HOLD) | PPV **−50.00** (NOTE-47) |
+| $75 gap on any invoice | price does not match |
+| $120 gap on a $2000 invoice | price does not match |
 
 Terms `1/2% 10 - Net 30` means Net 30 due plus an optional 0.5% discount if paid in 10 days. It is not a different due date.
 
@@ -378,7 +379,7 @@ Live write (one bill): Orthman Incomplete **9931** (invoice 701684, PO 58636). O
 - Real vendor bills with no PO: **create the header**. Do not HOLD just because there is no PO.
 - CHECK STOP, statements, PODs, payment letters, dups, and not-a-bill are **noise**: sheet-note as `Skipped`, stamp Outlook **`AI Skipped 2`**, never `AI HOLD`. They **consume** the 10-email touch cap (Kyle 2026-09-11). Do not walk past them to hunt more bills.
 - Already-flagged mail (`Entered in AI`, `AI HOLD`, `Entered with issues`, `AI Skipped 2`, leftover `AI Skipped`, `flag.flagStatus=flagged`) is left alone and does **not** consume the cap.
-- **Price does not match** (Kyle 2026-08-28): HOLD / `AI HOLD` when the merchandise line gap is over 10% of invoice total or over $100, or when the PO unit price is $0. Do not post PPV. Purchasing unreceives, changes the PO price, and re-receives. Comment **@Shawn McKibben**. Do not change GI receipt unit price.
+- **Price does not match** (Kyle 2026-08-28 / NOTE-47): HOLD when `|bill PPV|` is **$75 or more**, or when the PO unit price is $0. Do not post PPV. Do not Select those over-gate receipt lines. Purchasing unreceives, changes the PO price, and re-receives. Comment **@Shawn McKibben**. Do not change GI receipt unit price. The 10% rule is deleted.
 - HOLD-no-receipts only after a thorough search (slip # = invoice #, part, qty, PO line) finds nothing. Fastenal `TXFT499356` was findable and must not HOLD for that reason.
 - Gas and Supply `0040325801`: CHECK STOP, HOLD, no header.
 - Skip statements, PODs, payment letters, and dups (already filtered from the fixture).

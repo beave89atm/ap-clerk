@@ -220,8 +220,8 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Parse all merchandise lines from the PDF. Select Receipts for each "
             "matching line; do not stop after one. Unmatched lines → not Success "
             "and Why names the skipped line(s). Random-length unit gap that "
-            "passes ≤10% / ≤$100 is PPV, not Fees. Prepaid/shipping-date with "
-            "null amount is not a fee."
+            "is under the $75 |bill PPV| gate (NOTE-47) is PPV, not Fees. "
+            "Prepaid/shipping-date with null amount is not a fee."
         ),
         "never_success": True,
     },
@@ -374,8 +374,8 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Match each invoice line to open receipts on that line's PO by "
             "part / qty / PO. Check every line; select every match. Price "
             "gaps do not skip receipts: qualifying unit-price variance "
-            "posts Additional Charge PPV (≤10% of invoice total and ≤$100); "
-            "do not invent a $0.02 PPV when amounts add cleanly. Over "
+            "posts Additional Charge PPV when |bill PPV| is under $75 "
+            "(NOTE-47); do not invent a $0.02 PPV when amounts add cleanly. Over "
             "threshold → HOLD price-does-not-match + @Shawn McKibben; do "
             "not Select Receipts on the over-PPV line (NOTE-29 / 11003 / "
             "10991). Still select other in-gate lines. 142043: receipt qty 6 / invoice "
@@ -548,12 +548,13 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Shawn could not unreceive, fix the PO price, and re-receive."
         ),
         "expected": (
-            "If a leftover is outside the PPV gate (≤10% of invoice total "
-            "AND bill PPV ≤$100), do not Select Receipts for that line. "
-            "If the whole bill is over-gate, select zero receipts. Still "
-            "create header + attach PDF. HOLD price-does-not-match + "
-            "@Shawn McKibben. Outlook Entered with issues. Never Success. "
-            "Never invent receipts. Kyle 2026-09-16."
+            "If |bill PPV| is $75 or more (NOTE-47), do not Select Receipts "
+            "for that line. If the whole bill is over-gate, select zero "
+            "receipts. Still create header + attach PDF. HOLD "
+            "price-does-not-match + @Shawn McKibben. Outlook Entered with "
+            "issues. Never Success. Never invent receipts. The 10%-of-invoice "
+            "and $100 rules are deleted. Kyle 2026-09-16 lock; gate dollars "
+            "updated 2026-09-21. Leftover 10009 / 10013 stay GET-only."
         ),
         "never_success": True,
         "do_not_void": True,
@@ -778,6 +779,37 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-47",
+        "slug": "ppv-gate-abs-75",
+        "gate": GATE_PRICE,
+        "cases": (
+            "|bill PPV| under $75 → Select + signed PPV + Success",
+            "|bill PPV| $75 or more → no Select those lines; HOLD price_variance",
+            "old 10%-of-invoice-total rule deleted; old $100 cap replaced by $75",
+        ),
+        "9_21_bug": (
+            "Gate was ≤10% of invoice total AND ≤$100. Small invoices "
+            "(AQPC 11003 $8.45 / ~84%) were treated as over-gate because of "
+            "the percent rule. $100 was the dollar cap."
+        ),
+        "expected": (
+            "Measure the absolute dollar total of signed Purchase Price "
+            "Variance Additional Charges needed to hit the PDF after Select "
+            "Receipts / fees. |total PPV| under $75 → Select matching "
+            "receipts, post signed PPV, Success on the current batch. "
+            "|total PPV| $75 or more → do not Select those over-gate lines; "
+            "HOLD price_variance; Transfer AP + Comments_1 @Shawn McKibben "
+            "mention-id 104. Treyce owns Transfer AP. Negative PPV allowed; "
+            "gate on absolute dollars. Fees/shipping stay Additional Charge "
+            "Fees id 11 (never PPV). NOTE-46 UOM/pack still uses PPV (not "
+            "HOLD) when under $75. The 10% rule is deleted. Never invent "
+            "Success. Leftover 10009 / 10013 stay GET-only."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (10009, 10013),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -811,7 +843,7 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     },
     {
         "id": "ppv-within-rule",
-        "check": "PPV only for unit-price gaps vs PO, and only if ≤10% of invoice total AND ≤$100.",
+        "check": "PPV only for unit-price gaps vs PO, and only if |bill PPV| is under $75 (NOTE-47).",
     },
     {
         "id": "pdf-attached",

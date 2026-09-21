@@ -768,7 +768,7 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
         )
     if check.get("price_hold"):
         failures.append(
-            "Price does not match (over 10% of invoice total or over $100, or $0 PO unit). "
+            "Price does not match (|bill PPV| $75 or more, or $0 PO unit). "
             "Fix: HOLD, header+PDF, comment @Shawn McKibben. Do not post PPV."
         )
     if check.get("fees_posted_as_ppv"):
@@ -779,7 +779,7 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
     ppv_over = check.get("ppv_over_rule")
     if ppv_over:
         failures.append(
-            "PPV exceeds Kyle’s ≤10% of invoice total and ≤$100 rule. "
+            "PPV exceeds Kyle’s |bill PPV| under $75 gate (NOTE-47). "
             "Fix: price-does-not-match HOLD, not Success."
         )
     receipt_qty_only = check.get("receipt_qty_only_match")
