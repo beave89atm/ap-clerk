@@ -5,6 +5,10 @@ Do not create headers. Batch 721 only. invent=false. No Mail.Send.
 Kyle 2026-09-21: 10139 / 10142 / 10144 / 10145 / 10146 / 10147 now have
 receipts. Select Receipts by part/qty/PO, shipping → Fees id 11, in-gate
 PPV only. Over-gate → Transfer AP + Comments_1 @Shawn (NOTE-43).
+
+NOTE-44: Fees/surcharges are Additional Charge Fees id 11, not missing
+merch lines. 10144 / 10145 / 10147 are Success when merch receipts +
+Fees = PDF. Do not rewrite 10142 (real missing merch leftovers).
 """
 
 from __future__ import annotations

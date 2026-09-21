@@ -59,7 +59,9 @@ from ap_clerk.rules import (  # noqa: E402
     lookup_id,
     lookup_text,
     match_receipts,
+    merch_lines_excluding_fees,
     money,
+    non_receipt_dollars_are_additional_charge_fees,
     names_match,
     normalize_receipt,
     parse_iso_date,
@@ -700,10 +702,11 @@ def _qty_hold(parsed: dict[str, Any], recs: list[dict[str, Any]]) -> bool:
 
     Inches on a description are not rolled qty. length_qty_equivalent only
     when the invoice line carries an explicit length_inches / inches UOM.
+    NOTE-44: shipping/surcharge rows are Fees, not merch qty.
     """
     merch_qty = 0.0
     have_merch = False
-    lines = list(parsed.get("lines") or [])
+    lines = merch_lines_excluding_fees(parsed.get("lines"))
     for ln in lines:
         q = money(ln.get("qty"))
         if q is not None:
@@ -965,10 +968,17 @@ def quality_jpsteel_row(
         if q is not None and u is not None:
             rec_merch = round(rec_merch + q * u, 2)
 
-    qty_hold = _qty_hold(parsed, recs) if recs or parsed.get("lines") else bool(parsed.get("po"))
     fee_amts = list(proof.get("fee_amounts") or [])
     ppv_amts = list(proof.get("ppv_amounts") or [])
     parsed_fees = list(parsed.get("fees") or [])
+    qty_hold = _qty_hold(parsed, recs) if recs or parsed.get("lines") else bool(parsed.get("po"))
+    if qty_hold and non_receipt_dollars_are_additional_charge_fees(
+        pdf_amount=pdf_amt,
+        receipt_lines=recs,
+        posted_fee_amounts=fee_amts,
+        parsed_fees=parsed_fees,
+    ):
+        qty_hold = False
     fees_ok = fees_posted_cover_parsed(fee_amts, parsed_fees) if parsed_fees else True
     fee_on_ppv = False
     for fee in fees_with_amounts(parsed_fees):

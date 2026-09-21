@@ -2605,6 +2605,80 @@ def is_fee_or_surcharge(label: str) -> bool:
     return any(key in text for key in FEE_KEYWORDS)
 
 
+def merch_lines_excluding_fees(lines: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Merchandise rows only. Shipping/surcharges are Additional Charge Fees.
+
+    NOTE-44: fee-labeled PDF rows are never missing merch receipt qty.
+    """
+    out: list[dict[str, Any]] = []
+    for line in lines or []:
+        if not isinstance(line, dict):
+            continue
+        if line.get("fee") or is_fee_or_surcharge(_line_description(line)):
+            continue
+        out.append(line)
+    return out
+
+
+def receipt_merch_extended(recs: list[dict[str, Any]] | None) -> float:
+    """Selected receipt qty × unit. Missing qty/unit rows are skipped."""
+    total = 0.0
+    for rec in recs or []:
+        if not isinstance(rec, dict):
+            continue
+        qty = money(rec.get("qty"))
+        unit = money(rec.get("unit") if rec.get("unit") is not None else rec.get("unit_price"))
+        if qty is None or unit is None:
+            continue
+        total = round(total + qty * unit, 2)
+    return total
+
+
+def parsed_fee_amount_total(parsed_fees: list[dict[str, Any]] | None) -> float:
+    total = 0.0
+    for fee in parsed_fees or []:
+        if not isinstance(fee, dict):
+            continue
+        amount = money(fee.get("amount"))
+        if amount is None:
+            continue
+        total = round(total + amount, 2)
+    return total
+
+
+def non_receipt_dollars_are_additional_charge_fees(
+    *,
+    pdf_amount: Any,
+    receipt_lines: list[dict[str, Any]] | None,
+    posted_fee_amounts: list[Any] | None = None,
+    parsed_fees: list[dict[str, Any]] | None = None,
+) -> bool:
+    """True when leftover PDF $ after merch receipts are Fees (id 11).
+
+    Posted Additional Charge Fees count. Parsed shipping/surcharges count as
+    to-be-posted so we do not HOLD missing_receipt while Fees are still being
+    written. No selected receipts → False (that is missing_receipt). Real
+    leftover merch dollars (McMaster 72094446 / 10142) → False.
+    """
+    pdf = money(pdf_amount)
+    recs = [row for row in (receipt_lines or []) if isinstance(row, dict)]
+    if pdf is None or not recs:
+        return False
+    leftover = round(pdf - receipt_merch_extended(recs), 2)
+    if leftover <= 0.02:
+        return True
+    posted = round(
+        sum(amount for amount in (money(raw) or 0.0 for raw in (posted_fee_amounts or []))),
+        2,
+    )
+    parsed = parsed_fee_amount_total(parsed_fees)
+    if posted > 0 and abs(leftover - posted) <= 0.02:
+        return True
+    if parsed > 0 and abs(leftover - parsed) <= 0.02:
+        return True
+    return False
+
+
 def normalize_name(value: str | None) -> str:
     text = (value or "").lower()
     text = text.replace("&", " and ")
