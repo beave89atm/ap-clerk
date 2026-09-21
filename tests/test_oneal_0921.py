@@ -26,6 +26,7 @@ from oneal_0921 import (  # noqa: E402
     MIN_INVOICE_DATE,
     VENDOR_NAME,
     exact_invoice_number,
+    sanitize_oneal_fees,
     is_oneal_invoice_email,
     is_oneal_vendor_text,
     leftover_from_catalog,
@@ -48,6 +49,18 @@ def test_forbidden_batches_include_gas_mcmaster_transfer_ap():
     assert "API Agent - 9/18/26 McMaster" in FORBIDDEN_REUSE_NAMES
     assert "API Agent - 9/17/26 Gas & Supply" in FORBIDDEN_REUSE_NAMES
     assert "TRANSFER AP" in FORBIDDEN_REUSE_NAMES
+
+
+def test_freight_handling_code_is_not_a_fee():
+    bill = sanitize_oneal_fees(
+        {
+            "fees": [
+                {"name": "Freight Handling Code", "amount": 5105.0},
+                {"name": "Shipping", "amount": 25.0},
+            ]
+        }
+    )
+    assert bill["fees"] == [{"name": "Shipping", "amount": 25.0}]
 
 
 def test_oneal_invoice_number_is_15xxxxxx():

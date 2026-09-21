@@ -327,6 +327,18 @@ def _parse_date(value: Any) -> date | None:
     return parse_iso_date(str(value)[:10])
 
 
+def sanitize_oneal_fees(bill: dict[str, Any]) -> dict[str, Any]:
+    """O'Neal 'Freight Handling Code' is a ship method, not Additional Charge Fees."""
+    cleaned: list[dict[str, Any]] = []
+    for fee in bill.get("fees") or []:
+        name = str(fee.get("name") or "").lower()
+        if "freight handling" in name or name.strip() in {"blank", "code"}:
+            continue
+        cleaned.append(fee)
+    bill["fees"] = cleaned
+    return bill
+
+
 def _flatten_bills(parsed: dict[str, Any]) -> list[dict[str, Any]]:
     bills = [parsed]
     for sib in parsed.get("siblings") or []:
@@ -389,7 +401,7 @@ def bill_from_message(graph, message: dict[str, Any], pdf_dir: Path) -> list[dic
                 bill["vendor"] = VENDOR_NAME
         if not exact_invoice_number(bill.get("invoice_number")) and wanted:
             bill["invoice_number"] = wanted
-        out.append(bill)
+        out.append(sanitize_oneal_fees(bill))
     return out
 
 
