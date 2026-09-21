@@ -43,7 +43,10 @@ from ap_clerk.kimco import (  # noqa: E402
 )
 from ap_clerk.pdf_invoice import parse_invoice_pdf  # noqa: E402
 from ap_clerk.comments_tab import (  # noqa: E402
+    EXCEPTION_MAIL_SEND,
+    SHAWN_MENTION,
     add_invoice_comment_tab,
+    apply_missing_receipt_comment_tab,
     comment_tab_proof,
     transfer_ap_batch_only_payload,
 )
@@ -166,6 +169,17 @@ PLUS5_HEADERS = {
     "72013304": 10146,
     "71839575": 10147,
 }
+# Next leftover window after plus-5. Live pick still excludes KIMCO/sheet.
+PREFERRED_PLUS10 = (
+    "71743140",
+    "71740547",
+    "71642803",
+    "71668723",
+    "71401129",
+)
+PLUS10_HEADERS: dict[str, int] = {}
+# Every first-pass + plus-5 header. Plus-10 must not mutate these.
+EXISTING_HEADER_IDS = set(range(10138, 10148))
 
 CREDIT_SUBJECT = re.compile(
     r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",
@@ -929,14 +943,16 @@ def quality_mcmaster_row(
             out["Why"] = (
                 f"HOLD (receipt): no open receipt leftover on PO {po or 'n/a'} "
                 f"for McMaster invoice #{pdf_number}. Do not first-open guess. "
-                f"{RUBEN_PEREZ}: receiving must receive the PO so AP can "
-                "Select Receipts. "
+                f"{SHAWN_MCKIBBEN}: receiving must receive the PO so AP can "
+                "Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. "
                 f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
             )
         else:
             out["Why"] = (
                 f"HOLD (receipt): PDF merch vs selected ({format_receipts(proof)}) "
                 f"on PO {po or 'n/a'}. Do not invent Success. "
+                f"{SHAWN_MCKIBBEN}: receiving leftover merch. Comments_1 @Shawn "
+                "(NOTE-45). Do not Transfer AP. "
                 f"{extra}Outlook Entered with issues. Flag status=entered-with-issues."
             )
         out["Flag status"] = "entered-with-issues"
@@ -994,6 +1010,36 @@ def over_ppv_hold_comment(
         "PPV gate. Receipts were NOT selected so purchasing can unreceive, "
         "change the PO price, and re-receive. Do not alter receipt unit price in GI."
     )
+
+
+def missing_receipt_hold_comment(
+    *,
+    invoice_number: str,
+    po: str | None,
+    pdf_amount: Any,
+) -> str:
+    """NOTE-45 McMaster missing_receipt: @Shawn on Comments_1, stay on 721."""
+    amt = money(pdf_amount)
+    amt_txt = f"{amt:.2f}" if amt is not None else "unknown"
+    inv = exact_invoice_number(invoice_number) or str(invoice_number or "")
+    return (
+        f"{SHAWN_MCKIBBEN} HOLD (receipt) on McMaster-Carr {inv} "
+        f"PO {po or 'n/a'} PDF ${amt_txt}. Open leftover merch is not received "
+        "or does not match PDF lines. Header stays on the current API Agent "
+        "batch — do not Transfer AP. Receiving / purchasing: receive the PO "
+        "so AP can Select Receipts. No email."
+    )
+
+
+def is_missing_receipt_hold(row: dict[str, Any]) -> bool:
+    if str(row.get("Result") or "") != "HOLD":
+        return False
+    if str(row.get("Exception category") or "") == "price_variance":
+        return False
+    if str(row.get("Exception category") or "") == "missing_receipt":
+        return True
+    why = str(row.get("Why") or "").lower()
+    return "hold (receipt)" in why or "no open receipt" in why
 
 
 def find_transfer_ap_batch(batches: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1104,6 +1150,7 @@ def apply_over_ppv_transfer_ap(
         "put_body_keys": sorted(body) if isinstance(body, dict) else [],
         "mention_notify": mention,
         "invent": False,
+        "mail_send": EXCEPTION_MAIL_SEND,
     }
 
 
@@ -1168,6 +1215,35 @@ def finish_entered_rows(
                 f"comment={transfer.get('comment')!r} "
                 f"@mention={mention.get('report') or mention}."
             )
+        elif is_missing_receipt_hold(row):
+            comment = missing_receipt_hold_comment(
+                invoice_number=inv,
+                po=str(parsed.get("po") or enter_row.get("PO") or ""),
+                pdf_amount=parsed.get("amount") or enter_row.get("Amount"),
+            )
+            notify = apply_missing_receipt_comment_tab(
+                client,
+                invoice_id=int(kid),
+                body=comment,
+                mention=SHAWN_MENTION,
+            )
+            finishes[inv]["missing_receipt_comment"] = notify
+            after_batch = ""
+            try:
+                after = client.get_item("ap_invoices", int(kid))
+                after_vals = after.get("values") if isinstance(after.get("values"), dict) else {}
+                after_batch = lookup_text((after_vals or {}).get("AP_Invoice_Batch")) or ""
+            except KimcoError:
+                after_batch = ""
+            row["Why"] = (
+                f"{row.get('Why')} Comments_1 missing_receipt "
+                f"status={notify.get('status')} "
+                f"tab={notify.get('report') or notify} "
+                f"transfer_ap={notify.get('transfer_ap')} "
+                f"batch_still={after_batch or 'current'} "
+                f"mail_send={notify.get('mail_send')}."
+            )
+            row = apply_exception_category_owner(row)
         rows.append(row)
         receipts = load_list_receipts(client)
     return rows, finishes
@@ -1185,7 +1261,13 @@ def leftover_from_catalog(
     for bill in older + [b for b in parsed_bills if exact_invoice_number(b.get("invoice_number")) not in chosen]:
         inv = exact_invoice_number(bill.get("invoice_number")) or str(bill.get("invoice_number") or "")
         key = inv or str(bill.get("subject") or "")[:40]
-        if key in seen or inv in chosen or inv in CREATED_HEADERS or inv in PLUS5_HEADERS:
+        if (
+            key in seen
+            or inv in chosen
+            or inv in CREATED_HEADERS
+            or inv in PLUS5_HEADERS
+            or inv in PLUS10_HEADERS
+        ):
             continue
         seen.add(key)
         why = "unflagged leftover after cap 5; not entered"
@@ -1324,7 +1406,7 @@ def main(argv: list[str] | None = None) -> int:
     catalog.sort(key=lambda r: str(r.get("received") or ""), reverse=True)
     print(json.dumps({"discovered": len(catalog), "mcmaster_mail": catalog}, indent=2, default=str), flush=True)
 
-    already = set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS)
+    already = set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS)
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
     skipped_entered = 0

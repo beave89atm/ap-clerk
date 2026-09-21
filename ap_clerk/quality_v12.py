@@ -885,6 +885,7 @@ COL_EXCEPTION_CATEGORY = "Exception category"
 COL_EXCEPTION_OWNER = "Exception owner"
 
 # Stable slugs + who acts next. Map existing gates only; do not invent HOLD reasons.
+# NOTE-45: missing_receipt owner is vendor-aware — McMaster → Shawn, else Ruben.
 EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
     "price_variance": "Shawn McKibben",
     "missing_receipt": "Ruben Perez",
@@ -908,7 +909,29 @@ def exception_prefix(category: str, owner: str) -> str:
     return f"category={category}; owner={owner}"
 
 
-def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str] | None:
+def is_mcmaster_exception_vendor(vendor: str | None, why: str | None = None) -> bool:
+    blob = f"{vendor or ''} {why or ''}".lower()
+    return "mcmaster" in blob
+
+
+def exception_owner_for(
+    category: str,
+    *,
+    vendor: str | None = None,
+    why: str | None = None,
+) -> str:
+    """NOTE-45: McMaster missing_receipt → Shawn; other vendors → Ruben."""
+    if category == "missing_receipt" and is_mcmaster_exception_vendor(vendor, why):
+        return "Shawn McKibben"
+    return EXCEPTION_CATEGORY_OWNERS.get(category) or EXCEPTION_CATEGORY_OWNERS["other"]
+
+
+def classify_exception(
+    *,
+    result: str | None,
+    why: str | None,
+    vendor: str | None = None,
+) -> tuple[str, str] | None:
     """Map a sheet row to (category, owner). None = leave columns blank.
 
     Success and true Skipped noise stay blank. HOLD / Incomplete / Fail /
@@ -926,7 +949,7 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         slug = already.group("category").strip().lower()
         owner = already.group("owner").strip()
         if slug in EXCEPTION_CATEGORY_OWNERS:
-            return slug, owner or EXCEPTION_CATEGORY_OWNERS[slug]
+            return slug, owner or exception_owner_for(slug, vendor=vendor, why=why_s)
 
     why_l = why_s.lower()
     if (
@@ -943,10 +966,14 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         return "vendor_mismatch", EXCEPTION_CATEGORY_OWNERS["vendor_mismatch"]
     if (
         "misty mccoy" in why_l
-        or "transfer ap" in why_l
         or "no-po-on-pdf" in why_l
         or "no po on pdf" in why_l
         or "po number is missing" in why_l
+        or (
+            "transfer ap" in why_l
+            and "do not transfer ap" not in why_l
+            and "hold (receipt)" not in why_l
+        )
     ):
         return "missing_po", EXCEPTION_CATEGORY_OWNERS["missing_po"]
     if GATE_PRICE in why_l or "price does not match" in why_l:
@@ -965,7 +992,9 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or "parts not received" in why_l
         or "hold (receipt)" in why_l
     ):
-        return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
+        return "missing_receipt", exception_owner_for(
+            "missing_receipt", vendor=vendor, why=why_s
+        )
     if "no-pdf" in why_l or "no pdf" in why_l:
         return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
     return "other", EXCEPTION_CATEGORY_OWNERS["other"]
@@ -979,7 +1008,7 @@ def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
     """
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
-    classified = classify_exception(result=result, why=why)
+    classified = classify_exception(result=result, why=why, vendor=row.get("Vendor"))
     if classified is None:
         row[COL_EXCEPTION_CATEGORY] = ""
         row[COL_EXCEPTION_OWNER] = ""
