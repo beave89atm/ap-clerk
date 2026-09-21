@@ -1,5 +1,5 @@
 {
-  "proof": "gas-supply-0917-po-59081-enter",
+  "proof": "gas-supply-0917-po-59081-reverify",
   "invent": false,
   "mail_send": false,
   "vendor": "Gas and Supply North Texas, LLC",
@@ -2005,5 +2005,196 @@
         "amount": 0.0
       }
     }
+  },
+  "po_59081_reverify": {
+    "invent": false,
+    "writes": false,
+    "po_59081": {
+      "exists": true,
+      "lookup_id": 7083,
+      "text": "PO59081-GAS AND SUPPLY",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "status": "open (PO_Closed=False, PO_Cancelled=False, Item_Closed=False)",
+      "line_count": 23,
+      "received_qty_sum": 0,
+      "line_ids": "17890-17912"
+    },
+    "po_59006": {
+      "exists": true,
+      "lookup_id": 7008,
+      "text": "PO59006-GAS AND SUPPLY",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "status": "open (PO_Closed=False, PO_Cancelled=False, Item_Closed=False)",
+      "line_count": 1,
+      "received_qty_sum": 0,
+      "line_ids": "17889"
+    },
+    "receipts": {
+      "list_total": 24311,
+      "listed": 24311,
+      "extracted_59081": 0,
+      "extracted_59006": 0,
+      "extracted_58948": 10,
+      "needle_hits": 0,
+      "part_hits": 0,
+      "gas_receipt_pos": {
+        "58781": 10,
+        "58852": 3,
+        "58890": 23,
+        "58948": 10,
+        "58971": 2
+      },
+      "newest_ids": [
+        24307,
+        24308,
+        24309,
+        24310,
+        24311,
+        24312,
+        24313,
+        24314
+      ],
+      "id_probe_200": [
+        24311,
+        24312,
+        24313,
+        24314
+      ],
+      "id_probe_404_from": 24315,
+      "q_filter_ignored": "Konfigure q/search/status/vendor always returns first page ids 1,2,3\u2026 HTTP 200 not 404"
+    },
+    "headers": [
+      {
+        "id": 10165,
+        "expect": "0040430010",
+        "invoice": "0040430010",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 14.0,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10166,
+        "expect": "0040424839",
+        "invoice": "0040424839",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 224.94,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10167,
+        "expect": "0040438057",
+        "invoice": "0040438057",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 36.12,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10168,
+        "expect": "0040438056",
+        "invoice": "0040438056",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 207.53,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10169,
+        "expect": "0040438055",
+        "invoice": "0040438055",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 27.82,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10170,
+        "expect": "0040438053",
+        "invoice": "0040438053",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 182.5,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10171,
+        "expect": "0040417672",
+        "invoice": "0040417672",
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "po_id": 7083,
+        "amount": 0.0,
+        "verification": 3856.77,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      },
+      {
+        "id": 10172,
+        "expect": "0040414962",
+        "invoice": "0040414962",
+        "type": 3,
+        "po": "PO59006-GAS AND SUPPLY",
+        "po_id": 7008,
+        "amount": 0.0,
+        "verification": 7840.8,
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "vendor": "1069-GAS AND SUPPLY",
+        "attach": 1,
+        "comments_1": 1,
+        "receipt_lines": 0
+      }
+    ],
+    "no_success": "Received_Quantity 0 on every PO line; zero GI leftovers; Type 3 HOLD missing_receipt stays on 720"
   }
 }
