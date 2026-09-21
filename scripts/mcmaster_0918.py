@@ -142,7 +142,7 @@ CREATED_HEADERS = {
     "72094446": 10142,
 }
 # Transfer AP price_variance + receipt-retry HOLDs that still cannot finish.
-LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146, 10148, 10152, 10154}
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146, 10148, 10152, 10154, 10158, 10159}
 # Finished Successes. GET-only — do not re-Select / edit.
 DO_NOT_MUTATE_IDS = {10138, 10141, 10144, 10145, 10147, 10149, 10150, 10151, 10153, 10155, 10156, 10157}
 # Kyle 2026-09-21: receipts now entered — finish these existing headers.
@@ -204,9 +204,12 @@ PREFERRED_PLUS20 = (
     "70759737",
     "70758802",
 )
-PLUS20_HEADERS: dict[str, int] = {}
-# Every header already on the 9/18 McMaster sheet. Plus-20 must not mutate these.
-EXISTING_HEADER_IDS = set(range(10138, 10158))
+PLUS20_HEADERS = {
+    "70759737": 10158,
+    "70758802": 10159,
+}
+# Every header already on the 9/18 McMaster sheet. Later plus waves must not mutate these.
+EXISTING_HEADER_IDS = set(range(10138, 10160))
 
 CREDIT_SUBJECT = re.compile(
     r"\bcredit from your order\b|\bplease deduct credit\b|\bcredit memo\b",

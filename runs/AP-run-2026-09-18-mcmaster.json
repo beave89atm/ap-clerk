@@ -1,5 +1,5 @@
 {
-  "proof": "mcmaster-plus15-0921",
+  "proof": "mcmaster-plus20-0921",
   "invent": false,
   "mail_send": false,
   "vendor": "McMaster-Carr Supply Company",
@@ -10,7 +10,7 @@
     "id": 721,
     "name": "API Agent - 9/18/26 McMaster",
     "status": 0,
-    "unposted": 12,
+    "unposted": 16,
     "matches_expected": true,
     "is_forbidden": false
   },
@@ -35,28 +35,24 @@
     10149,
     10150,
     10151,
-    10152
+    10152,
+    10153,
+    10154,
+    10155,
+    10156,
+    10157
   ],
-  "preferred_plus15": [
-    "71254641",
-    "71236251",
-    "71183051",
-    "71098307",
-    "70907154"
+  "preferred_plus20": [
+    "70759737",
+    "70758802"
   ],
-  "plus15_headers": {
-    "71254641": 10153,
-    "71236251": 10154,
-    "71183051": 10155,
-    "71098307": 10156,
-    "70907154": 10157
+  "plus20_headers": {
+    "70759737": 10158,
+    "70758802": 10159
   },
   "created_headers": {
-    "71254641": 10153,
-    "71236251": 10154,
-    "71183051": 10155,
-    "71098307": 10156,
-    "70907154": 10157
+    "70759737": 10158,
+    "70758802": 10159
   },
   "discovered": 49,
   "catalog": [
@@ -298,8 +294,10 @@
       "invoice": "",
       "po": "59103",
       "received": "2026-09-03T06:50:45Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -312,8 +310,10 @@
       "invoice": "",
       "po": "59103",
       "received": "2026-09-03T06:50:45Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered with issues"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -326,8 +326,10 @@
       "invoice": "",
       "po": "59089",
       "received": "2026-09-02T06:52:01Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -340,8 +342,10 @@
       "invoice": "",
       "po": "59078",
       "received": "2026-09-01T07:12:37Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -386,8 +390,10 @@
       "invoice": "",
       "po": "59046",
       "received": "2026-08-28T06:49:12Z",
-      "flagged": false,
-      "categories": [],
+      "flagged": true,
+      "categories": [
+        "Entered in AI"
+      ],
       "flagStatus": "notFlagged",
       "already_kimco": null,
       "hasAttachments": true,
@@ -1417,348 +1423,182 @@
     "71740547": 10149,
     "71642803": 10150,
     "71668723": 10151,
-    "71401129": 10152
+    "71401129": 10152,
+    "71254641": 10153,
+    "71236251": 10154,
+    "71183051": 10155,
+    "71098307": 10156,
+    "70907154": 10157
   },
   "recent_picked": [
     {
-      "invoice_number": "71254641",
-      "date": "2026-09-02",
-      "po": "59103",
-      "amount": 931.89,
+      "invoice_number": "70759737",
+      "date": "2026-08-25",
+      "po": "59014",
+      "amount": 1037.59,
       "lines": [
         {
-          "part": "7208K55",
-          "qty": 10.0,
-          "unit_price": 63.34,
-          "amount": 633.4,
-          "po_line": 1,
-          "wo": null,
-          "label": "7208K55 Light-Duty Mounted Steel Ball Bearing with",
-          "description": "Light-Duty Mounted Steel Ball Bearing with"
-        },
-        {
-          "part": "93023A667",
-          "qty": 5.0,
-          "unit_price": 23.64,
-          "amount": 118.2,
-          "po_line": 2,
-          "wo": null,
-          "label": "93023A667 Carbon Steel Acme Coupling Nut, Right Hand,",
-          "description": "Carbon Steel Acme Coupling Nut, Right Hand,"
-        },
-        {
-          "part": "91253A624",
-          "qty": 1.0,
-          "unit_price": 11.27,
-          "amount": 11.27,
-          "po_line": 3,
-          "wo": null,
-          "label": "91253A624 Black-Oxide Alloy Steel Hex-Drive Flat Head",
-          "description": "Black-Oxide Alloy Steel Hex-Drive Flat Head"
-        },
-        {
-          "part": "3028T31",
-          "qty": 4.0,
-          "unit_price": 4.95,
-          "amount": 19.8,
-          "po_line": 4,
-          "wo": null,
-          "label": "3028T31 Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000",
-          "description": "Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000"
-        },
-        {
-          "part": "52725A37",
-          "qty": 2.0,
-          "unit_price": 65.88,
-          "amount": 131.76,
-          "po_line": 5,
-          "wo": null,
-          "label": "52725A37 35-Piece Hex Shank Bit Assortment with Adapter",
-          "description": "35-Piece Hex Shank Bit Assortment with Adapter"
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 17.46
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Invoice_71254641_for_PO_59103.PDF",
-      "pdf_bytes": 24774,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59103",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71236251",
-      "date": "2026-09-02",
-      "po": "59103",
-      "amount": 91.25,
-      "lines": [
-        {
-          "part": "7262A61",
-          "qty": 2.0,
-          "unit_price": 39.09,
-          "amount": 78.18,
-          "po_line": 6,
-          "wo": null,
-          "label": "7262A61 Bit Screwdriver with Bit Storage in Pouch, 5-1/2\"",
-          "description": "Bit Screwdriver with Bit Storage in Pouch, 5-1/2\""
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 13.07
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-03_Invoice_71236251_for_PO_59103.PDF",
-      "pdf_bytes": 24259,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59103",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "71183051",
-      "date": "2026-09-01",
-      "po": "59089",
-      "amount": 191.43,
-      "lines": [
-        {
-          "part": "8947T16",
-          "qty": 8.0,
-          "unit_price": 2.2,
-          "amount": 17.6,
-          "po_line": 1,
-          "wo": null,
-          "label": "8947T16 Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,",
-          "description": "Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,"
-        },
-        {
-          "part": "98750A100",
+          "part": "98935A744",
           "qty": 12.0,
-          "unit_price": 1.21,
-          "amount": 14.52,
+          "unit_price": 12.1,
+          "amount": 145.2,
+          "po_line": 1,
+          "wo": null,
+          "label": "98935A744 Carbon Steel Acme Lead Screw, Right Hand, 1\"-5",
+          "description": "Carbon Steel Acme Lead Screw, Right Hand, 1\"-5"
+        },
+        {
+          "part": "6698K17",
+          "qty": 24.0,
+          "unit_price": 21.24,
+          "amount": 509.76,
           "po_line": 2,
           "wo": null,
-          "label": "98750A100 Grade B7 Medium-Strength Steel Threaded Rod,",
-          "description": "Grade B7 Medium-Strength Steel Threaded Rod,"
+          "label": "6698K17 Clamping Acme Lead Screw Collar, Right Hand,",
+          "description": "Clamping Acme Lead Screw Collar, Right Hand,"
         },
         {
-          "part": "90264A485",
-          "qty": 6.0,
-          "unit_price": 1.88,
-          "amount": 11.28,
+          "part": "5909K49",
+          "qty": 48.0,
+          "unit_price": 1.55,
+          "amount": 74.4,
           "po_line": 3,
           "wo": null,
-          "label": "90264A485 Zinc-Plated Steel Coupling Nut, Low-Strength,",
-          "description": "Zinc-Plated Steel Coupling Nut, Low-Strength,"
+          "label": "5909K49 0.032\" Thick Washer for 1\" Shaft Diameter",
+          "description": "0.032\" Thick Washer for 1\" Shaft Diameter"
         },
         {
-          "part": "94846A209",
-          "qty": 1.0,
-          "unit_price": 5.67,
-          "amount": 5.67,
+          "part": "5909K36",
+          "qty": 24.0,
+          "unit_price": 4.47,
+          "amount": 107.28,
           "po_line": 4,
           "wo": null,
-          "label": "94846A209 Medium-Strength Steel Thin-Profile Hex Nut,",
-          "description": "Medium-Strength Steel Thin-Profile Hex Nut,"
+          "label": "5909K36 Needle-Roller Thrust Bearing for 1\" Shaft",
+          "description": "Needle-Roller Thrust Bearing for 1\" Shaft"
         },
         {
-          "part": "5522A23",
-          "qty": 2.0,
-          "unit_price": 15.88,
-          "amount": 31.76,
+          "part": "5544A25",
+          "qty": 12.0,
+          "unit_price": 11.32,
+          "amount": 135.84,
           "po_line": 5,
           "wo": null,
-          "label": "5522A23 3/8\" Square Drive Socket Extension, 6\" Long,",
-          "description": "3/8\" Square Drive Socket Extension, 6\" Long,"
+          "label": "5544A25 6-Point Standard Socket, 3/8\" Square Drive, 1\"",
+          "description": "6-Point Standard Socket, 3/8\" Square Drive, 1\""
         },
         {
-          "part": "5522A38",
+          "part": "98410A133",
           "qty": 2.0,
-          "unit_price": 18.52,
-          "amount": 37.04,
+          "unit_price": 15.36,
+          "amount": 30.72,
           "po_line": 6,
           "wo": null,
-          "label": "5522A38 3/8\" Square Drive Socket Extension, 8\" Long,",
-          "description": "3/8\" Square Drive Socket Extension, 8\" Long,"
-        },
-        {
-          "part": "2667A415",
-          "qty": 2.0,
-          "unit_price": 2.68,
-          "amount": 5.36,
-          "po_line": 7,
-          "wo": null,
-          "label": "2667A415 Thread-Repairing Die Nut for Tight Spots, 1/2\"-13",
-          "description": "Thread-Repairing Die Nut for Tight Spots, 1/2\"-13"
-        },
-        {
-          "part": "2667A417",
-          "qty": 2.0,
-          "unit_price": 2.52,
-          "amount": 5.04,
-          "po_line": 8,
-          "wo": null,
-          "label": "2667A417 Thread-Repairing Die Nut for Tight Spots, 5/8\"-11",
-          "description": "Thread-Repairing Die Nut for Tight Spots, 5/8\"-11"
-        },
-        {
-          "part": "2667A413",
-          "qty": 2.0,
-          "unit_price": 2.05,
-          "amount": 4.1,
-          "po_line": 9,
-          "wo": null,
-          "label": "2667A413 Thread-Repairing Die Nut for Tight Spots, 3/8\"-16",
-          "description": "Thread-Repairing Die Nut for Tight Spots, 3/8\"-16"
-        },
-        {
-          "part": "3575A23",
-          "qty": 1.0,
-          "unit_price": 44.53,
-          "amount": 44.53,
-          "po_line": 10,
-          "wo": null,
-          "label": "3575A23 Smooth Handle Chisel for Metal, 5-Piece Set,",
-          "description": "Smooth Handle Chisel for Metal, 5-Piece Set,"
+          "label": "98410A133 External Retaining Ring for 1\" OD, Zinc",
+          "description": "External Retaining Ring for 1\" OD, Zinc"
         }
       ],
       "fees": [
         {
           "name": "Shipping",
-          "amount": 14.53
+          "amount": 34.39
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-02_Invoice_71183051_for_PO_59089.PDF",
-      "pdf_bytes": 26291,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-26_Invoice_70759737_for_PO_59014.PDF",
+      "pdf_bytes": 24854,
       "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice for Your Order 59089",
+      "subject": "Invoice for Your Order 59014",
       "graph_message_id_present": true
     },
     {
-      "invoice_number": "71098307",
-      "date": "2026-08-31",
-      "po": "59078",
-      "amount": 82.57,
+      "invoice_number": "70758802",
+      "date": "2026-08-25",
+      "po": "59001",
+      "amount": 49.19,
       "lines": [
         {
-          "part": "90126A031",
-          "qty": 4.0,
-          "unit_price": 8.1,
-          "amount": 32.4,
+          "part": "7767T21",
+          "qty": 1.0,
+          "unit_price": 12.66,
+          "amount": 12.66,
           "po_line": 1,
           "wo": null,
-          "label": "90126A031 Zinc-Plated Steel SAE Washer for 3/8\" Screw",
-          "description": "Zinc-Plated Steel SAE Washer for 3/8\" Screw"
+          "label": "7767T21 Low-Carbon Steel Round Tube, 0.049\" Wall",
+          "description": "Low-Carbon Steel Round Tube, 0.049\" Wall"
         },
         {
-          "part": "92865A724",
-          "qty": 4.0,
-          "unit_price": 8.91,
-          "amount": 35.64,
+          "part": "97447A025",
+          "qty": 1.0,
+          "unit_price": 11.53,
+          "amount": 11.53,
           "po_line": 2,
           "wo": null,
-          "label": "92865A724 Medium-Strength Grade 5 Steel Hex Head Screw,",
-          "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
+          "label": "97447A025 Aluminum Blind Rivets with Aluminum Mandrel,",
+          "description": "Aluminum Blind Rivets with Aluminum Mandrel,"
         }
       ],
       "fees": [
         {
           "name": "Shipping",
-          "amount": 14.53
+          "amount": 25.0
         }
       ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-09-01_Invoice_71098307_for_PO_59078.PDF",
-      "pdf_bytes": 24420,
+      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-26_Invoice_70758802_for_PO_59001.PDF",
+      "pdf_bytes": 24460,
       "download_method": "attachment",
       "hold_reason": "",
       "browser_tried": null,
       "browser_failure": null,
-      "subject": "Invoice for Your Order 59078",
-      "graph_message_id_present": true
-    },
-    {
-      "invoice_number": "70907154",
-      "date": "2026-08-27",
-      "po": "59046",
-      "amount": 123.78,
-      "lines": [
-        {
-          "part": "92949A444",
-          "qty": 6.0,
-          "unit_price": 14.52,
-          "amount": 87.12,
-          "po_line": 1,
-          "wo": null,
-          "label": "92949A444 18-8 Stainless Steel Button Head Hex-Drive",
-          "description": "18-8 Stainless Steel Button Head Hex-Drive"
-        },
-        {
-          "part": "92141A030",
-          "qty": 1.0,
-          "unit_price": 7.53,
-          "amount": 7.53,
-          "po_line": 2,
-          "wo": null,
-          "label": "92141A030 18-8 Stainless Steel Washer for 5/16\" Screw,",
-          "description": "18-8 Stainless Steel Washer for 5/16\" Screw,"
-        },
-        {
-          "part": "91845A030",
-          "qty": 1.0,
-          "unit_price": 9.01,
-          "amount": 9.01,
-          "po_line": 3,
-          "wo": null,
-          "label": "91845A030 Corrosion-Resistant 18-8 Stainless Steel Hex Nut,",
-          "description": "Corrosion-Resistant 18-8 Stainless Steel Hex Nut,"
-        },
-        {
-          "part": "92146A030",
-          "qty": 1.0,
-          "unit_price": 5.74,
-          "amount": 5.74,
-          "po_line": 4,
-          "wo": null,
-          "label": "92146A030 18-8 Stainless Steel Split Lock Washer for 5/16\"",
-          "description": "18-8 Stainless Steel Split Lock Washer for 5/16\""
-        }
-      ],
-      "fees": [
-        {
-          "name": "Shipping",
-          "amount": 14.38
-        }
-      ],
-      "pdf_path": "/workspace/runs/inbox-pdfs/2026-08-28_Invoice_70907154_for_PO_59046.PDF",
-      "pdf_bytes": 24614,
-      "download_method": "attachment",
-      "hold_reason": "",
-      "browser_tried": null,
-      "browser_failure": null,
-      "subject": "Invoice for Your Order 59046",
+      "subject": "Invoice for Your Order 59001",
       "graph_message_id_present": true
     }
   ],
   "finishes": {
-    "71254641": {
+    "70759737": {
+      "wanted": [],
+      "select_status": "held-unfinished",
+      "fee_status": "already-posted",
+      "ppv_status": "none",
+      "ppv_amount": 0.0,
+      "match_how": null,
+      "matched": [],
+      "skipped_over_ppv": false,
+      "select_zero": false,
+      "open_on_po": [],
+      "missing_receipt_comment": {
+        "status": "added",
+        "put": 200,
+        "error": "",
+        "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on McMaster-Carr 70759737 PO 59014 PDF $1037.59. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. No email.</p>",
+        "put_body_keys": [
+          "id",
+          "lists",
+          "url",
+          "values"
+        ],
+        "invent": false,
+        "mail_send": false,
+        "tab_persisted": true,
+        "comments_persisted": true,
+        "header_string_ignored": true,
+        "header_has_shawn": false,
+        "item_ids": [
+          891
+        ],
+        "mention_node": true,
+        "mention_id": 104,
+        "worked": false,
+        "notify_confirmed": false,
+        "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 891, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+        "transfer_ap": false
+      }
+    },
+    "70758802": {
       "wanted": [
-        23835,
-        23836,
-        23837,
-        23838,
-        23839
+        23700
       ],
       "select_status": "selected",
       "fee_status": "already-posted",
@@ -1768,196 +1608,36 @@
       "matched": [
         {
           "line": {
-            "part": "7208K55",
-            "qty": 10.0,
-            "unit_price": 63.34,
-            "amount": 633.4,
-            "po_line": 1,
-            "wo": null,
-            "label": "7208K55 Light-Duty Mounted Steel Ball Bearing with",
-            "description": "Light-Duty Mounted Steel Ball Bearing with"
-          },
-          "receipt": {
-            "id": 23835,
-            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59103-01",
-            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "qty": 10.0,
-            "unit_price": 63.34,
-            "amount": 633.4,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59103",
-            "wo": "",
-            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17556,
-                "text": "PO59103-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "93023A667",
-            "qty": 5.0,
-            "unit_price": 23.64,
-            "amount": 118.2,
+            "part": "97447A025",
+            "qty": 1.0,
+            "unit_price": 11.53,
+            "amount": 11.53,
             "po_line": 2,
             "wo": null,
-            "label": "93023A667 Carbon Steel Acme Coupling Nut, Right Hand,",
-            "description": "Carbon Steel Acme Coupling Nut, Right Hand,"
+            "label": "97447A025 Aluminum Blind Rivets with Aluminum Mandrel,",
+            "description": "Aluminum Blind Rivets with Aluminum Mandrel,"
           },
           "receipt": {
-            "id": 23836,
-            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59103-02",
-            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "qty": 5.0,
-            "unit_price": 23.64,
-            "amount": 118.2,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59103",
-            "wo": "",
-            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17557,
-                "text": "PO59103-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "91253A624",
+            "id": 23700,
+            "slip": "PO59001-MCMASTER-CARR - 2026/9/2",
+            "part": "PO59001-02",
+            "description": "PO59001-MCMASTER-CARR - 2026/9/2",
+            "label": "PO59001-MCMASTER-CARR - 2026/9/2",
             "qty": 1.0,
-            "unit_price": 11.27,
-            "amount": 11.27,
-            "po_line": 3,
-            "wo": null,
-            "label": "91253A624 Black-Oxide Alloy Steel Hex-Drive Flat Head",
-            "description": "Black-Oxide Alloy Steel Hex-Drive Flat Head"
-          },
-          "receipt": {
-            "id": 23837,
-            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59103-03",
-            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "qty": 1.0,
-            "unit_price": 11.27,
-            "amount": 11.27,
+            "unit_price": 11.53,
+            "amount": 11.53,
             "cost": null,
             "po_line": null,
             "line": null,
             "line_no": null,
-            "po": "59103",
+            "po": "59001",
             "wo": "",
-            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
+            "name": "PO59001-MCMASTER-CARR - 2026/9/2",
             "raw": {
-              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
+              "Name": "PO59001-MCMASTER-CARR - 2026/9/2",
               "PO_Item_Number": {
-                "id": 17558,
-                "text": "PO59103-03",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "3028T31",
-            "qty": 4.0,
-            "unit_price": 4.95,
-            "amount": 19.8,
-            "po_line": 4,
-            "wo": null,
-            "label": "3028T31 Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000",
-            "description": "Weld-on Tie-Down Ring, Zinc-Plated Steel, 2000"
-          },
-          "receipt": {
-            "id": 23838,
-            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59103-04",
-            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "qty": 4.0,
-            "unit_price": 4.95,
-            "amount": 19.8,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59103",
-            "wo": "",
-            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17559,
-                "text": "PO59103-04",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "52725A37",
-            "qty": 2.0,
-            "unit_price": 65.88,
-            "amount": 131.76,
-            "po_line": 5,
-            "wo": null,
-            "label": "52725A37 35-Piece Hex Shank Bit Assortment with Adapter",
-            "description": "35-Piece Hex Shank Bit Assortment with Adapter"
-          },
-          "receipt": {
-            "id": 23839,
-            "slip": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59103-05",
-            "description": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "qty": 2.0,
-            "unit_price": 65.88,
-            "amount": 131.76,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59103",
-            "wo": "",
-            "name": "PO59103-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59103-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17560,
-                "text": "PO59103-05",
+                "id": 17368,
+                "text": "PO59001-02",
                 "isAbstract": false
               }
             }
@@ -1967,107 +1647,34 @@
           "how": "part/PO-WO/slip"
         }
       ],
-      "skipped_over_ppv": false,
+      "skipped_over_ppv": true,
       "select_zero": false,
       "open_on_po": [
         {
-          "id": 23835,
-          "qty": 10.0,
-          "unit_price": 63.34,
-          "part": "PO59103-01"
+          "id": 23451,
+          "qty": 72.0,
+          "unit_price": 0.21,
+          "part": "PO59001-01"
         },
         {
-          "id": 23836,
-          "qty": 5.0,
-          "unit_price": 23.64,
-          "part": "PO59103-02"
-        },
-        {
-          "id": 23837,
+          "id": 23700,
           "qty": 1.0,
-          "unit_price": 11.27,
-          "part": "PO59103-03"
-        },
-        {
-          "id": 23838,
-          "qty": 4.0,
-          "unit_price": 4.95,
-          "part": "PO59103-04"
-        },
-        {
-          "id": 23839,
-          "qty": 2.0,
-          "unit_price": 65.88,
-          "part": "PO59103-05"
-        },
-        {
-          "id": 23840,
-          "qty": 2.0,
-          "unit_price": 0.0,
-          "part": "PO59103-06"
-        }
-      ]
-    },
-    "71236251": {
-      "wanted": [],
-      "select_status": "ppv-lock-select-zero",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [],
-      "skipped_over_ppv": true,
-      "select_zero": true,
-      "open_on_po": [
-        {
-          "id": 23835,
-          "qty": 10.0,
-          "unit_price": 63.34,
-          "part": "PO59103-01"
-        },
-        {
-          "id": 23836,
-          "qty": 5.0,
-          "unit_price": 23.64,
-          "part": "PO59103-02"
-        },
-        {
-          "id": 23837,
-          "qty": 1.0,
-          "unit_price": 11.27,
-          "part": "PO59103-03"
-        },
-        {
-          "id": 23838,
-          "qty": 4.0,
-          "unit_price": 4.95,
-          "part": "PO59103-04"
-        },
-        {
-          "id": 23839,
-          "qty": 2.0,
-          "unit_price": 65.88,
-          "part": "PO59103-05"
-        },
-        {
-          "id": 23840,
-          "qty": 2.0,
-          "unit_price": 0.0,
-          "part": "PO59103-06"
+          "unit_price": 11.53,
+          "part": "PO59001-02"
         }
       ],
       "transfer_ap": {
         "status": "moved",
-        "kimco_id": 10154,
+        "kimco_id": 10159,
         "batch_id": 375,
         "batch_name": "TRANSFER AP",
-        "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
-        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 71236251 PO 59103 PDF $91.25. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+        "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+        "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on McMaster-Carr 70758802 PO 59001 PDF $49.19. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
         "comment_tab": {
           "status": "added",
           "put": 200,
           "error": "",
-          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on McMaster-Carr 71236251 PO 59103 PDF $91.25. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
+          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on McMaster-Carr 70758802 PO 59001 PDF $49.19. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
           "put_body_keys": [
             "id",
             "lists",
@@ -2081,13 +1688,13 @@
           "header_string_ignored": true,
           "header_has_shawn": false,
           "item_ids": [
-            889
+            892
           ],
           "mention_node": true,
           "mention_id": 104,
           "worked": false,
           "notify_confirmed": false,
-          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
         },
         "put": 200,
         "error": "",
@@ -2102,13 +1709,13 @@
           "header_string_ignored": true,
           "header_has_shawn": false,
           "item_ids": [
-            889
+            892
           ],
           "mention_node": true,
           "mention_id": 104,
           "worked": false,
           "notify_confirmed": false,
-          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
           "probes": [
             {
               "suffix": "comments",
@@ -2127,840 +1734,22 @@
         "invent": false,
         "mail_send": false
       }
-    },
-    "71183051": {
-      "wanted": [
-        23783,
-        23784,
-        23785,
-        23786,
-        23787,
-        23788,
-        23789,
-        23790,
-        23791,
-        23792
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "8947T16",
-            "qty": 8.0,
-            "unit_price": 2.2,
-            "amount": 17.6,
-            "po_line": 1,
-            "wo": null,
-            "label": "8947T16 Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,",
-            "description": "Oval Quick Link, Zinc-Plated Steel, 1/4\" Thickness,"
-          },
-          "receipt": {
-            "id": 23783,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-01",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 8.0,
-            "unit_price": 2.2,
-            "amount": 17.6,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17530,
-                "text": "PO59089-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "98750A100",
-            "qty": 12.0,
-            "unit_price": 1.21,
-            "amount": 14.52,
-            "po_line": 2,
-            "wo": null,
-            "label": "98750A100 Grade B7 Medium-Strength Steel Threaded Rod,",
-            "description": "Grade B7 Medium-Strength Steel Threaded Rod,"
-          },
-          "receipt": {
-            "id": 23784,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-02",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 12.0,
-            "unit_price": 1.21,
-            "amount": 14.52,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17540,
-                "text": "PO59089-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "90264A485",
-            "qty": 6.0,
-            "unit_price": 1.88,
-            "amount": 11.28,
-            "po_line": 3,
-            "wo": null,
-            "label": "90264A485 Zinc-Plated Steel Coupling Nut, Low-Strength,",
-            "description": "Zinc-Plated Steel Coupling Nut, Low-Strength,"
-          },
-          "receipt": {
-            "id": 23785,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-03",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 6.0,
-            "unit_price": 1.88,
-            "amount": 11.28,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17541,
-                "text": "PO59089-03",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "94846A209",
-            "qty": 1.0,
-            "unit_price": 5.67,
-            "amount": 5.67,
-            "po_line": 4,
-            "wo": null,
-            "label": "94846A209 Medium-Strength Steel Thin-Profile Hex Nut,",
-            "description": "Medium-Strength Steel Thin-Profile Hex Nut,"
-          },
-          "receipt": {
-            "id": 23786,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-04",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 1.0,
-            "unit_price": 5.67,
-            "amount": 5.67,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17542,
-                "text": "PO59089-04",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "5522A23",
-            "qty": 2.0,
-            "unit_price": 15.88,
-            "amount": 31.76,
-            "po_line": 5,
-            "wo": null,
-            "label": "5522A23 3/8\" Square Drive Socket Extension, 6\" Long,",
-            "description": "3/8\" Square Drive Socket Extension, 6\" Long,"
-          },
-          "receipt": {
-            "id": 23787,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-05",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 2.0,
-            "unit_price": 15.88,
-            "amount": 31.76,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17543,
-                "text": "PO59089-05",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "5522A38",
-            "qty": 2.0,
-            "unit_price": 18.52,
-            "amount": 37.04,
-            "po_line": 6,
-            "wo": null,
-            "label": "5522A38 3/8\" Square Drive Socket Extension, 8\" Long,",
-            "description": "3/8\" Square Drive Socket Extension, 8\" Long,"
-          },
-          "receipt": {
-            "id": 23788,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-06",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 2.0,
-            "unit_price": 18.52,
-            "amount": 37.04,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17544,
-                "text": "PO59089-06",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "2667A415",
-            "qty": 2.0,
-            "unit_price": 2.68,
-            "amount": 5.36,
-            "po_line": 7,
-            "wo": null,
-            "label": "2667A415 Thread-Repairing Die Nut for Tight Spots, 1/2\"-13",
-            "description": "Thread-Repairing Die Nut for Tight Spots, 1/2\"-13"
-          },
-          "receipt": {
-            "id": 23789,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-07",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 2.0,
-            "unit_price": 2.68,
-            "amount": 5.36,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17545,
-                "text": "PO59089-07",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "2667A417",
-            "qty": 2.0,
-            "unit_price": 2.52,
-            "amount": 5.04,
-            "po_line": 8,
-            "wo": null,
-            "label": "2667A417 Thread-Repairing Die Nut for Tight Spots, 5/8\"-11",
-            "description": "Thread-Repairing Die Nut for Tight Spots, 5/8\"-11"
-          },
-          "receipt": {
-            "id": 23790,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-08",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 2.0,
-            "unit_price": 2.52,
-            "amount": 5.04,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17546,
-                "text": "PO59089-08",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "2667A413",
-            "qty": 2.0,
-            "unit_price": 2.05,
-            "amount": 4.1,
-            "po_line": 9,
-            "wo": null,
-            "label": "2667A413 Thread-Repairing Die Nut for Tight Spots, 3/8\"-16",
-            "description": "Thread-Repairing Die Nut for Tight Spots, 3/8\"-16"
-          },
-          "receipt": {
-            "id": 23791,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-09",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 2.0,
-            "unit_price": 2.05,
-            "amount": 4.1,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17547,
-                "text": "PO59089-09",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "3575A23",
-            "qty": 1.0,
-            "unit_price": 44.53,
-            "amount": 44.53,
-            "po_line": 10,
-            "wo": null,
-            "label": "3575A23 Smooth Handle Chisel for Metal, 5-Piece Set,",
-            "description": "Smooth Handle Chisel for Metal, 5-Piece Set,"
-          },
-          "receipt": {
-            "id": 23792,
-            "slip": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "part": "PO59089-10",
-            "description": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "label": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "qty": 1.0,
-            "unit_price": 44.53,
-            "amount": 44.53,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59089",
-            "wo": "",
-            "name": "PO59089-MCMASTER-CARR - 2026/9/3",
-            "raw": {
-              "Name": "PO59089-MCMASTER-CARR - 2026/9/3",
-              "PO_Item_Number": {
-                "id": 17548,
-                "text": "PO59089-10",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23783,
-          "qty": 8.0,
-          "unit_price": 2.2,
-          "part": "PO59089-01"
-        },
-        {
-          "id": 23784,
-          "qty": 12.0,
-          "unit_price": 1.21,
-          "part": "PO59089-02"
-        },
-        {
-          "id": 23785,
-          "qty": 6.0,
-          "unit_price": 1.88,
-          "part": "PO59089-03"
-        },
-        {
-          "id": 23786,
-          "qty": 1.0,
-          "unit_price": 5.67,
-          "part": "PO59089-04"
-        },
-        {
-          "id": 23787,
-          "qty": 2.0,
-          "unit_price": 15.88,
-          "part": "PO59089-05"
-        },
-        {
-          "id": 23788,
-          "qty": 2.0,
-          "unit_price": 18.52,
-          "part": "PO59089-06"
-        },
-        {
-          "id": 23789,
-          "qty": 2.0,
-          "unit_price": 2.68,
-          "part": "PO59089-07"
-        },
-        {
-          "id": 23790,
-          "qty": 2.0,
-          "unit_price": 2.52,
-          "part": "PO59089-08"
-        },
-        {
-          "id": 23791,
-          "qty": 2.0,
-          "unit_price": 2.05,
-          "part": "PO59089-09"
-        },
-        {
-          "id": 23792,
-          "qty": 1.0,
-          "unit_price": 44.53,
-          "part": "PO59089-10"
-        }
-      ]
-    },
-    "71098307": {
-      "wanted": [
-        23701,
-        23702
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "90126A031",
-            "qty": 4.0,
-            "unit_price": 8.1,
-            "amount": 32.4,
-            "po_line": 1,
-            "wo": null,
-            "label": "90126A031 Zinc-Plated Steel SAE Washer for 3/8\" Screw",
-            "description": "Zinc-Plated Steel SAE Washer for 3/8\" Screw"
-          },
-          "receipt": {
-            "id": 23701,
-            "slip": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "part": "PO59078-01",
-            "description": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "label": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "qty": 4.0,
-            "unit_price": 8.1,
-            "amount": 32.4,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59078",
-            "wo": "",
-            "name": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "raw": {
-              "Name": "PO59078-MCMASTER-CARR - 2026/9/2",
-              "PO_Item_Number": {
-                "id": 17520,
-                "text": "PO59078-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92865A724",
-            "qty": 4.0,
-            "unit_price": 8.91,
-            "amount": 35.64,
-            "po_line": 2,
-            "wo": null,
-            "label": "92865A724 Medium-Strength Grade 5 Steel Hex Head Screw,",
-            "description": "Medium-Strength Grade 5 Steel Hex Head Screw,"
-          },
-          "receipt": {
-            "id": 23702,
-            "slip": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "part": "PO59078-02",
-            "description": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "label": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "qty": 4.0,
-            "unit_price": 8.91,
-            "amount": 35.64,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59078",
-            "wo": "",
-            "name": "PO59078-MCMASTER-CARR - 2026/9/2",
-            "raw": {
-              "Name": "PO59078-MCMASTER-CARR - 2026/9/2",
-              "PO_Item_Number": {
-                "id": 17521,
-                "text": "PO59078-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23701,
-          "qty": 4.0,
-          "unit_price": 8.1,
-          "part": "PO59078-01"
-        },
-        {
-          "id": 23702,
-          "qty": 4.0,
-          "unit_price": 8.91,
-          "part": "PO59078-02"
-        }
-      ]
-    },
-    "70907154": {
-      "wanted": [
-        23826,
-        23827,
-        23828,
-        23829
-      ],
-      "select_status": "selected",
-      "fee_status": "already-posted",
-      "ppv_status": "none",
-      "ppv_amount": 0.0,
-      "match_how": null,
-      "matched": [
-        {
-          "line": {
-            "part": "92949A444",
-            "qty": 6.0,
-            "unit_price": 14.52,
-            "amount": 87.12,
-            "po_line": 1,
-            "wo": null,
-            "label": "92949A444 18-8 Stainless Steel Button Head Hex-Drive",
-            "description": "18-8 Stainless Steel Button Head Hex-Drive"
-          },
-          "receipt": {
-            "id": 23826,
-            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59046-01",
-            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "qty": 6.0,
-            "unit_price": 14.52,
-            "amount": 87.12,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59046",
-            "wo": "",
-            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17642,
-                "text": "PO59046-01",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92141A030",
-            "qty": 1.0,
-            "unit_price": 7.53,
-            "amount": 7.53,
-            "po_line": 2,
-            "wo": null,
-            "label": "92141A030 18-8 Stainless Steel Washer for 5/16\" Screw,",
-            "description": "18-8 Stainless Steel Washer for 5/16\" Screw,"
-          },
-          "receipt": {
-            "id": 23827,
-            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59046-02",
-            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "qty": 1.0,
-            "unit_price": 7.53,
-            "amount": 7.53,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59046",
-            "wo": "",
-            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17643,
-                "text": "PO59046-02",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "91845A030",
-            "qty": 1.0,
-            "unit_price": 9.01,
-            "amount": 9.01,
-            "po_line": 3,
-            "wo": null,
-            "label": "91845A030 Corrosion-Resistant 18-8 Stainless Steel Hex Nut,",
-            "description": "Corrosion-Resistant 18-8 Stainless Steel Hex Nut,"
-          },
-          "receipt": {
-            "id": 23828,
-            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59046-03",
-            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "qty": 1.0,
-            "unit_price": 9.01,
-            "amount": 9.01,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59046",
-            "wo": "",
-            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17644,
-                "text": "PO59046-03",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        },
-        {
-          "line": {
-            "part": "92146A030",
-            "qty": 1.0,
-            "unit_price": 5.74,
-            "amount": 5.74,
-            "po_line": 4,
-            "wo": null,
-            "label": "92146A030 18-8 Stainless Steel Split Lock Washer for 5/16\"",
-            "description": "18-8 Stainless Steel Split Lock Washer for 5/16\""
-          },
-          "receipt": {
-            "id": 23829,
-            "slip": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "part": "PO59046-04",
-            "description": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "label": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "qty": 1.0,
-            "unit_price": 5.74,
-            "amount": 5.74,
-            "cost": null,
-            "po_line": null,
-            "line": null,
-            "line_no": null,
-            "po": "59046",
-            "wo": "",
-            "name": "PO59046-MCMASTER-CARR - 2026/9/8",
-            "raw": {
-              "Name": "PO59046-MCMASTER-CARR - 2026/9/8",
-              "PO_Item_Number": {
-                "id": 17645,
-                "text": "PO59046-04",
-                "isAbstract": false
-              }
-            }
-          },
-          "score": 75,
-          "pass": "first",
-          "how": "part/PO-WO/slip"
-        }
-      ],
-      "skipped_over_ppv": false,
-      "select_zero": false,
-      "open_on_po": [
-        {
-          "id": 23826,
-          "qty": 6.0,
-          "unit_price": 14.52,
-          "part": "PO59046-01"
-        },
-        {
-          "id": 23827,
-          "qty": 1.0,
-          "unit_price": 7.53,
-          "part": "PO59046-02"
-        },
-        {
-          "id": 23828,
-          "qty": 1.0,
-          "unit_price": 9.01,
-          "part": "PO59046-03"
-        },
-        {
-          "id": 23829,
-          "qty": 1.0,
-          "unit_price": 5.74,
-          "part": "PO59046-04"
-        }
-      ]
     }
   },
   "new_rows": [
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71254641",
-      "date": "2026-09-02",
-      "PO": "59103",
-      "Amount": 931.89,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59103. Select Receipts 23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88 on PO 59103. Invoice #=71254641 (exact PDF, not subject Order #). Fees=Shipping 17.46 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23835, 23836, 23837, 23838, 23839] fees=already-posted ppv=none. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10153,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 17.46",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "23835 10@63.34; 23836 5@23.64; 23837 1@11.27; 23838 4@4.95; 23839 2@65.88",
-      "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71236251",
-      "date": "2026-09-02",
-      "PO": "59103",
-      "Amount": 91.25,
+      "Invoice #": "70759737",
+      "date": "2026-08-25",
+      "PO": "59014",
+      "Amount": 1037.59,
       "Result": "HOLD",
-      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 889, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
-      "Exception category": "price_variance",
+      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): no open receipt leftover on PO 59014 for McMaster invoice #70759737. Do not first-open guess. @Shawn McKibben: receiving must receive the PO so AP can Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. Outlook Entered with issues. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 891, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False batch_still=API Agent - 9/18/26 McMaster mail_send=False.",
+      "Exception category": "missing_receipt",
       "Exception owner": "Shawn McKibben",
-      "KIMCO id": 10154,
-      "Batch": "TRANSFER AP (375)",
-      "Fees and surcharges": "Shipping 13.07",
+      "KIMCO id": 10158,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 34.39",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
@@ -2971,87 +1760,27 @@
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71183051",
-      "date": "2026-09-01",
-      "PO": "59089",
-      "Amount": 191.43,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59089. Select Receipts 23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05 on PO 59089. Invoice #=71183051 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23783, 23784, 23785, 23786, 23787, 23788, 23789, 23790, 23791, 23792] fees=already-posted ppv=none. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10155,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 14.53",
+      "Invoice #": "70758802",
+      "date": "2026-08-25",
+      "PO": "59001",
+      "Amount": 49.19,
+      "Result": "HOLD",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Finish Select Receipts selected ids=[23700] fees=already-posted ppv=none. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+      "Exception category": "price_variance",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10159,
+      "Batch": "TRANSFER AP (375)",
+      "Fees and surcharges": "Shipping 25.0",
       "PPV": "none",
       "Attach status": "attached",
-      "Flag status": "entered-in-ai",
+      "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "23783 8@2.2; 23792 1@44.53; 23784 12@1.21; 23785 6@1.88; 23786 1@5.67; 23787 2@15.88; 23788 2@18.52; 23789 2@2.68; 23790 2@2.52; 23791 2@2.05",
-      "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71098307",
-      "date": "2026-08-31",
-      "PO": "59078",
-      "Amount": 82.57,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59078. Select Receipts 23701 4@8.1; 23702 4@8.91 on PO 59078. Invoice #=71098307 (exact PDF, not subject Order #). Fees=Shipping 14.53 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23701, 23702] fees=already-posted ppv=none. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10156,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 14.53",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "23701 4@8.1; 23702 4@8.91",
-      "outlook": "entered-in-ai"
-    },
-    {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "70907154",
-      "date": "2026-08-27",
-      "PO": "59046",
-      "Amount": 123.78,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59046. Select Receipts 23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74 on PO 59046. Invoice #=70907154 (exact PDF, not subject Order #). Fees=Shipping 14.38 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23826, 23827, 23828, 23829] fees=already-posted ppv=none. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10157,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 14.38",
-      "PPV": "none",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74",
-      "outlook": "entered-in-ai"
+      "Receipts": "23700 1@11.53",
+      "outlook": "entered-with-issues"
     }
   ],
   "leftover_pending": [
-    {
-      "invoice_number": "70759737",
-      "po": "59014",
-      "date": "2026-08-25",
-      "amount": 1037.59,
-      "received": "2026-08-26T06:49:50Z",
-      "subject": "Invoice for Your Order 59014",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
-    {
-      "invoice_number": "70758802",
-      "po": "59001",
-      "date": "2026-08-25",
-      "amount": 49.19,
-      "received": "2026-08-26T06:49:47Z",
-      "subject": "Invoice for Your Order 59001",
-      "why": "unflagged leftover after cap 5; not entered"
-    },
     {
       "invoice_number": "",
       "po": "58763",
@@ -3500,6 +2229,48 @@
       "Notes": "",
       "Receipts": "23826 6@14.52; 23827 1@7.53; 23828 1@9.01; 23829 1@5.74",
       "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "70759737",
+      "date": "2026-08-25",
+      "PO": "59014",
+      "Amount": 1037.59,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): no open receipt leftover on PO 59014 for McMaster invoice #70759737. Do not first-open guess. @Shawn McKibben: receiving must receive the PO so AP can Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. Outlook Entered with issues. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 891, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False batch_still=API Agent - 9/18/26 McMaster mail_send=False.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10158,
+      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Fees and surcharges": "Shipping 34.39",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "McMaster-Carr Supply Company",
+      "Invoice #": "70758802",
+      "date": "2026-08-25",
+      "PO": "59001",
+      "Amount": 49.19,
+      "Result": "HOLD",
+      "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the PPV gate. Do not Select Receipts on that line. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Finish Select Receipts selected ids=[23700] fees=already-posted ppv=none. Outlook Entered with issues. Flag status=entered-with-issues. Transfer AP status=moved batch_id=375 comment='Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.' @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 892, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+      "Exception category": "price_variance",
+      "Exception owner": "Shawn McKibben",
+      "KIMCO id": 10159,
+      "Batch": "TRANSFER AP (375)",
+      "Fees and surcharges": "Shipping 25.0",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23700 1@11.53",
+      "outlook": "entered-with-issues"
     }
   ],
   "note45": "missing_receipt Comments_1 @Shawn 104, no Transfer AP; over-PPV Transfer AP + @Shawn; no Mail.Send"
