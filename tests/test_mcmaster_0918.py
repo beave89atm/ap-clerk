@@ -34,9 +34,11 @@ from mcmaster_0918 import (  # noqa: E402
     EXISTING_HEADER_IDS,
     PLUS10_HEADERS,
     PLUS15_HEADERS,
+    PLUS20_HEADERS,
     PLUS5_HEADERS,
     PREFERRED_PLUS10,
     PREFERRED_PLUS15,
+    PREFERRED_PLUS20,
     RETRY_HEADERS,
     PREFERRED_BATCH_NAME,
     PREFERRED_NEXT,
@@ -548,6 +550,14 @@ def test_never_repeat_missing_receipt_never_transfer_ap():
     assert 10152 in EXISTING_HEADER_IDS
     assert 10154 in EXISTING_HEADER_IDS
     assert 10157 in EXISTING_HEADER_IDS
+    assert PREFERRED_PLUS20 == (
+        "70759737",
+        "70758802",
+    )
+    assert PLUS20_HEADERS == {}
+    assert 10138 in EXISTING_HEADER_IDS
+    assert 10157 in EXISTING_HEADER_IDS
+    assert 10158 not in EXISTING_HEADER_IDS
 
     bills = [
         {
@@ -618,3 +628,42 @@ def test_never_repeat_missing_receipt_never_transfer_ap():
     assert "70759737" not in [b["invoice_number"] for b in plus15_recent]
     assert "71743140" not in [b["invoice_number"] for b in plus15_recent]
     assert plus15_credits == []
+
+    plus20_bills = [
+        {
+            "invoice_number": inv,
+            "date": "2026-08-25",
+            "receivedDateTime": "2026-08-26T06:00:00Z",
+            "po": "59014" if inv == "70759737" else "59001",
+            "amount": 10.0,
+            "subject": f"Invoice for Your Order {inv}",
+        }
+        for inv in PREFERRED_PLUS20
+    ]
+    plus20_recent, plus20_leftover, plus20_credits = pick_recent(
+        plus20_bills
+        + [
+            {
+                "invoice_number": "70600001",
+                "date": "2026-08-10",
+                "po": "58992",
+                "amount": 10.0,
+                "subject": "Invoice for Your Order 70600001",
+            },
+            {
+                "invoice_number": "71254641",
+                "date": "2026-09-02",
+                "po": "59103",
+                "amount": 10.0,
+                "subject": "Invoice for Your Order 71254641",
+            },
+        ],
+        already=set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS) | set(PLUS15_HEADERS),
+        cap=5,
+        receipts=None,
+        preferred=PREFERRED_PLUS20,
+    )
+    assert [b["invoice_number"] for b in plus20_recent[:2]] == list(PREFERRED_PLUS20)
+    assert "71254641" not in [b["invoice_number"] for b in plus20_recent]
+    assert "70600001" in [b["invoice_number"] for b in plus20_recent]
+    assert plus20_credits == []

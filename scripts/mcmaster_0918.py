@@ -199,7 +199,13 @@ PLUS15_HEADERS = {
     "71098307": 10156,
     "70907154": 10157,
 }
-# Every header already on the 9/18 McMaster sheet. Later plus waves must not mutate these.
+# Wave-4 leftovers first (Kyle 2026-09-21), then next unflagged Aug 1+.
+PREFERRED_PLUS20 = (
+    "70759737",
+    "70758802",
+)
+PLUS20_HEADERS: dict[str, int] = {}
+# Every header already on the 9/18 McMaster sheet. Plus-20 must not mutate these.
 EXISTING_HEADER_IDS = set(range(10138, 10158))
 
 CREDIT_SUBJECT = re.compile(
@@ -1289,6 +1295,7 @@ def leftover_from_catalog(
             or inv in PLUS5_HEADERS
             or inv in PLUS10_HEADERS
             or inv in PLUS15_HEADERS
+            or inv in PLUS20_HEADERS
         ):
             continue
         seen.add(key)
@@ -1429,7 +1436,7 @@ def main(argv: list[str] | None = None) -> int:
     print(json.dumps({"discovered": len(catalog), "mcmaster_mail": catalog}, indent=2, default=str), flush=True)
 
     already = (
-        set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS) | set(PLUS15_HEADERS)
+        set(entered) | set(CREATED_HEADERS) | set(PLUS5_HEADERS) | set(PLUS10_HEADERS) | set(PLUS15_HEADERS) | set(PLUS20_HEADERS)
     )
     candidates: list[dict[str, Any]] = []
     skipped_flagged = 0
