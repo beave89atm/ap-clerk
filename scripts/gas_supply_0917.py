@@ -172,12 +172,15 @@ PLUS10_HOLDS = frozenset({"0040438057", "0040438056", "0040438055", "0040438053"
 # Plus-15: remaining Aug 1+ window was PO-cited (no finishable no-PO).
 PLUS15_HOLDS = frozenset({"0040417672", "0040414962"})
 PLUS15_HEADERS = {
-    "0040414821": 10137,  # Type 3 over-PPV → Transfer AP 375; receipts not selected
+    "0040414821": 10137,  # Shawn re-received 24283 2@146.50; Success on 720
 }
-# 10134 missing_receipt / Ruben on PO 58948. Leave alone.
-LEAVE_ALONE_HOLD_IDS = {10134}
+# 10134 / 10137 finished after Shawn 2026-09-21 leftovers. GET-only.
+LEAVE_ALONE_HOLD_IDS: set[int] = set()
 DO_NOT_MUTATE_IDS = (
-    set(CREATED_HEADERS.values()) | set(PLUS5_HEADERS.values()) | set(PLUS10_HEADERS.values())
+    set(CREATED_HEADERS.values())
+    | set(PLUS5_HEADERS.values())
+    | set(PLUS10_HEADERS.values())
+    | set(PLUS15_HEADERS.values())
 )
 # Live Type 4 shop-supplies lookup (hint only). 10135 Kyle-checked.
 LINES_K_LOOKUP_IDS = (9966, 9970, 10135)
