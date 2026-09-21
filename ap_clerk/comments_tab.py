@@ -104,6 +104,12 @@ def mention_html(body: str, *, mention: dict[str, Any] | None = None) -> str:
     return f"<p>{span} {text}</p>"
 
 
+def plain_comment_html(body: str) -> str:
+    """Comments_1 without a mention-node. Used when mention-id is unproven."""
+    text = (body or "").strip()
+    return f"<p>{text}</p>"
+
+
 def shawn_mention_html(body: str) -> str:
     """Treyce-style mention node. mention-id 104 from live Comments_1 GETs."""
     return mention_html(body, mention=SHAWN_MENTION)
@@ -151,21 +157,25 @@ def comment_tab_proof(
     record: dict[str, Any] | None,
     *,
     needles: list[str] | tuple[str, ...] | None = None,
+    tag: str | None = None,
+    mention_id: int | None = None,
 ) -> dict[str, Any]:
     """GET-only proof. Header Comments string never counts as persisted."""
     items = comment_tab_items(record)
     htmls = comment_tab_htmls(record)
     header = header_comments_string(record)
-    required = list(needles or (SHAWN_MCKIBBEN, "HOLD (price-does-not-match)"))
+    label = tag or SHAWN_MCKIBBEN
+    required = list(needles or (label, "HOLD (price-does-not-match)"))
     matched = [
         {"id": row.get("id"), "html": html}
         for row, html in zip(items, htmls)
         if all(n in html for n in required)
     ]
+    mid = mention_id if mention_id not in (None, "") else SHAWN_MENTION_ID
     mention_nodes = [
         html
         for html in htmls
-        if f'data-mention-id="{SHAWN_MENTION_ID}"' in html and SHAWN_MCKIBBEN in html
+        if f'data-mention-id="{mid}"' in html and label in html
     ]
     tab_ok = bool(matched)
     report = format_comment_tab_report(
@@ -173,6 +183,8 @@ def comment_tab_proof(
         matched=matched,
         mention_nodes=mention_nodes,
         header=header,
+        tag=label,
+        mention_id=int(mid) if mention_nodes else None,
     )
     return {
         "tab_persisted": tab_ok,
@@ -181,7 +193,7 @@ def comment_tab_proof(
         "header_has_shawn": SHAWN_MCKIBBEN in header,
         "item_ids": [m["id"] for m in matched],
         "mention_node": bool(mention_nodes),
-        "mention_id": SHAWN_MENTION_ID if mention_nodes else None,
+        "mention_id": int(mid) if mention_nodes else None,
         "worked": False,
         "notify_confirmed": False,
         "report": report,
@@ -194,30 +206,33 @@ def format_comment_tab_report(
     matched: list[dict[str, Any]],
     mention_nodes: list[str],
     header: str,
+    tag: str | None = None,
+    mention_id: int | None = None,
 ) -> str:
     """Never say 'Comments persisted' — that phrase was the header-string lie."""
+    label = tag or SHAWN_MCKIBBEN
     if tab_ok:
         ids = ",".join(str(m.get("id")) for m in matched if m.get("id") not in (None, ""))
-        mention = (
-            f"mention-node id {SHAWN_MENTION_ID}"
-            if mention_nodes
-            else "plain @Shawn text (no mention-node)"
-        )
+        if mention_nodes:
+            mid = mention_id if mention_id not in (None, "") else SHAWN_MENTION_ID
+            mention = f"mention-node id {mid}"
+        else:
+            mention = "plain text (no mention-node)"
         return (
-            f"Comments tab persisted {SHAWN_MCKIBBEN} "
+            f"Comments tab persisted {label} "
             f"(list {COMMENT_TAB_LIST} item {ids or 'n/a'}, {mention}). "
             "User-alert/notify API not confirmed — dedicated GET "
             "comments/mentions/notifications are 404. "
             "Header Comments string is the wrong surface and is ignored."
         )
     extra = ""
-    if SHAWN_MCKIBBEN in (header or ""):
+    if label in (header or ""):
         extra = (
-            " Header Comments string has @Shawn but that is the wrong surface "
+            f" Header Comments string has {label} but that is the wrong surface "
             "(Comments tab still empty)."
         )
     return (
-        f"Comments tab missing {SHAWN_MCKIBBEN} on {COMMENT_TAB_LIST}.{extra} "
+        f"Comments tab missing {label} on {COMMENT_TAB_LIST}.{extra} "
         "Do not treat the header Comments field as a Comments-tab item."
     )
 
@@ -229,6 +244,7 @@ def add_invoice_comment_tab(
     body: str,
     needles: list[str] | tuple[str, ...] | None = None,
     mention: dict[str, Any] | None = None,
+    allow_plain: bool = False,
 ) -> dict[str, Any]:
     """PUT lists.Comments_1 Added, then GET-prove. invent=false. No Mail.Send."""
     try:
@@ -243,28 +259,34 @@ def add_invoice_comment_tab(
             "report": f"GET before Comments tab failed: {type(exc).__name__}",
         }
     person = mention or SHAWN_MENTION
+    used_plain = False
     try:
         html = mention_html(body, mention=person)
     except ValueError as exc:
-        return {
-            "status": "mention-id-unproven",
-            "error": str(exc)[:240],
-            "invent": False,
-            "tab_persisted": False,
-            "comments_persisted": False,
-            "mail_send": False,
-            "report": "Refused Comments_1 mention-node — mention-id not proven (invent=false).",
-        }
-    tag = str(person.get("tag") or SHAWN_MCKIBBEN)
+        if not allow_plain:
+            return {
+                "status": "mention-id-unproven",
+                "error": str(exc)[:240],
+                "invent": False,
+                "tab_persisted": False,
+                "comments_persisted": False,
+                "mail_send": False,
+                "report": "Refused Comments_1 mention-node — mention-id not proven (invent=false).",
+            }
+        html = plain_comment_html(body)
+        used_plain = True
+    tag = str(person.get("name") or person.get("tag") or SHAWN_MCKIBBEN)
     required = list(needles or (tag, "HOLD (price-does-not-match)"))
+    mid = person.get("id") if not used_plain else None
     if comment_tab_already_has(before, *required):
-        proof = comment_tab_proof(before, needles=required)
+        proof = comment_tab_proof(before, needles=required, tag=tag, mention_id=mid)
         return {
             "status": "already-on-tab",
             "put": None,
             "html": html,
             "invent": False,
             "mail_send": False,
+            "plain": used_plain,
             **proof,
         }
     payload = comment_tab_add_payload(html, invoice_id=int(invoice_id))
@@ -298,7 +320,7 @@ def add_invoice_comment_tab(
             "comments_persisted": False,
             "report": "PUT returned but GET proof failed — not claiming Comments tab.",
         }
-    proof = comment_tab_proof(after, needles=required)
+    proof = comment_tab_proof(after, needles=required, tag=tag, mention_id=mid)
     return {
         "status": "added" if proof.get("tab_persisted") else f"put-{status}-tab-missing",
         "put": status,
@@ -307,6 +329,7 @@ def add_invoice_comment_tab(
         "put_body_keys": sorted(body_resp) if isinstance(body_resp, dict) else [],
         "invent": False,
         "mail_send": False,
+        "plain": used_plain,
         **proof,
     }
 
@@ -323,13 +346,15 @@ def apply_missing_receipt_comment_tab(
     Comments_1 @tag only. Never Transfer AP. Never Mail.Send.
     """
     person = mention or SHAWN_MENTION
-    tag = str(person.get("tag") or SHAWN_MCKIBBEN)
+    allow_plain = person.get("id") in (None, "")
+    tag = str(person.get("name") or person.get("tag") or SHAWN_MCKIBBEN)
     out = add_invoice_comment_tab(
         client,
         invoice_id=int(invoice_id),
         body=body,
         needles=(tag, "HOLD (receipt)"),
         mention=person,
+        allow_plain=allow_plain,
     )
     out["transfer_ap"] = False
     out["mail_send"] = False
