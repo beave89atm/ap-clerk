@@ -25,10 +25,32 @@ from ap_clerk.rules import SHAWN_MCKIBBEN
 # Related list behind the AP Invoice Comments tab (Add Comment).
 COMMENT_TAB_LIST = "Comments_1"
 
+# NOTE-45: exception action is Comments_1 @tags. Do not Mail.Send.
+EXCEPTION_MAIL_SEND = False
+
 # Live GET lists.Comments_1 on 9931 comment 773 / 10009 comment 857.
 SHAWN_MENTION_ID = 104
 SHAWN_MENTION_NAME = "Shawn McKibben"
 SHAWN_MENTION_EMAIL = "Shawn.McKibben@kannonmfg.com"
+SHAWN_MENTION = {
+    "id": SHAWN_MENTION_ID,
+    "name": SHAWN_MENTION_NAME,
+    "email": SHAWN_MENTION_EMAIL,
+    "tag": SHAWN_MCKIBBEN,
+}
+
+# Live Comments_1 scan 2026-09-21 (273 invoices + 9931/10009): no @Ruben Perez
+# mention-node. Graph /users 403. Do not invent an id or email.
+RUBEN_MENTION_NAME = "Ruben Perez"
+RUBEN_MENTION_TAG = "@Ruben Perez"
+RUBEN_MENTION_ID = None
+RUBEN_MENTION_EMAIL = None
+RUBEN_MENTION = {
+    "id": RUBEN_MENTION_ID,
+    "name": RUBEN_MENTION_NAME,
+    "email": RUBEN_MENTION_EMAIL,
+    "tag": RUBEN_MENTION_TAG,
+}
 
 # Live GET lists.Comments_1 values on 9931 / 10009. Required on Added PUT.
 AP_INVOICE_ENTITY = {"id": 203, "text": "AP Invoice"}
@@ -61,18 +83,30 @@ def header_comments_string(record: dict[str, Any] | None) -> str:
     return str(vals.get("Comments") or "")
 
 
-def shawn_mention_html(body: str) -> str:
-    """Treyce-style mention node. mention-id 104 from live Comments_1 GETs."""
+def mention_html(body: str, *, mention: dict[str, Any] | None = None) -> str:
+    """Treyce-style mention node. invent=false — mention-id must be proven."""
+    person = mention or SHAWN_MENTION
+    mid = person.get("id")
+    name = str(person.get("name") or "").strip()
+    email = str(person.get("email") or "")
+    tag = str(person.get("tag") or (f"@{name}" if name else "")).strip()
+    if mid in (None, "") or not name:
+        raise ValueError("Refusing mention-node without a proven mention-id")
     text = (body or "").strip()
-    if text.startswith(SHAWN_MCKIBBEN):
-        text = text[len(SHAWN_MCKIBBEN) :].strip()
+    if tag and text.startswith(tag):
+        text = text[len(tag) :].strip()
     span = (
-        f'<span data-mention-id="{SHAWN_MENTION_ID}" '
-        f'data-mention-name="{SHAWN_MENTION_NAME}" '
-        f'data-mention-email="{SHAWN_MENTION_EMAIL}" '
-        f'class="prosemirror-mention-node">@{SHAWN_MENTION_NAME}</span>'
+        f'<span data-mention-id="{int(mid)}" '
+        f'data-mention-name="{name}" '
+        f'data-mention-email="{email}" '
+        f'class="prosemirror-mention-node">@{name}</span>'
     )
     return f"<p>{span} {text}</p>"
+
+
+def shawn_mention_html(body: str) -> str:
+    """Treyce-style mention node. mention-id 104 from live Comments_1 GETs."""
+    return mention_html(body, mention=SHAWN_MENTION)
 
 
 def comment_tab_add_payload(html: str, *, invoice_id: int) -> dict[str, Any]:
@@ -194,8 +228,9 @@ def add_invoice_comment_tab(
     invoice_id: int,
     body: str,
     needles: list[str] | tuple[str, ...] | None = None,
+    mention: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """PUT lists.Comments_1 Added, then GET-prove. invent=false."""
+    """PUT lists.Comments_1 Added, then GET-prove. invent=false. No Mail.Send."""
     try:
         before = client.get_item("ap_invoices", int(invoice_id))
     except Exception as exc:  # noqa: BLE001
@@ -207,8 +242,21 @@ def add_invoice_comment_tab(
             "comments_persisted": False,
             "report": f"GET before Comments tab failed: {type(exc).__name__}",
         }
-    html = shawn_mention_html(body)
-    required = list(needles or (SHAWN_MCKIBBEN, "HOLD (price-does-not-match)"))
+    person = mention or SHAWN_MENTION
+    try:
+        html = mention_html(body, mention=person)
+    except ValueError as exc:
+        return {
+            "status": "mention-id-unproven",
+            "error": str(exc)[:240],
+            "invent": False,
+            "tab_persisted": False,
+            "comments_persisted": False,
+            "mail_send": False,
+            "report": "Refused Comments_1 mention-node — mention-id not proven (invent=false).",
+        }
+    tag = str(person.get("tag") or SHAWN_MCKIBBEN)
+    required = list(needles or (tag, "HOLD (price-does-not-match)"))
     if comment_tab_already_has(before, *required):
         proof = comment_tab_proof(before, needles=required)
         return {
@@ -216,9 +264,19 @@ def add_invoice_comment_tab(
             "put": None,
             "html": html,
             "invent": False,
+            "mail_send": False,
             **proof,
         }
     payload = comment_tab_add_payload(html, invoice_id=int(invoice_id))
+    if "AP_Invoice_Batch" in (payload.get("values") or {}):
+        return {
+            "status": "refused-batch-move",
+            "invent": False,
+            "tab_persisted": False,
+            "comments_persisted": False,
+            "mail_send": False,
+            "report": "Comments_1 payload must not move AP_Invoice_Batch.",
+        }
     if "Comments" in (payload.get("values") or {}):
         return {
             "status": "refused-header-comments",
@@ -248,5 +306,34 @@ def add_invoice_comment_tab(
         "html": html,
         "put_body_keys": sorted(body_resp) if isinstance(body_resp, dict) else [],
         "invent": False,
+        "mail_send": False,
         **proof,
     }
+
+
+def apply_missing_receipt_comment_tab(
+    client: Any,
+    *,
+    invoice_id: int,
+    body: str,
+    mention: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """NOTE-45: missing_receipt stays on the current API Agent batch.
+
+    Comments_1 @tag only. Never Transfer AP. Never Mail.Send.
+    """
+    person = mention or SHAWN_MENTION
+    tag = str(person.get("tag") or SHAWN_MCKIBBEN)
+    out = add_invoice_comment_tab(
+        client,
+        invoice_id=int(invoice_id),
+        body=body,
+        needles=(tag, "HOLD (receipt)"),
+        mention=person,
+    )
+    out["transfer_ap"] = False
+    out["mail_send"] = False
+    if "AP_Invoice_Batch" in str(out.get("put_body_keys") or []):
+        out["status"] = "refused-batch-move"
+        out["tab_persisted"] = False
+    return out

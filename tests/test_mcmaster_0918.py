@@ -31,7 +31,10 @@ from mcmaster_0918 import (  # noqa: E402
     KNOWN_BATCH_ID,
     LEAVE_ALONE_HOLD_IDS,
     MIN_INVOICE_DATE,
+    EXISTING_HEADER_IDS,
+    PLUS10_HEADERS,
     PLUS5_HEADERS,
+    PREFERRED_PLUS10,
     RETRY_HEADERS,
     PREFERRED_BATCH_NAME,
     PREFERRED_NEXT,
@@ -43,7 +46,9 @@ from mcmaster_0918 import (  # noqa: E402
     is_mcmaster_message,
     is_mcmaster_vendor_text,
     apply_over_ppv_transfer_ap,
+    is_missing_receipt_hold,
     is_over_ppv_price_hold,
+    missing_receipt_hold_comment,
     over_ppv_hold_comment,
     pick_recent,
     quality_mcmaster_row,
@@ -288,7 +293,7 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
     assert CREATED_HEADERS["72094446"] == 10142
     assert PLUS5_HEADERS["72068812"] == 10143
     assert PLUS5_HEADERS["71839575"] == 10147
-    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10146}
+    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10146, 10148, 10152}
     assert RETRY_HEADERS == {
         "71080498": 10139,
         "72094446": 10142,
@@ -297,7 +302,7 @@ def test_mcmaster_plus5_prefers_leftover_window_and_skips_first_five():
         "72013304": 10146,
         "71839575": 10147,
     }
-    assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147}
+    assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147, 10149, 10150, 10151}
     assert 720 in FORBIDDEN_BATCH_IDS
 
 
@@ -387,6 +392,9 @@ def test_never_repeat_fees_are_not_missing_receipt():
     )
     assert hold["Result"] == "HOLD"
     assert hold.get("Exception category") == "missing_receipt"
+    assert hold.get("Exception owner") == "Shawn McKibben"
+    assert "@Shawn McKibben" in hold["Why"]
+    assert "Do not Transfer AP" in hold["Why"]
 
 
 def test_mcmaster_over_ppv_comment_tags_shawn():
@@ -449,3 +457,105 @@ def test_mcmaster_transfer_ap_writes_comments_tab_not_header_string():
     assert out["mention_notify"]["tab_persisted"] is True
     assert "Comments persisted" not in out["mention_notify"]["report"]
     assert apply_over_ppv_transfer_ap(fake, kimco_id=10140, comment=comment)["status"] == "leave-alone"
+    assert apply_over_ppv_transfer_ap(fake, kimco_id=10999, comment=comment).get("mail_send") is False
+
+
+def test_never_repeat_missing_receipt_never_transfer_ap():
+    """NOTE-45: McMaster missing_receipt Comments_1 @Shawn; never Transfer AP."""
+    from ap_clerk.comments_tab import (
+        EXCEPTION_MAIL_SEND,
+        SHAWN_MENTION_ID,
+        apply_missing_receipt_comment_tab,
+        comment_tab_add_payload,
+    )
+    from ap_clerk.quality_v12 import exception_owner_for
+    from ap_clerk.rules import SHAWN_MCKIBBEN
+
+    assert EXCEPTION_MAIL_SEND is False
+    assert exception_owner_for("missing_receipt", vendor="McMaster-Carr Supply Company") == "Shawn McKibben"
+    assert exception_owner_for("missing_receipt", vendor="Legacy Wire") == "Ruben Perez"
+    assert exception_owner_for("price_variance", vendor="McMaster-Carr") == "Shawn McKibben"
+    text = missing_receipt_hold_comment(invoice_number="71743140", po="59159", pdf_amount=35.85)
+    assert SHAWN_MCKIBBEN in text
+    assert "do not Transfer AP" in text
+    assert "No email" in text
+    assert is_missing_receipt_hold(
+        {"Result": "HOLD", "Exception category": "missing_receipt", "Why": "HOLD (receipt)"}
+    )
+    assert not is_missing_receipt_hold(
+        {"Result": "HOLD", "Exception category": "price_variance", "Why": "HOLD (price-does-not-match)"}
+    )
+
+    html_payload = comment_tab_add_payload("<p>x</p>", invoice_id=10950)
+    assert "AP_Invoice_Batch" not in (html_payload.get("values") or {})
+
+    class _Fake:
+        def __init__(self):
+            self.payloads = []
+
+        def get_item(self, _svc, kid):
+            comments = []
+            if self.payloads:
+                comments = [{"id": 900, "values": self.payloads[-1]["lists"]["Comments_1"][0]["values"]}]
+            return {
+                "id": kid,
+                "values": {"AP_Invoice_Batch": {"id": 721, "text": "API Agent - 9/18/26 McMaster"}},
+                "lists": {"Comments_1": comments},
+            }
+
+        def update(self, _svc, _kid, payload):
+            self.payloads.append(payload)
+            return {}, 200, ""
+
+    fake = _Fake()
+    out = apply_missing_receipt_comment_tab(
+        fake,
+        invoice_id=10950,
+        body=text,
+    )
+    assert out["transfer_ap"] is False
+    assert out["mail_send"] is False
+    assert out["tab_persisted"] is True
+    assert "AP_Invoice_Batch" not in (fake.payloads[0].get("values") or {})
+    assert f'data-mention-id="{SHAWN_MENTION_ID}"' in fake.payloads[0]["lists"]["Comments_1"][0]["values"]["HtmlValue"]
+    assert EXISTING_HEADER_IDS == set(range(10138, 10148))
+    assert 10142 in EXISTING_HEADER_IDS
+    assert PREFERRED_PLUS10[0] == "71743140"
+    assert PLUS10_HEADERS == {
+        "71743140": 10148,
+        "71740547": 10149,
+        "71642803": 10150,
+        "71668723": 10151,
+        "71401129": 10152,
+    }
+
+    bills = [
+        {
+            "invoice_number": inv,
+            "date": "2026-09-11",
+            "receivedDateTime": "2026-09-12T06:00:00Z",
+            "po": "59159",
+            "amount": 10.0,
+            "subject": f"Invoice for Your Order {inv}",
+        }
+        for inv in PREFERRED_PLUS10
+    ]
+    recent, leftover, credits = pick_recent(
+        bills
+        + [
+            {
+                "invoice_number": "72068812",
+                "date": "2026-09-17",
+                "po": "58221",
+                "amount": 336.49,
+                "subject": "Invoice for Your Order 58221",
+            }
+        ],
+        already=set(CREATED_HEADERS) | set(PLUS5_HEADERS),
+        cap=5,
+        receipts=None,
+        preferred=PREFERRED_PLUS10,
+    )
+    assert [b["invoice_number"] for b in recent] == list(PREFERRED_PLUS10)
+    assert "72068812" not in [b["invoice_number"] for b in recent]
+    assert credits == []
