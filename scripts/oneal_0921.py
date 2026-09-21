@@ -835,18 +835,6 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         return 0
 
-    batch = create_oneal_batch(client, batch_name)
-    verified = verify_batch(client, int(batch["id"]), batch_name)
-    print(json.dumps({"batch": verified}, indent=2, default=str), flush=True)
-    if (
-        verified.get("is_forbidden")
-        or not verified.get("matches_expected")
-        or int(verified.get("id") or 0) in FORBIDDEN_BATCH_IDS
-    ):
-        print("Refusing to enter: batch name/id mismatch or forbidden.", flush=True)
-        return 2
-    batch_label = f"{verified.get('name')} ({verified.get('id')})"
-
     messages = find_oneal_messages(graph)
     catalog = [catalog_row(msg, entered) for msg in messages]
     catalog.sort(key=lambda r: str(r.get("received") or ""), reverse=True)
@@ -922,6 +910,18 @@ def main(argv: list[str] | None = None) -> int:
         print("No remaining unflagged O'Neal invoices on/after 2026-08-01. Stop.", flush=True)
         write_report(report_path, [])
         return 0
+
+    batch = create_oneal_batch(client, batch_name)
+    verified = verify_batch(client, int(batch["id"]), batch_name)
+    print(json.dumps({"batch": verified}, indent=2, default=str), flush=True)
+    if (
+        verified.get("is_forbidden")
+        or not verified.get("matches_expected")
+        or int(verified.get("id") or 0) in FORBIDDEN_BATCH_IDS
+    ):
+        print("Refusing to enter: batch name/id mismatch or forbidden.", flush=True)
+        return 2
+    batch_label = f"{verified.get('name')} ({verified.get('id')})"
 
     enter_rows = run_enter(
         client,
