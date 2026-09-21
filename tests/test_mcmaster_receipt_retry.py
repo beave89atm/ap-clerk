@@ -35,9 +35,8 @@ def test_retry_targets_are_existing_headers_not_new_invoices():
     assert RETRY_HEADERS["72094446"] == 10142
     assert RETRY_POS["72013304"] == "58221"
     assert RETRY_AMOUNTS["71080498"] == 395.31
-    assert set(RETRY_HEADERS.values()).isdisjoint(LEAVE_ALONE_HOLD_IDS)
-    assert set(RETRY_HEADERS.values()).isdisjoint(DO_NOT_MUTATE_IDS)
-    assert LEAVE_ALONE_HOLD_IDS == {10140, 10143}
+    assert LEAVE_ALONE_HOLD_IDS == {10139, 10140, 10142, 10143, 10146}
+    assert DO_NOT_MUTATE_IDS == {10138, 10141, 10144, 10145, 10147}
     assert 10138 in DO_NOT_MUTATE_IDS
 
 

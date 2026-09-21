@@ -137,11 +137,10 @@ CREATED_HEADERS = {
     "70747918": 10141,
     "72094446": 10142,
 }
-# Kyle: leave Transfer AP price_variance HOLDs alone. missing_receipt
-# 10139/10142/10144-10147 are retryable once receipts are entered.
-LEAVE_ALONE_HOLD_IDS = {10140, 10143}
-# Kyle-checked Successes. GET-only — do not re-Select / edit.
-DO_NOT_MUTATE_IDS = {10138, 10141}
+# Transfer AP price_variance + receipt-retry HOLDs that still cannot finish.
+LEAVE_ALONE_HOLD_IDS = {10139, 10140, 10142, 10143, 10146}
+# Finished Successes. GET-only — do not re-Select / edit.
+DO_NOT_MUTATE_IDS = {10138, 10141, 10144, 10145, 10147}
 # Kyle 2026-09-21: receipts now entered — finish these existing headers.
 RETRY_HEADERS = {
     "71080498": 10139,
