@@ -827,7 +827,9 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "Every merchandise invoice line has a Select Receipts match. "
             "Unmatched merch lines are named on Why and never silent Success (EMJ Z250725432). "
             "Shipping/surcharges are Additional Charge Fees id 11, not missing merch lines "
-            "(NOTE-44 / McMaster 71839575 / 10147)."
+            "(NOTE-44 / McMaster 71839575 / 10147). PO UOM/pack vs invoice with an "
+            "in-gate cents gap is signed PPV + Success, not price_variance HOLD "
+            "(NOTE-46 / McMaster 71080498 / 10139)."
         ),
     },
     {

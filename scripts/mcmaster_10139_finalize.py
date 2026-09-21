@@ -28,10 +28,25 @@ if str(ROOT / "scripts") not in sys.path:
 from ap_clerk.auth import format_presence, load_credentials  # noqa: E402
 from ap_clerk.cli import _optional_graph_client  # noqa: E402
 from ap_clerk.graph import ALLOWED_MAILBOX, format_graph_presence  # noqa: E402
-from ap_clerk.kimco import KimcoClient, KimcoError  # noqa: E402
+from ap_clerk.kimco import (  # noqa: E402
+    ADDITIONAL_CHARGE_FIELD,
+    ADDITIONAL_CHARGE_LIST,
+    FEE_CHARGE_CODE,
+    FEE_CHARGE_LOOKUP_ID,
+    FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID,
+    KimcoClient,
+    KimcoError,
+    additional_charge_lookup,
+)
+from ap_clerk.comments_tab import (  # noqa: E402
+    COMMENT_TAB_LIST,
+    comment_tab_htmls,
+    comment_tab_items,
+    header_comments_string,
+)
 from ap_clerk.quality_v12 import apply_exception_category_owner  # noqa: E402
 from ap_clerk.report import write_report  # noqa: E402
-from ap_clerk.rules import money  # noqa: E402
+from ap_clerk.rules import lookup_id, money, uom_pack_mismatch_in_gate_ppv  # noqa: E402
 from jpsteel_0916 import hydrate_receipts, load_list_receipts, open_receipts_on_po  # noqa: E402
 from mcmaster_0918 import (  # noqa: E402
     DO_NOT_MUTATE_IDS,
@@ -71,6 +86,33 @@ KNOWN_LOCKED_RECEIPT_ID = 24247
 FIRST_OPEN_DO_NOT_USE = {23841}
 
 
+def read_comments_1(item: dict[str, Any] | None) -> dict[str, Any]:
+    """Record GET lists.Comments_1 is the readable Comments tab API.
+
+    Dedicated GET .../comments, .../mentions, .../notifications are 404
+    (NOTE-43). Header values.Comments is the wrong surface.
+    """
+    items = comment_tab_items(item)
+    htmls = comment_tab_htmls(item)
+    header = header_comments_string(item)
+    blob = " ".join(htmls)
+    return {
+        "api": f"GET ap_invoices record lists.{COMMENT_TAB_LIST}",
+        "can_read": True,
+        "count": len(items),
+        "item_ids": [row.get("id") for row in items],
+        "htmls": htmls,
+        "header_comments": header,
+        "header_is_wrong_surface": True,
+        "kyle_shawn_uom_note_present": (
+            ("72" in blob and "foot" in blob.lower())
+            or ("3 foot" in blob.lower())
+            or ("should fall under PPV" in blob)
+        ),
+        "api_agent_header_string": header == "API Agent",
+    }
+
+
 def refuse_other_header(kimco_id: int, invoice_number: str | None = None) -> None:
     kid = int(kimco_id)
     inv = exact_invoice_number(invoice_number) or invoice_number
@@ -78,6 +120,92 @@ def refuse_other_header(kimco_id: int, invoice_number: str | None = None) -> Non
         raise KimcoError(f"Refuse: this script writes {TARGET_ID} only, not {kid}")
     if inv not in (None, "") and inv != TARGET_INVOICE:
         raise KimcoError(f"Refuse: this script writes {TARGET_INVOICE} only, not {inv}")
+
+
+def freight_external_charges(item: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """McMaster shipping must not stay on Freight External (NOTE-31 is Priority 1)."""
+    lists = item.get("lists") if isinstance((item or {}).get("lists"), dict) else {}
+    out: list[dict[str, Any]] = []
+    for raw in lists.get(ADDITIONAL_CHARGE_LIST) or []:
+        if not isinstance(raw, dict):
+            continue
+        values = raw.get("values") if isinstance(raw.get("values"), dict) else {}
+        lookup = lookup_id(values.get("Additional_Charges") or values.get("Additional_Charge"))
+        if lookup == FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID:
+            out.append(raw)
+    return out
+
+
+def replace_wrong_freight_with_fees(
+    client: KimcoClient,
+    *,
+    kimco_id: int,
+    fee_amount: float,
+) -> dict[str, Any]:
+    """Rewrite Freight External on 10139 to Additional Charge Fees id 11.
+
+    Kyle selected receipt 24247. A prior finish posted Freight External
+    $22.24. PDF shipping is $22.35 → Fees id 11 (NOTE-44). McMaster is not
+    a freight vendor.
+    """
+    refuse_other_header(kimco_id)
+    item = client.get_item("ap_invoices", int(kimco_id))
+    wrong = freight_external_charges(item)
+    if not wrong:
+        return {"status": "none", "kimco_id": int(kimco_id)}
+    amt = money(fee_amount)
+    if amt is None:
+        return {"status": "no-fee-amount", "kimco_id": int(kimco_id), "wrong_ids": [c.get("id") for c in wrong]}
+    lookup = additional_charge_lookup()
+    items = [
+        {
+            "id": int(ch["id"]),
+            "state": "Modified",
+            "values": {
+                ADDITIONAL_CHARGE_FIELD: lookup,
+                "Name": FEE_CHARGE_CODE,
+                "Quantity": 1.0,
+                "Price": amt,
+                "Amount": amt,
+            },
+        }
+        for ch in wrong
+        if ch.get("id") not in (None, "")
+    ]
+    payload = {
+        "state": "Modified",
+        "id": int(kimco_id),
+        "lists": {ADDITIONAL_CHARGE_LIST: items},
+    }
+    _body, status, error = client.update("ap_invoices", int(kimco_id), payload)
+    after = client.get_item("ap_invoices", int(kimco_id))
+    leftover = freight_external_charges(after)
+    if leftover:
+        removed = [{"id": int(ch["id"]), "state": "Removed"} for ch in leftover if ch.get("id") not in (None, "")]
+        remove_payload = {
+            "state": "Modified",
+            "id": int(kimco_id),
+            "lists": {ADDITIONAL_CHARGE_LIST: removed},
+        }
+        _body2, status2, error2 = client.update("ap_invoices", int(kimco_id), remove_payload)
+        confirm = client.get_item("ap_invoices", int(kimco_id))
+        leftover = freight_external_charges(confirm)
+        return {
+            "status": "removed" if not leftover else f"blocked-{status2 or status}",
+            "kimco_id": int(kimco_id),
+            "put": status2 or status,
+            "error": (error2 or error or "")[:240],
+            "leftover": [c.get("id") for c in leftover],
+        }
+    return {
+        "status": "rewritten",
+        "kimco_id": int(kimco_id),
+        "put": status,
+        "error": (error or "")[:240],
+        "fee_lookup": FEE_CHARGE_LOOKUP_ID,
+        "fee_amount": amt,
+        "rewritten_ids": [c.get("id") for c in items],
+    }
 
 
 def usable_po_receipts(pool: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -136,11 +264,32 @@ def finish_10139_row(
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     refuse_other_header(kimco_id, parsed.get("invoice_number") or enter_row.get("Invoice #"))
     usable, skipped_locked = usable_po_receipts(receipts)
+    parsed_fees = list(parsed.get("fees") or [])
+    fee_amt = None
+    for fee in parsed_fees:
+        fee_amt = money(fee.get("amount"))
+        if fee_amt is not None:
+            break
+    freight_fix = replace_wrong_freight_with_fees(
+        client, kimco_id=int(kimco_id), fee_amount=fee_amt if fee_amt is not None else 22.35
+    )
     finish = finish_hold_header(
         client, parsed=parsed, kimco_id=int(kimco_id), receipts=usable
     )
     finish["skipped_locked"] = skipped_locked
+    finish["freight_fix"] = freight_fix
     proof = finish.get("after") or mcmaster_proof(client, kimco_id)
+    note46 = uom_pack_mismatch_in_gate_ppv(
+        invoice_total=parsed.get("amount"),
+        posted_or_receipt_amount=proof.get("invoice_amount"),
+        pdf_amount=parsed.get("amount"),
+        uom_pack_mismatch=True,
+        receipts_selected=bool(proof.get("receipt_lines")),
+    )
+    if note46.get("success_not_price_hold"):
+        finish["uom_pack_in_gate"] = True
+        finish["note46_in_gate_ppv"] = True
+    finish["note46"] = note46
     row = quality_mcmaster_row(
         graph,
         parsed=parsed,
@@ -268,6 +417,19 @@ def main(argv: list[str] | None = None) -> int:
         "leave_alone_still_includes_others": sorted(LEAVE_ALONE_HOLD_IDS - ALLOWED_WRITE_IDS),
         "do_not_mutate": sorted(DO_NOT_MUTATE_IDS),
         "outlook_message_found": bool(parsed.get("graph_message_id")),
+        "comments_1": read_comments_1(header),
+        "freight_external_charges": [
+            {"id": c.get("id"), "amount": money((c.get("values") or {}).get("Amount"))}
+            for c in freight_external_charges(header)
+        ],
+        "already_selected": [
+            {
+                "qty": (ln.get("values") or {}).get("Quantity"),
+                "unit": (ln.get("values") or {}).get("Unit_Price"),
+                "receipt": lookup_id((ln.get("values") or {}).get("Receipt")),
+            }
+            for ln in (header.get("lists") or {}).get("APInvoiceLine") or []
+        ],
     }
     print(json.dumps({"preflight": preflight}, indent=2, default=str), flush=True)
     if args.preflight_only:

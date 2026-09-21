@@ -4521,6 +4521,33 @@ def test_never_repeat_jpsteel_125316_rounding_ppv():
     assert_never_success(RESULT_HOLD, note_id="NOTE-38", detail=false_hold)
 
 
+def test_never_repeat_uom_pack_in_gate_ppv():
+    """NOTE-46: 72 inches vs 2×3 foot bars / cents gap is PPV Success, not HOLD."""
+    from ap_clerk.rules import uom_pack_mismatch_in_gate_ppv
+
+    cents = uom_pack_mismatch_in_gate_ppv(
+        invoice_total=395.31,
+        posted_or_receipt_amount=395.20,
+        pdf_amount=395.31,
+        uom_pack_mismatch=True,
+        receipts_selected=True,
+    )
+    assert cents["action"] == "ppv"
+    assert abs(cents["ppv"] - 0.11) <= 0.001
+    assert cents["hold"] is False
+    assert cents["success_not_price_hold"] is True
+    assert cents["transfer_ap"] is False
+    over = uom_pack_mismatch_in_gate_ppv(
+        invoice_total=395.31,
+        posted_or_receipt_amount=50.0,
+        pdf_amount=395.31,
+        uom_pack_mismatch=True,
+        receipts_selected=True,
+    )
+    assert over["hold"] is True
+    assert over["success_not_price_hold"] is False
+
+
 def _assert_exception_tagged(row, *, category: str, owner: str, note_id: str = "NOTE-39"):
     assert row["Result"] != RESULT_SUCCESS
     assert_never_success(row["Result"], note_id=note_id, detail=row.get("Why") or "")

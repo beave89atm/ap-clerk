@@ -17,6 +17,8 @@ from mcmaster_0918 import (  # noqa: E402
     LEAVE_ALONE_HOLD_IDS,
     apply_over_ppv_transfer_ap,
 )
+from ap_clerk.rules import uom_pack_mismatch_in_gate_ppv  # noqa: E402
+from mcmaster_0918 import is_over_ppv_price_hold  # noqa: E402
 from mcmaster_10139_finalize import (  # noqa: E402
     ALLOWED_WRITE_IDS,
     FIRST_OPEN_DO_NOT_USE,
@@ -25,7 +27,9 @@ from mcmaster_10139_finalize import (  # noqa: E402
     TARGET_INVOICE,
     TARGET_PO,
     finish_10139_row,
+    read_comments_1,
     refuse_other_header,
+    replace_wrong_freight_with_fees,
     usable_po_receipts,
 )
 from mcmaster_receipt_retry import finish_retry_row  # noqa: E402
@@ -111,3 +115,111 @@ def test_finish_10139_refuses_other_id():
             kimco_id=10142,
             receipts=[],
         )
+
+
+def test_replace_wrong_freight_rewrites_to_fees_id_11():
+    class _Fake:
+        def __init__(self):
+            self.payloads = []
+            self.item = {
+                "id": 10139,
+                "lists": {
+                    "InvoiceAdditionalCharges": [
+                        {
+                            "id": 5389,
+                            "values": {
+                                "Additional_Charges": {"id": 1, "text": "Freight External-Freight External"},
+                                "Amount": 22.24,
+                            },
+                        }
+                    ]
+                },
+            }
+
+        def get_item(self, _svc, _kid):
+            return self.item
+
+        def update(self, _svc, _kid, payload):
+            self.payloads.append(payload)
+            rows = payload["lists"]["InvoiceAdditionalCharges"]
+            self.item = {
+                "id": 10139,
+                "lists": {
+                    "InvoiceAdditionalCharges": [
+                        {
+                            "id": rows[0]["id"],
+                            "values": rows[0]["values"],
+                        }
+                    ]
+                },
+            }
+            return {}, 200, ""
+
+    fake = _Fake()
+    out = replace_wrong_freight_with_fees(fake, kimco_id=10139, fee_amount=22.35)
+    assert out["status"] == "rewritten"
+    assert fake.payloads[0]["lists"]["InvoiceAdditionalCharges"][0]["values"]["Additional_Charges"]["id"] == 11
+    assert fake.payloads[0]["lists"]["InvoiceAdditionalCharges"][0]["values"]["Amount"] == 22.35
+    with pytest.raises(KimcoError, match="10139 only"):
+        replace_wrong_freight_with_fees(fake, kimco_id=10142, fee_amount=22.35)
+
+
+def test_never_repeat_uom_pack_in_gate_ppv():
+    """NOTE-46: 72 inches vs 2×3 foot bars / cents gap is PPV Success, not HOLD."""
+    cents = uom_pack_mismatch_in_gate_ppv(
+        invoice_total=395.31,
+        posted_or_receipt_amount=395.20,
+        pdf_amount=395.31,
+        uom_pack_mismatch=True,
+        receipts_selected=True,
+    )
+    assert cents["action"] == "ppv"
+    assert abs(cents["ppv"] - 0.11) <= 0.001
+    assert cents["hold"] is False
+    assert cents["success_not_price_hold"] is True
+    assert cents["transfer_ap"] is False
+    assert is_over_ppv_price_hold(
+        {"Result": "HOLD", "Exception category": "price_variance", "Why": "HOLD (price-does-not-match)"},
+        {"uom_pack_in_gate": True, "note46_in_gate_ppv": True},
+    ) is False
+    over = uom_pack_mismatch_in_gate_ppv(
+        invoice_total=395.31,
+        posted_or_receipt_amount=50.0,
+        pdf_amount=395.31,
+        uom_pack_mismatch=True,
+        receipts_selected=True,
+    )
+    assert over["hold"] is True
+    assert over["success_not_price_hold"] is False
+
+
+def test_comments_1_readable_via_record_list_not_header_string():
+    empty = read_comments_1(
+        {"values": {"Comments": "API Agent"}, "lists": {"Comments_1": []}}
+    )
+    assert empty["can_read"] is True
+    assert empty["count"] == 0
+    assert empty["header_comments"] == "API Agent"
+    assert empty["header_is_wrong_surface"] is True
+    assert empty["kyle_shawn_uom_note_present"] is False
+    present = read_comments_1(
+        {
+            "values": {"Comments": "API Agent"},
+            "lists": {
+                "Comments_1": [
+                    {
+                        "id": 999,
+                        "values": {
+                            "HtmlValue": (
+                                "<p>The issue is with how we ordered it (72inches) "
+                                "and what the invoice says (2 3 foot bars) the price "
+                                "is only off by a few cents. This should fall under PPV</p>"
+                            )
+                        },
+                    }
+                ]
+            },
+        }
+    )
+    assert present["count"] == 1
+    assert present["kyle_shawn_uom_note_present"] is True

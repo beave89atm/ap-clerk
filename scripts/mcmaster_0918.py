@@ -1102,11 +1102,14 @@ def find_transfer_ap_batch(batches: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def is_over_ppv_price_hold(row: dict[str, Any], finish: dict[str, Any] | None) -> bool:
+    finish = finish or {}
+    # NOTE-46: in-gate UOM/pack PPV stays on the current batch — not Transfer AP.
+    if finish.get("uom_pack_in_gate") or finish.get("note46_in_gate_ppv"):
+        return False
     if str(row.get("Exception category") or "") == "price_variance":
         return True
     if str(row.get("Result") or "") != "HOLD":
         return False
-    finish = finish or {}
     why = str(row.get("Why") or "").lower()
     if "price-does-not-match" in why or "over the ppv gate" in why:
         return True
