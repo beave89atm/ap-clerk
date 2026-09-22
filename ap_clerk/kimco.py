@@ -342,6 +342,20 @@ class KimcoClient:
             return "blocked-404"
         return f"options-{status}:{allow or 'no-Allow'}"
 
+    def try_post_comments_1(self, invoice_id: int | str, child: dict[str, Any] | None) -> str:
+        """Add one lists.Comments_1 child on the invoice RECORD. No Mail.Send."""
+        if invoice_id in (None, "") or not child:
+            return "skipped"
+        payload = {
+            "id": int(invoice_id),
+            "state": "Modified",
+            "lists": {"Comments_1": [child]},
+        }
+        _body, status, err = self.update("ap_invoices", invoice_id, payload)
+        if status < 400:
+            return "posted"
+        return f"blocked-{status}:{err}"
+
     def try_official_attach(
         self,
         invoice_id: int,

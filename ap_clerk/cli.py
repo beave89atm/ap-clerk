@@ -43,6 +43,13 @@ from ap_clerk.packing_slips import (
     receiving_is_not_invoice_mailbox,
     refuse_enter_from_receiving,
 )
+from ap_clerk.receiving_owners import (
+    missing_receipt_comment_text,
+    missing_receipt_comments_1_child,
+    missing_receipt_notes,
+    needs_dock_receive,
+    lookup_receiving_owner,
+)
 from ap_clerk.inbox import (
     HARD_EMAIL_CAP,
     apply_skip_outlook_flags,
@@ -1312,6 +1319,17 @@ def _process_invoice(
                 )
                 + " Create KIMCO header and attach PDF; do not claim Success.",
             )
+            tag = missing_receipt_comment_text(vendor)
+            if tag:
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {tag}")
+            elif lookup_receiving_owner(vendor) and not needs_dock_receive(vendor):
+                issue_hold = (
+                    issue_hold[0],
+                    f"{issue_hold[1]} No receiving-owner @tag (sheet blank — not a dock-receive vendor).",
+                )
+            uncertain_note = missing_receipt_notes(vendor)
+            if uncertain_note:
+                row["Notes"] = uncertain_note
         receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
         receipt_note += ppv_lock_note
         if unmatched_pos and combined_matched:
@@ -1399,6 +1417,16 @@ def _process_invoice(
     if po_info and not multi_po and not transfer_ap:
         payload["Purchase_Order"] = {"id": po_info["id"]}
     created_id, _body, status, error = client.create("ap_invoices", payload)
+    comments_1 = missing_receipt_comments_1_child(vendor)
+    if (
+        created_id is not None
+        and comments_1
+        and issue_hold
+        and issue_hold[0] == GATE_RECEIPT
+    ):
+        poster = getattr(client, "try_post_comments_1", None)
+        if callable(poster):
+            poster(created_id, comments_1)
     if created_id is None:
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail(f"header create HTTP {status}: {error}")

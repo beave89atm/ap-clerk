@@ -90,6 +90,19 @@ def test_update_put_refuses_missing_id() -> None:
         client.update("ap_invoices", "", {"Comments": "no"})
 
 
+def test_try_post_comments_1_puts_added_child() -> None:
+    client = _live_client()
+    child = {"state": "Added", "values": {"HtmlValue": "<p>@Shawn McKibben</p>"}}
+    with patch.object(client.session, "request", return_value=FakeResp(200, {"id": INVOICE_ID})) as req:
+        status = client.try_post_comments_1(INVOICE_ID, child)
+    assert status == "posted"
+    assert req.call_args.args[0] == "PUT"
+    assert f"/{LIVE_GUID}/{INVOICE_ID}" in req.call_args.args[1]
+    body = req.call_args.kwargs["json"]
+    assert body["lists"]["Comments_1"] == [child]
+    assert client.try_post_comments_1(INVOICE_ID, None) == "skipped"
+
+
 def test_add_invoice_lines_url_contains_id_after_service_guid() -> None:
     client = _live_client()
     line = {
