@@ -1,5 +1,5 @@
 {
-  "proof": "gas-supply-0917-0040438052",
+  "proof": "gas-supply-0917-0040437952",
   "invent": false,
   "mail_send": false,
   "vendor": "Gas and Supply North Texas, LLC",
@@ -1302,6 +1302,27 @@
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
       "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040437952",
+      "date": "2026-09-17",
+      "PO": "59006",
+      "Amount": 241.46,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=none (Gas receiving owner blank). HOLD (receipt): PDF merch=DEWDW1969 3.0@80.49; leftover 24332 880@8.91 LINEDS30778 is 10172 / 0040414962 — first-open guess deselected. No matching leftover on PO 59006. Stay on batch 720. Do not @tag. Do not invent Success. Outlook Entered with issues (NOTE-51: sibling 0040438052 / 10173 still HOLD).",
+      "Exception category": "missing_receipt",
+      "Exception owner": "",
+      "KIMCO id": 10181,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "Deselected 24332; returned from Transfer AP 375 to 720.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     }
@@ -4012,5 +4033,183 @@
     },
     "transfer_ap": null,
     "comments_1": null
+  },
+  "gas_0040437952": {
+    "target": "0040437952",
+    "enter_rows": [
+      {
+        "Vendor": "Gas and Supply North Texas, LLC",
+        "Invoice #": "0040437952",
+        "date": "2026-09-17",
+        "PO": "59006",
+        "Amount": 241.46,
+        "Result": "HOLD",
+        "Why": "category=price_variance; owner=Shawn McKibben. HOLD (price-does-not-match): leftover vs invoice line is over the NOTE-47 $75 PPV gate. Receipts were NOT selected. @Shawn McKibben mention-id 104.",
+        "Exception category": "price_variance",
+        "Exception owner": "Shawn McKibben",
+        "KIMCO id": 10181,
+        "Batch": "TRANSFER AP (375)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "24332 880@8.91",
+        "outlook": "entered-with-issues"
+      }
+    ],
+    "finishes": {
+      "0040437952": {
+        "wanted": [],
+        "select_status": "ppv-lock-select-zero",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [
+          {
+            "line": {
+              "part": "DEWDW1969",
+              "qty": 3.0,
+              "amount": 241.46,
+              "unit_price": 80.49,
+              "po_line": null,
+              "wo": null,
+              "label": "DEWALT DW1969 29PC PILOT POINT",
+              "description": "DEWALT DW1969 29PC PILOT POINT",
+              "qty_uom": "ea"
+            },
+            "receipt": {
+              "id": 24332,
+              "slip": "PO59006-GAS AND SUPPLY - 2026/9/22",
+              "part": "PO59006-01",
+              "description": "PO59006-GAS AND SUPPLY - 2026/9/22",
+              "label": "PO59006-GAS AND SUPPLY - 2026/9/22",
+              "qty": 880.0,
+              "unit_price": 8.91,
+              "amount": 7840.8,
+              "cost": null,
+              "po_line": null,
+              "line": null,
+              "line_no": null,
+              "po": "59006",
+              "wo": "",
+              "name": "PO59006-GAS AND SUPPLY - 2026/9/22",
+              "raw": {
+                "Name": "PO59006-GAS AND SUPPLY - 2026/9/22",
+                "PO_Item_Number": {
+                  "id": 17889,
+                  "text": "PO59006-01",
+                  "isAbstract": false
+                }
+              }
+            },
+            "score": 65,
+            "pass": "named-po",
+            "how": "single open receipt on PO",
+            "select_qty": 3.0
+          }
+        ],
+        "skipped_over_ppv": true,
+        "select_zero": true,
+        "open_on_po": [
+          {
+            "id": 24332,
+            "qty": 880.0,
+            "unit_price": 8.91
+          }
+        ],
+        "transfer_ap": {
+          "status": "moved",
+          "kimco_id": 10181,
+          "batch_id": 375,
+          "batch_name": "TRANSFER AP",
+          "comment": "@Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+          "put": 200,
+          "error": "",
+          "mention_notify": {
+            "worked": false,
+            "comments_persisted": true,
+            "mention_value_keys": [],
+            "probes": [
+              {
+                "suffix": "comments",
+                "http": 404
+              },
+              {
+                "suffix": "mentions",
+                "http": 404
+              },
+              {
+                "suffix": "notifications",
+                "http": 404
+              }
+            ],
+            "report": "Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired."
+          },
+          "invent": false
+        }
+      }
+    },
+    "gets": {
+      "10181": {
+        "id": 10181,
+        "amount": 7840.8
+      }
+    },
+    "outlook": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "transfer_ap": {
+      "status": "moved",
+      "kimco_id": 10181,
+      "batch_id": 375,
+      "batch_name": "TRANSFER AP",
+      "comment": "@Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+      "put": 200,
+      "error": "",
+      "mention_notify": {
+        "worked": false,
+        "comments_persisted": true,
+        "mention_value_keys": [],
+        "probes": [
+          {
+            "suffix": "comments",
+            "http": 404
+          },
+          {
+            "suffix": "mentions",
+            "http": 404
+          },
+          {
+            "suffix": "notifications",
+            "http": 404
+          }
+        ],
+        "report": "Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired."
+      },
+      "invent": false
+    },
+    "comments_1": {
+      "status": "put",
+      "put": 200,
+      "error": "",
+      "invent": false
+    },
+    "po_59006_leftovers": [
+      {
+        "id": 24332,
+        "part": "PO59006-01",
+        "qty": null,
+        "unit_price": null,
+        "po": "59006"
+      }
+    ]
   }
 }
