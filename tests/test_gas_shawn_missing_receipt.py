@@ -66,7 +66,7 @@ def test_restore_helper_only_targets_720():
     from gas_shawn_missing_receipt import KNOWN_BATCH_ID, move_back_to_720
 
     assert KNOWN_BATCH_ID == 720
-    assert move_back_to_720.__doc__ and "Never move onto 375" in move_back_to_720.__doc__
+    assert move_back_to_720.__doc__ and "NOTE-53 superseded stay-on-720" in move_back_to_720.__doc__
 
 
 def test_receipt_comment_items_ignore_price_variance_note():
