@@ -77,7 +77,8 @@ def test_modern_heat_treat_anthony_with_uncertainty():
     assert entry["uncertain"] is True
     assert missing_receipt_exception_owner("Modern Heat Treat Inc") == "Anthony"
     assert "until Kyle confirms" in missing_receipt_comment_text("Modern Heat")
-    assert "Anthony?" in missing_receipt_notes("Modern Heat Treat Inc")
+    assert "until Kyle confirms" in missing_receipt_notes("Modern Heat Treat Inc")
+    assert "?" in (entry.get("receiving_owner_raw") or "")
 
 
 def test_shawn_mention_id_104_no_invented_ids():
@@ -174,7 +175,15 @@ def _hold_row(vendor: str, kimco: _MissingReceiptKimco) -> dict:
         vendor_samples=[
             {"vendor_id": 9, "vendor_text": vendor, "invoice_id": 100, "po_text": ""}
         ],
-        po_index={"58700": {"id": 3, "text": "58700-TEST", "vendor_id": 9, "lines": []}},
+        po_index={
+            "58700": {
+                "id": 3,
+                "text": f"58700-{vendor}",
+                "vendor_id": 9,
+                "vendor_text": vendor,
+                "lines": [],
+            }
+        },
         receipts=[{"slip": "OTHER", "qty": 6, "part": "DIFFERENT", "po_line": 1}],
         pdf_dir=None,
         graph_client=None,
