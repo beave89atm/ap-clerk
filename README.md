@@ -268,7 +268,13 @@ python3 -m ap_clerk pull \
   --out runs/inbox-unflagged.json
 ```
 
-`--match-inbox` on `enter` attaches Graph message ids onto fixture invoices, then flags **after** a Success header create — never after download alone. `--mailbox` must be `accountspayable@kannonmfg.com`; any other mailbox is rejected.
+`--match-inbox` on `enter` attaches Graph message ids onto fixture invoices, then flags **after** a Success header create — never after download alone. `--mailbox` must be `accountspayable@kannonmfg.com`; any other mailbox (including `receiving@` or `POD@`) is rejected.
+
+**NOTE-48 receiving mailbox** (Kyle 2026-09-22): `receiving@kannonmfg.com` is the shared mailbox for **vendor signed receives / packing slips** (once created). Same `MICROSOFT_GRAPH_*` client-credentials as the AP mailbox. Read-only (`GET` list / message / attachment names). Do **not** enter invoices from receiving@. Do **not** Mail.Send from receiving@. `POD@kannonmfg.com` is **deprecated** — do not build product around it.
+
+```bash
+python3 -m ap_clerk receiving
+```
 
 ## Batch naming
 
@@ -396,7 +402,7 @@ One row per invoice in `fixtures/testrun-727-803.json`. Why also notes `Flag sta
 
 ## Outlook categories after match
 
-The only mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail without a process category (`Entered in AI`, `Entered with issues`, `AI HOLD`, `AI Skipped 2`, leftover `AI Skipped`) is the work queue.
+The only **invoice** mailbox this CLI will touch is `accountspayable@kannonmfg.com`. Mail without a process category (`Entered in AI`, `Entered with issues`, `AI HOLD`, `AI Skipped 2`, leftover `AI Skipped`) is the work queue. `receiving@kannonmfg.com` is signed-receive / packing-slip intake only (NOTE-48) — Graph GET, never enter / flag / sendMail. `POD@` is deprecated.
 
 When an invoice is pulled from that mailbox:
 
@@ -429,7 +435,7 @@ Graph message id is kept on the run so the category is applied after match, not 
 - Secret values are never printed.
 - No invoice is deleted or voided.
 - Live never uses prototype keys. Prototype never writes to `live.kimcoerp.com`.
-- The only Outlook mailbox this CLI will read or mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success, `Entered with issues` after header+PDF unfinished, `AI HOLD` after a real bill with no header / Fail, and **`AI Skipped 2`** after noise. Never stamp `AI HOLD` on noise. Never leave noise uncategorized. Never two process categories. Never use the follow-up flag or `AP Matched` as the process marker.
+- The only Outlook **invoice** mailbox this CLI will mark is `accountspayable@kannonmfg.com`. Apply `Entered in AI` after Success, `Entered with issues` after header+PDF unfinished, `AI HOLD` after a real bill with no header / Fail, and **`AI Skipped 2`** after noise. Never stamp `AI HOLD` on noise. Never leave noise uncategorized. Never two process categories. Never use the follow-up flag or `AP Matched` as the process marker. `receiving@kannonmfg.com` is read-only signed-receive intake (NOTE-48). `POD@` is deprecated.
 - `daily` requires `--live`. Do not add a GitHub Actions cron that posts live without Kyle.
 - QUALITY V1.1 does not run a live 30 by itself. The supervised 10-invoice API-finish dry run is recorded above. Do not re-arm the weekday daily 30 until Kyle says so.
 - **Hard email cap 10 until further notice (Kyle 2026-09-11).** Daily `--limit 30` is clamped to 10 emails. Already-flagged messages are not touched and do not count.

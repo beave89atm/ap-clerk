@@ -89,6 +89,19 @@ Lines-K) is **Incomplete**. Fuel surcharge / freight stay Additional Charge
 Fees id 11. After lines, Invoice_Amount equals the PDF after-tax total.
 Do not rework 10135 after Kyle checked it.
 
+**NOTE-48 receiving@ is not an invoice inbox (Kyle 2026-09-22).** Shared
+mailbox `receiving@kannonmfg.com` is **signed-receive / packing-slip intake**
+(once Kyle creates it). Same Graph app (`MICROSOFT_GRAPH_TENANT_ID` /
+`CLIENT_ID` / `CLIENT_SECRET`) as `accountspayable@kannonmfg.com`. Read
+(list / GET message / attachment names) only. Do **not** enter AP invoices
+from receiving@ — if a bill lands there, report it and leave it.
+`accountspayable@` remains the only invoice mailbox (`enter` / `daily` /
+`pull` / `probe` / `--mailbox`). No Mail.Send from receiving@. No Outlook
+process-category PATCH on receiving@. CLI: `python3 -m ap_clerk receiving`.
+`POD@kannonmfg.com` is **deprecated** — drop intake plans; do not build
+product around it (`pod` is a deprecated alias). If Graph 404s, report
+waiting-on-mailbox-create.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -178,6 +191,10 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
     nonempty Lines-K (description, qty, unit cost) with live category
     Shop Supplies - G&S. Header-only is Incomplete, never Success. Fuel
     surcharge stays Additional Charge Fees.
+11. **receiving@ is not an invoice inbox (NOTE-48)** —
+    `receiving@kannonmfg.com` is signed-receive / packing-slip intake.
+    `POD@kannonmfg.com` is deprecated. Never enter AP invoices from either.
+    `accountspayable@` is the only invoice mailbox. No Mail.Send from receiving@.
 
 If Treyce would still fix header, lines, or charges → **HOLD**, **Incomplete**, or **Entered with issues**. Never `Success`.
 
@@ -263,6 +280,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6; Kyle 2026-09-18 Shawn owns Purchasing) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable. `missing_po` / Transfer AP contact was wrongly hard-defaulted to Misty McCoy. | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Shawn McKibben, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Shawn oversees Purchasing (price variance, PO not on live, missing/bad PO). Transfer AP is a destination batch only. Misty McCoy is not a hard default. Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
 | **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp **Comments** explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben**. Report exactly whether @mention notify worked. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
 | **NOTE-42** Gas Misc Lines-K + Shop Supplies - G&S (Kyle 2026-09-18; 0040421569 / 10135) | Type 4 Gas bills were Success with header + verification amount only; Lines-K empty. Kyle: header-only is incomplete. | Gas Type 4 Success requires nonempty Lines-K (desc/qty/cost + live category Shop Supplies - G&S). Fuel stays Fees id 11. Invoice_Amount = PDF after-tax after lines. Header-only → Incomplete, never Success. Leave 10135 after Kyle checked. | `test_quality_gas_misc_header_only_never_success` / `test_never_repeat_note42_gas_misc_lines_k` |
+| **NOTE-48** receiving@kannonmfg.com is signed-receive intake; POD@ deprecated (Kyle 2026-09-22) | Treating receiving@ or POD@ as a second invoice inbox | Graph GET only on receiving@. Never enter AP invoices from receiving@ or POD@. Never Mail.Send / category PATCH. `accountspayable@` stays the only invoice mailbox. POD@ is not a product target | `test_never_repeat_note48_receiving_not_invoice_inbox` / `test_receiving_get_allowed_writes_rejected_without_http` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 

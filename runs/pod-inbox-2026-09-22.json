@@ -1,0 +1,56 @@
+{
+  "mailbox": "pod@kannonmfg.com",
+  "invoice_mailbox": "accountspayable@kannonmfg.com",
+  "note": "NOTE-48",
+  "mail_send_invoked": false,
+  "kimco_writes": false,
+  "entered_invoices": false,
+  "access": "ok",
+  "http": 200,
+  "error": null,
+  "azure_checklist": [],
+  "messages": [
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "received": "2026-09-22T12:15:11Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_073207.pdf"
+      ],
+      "preview": "Reply to: Kannon Manufacturing <scans@sharp-mfp.com>\r Device Name: Kannon Manufacturing\r Device Model: MX-5050V\r Location: Fort Worth TX \r \r File Format: PDF (Medium)\r Resolution: 200dpi x 200dpi\r \r Attached file is scanned image in PDF format.\r Use Acrob",
+      "looks_like_invoice": false
+    },
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "received": "2026-09-22T12:14:51Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_073148.pdf"
+      ],
+      "preview": "Reply to: Kannon Manufacturing <scans@sharp-mfp.com>\r Device Name: Kannon Manufacturing\r Device Model: MX-5050V\r Location: Fort Worth TX \r \r File Format: PDF (Medium)\r Resolution: 200dpi x 200dpi\r \r Attached file is scanned image in PDF format.\r Use Acrob",
+      "looks_like_invoice": false
+    },
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "received": "2026-09-22T12:11:58Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_072849.pdf"
+      ],
+      "preview": "Reply to: Kannon Manufacturing <scans@sharp-mfp.com>\r Device Name: Kannon Manufacturing\r Device Model: MX-5050V\r Location: Fort Worth TX \r \r File Format: PDF (Medium)\r Resolution: 200dpi x 200dpi\r \r Attached file is scanned image in PDF format.\r Use Acrob",
+      "looks_like_invoice": false
+    }
+  ],
+  "possible_invoices_left_unentered": [],
+  "graph_roles": [
+    "Mail.ReadWrite",
+    "Mail.Read",
+    "Mail.Send"
+  ]
+}

@@ -811,6 +811,36 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (10128, 10129, 10130, 10131, 10132, 10133, 10136),
     },
+    {
+        "id": "NOTE-48",
+        "slug": "receiving-mailbox-not-invoice-inbox",
+        "gate": "mailbox",
+        "cases": (
+            "Kyle 2026-09-22: receiving@kannonmfg.com signed-receive / packing-slip inbox",
+            "POD@kannonmfg.com deprecated — do not build product around it",
+            "accountspayable@ remains the only AP invoice mailbox",
+        ),
+        "9_22_bug": (
+            "Inbound vendor signed receives / packing slips need a shared "
+            "mailbox that is not the AP invoice queue. Treating receiving@ "
+            "(or deprecated POD@) as a second invoice inbox would enter bills "
+            "from the wrong queue, stamp AP categories on receiving mail, or "
+            "Mail.Send from the wrong mailbox."
+        ),
+        "expected": (
+            "receiving@kannonmfg.com is signed-receive / packing-slip intake "
+            "(Graph GET list/read/attachments; same MICROSOFT_GRAPH_* app). "
+            "POD@kannonmfg.com is deprecated — drop intake plans; do not "
+            "build product around it. Never enter AP invoices from receiving@ "
+            "or POD@; accountspayable@ is the only invoice mailbox. Never "
+            "Mail.Send from receiving@ or POD@. Never PATCH Outlook process "
+            "categories on either. enter / daily / probe / --mailbox stay "
+            "accountspayable@. CLI: python3 -m ap_clerk receiving "
+            "(`pod` is a deprecated alias). If receiving@ is not in Graph yet, "
+            "report waiting-on-mailbox-create — do not invent access."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -901,6 +931,15 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "(description, qty, unit cost) with live category Shop Supplies - "
             "G&S. Header-only is Incomplete, never Success (NOTE-42). Fuel "
             "surcharge stays Additional Charge Fees."
+        ),
+    },
+    {
+        "id": "receiving-mailbox-not-invoice-inbox",
+        "check": (
+            "receiving@kannonmfg.com is signed-receive / packing-slip intake "
+            "only (NOTE-48). POD@ is deprecated. Never enter AP invoices from "
+            "receiving@ or POD@. accountspayable@ is the only invoice mailbox. "
+            "No Mail.Send and no Outlook category PATCH on receiving@."
         ),
     },
 )

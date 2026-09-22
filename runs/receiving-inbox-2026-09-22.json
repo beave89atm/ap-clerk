@@ -1,0 +1,27 @@
+{
+  "mailbox": "receiving@kannonmfg.com",
+  "deprecated_pod_mailbox": "pod@kannonmfg.com",
+  "invoice_mailbox": "accountspayable@kannonmfg.com",
+  "note": "NOTE-48",
+  "mail_send_invoked": false,
+  "kimco_writes": false,
+  "entered_invoices": false,
+  "access": "waiting-on-mailbox-create",
+  "http": 404,
+  "error": "Graph list messages HTTP 404 (ErrorInvalidUser: The requested user 'receiving@kannonmfg.com' is invalid.)",
+  "azure_checklist": [
+    "waiting on mailbox create: Graph does not see receiving@kannonmfg.com yet (404 / not found).",
+    "Create shared mailbox receiving@kannonmfg.com in Exchange / Microsoft 365 (Kyle: this replaces POD@ as the signed-receive / packing-slip inbox).",
+    "Do not build intake around POD@kannonmfg.com \u2014 that mailbox is deprecated.",
+    "On the Kannon AP Clerk Entra app (same MICROSOFT_GRAPH_CLIENT_ID as accountspayable@), grant Application Mail.Read (or Mail.ReadWrite) and admin-consent it. Mail.Send is not required for receiving@.",
+    "If an Exchange Application Access Policy restricts the app to accountspayable@ only, add receiving@kannonmfg.com to that policy allow list (or grant mailbox access to receiving@).",
+    "Wait for policy replication, then retry: python3 -m ap_clerk receiving"
+  ],
+  "messages": [],
+  "possible_invoices_left_unentered": [],
+  "graph_roles": [
+    "Mail.ReadWrite",
+    "Mail.Read",
+    "Mail.Send"
+  ]
+}
