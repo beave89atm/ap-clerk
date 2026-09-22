@@ -4770,7 +4770,7 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
 
 
-def test_never_repeat_note49_packing_slip_success_gate():
+def test_never_repeat_note49_packing_slip_success_gate(tmp_path: Path):
     """NOTE-49: invoice PDF alone is never Success; receiving@ slips, multi-page kept together."""
     from ap_clerk.packing_slips import (
         logical_slips_from_scan,
@@ -4785,10 +4785,12 @@ def test_never_repeat_note49_packing_slip_success_gate():
     assert n["gate"] == GATE_PACKING_SLIP
     assert n["never_success"] is True
     assert "receiving@" in n["expected"]
-    assert "more than one page" in n["expected"]
+    assert "more than one page" in n["9_22_rule"]
     assert "1 page = 1 slip" in n["expected"]
-    assert "1 PDF = 1 invoice" in n["9_22_rule"] or "1 PDF = 1 invoice" in n["expected"]
+    assert "1 PDF = 1 invoice" in n["9_22_rule"]
     assert "Do not enter invoices from receiving@" in n["expected"]
+    assert "Do not enter invoices from receiving@" in n["9_22_rule"]
+    assert "AI Completed" in n["expected"]
     assert EXCEPTION_CATEGORY_OWNERS["missing_packing_slip"] == "receiving"
 
     invoice_only, invoice_why = finish_gate(
@@ -4817,6 +4819,8 @@ def test_never_repeat_note49_packing_slip_success_gate():
     )
     assert both == RESULT_SUCCESS, both_why
 
+    invoice_pdf = tmp_path / "Invoice-71401129.pdf"
+    invoice_pdf.write_bytes(b"%PDF-1.4 invoice")
     row, _ = _row(
         {
             "vendor": "McMaster-Carr",
@@ -4824,6 +4828,8 @@ def test_never_repeat_note49_packing_slip_success_gate():
             "date": "2026-09-18",
             "po": None,
             "amount": 20.0,
+            "pdf_path": str(invoice_pdf),
+            "pdf_on_disk": True,
             "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf"},
             "packing_slip_attached": False,
         }

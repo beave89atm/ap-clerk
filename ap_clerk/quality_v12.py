@@ -815,7 +815,12 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "have no doc-type: invoice = Sales Invoice / PS-INV / Invoice- / "
             "TXFT; slip = Receipt_ / packing slip / POD / Sharp MFP name + "
             "packing-slip body. Complementary to NOTE-25 (AP-inbox slips are "
-            "still not invoices). No mass live rework of old bills. No Mail.Send."
+            "still not invoices). Do not enter invoices from receiving@. "
+            "After GET verifies the slip on the AP header, category the "
+            "receiving@ message exactly AI Completed — only when every "
+            "identifiable slip from that email is attached. Partial / failed "
+            "/ unmatched: leave uncategorized and list leftovers. "
+            "No mass live rework of old bills. No Mail.Send."
         ),
         "never_success": True,
         "do_not_void": True,

@@ -5,7 +5,9 @@ from __future__ import annotations
 from ap_clerk.gates import GATE_PACKING_SLIP, RESULT_HOLD, RESULT_SUCCESS, finish_gate
 from ap_clerk.graph import ALLOWED_MAILBOX
 from ap_clerk.packing_slips import (
+    AI_COMPLETED_CATEGORY,
     SHARP_MFP_FROM,
+    decide_receiving_ai_completed,
     group_consecutive_slip_pages,
     header_attachment_kind,
     header_has_signed_packing_slip,
@@ -193,3 +195,75 @@ def test_invoice_pdf_plus_packing_slip_can_succeed():
     )
     assert result == RESULT_SUCCESS, why
     assert why == ""
+
+
+def _attached(po: str, *, invoice_id: int = 10152) -> dict:
+    return {
+        "slip": {"po": po, "pages": [1, 2], "slip_number": po},
+        "identifiable": True,
+        "status": "attached",
+        "verified": True,
+        "invoice_id": invoice_id,
+    }
+
+
+def test_ai_completed_after_verified_single_attach():
+    decision = decide_receiving_ai_completed([_attached("59008")])
+    assert decision["stamp"] is True
+    assert decision["category"] == AI_COMPLETED_CATEGORY
+    assert decision["leftover"] == []
+
+
+def test_ai_completed_when_all_multi_invoice_attaches_succeed():
+    decision = decide_receiving_ai_completed(
+        [_attached("59008", invoice_id=10152), _attached("59128", invoice_id=10107)]
+    )
+    assert decision["stamp"] is True
+    assert decision["category"] == "AI Completed"
+
+
+def test_no_ai_completed_on_unmatched_or_failed():
+    unmatched = decide_receiving_ai_completed(
+        [
+            {
+                "slip": {"po": "59008", "pages": [1, 2]},
+                "identifiable": True,
+                "status": "unmatched",
+                "verified": False,
+            }
+        ]
+    )
+    assert unmatched["stamp"] is False
+    assert unmatched["category"] == ""
+    assert unmatched["leftover_labels"]
+
+    failed = decide_receiving_ai_completed(
+        [
+            {
+                "slip": {"po": "59008", "pages": [1]},
+                "identifiable": True,
+                "status": "attached",
+                "verified": False,
+            }
+        ]
+    )
+    assert failed["stamp"] is False
+    assert "GET-verified" in failed["why"]
+
+
+def test_partial_multi_slip_leaves_uncategorized_and_lists_leftover():
+    decision = decide_receiving_ai_completed(
+        [
+            _attached("59008", invoice_id=10152),
+            {
+                "slip": {"po": "59128", "pages": [3, 4], "slip_number": "B200"},
+                "identifiable": True,
+                "status": "failed",
+                "verified": False,
+            },
+        ]
+    )
+    assert decision["stamp"] is False
+    assert decision["category"] == ""
+    assert any("59128" in label or "B200" in label for label in decision["leftover_labels"])
+    assert "Leave uncategorized" in decision["why"]

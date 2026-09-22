@@ -1,7 +1,11 @@
 """NOTE-49: signed packing slips from receiving@ for Success.
 
 accountspayable@ is the only invoice mailbox. receiving@ is Sharp MFP
-scans of signed packing slips — GET-only; never enter invoices from it.
+scans of signed packing slips — never enter invoices from it.
+
+After a packing-slip attach is GET-verified on the AP header, the
+receiving@ message may be categorized exactly `AI Completed`. Never stamp
+that on unmatched / skipped / failed / partial multi-slip emails.
 
 A scan PDF may contain more than one slip, and a slip may be more than
 one page. Do not treat 1 page = 1 slip or 1 PDF = 1 invoice. Keep
@@ -29,6 +33,9 @@ from ap_clerk.rules import (
     invoice_number_key,
     names_match,
 )
+
+# receiving@ only. Not an AP process marker (Entered in AI / AI HOLD / …).
+AI_COMPLETED_CATEGORY = "AI Completed"
 
 SHARP_MFP_FROM = "scans@sharp-mfp.com"
 SHARP_MFP_SUBJECT_RE = re.compile(
@@ -476,3 +483,98 @@ def slip_attachment_label(slip: dict[str, Any]) -> str:
         page_bit = "pages unknown"
     ident = slip.get("slip_number") or slip.get("po") or slip.get("invoice_number") or "slip"
     return f"packing-slip-{ident}-{page_bit}.pdf"
+
+
+def slip_is_identifiable(slip: dict[str, Any] | None) -> bool:
+    """True when the slip has a PO, invoice #, or slip # we can match on."""
+    data = slip or {}
+    return bool(
+        _norm_po(str(data.get("po") or ""))
+        or _norm_key(str(data.get("invoice_number") or ""))
+        or _norm_key(str(data.get("slip_number") or ""))
+    )
+
+
+def packing_slip_verified_on_header(
+    attachments: list[Any] | None,
+    *,
+    expected_name: str = "",
+) -> bool:
+    """True when GET attachments show a packing slip (optionally the one we just put)."""
+    if not header_has_signed_packing_slip(attachments):
+        return False
+    if not expected_name:
+        return True
+    needle = expected_name.lower()
+    return any(needle in _attachment_name(item).lower() for item in attachments or [])
+
+
+def leftover_slip_label(result: dict[str, Any]) -> str:
+    slip = result.get("slip") or {}
+    ident = (
+        slip.get("slip_number")
+        or slip.get("po")
+        or slip.get("invoice_number")
+        or result.get("label")
+        or "unidentified slip"
+    )
+    status = str(result.get("status") or "pending")
+    pages = slip.get("pages") or result.get("pages") or []
+    page_bit = ""
+    if pages:
+        page_bit = f" pages {pages[0]}-{pages[-1]}" if len(pages) > 1 else f" page {pages[0]}"
+    return f"{ident}{page_bit} ({status})"
+
+
+def decide_receiving_ai_completed(slip_results: list[dict[str, Any]] | None) -> dict[str, Any]:
+    """Stamp receiving@ `AI Completed` only after every identifiable slip is verified.
+
+    Kyle 2026-09-22:
+    - Only after attach is GET-verified on the AP header.
+    - Never on unmatched / skipped / failed attaches.
+    - One email → many invoices: stamp only if every matched attach succeeded.
+    - Partial multi-slip success: leave uncategorized and list leftovers.
+    """
+    rows = list(slip_results or [])
+    identifiable = [row for row in rows if row.get("identifiable") or slip_is_identifiable(row.get("slip") or row)]
+    leftover: list[dict[str, Any]] = []
+    for row in identifiable:
+        verified = bool(row.get("verified"))
+        status = str(row.get("status") or "").strip().lower()
+        if status != "attached" or not verified:
+            leftover.append(row)
+    if not identifiable:
+        return {
+            "stamp": False,
+            "category": "",
+            "why": (
+                "No identifiable packing slips on this receiving@ email "
+                "(need PO / invoice # / slip #). Leave uncategorized."
+            ),
+            "leftover": rows,
+            "leftover_labels": [leftover_slip_label(row) for row in rows],
+        }
+    if leftover:
+        labels = [leftover_slip_label(row) for row in leftover]
+        return {
+            "stamp": False,
+            "category": "",
+            "why": (
+                "Not all identifiable slips from this receiving@ email are attached "
+                "and GET-verified. Leave uncategorized until every slip is on its "
+                f"AP header. Leftover: {'; '.join(labels)}."
+            ),
+            "leftover": leftover,
+            "leftover_labels": labels,
+        }
+    return {
+        "stamp": True,
+        "category": AI_COMPLETED_CATEGORY,
+        "why": (
+            "All identifiable packing slips from this receiving@ email are "
+            "attached and GET-verified on the matching AP header(s). "
+            f"Category {AI_COMPLETED_CATEGORY}."
+        ),
+        "leftover": [],
+        "leftover_labels": [],
+    }
