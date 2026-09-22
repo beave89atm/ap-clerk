@@ -1,5 +1,5 @@
 {
-  "proof": "oneal-0921",
+  "proof": "oneal-0921-plus10",
   "invent": false,
   "mail_send": false,
   "vendor": "O'Neal Steel - Dallas (GP)",
@@ -1800,7 +1800,818 @@
       "Notes": "",
       "Receipts": "23932 1@471.42",
       "outlook": "entered-in-ai"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15460544",
+      "date": "2026-08-12",
+      "PO": "58920",
+      "Amount": 64.5,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=58920. Select Receipts 23730 240@0.2688 on PO 58920. Invoice #=15460544 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23730] fees=none ppv=none. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10174,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23730 240@0.2688",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15460995",
+      "date": "2026-08-12",
+      "PO": "59085",
+      "Amount": 6954.21,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59085 for O'Neal invoice #15460995. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comments_1 names Anthony (mention-id unproven). Do not Transfer AP. Outlook AI HOLD. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted Anthony (list Comments_1 item 929, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False mention_id=None owner=Anthony mail_send=False.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Anthony",
+      "KIMCO id": 10175,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15461007",
+      "date": "2026-08-12",
+      "PO": "59086",
+      "Amount": 67.38,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59086. Select Receipts already-selected on PO 59086. Invoice #=15461007 (exact PDF). Amount=67.38 after rounding PPV +0.18. Fees=none. Attach status=attached. Flag status=entered-with-issues (parent siblings not all Success).",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10176,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "0.18",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23749 240@0.2807",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15461157",
+      "date": "2026-08-12",
+      "PO": "59092",
+      "Amount": 1978.91,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59092. Select Receipts 23799 4@494.7275 on PO 59092. Invoice #=15461157 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10177,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "23799 4@494.7275",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15476365",
+      "date": "2026-08-28",
+      "PO": "59070",
+      "Amount": 1115.68,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59070 for O'Neal invoice #15476365. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comments_1 names Anthony (mention-id unproven). Do not Transfer AP. Outlook AI HOLD. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted Anthony (list Comments_1 item 930, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False mention_id=None owner=Anthony mail_send=False.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "Anthony",
+      "KIMCO id": 10178,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15476879",
+      "date": "2026-08-28",
+      "PO": "59236",
+      "Amount": 245.28,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59236. Select Receipts 24374 on PO 59236. Invoice #=15476879 (exact PDF). Amount=245.28 after rounding PPV -0.04 (in-gate, not $75). Returned from Transfer AP 375 to 722. Attach status=attached. Parent Outlook Entered with issues (15476365 still HOLD).",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10179,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "-0.04",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "24374 576@0.4259",
+      "outlook": "entered-with-issues"
+    },
+    {
+      "Vendor": "O'Neal Steel - Dallas (GP)",
+      "Invoice #": "15477248",
+      "date": "2026-08-28",
+      "PO": "59246",
+      "Amount": 152.88,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59246. Select Receipts 24364 on PO 59246. Invoice #=15477248 (exact PDF). Amount=152.88 after rounding PPV +1.20 (in-gate, not $75). Returned from Transfer AP 375 to 722. Attach status=attached. Parent Outlook Entered with issues (15476365 still HOLD).",
+      "Exception category": "",
+      "Exception owner": "",
+      "KIMCO id": 10180,
+      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Fees and surcharges": "none",
+      "PPV": "1.20",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "24364 2400@0.0632",
+      "outlook": "entered-with-issues"
     }
   ],
-  "note45": "missing_receipt Comments_1 names Ruben Perez, mention-id unproven, plain text, no Transfer AP; over-PPV Transfer AP + @Shawn; no Mail.Send"
+  "note45": "missing_receipt Comments_1 names Ruben Perez, mention-id unproven, plain text, no Transfer AP; over-PPV Transfer AP + @Shawn; no Mail.Send",
+  "plus10_headers": {
+    "15460544": 10174,
+    "15460995": 10175,
+    "15461007": 10176,
+    "15461157": 10177,
+    "15476365": 10178,
+    "15476879": 10179,
+    "15477248": 10180
+  },
+  "plus10": {
+    "enter_rows": [
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15460544",
+        "date": "2026-08-12",
+        "PO": "58920",
+        "Amount": 64.5,
+        "Result": "Success",
+        "Why": "Finished bill (Invoice_Type 3). Header PO set=58920. Select Receipts 23730 240@0.2688 on PO 58920. Invoice #=15460544 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Finish Select Receipts selected ids=[23730] fees=none ppv=none. Flag status=entered-in-ai.",
+        "Exception category": "",
+        "Exception owner": "",
+        "KIMCO id": 10174,
+        "Batch": "API Agent - 9/21/26 O'Neal (722)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "23730 240@0.2688",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15460995",
+        "date": "2026-08-12",
+        "PO": "59085",
+        "Amount": 6954.21,
+        "Result": "HOLD",
+        "Why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59085 for O'Neal invoice #15460995. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comments_1 names Anthony (mention-id unproven). Do not Transfer AP. Outlook AI HOLD. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted Anthony (list Comments_1 item 929, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False mention_id=None owner=Anthony mail_send=False.",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Anthony",
+        "KIMCO id": 10175,
+        "Batch": "API Agent - 9/21/26 O'Neal (722)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "none",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15461007",
+        "date": "2026-08-12",
+        "PO": "59086",
+        "Amount": 67.38,
+        "Result": "HOLD",
+        "Why": "category=other; owner=AP. HOLD: not Success \u2014 amount_ok=False attach=True vendor_ok=True number_ok=True fees_ok=True select=already-selected. Do not invent Success. Outlook AI HOLD.",
+        "Exception category": "other",
+        "Exception owner": "AP",
+        "KIMCO id": 10176,
+        "Batch": "API Agent - 9/21/26 O'Neal (722)",
+        "Fees and surcharges": "none",
+        "PPV": "-0.17",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "23749 240@0.2807",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15461157",
+        "date": "2026-08-12",
+        "PO": "59092",
+        "Amount": 1978.91,
+        "Result": "Success",
+        "Why": "Finished bill (Invoice_Type 3). Header PO set=59092. Select Receipts 23799 4@494.7275 on PO 59092. Invoice #=15461157 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+        "Exception category": "",
+        "Exception owner": "",
+        "KIMCO id": 10177,
+        "Batch": "API Agent - 9/21/26 O'Neal (722)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "23799 4@494.7275",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15476365",
+        "date": "2026-08-28",
+        "PO": "59070",
+        "Amount": 1115.68,
+        "Result": "HOLD",
+        "Why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59070 for O'Neal invoice #15476365. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comments_1 names Anthony (mention-id unproven). Do not Transfer AP. Outlook AI HOLD. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted Anthony (list Comments_1 item 930, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False mention_id=None owner=Anthony mail_send=False.",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Anthony",
+        "KIMCO id": 10178,
+        "Batch": "API Agent - 9/21/26 O'Neal (722)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "none",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15476879",
+        "date": "2026-08-28",
+        "PO": "59236",
+        "Amount": 245.28,
+        "Result": "HOLD",
+        "Why": "category=missing_po; owner=Misty McCoy / Transfer AP. HOLD (price-does-not-match): leftover vs invoice line is over the $75 PPV gate. Receipts were NOT selected. @Shawn McKibben mention-id 104. Transfer AP status=moved @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 931, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+        "Exception category": "missing_po",
+        "Exception owner": "Misty McCoy / Transfer AP",
+        "KIMCO id": 10179,
+        "Batch": "TRANSFER AP (375)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "24374 576@0.4259",
+        "outlook": "entered-with-issues"
+      },
+      {
+        "Vendor": "O'Neal Steel - Dallas (GP)",
+        "Invoice #": "15477248",
+        "date": "2026-08-28",
+        "PO": "59246",
+        "Amount": 152.88,
+        "Result": "HOLD",
+        "Why": "category=missing_po; owner=Misty McCoy / Transfer AP. HOLD (price-does-not-match): leftover vs invoice line is over the $75 PPV gate. Receipts were NOT selected. @Shawn McKibben mention-id 104. Transfer AP status=moved @mention=Comments tab persisted @Shawn McKibben (list Comments_1 item 932, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored..",
+        "Exception category": "missing_po",
+        "Exception owner": "Misty McCoy / Transfer AP",
+        "KIMCO id": 10180,
+        "Batch": "TRANSFER AP (375)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "24364 2400@0.0632",
+        "outlook": "entered-with-issues"
+      }
+    ],
+    "finishes": {
+      "15460544": {
+        "wanted": [
+          23730
+        ],
+        "select_status": "selected",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [
+          {
+            "line": {
+              "po": "58920"
+            },
+            "receipt": {
+              "id": 23730,
+              "slip": "PO58920-ONEAL STEEL, LLC. - 2026/9/3",
+              "part": "PO58920-02",
+              "description": "PO58920-ONEAL STEEL, LLC. - 2026/9/3",
+              "label": "PO58920-ONEAL STEEL, LLC. - 2026/9/3",
+              "qty": 240.0,
+              "unit_price": 0.27,
+              "amount": 64.51,
+              "cost": null,
+              "po_line": null,
+              "line": null,
+              "line_no": null,
+              "po": "58920",
+              "wo": "",
+              "name": "PO58920-ONEAL STEEL, LLC. - 2026/9/3",
+              "raw": {
+                "Name": "PO58920-ONEAL STEEL, LLC. - 2026/9/3",
+                "PO_Item_Number": {
+                  "id": 17133,
+                  "text": "PO58920-02",
+                  "isAbstract": false
+                }
+              }
+            },
+            "score": 65,
+            "pass": "qty-cost-on-po",
+            "how": "invoice merchandise cost"
+          }
+        ],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 23095,
+            "qty": 480.0,
+            "unit_price": 0.43,
+            "part": "PO58920-01"
+          },
+          {
+            "id": 23142,
+            "qty": 756.0,
+            "unit_price": 0.26,
+            "part": "PO58920-03"
+          },
+          {
+            "id": 23730,
+            "qty": 240.0,
+            "unit_price": 0.27,
+            "part": "PO58920-02"
+          }
+        ]
+      },
+      "15460995": {
+        "wanted": [],
+        "select_status": "held-unfinished",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 23932,
+            "qty": 1.0,
+            "unit_price": 471.42,
+            "part": "PO59085-01"
+          },
+          {
+            "id": 23933,
+            "qty": 2.0,
+            "unit_price": 471.42,
+            "part": "PO59085-01"
+          },
+          {
+            "id": 23934,
+            "qty": 8.0,
+            "unit_price": 692.49,
+            "part": "PO59085-02"
+          }
+        ],
+        "missing_receipt_comment": {
+          "status": "added",
+          "put": 200,
+          "error": "",
+          "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>",
+          "put_body_keys": [
+            "id",
+            "lists",
+            "url",
+            "values"
+          ],
+          "invent": false,
+          "mail_send": false,
+          "plain": true,
+          "tab_persisted": true,
+          "comments_persisted": true,
+          "header_string_ignored": true,
+          "header_has_shawn": false,
+          "item_ids": [
+            929
+          ],
+          "mention_node": false,
+          "mention_id": null,
+          "worked": false,
+          "notify_confirmed": false,
+          "report": "Comments tab persisted Anthony (list Comments_1 item 929, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "transfer_ap": false
+        }
+      },
+      "15461007": {
+        "wanted": [],
+        "select_status": "already-selected",
+        "fee_status": "none",
+        "ppv_status": "posted",
+        "ppv_amount": -0.17,
+        "match_how": null,
+        "matched": [
+          {
+            "line": {
+              "po": "59086"
+            },
+            "receipt": {
+              "id": 23749,
+              "slip": "PO59086-ONEAL STEEL, LLC. - 2026/9/3",
+              "part": "PO59086-01",
+              "description": "PO59086-ONEAL STEEL, LLC. - 2026/9/3",
+              "label": "PO59086-ONEAL STEEL, LLC. - 2026/9/3",
+              "qty": 240.0,
+              "unit_price": 0.28,
+              "amount": 67.37,
+              "cost": null,
+              "po_line": null,
+              "line": null,
+              "line_no": null,
+              "po": "59086",
+              "wo": "",
+              "name": "PO59086-ONEAL STEEL, LLC. - 2026/9/3",
+              "raw": {
+                "Name": "PO59086-ONEAL STEEL, LLC. - 2026/9/3",
+                "PO_Item_Number": {
+                  "id": 17526,
+                  "text": "PO59086-01",
+                  "isAbstract": false
+                }
+              }
+            },
+            "score": 65,
+            "pass": "qty-cost-on-po",
+            "how": "single open receipt on PO"
+          }
+        ],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 23749,
+            "qty": 240.0,
+            "unit_price": 0.28,
+            "part": "PO59086-01"
+          }
+        ]
+      },
+      "15461157": {
+        "wanted": [],
+        "select_status": "already-selected",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [
+          {
+            "line": {
+              "po": "59092"
+            },
+            "receipt": {
+              "id": 23799,
+              "slip": "PO59092-ONEAL STEEL, LLC. - 2026/9/3",
+              "part": "PO59092-01",
+              "description": "PO59092-ONEAL STEEL, LLC. - 2026/9/3",
+              "label": "PO59092-ONEAL STEEL, LLC. - 2026/9/3",
+              "qty": 4.0,
+              "unit_price": 494.73,
+              "amount": 1978.91,
+              "cost": null,
+              "po_line": null,
+              "line": null,
+              "line_no": null,
+              "po": "59092",
+              "wo": "",
+              "name": "PO59092-ONEAL STEEL, LLC. - 2026/9/3",
+              "raw": {
+                "Name": "PO59092-ONEAL STEEL, LLC. - 2026/9/3",
+                "PO_Item_Number": {
+                  "id": 17533,
+                  "text": "PO59092-01",
+                  "isAbstract": false
+                }
+              }
+            },
+            "score": 65,
+            "pass": "qty-cost-on-po",
+            "how": "single open receipt on PO"
+          }
+        ],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 23799,
+            "qty": 4.0,
+            "unit_price": 494.73,
+            "part": "PO59092-01"
+          }
+        ]
+      },
+      "15476365": {
+        "wanted": [],
+        "select_status": "held-unfinished",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 23581,
+            "qty": 14.0,
+            "unit_price": 364.07,
+            "part": "PO59070-01"
+          },
+          {
+            "id": 23582,
+            "qty": 20.0,
+            "unit_price": 273.09,
+            "part": "PO59070-02"
+          },
+          {
+            "id": 23583,
+            "qty": 10.0,
+            "unit_price": 212.41,
+            "part": "PO59070-03"
+          },
+          {
+            "id": 23584,
+            "qty": 5.0,
+            "unit_price": 371.89,
+            "part": "PO59070-04"
+          }
+        ],
+        "missing_receipt_comment": {
+          "status": "added",
+          "put": 200,
+          "error": "",
+          "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>",
+          "put_body_keys": [
+            "id",
+            "lists",
+            "url",
+            "values"
+          ],
+          "invent": false,
+          "mail_send": false,
+          "plain": true,
+          "tab_persisted": true,
+          "comments_persisted": true,
+          "header_string_ignored": true,
+          "header_has_shawn": false,
+          "item_ids": [
+            930
+          ],
+          "mention_node": false,
+          "mention_id": null,
+          "worked": false,
+          "notify_confirmed": false,
+          "report": "Comments tab persisted Anthony (list Comments_1 item 930, plain text (no mention-node)). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "transfer_ap": false
+        }
+      },
+      "15476879": {
+        "wanted": [],
+        "select_status": "ppv-lock-select-zero",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [],
+        "skipped_over_ppv": true,
+        "select_zero": true,
+        "open_on_po": [
+          {
+            "id": 24374,
+            "qty": 576.0,
+            "unit_price": 0.43,
+            "part": "PO59236-01"
+          }
+        ],
+        "transfer_ap": {
+          "status": "moved",
+          "kimco_id": 10179,
+          "batch_id": 375,
+          "batch_name": "TRANSFER AP",
+          "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 931, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on O'Neal Steel 15476879 PO 59236 PDF $245.28. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+          "comment_tab": {
+            "status": "added",
+            "put": 200,
+            "error": "",
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on O'Neal Steel 15476879 PO 59236 PDF $245.28. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
+            "put_body_keys": [
+              "id",
+              "lists",
+              "url",
+              "values"
+            ],
+            "invent": false,
+            "mail_send": false,
+            "plain": false,
+            "tab_persisted": true,
+            "comments_persisted": true,
+            "header_string_ignored": true,
+            "header_has_shawn": false,
+            "item_ids": [
+              931
+            ],
+            "mention_node": true,
+            "mention_id": 104,
+            "worked": false,
+            "notify_confirmed": false,
+            "report": "Comments tab persisted Shawn McKibben (list Comments_1 item 931, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+          },
+          "put": 200,
+          "error": "",
+          "put_body_keys": [
+            "id",
+            "url",
+            "values"
+          ],
+          "mention_notify": {
+            "tab_persisted": true,
+            "comments_persisted": true,
+            "header_string_ignored": true,
+            "header_has_shawn": false,
+            "item_ids": [
+              931
+            ],
+            "mention_node": true,
+            "mention_id": 104,
+            "worked": false,
+            "notify_confirmed": false,
+            "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 931, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+            "probes": [
+              {
+                "suffix": "comments",
+                "http": 404
+              },
+              {
+                "suffix": "mentions",
+                "http": 404
+              },
+              {
+                "suffix": "notifications",
+                "http": 404
+              }
+            ]
+          },
+          "invent": false,
+          "mail_send": false
+        }
+      },
+      "15477248": {
+        "wanted": [],
+        "select_status": "ppv-lock-select-zero",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [],
+        "skipped_over_ppv": true,
+        "select_zero": true,
+        "open_on_po": [
+          {
+            "id": 24364,
+            "qty": 2400.0,
+            "unit_price": 0.06,
+            "part": "PO59246-01"
+          }
+        ],
+        "transfer_ap": {
+          "status": "moved",
+          "kimco_id": 10180,
+          "batch_id": 375,
+          "batch_name": "TRANSFER AP",
+          "comment": "Comments tab persisted @Shawn McKibben (list Comments_1 item 932, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+          "comment_requested": "@Shawn McKibben HOLD (price-does-not-match) on O'Neal Steel 15477248 PO 59246 PDF $152.88. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+          "comment_tab": {
+            "status": "added",
+            "put": 200,
+            "error": "",
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (price-does-not-match) on O'Neal Steel 15477248 PO 59246 PDF $152.88. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.</p>",
+            "put_body_keys": [
+              "id",
+              "lists",
+              "url",
+              "values"
+            ],
+            "invent": false,
+            "mail_send": false,
+            "plain": false,
+            "tab_persisted": true,
+            "comments_persisted": true,
+            "header_string_ignored": true,
+            "header_has_shawn": false,
+            "item_ids": [
+              932
+            ],
+            "mention_node": true,
+            "mention_id": 104,
+            "worked": false,
+            "notify_confirmed": false,
+            "report": "Comments tab persisted Shawn McKibben (list Comments_1 item 932, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+          },
+          "put": 200,
+          "error": "",
+          "put_body_keys": [
+            "id",
+            "url",
+            "values"
+          ],
+          "mention_notify": {
+            "tab_persisted": true,
+            "comments_persisted": true,
+            "header_string_ignored": true,
+            "header_has_shawn": false,
+            "item_ids": [
+              932
+            ],
+            "mention_node": true,
+            "mention_id": 104,
+            "worked": false,
+            "notify_confirmed": false,
+            "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 932, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.",
+            "probes": [
+              {
+                "suffix": "comments",
+                "http": 404
+              },
+              {
+                "suffix": "mentions",
+                "http": 404
+              },
+              {
+                "suffix": "notifications",
+                "http": 404
+              }
+            ]
+          },
+          "invent": false,
+          "mail_send": false
+        }
+      }
+    },
+    "outlook": {
+      "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=": {
+        "target": "Entered with issues",
+        "status": "entered-with-issues",
+        "mailbox": "accountspayable@kannonmfg.com",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+        "mail_send": false,
+        "flag": "entered-with-issues"
+      },
+      "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=": {
+        "target": "Entered with issues",
+        "status": "entered-with-issues",
+        "mailbox": "accountspayable@kannonmfg.com",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+        "mail_send": false,
+        "flag": "entered-with-issues"
+      }
+    }
+  },
+  "plus10_rounding_fix": {
+    "10176": "PPV +0.18 Success 67.38",
+    "10179": "PPV -0.04 back to 722 Success 245.28",
+    "10180": "PPV +1.20 back to 722 Success 152.88"
+  }
 }
