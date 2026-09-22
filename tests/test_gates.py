@@ -70,9 +70,11 @@ class RecordingKimco:
 
 
 def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, pdf_dir=None):
+    payload = dict(inv)
+    payload.setdefault("packing_slip_attached", True)
     return _process_invoice(
         kimco or RecordingKimco(),
-        inv,
+        payload,
         batch={"id": 1},
         batch_label="API Agent - 9/8/26 (1)",
         invoice_by_number={},

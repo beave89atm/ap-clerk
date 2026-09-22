@@ -26,6 +26,7 @@ from ap_clerk.gates import (
     GATE_QTY,
     GATE_RECEIPT,
     GATE_VENDOR,
+    GATE_PACKING_SLIP,
     RESULT_FAIL,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
@@ -177,9 +178,11 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
 
 def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=None, invoice_by_number=None):
     client = kimco or _kimco()
+    payload = dict(inv)
+    payload.setdefault("packing_slip_attached", True)
     return _process_invoice(
         client,
-        inv,
+        payload,
         batch={"id": 1},
         batch_label="API Agent - 9/10/26 (1)",
         invoice_by_number=invoice_by_number or {},
@@ -194,9 +197,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40))
-    assert len(TREYCE_NOTES_V12) == 39
-    assert len(TREYCE_FINISH_CHECKLIST) == 14
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-49",)
+    assert len(TREYCE_NOTES_V12) == 40
+    assert len(TREYCE_FINISH_CHECKLIST) == 15
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -240,6 +243,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125315-combine-same-item-receipts",
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
+        "receiving-signed-packing-slip-success",
     }
 
 
@@ -669,6 +673,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "all-pos-selected",
         "partial-select-receipts-never-fail-close",
         "combine-same-item-same-unit-receipts",
+        "signed-packing-slip-from-receiving",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -3967,6 +3972,7 @@ def test_never_repeat_priority1_freight_external():
         fees=[{"name": "Freight Charge", "amount": 235.77}],
         fees_posted=True,
         freight_vendor=True,
+        packing_slip_attached=True,
     )
     assert result == RESULT_SUCCESS, why
 
@@ -4549,6 +4555,7 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
         "pdf_capture",
         "auto_pay",
         "partial_match",
+        "missing_packing_slip",
         "other",
     }
 
@@ -4751,10 +4758,107 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     assert classify_exception(
         result=RESULT_INCOMPLETE, why="Incomplete (finish): attach blocked-405."
     ) == ("other", "AP")
+    assert classify_exception(
+        result=RESULT_HOLD,
+        why="HOLD (missing-packing-slip): Vendor invoice PDF is on the header but no matched signed packing slip.",
+    ) == ("missing_packing_slip", "receiving")
     assert classify_exception(result=RESULT_SKIPPED, why="Skipped (bill-vs-noise): statement.") is None
     stamped = apply_exception_category_owner(
         {"Result": RESULT_HOLD, "Why": "HOLD (price-does-not-match): gap."}
     )
     assert stamped[COL_EXCEPTION_CATEGORY] == "price_variance"
     assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
+
+
+def test_never_repeat_note49_packing_slip_success_gate():
+    """NOTE-49: invoice PDF alone is never Success; receiving@ slips, multi-page kept together."""
+    from ap_clerk.packing_slips import (
+        logical_slips_from_scan,
+        match_logical_slips_to_invoice,
+        receiving_is_not_invoice_mailbox,
+        refuse_enter_from_receiving,
+    )
+    from ap_clerk.receiving_probe import RECEIVING_MAILBOX
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-49")
+    assert n["slug"] == "receiving-signed-packing-slip-success"
+    assert n["gate"] == GATE_PACKING_SLIP
+    assert n["never_success"] is True
+    assert "receiving@" in n["expected"]
+    assert "more than one page" in n["expected"]
+    assert "1 page = 1 slip" in n["expected"]
+    assert "1 PDF = 1 invoice" in n["9_22_rule"] or "1 PDF = 1 invoice" in n["expected"]
+    assert "Do not enter invoices from receiving@" in n["expected"]
+    assert EXCEPTION_CATEGORY_OWNERS["missing_packing_slip"] == "receiving"
+
+    invoice_only, invoice_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po="59008",
+        receipts_selected=True,
+        kimco_id=10152,
+        packing_slip_attached=False,
+    )
+    assert invoice_only == RESULT_HOLD
+    assert invoice_only != RESULT_SUCCESS
+    assert GATE_PACKING_SLIP in invoice_why
+    assert_never_success(invoice_only, note_id="NOTE-49", detail=invoice_why)
+    tagged = apply_exception_category_owner({"Result": invoice_only, "Why": invoice_why})
+    assert tagged[COL_EXCEPTION_CATEGORY] == "missing_packing_slip"
+    assert tagged[COL_EXCEPTION_OWNER] == "receiving"
+
+    both, both_why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po="59008",
+        receipts_selected=True,
+        kimco_id=10152,
+        packing_slip_attached=True,
+    )
+    assert both == RESULT_SUCCESS, both_why
+
+    row, _ = _row(
+        {
+            "vendor": "McMaster-Carr",
+            "invoice_number": "71401129",
+            "date": "2026-09-18",
+            "po": None,
+            "amount": 20.0,
+            "field_sources": {"invoice_number": "pdf", "date": "pdf", "amount": "pdf"},
+            "packing_slip_attached": False,
+        }
+    )
+    assert row["Result"] != RESULT_SUCCESS
+    assert GATE_PACKING_SLIP in (row.get("Why") or "")
+    assert_never_success(row["Result"], note_id="NOTE-49", detail=row.get("Why") or "")
+
+    receiving_row, _ = _row(
+        {
+            "vendor": "McMaster-Carr",
+            "invoice_number": "71401129",
+            "date": "2026-09-18",
+            "amount": 20.0,
+            "mailbox": RECEIVING_MAILBOX,
+            "packing_slip_attached": True,
+        }
+    )
+    assert receiving_row["Result"] != RESULT_SUCCESS
+    assert "Do not enter invoices from receiving@" in (receiving_row.get("Why") or "")
+    assert receiving_is_not_invoice_mailbox(RECEIVING_MAILBOX)
+    assert "accountspayable@" in refuse_enter_from_receiving()
+
+    slips = logical_slips_from_scan(
+        [
+            "PACKING SLIP No. 8801\nPO 59008\nPage 1 of 2\nitems",
+            "PACKING SLIP No. 8801\nPO 59008\nPage 2 of 2\nCustomer signature",
+            "PACKING SLIP No. 9902\nPO 59128\nPage 1 of 2\nitems",
+            "PACKING SLIP No. 9902\nPO 59128\nPage 2 of 2\nReceived by",
+        ]
+    )
+    assert [s["pages"] for s in slips] == [[1, 2], [3, 4]]
+    matched = match_logical_slips_to_invoice(slips, po="59008")
+    assert matched["status"] == "matched"
+    assert matched["pages"] == [1, 2]
+    assert matched["attach_whole_pdf"] is False
+
 

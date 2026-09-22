@@ -77,6 +77,18 @@ gate, receipts not selected so he can unreceive / reprice / re-receive.
 Report exactly whether the @mention notify worked. Existing Legacy Wire
 HOLDs 10116 / 10123 / 10125 / 10127 stay put. No Mail.Send.
 
+**NOTE-49 signed packing slip from receiving@ (Kyle 2026-09-22).**
+Success requires the vendor invoice PDF **and** ≥1 signed packing slip
+on the same header. Invoice PDF alone is not Success. Slips are **scanned
+in** to `receiving@` (Sharp MFP: `scans@sharp-mfp.com`), not vendor-emailed.
+`accountspayable@` stays the only invoice mailbox — do not enter invoices
+from receiving@. A scan PDF may contain more than one slip, and a slip
+may be **more than one page**. Do not treat 1 PDF = 1 invoice or 1 page
+= 1 slip. Keep consecutive pages of the same slip together as one
+logical attachment. Match by PO / invoice # / vendor / dates; no match
+→ HOLD `missing-packing-slip`. Complementary to NOTE-25 (AP-inbox
+`Receipt_*` slips are still not invoices). No Mail.Send.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -162,8 +174,14 @@ Before any `Success`, `treyce_finish_selfcheck` / `finish_gate(..., selfcheck=)`
    matches.
 9. **Posted vendor matches parsed** — GET after create; posted name/id is the
    parsed vendor or a known alias. Else HOLD `vendor-mismatch`. Never Success.
+10. **Signed packing slip from receiving@** — ≥1 matched signed packing slip
+    on the same header as the vendor invoice PDF (NOTE-49). Invoice PDF
+    alone is not Success. Slips are Sharp MFP scans into `receiving@`.
+    Multi-page slips stay together; multi-slip PDFs are not 1 invoice.
+    Match by PO / invoice # / vendor / dates or HOLD `missing-packing-slip`.
+    Do not enter invoices from receiving@.
 
-If Treyce would still fix header, lines, or charges → **HOLD**, **Incomplete**, or **Entered with issues**. Never `Success`.
+If Treyce would still fix header, lines, charges, or a missing packing slip → **HOLD**, **Incomplete**, or **Entered with issues**. Never `Success`.
 
 Every non-Success **Why** must name the gate and the next action so she is not hunting.
 
@@ -246,6 +264,7 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
 | **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
 | **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp **Comments** explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben**. Report exactly whether @mention notify worked. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
+| **NOTE-49** receiving@ signed packing slip on every Success (Kyle 2026-09-22) | Invoice PDF on the header was enough for Success; packing slips were AP-inbox noise (NOTE-25) or missing. | Success = vendor invoice PDF **and** ≥1 signed packing slip on the same header. Slips are Sharp MFP scans into `receiving@` (`scans@sharp-mfp.com`). Do not enter invoices from receiving@. Multi-slip PDFs: not 1 PDF = 1 invoice; page-range match by PO / invoice # / vendor / dates. **A packing slip can be more than one page** — do not treat 1 page = 1 slip; keep consecutive pages of the same slip together. No match → HOLD `missing-packing-slip` (exception owner `receiving`). KIMCO attachments are filename-only. Complementary to NOTE-25. No mass live rework. No Mail.Send. | `test_never_repeat_note49_packing_slip_success_gate` / `tests/test_packing_slips.py` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -385,6 +404,39 @@ instead of invoice **line** matches.
 - Still no first-open / second-open-on-po guess when lines do **not** match.
 - Live **9995** / **9996** were already worked by Kyle (do not rewrite;
   do not invent Success).
+
+## receiving@ signed packing slips (Kyle 2026-09-22, NOTE-49)
+
+Success is a finished bill Treyce would not rework **and** the header
+has both documents:
+
+1. The vendor invoice PDF (existing attach gate).
+2. ≥1 **signed packing slip** matched from `receiving@kannonmfg.com`.
+
+Invoice PDF alone is **not** Success. HOLD `missing-packing-slip` and
+report when the slip is missing or cannot be uniquely matched.
+
+- Packing slips are **scanned in** (Sharp MFP: From `scans@sharp-mfp.com`,
+  subject `Scanned image from Kannon Manufacturing`, filename
+  `Kannon Manufacturing_YYYYMMDD_HHMMSS.pdf`). They are not vendor-emailed
+  slips in `accountspayable@`.
+- `accountspayable@` remains the only invoice mailbox. `receiving@` is
+  packing slips / signed receives only — GET-only; **do not enter invoices
+  from receiving@**.
+- A scan PDF can contain **more than one** signed packing slip. Do not
+  assume 1 PDF = 1 invoice. Detect / split or page-range match by PO /
+  invoice # / vendor / dates. Attach the relevant logical slip (or the
+  whole PDF if it clearly covers that bill) to each matching AP header.
+- **A packing slip can be more than one page.** Do not treat 1 page = 1
+  slip. Keep consecutive pages of the same slip together as one
+  attachment (same PO / slip # / page X of Y / signature continuation).
+- Match unique PO / invoice # / vendor / dates. No unique match → HOLD.
+- KIMCO `list_attachments` is filename-only (no doc-type). Invoice names:
+  `Sales Invoice` / `PS-INV` / `Invoice-` / `TXFT`. Slip names: `Receipt_`
+  / packing slip / POD / Sharp MFP scan name + packing-slip body.
+- NOTE-25 still holds: AP-inbox `Receipt_*` / POD is not an invoice.
+  NOTE-49 adds the receiving@ signed slip as a Success requirement.
+- No mass live rework of old bills this encode. No Mail.Send.
 
 Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
 (`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —

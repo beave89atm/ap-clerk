@@ -18,6 +18,7 @@ from ap_clerk.gates import (
     GATE_QTY,
     GATE_RECEIPT,
     GATE_ALREADY_ENTERED,
+    GATE_PACKING_SLIP,
     GATE_VENDOR,
     RESULT_HOLD,
     RESULT_INCOMPLETE,
@@ -778,6 +779,48 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-49",
+        "slug": "receiving-signed-packing-slip-success",
+        "gate": GATE_PACKING_SLIP,
+        "cases": (
+            "Success requires vendor invoice PDF + ≥1 signed packing slip on the same header",
+            "receiving@ Sharp MFP scans (scans@sharp-mfp.com) are the slip source",
+            "Multi-slip scan PDFs are not 1 invoice; multi-page slips stay together",
+        ),
+        "9_22_rule": (
+            "Kyle 2026-09-22: packing slips are scanned into receiving@ "
+            "(Sharp MFP PDFs like scans@sharp-mfp.com), not vendor-emailed. "
+            "A scan PDF can contain more than one signed packing slip, and a "
+            "packing slip can be more than one page. Do not treat 1 PDF = 1 "
+            "invoice or 1 page = 1 slip. Keep consecutive pages of the same "
+            "slip together as one attachment / logical slip. Match by PO / "
+            "invoice # / vendor / dates; no match → HOLD. "
+            "accountspayable@ remains the only invoice mailbox. "
+            "Do not enter invoices from receiving@."
+        ),
+        "expected": (
+            "Lock for each AP invoice: attach the vendor invoice PDF to the "
+            "header AND attach ≥1 signed packing slip to the same header. "
+            "Success requires both. Invoice PDF alone is never Success. "
+            "Signed slips come from receiving@ GET-only Sharp MFP scans "
+            "(subject Scanned image from Kannon Manufacturing; filename "
+            "Kannon Manufacturing_YYYYMMDD_HHMMSS.pdf). Match unique PO / "
+            "invoice # / vendor / dates. Multi-slip PDFs: detect/split or "
+            "page-range match; attach the relevant logical slip (or the whole "
+            "PDF if it clearly covers that bill). A slip may span consecutive "
+            "pages (page X of Y, same PO/slip #, signature continuation) — "
+            "keep those pages together; never 1 page = 1 slip. No unique "
+            "match → HOLD missing-packing-slip + report. KIMCO attachments "
+            "have no doc-type: invoice = Sales Invoice / PS-INV / Invoice- / "
+            "TXFT; slip = Receipt_ / packing slip / POD / Sharp MFP name + "
+            "packing-slip body. Complementary to NOTE-25 (AP-inbox slips are "
+            "still not invoices). No mass live rework of old bills. No Mail.Send."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (),
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -861,6 +904,17 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "unique sum matches. Kyle 2026-09-17."
         ),
     },
+    {
+        "id": "signed-packing-slip-from-receiving",
+        "check": (
+            "≥1 signed packing slip from receiving@ (Sharp MFP scan) is "
+            "attached on the same header as the vendor invoice PDF. Invoice "
+            "PDF alone is not Success (NOTE-49). Multi-page slips stay "
+            "together; multi-slip PDFs are not 1 invoice. Match by PO / "
+            "invoice # / vendor / dates or HOLD. Do not enter invoices from "
+            "receiving@."
+        ),
+    },
 )
 
 # Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
@@ -893,6 +947,7 @@ EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
     "pdf_capture": "AP",
     "auto_pay": "none",
     "partial_match": "AP / Treyce",
+    "missing_packing_slip": "receiving",
     "other": "AP",
 }
 
@@ -957,6 +1012,12 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or ("unmatched invoice line" in why_l and "selected receipts" in why_l)
     ):
         return "partial_match", EXCEPTION_CATEGORY_OWNERS["partial_match"]
+    if (
+        GATE_PACKING_SLIP in why_l
+        or "missing packing slip" in why_l
+        or "missing-packing-slip" in why_l
+    ):
+        return "missing_packing_slip", EXCEPTION_CATEGORY_OWNERS["missing_packing_slip"]
     if (
         "no receipts" in why_l
         or "no open receipt" in why_l

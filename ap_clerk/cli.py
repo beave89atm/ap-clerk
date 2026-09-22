@@ -38,6 +38,11 @@ from ap_clerk.graph import (
     format_graph_presence,
     load_graph_credentials,
 )
+from ap_clerk.packing_slips import (
+    packing_slip_attached_for_invoice,
+    receiving_is_not_invoice_mailbox,
+    refuse_enter_from_receiving,
+)
 from ap_clerk.inbox import (
     HARD_EMAIL_CAP,
     apply_skip_outlook_flags,
@@ -870,6 +875,14 @@ def _process_invoice(
         "Notes": "",
     }
 
+    if receiving_is_not_invoice_mailbox(mailbox) or receiving_is_not_invoice_mailbox(
+        str(inv.get("mailbox") or "")
+    ):
+        row["Result"] = RESULT_HOLD
+        row["KIMCO id"] = ""
+        row["Why"] = why_hold(GATE_BILL_VS_NOISE, refuse_enter_from_receiving(mailbox))
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
     if looks_like_account_statement(
         subject=str(inv.get("subject") or ""),
         preview=str(inv.get("bodyPreview") or inv.get("preview") or ""),
@@ -1502,6 +1515,7 @@ def _process_invoice(
         fees=parsed_fees,
         fees_posted=fees_posted,
         freight_vendor=freight_vendor,
+        packing_slip_attached=packing_slip_attached_for_invoice(inv),
         selfcheck=_selfcheck_with_posted_vendor(
             selfcheck_payload(
                 inv,
