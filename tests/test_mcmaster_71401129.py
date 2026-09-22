@@ -34,8 +34,8 @@ def test_finalize_targets_10152_only():
     assert TARGET_AMOUNT == 257.72
     assert ALLOWED_WRITE_IDS == {10152}
     assert KNOWN_RECEIPT_IDS == (23939, 23940, 23941)
-    assert 10152 in LEAVE_ALONE_HOLD_IDS
-    assert 10152 not in DO_NOT_MUTATE_IDS
+    assert 10152 not in LEAVE_ALONE_HOLD_IDS
+    assert 10152 in DO_NOT_MUTATE_IDS
 
 
 def test_note47_14_60_in_gate_75_over():
@@ -56,12 +56,12 @@ def test_refuse_other_headers():
         refuse_other_header(10152, "71080498")
 
 
-def test_generic_retry_still_skips_10152():
+def test_generic_retry_skips_finished_10152():
     row, extra = finish_retry_row(
         object(),
         None,
         parsed={"invoice_number": "71401129"},
-        enter_row={"Invoice #": "71401129", "KIMCO id": 10152, "Result": "HOLD"},
+        enter_row={"Invoice #": "71401129", "KIMCO id": 10152, "Result": "Success"},
         kimco_id=10152,
         receipts=[],
     )
