@@ -440,18 +440,44 @@ def extract_pdf_text(path: Path) -> str:
     return text or ""
 
 
-def _extract_pypdf_text(path: Path) -> str:
+def extract_pdf_page_texts(path: Path) -> list[str]:
+    """Per-page text. OCR a page when pypdf is empty. Never invent content."""
+    pages = _extract_pypdf_pages(path)
+    if any((page or "").strip() for page in pages):
+        if all((page or "").strip() for page in pages) or len(pages) == 1:
+            return pages
+    ocr_pages = _ocr_pdf_pages(path, expected=len(pages) or None)
+    if not pages:
+        return ocr_pages or [""]
+    out: list[str] = []
+    for index, page in enumerate(pages):
+        if (page or "").strip():
+            out.append(page)
+        elif index < len(ocr_pages) and (ocr_pages[index] or "").strip():
+            out.append(ocr_pages[index])
+        else:
+            out.append(page or "")
+    if not any((page or "").strip() for page in out) and ocr_pages:
+        return ocr_pages
+    return out
+
+
+def _extract_pypdf_pages(path: Path) -> list[str]:
     try:
         reader = PdfReader(str(path))
     except Exception:  # noqa: BLE001 - unreadable PDF still exists on disk
-        return ""
+        return []
     pages = []
     for page in reader.pages:
         try:
             pages.append(page.extract_text() or "")
         except Exception:  # noqa: BLE001 - one bad page must not kill the invoice
             pages.append("")
-    return "\n\f".join(pages)
+    return pages
+
+
+def _extract_pypdf_text(path: Path) -> str:
+    return "\n\f".join(_extract_pypdf_pages(path))
 
 
 def _ocr_pdf_text(path: Path) -> str:
@@ -497,6 +523,45 @@ def _ocr_pdf_text(path: Path) -> str:
             return "\n\f".join(parts).strip()
     except (OSError, subprocess.TimeoutExpired):
         return ""
+
+
+def _ocr_pdf_pages(path: Path, *, expected: int | None = None) -> list[str]:
+    """OCR each rendered page. Empty list when tools are missing."""
+    import subprocess
+    import tempfile
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="ap-ocr-page-") as tmp:
+            prefix = str(Path(tmp) / "page")
+            render = subprocess.run(
+                ["pdftoppm", "-png", "-r", "200", str(path), prefix],
+                capture_output=True,
+                timeout=180,
+                check=False,
+            )
+            if render.returncode != 0:
+                return []
+            parts: list[str] = []
+            images = sorted(Path(tmp).glob("page*.png"))
+            for image in images:
+                ocr = subprocess.run(
+                    ["tesseract", str(image), "stdout", "--psm", "6"],
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
+                    check=False,
+                )
+                parts.append((ocr.stdout or "").strip())
+            if expected and len(parts) != expected and parts:
+                LOGGER.info(
+                    "OCR page count %s != PDF page count %s for %s",
+                    len(parts),
+                    expected,
+                    path.name,
+                )
+            return parts
+    except (OSError, subprocess.TimeoutExpired):
+        return []
 
 
 def parse_money(value: str | None) -> float | None:

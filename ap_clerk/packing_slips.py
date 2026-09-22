@@ -26,6 +26,7 @@ from ap_clerk.pdf_invoice import (
     ATTACHMENT_POD,
     ATTACHMENT_RECEIPT_SCAN,
     classify_attachment,
+    vendor_from_context,
 )
 from ap_clerk.receiving_probe import RECEIVING_MAILBOX
 from ap_clerk.rules import (
@@ -222,6 +223,16 @@ def _norm_date(value: str | None) -> str:
     return text[:10]
 
 
+def slip_vendor_from_text(text: str | None) -> str | None:
+    """Vendor printed on the slip — never the ship-to (Kannon Manufacturing)."""
+    vendor = (vendor_from_context(text=text or "") or "").strip()
+    if not vendor:
+        return None
+    if "kannon" in vendor.lower():
+        return None
+    return vendor
+
+
 def extract_page_keys(text: str, *, page_index: int) -> dict[str, Any]:
     blob = text or ""
     page_of = None
@@ -242,7 +253,7 @@ def extract_page_keys(text: str, *, page_index: int) -> dict[str, Any]:
         "po": extract_po_number(blob),
         "invoice_number": invoice_number,
         "slip_number": slip_match.group(1).strip(".-") if slip_match else None,
-        "vendor": None,
+        "vendor": slip_vendor_from_text(blob),
         "date": _norm_date(date_match.group(1)) if date_match else None,
         "page_of": page_of,
         "has_heading": bool(PACKING_HEADING_RE.search(blob)),
