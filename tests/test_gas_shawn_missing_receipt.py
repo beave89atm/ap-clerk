@@ -52,6 +52,13 @@ def test_mention_html_uses_proven_id_104():
     assert "0040437952" in html
 
 
+def test_restore_helper_only_targets_720():
+    from gas_shawn_missing_receipt import KNOWN_BATCH_ID, move_back_to_720
+
+    assert KNOWN_BATCH_ID == 720
+    assert move_back_to_720.__doc__ and "Never move onto 375" in move_back_to_720.__doc__
+
+
 def test_receipt_comment_items_ignore_price_variance_note():
     comments = [
         {

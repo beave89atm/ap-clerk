@@ -127,6 +127,20 @@ def receipt_comment_items(comments: list[dict[str, Any]], invoice: str) -> list[
     return hits
 
 
+def move_back_to_720(client: KimcoClient, kid: int) -> dict[str, Any]:
+    """Restore missing_receipt to the API Agent batch. Never move onto 375."""
+    payload = {
+        "state": "Modified",
+        "id": int(kid),
+        "values": {"AP_Invoice_Batch": {"id": int(KNOWN_BATCH_ID)}},
+    }
+    try:
+        _body, status, error = client.update("ap_invoices", int(kid), payload)
+    except KimcoError as exc:
+        return {"status": "blocked", "error": str(exc)[:200]}
+    return {"status": "moved" if status < 400 else f"put-{status}", "put": status, "error": error}
+
+
 def ping_header(client: KimcoClient, spec: dict[str, Any]) -> dict[str, Any]:
     kid = int(spec["kimco_id"])
     before = snapshot(client, kid)
@@ -143,6 +157,15 @@ def ping_header(client: KimcoClient, spec: dict[str, Any]) -> dict[str, Any]:
         report["status"] = "invoice-mismatch"
         report["after"] = before
         return report
+    if before.get("batch_id") == 375:
+        # Prior false over-PPV left 10181 on Transfer AP. Kyle: missing_receipt
+        # stays on 720. Restore only 375 → 720; never the reverse.
+        report["restore_720"] = move_back_to_720(client, kid)
+        before = snapshot(client, kid)
+        report["after_restore"] = {
+            "batch_id": before.get("batch_id"),
+            "batch": before.get("batch"),
+        }
     if before.get("batch_id") != KNOWN_BATCH_ID:
         report["status"] = "refused-wrong-batch"
         report["after"] = before
