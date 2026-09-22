@@ -811,6 +811,30 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (10128, 10129, 10130, 10131, 10132, 10133, 10136),
     },
+    {
+        "id": "NOTE-48",
+        "slug": "pod-mailbox-not-invoice-inbox",
+        "gate": "mailbox",
+        "cases": (
+            "Kyle 2026-09-22: POD@kannonmfg.com new shared mailbox",
+            "accountspayable@ remains the only AP invoice mailbox",
+        ),
+        "9_22_bug": (
+            "A new shared mailbox POD@kannonmfg.com is for proof-of-delivery "
+            "emails. Treating it as a second invoice inbox would enter bills "
+            "from the wrong queue, stamp AP categories on POD mail, or "
+            "Mail.Send from POD@."
+        ),
+        "expected": (
+            "POD@ is POD intake only (Graph GET list/read/attachments). "
+            "Same MICROSOFT_GRAPH_* app as accountspayable@. Never enter AP "
+            "invoices from POD@ — if a bill lands there, report it and leave "
+            "it; accountspayable@ is the only invoice mailbox. Never Mail.Send "
+            "from POD@. Never PATCH Outlook process categories on POD@. "
+            "enter / daily / probe / --mailbox stay accountspayable@."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -901,6 +925,14 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "(description, qty, unit cost) with live category Shop Supplies - "
             "G&S. Header-only is Incomplete, never Success (NOTE-42). Fuel "
             "surcharge stays Additional Charge Fees."
+        ),
+    },
+    {
+        "id": "pod-mailbox-not-invoice-inbox",
+        "check": (
+            "POD@kannonmfg.com is proof-of-delivery intake only (NOTE-48). "
+            "Never enter AP invoices from POD@. accountspayable@ is the only "
+            "invoice mailbox. No Mail.Send and no Outlook category PATCH on POD@."
         ),
     },
 )

@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from ap_clerk.cli import (
     _matching_existing_invoices,
     _process_invoice,
@@ -197,9 +199,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42",)
-    assert len(TREYCE_NOTES_V12) == 40
-    assert len(TREYCE_FINISH_CHECKLIST) == 15
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42", "NOTE-48")
+    assert len(TREYCE_NOTES_V12) == 41
+    assert len(TREYCE_FINISH_CHECKLIST) == 16
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -244,6 +246,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
         "gas-misc-lines-k-shop-supplies",
+        "pod-mailbox-not-invoice-inbox",
     }
 
 
@@ -674,6 +677,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "partial-select-receipts-never-fail-close",
         "combine-same-item-same-unit-receipts",
         "gas-misc-lines-k-shop-supplies",
+        "pod-mailbox-not-invoice-inbox",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4824,4 +4828,30 @@ def test_never_repeat_note42_gas_misc_lines_k():
     assert n["never_success"] is True
     assert "header-only" in n["expected"].lower() or "Header-only" in n["expected"]
     assert_never_success(RESULT_INCOMPLETE, note_id="NOTE-42", detail="header-only Lines-K empty")
+
+
+def test_never_repeat_note48_pod_not_invoice_inbox():
+    """NOTE-48: POD@ is POD intake only — never the AP invoice mailbox."""
+    from ap_clerk.graph import (
+        ALLOWED_MAILBOX,
+        POD_MAILBOX,
+        assert_allowed_mailbox,
+        assert_pod_mailbox,
+        is_invoice_mailbox,
+        is_pod_mailbox,
+        MailboxRejected,
+    )
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-48")
+    assert n["never_success"] is True
+    assert "pod@kannonmfg.com" in n["expected"].lower() or "POD@" in n["expected"]
+    assert "accountspayable@" in n["expected"]
+    assert "Mail.Send" in n["expected"]
+    assert is_invoice_mailbox(ALLOWED_MAILBOX) is True
+    assert is_invoice_mailbox(POD_MAILBOX) is False
+    assert is_pod_mailbox(POD_MAILBOX) is True
+    assert assert_pod_mailbox("POD@kannonmfg.com") == POD_MAILBOX
+    with pytest.raises(MailboxRejected, match="NOTE-48"):
+        assert_allowed_mailbox(POD_MAILBOX)
+    assert_never_success(RESULT_HOLD, note_id="NOTE-48", detail="invoice on POD@ is report-only")
 

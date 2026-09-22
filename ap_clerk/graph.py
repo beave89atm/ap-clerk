@@ -1,11 +1,8 @@
-"""Microsoft Graph mailbox client for accountspayable@kannonmfg.com only.
+"""Microsoft Graph mailbox client.
 
-Mail without category `Entered in AI` is the work queue.
-`Entered in AI` is applied after a finished Success bill, never after download alone.
-Header+PDF entered but unfinished (price/qty HOLD, Incomplete) gets `Entered with issues`.
-Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped 2`.
-Never two process categories on one message.
-Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
+Invoice mailbox (enter / flag / Mail.Send): accountspayable@kannonmfg.com only.
+POD mailbox (NOTE-48): pod@kannonmfg.com is proof-of-delivery intake, GET-only.
+Never treat POD@ as an invoice inbox. Never Mail.Send from POD@.
 Never logs tokens, client secrets, or passwords.
 """
 
@@ -19,7 +16,7 @@ import re
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 import requests
 
@@ -28,7 +25,13 @@ from ap_clerk.pdf_links import download_first_pdf
 LOGGER = logging.getLogger("ap_clerk")
 
 ALLOWED_MAILBOX = "accountspayable@kannonmfg.com"
+# NOTE-48: shared mailbox for proof-of-delivery intake only. Same Graph
+# app (MICROSOFT_GRAPH_TENANT_ID / CLIENT_ID / CLIENT_SECRET). Not an
+# invoice inbox — enter / daily / probe / Mail.Send stay on ALLOWED_MAILBOX.
+POD_MAILBOX = "pod@kannonmfg.com"
+READABLE_MAILBOXES = frozenset({ALLOWED_MAILBOX, POD_MAILBOX})
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
+_USER_URL_RE = re.compile(r"/users/([^/?]+)", re.I)
 GRAPH_SCOPE = "https://graph.microsoft.com/.default"
 # Exact preexisting mailbox category (confirmed on existing AP messages).
 ENTERED_IN_AI_CATEGORY = "Entered in AI"
@@ -122,7 +125,7 @@ def graph_http_detail(response: Any) -> str:
 
 
 class MailboxRejected(GraphError):
-    """Raised when any mailbox other than accountspayable@kannonmfg.com is requested."""
+    """Raised when a mailbox is not allowed for the requested Graph operation."""
 
 
 @dataclass(frozen=True)
@@ -170,14 +173,99 @@ def normalize_mailbox(mailbox: str | None) -> str:
     return (mailbox or "").strip().lower()
 
 
+def is_invoice_mailbox(mailbox: str | None) -> bool:
+    return normalize_mailbox(mailbox) == ALLOWED_MAILBOX
+
+
+def is_pod_mailbox(mailbox: str | None) -> bool:
+    return normalize_mailbox(mailbox) == POD_MAILBOX
+
+
+def mailbox_from_graph_url(url: str | None) -> str | None:
+    """Local-part@domain from a Graph /users/{mailbox}/ URL. Never logs tokens."""
+    match = _USER_URL_RE.search(url or "")
+    if not match:
+        return None
+    raw = unquote(match.group(1))
+    return normalize_mailbox(raw)
+
+
 def assert_allowed_mailbox(mailbox: str | None) -> str:
-    """Refuse every mailbox except accountspayable@kannonmfg.com."""
+    """Refuse every mailbox except accountspayable@ for invoice / flag / send."""
     normalized = normalize_mailbox(mailbox)
     if normalized != ALLOWED_MAILBOX:
+        extra = ""
+        if normalized == POD_MAILBOX:
+            extra = (
+                f" {POD_MAILBOX} is POD intake only (NOTE-48); "
+                "it is not the AP invoice mailbox."
+            )
         raise MailboxRejected(
-            f"Refusing mailbox {mailbox!r}. Only {ALLOWED_MAILBOX} is allowed."
+            f"Refusing mailbox {mailbox!r}. Only {ALLOWED_MAILBOX} is allowed "
+            f"for invoice enter / Outlook categories / Mail.Send.{extra}"
         )
     return ALLOWED_MAILBOX
+
+
+def assert_pod_mailbox(mailbox: str | None) -> str:
+    """Refuse every mailbox except pod@ for POD intake reads."""
+    normalized = normalize_mailbox(mailbox)
+    if normalized != POD_MAILBOX:
+        raise MailboxRejected(
+            f"Refusing mailbox {mailbox!r}. POD intake is {POD_MAILBOX} only (NOTE-48)."
+        )
+    return POD_MAILBOX
+
+
+def assert_readable_mailbox(mailbox: str | None) -> str:
+    """Allow AP invoice mailbox or POD@ for Graph GET."""
+    normalized = normalize_mailbox(mailbox)
+    if normalized not in READABLE_MAILBOXES:
+        raise MailboxRejected(
+            f"Refusing mailbox {mailbox!r}. Readable mailboxes: "
+            f"{ALLOWED_MAILBOX} (invoices) and {POD_MAILBOX} (POD intake)."
+        )
+    return normalized
+
+
+def sender_address_from_message(message: dict[str, Any] | None) -> str:
+    frm = ((message or {}).get("from") or {}).get("emailAddress") or {}
+    return str(frm.get("address") or "").strip()
+
+
+def sender_name_from_message(message: dict[str, Any] | None) -> str:
+    frm = ((message or {}).get("from") or {}).get("emailAddress") or {}
+    return str(frm.get("name") or "").strip()
+
+
+def summarize_pod_message(message: dict[str, Any] | None) -> dict[str, Any]:
+    """Safe POD@ sample for reports. No tokens, no raw Graph ids dumped as secrets."""
+    msg = message or {}
+    preview = str(msg.get("bodyPreview") or "").replace("\n", " ").strip()
+    names = msg.get("attachment_names")
+    if not isinstance(names, list):
+        names = []
+    return {
+        "subject": str(msg.get("subject") or ""),
+        "from": sender_address_from_message(msg),
+        "from_name": sender_name_from_message(msg),
+        "received": str(msg.get("receivedDateTime") or ""),
+        "has_attachments": bool(msg.get("hasAttachments")),
+        "attachment_names": [str(n) for n in names if n],
+        "preview": preview[:280],
+        "looks_like_invoice": _pod_looks_like_invoice(msg),
+    }
+
+
+def _pod_looks_like_invoice(message: dict[str, Any] | None) -> bool:
+    """Hint only. POD@ is never the invoice inbox even if a bill landed here."""
+    blob = " ".join(
+        [
+            str((message or {}).get("subject") or ""),
+            str((message or {}).get("bodyPreview") or ""),
+        ]
+    ).lower()
+    return any(tok in blob for tok in ("invoice", "inv#", "amount due", "remit"))
 
 
 def message_categories(message: dict[str, Any] | None) -> list[str]:
@@ -385,14 +473,14 @@ class GraphClient:
         return cls(token)
 
     def _user_url(self, mailbox: str, suffix: str = "") -> str:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         path = f"{GRAPH_BASE}/users/{mailbox}"
         if suffix:
             path = f"{path}/{suffix.lstrip('/')}"
         return path
 
     def _messages_url(self, mailbox: str, message_id: str | None = None, suffix: str = "") -> str:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         path = self._user_url(mailbox, "messages")
         if message_id:
             path = f"{path}/{quote(str(message_id), safe='')}"
@@ -403,8 +491,17 @@ class GraphClient:
     def request(self, method: str, url: str, **kwargs) -> requests.Response:
         if "graph.microsoft.com" not in (url or "").lower() and "login.microsoftonline.com" not in (url or "").lower():
             raise GraphError("Graph client refuses non-Graph hosts")
-        if ALLOWED_MAILBOX not in (url or "").lower() and "/oauth2/" not in (url or ""):
-            raise MailboxRejected(f"Refusing Graph URL that is not {ALLOWED_MAILBOX}")
+        mailbox = mailbox_from_graph_url(url)
+        if mailbox is None and "/oauth2/" not in (url or ""):
+            raise MailboxRejected(f"Refusing Graph URL that is not {ALLOWED_MAILBOX} or {POD_MAILBOX}")
+        if mailbox and mailbox not in READABLE_MAILBOXES:
+            raise MailboxRejected(f"Refusing Graph URL mailbox {mailbox!r}")
+        method_upper = (method or "").upper()
+        if mailbox == POD_MAILBOX and method_upper not in {"GET", "HEAD"}:
+            raise MailboxRejected(
+                f"Refusing {method_upper} on {POD_MAILBOX}. "
+                "POD@ is read-only (NOTE-48). No Mail.Send, no category PATCH."
+            )
         return self.session.request(method, url, timeout=self.timeout, **kwargs)
 
     def list_messages(
@@ -417,7 +514,7 @@ class GraphClient:
         include_attachment_names: bool = False,
         oldest_first: bool = False,
     ) -> list[dict[str, Any]]:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         filters: list[str] = []
         if received_from:
             if isinstance(received_from, datetime):
@@ -463,8 +560,14 @@ class GraphClient:
                 message["attachment_names"] = self.list_attachment_names(mailbox, message.get("id") or "")
         return messages
 
+    def list_pod_messages(self, *, top: int = 15, include_attachment_names: bool = True) -> list[dict[str, Any]]:
+        """GET recent POD@ messages. Never flags, never sendMail, never enter AP."""
+        mailbox = assert_pod_mailbox(POD_MAILBOX)
+        messages = self.list_messages(mailbox, include_attachment_names=include_attachment_names)
+        return messages[: max(0, int(top))]
+
     def search_messages(self, mailbox: str, needle: str, *, top: int = 25) -> list[dict[str, Any]]:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         if not str(needle or "").strip():
             return []
         response = self.request(
@@ -482,7 +585,7 @@ class GraphClient:
         return (response.json() or {}).get("value") or []
 
     def get_message(self, mailbox: str, message_id: str, *, select: str = "id,subject,flag,categories") -> dict[str, Any]:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         if not message_id:
             raise GraphError("Graph message id missing")
         response = self.request(
@@ -495,7 +598,7 @@ class GraphClient:
         return response.json() or {}
 
     def list_attachment_names(self, mailbox: str, message_id: str) -> list[str]:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         if not message_id:
             return []
         response = self.request(
@@ -509,7 +612,7 @@ class GraphClient:
         return [str(item.get("name") or "") for item in (response.json() or {}).get("value") or []]
 
     def list_attachments(self, mailbox: str, message_id: str) -> list[dict[str, Any]]:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         if not message_id:
             return []
         response = self.request(
@@ -524,7 +627,7 @@ class GraphClient:
 
     def download_pdf_attachments(self, mailbox: str, message_id: str) -> list[tuple[str, bytes]]:
         """Download PDF file attachments only. Never logs bytes or tokens."""
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         downloaded: list[tuple[str, bytes]] = []
         for item in self.list_attachments(mailbox, message_id):
             name = str(item.get("name") or "attachment.pdf")
@@ -553,7 +656,7 @@ class GraphClient:
         return download_first_pdf(text)
 
     def _download_attachment_bytes(self, mailbox: str, message_id: str, attachment_id: str) -> bytes | None:
-        mailbox = assert_allowed_mailbox(mailbox)
+        mailbox = assert_readable_mailbox(mailbox)
         detail = self.request(
             "GET",
             self._messages_url(mailbox, message_id, f"attachments/{quote(attachment_id, safe='')}"),

@@ -12,6 +12,7 @@ from ap_clerk.graph import (
     AI_SKIPPED_CATEGORY,
     FLAG_AI_SKIPPED,
     ALLOWED_MAILBOX,
+    POD_MAILBOX,
     CATEGORY_CREATED,
     CATEGORY_DENIED,
     DRAFT_PROBE_SUBJECT,
@@ -35,6 +36,8 @@ from ap_clerk.graph import (
     MailboxRejected,
     apply_flag_after_match,
     assert_allowed_mailbox,
+    assert_pod_mailbox,
+    assert_readable_mailbox,
     attach_message_ids,
     categories_for_status,
     categories_without_process,
@@ -42,6 +45,8 @@ from ap_clerk.graph import (
     default_report_to,
     granted_app_roles,
     graph_http_detail,
+    mailbox_from_graph_url,
+    summarize_pod_message,
 )
 
 
@@ -88,6 +93,89 @@ def test_wrong_mailbox_flag_never_sends_http():
     with pytest.raises(MailboxRejected, match="accountspayable@kannonmfg.com"):
         client.flag_hold(WRONG_MAILBOX, "AAMk-message-id")
     client.request.assert_not_called()
+
+
+def test_pod_mailbox_is_readable_not_invoice():
+    assert assert_readable_mailbox("POD@KannonMfg.com") == POD_MAILBOX
+    assert assert_pod_mailbox(POD_MAILBOX) == POD_MAILBOX
+    with pytest.raises(MailboxRejected, match="NOTE-48"):
+        assert_allowed_mailbox(POD_MAILBOX)
+    with pytest.raises(MailboxRejected, match="NOTE-48"):
+        assert_pod_mailbox(ALLOWED_MAILBOX)
+    assert mailbox_from_graph_url(
+        f"https://graph.microsoft.com/v1.0/users/{POD_MAILBOX}/messages"
+    ) == POD_MAILBOX
+
+
+def test_pod_get_allowed_writes_rejected_without_http():
+    client = GraphClient("token-not-printed")
+    client.session.request = Mock(side_effect=AssertionError("HTTP must not run for POD write"))
+    pod_url = f"https://graph.microsoft.com/v1.0/users/{POD_MAILBOX}/messages"
+    with pytest.raises(MailboxRejected, match="read-only"):
+        client.request("POST", pod_url, json={})
+    with pytest.raises(MailboxRejected, match="read-only"):
+        client.request("PATCH", pod_url + "/AAMk", json={"categories": ["Entered in AI"]})
+    with pytest.raises(MailboxRejected, match="read-only"):
+        client.request("DELETE", pod_url + "/AAMk")
+    client.session.request.assert_not_called()
+    with pytest.raises(MailboxRejected, match="NOTE-48"):
+        client.send_run_report(POD_MAILBOX, to=ALLOWED_MAILBOX, subject="x", body="y")
+    with pytest.raises(MailboxRejected, match="NOTE-48"):
+        client.flag_matched(POD_MAILBOX, "AAMk-pod")
+
+
+def test_pod_list_messages_uses_pod_url():
+    seen: list[str] = []
+
+    def fake_request(method, url, **kwargs):
+        seen.append(url)
+        assert method == "GET"
+        assert POD_MAILBOX in url
+        assert ALLOWED_MAILBOX not in url
+        resp = Mock()
+        resp.status_code = 200
+        resp.json.return_value = {
+            "value": [
+                {
+                    "id": "AAMk-pod-1",
+                    "subject": "BOL 59081",
+                    "from": {"emailAddress": {"address": "dock@vendor.com", "name": "Dock"}},
+                    "receivedDateTime": "2026-09-22T12:00:00Z",
+                    "hasAttachments": True,
+                    "bodyPreview": "Proof of delivery attached.",
+                }
+            ]
+        }
+        return resp
+
+    client = GraphClient("token-not-printed")
+    client.request = fake_request
+    client.list_attachment_names = Mock(return_value=["POD-59081.pdf"])
+    rows = client.list_pod_messages(top=5, include_attachment_names=True)
+    assert len(rows) == 1
+    sample = summarize_pod_message(rows[0])
+    assert sample["subject"] == "BOL 59081"
+    assert sample["from"] == "dock@vendor.com"
+    assert sample["attachment_names"] == ["POD-59081.pdf"]
+    assert sample["looks_like_invoice"] is False
+
+
+def test_cli_rejects_pod_as_enter_mailbox(capsys: pytest.CaptureFixture[str]) -> None:
+    code = main(["enter", "--mailbox", POD_MAILBOX, "--as-of", "2026-09-22"])
+    assert code == 2
+    out = capsys.readouterr().out
+    assert "NOTE-48" in out
+    assert ALLOWED_MAILBOX in out
+
+
+def test_pod_azure_checklist_names_403_and_404():
+    from ap_clerk.cli import pod_azure_checklist
+
+    denied = pod_azure_checklist("Graph list messages HTTP 403 (ErrorAccessDenied: Access is denied)")
+    assert any("403" in step for step in denied)
+    assert any("Application Access Policy" in step for step in denied)
+    missing = pod_azure_checklist("Graph list messages HTTP 404 (ErrorItemNotFound: mailbox)")
+    assert any("404" in step for step in missing)
 
 
 def test_success_flags_source_message():
