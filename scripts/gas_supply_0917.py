@@ -53,6 +53,7 @@ from aqpc_plus4 import live_get_proof, summarize_parse  # noqa: E402
 from ap_clerk.auth import format_presence, load_credentials  # noqa: E402
 from ap_clerk.cli import _find_or_create_batch, _optional_graph_client, _print_summary, run_enter  # noqa: E402
 from ap_clerk.graph import ALLOWED_MAILBOX, format_graph_presence, is_already_flagged  # noqa: E402
+from ap_clerk.outlook_finish import promote_ap_outlook_after_success  # noqa: E402
 from ap_clerk.inbox import sender_address, sender_name  # noqa: E402
 from ap_clerk.kimco import (  # noqa: E402
     ADDITIONAL_CHARGE_LISTS,
@@ -1609,7 +1610,11 @@ def quality_gas_row(
 
 
 def stamp_parent_emails(graph, rows: list[dict[str, Any]], parsed_bills: list[dict[str, Any]]) -> dict[str, str]:
-    """One Outlook stamp per parent email after all sibling bills are decided."""
+    """One Outlook stamp per parent email after all sibling bills are decided.
+
+    NOTE-51: Success → Entered in AI. Multi-invoice parent flips to Entered
+    in AI only when every sibling from that PDF is Success.
+    """
     if graph is None:
         return {}
     by_mid: dict[str, list[dict[str, Any]]] = {}
@@ -1625,15 +1630,11 @@ def stamp_parent_emails(graph, rows: list[dict[str, Any]], parsed_bills: list[di
     for mid, kids in by_mid.items():
         results = [str(r.get("Result") or "") for r in kids]
         has_header = any(r.get("KIMCO id") not in (None, "") for r in kids)
-        if results and all(r == "Success" for r in results):
-            stamped[mid] = str(graph.flag_matched(ALLOWED_MAILBOX, mid))
-            flag = "entered-in-ai"
-        elif has_header:
-            stamped[mid] = str(graph.flag_issues(ALLOWED_MAILBOX, mid))
-            flag = "entered-with-issues"
-        else:
-            stamped[mid] = str(graph.flag_hold(ALLOWED_MAILBOX, mid))
-            flag = "ai-hold"
+        promo = promote_ap_outlook_after_success(
+            graph, mid, results, any_header=has_header
+        )
+        stamped[mid] = str(promo.get("status") or "")
+        flag = str(promo.get("flag") or "")
         for row in kids:
             row["outlook"] = stamped[mid]
             row["Flag in Outlook"] = "Yes"

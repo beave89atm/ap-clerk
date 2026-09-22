@@ -2,6 +2,10 @@
 
 Mail without category `Entered in AI` is the work queue.
 `Entered in AI` is applied after a finished Success bill, never after download alone.
+When an existing KIMCO header is later repaired to Success, PATCH the matching
+accountspayable@ category AI HOLD / Entered with issues → Entered in AI (NOTE-51).
+Do not leave Success sitting on AI HOLD. Multi-invoice parent: Entered in AI only
+when every sibling invoice from that PDF is Success.
 Header+PDF entered but unfinished (price/qty HOLD, Incomplete) gets `Entered with issues`.
 Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped 2`.
 Never two process categories on one message.

@@ -811,6 +811,34 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "do_not_void": True,
         "leftover_kimco_ids": (10128, 10129, 10130, 10131, 10132, 10133, 10136),
     },
+    {
+        "id": "NOTE-51",
+        "slug": "outlook-success-promotes-entered-in-ai",
+        "gate": "outlook-finish",
+        "cases": (
+            "Finish existing HOLD to Success (Gas 0040438052 / 10165–10172 class)",
+            "Packing-slip complete that finishes a bill",
+            "O'Neal leftover Success that was AI HOLD / Entered with issues",
+        ),
+        "9_22_bug": (
+            "Finishing an existing KIMCO header to Success left the "
+            "accountspayable@ parent on AI HOLD or Entered with issues "
+            "(gas_59081_retry stamp_outlook=False). Success bills sat in the "
+            "HOLD Outlook bucket. Kyle: when you fix a bill to Success, "
+            "update the AP category to Entered in AI."
+        ),
+        "expected": (
+            "When a KIMCO invoice is repaired to Success, PATCH the matching "
+            "accountspayable@ message: AI HOLD / Entered with issues → "
+            "Entered in AI. Do not leave Success sitting on AI HOLD. "
+            "Multi-invoice parent emails flip to Entered in AI only when ALL "
+            "sibling invoices from that PDF are Success; otherwise keep "
+            "Entered with issues / AI HOLD as appropriate. receiving@ packing-"
+            "slip emails still get AI Completed after a verified slip attach "
+            "(separate mailbox / NOTE-49). No Mail.Send."
+        ),
+        "never_success": False,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -901,6 +929,16 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "(description, qty, unit cost) with live category Shop Supplies - "
             "G&S. Header-only is Incomplete, never Success (NOTE-42). Fuel "
             "surcharge stays Additional Charge Fees."
+        ),
+    },
+    {
+        "id": "outlook-success-promotes-entered-in-ai",
+        "check": (
+            "When a KIMCO bill is finished to Success, update the matching "
+            "accountspayable@ category to Entered in AI. Do not leave Success "
+            "on AI HOLD / Entered with issues. Multi-invoice parent: Entered "
+            "in AI only when every sibling from that PDF is Success "
+            "(NOTE-51). receiving@ AI Completed is a separate rule."
         ),
     },
 )
