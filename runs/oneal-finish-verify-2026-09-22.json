@@ -1,0 +1,250 @@
+[
+  {
+    "kimco_id": 10160,
+    "invoice": "15469453",
+    "amount": 0.0,
+    "verification": 23151.42,
+    "type": 3,
+    "po": "59156",
+    "po_text": "PO59156-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 0,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-15_O_Neal_Steel_Invoice_9142026.pdf"
+    ],
+    "comments_n": 2
+  },
+  {
+    "kimco_id": 10161,
+    "invoice": "15457895",
+    "amount": 687.26,
+    "verification": 687.26,
+    "type": 3,
+    "po": "59068",
+    "po_text": "PO59068-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 1,
+    "attachments": [
+      "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+    ],
+    "comments_n": 1
+  },
+  {
+    "kimco_id": 10162,
+    "invoice": "15457907",
+    "amount": 0.0,
+    "verification": 14543.16,
+    "type": 3,
+    "po": "59070",
+    "po_text": "PO59070-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 375,
+    "batch": "TRANSFER AP",
+    "receipt_n": 0,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+    ],
+    "comments_n": 1
+  },
+  {
+    "kimco_id": 10163,
+    "invoice": "15464707",
+    "amount": 0.0,
+    "verification": 649.53,
+    "type": 3,
+    "po": "58912",
+    "po_text": "PO58912-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 0,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+    ],
+    "comments_n": 2
+  },
+  {
+    "kimco_id": 10164,
+    "invoice": "15464854",
+    "amount": 471.42,
+    "verification": 471.42,
+    "type": 3,
+    "po": "59085",
+    "po_text": "PO59085-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+    ],
+    "comments_n": 0
+  },
+  {
+    "kimco_id": 10174,
+    "invoice": "15460544",
+    "amount": 64.51,
+    "verification": 64.5,
+    "type": 3,
+    "po": "58920",
+    "po_text": "PO58920-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+    ],
+    "comments_n": 0
+  },
+  {
+    "kimco_id": 10175,
+    "invoice": "15460995",
+    "amount": 0.0,
+    "verification": 6954.21,
+    "type": 3,
+    "po": "59085",
+    "po_text": "PO59085-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 0,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+    ],
+    "comments_n": 1
+  },
+  {
+    "kimco_id": 10176,
+    "invoice": "15461007",
+    "amount": 67.38,
+    "verification": 67.38,
+    "type": 3,
+    "po": "59086",
+    "po_text": "PO59086-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 3,
+    "attachments": [
+      "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+    ],
+    "comments_n": 1
+  },
+  {
+    "kimco_id": 10177,
+    "invoice": "15461157",
+    "amount": 1978.91,
+    "verification": 1978.91,
+    "type": 3,
+    "po": "59092",
+    "po_text": "PO59092-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+    ],
+    "comments_n": 0
+  },
+  {
+    "kimco_id": 10178,
+    "invoice": "15476365",
+    "amount": 0.0,
+    "verification": 1115.68,
+    "type": 3,
+    "po": "59070",
+    "po_text": "PO59070-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 0,
+    "charge_n": 0,
+    "attachments": [
+      "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+    ],
+    "comments_n": 1
+  },
+  {
+    "kimco_id": 10179,
+    "invoice": "15476879",
+    "amount": 245.28,
+    "verification": 245.28,
+    "type": 3,
+    "po": "59236",
+    "po_text": "PO59236-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 1,
+    "attachments": [
+      "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+    ],
+    "comments_n": 2
+  },
+  {
+    "kimco_id": 10180,
+    "invoice": "15477248",
+    "amount": 152.88,
+    "verification": 152.88,
+    "type": 3,
+    "po": "59246",
+    "po_text": "PO59246-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 1,
+    "charge_n": 1,
+    "attachments": [
+      "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+    ],
+    "comments_n": 2
+  },
+  {
+    "kimco_id": 10079,
+    "invoice": "15447737",
+    "amount": 1683.01,
+    "verification": 1683.01,
+    "type": 3,
+    "po": "58979",
+    "po_text": "PO58979-ONEAL STEEL, LLC.",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "batch_id": 722,
+    "batch": "API Agent - 9/21/26 O'Neal",
+    "receipt_n": 4,
+    "charge_n": 1,
+    "attachments": [
+      "O'Neal Steel Invoice 8212026.pdf",
+      "22940088 POD.pdf"
+    ],
+    "comments_n": 6
+  }
+]
