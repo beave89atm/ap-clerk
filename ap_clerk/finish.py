@@ -408,7 +408,9 @@ def finish_existing_header(
         fees=parsed_fees,
         fees_posted=fees_posted,
         freight_vendor=is_freight_vendor(str(inv.get("vendor") or out.get("Vendor") or "")),
-        packing_slip_attached=packing_slip_attached_for_invoice(inv),
+        packing_slip_attached=packing_slip_attached_for_invoice(
+            inv, header_attachments=existing_atts
+        ),
     )
     out["Result"] = result
     out["Attach status"] = attach_status
