@@ -197,9 +197,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42",)
-    assert len(TREYCE_NOTES_V12) == 40
-    assert len(TREYCE_FINISH_CHECKLIST) == 15
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42", "NOTE-51")
+    assert len(TREYCE_NOTES_V12) == 41
+    assert len(TREYCE_FINISH_CHECKLIST) == 16
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -244,6 +244,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
         "gas-misc-lines-k-shop-supplies",
+        "outlook-success-promotes-entered-in-ai",
     }
 
 

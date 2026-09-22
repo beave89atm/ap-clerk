@@ -1,5 +1,5 @@
 {
-  "proof": "gas-supply-0917-59081-retry",
+  "proof": "gas-supply-0917-0040438052",
   "invent": false,
   "mail_send": false,
   "vendor": "Gas and Supply North Texas, LLC",
@@ -1283,6 +1283,27 @@
       "Notes": "",
       "Receipts": "24332 880@8.91",
       "outlook": "parent-pending"
+    },
+    {
+      "Vendor": "Gas and Supply North Texas, LLC",
+      "Invoice #": "0040438052",
+      "date": "2026-09-17",
+      "PO": "59081",
+      "Amount": 5178.55,
+      "Result": "HOLD",
+      "Why": "category=missing_receipt; owner=none (Gas receiving owner blank). HOLD (receipt): no open receipt leftover on PO 59081 for Gas and Supply invoice #0040438052. PDF merch=LINEDS01162 500.0@10.36; selected=none. Do not first-open guess. Do not invent Success. no receiving @tag (Gas owner blank): receiving must receive the PO so AP can Select Receipts. Parent email will be Entered with issues. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "Exception category": "missing_receipt",
+      "Exception owner": "",
+      "KIMCO id": 10173,
+      "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag status": "entered-with-issues",
+      "Flag in Outlook": "Yes",
+      "Notes": "",
+      "Receipts": "none",
+      "outlook": "entered-with-issues"
     }
   ],
   "finishes": {
@@ -3819,5 +3840,177 @@
       "0040421569": 10135,
       "0040438494": 10136
     }
+  },
+  "gas_0040438052": {
+    "target": "0040438052",
+    "enter_rows": [
+      {
+        "Vendor": "Gas and Supply North Texas, LLC",
+        "Invoice #": "0040438052",
+        "date": "2026-09-17",
+        "PO": "59081",
+        "Amount": 5178.55,
+        "Result": "HOLD",
+        "Why": "category=missing_receipt; owner=none (Gas receiving owner blank). HOLD (receipt): no open receipt leftover on PO 59081 for Gas and Supply invoice #0040438052. PDF merch=LINEDS01162 500.0@10.36; selected=none. Do not first-open guess. Do not invent Success. no receiving @tag (Gas owner blank): receiving must receive the PO so AP can Select Receipts. Parent email will be Entered with issues. Outlook Entered with issues. Flag status=entered-with-issues.",
+        "Exception category": "missing_receipt",
+        "Exception owner": "",
+        "KIMCO id": 10173,
+        "Batch": "API Agent - 9/17/26 Gas & Supply (720)",
+        "Fees and surcharges": "none",
+        "PPV": "none",
+        "Attach status": "attached",
+        "Flag status": "entered-with-issues",
+        "Flag in Outlook": "Yes",
+        "Notes": "",
+        "Receipts": "none",
+        "outlook": "entered-with-issues"
+      }
+    ],
+    "finishes": {
+      "0040438052": {
+        "wanted": [],
+        "select_status": "held-unfinished",
+        "fee_status": "none",
+        "ppv_status": "none",
+        "ppv_amount": 0.0,
+        "match_how": null,
+        "matched": [],
+        "skipped_over_ppv": false,
+        "select_zero": false,
+        "open_on_po": [
+          {
+            "id": 24333,
+            "qty": 1.0,
+            "unit_price": 14.0
+          },
+          {
+            "id": 24334,
+            "qty": 3.0,
+            "unit_price": 11.3
+          },
+          {
+            "id": 24335,
+            "qty": 4.0,
+            "unit_price": 47.76
+          },
+          {
+            "id": 24336,
+            "qty": 1.0,
+            "unit_price": 36.12
+          },
+          {
+            "id": 24337,
+            "qty": 1.0,
+            "unit_price": 108.82
+          },
+          {
+            "id": 24338,
+            "qty": 1.0,
+            "unit_price": 98.71
+          },
+          {
+            "id": 24339,
+            "qty": 2.0,
+            "unit_price": 13.91
+          },
+          {
+            "id": 24340,
+            "qty": 1.0,
+            "unit_price": 182.5
+          },
+          {
+            "id": 24341,
+            "qty": 100.0,
+            "unit_price": 3.88
+          },
+          {
+            "id": 24342,
+            "qty": 200.0,
+            "unit_price": 5.25
+          },
+          {
+            "id": 24343,
+            "qty": 48.0,
+            "unit_price": 5.5
+          },
+          {
+            "id": 24344,
+            "qty": 60.0,
+            "unit_price": 9.63
+          },
+          {
+            "id": 24345,
+            "qty": 250.0,
+            "unit_price": 0.87
+          },
+          {
+            "id": 24346,
+            "qty": 250.0,
+            "unit_price": 0.97
+          },
+          {
+            "id": 24347,
+            "qty": 12.0,
+            "unit_price": 15.96
+          },
+          {
+            "id": 24348,
+            "qty": 48.0,
+            "unit_price": 4.68
+          },
+          {
+            "id": 24349,
+            "qty": 4.0,
+            "unit_price": 6.44
+          },
+          {
+            "id": 24350,
+            "qty": 1.0,
+            "unit_price": 184.04
+          },
+          {
+            "id": 24351,
+            "qty": 1.0,
+            "unit_price": 180.18
+          },
+          {
+            "id": 24352,
+            "qty": 1.0,
+            "unit_price": 36.12
+          },
+          {
+            "id": 24353,
+            "qty": 3.0,
+            "unit_price": 18.83
+          },
+          {
+            "id": 24354,
+            "qty": 50.0,
+            "unit_price": 1.24
+          },
+          {
+            "id": 24355,
+            "qty": 2.0,
+            "unit_price": 78.37
+          }
+        ]
+      }
+    },
+    "gets": {
+      "10173": {
+        "id": 10173,
+        "amount": 0.0
+      }
+    },
+    "outlook": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "transfer_ap": null,
+    "comments_1": null
   }
 }
