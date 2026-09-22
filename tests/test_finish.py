@@ -111,6 +111,7 @@ def _inv(**overrides):
         "lines": [],
         "multi_po": False,
         "fees": [],
+        "packing_slip_attached": True,
     }
     inv.update(overrides)
     return inv

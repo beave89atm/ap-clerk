@@ -756,7 +756,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "gate": "exception-category",
         "cases": (
             "price HOLD → price_variance / Shawn McKibben",
-            "missing receipts HOLD → missing_receipt / Ruben Perez",
+            "missing receipts HOLD → missing_receipt / sheet Receiving owner (NOTE-50)",
             "already-entered HOLD → already_entered / none / review",
             "pdf-behind-link HOLD → pdf_capture / AP",
             "qty HOLD → quantity_variance / buyer",
@@ -821,6 +821,39 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "identifiable slip from that email is attached. Partial / failed "
             "/ unmatched: leave uncategorized and list leftovers. "
             "No mass live rework of old bills. No Mail.Send."
+        ),
+        "never_success": True,
+        "do_not_void": True,
+        "leftover_kimco_ids": (),
+    },
+    {
+        "id": "NOTE-50",
+        "slug": "receiving-owner-missing-receipt-tag",
+        "gate": GATE_RECEIPT,
+        "cases": (
+            "missing_receipt Comments_1 @tags sheet Receiving owner",
+            "Blank Receiving owner (AQPC, Gas and Supply) = no dock @tag",
+            "Modern Heat Treat Anthony? → Anthony + uncertainty note",
+        ),
+        "9_22_rule": (
+            "Kyle 2026-09-22 filled AP-vendor-receiving-owners-2026-09-22.xlsx. "
+            "On missing_receipt, Comments_1 @tags the Receiving owner for that "
+            "vendor. Blank Receiving owner means the vendor does not need dock "
+            "receive — do not @tag anyone (AQPC and Gas and Supply are blanks). "
+            "Multi-owner cell text is intentional (Anthony for raw material, "
+            "shawn for purchased parts; Shawn/Monica; Shawn/Monica/Anthony). "
+            "Modern Heat Treat Anthony? is Anthony until Kyle confirms; flag "
+            "uncertainty in Notes. Shawn mention-id 104 confirmed. Do not invent "
+            "Ruben / Anthony / Monica mention-ids."
+        ),
+        "expected": (
+            "Lookup vendor on the committed receiving-owner map. If the sheet "
+            "has an owner, stamp Comments_1 with that @tag (keep multi-owner "
+            "text). If the cell is blank, do not @tag — not a receive-material "
+            "vendor. Exception owner follows the sheet (or none / no dock "
+            "receive). Modern Heat Treat: @Anthony plus uncertainty note. "
+            "Shawn mention-id=104. Ruben/Anthony/Monica ids stay unset until "
+            "discovered. No Mail.Send."
         ),
         "never_success": True,
         "do_not_void": True,
@@ -944,6 +977,7 @@ COL_EXCEPTION_OWNER = "Exception owner"
 # Stable slugs + who acts next. Map existing gates only; do not invent HOLD reasons.
 EXCEPTION_CATEGORY_OWNERS: dict[str, str] = {
     "price_variance": "Shawn McKibben",
+    # Fallback only. classify_exception uses the NOTE-50 sheet (blank = no dock).
     "missing_receipt": "Ruben Perez",
     "quantity_variance": "buyer",
     "missing_po": "Misty McCoy / Transfer AP",
@@ -966,7 +1000,12 @@ def exception_prefix(category: str, owner: str) -> str:
     return f"category={category}; owner={owner}"
 
 
-def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str] | None:
+def classify_exception(
+    *,
+    result: str | None,
+    why: str | None,
+    vendor: str | None = None,
+) -> tuple[str, str] | None:
     """Map a sheet row to (category, owner). None = leave columns blank.
 
     Success and true Skipped noise stay blank. HOLD / Incomplete / Fail /
@@ -1028,7 +1067,9 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or "no open receipt" in why_l
         or "parts not received" in why_l
     ):
-        return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
+        from ap_clerk.receiving_owners import missing_receipt_exception_owner
+
+        return "missing_receipt", missing_receipt_exception_owner(vendor)
     if "no-pdf" in why_l or "no pdf" in why_l:
         return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
     return "other", EXCEPTION_CATEGORY_OWNERS["other"]
@@ -1042,7 +1083,11 @@ def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
     """
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
-    classified = classify_exception(result=result, why=why)
+    classified = classify_exception(
+        result=result,
+        why=why,
+        vendor=str(row.get("Vendor") or row.get("vendor") or ""),
+    )
     if classified is None:
         row[COL_EXCEPTION_CATEGORY] = ""
         row[COL_EXCEPTION_OWNER] = ""

@@ -89,6 +89,18 @@ logical attachment. Match by PO / invoice # / vendor / dates; no match
 → HOLD `missing-packing-slip`. Complementary to NOTE-25 (AP-inbox
 `Receipt_*` slips are still not invoices). No Mail.Send.
 
+**NOTE-50 receiving-owner map for missing_receipt @tags (Kyle 2026-09-22).**
+Kyle filled `AP-vendor-receiving-owners-2026-09-22.xlsx`. On
+`missing_receipt`, Comments_1 **@tags the Receiving owner** from that
+sheet for that vendor. **Blank Receiving owner = does not need dock
+receive** — do not @tag anyone (AQPC and Gas and Supply are blanks).
+Multi-owner cell text is intentional (`Anthony for raw material, shawn
+for purchased parts`, `Shawn/Monica`, McMaster `Shawn/Monica/Anthony`).
+Modern Heat Treat `Anthony?` is Anthony until Kyle confirms; flag
+uncertainty in Notes. Shawn mention-id **104** confirmed. Do not invent
+Ruben / Anthony / Monica mention-ids. Map lives in
+`ap_clerk/data/receiving_owners.json`. No Mail.Send.
+
 **NOTE-11 Nova Alloys 258145 (8/18 dry-10, Kyle 2026-09-11).** Vendor is the
 company on the PDF (`Nova Alloys`), never the From person’s name
 (`Erica Barrett`). **PDF-is-truth:** the same # on the subject is a hint —
@@ -262,9 +274,10 @@ Named tests in `tests/test_quality_v12.py`. Registry: `ap_clerk/quality_v12.py`.
 | **NOTE-36** Gas & Supply multi-invoice PDFs (0040374117 / 0011062620 / 0040372952 / 0011054481 / 0040374112 / 0011062611) | Preflight-parse HOLD `gas_misc_ambiguous` with empty amounts; PDFs on disk. One note: 0040372952 is only 1 invoice. | Extract after-tax totals from labeled Total / Amount Due (including stacked label-then-amount). Never invent totals. A single-invoice Gas PDF is not “multiple Misc invoices”. | `test_never_repeat_gas_labeled_total_amount_due` |
 | **NOTE-37** JPSteel **125315** / KIMCO **10107** / PO 59128 / leftovers **24126** 8@$33 + **24127** 13@$33 (Kyle 2026-09-17) | HOLD Select Receipts **blocked-400** on same-PO-line split though PDF is one line 21@$33=$693. Combining same-item same-unit-cost leftovers is acceptable; Kyle finished 10107 live. | Combine same-item same-unit-cost receipt lines to match one invoice line. Do not HOLD blocked-400 when the unique qty/cost sum matches. Never invent receipts. Do not re-Select / edit 10107 (GET-only). | `test_never_repeat_jpsteel_125315_combine_same_item_receipts` |
 | **NOTE-38** JPSteel **125316** / **10108** $0.10 (1580.83 vs PDF 1580.73); **125051** / **10111** $0.06 (1130.34 vs PDF 1130.40) (Kyle 2026-09-17) | HOLD after GET for unit-rounding though receipts already matched. | When receipts match and posted ≠ PDF by in-gate rounding, **must post signed PPV** (lookup id 13) and **Success**. Never HOLD as rounding. 125316 → −$0.10; 125051 → +$0.06. Two-cent gaps stay a match. Over-PPV lock still applies. | `test_never_repeat_jpsteel_125316_rounding_ppv` |
-| **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→Ruben Perez, `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
+| **NOTE-39** Exception category + owner at HOLD (Stampli-style; Kyle bar #4 / #6) | HOLD / Incomplete Why was unstructured; sheet could not sort by cause; exception rate by category unmeasurable | Every HOLD / Incomplete / Entered-with-issues row stamps `Exception category` + `Exception owner` and embeds `category=…; owner=…` in Why. Success / true Skipped noise leave columns blank. Counts-only summary sheet. Map existing gates only (`price_variance`→Shawn McKibben, `missing_receipt`→sheet Receiving owner per **NOTE-50** (blank = none / no dock receive; unmapped = receiving / unmapped), `quantity_variance`→buyer, `missing_po`→Misty McCoy / Transfer AP, `vendor_mismatch`→AP / vendor master, `already_entered`→none / review, `pdf_capture`→AP, `auto_pay`→none, `partial_match`→AP / Treyce, `other`→AP). Never invent Success/touchless rates. | `test_never_repeat_note39_exception_category_owner` |
 | **NOTE-40** Over-PPV HOLD → Transfer AP + @Shawn comment (Kyle 2026-09-17 Legacy Wire plus-10) | Price-does-not-match HOLDs stayed on the daily batch with no invoice comment, so Shawn was not notified and the bill sat in 717. | New `price_variance` / over-PPV-gate HOLDs: **do not Select Receipts** (NOTE-29). Move the AP invoice to **Transfer AP** (lookup by name; prior fact 375 is a hint only — never invent). Stamp **Comments** explaining price mismatch / over PPV gate / receipts NOT selected so Shawn can unreceive/reprice, and **@tag Shawn McKibben**. Report exactly whether @mention notify worked. Leave existing HOLDs 10116 / 10123 / 10125 / 10127 alone. No Mail.Send from this agent. | `test_apply_over_ppv_transfer_ap_skips_leave_alone_and_moves_new` |
 | **NOTE-49** receiving@ signed packing slip on every Success (Kyle 2026-09-22) | Invoice PDF on the header was enough for Success; packing slips were AP-inbox noise (NOTE-25) or missing. | Success = vendor invoice PDF **and** ≥1 signed packing slip on the same header. Slips are Sharp MFP scans into `receiving@` (`scans@sharp-mfp.com`). Do not enter invoices from receiving@. Multi-slip PDFs: not 1 PDF = 1 invoice; page-range match by PO / invoice # / vendor / dates. **A packing slip can be more than one page** — do not treat 1 page = 1 slip; keep consecutive pages of the same slip together. No match → HOLD `missing-packing-slip` (exception owner `receiving`). After GET verifies the slip on the header, receiving@ category **`AI Completed`** — only when every identifiable slip from that email is attached; partial success stays uncategorized. KIMCO attachments are filename-only. Complementary to NOTE-25. No mass live rework. No Mail.Send. | `test_never_repeat_note49_packing_slip_success_gate` / `tests/test_packing_slips.py` / `tests/test_receiving_mail.py` |
+| **NOTE-50** vendor receiving-owner map for missing_receipt @tags (Kyle 2026-09-22) | `missing_receipt` always @tagged Ruben Perez. Some vendors do not dock-receive; others have a named owner or a multi-owner cell. | Commit Kyle's filled sheet + `ap_clerk/data/receiving_owners.json`. On `missing_receipt`, Comments_1 @tags the sheet **Receiving owner**. Blank owner (AQPC, Gas and Supply) = no dock receive — do not @tag. Keep multi-owner text (`Shawn/Monica`, `Shawn/Monica/Anthony`, role splits). Modern Heat Treat `Anthony?` → Anthony + Notes uncertainty until Kyle confirms. Shawn mention-id 104; do not invent Ruben / Anthony / Monica ids. No Mail.Send. | `test_never_repeat_note50_receiving_owner_missing_receipt_tag` / `tests/test_receiving_owners.py` |
 
 ### Deferred (failing-safe stubs — not silent skips)
 
@@ -443,6 +456,30 @@ report when the slip is missing or cannot be uniquely matched.
   **all** matched attaches succeeded. Partial multi-slip success: leave
   uncategorized and list what is left. No Mail.Send.
 - No mass live rework of old bills this encode. No Mail.Send.
+
+## receiving-owner map (Kyle 2026-09-22, NOTE-50)
+
+Kyle filled `runs/AP-vendor-receiving-owners-2026-09-22.xlsx`. Encoded
+map: `ap_clerk/data/receiving_owners.json` (CSV sibling in `runs/`).
+
+On a `missing_receipt` HOLD:
+
+1. Look up the vendor on the committed map.
+2. If **Receiving owner** is filled, stamp KIMCO `Comments_1` with that
+   @tag (keep multi-owner cell text). Exception owner follows the sheet.
+3. If the cell is **blank**, the vendor does **not** need dock receive —
+   do not @tag anyone (AQPC and Gas and Supply are the notable blanks).
+   Exception owner is `none / no dock receive`.
+4. Modern Heat Treat `Anthony?` is treated as Anthony. Flag uncertainty
+   on the sheet Notes column until Kyle confirms.
+5. Shawn McKibben mention-id **104** (live Comments_1). Ruben / Anthony /
+   Monica mention-ids were not found — do not invent them. @text still
+   goes on Comments_1 without a `data-mention-id` until discovered.
+
+Unmapped vendors (not on the sheet) → exception owner
+`receiving / unmapped`; still no invented @mention-id.
+
+No Mail.Send.
 
 Pause further ad-hoc dry runs. Weekday 2026-09-15 live-10 used this stack
 (`daily --live --limit 10` from the 9/14 afternoon cursor). **0 Success** —

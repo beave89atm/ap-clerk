@@ -197,8 +197,8 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-49",)
-    assert len(TREYCE_NOTES_V12) == 40
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-49", "NOTE-50")
+    assert len(TREYCE_NOTES_V12) == 41
     assert len(TREYCE_FINISH_CHECKLIST) == 15
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -244,6 +244,7 @@ def test_v12_registry_covers_all_notes():
         "jpsteel-125316-rounding-ppv-not-hold",
         "exception-category-owner-at-hold",
         "receiving-signed-packing-slip-success",
+        "receiving-owner-missing-receipt-tag",
     }
 
 
@@ -4535,7 +4536,8 @@ def _assert_exception_tagged(row, *, category: str, owner: str, note_id: str = "
     prefix = exception_prefix(category, owner)
     assert prefix in (row.get("Why") or "")
     assert category in EXCEPTION_CATEGORY_OWNERS
-    assert EXCEPTION_CATEGORY_OWNERS[category] == owner
+    if category != "missing_receipt":
+        assert EXCEPTION_CATEGORY_OWNERS[category] == owner
 
 
 def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
@@ -4590,7 +4592,7 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     )
     assert GATE_PRICE in price_row["Why"] or PRICE_DOES_NOT_MATCH in price_row["Why"]
 
-    # Missing receipts HOLD → Ruben Perez
+    # Missing receipts HOLD → sheet Receiving owner (Fastenal = Shawn/Monica)
     class CreateHold:
         target = "live"
 
@@ -4634,9 +4636,11 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     _assert_exception_tagged(
         missing_row,
         category="missing_receipt",
-        owner="Ruben Perez",
+        owner="Shawn/Monica",
     )
     assert "no receipts" in missing_row["Why"].lower()
+    assert "@Shawn McKibben" in missing_row["Why"]
+    assert "@Monica" in missing_row["Why"]
 
     # Already-entered HOLD (NOTE-17) → none / review
     insight = NOTES["NOTE-17"]
@@ -4866,5 +4870,71 @@ def test_never_repeat_note49_packing_slip_success_gate(tmp_path: Path):
     assert matched["status"] == "matched"
     assert matched["pages"] == [1, 2]
     assert matched["attach_whole_pdf"] is False
+
+
+def test_never_repeat_note50_receiving_owner_missing_receipt_tag():
+    """NOTE-50: missing_receipt @tags sheet owner; blank = no dock tag."""
+    from ap_clerk.receiving_owners import (
+        NO_DOCK_OWNER,
+        PEOPLE,
+        UNMAPPED_OWNER,
+        lookup_receiving_owner,
+        missing_receipt_comment_text,
+        missing_receipt_comments_1_child,
+        missing_receipt_exception_owner,
+        should_tag_missing_receipt,
+    )
+
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-50")
+    assert n["slug"] == "receiving-owner-missing-receipt-tag"
+    assert n["gate"] == GATE_RECEIPT
+    assert n["never_success"] is True
+    assert "do not @tag" in n["9_22_rule"].lower() or "do not @tag" in n["expected"].lower()
+    assert "AQPC" in n["9_22_rule"]
+    assert "Gas and Supply" in n["9_22_rule"]
+    assert "Anthony?" in n["9_22_rule"]
+    assert "104" in n["expected"]
+    assert "Do not invent" in n["9_22_rule"] or "stay unset" in n["expected"]
+    assert PEOPLE["shawn"]["mention_id"] == 104
+    assert PEOPLE["ruben"]["mention_id"] is None
+    assert PEOPLE["anthony"]["mention_id"] is None
+    assert PEOPLE["monica"]["mention_id"] is None
+
+    assert missing_receipt_exception_owner("Fastenal Company") == "Shawn/Monica"
+    assert missing_receipt_exception_owner("Legacy Wire Products") == "Ruben Perez"
+    assert missing_receipt_exception_owner("AQPC") == NO_DOCK_OWNER
+    assert missing_receipt_exception_owner("Gas and Supply") == NO_DOCK_OWNER
+    assert missing_receipt_exception_owner("Modern Heat Treat Inc") == "Anthony"
+    assert missing_receipt_exception_owner(None) == UNMAPPED_OWNER
+    assert missing_receipt_exception_owner("Not A Real Vendor LLC") == UNMAPPED_OWNER
+
+    assert should_tag_missing_receipt("McMaster-Carr")
+    assert "Shawn/Monica/Anthony" in (
+        lookup_receiving_owner("McMaster-Carr") or {}
+    ).get("receiving_owner_raw", "")
+    assert missing_receipt_comments_1_child("American Quality Powder Coating") is None
+    assert missing_receipt_comment_text("Gas and Supply North Texas, LLC") == ""
+    assert "until Kyle confirms" in missing_receipt_comment_text("Modern Heat Treat")
+
+    assert classify_exception(
+        result=RESULT_HOLD,
+        why="HOLD (receipt): no receipts after second pass.",
+        vendor="Fastenal Company",
+    ) == ("missing_receipt", "Shawn/Monica")
+    assert classify_exception(
+        result=RESULT_HOLD,
+        why="HOLD (receipt): no open receipt on the PO.",
+        vendor="AQPC",
+    ) == ("missing_receipt", NO_DOCK_OWNER)
+    stamped = apply_exception_category_owner(
+        {
+            "Result": RESULT_HOLD,
+            "Why": "HOLD (receipt): no receipts after second pass.",
+            "Vendor": "Gas and Supply North Texas, LLC",
+        }
+    )
+    assert stamped[COL_EXCEPTION_CATEGORY] == "missing_receipt"
+    assert stamped[COL_EXCEPTION_OWNER] == NO_DOCK_OWNER
+    assert_never_success(RESULT_HOLD, note_id="NOTE-50", detail=stamped.get("Why") or "")
 
 
