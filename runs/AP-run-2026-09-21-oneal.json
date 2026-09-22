@@ -1,5 +1,5 @@
 {
-  "proof": "oneal-0921-finish",
+  "proof": "oneal-0921-fort-worth",
   "invent": false,
   "mail_send": false,
   "vendor": "O'Neal Steel - Dallas (GP)",
@@ -1713,7 +1713,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1733,7 +1733,8 @@
       "Why": "Finished bill. Rounding/in-gate PPV -0.10 under $75. Amount=687.26. Moved to 722={'status': 'moved', 'put': 200, 'error': ''}.",
       "outlook": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Flag status": "entered-with-issues"
+      "Flag status": "entered-with-issues",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=."
     },
     {
       "Vendor": "O'Neal Steel - Dallas (GP)",
@@ -1752,7 +1753,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1773,7 +1774,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1794,7 +1795,7 @@
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=.",
       "Receipts": "23932 1@471.42",
       "outlook": "entered-in-ai"
     },
@@ -1815,7 +1816,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=.",
       "Receipts": "23730 240@0.2688",
       "outlook": "entered-with-issues"
     },
@@ -1836,7 +1837,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1857,7 +1858,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=.",
       "Receipts": "23749 240@0.2807",
       "outlook": "entered-with-issues"
     },
@@ -1878,7 +1879,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=.",
       "Receipts": "23799 4@494.7275",
       "outlook": "entered-with-issues"
     },
@@ -1899,7 +1900,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1920,7 +1921,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=.",
       "Receipts": "24374 576@0.4259",
       "outlook": "entered-with-issues"
     },
@@ -1941,7 +1942,7 @@
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=.",
       "Receipts": "24364 2400@0.0632",
       "outlook": "entered-with-issues"
     },
@@ -1960,7 +1961,8 @@
       "Attach status": "attached",
       "Why": "Already-Success O'Neal on Transfer AP 375 (older header 10079). Amount=1683.01 matches verification. 4 receipts selected + 1 charge. Moved to API Agent - 9/21/26 O'Neal (722). Not a new enter. Packing slip not attached (receiving@ not reachable on this AP Graph client).",
       "Receipts": "4 selected",
-      "date": ""
+      "date": "",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVrbAAA=."
     }
   ],
   "note45": "missing_receipt Comments_1 names Ruben Perez, mention-id unproven, plain text, no Transfer AP; over-PPV Transfer AP + @Shawn; no Mail.Send",
@@ -3052,5 +3054,244 @@
       }
     }
   },
-  "finish_verify": "runs/oneal-finish-verify-2026-09-22.json"
+  "finish_verify": "runs/oneal-finish-verify-2026-09-22.json",
+  "fort_worth_0922": [
+    {
+      "invoice": "15469453",
+      "kimco_id": 10160,
+      "header_invoice": "15469453",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-15_O_Neal_Steel_Invoice_9142026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "Entered with issues"
+      ],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdkAAA=",
+      "http": 201
+    },
+    {
+      "invoice": "15457895",
+      "kimco_id": 10161,
+      "header_invoice": "15457895",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "Entered with issues"
+      ],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdlAAA=",
+      "http": 201
+    },
+    {
+      "invoice": "15457907",
+      "kimco_id": 10162,
+      "header_invoice": "15457907",
+      "batch_id": 375,
+      "pdfs": [
+        "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15464707",
+      "kimco_id": 10163,
+      "header_invoice": "15464707",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "Entered with issues"
+      ],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdmAAA=",
+      "http": 201
+    },
+    {
+      "invoice": "15464854",
+      "kimco_id": 10164,
+      "header_invoice": "15464854",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15460544",
+      "kimco_id": 10174,
+      "header_invoice": "15460544",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "Entered with issues"
+      ],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdnAAA=",
+      "http": 201
+    },
+    {
+      "invoice": "15460995",
+      "kimco_id": 10175,
+      "header_invoice": "15460995",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15461007",
+      "kimco_id": 10176,
+      "header_invoice": "15461007",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15461157",
+      "kimco_id": 10177,
+      "header_invoice": "15461157",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15476365",
+      "kimco_id": 10178,
+      "header_invoice": "15476365",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "Entered with issues"
+      ],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdoAAA=",
+      "http": 201
+    },
+    {
+      "invoice": "15476879",
+      "kimco_id": 10179,
+      "header_invoice": "15476879",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15477248",
+      "kimco_id": 10180,
+      "header_invoice": "15477248",
+      "batch_id": 722,
+      "pdfs": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "move-skipped-already",
+      "reason": "sibling-already-moved"
+    },
+    {
+      "invoice": "15447737",
+      "kimco_id": 10079,
+      "header_invoice": "15447737",
+      "batch_id": 722,
+      "pdfs": [
+        "O'Neal Steel Invoice 8212026.pdf",
+        "22940088 POD.pdf"
+      ],
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVrbAAA=",
+      "subject": "O'Neal Steel Credit Invoice For Account # 14748440",
+      "folder_name": "9 - FORT WORTH ARCHIVE",
+      "folder_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA=",
+      "eligible": true,
+      "status": "moved-fort-worth",
+      "parentFolderId": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [],
+      "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdpAAA=",
+      "http": 201
+    }
+  ]
 }
