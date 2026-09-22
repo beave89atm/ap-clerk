@@ -151,31 +151,30 @@ def probe_receiving_access(token: str, *, mailbox: str = RECEIVING_MAILBOX, top:
     messages_http = 0
     messages_code, messages_message = ("", "")
     rows: list[dict[str, Any]] = []
-    if user_http == 200:
-        msg_url = _user_url(mailbox, "messages")
-        msg_resp = _get(
-            token,
-            msg_url,
-            params={
-                "$select": "id,subject,from,receivedDateTime,hasAttachments",
-                "$orderby": "receivedDateTime desc",
-                "$top": max(1, min(int(top), 50)),
-            },
-        )
-        messages_http = int(msg_resp.status_code)
-        if messages_http == 200:
-            for message in (msg_resp.json() or {}).get("value") or []:
-                names: list[str] = []
-                if message.get("hasAttachments"):
-                    names = _attachment_names(token, mailbox, str(message.get("id") or ""))
-                rows.append(sample_row(message, attachment_names=names))
-        else:
-            messages_code, messages_message = _error_fields(msg_resp)
+    msg_url = _user_url(mailbox, "messages")
+    msg_resp = _get(
+        token,
+        msg_url,
+        params={
+            "$select": "id,subject,from,receivedDateTime,hasAttachments",
+            "$orderby": "receivedDateTime desc",
+            "$top": max(1, min(int(top), 50)),
+        },
+    )
+    messages_http = int(msg_resp.status_code)
+    if messages_http == 200:
+        for message in (msg_resp.json() or {}).get("value") or []:
+            names: list[str] = []
+            if message.get("hasAttachments"):
+                names = _attachment_names(token, mailbox, str(message.get("id") or ""))
+            rows.append(sample_row(message, attachment_names=names))
+    else:
+        messages_code, messages_message = _error_fields(msg_resp)
 
-    blocked_http = user_http if user_http != 200 else messages_http
-    error_code = user_code or messages_code
-    error_message = user_message or messages_message
-    access_ok = user_http == 200 and messages_http == 200
+    blocked_http = messages_http if messages_http != 200 else user_http
+    error_code = messages_code or user_code
+    error_message = messages_message or user_message
+    access_ok = messages_http == 200
     aap = needs_application_access_policy(
         http=blocked_http if not access_ok else 0,
         error_code=error_code,
@@ -183,12 +182,16 @@ def probe_receiving_access(token: str, *, mailbox: str = RECEIVING_MAILBOX, top:
     )
     if access_ok:
         verdict = "ok"
-        notes = (
-            "GET /users/receiving@kannonmfg.com and GET messages succeeded. "
-            "Empty inbox is still access OK. sendMail was not called."
-        )
         if not rows:
-            notes = "Access OK. Inbox is empty. sendMail was not called."
+            notes = (
+                f"Access OK (messages HTTP 200, user HTTP {user_http}). "
+                "Inbox is empty. sendMail was not called."
+            )
+        else:
+            notes = (
+                f"Access OK. GET messages HTTP 200 (user HTTP {user_http}). "
+                f"{len(rows)} recent message(s). sendMail was not called."
+            )
     elif user_http == 404 or messages_http == 404:
         verdict = "blocked"
         notes = (

@@ -2007,7 +2007,7 @@ def _run_receiving(args: argparse.Namespace) -> int:
     write_proof(payload, out_path)
     print(f"user_http={payload.get('user_http')} messages_http={payload.get('messages_http')}", flush=True)
     print(f"access={payload.get('access')} message_count={payload.get('message_count')}", flush=True)
-    if payload.get("error_code") or payload.get("error_message"):
+    if payload.get("access") != "ok" and (payload.get("error_code") or payload.get("error_message")):
         print(
             f"error={payload.get('error_code')} {payload.get('error_message')}".strip(),
             flush=True,

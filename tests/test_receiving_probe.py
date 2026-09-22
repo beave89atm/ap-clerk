@@ -69,6 +69,7 @@ def test_probe_200_empty_inbox_is_access_ok():
     assert payload["kimco_writes"] is False
     assert payload["needs_application_access_policy"] is False
     assert "empty" in payload["notes"].lower()
+    assert payload["access"] == "ok"
     assert get.call_count == 2
     for call in get.call_args_list:
         assert call.args[0].startswith("https://graph.microsoft.com/")
@@ -85,9 +86,27 @@ def test_probe_403_flags_application_access_policy():
         payload = probe_receiving_access("token-not-printed")
     assert payload["access"] == "blocked"
     assert payload["user_http"] == 403
+    assert payload["messages_http"] == 403
     assert payload["error_code"] == "ErrorAccessDenied"
     assert payload["needs_application_access_policy"] is True
     assert "Application Access Policy" in payload["notes"]
+
+
+def test_probe_user_403_messages_200_is_access_ok():
+    user = Mock()
+    user.status_code = 403
+    user.json.return_value = {
+        "error": {"code": "Authorization_RequestDenied", "message": "Insufficient privileges"}
+    }
+    inbox = Mock()
+    inbox.status_code = 200
+    inbox.json.return_value = {"value": []}
+    with patch("ap_clerk.receiving_probe.requests.get", side_effect=[user, inbox]):
+        payload = probe_receiving_access("token-not-printed")
+    assert payload["access"] == "ok"
+    assert payload["user_http"] == 403
+    assert payload["messages_http"] == 200
+    assert payload["needs_application_access_policy"] is False
 
 
 def test_sample_row_shape():
