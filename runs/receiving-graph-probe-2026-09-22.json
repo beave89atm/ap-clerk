@@ -1,0 +1,47 @@
+{
+  "mailbox": "receiving@kannonmfg.com",
+  "user_http": 403,
+  "messages_http": 200,
+  "access": "ok",
+  "error_code": "Authorization_RequestDenied",
+  "error_message": "Insufficient privileges to complete the operation.",
+  "needs_application_access_policy": false,
+  "user": {},
+  "message_count": 3,
+  "messages": [
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from_name": "Kannon Manufacturing",
+      "from_address": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:15:11Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_073207.pdf"
+      ]
+    },
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from_name": "Kannon Manufacturing",
+      "from_address": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:14:51Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_073148.pdf"
+      ]
+    },
+    {
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from_name": "Kannon Manufacturing",
+      "from_address": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:11:58Z",
+      "has_attachments": true,
+      "attachment_names": [
+        "Kannon Manufacturing_20260922_072849.pdf"
+      ]
+    }
+  ],
+  "send_mail_invoked": false,
+  "mail_sent_to_anyone": false,
+  "kimco_writes": false,
+  "notes": "Access OK. GET messages HTTP 200 (user HTTP 403). 3 recent message(s). sendMail was not called."
+}
