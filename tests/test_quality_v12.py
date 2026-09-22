@@ -197,9 +197,9 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42", "NOTE-51", "NOTE-52")
-    assert len(TREYCE_NOTES_V12) == 42
-    assert len(TREYCE_FINISH_CHECKLIST) == 16
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42", "NOTE-51", "NOTE-52", "NOTE-53")
+    assert len(TREYCE_NOTES_V12) == 43
+    assert len(TREYCE_FINISH_CHECKLIST) == 17
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -246,6 +246,7 @@ def test_v12_registry_covers_all_notes():
         "gas-misc-lines-k-shop-supplies",
         "outlook-success-promotes-entered-in-ai",
         "outlook-move-fort-worth-after-header-attach",
+        "missing-receipt-hold-transfer-ap",
     }
 
 
@@ -4827,4 +4828,14 @@ def test_never_repeat_note42_gas_misc_lines_k():
     assert n["never_success"] is True
     assert "header-only" in n["expected"].lower() or "Header-only" in n["expected"]
     assert_never_success(RESULT_INCOMPLETE, note_id="NOTE-42", detail="header-only Lines-K empty")
+
+
+def test_never_repeat_note53_missing_receipt_transfer_ap():
+    """NOTE-53: missing_receipt HOLD destination is Transfer AP, never Success."""
+    n = next(note for note in TREYCE_NOTES_V12 if note["id"] == "NOTE-53")
+    assert n["slug"] == "missing-receipt-hold-transfer-ap"
+    assert n["never_success"] is True
+    assert "Transfer AP" in n["expected"]
+    assert "stay-on-current-batch" in n["expected"]
+    assert_never_success(RESULT_HOLD, note_id="NOTE-53", detail="HOLD (receipt): no open receipt")
 

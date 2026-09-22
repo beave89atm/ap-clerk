@@ -4,9 +4,10 @@
 10181 / 0040437952 PO 59006 ~$241.46 batch 720
 
 Comments_1 @Shawn McKibben mention-id 104 (Entity 203, FormId 218).
-Ask Shawn to receive the PO so AP can Select Receipts. Stay on 720.
-Do NOT Transfer AP. Do NOT Select leftovers. Do NOT Mail.Send.
-Do NOT invent Success. Type 3 PO bills (Lines-K N/A).
+Ask Shawn to receive the PO so AP can Select Receipts.
+NOTE-53 (later 2026-09-22) supersedes stay-on-720: missing_receipt → Transfer AP.
+This script's restore-to-720 was a same-morning Kyle override before NOTE-53.
+Do NOT Select leftovers. Do NOT Mail.Send. Do NOT invent Success.
 """
 
 from __future__ import annotations
@@ -128,7 +129,7 @@ def receipt_comment_items(comments: list[dict[str, Any]], invoice: str) -> list[
 
 
 def move_back_to_720(client: KimcoClient, kid: int) -> dict[str, Any]:
-    """Restore missing_receipt to the API Agent batch. Never move onto 375."""
+    """Historical 2026-09-22 morning restore 375→720. NOTE-53 superseded stay-on-720."""
     payload = {
         "state": "Modified",
         "id": int(kid),
@@ -158,8 +159,9 @@ def ping_header(client: KimcoClient, spec: dict[str, Any]) -> dict[str, Any]:
         report["after"] = before
         return report
     if before.get("batch_id") == 375:
-        # Prior false over-PPV left 10181 on Transfer AP. Kyle: missing_receipt
-        # stays on 720. Restore only 375 → 720; never the reverse.
+        # Prior false over-PPV left 10181 on Transfer AP. Same-morning Kyle
+        # override restored 375 → 720. NOTE-53 later sends missing_receipt
+        # to Transfer AP — do not use this helper going forward.
         report["restore_720"] = move_back_to_720(client, kid)
         before = snapshot(client, kid)
         report["after_restore"] = {

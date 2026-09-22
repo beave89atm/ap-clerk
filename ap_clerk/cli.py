@@ -86,6 +86,10 @@ from ap_clerk.gates import (
     why_preflight_this_invoice,
     why_skipped,
 )
+from ap_clerk.transfer_ap import (
+    apply_missing_receipt_transfer_ap,
+    should_transfer_ap_missing_receipt,
+)
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
     FORBIDDEN_BATCH_IDS,
@@ -1483,6 +1487,19 @@ def _process_invoice(
             "Outlook Entered with issues (not Entered in AI)."
         ).strip()
         LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=HOLD-with-header", number, created_id, vendor, po, invoice_type)
+        # NOTE-53: missing_receipt HOLD → Transfer AP (supersedes stay-on-agent-batch).
+        if should_transfer_ap_missing_receipt(
+            result=RESULT_HOLD,
+            why=str(row.get("Why") or ""),
+            issue_gate=issue_hold[0],
+        ):
+            moved = apply_missing_receipt_transfer_ap(client, kimco_id=created_id)
+            if moved.get("status") in {"moved", "already-on-transfer-ap"} and moved.get("batch_id") not in (None, ""):
+                row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({moved['batch_id']})"
+            row["Why"] = (
+                f"{row['Why']} NOTE-53 missing_receipt → Transfer AP "
+                f"({moved.get('status')})."
+            ).strip()
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
     result, finish_why = finish_gate(
         header_created=True,

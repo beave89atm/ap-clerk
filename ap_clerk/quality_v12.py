@@ -863,6 +863,34 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": False,
     },
+    {
+        "id": "NOTE-53",
+        "slug": "missing-receipt-hold-transfer-ap",
+        "gate": GATE_RECEIPT,
+        "cases": (
+            "O'Neal missing_receipt HOLDs 10160 / 10163 / 10175 / 10178",
+            "Gas missing_receipt HOLDs 10173 / 10181",
+        ),
+        "9_22_bug": (
+            "2026-09-21 left missing_receipt on the current API Agent batch "
+            "(720 / 722). Bills sat there instead of Transfer AP, so Treyce "
+            "did not own the dock-wait queue."
+        ),
+        "expected": (
+            "HOLD missing_receipt (no selectable matching leftovers / cannot "
+            "Select Receipts) → move the header to Transfer AP (lookup by "
+            "name; prior fact 375 is a hint only — never invent). Same PUT "
+            "path as over-PPV. Still write Comments_1 @tag from the vendor "
+            "receiving-owner map (McMaster → @Shawn mention-id 104; blank "
+            "owner → no @tag unless Kyle override; O'Neal → Anthony plain if "
+            "mention-id unknown). Do not invent Success. Do not Select "
+            "non-matching leftovers. Over-PPV / price_variance still Transfer "
+            "AP + @Shawn (unchanged). AP Clerk does not watch/finish Transfer "
+            "AP unless Kyle asks. Outlook categories unchanged by this move. "
+            "Supersedes 2026-09-21 stay-on-current-batch."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -965,6 +993,16 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "(NOTE-51). receiving@ AI Completed is a separate rule."
         ),
     },
+    {
+        "id": "missing-receipt-hold-transfer-ap",
+        "check": (
+            "HOLD missing_receipt (no matching leftovers) moves the header to "
+            "Transfer AP (lookup by name; 375 is a hint only). Comments_1 "
+            "@tag still follows the receiving-owner map. Do not invent "
+            "Success or Select non-matching leftovers (NOTE-53). Over-PPV "
+            "still Transfer AP + @Shawn. Outlook categories unchanged."
+        ),
+    },
 )
 
 # Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
@@ -1061,6 +1099,15 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
     if GATE_VENDOR in why_l or "vendor-mismatch" in why_l:
         return "vendor_mismatch", EXCEPTION_CATEGORY_OWNERS["vendor_mismatch"]
+    # NOTE-53: missing_receipt also moves to Transfer AP. Classify receipt
+    # HOLDs before the generic "transfer ap" → missing_po signal.
+    if (
+        "note-53" in why_l
+        or "no receipts" in why_l
+        or "no open receipt" in why_l
+        or "parts not received" in why_l
+    ):
+        return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
     if (
         "misty mccoy" in why_l
         or "transfer ap" in why_l
@@ -1081,12 +1128,6 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         or ("unmatched invoice line" in why_l and "selected receipts" in why_l)
     ):
         return "partial_match", EXCEPTION_CATEGORY_OWNERS["partial_match"]
-    if (
-        "no receipts" in why_l
-        or "no open receipt" in why_l
-        or "parts not received" in why_l
-    ):
-        return "missing_receipt", EXCEPTION_CATEGORY_OWNERS["missing_receipt"]
     if "no-pdf" in why_l or "no pdf" in why_l:
         return "pdf_capture", EXCEPTION_CATEGORY_OWNERS["pdf_capture"]
     return "other", EXCEPTION_CATEGORY_OWNERS["other"]
