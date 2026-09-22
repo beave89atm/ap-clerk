@@ -46,6 +46,13 @@ from ap_clerk.inbox import (
     skip_rows_for_report,
 )
 from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
+from ap_clerk.receiving_probe import (
+    RECEIVING_MAILBOX,
+    authenticate_token,
+    default_proof_path,
+    probe_receiving_access,
+    write_proof,
+)
 from ap_clerk.quality_v12 import (
     COL_EXCEPTION_CATEGORY,
     COL_EXCEPTION_OWNER,
@@ -146,12 +153,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
     parser.add_argument(
         "command",
-        choices=["enter", "pull", "daily", "probe"],
+        choices=["enter", "pull", "daily", "probe", "receiving"],
         help=(
             "enter: fixture or inbox invoices as header-only AP bills. "
             "pull: list unflagged AP mailbox messages (no category write). "
             "daily: weekday 5am America/Chicago FIFO (requires --live; hard-clamped to 10 emails). "
-            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail)."
+            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail). "
+            "receiving: GET-only Graph access check for receiving@ (no sendMail, no KIMCO)."
         ),
     )
     parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
@@ -209,6 +217,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    if args.command == "receiving":
+        return _run_receiving(args)
     try:
         assert_allowed_mailbox(args.mailbox)
     except MailboxRejected as exc:
@@ -1974,6 +1984,51 @@ def _attach_inbox_ids(
     matched = sum(1 for inv in enriched if inv.get("graph_message_id"))
     LOGGER.info("Attached Graph message ids to %s/%s invoices (flag happens after match, not now)", matched, len(enriched))
     return enriched
+
+
+def _run_receiving(args: argparse.Namespace) -> int:
+    """GET-only receiving@ Graph access check. Never sendMail. Never KIMCO."""
+    print(format_graph_presence(), flush=True)
+    mailbox = RECEIVING_MAILBOX
+    print(f"Mailbox: {mailbox} (GET-only probe)", flush=True)
+    graph_creds = load_graph_credentials()
+    if not graph_creds.ready:
+        print(graph_creds.error or "Graph credentials missing.", flush=True)
+        return 2
+    try:
+        token = authenticate_token()
+        payload = probe_receiving_access(token, mailbox=mailbox)
+    except GraphError as exc:
+        print(f"Receiving Graph probe failed: {exc}", flush=True)
+        return 1
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    out_path = Path(args.out) if args.out else default_proof_path(as_of)
+    write_proof(payload, out_path)
+    print(f"user_http={payload.get('user_http')} messages_http={payload.get('messages_http')}", flush=True)
+    print(f"access={payload.get('access')} message_count={payload.get('message_count')}", flush=True)
+    if payload.get("error_code") or payload.get("error_message"):
+        print(
+            f"error={payload.get('error_code')} {payload.get('error_message')}".strip(),
+            flush=True,
+        )
+    print(
+        f"needs_application_access_policy={payload.get('needs_application_access_policy')}",
+        flush=True,
+    )
+    print(payload.get("notes") or "", flush=True)
+    for row in payload.get("messages") or []:
+        names = ", ".join(row.get("attachment_names") or []) or "(none)"
+        print(
+            f"  {row.get('received')} | {row.get('from_name')} <{row.get('from_address')}> | "
+            f"{row.get('subject')} | attachments={names}",
+            flush=True,
+        )
+    print(
+        f"Wrote {out_path}. send_mail_invoked=false kimco_writes=false.",
+        flush=True,
+    )
+    return 0 if payload.get("access") == "ok" else 1
 
 
 def _run_probe(args: argparse.Namespace) -> int:
