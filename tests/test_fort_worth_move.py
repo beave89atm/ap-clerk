@@ -5,6 +5,8 @@ from __future__ import annotations
 from unittest.mock import Mock
 
 from ap_clerk.graph import (
+    FORT_WORTH_FOLDER_DISPLAY_NAME,
+    FORT_WORTH_FOLDER_ID,
     MOVE_MOVED,
     MOVE_SKIPPED_ALREADY,
     MOVE_SKIPPED_NO_ATTACH,
@@ -22,6 +24,12 @@ def test_note52_is_registered():
     note = note_by_id("NOTE-52")
     assert "FORT WORT" in note["expected"]
     assert "NOTE-52" in {n["id"] for n in TREYCE_NOTES_V12}
+
+
+def test_cached_folder_id_is_live_fort_worth_archive():
+    assert FORT_WORTH_FOLDER_DISPLAY_NAME == "9 - FORT WORTH ARCHIVE"
+    assert FORT_WORTH_FOLDER_ID and FORT_WORTH_FOLDER_ID.startswith("AAMk")
+    assert is_fort_worth_inbox_folder(FORT_WORTH_FOLDER_DISPLAY_NAME)
 
 
 def test_folder_name_match_prefix_and_fort_wort():

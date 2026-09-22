@@ -112,9 +112,12 @@ CATEGORY_DENIED = "category-denied"
 # (invent=false — do not invent a folder id).
 FORT_WORTH_FOLDER_PREFIX = "9 - FORT WORT"
 FORT_WORTH_FOLDER_NEEDLE = "fort wort"
-# Proven live Graph id (Inbox child). None until lookup writes it.
-FORT_WORTH_FOLDER_ID: str | None = None
-FORT_WORTH_FOLDER_DISPLAY_NAME: str | None = None
+# Proven live Graph id (Inbox child). Lookup 2026-09-22: "9 - FORT WORTH ARCHIVE".
+FORT_WORTH_FOLDER_ID: str | None = (
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_"
+    "BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA="
+)
+FORT_WORTH_FOLDER_DISPLAY_NAME: str | None = "9 - FORT WORTH ARCHIVE"
 MOVE_MOVED = "moved-fort-worth"
 MOVE_SKIPPED_NO_ATTACH = "move-skipped-no-attach"
 MOVE_SKIPPED_NO_HEADER = "move-skipped-no-header"
