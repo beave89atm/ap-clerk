@@ -13,6 +13,7 @@ from ap_clerk.graph import (
     FLAG_AI_SKIPPED,
     ALLOWED_MAILBOX,
     POD_MAILBOX,
+    RECEIVING_MAILBOX,
     CATEGORY_CREATED,
     CATEGORY_DENIED,
     DRAFT_PROBE_SUBJECT,
@@ -38,6 +39,7 @@ from ap_clerk.graph import (
     assert_allowed_mailbox,
     assert_pod_mailbox,
     assert_readable_mailbox,
+    assert_receiving_mailbox,
     attach_message_ids,
     categories_for_status,
     categories_without_process,
@@ -46,7 +48,7 @@ from ap_clerk.graph import (
     granted_app_roles,
     graph_http_detail,
     mailbox_from_graph_url,
-    summarize_pod_message,
+    summarize_receiving_message,
 )
 
 
@@ -95,54 +97,56 @@ def test_wrong_mailbox_flag_never_sends_http():
     client.request.assert_not_called()
 
 
-def test_pod_mailbox_is_readable_not_invoice():
-    assert assert_readable_mailbox("POD@KannonMfg.com") == POD_MAILBOX
-    assert assert_pod_mailbox(POD_MAILBOX) == POD_MAILBOX
+def test_receiving_mailbox_is_readable_not_invoice():
+    assert assert_readable_mailbox("Receiving@KannonMfg.com") == RECEIVING_MAILBOX
+    assert assert_receiving_mailbox(RECEIVING_MAILBOX) == RECEIVING_MAILBOX
     with pytest.raises(MailboxRejected, match="NOTE-48"):
-        assert_allowed_mailbox(POD_MAILBOX)
-    with pytest.raises(MailboxRejected, match="NOTE-48"):
-        assert_pod_mailbox(ALLOWED_MAILBOX)
+        assert_allowed_mailbox(RECEIVING_MAILBOX)
+    with pytest.raises(MailboxRejected, match="deprecated"):
+        assert_readable_mailbox(POD_MAILBOX)
+    with pytest.raises(MailboxRejected, match="deprecated"):
+        assert_pod_mailbox(POD_MAILBOX)
     assert mailbox_from_graph_url(
-        f"https://graph.microsoft.com/v1.0/users/{POD_MAILBOX}/messages"
-    ) == POD_MAILBOX
+        f"https://graph.microsoft.com/v1.0/users/{RECEIVING_MAILBOX}/messages"
+    ) == RECEIVING_MAILBOX
 
 
-def test_pod_get_allowed_writes_rejected_without_http():
+def test_receiving_get_allowed_writes_rejected_without_http():
     client = GraphClient("token-not-printed")
-    client.session.request = Mock(side_effect=AssertionError("HTTP must not run for POD write"))
-    pod_url = f"https://graph.microsoft.com/v1.0/users/{POD_MAILBOX}/messages"
+    client.session.request = Mock(side_effect=AssertionError("HTTP must not run for receiving write"))
+    rec_url = f"https://graph.microsoft.com/v1.0/users/{RECEIVING_MAILBOX}/messages"
     with pytest.raises(MailboxRejected, match="read-only"):
-        client.request("POST", pod_url, json={})
+        client.request("POST", rec_url, json={})
     with pytest.raises(MailboxRejected, match="read-only"):
-        client.request("PATCH", pod_url + "/AAMk", json={"categories": ["Entered in AI"]})
+        client.request("PATCH", rec_url + "/AAMk", json={"categories": ["Entered in AI"]})
     with pytest.raises(MailboxRejected, match="read-only"):
-        client.request("DELETE", pod_url + "/AAMk")
+        client.request("DELETE", rec_url + "/AAMk")
     client.session.request.assert_not_called()
     with pytest.raises(MailboxRejected, match="NOTE-48"):
-        client.send_run_report(POD_MAILBOX, to=ALLOWED_MAILBOX, subject="x", body="y")
+        client.send_run_report(RECEIVING_MAILBOX, to=ALLOWED_MAILBOX, subject="x", body="y")
     with pytest.raises(MailboxRejected, match="NOTE-48"):
-        client.flag_matched(POD_MAILBOX, "AAMk-pod")
+        client.flag_matched(RECEIVING_MAILBOX, "AAMk-recv")
+    with pytest.raises(MailboxRejected, match="deprecated"):
+        client.request("GET", f"https://graph.microsoft.com/v1.0/users/{POD_MAILBOX}/messages")
 
 
-def test_pod_list_messages_uses_pod_url():
-    seen: list[str] = []
-
+def test_receiving_list_messages_uses_receiving_url():
     def fake_request(method, url, **kwargs):
-        seen.append(url)
         assert method == "GET"
-        assert POD_MAILBOX in url
+        assert RECEIVING_MAILBOX in url
         assert ALLOWED_MAILBOX not in url
+        assert POD_MAILBOX not in url
         resp = Mock()
         resp.status_code = 200
         resp.json.return_value = {
             "value": [
                 {
-                    "id": "AAMk-pod-1",
-                    "subject": "BOL 59081",
+                    "id": "AAMk-recv-1",
+                    "subject": "Packing slip PO 59081",
                     "from": {"emailAddress": {"address": "dock@vendor.com", "name": "Dock"}},
                     "receivedDateTime": "2026-09-22T12:00:00Z",
                     "hasAttachments": True,
-                    "bodyPreview": "Proof of delivery attached.",
+                    "bodyPreview": "Signed receive attached.",
                 }
             ]
         }
@@ -150,32 +154,40 @@ def test_pod_list_messages_uses_pod_url():
 
     client = GraphClient("token-not-printed")
     client.request = fake_request
-    client.list_attachment_names = Mock(return_value=["POD-59081.pdf"])
-    rows = client.list_pod_messages(top=5, include_attachment_names=True)
+    client.list_attachment_names = Mock(return_value=["PS-59081.pdf"])
+    rows = client.list_receiving_messages(top=5, include_attachment_names=True)
     assert len(rows) == 1
-    sample = summarize_pod_message(rows[0])
-    assert sample["subject"] == "BOL 59081"
+    sample = summarize_receiving_message(rows[0])
+    assert sample["subject"] == "Packing slip PO 59081"
     assert sample["from"] == "dock@vendor.com"
-    assert sample["attachment_names"] == ["POD-59081.pdf"]
+    assert sample["attachment_names"] == ["PS-59081.pdf"]
     assert sample["looks_like_invoice"] is False
+    with pytest.raises(MailboxRejected, match="deprecated"):
+        client.list_pod_messages()
 
 
-def test_cli_rejects_pod_as_enter_mailbox(capsys: pytest.CaptureFixture[str]) -> None:
-    code = main(["enter", "--mailbox", POD_MAILBOX, "--as-of", "2026-09-22"])
+def test_cli_rejects_receiving_and_pod_as_enter_mailbox(capsys: pytest.CaptureFixture[str]) -> None:
+    code = main(["enter", "--mailbox", RECEIVING_MAILBOX, "--as-of", "2026-09-22"])
     assert code == 2
     out = capsys.readouterr().out
     assert "NOTE-48" in out
     assert ALLOWED_MAILBOX in out
+    code = main(["enter", "--mailbox", POD_MAILBOX, "--as-of", "2026-09-22"])
+    assert code == 2
+    out = capsys.readouterr().out
+    assert "deprecated" in out.lower() or "NOTE-48" in out
 
 
-def test_pod_azure_checklist_names_403_and_404():
-    from ap_clerk.cli import pod_azure_checklist
+def test_receiving_azure_checklist_names_403_and_waiting():
+    from ap_clerk.cli import receiving_azure_checklist
 
-    denied = pod_azure_checklist("Graph list messages HTTP 403 (ErrorAccessDenied: Access is denied)")
+    denied = receiving_azure_checklist("Graph list messages HTTP 403 (ErrorAccessDenied: Access is denied)")
     assert any("403" in step for step in denied)
     assert any("Application Access Policy" in step for step in denied)
-    missing = pod_azure_checklist("Graph list messages HTTP 404 (ErrorItemNotFound: mailbox)")
-    assert any("404" in step for step in missing)
+    assert any("receiving@kannonmfg.com" in step for step in denied)
+    missing = receiving_azure_checklist("Graph list messages HTTP 404 (ErrorItemNotFound: mailbox)")
+    assert any("waiting on mailbox create" in step for step in missing)
+    assert any("deprecated" in step.lower() for step in missing)
 
 
 def test_success_flags_source_message():

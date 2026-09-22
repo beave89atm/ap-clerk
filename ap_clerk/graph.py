@@ -1,8 +1,10 @@
 """Microsoft Graph mailbox client.
 
 Invoice mailbox (enter / flag / Mail.Send): accountspayable@kannonmfg.com only.
-POD mailbox (NOTE-48): pod@kannonmfg.com is proof-of-delivery intake, GET-only.
-Never treat POD@ as an invoice inbox. Never Mail.Send from POD@.
+Receiving mailbox (NOTE-48): receiving@kannonmfg.com is signed-receive /
+packing-slip intake, GET-only, once Kyle creates it.
+POD@kannonmfg.com is deprecated — do not build product around it.
+Never enter AP invoices from receiving@ or POD@. Never Mail.Send from either.
 Never logs tokens, client secrets, or passwords.
 """
 
@@ -25,11 +27,13 @@ from ap_clerk.pdf_links import download_first_pdf
 LOGGER = logging.getLogger("ap_clerk")
 
 ALLOWED_MAILBOX = "accountspayable@kannonmfg.com"
-# NOTE-48: shared mailbox for proof-of-delivery intake only. Same Graph
-# app (MICROSOFT_GRAPH_TENANT_ID / CLIENT_ID / CLIENT_SECRET). Not an
-# invoice inbox — enter / daily / probe / Mail.Send stay on ALLOWED_MAILBOX.
+# NOTE-48: inbound vendor signed receives / packing slips.
+# Same Graph app (MICROSOFT_GRAPH_TENANT_ID / CLIENT_ID / CLIENT_SECRET).
+# Not an invoice inbox — enter / daily / probe / Mail.Send stay on ALLOWED_MAILBOX.
+RECEIVING_MAILBOX = "receiving@kannonmfg.com"
+# Deprecated 2026-09-22. Kyle will create receiving@ instead. Do not target POD@.
 POD_MAILBOX = "pod@kannonmfg.com"
-READABLE_MAILBOXES = frozenset({ALLOWED_MAILBOX, POD_MAILBOX})
+READABLE_MAILBOXES = frozenset({ALLOWED_MAILBOX, RECEIVING_MAILBOX})
 GRAPH_BASE = "https://graph.microsoft.com/v1.0"
 _USER_URL_RE = re.compile(r"/users/([^/?]+)", re.I)
 GRAPH_SCOPE = "https://graph.microsoft.com/.default"
@@ -177,7 +181,12 @@ def is_invoice_mailbox(mailbox: str | None) -> bool:
     return normalize_mailbox(mailbox) == ALLOWED_MAILBOX
 
 
+def is_receiving_mailbox(mailbox: str | None) -> bool:
+    return normalize_mailbox(mailbox) == RECEIVING_MAILBOX
+
+
 def is_pod_mailbox(mailbox: str | None) -> bool:
+    """Deprecated address. Not an intake target (NOTE-48)."""
     return normalize_mailbox(mailbox) == POD_MAILBOX
 
 
@@ -195,10 +204,15 @@ def assert_allowed_mailbox(mailbox: str | None) -> str:
     normalized = normalize_mailbox(mailbox)
     if normalized != ALLOWED_MAILBOX:
         extra = ""
-        if normalized == POD_MAILBOX:
+        if normalized == RECEIVING_MAILBOX:
             extra = (
-                f" {POD_MAILBOX} is POD intake only (NOTE-48); "
-                "it is not the AP invoice mailbox."
+                f" {RECEIVING_MAILBOX} is signed-receive / packing-slip intake "
+                "(NOTE-48); it is not the AP invoice mailbox."
+            )
+        elif normalized == POD_MAILBOX:
+            extra = (
+                f" {POD_MAILBOX} is deprecated (NOTE-48). Intake is "
+                f"{RECEIVING_MAILBOX}. Neither is the AP invoice mailbox."
             )
         raise MailboxRejected(
             f"Refusing mailbox {mailbox!r}. Only {ALLOWED_MAILBOX} is allowed "
@@ -207,23 +221,40 @@ def assert_allowed_mailbox(mailbox: str | None) -> str:
     return ALLOWED_MAILBOX
 
 
-def assert_pod_mailbox(mailbox: str | None) -> str:
-    """Refuse every mailbox except pod@ for POD intake reads."""
+def assert_receiving_mailbox(mailbox: str | None) -> str:
+    """Refuse every mailbox except receiving@ for signed-receive intake reads."""
     normalized = normalize_mailbox(mailbox)
-    if normalized != POD_MAILBOX:
+    if normalized != RECEIVING_MAILBOX:
+        extra = ""
+        if normalized == POD_MAILBOX:
+            extra = f" {POD_MAILBOX} is deprecated; use {RECEIVING_MAILBOX}."
         raise MailboxRejected(
-            f"Refusing mailbox {mailbox!r}. POD intake is {POD_MAILBOX} only (NOTE-48)."
+            f"Refusing mailbox {mailbox!r}. Receiving intake is "
+            f"{RECEIVING_MAILBOX} only (NOTE-48).{extra}"
         )
-    return POD_MAILBOX
+    return RECEIVING_MAILBOX
+
+
+def assert_pod_mailbox(mailbox: str | None) -> str:
+    """Deprecated. POD@ is not an intake target — use receiving@."""
+    raise MailboxRejected(
+        f"{POD_MAILBOX} is deprecated (NOTE-48). Signed-receive / packing-slip "
+        f"intake is {RECEIVING_MAILBOX}. Do not build product around POD@."
+    )
 
 
 def assert_readable_mailbox(mailbox: str | None) -> str:
-    """Allow AP invoice mailbox or POD@ for Graph GET."""
+    """Allow AP invoice mailbox or receiving@ for Graph GET."""
     normalized = normalize_mailbox(mailbox)
+    if normalized == POD_MAILBOX:
+        raise MailboxRejected(
+            f"{POD_MAILBOX} is deprecated (NOTE-48). Readable intake mailbox is "
+            f"{RECEIVING_MAILBOX}."
+        )
     if normalized not in READABLE_MAILBOXES:
         raise MailboxRejected(
             f"Refusing mailbox {mailbox!r}. Readable mailboxes: "
-            f"{ALLOWED_MAILBOX} (invoices) and {POD_MAILBOX} (POD intake)."
+            f"{ALLOWED_MAILBOX} (invoices) and {RECEIVING_MAILBOX} (receiving intake)."
         )
     return normalized
 
@@ -238,8 +269,8 @@ def sender_name_from_message(message: dict[str, Any] | None) -> str:
     return str(frm.get("name") or "").strip()
 
 
-def summarize_pod_message(message: dict[str, Any] | None) -> dict[str, Any]:
-    """Safe POD@ sample for reports. No tokens, no raw Graph ids dumped as secrets."""
+def summarize_receiving_message(message: dict[str, Any] | None) -> dict[str, Any]:
+    """Safe receiving@ sample for reports. No tokens, no raw Graph ids dumped as secrets."""
     msg = message or {}
     preview = str(msg.get("bodyPreview") or "").replace("\n", " ").strip()
     names = msg.get("attachment_names")
@@ -253,12 +284,17 @@ def summarize_pod_message(message: dict[str, Any] | None) -> dict[str, Any]:
         "has_attachments": bool(msg.get("hasAttachments")),
         "attachment_names": [str(n) for n in names if n],
         "preview": preview[:280],
-        "looks_like_invoice": _pod_looks_like_invoice(msg),
+        "looks_like_invoice": _receiving_looks_like_invoice(msg),
     }
 
 
-def _pod_looks_like_invoice(message: dict[str, Any] | None) -> bool:
-    """Hint only. POD@ is never the invoice inbox even if a bill landed here."""
+def summarize_pod_message(message: dict[str, Any] | None) -> dict[str, Any]:
+    """Deprecated alias. Use summarize_receiving_message."""
+    return summarize_receiving_message(message)
+
+
+def _receiving_looks_like_invoice(message: dict[str, Any] | None) -> bool:
+    """Hint only. receiving@ is never the invoice inbox even if a bill landed here."""
     blob = " ".join(
         [
             str((message or {}).get("subject") or ""),
@@ -493,14 +529,20 @@ class GraphClient:
             raise GraphError("Graph client refuses non-Graph hosts")
         mailbox = mailbox_from_graph_url(url)
         if mailbox is None and "/oauth2/" not in (url or ""):
-            raise MailboxRejected(f"Refusing Graph URL that is not {ALLOWED_MAILBOX} or {POD_MAILBOX}")
+            raise MailboxRejected(
+                f"Refusing Graph URL that is not {ALLOWED_MAILBOX} or {RECEIVING_MAILBOX}"
+            )
+        if mailbox == POD_MAILBOX:
+            raise MailboxRejected(
+                f"{POD_MAILBOX} is deprecated (NOTE-48). Use {RECEIVING_MAILBOX}."
+            )
         if mailbox and mailbox not in READABLE_MAILBOXES:
             raise MailboxRejected(f"Refusing Graph URL mailbox {mailbox!r}")
         method_upper = (method or "").upper()
-        if mailbox == POD_MAILBOX and method_upper not in {"GET", "HEAD"}:
+        if mailbox == RECEIVING_MAILBOX and method_upper not in {"GET", "HEAD"}:
             raise MailboxRejected(
-                f"Refusing {method_upper} on {POD_MAILBOX}. "
-                "POD@ is read-only (NOTE-48). No Mail.Send, no category PATCH."
+                f"Refusing {method_upper} on {RECEIVING_MAILBOX}. "
+                "receiving@ is read-only (NOTE-48). No Mail.Send, no category PATCH."
             )
         return self.session.request(method, url, timeout=self.timeout, **kwargs)
 
@@ -560,11 +602,18 @@ class GraphClient:
                 message["attachment_names"] = self.list_attachment_names(mailbox, message.get("id") or "")
         return messages
 
-    def list_pod_messages(self, *, top: int = 15, include_attachment_names: bool = True) -> list[dict[str, Any]]:
-        """GET recent POD@ messages. Never flags, never sendMail, never enter AP."""
-        mailbox = assert_pod_mailbox(POD_MAILBOX)
+    def list_receiving_messages(self, *, top: int = 15, include_attachment_names: bool = True) -> list[dict[str, Any]]:
+        """GET recent receiving@ messages. Never flags, never sendMail, never enter AP."""
+        mailbox = assert_receiving_mailbox(RECEIVING_MAILBOX)
         messages = self.list_messages(mailbox, include_attachment_names=include_attachment_names)
         return messages[: max(0, int(top))]
+
+    def list_pod_messages(self, *, top: int = 15, include_attachment_names: bool = True) -> list[dict[str, Any]]:
+        """Deprecated alias. POD@ is not an intake target — use list_receiving_messages."""
+        raise MailboxRejected(
+            f"{POD_MAILBOX} is deprecated (NOTE-48). Use list_receiving_messages "
+            f"on {RECEIVING_MAILBOX}."
+        )
 
     def search_messages(self, mailbox: str, needle: str, *, top: int = 25) -> list[dict[str, Any]]:
         mailbox = assert_readable_mailbox(mailbox)

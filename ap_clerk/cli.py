@@ -29,6 +29,7 @@ from ap_clerk.graph import (
     FLAG_NO_MESSAGE_ID,
     FLAG_SKIPPED,
     POD_MAILBOX,
+    RECEIVING_MAILBOX,
     REPORT_TO,
     GraphClient,
     GraphError,
@@ -38,7 +39,7 @@ from ap_clerk.graph import (
     attach_message_ids,
     format_graph_presence,
     load_graph_credentials,
-    summarize_pod_message,
+    summarize_receiving_message,
 )
 from ap_clerk.inbox import (
     HARD_EMAIL_CAP,
@@ -148,13 +149,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
     parser.add_argument(
         "command",
-        choices=["enter", "pull", "daily", "probe", "pod"],
+        choices=["enter", "pull", "daily", "probe", "receiving", "pod"],
         help=(
             "enter: fixture or inbox invoices as header-only AP bills. "
             "pull: list unflagged AP mailbox messages (no category write). "
             "daily: weekday 5am America/Chicago FIFO (requires --live; hard-clamped to 10 emails). "
             "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail). "
-            "pod: read-only list of POD@kannonmfg.com (NOTE-48; not an invoice inbox; no Mail.Send)."
+            "receiving: read-only list of receiving@kannonmfg.com (NOTE-48; signed receives / packing slips; no Mail.Send). "
+            "pod: deprecated alias for receiving (POD@ is not the intake mailbox)."
         ),
     )
     parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
@@ -212,8 +214,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    if args.command == "pod":
-        return _run_pod(args)
+    if args.command in {"receiving", "pod"}:
+        return _run_receiving(args, deprecated_alias=args.command == "pod")
     try:
         assert_allowed_mailbox(args.mailbox)
     except MailboxRejected as exc:
@@ -1981,19 +1983,30 @@ def _attach_inbox_ids(
     return enriched
 
 
-def _run_pod(args: argparse.Namespace) -> int:
-    """Read-only Graph list of POD@. Never Mail.Send. Never enter AP invoices."""
+def _run_receiving(args: argparse.Namespace, *, deprecated_alias: bool = False) -> int:
+    """Read-only Graph list of receiving@. Never Mail.Send. Never enter AP invoices."""
     print(format_graph_presence(), flush=True)
-    print(f"POD mailbox: {POD_MAILBOX} (NOTE-48: not an invoice inbox)", flush=True)
+    if deprecated_alias:
+        print(
+            f"NOTE-48: `pod` is a deprecated alias. Intake mailbox is {RECEIVING_MAILBOX}. "
+            f"{POD_MAILBOX} is not a product target.",
+            flush=True,
+        )
+    print(
+        f"Receiving mailbox: {RECEIVING_MAILBOX} (NOTE-48: signed receives / packing slips; "
+        "not an invoice inbox)",
+        flush=True,
+    )
     graph_creds = load_graph_credentials()
     if not graph_creds.ready:
         print(graph_creds.error or "Graph credentials missing.", flush=True)
         return 2
     as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
     top = max(1, min(int(args.limit), 50)) if args.limit else 15
-    out_path = Path(args.out) if args.out else ROOT / "runs" / f"pod-inbox-{as_of.isoformat()}.json"
+    out_path = Path(args.out) if args.out else ROOT / "runs" / f"receiving-inbox-{as_of.isoformat()}.json"
     payload: dict[str, Any] = {
-        "mailbox": POD_MAILBOX,
+        "mailbox": RECEIVING_MAILBOX,
+        "deprecated_pod_mailbox": POD_MAILBOX,
         "invoice_mailbox": ALLOWED_MAILBOX,
         "note": "NOTE-48",
         "mail_send_invoked": False,
@@ -2014,8 +2027,8 @@ def _run_pod(args: argparse.Namespace) -> int:
         )
         roles = client.app_roles()
         payload["graph_roles"] = roles
-        raw = client.list_pod_messages(top=top, include_attachment_names=True)
-        samples = [summarize_pod_message(msg) for msg in raw]
+        raw = client.list_receiving_messages(top=top, include_attachment_names=True)
+        samples = [summarize_receiving_message(msg) for msg in raw]
         payload["access"] = "ok"
         payload["http"] = 200
         payload["messages"] = samples
@@ -2026,22 +2039,25 @@ def _run_pod(args: argparse.Namespace) -> int:
         payload["access"] = "rejected-locally"
         payload["error"] = str(exc)
         print(str(exc), flush=True)
-        _write_pod_report(out_path, payload)
+        _write_receiving_report(out_path, payload)
         return 2
     except GraphError as exc:
         text = str(exc)
-        payload["access"] = "blocked"
+        http = _http_status_from_graph_error(text)
+        waiting = _receiving_mailbox_not_created(text, http)
+        payload["http"] = http
         payload["error"] = text
-        payload["http"] = _http_status_from_graph_error(text)
-        payload["azure_checklist"] = pod_azure_checklist(text)
-        print(f"Graph POD list failed: {text}", flush=True)
+        payload["azure_checklist"] = receiving_azure_checklist(text)
+        payload["access"] = "waiting-on-mailbox-create" if waiting else "blocked"
+        label = "waiting on mailbox create" if waiting else "blocked"
+        print(f"Graph receiving@ list {label}: {text}", flush=True)
         for step in payload["azure_checklist"]:
             print(f"Azure: {step}", flush=True)
-        _write_pod_report(out_path, payload)
-        return 1
+        _write_receiving_report(out_path, payload)
+        return 0 if waiting else 1
 
-    _write_pod_report(out_path, payload)
-    print(f"POD@ access=ok messages={len(payload['messages'])}", flush=True)
+    _write_receiving_report(out_path, payload)
+    print(f"receiving@ access=ok messages={len(payload['messages'])}", flush=True)
     for row in payload["messages"]:
         atts = ",".join(row.get("attachment_names") or []) or "none"
         print(
@@ -2051,7 +2067,7 @@ def _run_pod(args: argparse.Namespace) -> int:
         )
     if payload["possible_invoices_left_unentered"]:
         print(
-            "NOTE-48: invoice-looking mail on POD@ was reported only — not entered. "
+            "NOTE-48: invoice-looking mail on receiving@ was reported only — not entered. "
             f"{ALLOWED_MAILBOX} is the invoice mailbox.",
             flush=True,
         )
@@ -2059,7 +2075,7 @@ def _run_pod(args: argparse.Namespace) -> int:
     return 0
 
 
-def _write_pod_report(path: Path, payload: dict[str, Any]) -> None:
+def _write_receiving_report(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, default=str) + "\n")
 
@@ -2069,28 +2085,51 @@ def _http_status_from_graph_error(text: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def pod_azure_checklist(error_text: str) -> list[str]:
-    """What Kyle / IT must do when Graph cannot read POD@. No invented access."""
+def _receiving_mailbox_not_created(error_text: str, http: int | None) -> bool:
+    blob = (error_text or "").lower()
+    if http == 404:
+        return True
+    return any(
+        tok in blob
+        for tok in (
+            "resourcenotfound",
+            "mailboxnotenabledforrestapi",
+            "erroritemnotfound",
+            "mailbox not found",
+            "does not exist",
+        )
+    )
+
+
+def receiving_azure_checklist(error_text: str) -> list[str]:
+    """What Kyle / IT must do when Graph cannot read receiving@. No invented access."""
     blob = (error_text or "").lower()
     steps = [
-        "Confirm shared mailbox POD@kannonmfg.com exists in Exchange / Microsoft 365.",
+        "Create shared mailbox receiving@kannonmfg.com in Exchange / Microsoft 365 "
+        "(Kyle: this replaces POD@ as the signed-receive / packing-slip inbox).",
+        "Do not build intake around POD@kannonmfg.com — that mailbox is deprecated.",
         "On the Kannon AP Clerk Entra app (same MICROSOFT_GRAPH_CLIENT_ID as accountspayable@), "
-        "grant Application Mail.Read (or Mail.ReadWrite) and admin-consent it. Mail.Send is not required for POD@.",
+        "grant Application Mail.Read (or Mail.ReadWrite) and admin-consent it. Mail.Send is not required for receiving@.",
         "If an Exchange Application Access Policy restricts the app to accountspayable@ only, "
-        "add POD@kannonmfg.com to that policy allow list (or grant full_access_as_app / mailbox access to POD@).",
-        "Wait for policy replication, then retry: python3 -m ap_clerk pod",
+        "add receiving@kannonmfg.com to that policy allow list (or grant mailbox access to receiving@).",
+        "Wait for policy replication, then retry: python3 -m ap_clerk receiving",
     ]
     if "403" in blob or "accessdenied" in blob or "authorization_requestdenied" in blob:
         steps.insert(
             0,
-            "Graph returned 403/AccessDenied — the app token works for accountspayable@ but is not allowed to read POD@ yet.",
+            "Graph returned 403/AccessDenied — mailbox may exist but this app is not allowed to read receiving@ yet.",
         )
-    if "404" in blob or "resourcenotfound" in blob or "mailboxnotenabledforrestapi" in blob or "erroritemnotfound" in blob:
+    if _receiving_mailbox_not_created(error_text, _http_status_from_graph_error(error_text)):
         steps.insert(
             0,
-            "Graph returned 404 / mailbox-not-found — POD@ may not exist, may be a distribution list, or REST API is not enabled on that mailbox.",
+            "waiting on mailbox create: Graph does not see receiving@kannonmfg.com yet (404 / not found).",
         )
     return steps
+
+
+def pod_azure_checklist(error_text: str) -> list[str]:
+    """Deprecated alias. POD@ is not the intake mailbox."""
+    return receiving_azure_checklist(error_text)
 
 
 def _run_probe(args: argparse.Namespace) -> int:
