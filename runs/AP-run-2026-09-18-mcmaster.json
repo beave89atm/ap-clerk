@@ -1,173 +1,108 @@
 {
-  "proof": "mcmaster-71401129",
+  "proof": "mcmaster-transfer-two",
   "invent": false,
   "mail_send": false,
   "vendor": "McMaster-Carr Supply Company",
   "vendor_id": 117,
-  "batch_name": "API Agent - 9/18/26 McMaster",
-  "batch_id": 721,
-  "target": {
-    "invoice": "71401129",
-    "kimco_id": 10152,
-    "po": "59125"
-  },
-  "preflight": {
-    "invoice": "71401129",
-    "kimco": 10152,
-    "po": "59125",
-    "pdf": "/workspace/runs/inbox-pdfs/2026-09-05_Invoice_71401129_for_PO_59125.PDF",
-    "pdf_amount": 257.72,
-    "lines": [
-      {
-        "part": "1432N25",
-        "qty": 8.0,
-        "unit_price": 10.89,
-        "amount": 87.12,
-        "po_line": 1,
-        "wo": null,
-        "label": "1432N25 Low-Pressure 304 Stainless Steel Pipe Fitting with",
-        "description": "Low-Pressure 304 Stainless Steel Pipe Fitting with"
-      },
-      {
-        "part": "4464K355",
-        "qty": 8.0,
-        "unit_price": 8.08,
-        "amount": 64.64,
-        "po_line": 2,
-        "wo": null,
-        "label": "4464K355 304 Stainless Steel Threaded Pipe Fitting,",
-        "description": "304 Stainless Steel Threaded Pipe Fitting,"
-      },
-      {
-        "part": "4464K511",
-        "qty": 16.0,
-        "unit_price": 5.71,
-        "amount": 91.36,
-        "po_line": 3,
-        "wo": null,
-        "label": "4464K511 304 Stainless Steel Threaded Pipe Fitting,",
-        "description": "304 Stainless Steel Threaded Pipe Fitting,"
-      }
-    ],
-    "fees": [
-      {
-        "name": "Shipping",
-        "amount": 14.6
-      }
-    ],
-    "header_amount": 272.32,
-    "header_verification": 257.72,
-    "header_batch": 721,
-    "already_selected": [
-      {
-        "qty": 8.0,
-        "unit": 10.89,
-        "receipt": 23939,
-        "po_line": null
-      },
-      {
-        "qty": 8.0,
-        "unit": 8.08,
-        "receipt": 23940,
-        "po_line": null
-      },
-      {
-        "qty": 16.0,
-        "unit": 5.71,
-        "receipt": 23941,
-        "po_line": null
-      }
-    ],
-    "already_fees": [
-      14.6
-    ],
-    "already_ppv": [],
-    "gap": -14.6,
-    "note47": 75.0,
-    "leave_alone_still_includes_others": [
-      10140,
-      10142,
-      10143,
-      10146,
-      10148,
-      10154,
-      10158,
-      10159
-    ],
-    "do_not_mutate": [
-      10138,
-      10139,
-      10141,
-      10144,
-      10145,
-      10147,
-      10149,
-      10150,
-      10151,
-      10153,
-      10155,
-      10156,
-      10157
-    ]
-  },
-  "finish": {
-    "before_amount": 272.32,
-    "pdf_amount": 257.72,
-    "gap": -14.6,
-    "over_note47": false,
-    "already_receipts": [
-      23939,
-      23940,
-      23941
-    ],
-    "already_fees": [
-      14.6
-    ],
-    "wanted": [],
-    "select_status": "already-selected",
-    "fee_status": "already-posted",
-    "ppv_status": "posted",
-    "ppv_amount": -14.6,
-    "match_how": null,
-    "matched": [],
-    "skipped_over_ppv": false,
-    "select_zero": false,
-    "open_on_po": [],
-    "proof": {
-      "invoice_amount": 257.72,
-      "verification": 257.72,
-      "receipts": "23939 8@10.89; 23940 8@8.08; 23941 16@5.71",
-      "vendor_id": 117,
-      "batch_id": 721,
-      "fee_amounts": [
-        14.6
-      ],
-      "ppv_amounts": [
-        -14.6
-      ]
-    }
-  },
-  "new_rows": [
+  "kyle_override": "missing_receipt Transfer AP for 72013304 and 70759737 only",
+  "results": [
     {
-      "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71401129",
-      "date": "2026-09-04",
-      "PO": "59125",
-      "Amount": 257.72,
-      "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59125. Select Receipts 23939 8@10.89; 23940 8@8.08; 23941 16@5.71 on PO 59125. Invoice #=71401129 (exact PDF, not subject Order #). Fees=Shipping 14.6 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=-14.60. Attach status=attached. Flag status=entered-in-ai.",
-      "Exception category": "",
-      "Exception owner": "",
-      "KIMCO id": 10152,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 14.6",
-      "PPV": "-14.60",
-      "Attach status": "attached",
-      "Flag status": "entered-in-ai",
-      "Flag in Outlook": "Yes",
-      "Notes": "",
-      "Receipts": "23939 8@10.89; 23940 8@8.08; 23941 16@5.71",
-      "outlook": "entered-in-ai"
+      "invoice": "72013304",
+      "kimco_id": 10146,
+      "po": "58221",
+      "pdf_amount": 443.49,
+      "from_batch": 721,
+      "from_name": "API Agent - 9/18/26 McMaster",
+      "note": "@Shawn McKibben Kyle asked AP to move McMaster-Carr 72013304 / KIMCO 10146 (PDF $443.49, PO 58221) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 18.45. PDF merch=4082T15 24.0@17.71. Live PO PO58221-AMERICAN QUALITY POWDERCOATING is AQPC-titled. Open leftovers on 58221 are not McMaster 4082T15. Do not Select those AQPC leftovers (would lock the wrong merch). Receive McMaster 4082T15 qty 24 on the correct PO, or unreceive/reprice/re-receive if the PO line is wrong. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email.",
+      "already_receipts": [],
+      "dry_run": false,
+      "select": false,
+      "success": false,
+      "mail_send": false,
+      "status": "moved",
+      "to_batch": 375,
+      "to_name": "TRANSFER AP",
+      "put": 200,
+      "error": "",
+      "comments_1": {
+        "status": "added",
+        "put": 200,
+        "error": "",
+        "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> Kyle asked AP to move McMaster-Carr 72013304 / KIMCO 10146 (PDF $443.49, PO 58221) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 18.45. PDF merch=4082T15 24.0@17.71. Live PO PO58221-AMERICAN QUALITY POWDERCOATING is AQPC-titled. Open leftovers on 58221 are not McMaster 4082T15. Do not Select those AQPC leftovers (would lock the wrong merch). Receive McMaster 4082T15 qty 24 on the correct PO, or unreceive/reprice/re-receive if the PO line is wrong. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email.</p>",
+        "put_body_keys": [
+          "id",
+          "lists",
+          "url",
+          "values"
+        ],
+        "invent": false,
+        "mail_send": false,
+        "tab_persisted": true,
+        "comments_persisted": true,
+        "header_string_ignored": true,
+        "header_has_shawn": false,
+        "item_ids": [
+          925
+        ],
+        "mention_node": true,
+        "mention_id": 104,
+        "worked": false,
+        "notify_confirmed": false,
+        "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 925, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+      },
+      "comment_item_ids": [
+        925
+      ],
+      "mention_id": 104
+    },
+    {
+      "invoice": "70759737",
+      "kimco_id": 10158,
+      "po": "59014",
+      "pdf_amount": 1037.59,
+      "from_batch": 721,
+      "from_name": "API Agent - 9/18/26 McMaster",
+      "note": "@Shawn McKibben Kyle asked AP to move McMaster-Carr 70759737 / KIMCO 10158 (PDF $1037.59, PO 59014) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 34.39. PDF merch=98935A744 12.0@12.1; 6698K17 24.0@21.24; 5909K49 48.0@1.55; 5909K36 24.0@4.47; 5544A25 12.0@11.32; 98410A133 2.0@15.36. PO PO59014-MCMASTER-CARR has zero open merch leftovers matching the PDF. Receive the PO 59014 lines so AP can Select Receipts. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email.",
+      "already_receipts": [],
+      "dry_run": false,
+      "select": false,
+      "success": false,
+      "mail_send": false,
+      "status": "moved",
+      "to_batch": 375,
+      "to_name": "TRANSFER AP",
+      "put": 200,
+      "error": "",
+      "comments_1": {
+        "status": "added",
+        "put": 200,
+        "error": "",
+        "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> Kyle asked AP to move McMaster-Carr 70759737 / KIMCO 10158 (PDF $1037.59, PO 59014) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 34.39. PDF merch=98935A744 12.0@12.1; 6698K17 24.0@21.24; 5909K49 48.0@1.55; 5909K36 24.0@4.47; 5544A25 12.0@11.32; 98410A133 2.0@15.36. PO PO59014-MCMASTER-CARR has zero open merch leftovers matching the PDF. Receive the PO 59014 lines so AP can Select Receipts. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email.</p>",
+        "put_body_keys": [
+          "id",
+          "lists",
+          "url",
+          "values"
+        ],
+        "invent": false,
+        "mail_send": false,
+        "tab_persisted": true,
+        "comments_persisted": true,
+        "header_string_ignored": true,
+        "header_has_shawn": false,
+        "item_ids": [
+          926
+        ],
+        "mention_node": true,
+        "mention_id": 104,
+        "worked": false,
+        "notify_confirmed": false,
+        "report": "Comments tab persisted @Shawn McKibben (list Comments_1 item 926, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored."
+      },
+      "comment_item_ids": [
+        926
+      ],
+      "mention_id": 104
     }
   ],
   "rows": [
@@ -346,11 +281,11 @@
       "PO": "58221",
       "Amount": 443.49,
       "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Ruben Perez. HOLD (receipt): PDF 4082T15 24@17.71 + Shipping 18.45 = $443.49 on PO 58221. Open leftovers on 58221 are AQPC June lines at $15\u2013$50 (20397\u201320404), not McMaster 4082T15. Do not first-open guess. Flag status=entered-with-issues.",
+      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): Kyle override \u2014 move McMaster 72013304 / 10146 from API Agent - 9/18/26 McMaster (721) to Transfer AP. PDF merch=4082T15 24.0@17.71; selected=none. @Shawn McKibben Kyle asked AP to move McMaster-Carr 72013304 / KIMCO 10146 (PDF $443.49, PO 58221) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 18.45. PDF merch=4082T15 24.0@17.71. Live PO PO58221-AMERICAN QUALITY POWDERCOATING is AQPC-titled. Open leftovers on 58221 are not McMaster 4082T15. Do not Select those AQPC leftovers (would lock the wrong merch). Receive McMaster 4082T15 qty 24 on the correct PO, or unreceive/reprice/re-receive if the PO line is wrong. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email. Transfer AP status=moved batch_id=375 Comments_1 items=[925] mention_id=104 tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 925, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.. mail_send=False.",
       "Exception category": "missing_receipt",
-      "Exception owner": "Ruben Perez",
+      "Exception owner": "Shawn McKibben",
       "KIMCO id": 10146,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "Shipping 18.45",
       "PPV": "none",
       "Attach status": "attached",
@@ -598,11 +533,11 @@
       "PO": "59014",
       "Amount": 1037.59,
       "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): no open receipt leftover on PO 59014 for McMaster invoice #70759737. Do not first-open guess. @Shawn McKibben: receiving must receive the PO so AP can Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. Outlook Entered with issues. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 891, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False batch_still=API Agent - 9/18/26 McMaster mail_send=False.",
+      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): Kyle override \u2014 move McMaster 70759737 / 10158 from API Agent - 9/18/26 McMaster (721) to Transfer AP. PDF merch=98935A744 12.0@12.1; 6698K17 24.0@21.24; 5909K49 48.0@1.55; 5909K36 24.0@4.47; 5544A25 12.0@11.32; 98410A133 2.0@15.36; selected=none. @Shawn McKibben Kyle asked AP to move McMaster-Carr 70759737 / KIMCO 10158 (PDF $1037.59, PO 59014) to Transfer AP. Override of missing_receipt-stays-on-721. Type 3 header had receipts=0 fees=Shipping 34.39. PDF merch=98935A744 12.0@12.1; 6698K17 24.0@21.24; 5909K49 48.0@1.55; 5909K36 24.0@4.47; 5544A25 12.0@11.32; 98410A133 2.0@15.36. PO PO59014-MCMASTER-CARR has zero open merch leftovers matching the PDF. Receive the PO 59014 lines so AP can Select Receipts. Treyce owns Transfer AP follow-through. Do not alter receipt unit price in GI. No email. Transfer AP status=moved batch_id=375 Comments_1 items=[926] mention_id=104 tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 926, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored.. mail_send=False.",
       "Exception category": "missing_receipt",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10158,
-      "Batch": "API Agent - 9/18/26 McMaster (721)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "Shipping 34.39",
       "PPV": "none",
       "Attach status": "attached",
@@ -634,36 +569,7 @@
       "outlook": "entered-with-issues"
     }
   ],
-  "prior_proof": "mcmaster-10139-finalize",
-  "leftover_pending": [
-    {
-      "invoice_number": "",
-      "po": "58763",
-      "date": "2026-07-24",
-      "amount": 378.16,
-      "received": "2026-07-25T06:45:06Z",
-      "subject": "Invoice for Your Order 58763",
-      "why": "too-old (before 2026-08-01); not entered"
-    },
-    {
-      "invoice_number": "",
-      "po": "58753",
-      "date": "2026-07-22",
-      "amount": 2361.97,
-      "received": "2026-07-23T06:38:37Z",
-      "subject": "Invoice for Your Order 58753",
-      "why": "too-old (before 2026-08-01); not entered"
-    },
-    {
-      "invoice_number": "",
-      "po": "58747",
-      "date": "2026-07-22",
-      "amount": 443.89,
-      "received": "2026-07-23T06:38:37Z",
-      "subject": "Invoice for Your Order 58747",
-      "why": "too-old (before 2026-08-01); not entered"
-    }
-  ],
+  "prior_proof": "mcmaster-71401129",
   "catalog": [
     {
       "invoice": "",
@@ -1420,6 +1326,35 @@
       "subject": "Invoice for Your Order 58747",
       "credit": false,
       "pay_reminder": false
+    }
+  ],
+  "leftover_pending": [
+    {
+      "invoice_number": "",
+      "po": "58763",
+      "date": "2026-07-24",
+      "amount": 378.16,
+      "received": "2026-07-25T06:45:06Z",
+      "subject": "Invoice for Your Order 58763",
+      "why": "too-old (before 2026-08-01); not entered"
+    },
+    {
+      "invoice_number": "",
+      "po": "58753",
+      "date": "2026-07-22",
+      "amount": 2361.97,
+      "received": "2026-07-23T06:38:37Z",
+      "subject": "Invoice for Your Order 58753",
+      "why": "too-old (before 2026-08-01); not entered"
+    },
+    {
+      "invoice_number": "",
+      "po": "58747",
+      "date": "2026-07-22",
+      "amount": 443.89,
+      "received": "2026-07-23T06:38:37Z",
+      "subject": "Invoice for Your Order 58747",
+      "why": "too-old (before 2026-08-01); not entered"
     }
   ]
 }
