@@ -1,0 +1,212 @@
+{
+  "mailbox": "receiving@kannonmfg.com",
+  "day": "2026-09-22",
+  "mail_sent": false,
+  "send_mail_invoked": false,
+  "invoices_created": 0,
+  "live_invoice_index": 9907,
+  "attach": true,
+  "emails": [
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBaQAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:15:11Z",
+      "categories_before": [],
+      "sharp_mfp": true,
+      "pdfs": [
+        "Kannon Manufacturing_20260922_073207.pdf"
+      ],
+      "slip_count": 3,
+      "identifiable": 1,
+      "outlook": "left-uncategorized",
+      "ai_completed": false,
+      "leftover": [
+        "unidentified slip page 2 (unidentifiable)",
+        "unidentified slip page 3 (unidentifiable)"
+      ],
+      "why": "Not all identifiable slips from this receiving@ email are attached and GET-verified. Leave uncategorized until every slip is on its AP header. Leftover: unidentified slip page 2 (unidentifiable); unidentified slip page 3 (unidentifiable)."
+    },
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBaAAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:14:51Z",
+      "categories_before": [],
+      "sharp_mfp": true,
+      "pdfs": [
+        "Kannon Manufacturing_20260922_073148.pdf"
+      ],
+      "slip_count": 2,
+      "identifiable": 1,
+      "outlook": "left-uncategorized",
+      "ai_completed": false,
+      "leftover": [
+        "unidentified slip page 1 (unidentifiable)"
+      ],
+      "why": "Not all identifiable slips from this receiving@ email are attached and GET-verified. Leave uncategorized until every slip is on its AP header. Leftover: unidentified slip page 1 (unidentifiable)."
+    },
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBZwAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "from": "scans@sharp-mfp.com",
+      "received": "2026-09-22T12:11:58Z",
+      "categories_before": [],
+      "sharp_mfp": true,
+      "pdfs": [
+        "Kannon Manufacturing_20260922_072849.pdf"
+      ],
+      "slip_count": 1,
+      "identifiable": 0,
+      "outlook": "left-uncategorized",
+      "ai_completed": false,
+      "leftover": [
+        "unidentified slip page 1 (unidentifiable)"
+      ],
+      "why": "No identifiable packing slips on this receiving@ email (need PO / invoice # / slip #). Leave uncategorized."
+    }
+  ],
+  "rows": [
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_073207.pdf",
+      "pages": [
+        1
+      ],
+      "slip_po": "59235",
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "matched",
+      "matched_invoice_number": "72087570",
+      "matched_kimco_id": 10144,
+      "matched_vendor": "1115-MCMASTER-CARR",
+      "matched_po": "59235",
+      "attach_result": "attached",
+      "verified": true,
+      "already_present": false,
+      "unmatched_or_ambiguous": "",
+      "candidates": []
+    },
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_073207.pdf",
+      "pages": [
+        2
+      ],
+      "slip_po": null,
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "unidentifiable",
+      "matched_invoice_number": "",
+      "matched_kimco_id": "",
+      "matched_vendor": "",
+      "matched_po": "",
+      "attach_result": "unidentifiable",
+      "verified": false,
+      "already_present": false,
+      "unmatched_or_ambiguous": "Slip has no PO / invoice # / slip #. Do not guess. Skip attach.",
+      "candidates": []
+    },
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_073207.pdf",
+      "pages": [
+        3
+      ],
+      "slip_po": null,
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "unidentifiable",
+      "matched_invoice_number": "",
+      "matched_kimco_id": "",
+      "matched_vendor": "",
+      "matched_po": "",
+      "attach_result": "unidentifiable",
+      "verified": false,
+      "already_present": false,
+      "unmatched_or_ambiguous": "Slip has no PO / invoice # / slip #. Do not guess. Skip attach.",
+      "candidates": []
+    },
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_073148.pdf",
+      "pages": [
+        1
+      ],
+      "slip_po": null,
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "unidentifiable",
+      "matched_invoice_number": "",
+      "matched_kimco_id": "",
+      "matched_vendor": "",
+      "matched_po": "",
+      "attach_result": "unidentifiable",
+      "verified": false,
+      "already_present": false,
+      "unmatched_or_ambiguous": "Slip has no PO / invoice # / slip #. Do not guess. Skip attach.",
+      "candidates": []
+    },
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_073148.pdf",
+      "pages": [
+        2
+      ],
+      "slip_po": "59224",
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "matched",
+      "matched_invoice_number": "72094446",
+      "matched_kimco_id": 10142,
+      "matched_vendor": "1115-MCMASTER-CARR",
+      "matched_po": "59224",
+      "attach_result": "attached",
+      "verified": true,
+      "already_present": false,
+      "unmatched_or_ambiguous": "",
+      "candidates": []
+    },
+    {
+      "scan_filename": "Kannon Manufacturing_20260922_072849.pdf",
+      "pages": [
+        1
+      ],
+      "slip_po": null,
+      "slip_invoice_number": null,
+      "slip_vendor": "McMaster-Carr Supply Company",
+      "match_status": "unidentifiable",
+      "matched_invoice_number": "",
+      "matched_kimco_id": "",
+      "matched_vendor": "",
+      "matched_po": "",
+      "attach_result": "unidentifiable",
+      "verified": false,
+      "already_present": false,
+      "unmatched_or_ambiguous": "Slip has no PO / invoice # / slip #. Do not guess. Skip attach.",
+      "candidates": []
+    }
+  ],
+  "get_verified_headers": [
+    {
+      "kimco_id": 10144,
+      "invoice_number": "72087570",
+      "vendor": "1115-MCMASTER-CARR",
+      "po": "PO59235-MCMASTER-CARR",
+      "attachments": [
+        "2026-09-18_Invoice_72087570_for_PO_59235.PDF",
+        "packing-slip-59235-page 1.pdf"
+      ],
+      "packing_slip_on_header": true,
+      "vendor_invoice_on_header": true
+    },
+    {
+      "kimco_id": 10142,
+      "invoice_number": "72094446",
+      "vendor": "1115-MCMASTER-CARR",
+      "po": "PO59224-MCMASTER-CARR",
+      "attachments": [
+        "2026-09-18_Invoice_72094446_for_PO_59224.PDF",
+        "packing-slip-59224-page 2.pdf"
+      ],
+      "packing_slip_on_header": true,
+      "vendor_invoice_on_header": true
+    }
+  ],
+  "notes": "Attached two unique McMaster slips (PO 59235 \u2192 10144, PO 59224 \u2192 10142). 30135 is the McMaster Douglasville ZIP, not a PO. Other pages had no readable Kannon PO/invoice # \u2014 skipped, not invented. AI Completed not stamped (leftover unmatched pages). No Mail.Send. No new invoices."
+}

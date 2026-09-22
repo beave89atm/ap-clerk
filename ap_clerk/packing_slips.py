@@ -26,6 +26,7 @@ from ap_clerk.pdf_invoice import (
     ATTACHMENT_POD,
     ATTACHMENT_RECEIPT_SCAN,
     classify_attachment,
+    vendor_from_context,
 )
 from ap_clerk.receiving_probe import RECEIVING_MAILBOX
 from ap_clerk.rules import (
@@ -33,6 +34,33 @@ from ap_clerk.rules import (
     invoice_number_key,
     names_match,
 )
+
+# McMaster Atlanta / Kannon Fort Worth zips show up on every Sharp scan.
+# extract_po_number's 5-digit fallback would treat 30135 as a PO.
+IGNORED_SLIP_PO = frozenset({"30135", "76119", "30060"})
+SLIP_PO_LABEL_RE = re.compile(
+    r"(?:purchase\s+order|p\.?o\.?)\s*[:#-]?\s*(?:po)?\s*(\d{5})",
+    flags=re.I,
+)
+SLIP_PO_WORD_RE = re.compile(r"\bPO\s*(\d{5})\b", flags=re.I)
+KIMCO_PO_RE = re.compile(r"\b(5[89]\d{3})\b")
+
+
+def extract_slip_po(text: str | None) -> str | None:
+    """PO printed on a packing slip. Never a ZIP or the first 5-digit blob."""
+    blob = text or ""
+    for rx in (SLIP_PO_WORD_RE, SLIP_PO_LABEL_RE):
+        match = rx.search(blob)
+        if match and match.group(1) not in IGNORED_SLIP_PO:
+            return match.group(1)
+    labeled = extract_po_number(blob)
+    if labeled and labeled not in IGNORED_SLIP_PO and re.fullmatch(r"5[89]\d{3}", labeled):
+        return labeled
+    found = [n for n in KIMCO_PO_RE.findall(blob) if n not in IGNORED_SLIP_PO]
+    uniq = list(dict.fromkeys(found))
+    if len(uniq) == 1:
+        return uniq[0]
+    return None
 
 # receiving@ only. Not an AP process marker (Entered in AI / AI HOLD / …).
 AI_COMPLETED_CATEGORY = "AI Completed"
@@ -222,6 +250,16 @@ def _norm_date(value: str | None) -> str:
     return text[:10]
 
 
+def slip_vendor_from_text(text: str | None) -> str | None:
+    """Vendor printed on the slip — never the ship-to (Kannon Manufacturing)."""
+    vendor = (vendor_from_context(text=text or "") or "").strip()
+    if not vendor:
+        return None
+    if "kannon" in vendor.lower():
+        return None
+    return vendor
+
+
 def extract_page_keys(text: str, *, page_index: int) -> dict[str, Any]:
     blob = text or ""
     page_of = None
@@ -239,10 +277,10 @@ def extract_page_keys(text: str, *, page_index: int) -> dict[str, Any]:
     return {
         "page_index": page_index,
         "text": blob,
-        "po": extract_po_number(blob),
+        "po": extract_slip_po(blob),
         "invoice_number": invoice_number,
         "slip_number": slip_match.group(1).strip(".-") if slip_match else None,
-        "vendor": None,
+        "vendor": slip_vendor_from_text(blob),
         "date": _norm_date(date_match.group(1)) if date_match else None,
         "page_of": page_of,
         "has_heading": bool(PACKING_HEADING_RE.search(blob)),
@@ -543,6 +581,15 @@ def decide_receiving_ai_completed(slip_results: list[dict[str, Any]] | None) -> 
         status = str(row.get("status") or "").strip().lower()
         if status != "attached" or not verified:
             leftover.append(row)
+    extra = [
+        row
+        for row in rows
+        if row not in leftover
+        and not (row.get("identifiable") or slip_is_identifiable(row.get("slip") or row))
+    ]
+    # Multi-slip scan with unread leftover pages: do not stamp AI Completed.
+    if extra and identifiable:
+        leftover.extend(extra)
     if not identifiable:
         return {
             "stamp": False,
