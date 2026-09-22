@@ -60,7 +60,6 @@ from gas_supply_0917 import (
     apply_over_ppv_transfer_ap,
     finish_hold_header,
     gas_proof,
-    load_list_receipts,
     open_receipts_on_po,
     over_ppv_hold_comment,
     quality_gas_row,
@@ -513,18 +512,9 @@ def main(argv: list[str] | None = None) -> int:
     if not verified.get("matches_expected"):
         raise SystemExit(f"Batch 720 name mismatch: {verified.get('name')}")
     known = hydrate_known_receipts(client)
-    listed: list[dict[str, Any]] = []
-    try:
-        listed = load_list_receipts(client)
-    except KimcoError as exc:
-        LOGGER.info("receipts list failed; using targeted GET only: %s", exc)
-    by_id: dict[int, dict[str, Any]] = {}
-    for rec in [*listed, *known]:
-        rid = rec.get("id")
-        if rid in (None, ""):
-            continue
-        by_id[int(rid)] = annotate_catalog_part(rec)
-    receipts = drop_invoiced(list(by_id.values()))
+    # Targeted GET 24332+ (plus 30-id probe). Full 24k list GET is sparse and
+    # already proved these ids in rescan_59081_retry.py.
+    receipts = drop_invoiced([annotate_catalog_part(rec) for rec in known])
     po_lines = po_received_snapshot(client)
     results = []
     used: set[int] = set()
