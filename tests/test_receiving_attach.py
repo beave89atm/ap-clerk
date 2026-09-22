@@ -73,6 +73,23 @@ def test_vendor_alone_is_not_a_match():
     assert hit["status"] == "unidentifiable"
 
 
+def test_unread_extra_pages_block_ai_completed():
+    attached = slip_result_row(
+        {"pages": [1], "po": "59235", "invoice_number": None},
+        status="attached",
+        verified=True,
+        invoice_id=10144,
+    )
+    unread = slip_result_row(
+        {"pages": [2], "po": None, "invoice_number": None},
+        status="unidentifiable",
+        verified=False,
+    )
+    decision = decide_receiving_ai_completed([attached, unread])
+    assert decision["stamp"] is False
+    assert decision["leftover"]
+
+
 def test_partial_multi_slip_does_not_stamp_ai_completed():
     slips = logical_slips_from_scan(
         [

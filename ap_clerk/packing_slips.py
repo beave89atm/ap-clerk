@@ -581,6 +581,15 @@ def decide_receiving_ai_completed(slip_results: list[dict[str, Any]] | None) -> 
         status = str(row.get("status") or "").strip().lower()
         if status != "attached" or not verified:
             leftover.append(row)
+    extra = [
+        row
+        for row in rows
+        if row not in leftover
+        and not (row.get("identifiable") or slip_is_identifiable(row.get("slip") or row))
+    ]
+    # Multi-slip scan with unread leftover pages: do not stamp AI Completed.
+    if extra and identifiable:
+        leftover.extend(extra)
     if not identifiable:
         return {
             "stamp": False,
