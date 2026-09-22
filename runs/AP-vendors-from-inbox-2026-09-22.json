@@ -1,0 +1,1446 @@
+{
+  "mailbox": "accountspayable@kannonmfg.com",
+  "scanned_from": "2026-07-01T00:17:27+00:00",
+  "scanned_to": "2026-09-22T14:43:32+00:00",
+  "count_window_start": "2026-08-01",
+  "messages_scanned": 1679,
+  "invoice_emails": 1269,
+  "skip_emails": 410,
+  "unique_vendors": 111,
+  "unique_vendor_names": [
+    "3P",
+    "A.M. Castle & Co.",
+    "A1 Image Office Systems",
+    "ABY Benefits LLC",
+    "Air Products and Chemicals, Inc",
+    "Alarm Billing",
+    "Ally Auto",
+    "Alternative Parts Inc",
+    "Amada America",
+    "Amazon",
+    "American Bearing Company",
+    "American Quality Powder Coating",
+    "Arrow Personnel",
+    "Arrow Plating",
+    "Austin Hardware & Supply Inc.",
+    "Automated Finishing Technology",
+    "AVEX Installations LLC",
+    "Beshert Steel Processing",
+    "Capital Machine Technologies, Inc",
+    "Central Expanded Metal",
+    "City of Fort Worth",
+    "Coherent Corp.",
+    "Colonial Life",
+    "Crosslink Powder Coating",
+    "Culligan Quench",
+    "Curbell Plastics",
+    "Earle M. Jorgensen Co",
+    "Eastern Metal Supply of Texas",
+    "eFax",
+    "ENGIE Resources LLC",
+    "Engineered Components",
+    "Exotic Metals",
+    "Fabcorp",
+    "Fastenal Company",
+    "Freepoint Energy Solutions",
+    "Gas and Supply North Texas, LLC",
+    "Gexpro Services",
+    "Globe Life",
+    "Graybar",
+    "Green Valley Compressor LLC",
+    "Greentree Packaging & Lumber",
+    "GRM Information Management Services",
+    "Guerrero Plating Technology, LLC",
+    "Hagens Fasteners",
+    "Hapeco, Inc",
+    "Houston Plating",
+    "Hudson Energy",
+    "Insight Controller Services",
+    "IPFS",
+    "Joseph T. Ryerson & Son, Inc",
+    "JP Steel",
+    "K-T Galvanizing",
+    "KIMCO",
+    "Kloeckner Metals Corporation",
+    "Lavanture Products",
+    "LD Industrial Solutions, LLC",
+    "Leeco Steel, LLC",
+    "Legacy Wire Products",
+    "Marmon/Keystone",
+    "McMaster-Carr Supply Company",
+    "McNichols",
+    "McQueary Industries",
+    "MEAU",
+    "Metal Supermarkets",
+    "Metro Sprocket And Gear Inc",
+    "Modern Heat Treat Inc",
+    "Morgan Steel",
+    "MSC Industrial Supply",
+    "National Bolt and Ind Supply Co Inc.",
+    "National Specialty Alloys, Inc",
+    "Nova Alloys",
+    "NTEX Electric Inc.",
+    "NTTA",
+    "O'Neal Steel - Dallas (GP)",
+    "Online Metals",
+    "Orthman Conveying Systems",
+    "PCT Support",
+    "Phoenix Metals",
+    "Pittsburgh Steel",
+    "Polymer Products",
+    "Precision Fabrication Services",
+    "Premium Alloys",
+    "Primo Brands",
+    "Priority 1",
+    "Production Metals",
+    "Purvis Industries",
+    "River City Steel",
+    "RMP Industrial Supply Inc",
+    "Rolled Alloys Inc",
+    "Safety-Kleen",
+    "Service Experts",
+    "Shoppa's Material Handling",
+    "Spectrum Business",
+    "SpectrumVoIP",
+    "Steel Inspectors of Texas, Inc",
+    "Stella Source, Inc",
+    "Techni-Tool",
+    "Tejas Transportation",
+    "Telecom Products Inc.",
+    "Toyota Commercial Finance",
+    "Trace Metal Industries, Inc",
+    "Tricor Metals",
+    "Tube Supply",
+    "UniFirst Corporation",
+    "UniFirst First Aid & Safety",
+    "Venturi Supply",
+    "Versalift National Parts Distribution Center",
+    "Waste Connections Lone Star, Inc",
+    "Weckbrodt",
+    "Willbanks Metals",
+    "Xcaliber Industrial LLC"
+  ],
+  "vendors": [
+    {
+      "vendor": "3P",
+      "aliases": [],
+      "count_aug1": 28,
+      "count_older": 14,
+      "sample_from": "Rachel Bailey",
+      "sample_subject": "INV # 141551 / CPL # 51715, 51740, 76013 / PO # 58363, 58391",
+      "first_seen": "2026-07-07T21:26:06+00:00",
+      "last_seen": "2026-09-21T20:57:04+00:00"
+    },
+    {
+      "vendor": "A.M. Castle & Co.",
+      "aliases": [
+        "South"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "South",
+      "sample_subject": "Original Invoice(s) For: KANNON MFG INC-FT WORTH Account#: 32279",
+      "first_seen": "2026-09-14T13:42:55+00:00",
+      "last_seen": "2026-09-14T13:42:55+00:00"
+    },
+    {
+      "vendor": "A1 Image Office Systems",
+      "aliases": [
+        "A-1 Image, Inc.",
+        "a1imageinc@gmail.com",
+        "Image, Inc",
+        "ken@a1image.com"
+      ],
+      "count_aug1": 13,
+      "count_older": 3,
+      "sample_from": "a1imageinc@gmail.com",
+      "sample_subject": "Invoice 66174 from A-1 IMAGE, INC.",
+      "first_seen": "2026-07-10T16:53:55+00:00",
+      "last_seen": "2026-09-17T19:50:56+00:00"
+    },
+    {
+      "vendor": "ABY Benefits LLC",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 1,
+      "sample_from": "Danae Tally",
+      "sample_subject": "Invoice 152061 from ABY Benefits LLC",
+      "first_seen": "2026-07-24T22:20:29+00:00",
+      "last_seen": "2026-08-26T01:56:59+00:00"
+    },
+    {
+      "vendor": "Air Products and Chemicals, Inc",
+      "aliases": [
+        "apdirect@airproducts.com"
+      ],
+      "count_aug1": 11,
+      "count_older": 6,
+      "sample_from": "apdirect@airproducts.com",
+      "sample_subject": "Air Products Invoice 0435709256 (US10)",
+      "first_seen": "2026-07-02T04:11:55+00:00",
+      "last_seen": "2026-09-19T01:23:37+00:00"
+    },
+    {
+      "vendor": "Alarm Billing",
+      "aliases": [
+        "mansfieldtx@alarm-billing.com"
+      ],
+      "count_aug1": 5,
+      "count_older": 2,
+      "sample_from": "mansfieldtx@alarm-billing.com",
+      "sample_subject": "Mansfield False Alarm Reduction Program",
+      "first_seen": "2026-07-16T08:37:01+00:00",
+      "last_seen": "2026-09-16T19:02:03+00:00"
+    },
+    {
+      "vendor": "Ally Auto",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 1,
+      "sample_from": "Ally Auto",
+      "sample_subject": "Reminder: 7/8/2026 is your scheduled payment date",
+      "first_seen": "2026-07-06T17:15:13+00:00",
+      "last_seen": "2026-09-06T17:28:21+00:00"
+    },
+    {
+      "vendor": "Alternative Parts Inc",
+      "aliases": [
+        "Alternative Machinery Sales, Inc",
+        "Alternative Machinery Sales, Inc.",
+        "Amada Machinery Sales, Inc.",
+        "DoNotReply@altparts.com"
+      ],
+      "count_aug1": 8,
+      "count_older": 2,
+      "sample_from": "DoNotReply@altparts.com",
+      "sample_subject": "Attached is the Invoice for Kannon Mfg dated 7/10/2026.",
+      "first_seen": "2026-07-13T14:25:22+00:00",
+      "last_seen": "2026-09-18T14:13:46+00:00"
+    },
+    {
+      "vendor": "Amada America",
+      "aliases": [
+        "noreply@amada.com"
+      ],
+      "count_aug1": 0,
+      "count_older": 7,
+      "sample_from": "noreply@amada.com",
+      "sample_subject": "Amada Invoice#: IN0000162806, Customer: KANNON MANUFACTURING INC, Customer PO#: 58557",
+      "first_seen": "2026-07-01T00:17:27+00:00",
+      "last_seen": "2026-07-29T01:07:10+00:00"
+    },
+    {
+      "vendor": "Amazon",
+      "aliases": [
+        "amazon.com",
+        "Amazon.com"
+      ],
+      "count_aug1": 21,
+      "count_older": 8,
+      "sample_from": "Amazon",
+      "sample_subject": "Verify your new Amazon account",
+      "first_seen": "2026-07-21T13:58:01+00:00",
+      "last_seen": "2026-09-18T13:12:17+00:00"
+    },
+    {
+      "vendor": "American Bearing Company",
+      "aliases": [
+        "American Bearing Co"
+      ],
+      "count_aug1": 3,
+      "count_older": 1,
+      "sample_from": "Accounts Receivable",
+      "sample_subject": "1 New Invoice from American Bearing Co.",
+      "first_seen": "2026-07-13T17:55:13+00:00",
+      "last_seen": "2026-09-21T16:23:15+00:00"
+    },
+    {
+      "vendor": "American Quality Powder Coating",
+      "aliases": [
+        "New payment request from American Quality Powder Coating"
+      ],
+      "count_aug1": 71,
+      "count_older": 50,
+      "sample_from": "american quality powder coating",
+      "sample_subject": "Re: New payment request from AMERICAN QUALITY POWDER COATING - invoice 10743",
+      "first_seen": "2026-07-02T15:15:49+00:00",
+      "last_seen": "2026-09-21T19:30:32+00:00"
+    },
+    {
+      "vendor": "Arrow Personnel",
+      "aliases": [
+        "payrollclerk@arrowpersonnel.com"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "payrollclerk@arrowpersonnel.com",
+      "sample_subject": "Arrow Personnel Invoice No. 183233 for the week ending Sunday, August 30, 2026.",
+      "first_seen": "2026-09-03T14:34:13+00:00",
+      "last_seen": "2026-09-03T14:34:13+00:00"
+    },
+    {
+      "vendor": "Arrow Plating",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 2,
+      "sample_from": "Richard Barnett",
+      "sample_subject": "",
+      "first_seen": "2026-07-11T20:11:09+00:00",
+      "last_seen": "2026-09-13T19:26:47+00:00"
+    },
+    {
+      "vendor": "Austin Hardware & Supply Inc.",
+      "aliases": [
+        "autoinvoices@austinhardware.com"
+      ],
+      "count_aug1": 3,
+      "count_older": 2,
+      "sample_from": "autoinvoices@austinhardware.com",
+      "sample_subject": "17566 - Kannon Manufacturing Inc Invoice #2481854 dated Wednesday, July 15, 2026 attached",
+      "first_seen": "2026-07-16T15:24:14+00:00",
+      "last_seen": "2026-08-12T17:44:52+00:00"
+    },
+    {
+      "vendor": "Automated Finishing Technology",
+      "aliases": [
+        "accounting@aft-corp.com"
+      ],
+      "count_aug1": 9,
+      "count_older": 5,
+      "sample_from": "accounting@aft-corp.com",
+      "sample_subject": "Automated Finishing Technology, seq#194 Invoice Number: 49512  Dated: 7/6/2026",
+      "first_seen": "2026-07-07T20:59:39+00:00",
+      "last_seen": "2026-09-16T22:16:43+00:00"
+    },
+    {
+      "vendor": "AVEX Installations LLC",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "AVEX Installations LLC",
+      "sample_subject": "Invoice 3582 from AVEX Installations LLC",
+      "first_seen": "2026-07-01T08:33:29+00:00",
+      "last_seen": "2026-07-01T08:33:29+00:00"
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "aliases": [
+        "accounting2@sss-steel.com"
+      ],
+      "count_aug1": 10,
+      "count_older": 9,
+      "sample_from": "AR mailer",
+      "sample_subject": "Auto-email of Invoices IV-JAM-018024",
+      "first_seen": "2026-07-01T03:34:35+00:00",
+      "last_seen": "2026-09-18T21:40:51+00:00"
+    },
+    {
+      "vendor": "Capital Machine Technologies, Inc",
+      "aliases": [],
+      "count_aug1": 17,
+      "count_older": 7,
+      "sample_from": "Accounts Receivable",
+      "sample_subject": "Invoice 25641 - KANNON MANUFACTURING - AMTECH - DUE UPON RECEIPT",
+      "first_seen": "2026-07-11T23:48:20+00:00",
+      "last_seen": "2026-09-21T16:45:19+00:00"
+    },
+    {
+      "vendor": "Central Expanded Metal",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "CEM Shipping",
+      "sample_subject": "Invoice #76178",
+      "first_seen": "2026-09-17T21:29:14+00:00",
+      "last_seen": "2026-09-17T21:29:14+00:00"
+    },
+    {
+      "vendor": "City of Fort Worth",
+      "aliases": [
+        "City of Forest Hill Water Dept",
+        "COFW"
+      ],
+      "count_aug1": 5,
+      "count_older": 4,
+      "sample_from": "COFW",
+      "sample_subject": "City of Fort Worth Bill Generation",
+      "first_seen": "2026-07-07T17:47:50+00:00",
+      "last_seen": "2026-09-19T10:32:39+00:00"
+    },
+    {
+      "vendor": "Coherent Corp.",
+      "aliases": [
+        "donotreply@ii-vi.com"
+      ],
+      "count_aug1": 1,
+      "count_older": 1,
+      "sample_from": "Mah Yee Theng",
+      "sample_subject": "Open items on account with Coherent Corp- CN#1165395 Kannon Manufacturing Inc",
+      "first_seen": "2026-07-02T03:16:58+00:00",
+      "last_seen": "2026-08-27T23:01:53+00:00"
+    },
+    {
+      "vendor": "Colonial Life",
+      "aliases": [
+        "DoNotReply@ColonialLife.com"
+      ],
+      "count_aug1": 6,
+      "count_older": 3,
+      "sample_from": "DoNotReply@ColonialLife.com",
+      "sample_subject": "Your invoice will be available soon",
+      "first_seen": "2026-07-17T03:14:59+00:00",
+      "last_seen": "2026-09-22T13:59:48+00:00"
+    },
+    {
+      "vendor": "Crosslink Powder Coating",
+      "aliases": [
+        "Crosslink Powder Coating of TX, LLC",
+        "from Crosslink Powder Coating of Tx, Llc",
+        "Greg Tunnell - Crosslink Powder Coating"
+      ],
+      "count_aug1": 29,
+      "count_older": 15,
+      "sample_from": "Crosslink Powder Coating of TX, LLC",
+      "sample_subject": "Reminder: Invoice SH:27003 from Crosslink Powder Coating of TX, LLC",
+      "first_seen": "2026-07-06T07:14:56+00:00",
+      "last_seen": "2026-09-21T18:49:54+00:00"
+    },
+    {
+      "vendor": "Culligan Quench",
+      "aliases": [],
+      "count_aug1": 5,
+      "count_older": 1,
+      "sample_from": "Culligan Quench",
+      "sample_subject": "Culligan Quench - Invoice: INV11184713 due on 08/15/2026 for D503183",
+      "first_seen": "2026-07-16T14:20:04+00:00",
+      "last_seen": "2026-09-17T17:59:30+00:00"
+    },
+    {
+      "vendor": "Curbell Plastics",
+      "aliases": [],
+      "count_aug1": 6,
+      "count_older": 2,
+      "sample_from": "Andrea Sylvester",
+      "sample_subject": "Curbell Account #271319\tKannon Manufacturing Inc",
+      "first_seen": "2026-07-28T17:44:33+00:00",
+      "last_seen": "2026-09-14T14:20:20+00:00"
+    },
+    {
+      "vendor": "Earle M. Jorgensen Co",
+      "aliases": [
+        "EMJCreditSouth@emjmetals.com"
+      ],
+      "count_aug1": 24,
+      "count_older": 10,
+      "sample_from": "EMJCreditSouth@emjmetals.com",
+      "sample_subject": "EARLE M. JORGENSEN COMPANY - Invoices for 06/30/26",
+      "first_seen": "2026-07-01T03:12:39+00:00",
+      "last_seen": "2026-09-22T03:08:42+00:00"
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "aliases": [
+        "Eastern Metal Supply"
+      ],
+      "count_aug1": 12,
+      "count_older": 2,
+      "sample_from": "Eastern Metal Supply",
+      "sample_subject": "Invoice : 812455 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "first_seen": "2026-07-03T00:03:24+00:00",
+      "last_seen": "2026-09-11T00:05:50+00:00"
+    },
+    {
+      "vendor": "eFax",
+      "aliases": [
+        "The eFax\u00ae Team"
+      ],
+      "count_aug1": 2,
+      "count_older": 1,
+      "sample_from": "The eFax\u00ae Team",
+      "sample_subject": "Your eFax\u00ae invoice",
+      "first_seen": "2026-07-21T17:50:33+00:00",
+      "last_seen": "2026-09-21T00:20:30+00:00"
+    },
+    {
+      "vendor": "ENGIE Resources LLC",
+      "aliases": [
+        "CertSOLV on behalf of Engie Resources LLC",
+        "noreply-customeralerts@contactna.engie.com",
+        "noreply@engieresources.com"
+      ],
+      "count_aug1": 10,
+      "count_older": 5,
+      "sample_from": "noreply@engieresources.com",
+      "sample_subject": "ENGIE - Your bill is ready for viewing",
+      "first_seen": "2026-07-01T22:43:15+00:00",
+      "last_seen": "2026-09-21T17:46:16+00:00"
+    },
+    {
+      "vendor": "Engineered Components",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 2,
+      "sample_from": "ECI Accounts Payable",
+      "sample_subject": "Engineered Components Invoice #203261 For PO #58189",
+      "first_seen": "2026-07-01T14:31:46+00:00",
+      "last_seen": "2026-07-02T13:46:50+00:00"
+    },
+    {
+      "vendor": "Exotic Metals",
+      "aliases": [],
+      "count_aug1": 5,
+      "count_older": 1,
+      "sample_from": "Theresa Thornton",
+      "sample_subject": "Exotic Metals & Alloys | Invoice Submission |Thank You for Your Business",
+      "first_seen": "2026-07-28T17:51:23+00:00",
+      "last_seen": "2026-09-11T13:53:58+00:00"
+    },
+    {
+      "vendor": "Fabcorp",
+      "aliases": [],
+      "count_aug1": 5,
+      "count_older": 1,
+      "sample_from": "Rosana Arteaga",
+      "sample_subject": "INVOICE 469115        PO 58500",
+      "first_seen": "2026-07-14T15:11:43+00:00",
+      "last_seen": "2026-09-17T13:45:52+00:00"
+    },
+    {
+      "vendor": "Fastenal Company",
+      "aliases": [
+        "FastenalReporting@fastenal.com"
+      ],
+      "count_aug1": 26,
+      "count_older": 18,
+      "sample_from": "Fastenal Invoices",
+      "sample_subject": "Fastenal Invoice Notice",
+      "first_seen": "2026-07-03T22:42:37+00:00",
+      "last_seen": "2026-09-19T23:03:57+00:00"
+    },
+    {
+      "vendor": "Freepoint Energy Solutions",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 0,
+      "sample_from": "Freepoint Solution Customer Relations",
+      "sample_subject": "RE: Energy Invoice - KANNON MANUFACTURING LLC (Invoice #: 0204730)",
+      "first_seen": "2026-09-08T16:03:43+00:00",
+      "last_seen": "2026-09-17T18:50:10+00:00"
+    },
+    {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "aliases": [
+        "billing@gasandsupply.com",
+        "gigi.pineda@gasandsupply.com",
+        "natalie.chavez@gasandsupply.com"
+      ],
+      "count_aug1": 39,
+      "count_older": 29,
+      "sample_from": "billing@gasandsupply.com",
+      "sample_subject": "Gas&Supply Invoice/Statement",
+      "first_seen": "2026-07-01T14:58:19+00:00",
+      "last_seen": "2026-09-22T04:58:41+00:00"
+    },
+    {
+      "vendor": "Gexpro Services",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "Gexpro Services",
+      "sample_subject": "Acct No. QG4000101371: Your Invoice From Gexpro Services is Attached",
+      "first_seen": "2026-08-05T11:17:08+00:00",
+      "last_seen": "2026-08-05T11:17:08+00:00"
+    },
+    {
+      "vendor": "Globe Life",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 3,
+      "sample_from": "Globe Life",
+      "sample_subject": "Payment Submitted",
+      "first_seen": "2026-07-22T21:14:19+00:00",
+      "last_seen": "2026-09-03T21:50:21+00:00"
+    },
+    {
+      "vendor": "Graybar",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 1,
+      "sample_from": "Graybar",
+      "sample_subject": "Your eBill from Graybar",
+      "first_seen": "2026-07-27T23:19:41+00:00",
+      "last_seen": "2026-08-26T20:16:40+00:00"
+    },
+    {
+      "vendor": "Green Valley Compressor LLC",
+      "aliases": [
+        "New payment request from Green Valley Compressor Llc"
+      ],
+      "count_aug1": 5,
+      "count_older": 3,
+      "sample_from": "Green Valley Compressor LLC",
+      "sample_subject": "Invoice - Reminder: Your payment to Green Valley Compressor LLC is due",
+      "first_seen": "2026-07-19T00:12:30+00:00",
+      "last_seen": "2026-09-13T21:45:38+00:00"
+    },
+    {
+      "vendor": "Greentree Packaging & Lumber",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 2,
+      "sample_from": "Greentree Packaging & Lumber",
+      "sample_subject": "Invoice from Greentree Packaging & Lumber",
+      "first_seen": "2026-07-02T19:33:56+00:00",
+      "last_seen": "2026-09-08T16:49:17+00:00"
+    },
+    {
+      "vendor": "GRM Information Management Services",
+      "aliases": [
+        "billingdal@grmdocument.com",
+        "GRM BIlling - Dallas"
+      ],
+      "count_aug1": 4,
+      "count_older": 1,
+      "sample_from": "billingdal@grmdocument.com",
+      "sample_subject": "Your GRM invoice 00012789 is now available. Period 06-01-2026 - 06-30-2026",
+      "first_seen": "2026-07-02T00:01:28+00:00",
+      "last_seen": "2026-09-16T21:08:23+00:00"
+    },
+    {
+      "vendor": "Guerrero Plating Technology, LLC",
+      "aliases": [
+        "from Guerrero Plating Technology, Llc",
+        "Juan Guerrero - GUERRERO PLATING TECHNOLOGY LLC"
+      ],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "Juan Guerrero - GUERRERO PLATING TECHNOLOGY LLC",
+      "sample_subject": "Invoice #77298 for 58446 (#27265) from GUERRERO PLATING TECHNOLOGY, LLC",
+      "first_seen": "2026-07-06T21:36:40+00:00",
+      "last_seen": "2026-07-06T21:36:40+00:00"
+    },
+    {
+      "vendor": "Hagens Fasteners",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 1,
+      "sample_from": "Rob Brown",
+      "sample_subject": "PO# 58295 (Invoice 5154164)",
+      "first_seen": "2026-07-08T15:44:23+00:00",
+      "last_seen": "2026-09-15T14:02:46+00:00"
+    },
+    {
+      "vendor": "Hapeco, Inc",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 1,
+      "sample_from": "Misty McCoy",
+      "sample_subject": "FW: HAPECO, INC - Invoice# 6114015",
+      "first_seen": "2026-07-16T12:56:32+00:00",
+      "last_seen": "2026-08-12T15:32:54+00:00"
+    },
+    {
+      "vendor": "Houston Plating",
+      "aliases": [],
+      "count_aug1": 4,
+      "count_older": 1,
+      "sample_from": "Cindy Turner",
+      "sample_subject": "FW: Sales Tax Audit",
+      "first_seen": "2026-07-24T18:16:58+00:00",
+      "last_seen": "2026-08-31T20:12:19+00:00"
+    },
+    {
+      "vendor": "Hudson Energy",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 0,
+      "sample_from": "Hudson Energy",
+      "sample_subject": "Your Hudson Energy eBill - Period (07/01/2026 - 07/31/2026 ) Due on 08/19/2026 300067525",
+      "first_seen": "2026-08-03T16:38:00+00:00",
+      "last_seen": "2026-09-01T15:50:19+00:00"
+    },
+    {
+      "vendor": "Insight Controller Services",
+      "aliases": [],
+      "count_aug1": 6,
+      "count_older": 1,
+      "sample_from": "Insight Controller Services",
+      "sample_subject": "Invoice 1798 from Insight Controller Services",
+      "first_seen": "2026-07-06T03:07:42+00:00",
+      "last_seen": "2026-09-20T18:58:29+00:00"
+    },
+    {
+      "vendor": "IPFS",
+      "aliases": [
+        "webmail@ipfs.com"
+      ],
+      "count_aug1": 7,
+      "count_older": 0,
+      "sample_from": "Jon Washburn",
+      "sample_subject": "IPFS - Billing & Account",
+      "first_seen": "2026-08-13T19:14:01+00:00",
+      "last_seen": "2026-09-08T16:15:07+00:00"
+    },
+    {
+      "vendor": "Joseph T. Ryerson & Son, Inc",
+      "aliases": [
+        "Ryerson Invoice - Do Not Reply"
+      ],
+      "count_aug1": 7,
+      "count_older": 6,
+      "sample_from": "Ryerson Invoice - Do Not Reply",
+      "sample_subject": "PO 58606 Inv# 9306915241",
+      "first_seen": "2026-07-15T06:33:24+00:00",
+      "last_seen": "2026-09-22T06:36:04+00:00"
+    },
+    {
+      "vendor": "JP Steel",
+      "aliases": [],
+      "count_aug1": 18,
+      "count_older": 11,
+      "sample_from": "Krista Woodruff",
+      "sample_subject": "JP Steel Invoice#  (124110) Transmission for KANNON MFG",
+      "first_seen": "2026-07-01T13:02:28+00:00",
+      "last_seen": "2026-09-18T14:19:16+00:00"
+    },
+    {
+      "vendor": "K-T Galvanizing",
+      "aliases": [],
+      "count_aug1": 9,
+      "count_older": 5,
+      "sample_from": "Venus Accounting",
+      "sample_subject": "KANNON MFG INV 119747",
+      "first_seen": "2026-07-14T17:03:47+00:00",
+      "last_seen": "2026-09-18T17:06:52+00:00"
+    },
+    {
+      "vendor": "KIMCO",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "KIMCO Accounting",
+      "sample_subject": "Quarterly Invoice - Due by August 1, 2026",
+      "first_seen": "2026-07-01T12:23:17+00:00",
+      "last_seen": "2026-07-01T12:23:17+00:00"
+    },
+    {
+      "vendor": "Kloeckner Metals Corporation",
+      "aliases": [
+        "autotask@kloecknermetals.com",
+        "Beth.Watkins@kloeckner.com"
+      ],
+      "count_aug1": 6,
+      "count_older": 1,
+      "sample_from": "Nanci Meza",
+      "sample_subject": "FW: Kloeckner Metals (AARANA) Customer: KANNON MANUFACTURING",
+      "first_seen": "2026-07-13T17:18:57+00:00",
+      "last_seen": "2026-09-15T13:31:48+00:00"
+    },
+    {
+      "vendor": "Lavanture Products",
+      "aliases": [
+        "LaVanture Products Company"
+      ],
+      "count_aug1": 3,
+      "count_older": 0,
+      "sample_from": "Sandi Ehlers",
+      "sample_subject": "Sales Invoice SV1426672",
+      "first_seen": "2026-08-04T19:49:50+00:00",
+      "last_seen": "2026-09-10T17:08:24+00:00"
+    },
+    {
+      "vendor": "LD Industrial Solutions, LLC",
+      "aliases": [
+        "Ld Industrial Solutions, Llc",
+        "New payment request from Ld Industrial Solutions, Llc",
+        "Your payment to Ld Industrial Solutions, Llc"
+      ],
+      "count_aug1": 0,
+      "count_older": 4,
+      "sample_from": "LD Industrial Solutions, LLC",
+      "sample_subject": "Invoice - Reminder: Your payment to LD Industrial Solutions, LLC is due",
+      "first_seen": "2026-07-15T17:57:58+00:00",
+      "last_seen": "2026-07-21T20:44:24+00:00"
+    },
+    {
+      "vendor": "Leeco Steel, LLC",
+      "aliases": [
+        "NoreplyMV"
+      ],
+      "count_aug1": 4,
+      "count_older": 4,
+      "sample_from": "NoreplyMV",
+      "sample_subject": "Leeco Steel Invoice 617228",
+      "first_seen": "2026-07-08T07:17:32+00:00",
+      "last_seen": "2026-09-15T07:13:31+00:00"
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "aliases": [
+        "Giovanny"
+      ],
+      "count_aug1": 47,
+      "count_older": 19,
+      "sample_from": "Giovanny",
+      "sample_subject": "Legacy Wire Products - Sales Invoice PS-INV103870",
+      "first_seen": "2026-07-01T15:42:04+00:00",
+      "last_seen": "2026-09-22T14:43:32+00:00"
+    },
+    {
+      "vendor": "Marmon/Keystone",
+      "aliases": [
+        "mkinv37@marmonkeystone.com"
+      ],
+      "count_aug1": 1,
+      "count_older": 3,
+      "sample_from": "mkinv37@marmonkeystone.com",
+      "sample_subject": "Invoices from Marmon/Keystone",
+      "first_seen": "2026-07-01T07:02:00+00:00",
+      "last_seen": "2026-09-01T06:59:02+00:00"
+    },
+    {
+      "vendor": "McMaster-Carr Supply Company",
+      "aliases": [
+        "McMaster-Carr"
+      ],
+      "count_aug1": 39,
+      "count_older": 21,
+      "sample_from": "McMaster-Carr",
+      "sample_subject": "Invoice for Your Order 58586",
+      "first_seen": "2026-07-02T06:52:25+00:00",
+      "last_seen": "2026-09-18T06:43:57+00:00"
+    },
+    {
+      "vendor": "McNichols",
+      "aliases": [
+        "billings@e.mcnichols.com",
+        "McNICHOLS CO."
+      ],
+      "count_aug1": 4,
+      "count_older": 1,
+      "sample_from": "McNICHOLS CO.",
+      "sample_subject": "Streamline Production with Specialty Metals!",
+      "first_seen": "2026-07-15T14:02:59+00:00",
+      "last_seen": "2026-09-03T13:27:44+00:00"
+    },
+    {
+      "vendor": "McQueary Industries",
+      "aliases": [
+        "Bookkeeper"
+      ],
+      "count_aug1": 2,
+      "count_older": 0,
+      "sample_from": "Bookkeeper",
+      "sample_subject": "Invoice 08-30336 from McQueary Industries",
+      "first_seen": "2026-08-04T21:09:31+00:00",
+      "last_seen": "2026-09-14T16:30:32+00:00"
+    },
+    {
+      "vendor": "MEAU",
+      "aliases": [],
+      "count_aug1": 4,
+      "count_older": 2,
+      "sample_from": "Credit Department",
+      "sample_subject": "Message from KANNON MFG (1000204758)",
+      "first_seen": "2026-07-13T18:56:52+00:00",
+      "last_seen": "2026-09-02T20:43:28+00:00"
+    },
+    {
+      "vendor": "Metal Supermarkets",
+      "aliases": [
+        "fortworth@Metalsupermarkets.com"
+      ],
+      "count_aug1": 8,
+      "count_older": 1,
+      "sample_from": "fortworth@Metalsupermarkets.com",
+      "sample_subject": "Sales Invoice #023702-SI1090494  Dated: 07-29-2026",
+      "first_seen": "2026-07-30T04:31:18+00:00",
+      "last_seen": "2026-09-22T03:10:37+00:00"
+    },
+    {
+      "vendor": "Metro Sprocket And Gear Inc",
+      "aliases": [
+        "Metro Sprocket and Gear Inc",
+        "METRO SPROCKET AND GEAR INC"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "METRO SPROCKET AND GEAR INC",
+      "sample_subject": "New Invoice 29235 from Metro Sprocket and Gear Inc",
+      "first_seen": "2026-09-02T15:19:14+00:00",
+      "last_seen": "2026-09-02T15:19:14+00:00"
+    },
+    {
+      "vendor": "Modern Heat Treat Inc",
+      "aliases": [
+        "accounting@modernht.com"
+      ],
+      "count_aug1": 3,
+      "count_older": 0,
+      "sample_from": "accounting@modernht.com",
+      "sample_subject": "Modern Heat Treat Inc., Invoice Number: 220655  Dated: 8/25/2026",
+      "first_seen": "2026-08-25T18:15:17+00:00",
+      "last_seen": "2026-09-01T00:52:17+00:00"
+    },
+    {
+      "vendor": "Morgan Steel",
+      "aliases": [],
+      "count_aug1": 11,
+      "count_older": 9,
+      "sample_from": "Emily Keith",
+      "sample_subject": "Invoice 127283",
+      "first_seen": "2026-07-01T12:14:11+00:00",
+      "last_seen": "2026-09-11T15:46:11+00:00"
+    },
+    {
+      "vendor": "MSC Industrial Supply",
+      "aliases": [
+        "DoNotReply@invoices.mscdirect.com"
+      ],
+      "count_aug1": 11,
+      "count_older": 4,
+      "sample_from": "DoNotReply@invoices.mscdirect.com",
+      "sample_subject": "MSC Invoice 58550671, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1561     (DXED#20261881025044903681)",
+      "first_seen": "2026-07-07T14:33:43+00:00",
+      "last_seen": "2026-09-17T18:04:18+00:00"
+    },
+    {
+      "vendor": "National Bolt and Ind Supply Co Inc.",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 1,
+      "sample_from": "Accounts Receivables",
+      "sample_subject": "National Bolt and Ind Supply Co Inc. - Invoice# 5307062 CREDIT ON THE ACCOUNT",
+      "first_seen": "2026-07-02T14:06:58+00:00",
+      "last_seen": "2026-09-01T16:03:01+00:00"
+    },
+    {
+      "vendor": "National Specialty Alloys, Inc",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "Rosanna Vidaurri",
+      "sample_subject": "National Specialty Alloys, Inc Invoice#  (453743) Transmission for KANNON MANUFACTURING INC",
+      "first_seen": "2026-08-27T15:23:56+00:00",
+      "last_seen": "2026-08-27T15:23:56+00:00"
+    },
+    {
+      "vendor": "Nova Alloys",
+      "aliases": [
+        "Nova Alloys, Inc"
+      ],
+      "count_aug1": 3,
+      "count_older": 0,
+      "sample_from": "Erica Barrett",
+      "sample_subject": "NOVA ALLOYS, INC. - Invoice 258145",
+      "first_seen": "2026-08-18T14:12:55+00:00",
+      "last_seen": "2026-08-25T14:43:27+00:00"
+    },
+    {
+      "vendor": "NTEX Electric Inc.",
+      "aliases": [
+        "NTEX Electric Inc"
+      ],
+      "count_aug1": 4,
+      "count_older": 5,
+      "sample_from": "NTEX Electric Inc.",
+      "sample_subject": "Estimate 1389 from NTEX Electric Inc.",
+      "first_seen": "2026-07-17T21:00:23+00:00",
+      "last_seen": "2026-09-09T16:29:43+00:00"
+    },
+    {
+      "vendor": "NTTA",
+      "aliases": [
+        "noreply@ntta.org"
+      ],
+      "count_aug1": 3,
+      "count_older": 4,
+      "sample_from": "noreply@ntta.org",
+      "sample_subject": "Payment Receipt",
+      "first_seen": "2026-07-16T20:43:28+00:00",
+      "last_seen": "2026-08-30T10:16:52+00:00"
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "aliases": [
+        "msullivan@onealsteel.com",
+        "mwatkins@onealsteel.com",
+        "O'Neal Steel",
+        "vsanders@onealsteel.com"
+      ],
+      "count_aug1": 33,
+      "count_older": 28,
+      "sample_from": "vsanders@onealsteel.com",
+      "sample_subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "first_seen": "2026-07-02T04:27:11+00:00",
+      "last_seen": "2026-09-22T04:22:35+00:00"
+    },
+    {
+      "vendor": "Online Metals",
+      "aliases": [
+        "LA.Credit"
+      ],
+      "count_aug1": 0,
+      "count_older": 2,
+      "sample_from": "LA.Credit",
+      "sample_subject": "OnlineMetals Invoice#  (3527029) Transmission for Kannon Manufacturing",
+      "first_seen": "2026-07-02T16:19:58+00:00",
+      "last_seen": "2026-07-17T16:51:51+00:00"
+    },
+    {
+      "vendor": "Orthman Conveying Systems",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 1,
+      "sample_from": "Cecilia Hulsey",
+      "sample_subject": "Invoice 701599 from Orthman Conveying Systems",
+      "first_seen": "2026-07-15T19:57:43+00:00",
+      "last_seen": "2026-08-14T21:40:18+00:00"
+    },
+    {
+      "vendor": "PCT Support",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 2,
+      "sample_from": "PCT Support",
+      "sample_subject": "Kannon Manufacturing Inc. - Fort Worth - Invoice # LS-8436 - Due 7/25/2026",
+      "first_seen": "2026-07-15T08:47:00+00:00",
+      "last_seen": "2026-09-15T08:43:14+00:00"
+    },
+    {
+      "vendor": "Phoenix Metals",
+      "aliases": [
+        "noreply@phoenixmetals.com",
+        "Phoenix Metals Credit Memos"
+      ],
+      "count_aug1": 7,
+      "count_older": 2,
+      "sample_from": "noreply@phoenixmetals.com",
+      "sample_subject": "Phoenix Invoice #9039639",
+      "first_seen": "2026-07-02T17:41:02+00:00",
+      "last_seen": "2026-09-21T17:38:40+00:00"
+    },
+    {
+      "vendor": "Pittsburgh Steel",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "Pam Horton",
+      "sample_subject": "ACH Payments",
+      "first_seen": "2026-07-08T18:25:27+00:00",
+      "last_seen": "2026-07-08T18:25:27+00:00"
+    },
+    {
+      "vendor": "Polymer Products",
+      "aliases": [
+        "Invoice #23158"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "Nelys Gonzalez",
+      "sample_subject": "Invoice #23158",
+      "first_seen": "2026-08-11T22:01:30+00:00",
+      "last_seen": "2026-08-11T22:01:30+00:00"
+    },
+    {
+      "vendor": "Precision Fabrication Services",
+      "aliases": [],
+      "count_aug1": 5,
+      "count_older": 1,
+      "sample_from": "Melody Channell",
+      "sample_subject": "19204",
+      "first_seen": "2026-07-14T15:42:57+00:00",
+      "last_seen": "2026-09-09T16:49:30+00:00"
+    },
+    {
+      "vendor": "Premium Alloys",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "Shelby Hart",
+      "sample_subject": "PREMIUM ALLOYS - Invoice 23173",
+      "first_seen": "2026-09-01T12:25:06+00:00",
+      "last_seen": "2026-09-01T12:25:06+00:00"
+    },
+    {
+      "vendor": "Primo Brands",
+      "aliases": [],
+      "count_aug1": 1,
+      "count_older": 2,
+      "sample_from": "Primo Brands",
+      "sample_subject": "Your attached invoice is ready",
+      "first_seen": "2026-07-07T22:52:05+00:00",
+      "last_seen": "2026-09-09T03:52:11+00:00"
+    },
+    {
+      "vendor": "Priority 1",
+      "aliases": [
+        "Priority1"
+      ],
+      "count_aug1": 5,
+      "count_older": 5,
+      "sample_from": "Priority1",
+      "sample_subject": "KANNON MANUFACTURING-(230230-P1) Priority1 Invoice 17587941",
+      "first_seen": "2026-07-07T00:36:51+00:00",
+      "last_seen": "2026-09-08T16:25:38+00:00"
+    },
+    {
+      "vendor": "Production Metals",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 1,
+      "sample_from": "Production Metals",
+      "sample_subject": "Invoice",
+      "first_seen": "2026-07-08T17:06:45+00:00",
+      "last_seen": "2026-08-28T15:38:45+00:00"
+    },
+    {
+      "vendor": "Purvis Industries",
+      "aliases": [],
+      "count_aug1": 4,
+      "count_older": 3,
+      "sample_from": "Purvis AR Team",
+      "sample_subject": "Purvis Industries - Invoice# 32586849 Purvis Industries Invoice",
+      "first_seen": "2026-07-16T01:11:45+00:00",
+      "last_seen": "2026-09-03T01:10:15+00:00"
+    },
+    {
+      "vendor": "River City Steel",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "JAIME JORDAN",
+      "sample_subject": "Please Find Invoice For Your PO 58588 (Invoice I054473) Attached",
+      "first_seen": "2026-07-07T14:00:30+00:00",
+      "last_seen": "2026-07-07T14:00:30+00:00"
+    },
+    {
+      "vendor": "RMP Industrial Supply Inc",
+      "aliases": [
+        "Rmp Industrial Supply Inc"
+      ],
+      "count_aug1": 12,
+      "count_older": 7,
+      "sample_from": "Julie Hencke",
+      "sample_subject": "RMP Industrial Supply Inc - Invoice# 1468321",
+      "first_seen": "2026-07-06T23:02:07+00:00",
+      "last_seen": "2026-09-16T23:01:53+00:00"
+    },
+    {
+      "vendor": "Rolled Alloys Inc",
+      "aliases": [
+        "edocuments@rolledalloys.com",
+        "Rolled Alloys"
+      ],
+      "count_aug1": 3,
+      "count_older": 0,
+      "sample_from": "edocuments@rolledalloys.com",
+      "sample_subject": "Rolled Alloys Inc: Invoice(s) for Purchase Order 58864",
+      "first_seen": "2026-08-20T05:33:00+00:00",
+      "last_seen": "2026-09-17T05:34:07+00:00"
+    },
+    {
+      "vendor": "Safety-Kleen",
+      "aliases": [],
+      "count_aug1": 4,
+      "count_older": 1,
+      "sample_from": "Thermo Fluids",
+      "sample_subject": "\u231b Don't let these savings swim away! Save up to $450 on your favorites now",
+      "first_seen": "2026-07-21T13:26:33+00:00",
+      "last_seen": "2026-09-16T04:53:53+00:00"
+    },
+    {
+      "vendor": "Service Experts",
+      "aliases": [],
+      "count_aug1": 6,
+      "count_older": 2,
+      "sample_from": "Service Experts",
+      "sample_subject": "Your Invoice from Service Experts",
+      "first_seen": "2026-07-28T20:27:03+00:00",
+      "last_seen": "2026-09-10T16:41:48+00:00"
+    },
+    {
+      "vendor": "Shoppa's Material Handling",
+      "aliases": [
+        "Shoppas Material Handling is Attached"
+      ],
+      "count_aug1": 11,
+      "count_older": 5,
+      "sample_from": "Shoppas Material Handling",
+      "sample_subject": "Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached",
+      "first_seen": "2026-07-13T22:46:09+00:00",
+      "last_seen": "2026-09-18T23:10:10+00:00"
+    },
+    {
+      "vendor": "Spectrum Business",
+      "aliases": [],
+      "count_aug1": 20,
+      "count_older": 1,
+      "sample_from": "Spectrum Business",
+      "sample_subject": "Built for your FORT WORTH business",
+      "first_seen": "2026-07-16T18:58:59+00:00",
+      "last_seen": "2026-09-21T12:37:33+00:00"
+    },
+    {
+      "vendor": "SpectrumVoIP",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 1,
+      "sample_from": "SpectrumVoIP Billing",
+      "sample_subject": "SpectrumVoIP Invoice 906492",
+      "first_seen": "2026-07-15T11:33:49+00:00",
+      "last_seen": "2026-09-15T10:06:23+00:00"
+    },
+    {
+      "vendor": "Steel Inspectors of Texas, Inc",
+      "aliases": [
+        "New payment request from Steel Inspectors of Texas, Inc",
+        "Steel Inspectors of Texas, Inc.",
+        "Your payment to Steel Inspectors of Texas, Inc"
+      ],
+      "count_aug1": 8,
+      "count_older": 1,
+      "sample_from": "Steel Inspectors of Texas, Inc.",
+      "sample_subject": "New payment request from Steel Inspectors of Texas, Inc. - invoice",
+      "first_seen": "2026-07-29T16:14:20+00:00",
+      "last_seen": "2026-09-05T08:51:56+00:00"
+    },
+    {
+      "vendor": "Stella Source, Inc",
+      "aliases": [
+        "Stella Source, Inc."
+      ],
+      "count_aug1": 8,
+      "count_older": 2,
+      "sample_from": "Pocketbook",
+      "sample_subject": "Stella Source, Inc. has sent you an Invoice: INV-0001507",
+      "first_seen": "2026-07-01T13:58:27+00:00",
+      "last_seen": "2026-09-14T14:47:32+00:00"
+    },
+    {
+      "vendor": "Techni-Tool",
+      "aliases": [
+        "ar@technitoolinc.com"
+      ],
+      "count_aug1": 2,
+      "count_older": 10,
+      "sample_from": "ar@technitoolinc.com",
+      "sample_subject": "Invoice S1379458.001   PO# 58567",
+      "first_seen": "2026-07-01T13:18:38+00:00",
+      "last_seen": "2026-08-17T12:49:22+00:00"
+    },
+    {
+      "vendor": "Tejas Transportation",
+      "aliases": [
+        "New payment request from Tejas Transportation"
+      ],
+      "count_aug1": 4,
+      "count_older": 10,
+      "sample_from": "Rhonda Reeves",
+      "sample_subject": "Re: New payment request from Tejas Transportation - invoice [523842]",
+      "first_seen": "2026-07-01T19:36:47+00:00",
+      "last_seen": "2026-09-04T14:42:15+00:00"
+    },
+    {
+      "vendor": "Telecom Products Inc.",
+      "aliases": [],
+      "count_aug1": 11,
+      "count_older": 4,
+      "sample_from": "Accounting",
+      "sample_subject": "Invoice - 16455",
+      "first_seen": "2026-07-10T15:46:32+00:00",
+      "last_seen": "2026-09-21T20:02:12+00:00"
+    },
+    {
+      "vendor": "Toyota Commercial Finance",
+      "aliases": [
+        "Ticf"
+      ],
+      "count_aug1": 5,
+      "count_older": 3,
+      "sample_from": "Spectrum Business",
+      "sample_subject": "Your Payment Is Scheduled Soon",
+      "first_seen": "2026-07-08T18:03:45+00:00",
+      "last_seen": "2026-09-17T13:01:21+00:00"
+    },
+    {
+      "vendor": "Trace Metal Industries, Inc",
+      "aliases": [
+        "accounting@tracemetalindustries.com"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "accounting@tracemetalindustries.com",
+      "sample_subject": "Invoices from TRACE METAL INDUSTRIES, INC",
+      "first_seen": "2026-09-01T19:44:27+00:00",
+      "last_seen": "2026-09-01T19:44:27+00:00"
+    },
+    {
+      "vendor": "Tricor Metals",
+      "aliases": [
+        "kstarkey@tricormetals.com"
+      ],
+      "count_aug1": 1,
+      "count_older": 0,
+      "sample_from": "kstarkey@tricormetals.com",
+      "sample_subject": "Invoice 00044427",
+      "first_seen": "2026-09-02T18:53:07+00:00",
+      "last_seen": "2026-09-02T18:53:07+00:00"
+    },
+    {
+      "vendor": "Tube Supply",
+      "aliases": [
+        "Epicor (Do Not Reply - Unmonitored)",
+        "Please Find Central Tube And Bar, Inc"
+      ],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "Epicor (Do Not Reply - Unmonitored)",
+      "sample_subject": "Please Find CENTRAL TUBE AND BAR, INC Invoice(s) Attached",
+      "first_seen": "2026-07-16T12:21:04+00:00",
+      "last_seen": "2026-07-16T12:21:04+00:00"
+    },
+    {
+      "vendor": "UniFirst Corporation",
+      "aliases": [
+        "UniFirst",
+        "UniFirstInvoices@UniFirst.com"
+      ],
+      "count_aug1": 9,
+      "count_older": 4,
+      "sample_from": "UniFirstInvoices@UniFirst.com",
+      "sample_subject": "Invoice Number 2810771265 from UniFirst",
+      "first_seen": "2026-07-03T00:17:45+00:00",
+      "last_seen": "2026-09-19T00:18:02+00:00"
+    },
+    {
+      "vendor": "UniFirst First Aid & Safety",
+      "aliases": [
+        "ARFirstaidinquiry@unifirst.com"
+      ],
+      "count_aug1": 2,
+      "count_older": 2,
+      "sample_from": "ARFirstaidinquiry@unifirst.com",
+      "sample_subject": "Customer #FAS-024795 Invoice #42280000168",
+      "first_seen": "2026-07-02T16:10:45+00:00",
+      "last_seen": "2026-09-05T06:12:58+00:00"
+    },
+    {
+      "vendor": "Venturi Supply",
+      "aliases": [],
+      "count_aug1": 2,
+      "count_older": 1,
+      "sample_from": "MARY MALONEY",
+      "sample_subject": "13635 KANNON MENUFACTURING, INC",
+      "first_seen": "2026-07-07T15:53:39+00:00",
+      "last_seen": "2026-09-18T20:04:34+00:00"
+    },
+    {
+      "vendor": "Versalift National Parts Distribution Center",
+      "aliases": [
+        "ARNotifications@versalift.com"
+      ],
+      "count_aug1": 6,
+      "count_older": 6,
+      "sample_from": "ARNotifications@versalift.com",
+      "sample_subject": "C06512 KANNON MANUFACTURING INC: New Invoice(s) available - 1076139          Ref:0002984783",
+      "first_seen": "2026-07-09T12:13:19+00:00",
+      "last_seen": "2026-09-19T12:06:16+00:00"
+    },
+    {
+      "vendor": "Waste Connections Lone Star, Inc",
+      "aliases": [
+        "noreply@wcicustomer.com",
+        "OLP5190@WASTECONNECTIONS.COM",
+        "Wasteconnections"
+      ],
+      "count_aug1": 6,
+      "count_older": 3,
+      "sample_from": "noreply@wcicustomer.com",
+      "sample_subject": "New Bill from Waste Connections Fort Worth - Account 5190-004050350",
+      "first_seen": "2026-07-01T13:32:46+00:00",
+      "last_seen": "2026-09-03T10:11:52+00:00"
+    },
+    {
+      "vendor": "Weckbrodt",
+      "aliases": [],
+      "count_aug1": 0,
+      "count_older": 1,
+      "sample_from": "Kyle Cleaver",
+      "sample_subject": "Order: HC-06200881",
+      "first_seen": "2026-07-14T17:25:11+00:00",
+      "last_seen": "2026-07-14T17:25:11+00:00"
+    },
+    {
+      "vendor": "Willbanks Metals",
+      "aliases": [],
+      "count_aug1": 5,
+      "count_older": 9,
+      "sample_from": "Estevan Uribe",
+      "sample_subject": "Invoice-207135",
+      "first_seen": "2026-07-08T23:21:19+00:00",
+      "last_seen": "2026-09-04T23:20:57+00:00"
+    },
+    {
+      "vendor": "Xcaliber Industrial LLC",
+      "aliases": [],
+      "count_aug1": 3,
+      "count_older": 2,
+      "sample_from": "Xcaliber Industrial LLC",
+      "sample_subject": "Invoice WB4337861522 from Xcaliber Industrial LLC",
+      "first_seen": "2026-07-16T22:33:06+00:00",
+      "last_seen": "2026-09-11T20:59:31+00:00"
+    }
+  ],
+  "skip": [
+    {
+      "Bucket": "internal",
+      "Count": 95,
+      "Sample from / subject": "Treyce Wegmann | FW: Jul 2, 2026 at 6_44_07\u202fAM",
+      "Notes": "kannonmfg.com without a mapped vendor"
+    },
+    {
+      "Bucket": "marketing",
+      "Count": 48,
+      "Sample from / subject": "erp@tolomatic.com | Tolomatic Statement",
+      "Notes": "auction / newsletter / promo"
+    },
+    {
+      "Bucket": "not-a-bill",
+      "Count": 11,
+      "Sample from / subject": "Sandra Moreno | Please update our address",
+      "Notes": "insurance cert / verification / address change / survey"
+    },
+    {
+      "Bucket": "payment",
+      "Count": 13,
+      "Sample from / subject": "Ally Auto | We've received your vehicle payment.",
+      "Notes": "payment"
+    },
+    {
+      "Bucket": "sent-from-ap",
+      "Count": 23,
+      "Sample from / subject": "Accounts Payable | Re: Statement from SAFETY DECALS",
+      "Notes": "outbound / sent-item copy"
+    },
+    {
+      "Bucket": "statement",
+      "Count": 162,
+      "Sample from / subject": "mkinv37@marmonkeystone.com | Statement from Marmon/Keystone",
+      "Notes": "statement"
+    },
+    {
+      "Bucket": "unmapped-sender",
+      "Count": 37,
+      "Sample from / subject": "Greentree Packaging & Lumber | Reminder: Invoice 108874 from Greentree Packaging & Lumber",
+      "Notes": "subject used as vendor name"
+    },
+    {
+      "Bucket": "weak-vendor",
+      "Count": 21,
+      "Sample from / subject": "Kyle Cleaver | Re:  Market Dominance Strategy \u2013 Build The Competitive Moat That Rivals Cannot Cross",
+      "Notes": "person name / empty vendor"
+    }
+  ],
+  "caveat": "Vendor names come from From display, From domain, and subject (DOMAIN_VENDORS / SUBJECT_VENDORS / vendor_from_context). PDF-printed vendor was not downloaded for this catalog \u2014 a forwarded invoice can show the forwarder or a billing platform instead of the remitting vendor."
+}

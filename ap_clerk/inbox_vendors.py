@@ -22,8 +22,10 @@ from ap_clerk.inbox import SKIP_CLASSES, sender_address, sender_name
 from ap_clerk.pdf_invoice import (
     DOMAIN_VENDORS,
     SUBJECT_VENDORS,
+    _COMPANY_WORD_RE,
     _looks_like_person_name,
     _title_company,
+    company_from_subject_or_text,
     vendor_from_context,
 )
 from ap_clerk.rules import (
@@ -79,6 +81,9 @@ PLATFORM_DOMAINS = frozenset(
         "mailchimp.com",
         "sendgrid.net",
         "amazonses.com",
+        "sbcglobal.net",
+        "att.net",
+        "verizon.net",
     }
 )
 
@@ -91,10 +96,132 @@ SYSTEM_FROM_RE = re.compile(
 )
 NOISE_FROM_RE = re.compile(
     r"^(no-?reply|do\s*not\s*reply|donotreply|invoices?|billing|accounts?\s+"
-    r"(payable|receivable)|ar\s+department|ap\s+department|customer\s+service)$",
+    r"(payable|receivable)|ar(\s+mailer)?|ar\s+department|ap\s+department|"
+    r"customer\s+service|accounting|credit(\s+department)?|parts|pocketbook|"
+    r"auto-receipt|the\s+efax\s+team)$",
     flags=re.I,
 )
 VIA_PLATFORM_RE = re.compile(r"\s+via\s+\S+$", flags=re.I)
+SUBJECT_AS_VENDOR_RE = re.compile(
+    r"^(re:|fw:|fwd:|automatic reply|your\s|please\s|new\s|notice\s|reminder|"
+    r"ap\s+(dry\s+)?run|invoice\s+\d|invoices?\s+from|payment\s+confirm|"
+    r"\*{2,}|\d{4}\s|open invoices|message from|transaction receipt|"
+    r"have you |how |keep your |see all |set |share |simplify |stay |"
+    r"try |unlock |upgrade |save |ready when |available:|connect |"
+    r"changes?\s|end of |find the |losing |meet our |more ice|prime |"
+    r"price drops|certificate)",
+    flags=re.I,
+)
+FROM_COMPANY_RE = re.compile(
+    r"\b(?:invoice|invoices|nvoice|payment request|ebill|receipt|reminder)"
+    r".{0,60}?\bfrom\s+(.+?)\s*(?:[-–—|:.]|$|\binvoice\b|\bfor\b|\(#)",
+    flags=re.I,
+)
+PAYMENT_TO_RE = re.compile(
+    r"\b(?:your\s+payment\s+to|has sent you an invoice:?)\s+(.+?)\s*"
+    r"(?:is\b|has\b|[-–—|:.]|$)",
+    flags=re.I,
+)
+KANNON_CUSTOMER_RE = re.compile(r"\bkannon(\s+mfg|\s+manufacturing|\s+menufacturing)?\b", flags=re.I)
+MARKETING_SUBJECT_RE = re.compile(
+    r"(fort worth business|autopay|business prime|prime big deal|"
+    r"upgrade worth|artisant|water cooler|auction|newsletter|"
+    r"free sample|save up to|email exclusive|webinar|employment laws)",
+    flags=re.I,
+)
+SKIP_MARKETING_DOMAINS = frozenset(
+    {
+        "resellcnc.com",
+        "workwisecompliance.com",
+        "secturafab.com",
+        "highradius.com",
+    }
+)
+
+# Live-inbox domains not yet in DOMAIN_VENDORS. Catalog-only; does not change bill parse.
+EXTRA_DOMAIN_VENDORS = {
+    "3pindustries.com": "3P",
+    "3p.com": "3P",
+    "precisionfabsvs.com": "Precision Fabrication Services",
+    "precisionfabrication.com": "Precision Fabrication Services",
+    "beshertsteel.com": "Beshert Steel Processing",
+    "easternmetalsupply.com": "Eastern Metal Supply of Texas",
+    "easternmetal.com": "Eastern Metal Supply of Texas",
+    "shoppas.com": "Shoppa's Material Handling",
+    "technitoolinc.com": "Techni-Tool",
+    "priority1.com": "Priority 1",
+    "priority1inc.com": "Priority 1",
+    "recur360.com": "PCT Support",
+    "readyrefresh.com": "Primo Brands",
+    "toyota.com": "Toyota Commercial Finance",
+    "ticf.com": "Toyota Commercial Finance",
+    "tpcdm.com": "NTTA",
+    "rivercitysteelco.com": "River City Steel",
+    "venturisupply.com": "Venturi Supply",
+    "exalloys.com": "Exotic Metals",
+    "higginbotham.com": "IPFS",
+    "meau.com": "MEAU",
+    "tpitexas.com": "Telecom Products Inc.",
+    "sss-steel.com": "Beshert Steel Processing",
+    "capitalmachine.com": "Capital Machine Technologies, Inc",
+    "fabcorp.com": "Fabcorp",
+    "hagensfasteners.com": "Hagens Fasteners",
+    "ktgalvanizing.com": "K-T Galvanizing",
+    "engrcomp.com": "Engineered Components",
+    "thyssenkrupp-materials.com": "Online Metals",
+    "onlinemetals.com": "Online Metals",
+    "kimcoerp.com": "KIMCO",
+    "houstonplating.com": "Houston Plating",
+    "amcastle.com": "A.M. Castle & Co.",
+    "weckbrodt.de": "Weckbrodt",
+    "arrowpersonnel.com": "Arrow Personnel",
+    "arrowplating.com": "Arrow Plating",
+    "coloniallife.com": "Colonial Life",
+    "quenchusa.com": "Culligan Quench",
+    "quench.com": "Culligan Quench",
+    "culliganquench.com": "Culligan Quench",
+    "phoenixmetals.com": "Phoenix Metals",
+    "rolledalloys.com": "Rolled Alloys Inc",
+    "tricormetals.com": "Tricor Metals",
+    "ntta.org": "NTTA",
+    "ipfs.com": "IPFS",
+    "alarm-billing.com": "Alarm Billing",
+    "amazon.com": "Amazon",
+    "amazonbusiness.com": "Amazon",
+    "graybar.com": "Graybar",
+    "primobrands.com": "Primo Brands",
+    "efax.com": "eFax",
+    "vistaprint.com": "VistaPrint",
+    "safety-kleen.com": "Safety-Kleen",
+    "safetykleen.com": "Safety-Kleen",
+    "ally.com": "Ally Auto",
+    "spectrum.com": "Spectrum Business",
+    "spectrumbusiness.com": "Spectrum Business",
+    "dropbox.com": "Dropbox",
+    "globelife.com": "Globe Life",
+    "freepoint.com": "Freepoint Energy Solutions",
+    "freepointenergy.com": "Freepoint Energy Solutions",
+    "avexinstallations.com": "AVEX Installations LLC",
+    "abybenefits.com": "ABY Benefits LLC",
+    "tracemetalindustries.com": "Trace Metal Industries, Inc",
+    "ldindustrialsolutions.com": "LD Industrial Solutions, LLC",
+    "steelinspectors.com": "Steel Inspectors of Texas, Inc",
+    "guerreroplating.com": "Guerrero Plating Technology, LLC",
+    "greentreepackaging.com": "Greentree Packaging & Lumber",
+    "metro-sprocket.com": "Metro Sprocket And Gear Inc",
+    "metrosprocket.com": "Metro Sprocket And Gear Inc",
+    "nationalbolt.com": "National Bolt and Ind Supply Co Inc.",
+    "premiumalloys.com": "Premium Alloys",
+    "productionmetals.com": "Production Metals",
+    "stellasource.com": "Stella Source, Inc",
+    "pittsburgsteel.com": "Pittsburgh Steel",
+    "centralexpandedmetal.com": "Central Expanded Metal",
+    "cofw.org": "City of Fort Worth",
+    "fortworthtexas.gov": "City of Fort Worth",
+    "thermofluids.com": "Thermo Fluids",
+    "tolomatic.com": "Tolomatic",
+    "syspro.com": "Syspro",
+}
 
 # Extra spellings that vendor_from_context / names_match would otherwise split.
 EXPLICIT_ALIASES = {
@@ -112,14 +239,75 @@ EXPLICIT_ALIASES = {
     "american quality powdercoating": "American Quality Powder Coating",
     "unifirst first aid": "UniFirst First Aid & Safety",
     "unifirst firstaid": "UniFirst First Aid & Safety",
+    "amazon.com": "Amazon",
+    "amazon business": "Amazon",
+    "tpi": "Telecom Products Inc.",
+    "telecom products": "Telecom Products Inc.",
+    "capitalmachine": "Capital Machine Technologies, Inc",
+    "capital machine": "Capital Machine Technologies, Inc",
+    "phoenixmetals": "Phoenix Metals",
+    "phoenix metals credit memos": "Phoenix Metals",
+    "wasteconnections": "Waste Connections Lone Star, Inc",
+    "coloniallife": "Colonial Life",
+    "culligan quench": "Culligan Quench",
+    "culliganquench": "Culligan Quench",
+    "quench usa": "Culligan Quench",
+    "arrowpersonnel": "Arrow Personnel",
+    "arrowplating": "Arrow Plating",
+    "houstonplating": "Houston Plating",
+    "ktgalvanizing": "K-T Galvanizing",
+    "k t galvanizing": "K-T Galvanizing",
+    "cofw": "City of Fort Worth",
+    "ipfs": "IPFS",
+    "ntta": "NTTA",
+    "tricormetals": "Tricor Metals",
+    "pittsburgsteel": "Pittsburgh Steel",
+    "centralexpandedmetal": "Central Expanded Metal",
+    "vista print": "VistaPrint",
+    "vistaprint email exclusive": "VistaPrint",
+    "the efax team": "eFax",
+    "efax team": "eFax",
+    "primo brands customer experience": "Primo Brands",
+    "freepoint solution customer relations": "Freepoint Energy Solutions",
+    "freepointsolutions": "Freepoint Energy Solutions",
+    "freepoint solutions": "Freepoint Energy Solutions",
+    "sss steel": "Beshert Steel Processing",
+    "triple s steel": "Beshert Steel Processing",
+    "am castle": "A.M. Castle & Co.",
+    "a m castle": "A.M. Castle & Co.",
+    "online metals": "Online Metals",
+    "thyssenkrupp": "Online Metals",
+    "spectrum business": "Spectrum Business",
+    "globe life": "Globe Life",
+    "globe": "Globe Life",
+    "kimcoerp": "KIMCO",
+    "kimco accounting": "KIMCO",
+    "kimco": "KIMCO",
+    "3pindustries": "3P",
+    "3p industries": "3P",
+    "beshertsteel": "Beshert Steel Processing",
+    "easternmetal": "Eastern Metal Supply of Texas",
+    "shoppas": "Shoppa's Material Handling",
+    "technitoolinc": "Techni-Tool",
+    "priority1": "Priority 1",
+    "readyrefresh": "Primo Brands",
+    "ticf": "Toyota Commercial Finance",
+    "tpcdm": "NTTA",
+    "spectrumemails": "Spectrum Business",
+    "precisionfabsvs": "Precision Fabrication Services",
+    "rivercitysteelco": "River City Steel",
+    "venturisupply": "Venturi Supply",
+    "recur360": "PCT Support",
+    "melody channell": "Precision Fabrication Services",
 }
 
 
 def known_canonical_vendors() -> list[str]:
-    """Stable unique names from DOMAIN_VENDORS + SUBJECT_VENDORS."""
+    """Stable unique names from DOMAIN_VENDORS + SUBJECT_VENDORS + inbox extras."""
     seen: set[str] = set()
     out: list[str] = []
-    for name in list(DOMAIN_VENDORS.values()) + [vendor for _, vendor in SUBJECT_VENDORS]:
+    extra_names = list(EXTRA_DOMAIN_VENDORS.values()) + list(EXPLICIT_ALIASES.values())
+    for name in list(DOMAIN_VENDORS.values()) + [vendor for _, vendor in SUBJECT_VENDORS] + extra_names:
         if name not in seen:
             seen.add(name)
             out.append(name)
@@ -174,14 +362,96 @@ def domain_is_platform(address: str) -> bool:
     return any(part in PLATFORM_DOMAINS for part in parent_domains(domain)) or domain in PLATFORM_DOMAINS
 
 
+def domain_vendor(address: str) -> str:
+    addr = (address or "").lower()
+    if "firstaid" in addr:
+        return "UniFirst First Aid & Safety"
+    domain = email_domain(address)
+    for part in [domain, *parent_domains(domain)]:
+        if part in EXTRA_DOMAIN_VENDORS:
+            return EXTRA_DOMAIN_VENDORS[part]
+        if part in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[part]
+        if part in SKIP_MARKETING_DOMAINS:
+            return ""
+    return ""
+
+
 def clean_from_display(name: str) -> str:
     cleaned = VIA_PLATFORM_RE.sub("", name or "")
     cleaned = re.sub(r"\s+", " ", cleaned).strip(" -–—|:")
     return cleaned[:80]
 
 
+def looks_like_subject_line(name: str) -> bool:
+    text = (name or "").strip()
+    if not text:
+        return False
+    if SUBJECT_AS_VENDOR_RE.search(text):
+        return True
+    if re.search(r"[?!]|[\U0001F300-\U0001FAFF]", text):
+        return True
+    if len(text) > 48 and text not in _KNOWN:
+        return True
+    words = text.split()
+    if len(words) >= 8:
+        return True
+    if text[:1].isdigit() and not distinctive_vendor_tokens(text):
+        return True
+    return False
+
+
+def looks_like_person_name(name: str) -> bool:
+    """Person From names, including lowercase 'abel jasso'."""
+    cleaned = clean_from_display(name)
+    if _looks_like_person_name(cleaned):
+        return True
+    parts = [p for p in re.split(r"\s+", cleaned) if p]
+    if 2 <= len(parts) <= 4 and all(p.isalpha() for p in parts) and not _COMPANY_WORD_RE.search(cleaned):
+        return True
+    return False
+
+
+def looks_like_role_mailbox(name: str) -> bool:
+    return bool(NOISE_FROM_RE.match(clean_from_display(name)))
+
+
+def extract_company_from_subject(subject: str) -> str:
+    legal = company_from_subject_or_text(subject=subject or "", text="")
+    if legal:
+        return legal[:80]
+    for rx in (FROM_COMPANY_RE, PAYMENT_TO_RE):
+        match = rx.search(subject or "")
+        if not match:
+            continue
+        raw = match.group(1).strip(" -–—|:.,")
+        raw = re.sub(r"\s+\((?:#?\d+).*$", "", raw).strip()
+        if raw.lower().startswith("from "):
+            raw = raw[5:].strip()
+        if raw and not looks_like_subject_line(raw) and not KANNON_CUSTOMER_RE.search(raw):
+            return raw[:80]
+    headed = re.match(
+        r"^\s*([A-Za-z][A-Za-z0-9&.'/+\s]{2,50}?)\s*[-–—|:]\s*(?:Invoice|Inv\.?|Sales Invoice|eBill)\b",
+        subject or "",
+        flags=re.I,
+    )
+    if headed:
+        raw = headed.group(1).strip()
+        if raw and not _looks_like_person_name(raw) and not looks_like_role_mailbox(raw):
+            return raw[:80]
+    return ""
+
+
 def guess_vendor(*, subject: str = "", from_name: str = "", from_address: str = "") -> str:
-    """Cheap vendor guess: domain / subject / From. No PDF download."""
+    """Cheap vendor guess: domain / subject company / From. No PDF download."""
+    mapped = domain_vendor(from_address)
+    if mapped:
+        return mapped
+    extracted = extract_company_from_subject(subject)
+    if extracted:
+        return extracted
+    if re.search(r"\bipfs\b", subject or "", flags=re.I):
+        return "IPFS"
     display = clean_from_display(from_name)
     guessed = vendor_from_context(
         subject=subject or "",
@@ -189,7 +459,23 @@ def guess_vendor(*, subject: str = "", from_name: str = "", from_address: str = 
         from_address=from_address or "",
         text="",
     )
-    return (guessed or "").strip()
+    guessed = (guessed or "").strip()
+    if guessed and not looks_like_subject_line(guessed) and not KANNON_CUSTOMER_RE.search(guessed):
+        if (
+            guessed in _KNOWN
+            or not looks_like_person_name(guessed)
+            or guessed.lower() in {"melody channell", "rachel bailey"}
+        ):
+            if guessed.lower() == "rachel bailey":
+                return "3P"
+            if guessed.lower() == "melody channell":
+                return "Precision Fabrication Services"
+            return guessed
+    if looks_like_role_mailbox(display) or looks_like_person_name(display):
+        return ""
+    if display and not looks_like_subject_line(display) and not KANNON_CUSTOMER_RE.search(display):
+        return display
+    return ""
 
 
 def canonicalize_vendor(name: str) -> str:
@@ -261,9 +547,13 @@ def _is_weak_vendor(name: str, subject: str) -> bool:
     cleaned = (name or "").strip()
     if not cleaned:
         return True
-    if _looks_like_person_name(cleaned):
+    if looks_like_person_name(cleaned):
         return True
     if NOISE_FROM_RE.match(cleaned):
+        return True
+    if looks_like_subject_line(cleaned):
+        return True
+    if KANNON_CUSTOMER_RE.search(cleaned):
         return True
     if normalize_name(cleaned) == normalize_name(subject or "") and not distinctive_vendor_tokens(cleaned):
         return True
@@ -294,6 +584,28 @@ def classify_inbox_item(
 
     guessed = canonicalize_vendor(guess_vendor(subject=subject, from_name=from_name, from_address=from_addr))
     known = bool(guessed and guessed in _KNOWN)
+    marketing_domain = any(
+        part in SKIP_MARKETING_DOMAINS for part in parent_domains(email_domain(from_addr))
+    ) or email_domain(from_addr) in SKIP_MARKETING_DOMAINS
+
+    if KANNON_CUSTOMER_RE.search(guessed) and not known:
+        return "skip", "internal", "Kannon is the customer, not a vendor"
+    if marketing_domain and not subject_has_invoice_bill_hint(subject):
+        return "skip", "marketing", "auction / newsletter / collections platform"
+    if re.search(
+        r"resell\s*cnc|workwise|secturafab|dropbox|syspro|tolomatic|vistaprint|efax",
+        f"{from_name} {from_addr} {subject}",
+        flags=re.I,
+    ) and not subject_has_invoice_bill_hint(subject):
+        return "skip", "marketing", "auction / newsletter / promo"
+    if re.search(r"certificate\(s\) of insurance|verification code|please update our address|share your feedback", subject, flags=re.I):
+        return "skip", "not-a-bill", "insurance cert / verification / address change / survey"
+    if guessed and re.fullmatch(r"[A-Za-z]{2,4}", guessed) and guessed not in _KNOWN:
+        return "skip", "weak-vendor", "short unmapped From domain"
+    if MARKETING_SUBJECT_RE.search(subject) and not known and not subject_has_invoice_bill_hint(subject):
+        return "skip", "marketing", "promo / newsletter"
+    if looks_like_subject_line(guessed):
+        return "skip", "unmapped-sender", "subject used as vendor name"
 
     if domain_looks_internal(from_addr) and not known and not subject_has_invoice_bill_hint(subject):
         return "skip", "internal", "kannonmfg.com without a mapped vendor"
@@ -319,7 +631,7 @@ def classify_inbox_item(
         if domain and not domain_is_platform(from_addr):
             parts = domain.split(".")
             token = parts[-2] if len(parts) >= 2 else domain
-            if token and token not in {"com", "net", "org", "edu", "mail", "email", "invoices", "billing"}:
+            if token and token not in {"com", "net", "org", "edu", "mail", "email", "invoices", "billing"} and not re.fullmatch(r"[A-Za-z]{2,4}", token):
                 return "vendor", canonicalize_vendor(token.replace("-", " ").title()), "domain-token"
         if subject_has_invoice_bill_hint(subject):
             return "skip", "unmapped-invoice", "invoice-looking but no vendor name"
@@ -457,7 +769,7 @@ def catalog_messages(
             if (
                 cleaned
                 and cleaned != row.vendor
-                and not _looks_like_person_name(cleaned)
+                and not looks_like_person_name(cleaned)
                 and not NOISE_FROM_RE.match(cleaned)
             ):
                 row.aliases.add(cleaned)

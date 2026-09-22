@@ -147,3 +147,77 @@ def test_sent_from_ap_is_skip():
         address="accountspayable@kannonmfg.com",
     )
     assert classify_inbox_item(sent)[0] == "skip"
+
+
+def test_live_inbox_domains_and_subject_company():
+    assert guess_vendor(
+        subject="Invoice - 16455",
+        from_name="Accounting",
+        from_address="accounting@tpitexas.com",
+    ) == "Telecom Products Inc."
+    assert guess_vendor(
+        subject="Auto-email of Invoices IV-JAM-018024",
+        from_name="AR mailer",
+        from_address="ar@sss-steel.com",
+    ) == "Beshert Steel Processing"
+    assert guess_vendor(
+        subject="Invoice 25641 - KANNON MANUFACTURING - AMTECH - DUE UPON RECEIPT",
+        from_name="Accounts Receivable",
+        from_address="ar@capitalmachine.com",
+    ) == "Capital Machine Technologies, Inc"
+    assert guess_vendor(
+        subject="INVOICE 469115        PO 58500",
+        from_name="Rosana Arteaga",
+        from_address="rosana@fabcorp.com",
+    ) == "Fabcorp"
+    assert guess_vendor(
+        subject="Kannon inv 119770",
+        from_name="Michelle Dalton",
+        from_address="michelle@ktgalvanizing.com",
+    ) == "K-T Galvanizing"
+    assert guess_vendor(
+        subject="Invoice 152061 from ABY Benefits LLC",
+        from_name="Danae Tally",
+        from_address="danae@example.com",
+    ) == "ABY Benefits LLC"
+    assert canonicalize_vendor("Amazon.com") == "Amazon"
+    assert canonicalize_vendor("Wasteconnections") == "Waste Connections Lone Star, Inc"
+    assert guess_vendor(
+        subject="INV # 141551 / CPL # 51715 / PO # 58363",
+        from_name="Rachel Bailey",
+        from_address="rachel@3pindustries.com",
+    ) == "3P"
+    assert guess_vendor(
+        subject="Customer #FAS-024795 Invoice #42280000168",
+        from_name="AR First Aid",
+        from_address="ARFirstaidinquiry@unifirst.com",
+    ) == "UniFirst First Aid & Safety"
+    assert guess_vendor(
+        subject="19204",
+        from_name="Melody Channell",
+        from_address="melody@precisionfabsvs.com",
+    ) == "Precision Fabrication Services"
+    assert guess_vendor(
+        subject="Tejas Transportation Invoices",
+        from_name="abel jasso",
+        from_address="abel@example.com",
+    ) == "Tejas Transportation"
+
+
+def test_marketing_subject_is_not_a_vendor():
+    spectrum = _msg(
+        subject="A smarter way to stay connected in FORT WORTH",
+        name="Spectrum Business",
+        address="offers@spectrumbusiness.com",
+    )
+    kind, vendor, _ = classify_inbox_item(spectrum)
+    assert kind == "vendor"
+    assert vendor == "Spectrum Business"
+    slogan = catalog_messages([spectrum])
+    assert slogan.unique_vendor_names() == ["Spectrum Business"]
+    dry = _msg(
+        subject="AP dry run 10 — 2026-09-14 afternoon",
+        name="Accounts Payable",
+        address="accountspayable@kannonmfg.com",
+    )
+    assert classify_inbox_item(dry)[0] == "skip"
