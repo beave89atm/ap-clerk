@@ -33,6 +33,7 @@ from ap_clerk.graph import (
     GraphError,
     MailboxRejected,
     apply_flag_after_match,
+    apply_fort_worth_move_after_enter,
     assert_allowed_mailbox,
     attach_message_ids,
     format_graph_presence,
@@ -815,6 +816,7 @@ def _finish_row(
         apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
     else:
         row["Flag status"] = FLAG_SKIPPED
+    apply_fort_worth_move_after_enter(row, inv, graph_client, mailbox=mailbox)
     return apply_exception_category_owner(row)
 
 

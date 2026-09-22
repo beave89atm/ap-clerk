@@ -839,6 +839,30 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": False,
     },
+    {
+        "id": "NOTE-52",
+        "slug": "outlook-move-fort-worth-after-header-attach",
+        "gate": "outlook-folder-move",
+        "cases": (
+            "Header created + vendor PDF attached (Success or HOLD-with-header)",
+            "Multi-invoice parent: first header+attach moves the email once",
+        ),
+        "9_22_bug": (
+            "Entered AP emails stayed in Inbox after header+PDF attach. Kyle "
+            "circled Inbox child 9 - FORT WORT… as the processed destination."
+        ),
+        "expected": (
+            "After a KIMCO AP header is created and the vendor PDF is attached, "
+            "move the source accountspayable@ email into Inbox child folder "
+            "whose displayName starts with '9 - FORT WORT' / '9-Fort Worth' "
+            "(contains FORT WORT, case-insensitive). Multi-invoice parent: "
+            "move once on the first successful header+attach — do not wait "
+            "for all siblings Success. Keep existing Outlook categories "
+            "(Entered in AI / Entered with issues / AI HOLD). Do not move if "
+            "header create failed or PDF was not attached. No Mail.Send."
+        ),
+        "never_success": False,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (

@@ -7,7 +7,9 @@ accountspayable@ category AI HOLD / Entered with issues → Entered in AI (NOTE-
 Do not leave Success sitting on AI HOLD. Multi-invoice parent: Entered in AI only
 when every sibling invoice from that PDF is Success.
 Header+PDF entered but unfinished (price/qty HOLD, Incomplete) gets `Entered with issues`.
-Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped 2`.
+After header create + vendor PDF attach, move the source email into Inbox
+child `9 - FORT WORT…` (NOTE-52). Categories stay. Multi-invoice parent: one
+move on the first successful header+attach. Real bill unprocessable without a header gets red category `AI HOLD`. Mailbox noise gets `AI Skipped 2`.
 Never two process categories on one message.
 Do not use Outlook follow-up flag (flag.flagStatus) or `AP Matched` as the process marker.
 Never logs tokens, client secrets, or passwords.
@@ -104,6 +106,26 @@ EMAIL_DENIED = "email-denied"
 CATEGORY_CREATED = "category-created"
 CATEGORY_EXISTS = "category-exists"
 CATEGORY_DENIED = "category-denied"
+
+# NOTE-52: after header + vendor PDF attach, move the AP email into this Inbox
+# child folder. displayName matched live 2026-09-22; id filled after lookup
+# (invent=false — do not invent a folder id).
+FORT_WORTH_FOLDER_PREFIX = "9 - FORT WORT"
+FORT_WORTH_FOLDER_NEEDLE = "fort wort"
+# Proven live Graph id (Inbox child). Lookup 2026-09-22: "9 - FORT WORTH ARCHIVE".
+FORT_WORTH_FOLDER_ID: str | None = (
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_"
+    "BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AACDH-y1AAA="
+)
+FORT_WORTH_FOLDER_DISPLAY_NAME: str | None = "9 - FORT WORTH ARCHIVE"
+MOVE_MOVED = "moved-fort-worth"
+MOVE_SKIPPED_NO_ATTACH = "move-skipped-no-attach"
+MOVE_SKIPPED_NO_HEADER = "move-skipped-no-header"
+MOVE_SKIPPED_ALREADY = "move-skipped-already"
+MOVE_SKIPPED_NO_FOLDER = "move-skipped-no-folder"
+MOVE_SKIPPED_NO_MESSAGE = "move-skipped-no-message"
+MOVE_DENIED = "move-denied"
+_MOVED_MESSAGE_IDS: set[str] = set()
 
 
 class GraphError(RuntimeError):
@@ -220,6 +242,54 @@ def followup_flag_status(message: dict[str, Any] | None) -> str:
 def has_followup_flagged(message: dict[str, Any] | None) -> bool:
     """True when Graph flag.flagStatus is flagged (legacy follow-up flag)."""
     return followup_flag_status(message).lower() == "flagged"
+
+
+def is_fort_worth_inbox_folder(display_name: str | None) -> bool:
+    """NOTE-52: Inbox child '9 - FORT WORT…' / Fort Worth. Case-insensitive."""
+    text = str(display_name or "").strip()
+    if not text:
+        return False
+    lowered = text.lower()
+    compact = re.sub(r"[\s._-]+", "", lowered)
+    if lowered.startswith("9 - fort wort") or lowered.startswith("9-fort worth"):
+        return True
+    if lowered.startswith("9-fort wort") or lowered.startswith("9 - fort worth"):
+        return True
+    if FORT_WORTH_FOLDER_NEEDLE in lowered:
+        return True
+    return "fortworth" in compact and compact.startswith("9")
+
+
+def attach_succeeded(attach_status: Any) -> bool:
+    return str(attach_status or "").strip().lower() == "attached"
+
+
+def header_created(kimco_id: Any) -> bool:
+    return kimco_id not in (None, "")
+
+
+def should_move_to_fort_worth(
+    *,
+    result: str | None,
+    kimco_id: Any,
+    attach_status: Any,
+    message_id: str | None,
+    already_moved: bool = False,
+) -> str:
+    """NOTE-52 gate. Move only after header + PDF attach. Categories stay."""
+    mid = str(message_id or "").strip()
+    if not mid:
+        return MOVE_SKIPPED_NO_MESSAGE
+    if already_moved or mid in _MOVED_MESSAGE_IDS:
+        return MOVE_SKIPPED_ALREADY
+    if not header_created(kimco_id):
+        return MOVE_SKIPPED_NO_HEADER
+    if not attach_succeeded(attach_status):
+        return MOVE_SKIPPED_NO_ATTACH
+    outcome = str(result or "").strip()
+    if outcome in {"Success", "HOLD", "Incomplete"}:
+        return MOVE_MOVED
+    return MOVE_SKIPPED_NO_HEADER
 
 
 def is_already_flagged(message: dict[str, Any] | None) -> bool:
@@ -855,6 +925,90 @@ class GraphClient:
         draft_id = str((response.json() or {}).get("id") or "") or None
         return EMAIL_DRAFT_OK, draft_id, response.status_code
 
+    def list_inbox_child_folders(self, mailbox: str = ALLOWED_MAILBOX) -> list[dict[str, Any]]:
+        """GET Inbox child folders. NOTE-52 Fort Worth destination lives here."""
+        mailbox = assert_allowed_mailbox(mailbox)
+        folders: list[dict[str, Any]] = []
+        url: str | None = self._user_url(mailbox, "mailFolders/inbox/childFolders")
+        first = True
+        while url:
+            kwargs: dict[str, Any] = {}
+            if first:
+                kwargs["params"] = {"$select": "id,displayName,parentFolderId", "$top": 50}
+                first = False
+            response = self.request("GET", url, **kwargs)
+            if response.status_code != 200:
+                extra = graph_http_detail(response)
+                suffix = f" ({extra})" if extra else ""
+                raise GraphError(f"Graph list Inbox child folders HTTP {response.status_code}{suffix}")
+            payload = response.json() or {}
+            folders.extend(
+                item for item in (payload.get("value") or []) if isinstance(item, dict)
+            )
+            url = payload.get("@odata.nextLink")
+        return folders
+
+    def resolve_fort_worth_folder(self, mailbox: str = ALLOWED_MAILBOX) -> dict[str, Any]:
+        """Find Inbox child whose displayName is 9 - FORT WORT… / Fort Worth."""
+        global FORT_WORTH_FOLDER_ID, FORT_WORTH_FOLDER_DISPLAY_NAME
+        mailbox = assert_allowed_mailbox(mailbox)
+        if FORT_WORTH_FOLDER_ID:
+            return {
+                "id": FORT_WORTH_FOLDER_ID,
+                "displayName": FORT_WORTH_FOLDER_DISPLAY_NAME or FORT_WORTH_FOLDER_PREFIX,
+                "cached": True,
+            }
+        hits = [
+            folder
+            for folder in self.list_inbox_child_folders(mailbox)
+            if is_fort_worth_inbox_folder(str(folder.get("displayName") or ""))
+        ]
+        if not hits:
+            return {"id": None, "displayName": None, "cached": False, "status": MOVE_SKIPPED_NO_FOLDER}
+        chosen = hits[0]
+        FORT_WORTH_FOLDER_ID = str(chosen.get("id") or "") or None
+        FORT_WORTH_FOLDER_DISPLAY_NAME = str(chosen.get("displayName") or "") or None
+        return {
+            "id": FORT_WORTH_FOLDER_ID,
+            "displayName": FORT_WORTH_FOLDER_DISPLAY_NAME,
+            "cached": False,
+            "matches": [
+                {"id": f.get("id"), "displayName": f.get("displayName")} for f in hits
+            ],
+        }
+
+    def move_message(
+        self,
+        mailbox: str,
+        message_id: str,
+        destination_folder_id: str,
+    ) -> dict[str, Any]:
+        """POST /users/{mailbox}/messages/{id}/move. No Mail.Send."""
+        mailbox = assert_allowed_mailbox(mailbox)
+        mid = str(message_id or "").strip()
+        dest = str(destination_folder_id or "").strip()
+        if not mid:
+            return {"status": MOVE_SKIPPED_NO_MESSAGE, "http": 0, "new_id": None}
+        if not dest:
+            return {"status": MOVE_SKIPPED_NO_FOLDER, "http": 0, "new_id": None}
+        response = self.request(
+            "POST",
+            self._messages_url(mailbox, mid, "move"),
+            json={"destinationId": dest},
+            headers={"Content-Type": "application/json"},
+        )
+        if response.status_code == 403:
+            LOGGER.info("Graph message move HTTP 403 (Mail.ReadWrite missing or denied)")
+            return {"status": MOVE_DENIED, "http": 403, "new_id": None}
+        if response.status_code >= 400:
+            extra = graph_http_detail(response)
+            LOGGER.info("Graph message move HTTP %s %s", response.status_code, extra)
+            return {"status": MOVE_DENIED, "http": response.status_code, "new_id": None, "error": extra}
+        payload = response.json() or {}
+        new_id = str(payload.get("id") or mid)
+        LOGGER.info("Moved AP message to Fort Worth folder new_id_present=%s", bool(new_id))
+        return {"status": MOVE_MOVED, "http": response.status_code, "new_id": new_id}
+
     def delete_message(self, mailbox: str, message_id: str) -> int:
         mailbox = assert_allowed_mailbox(mailbox)
         if not str(message_id or "").strip():
@@ -959,4 +1113,59 @@ def apply_flag_after_match(
     note = f"Flag status={status}."
     if "Flag status=" not in why:
         row["Why"] = f"{why} {note}".strip() if why else note
+    return status
+
+
+def apply_fort_worth_move_after_enter(
+    row: dict[str, Any],
+    invoice: dict[str, Any],
+    graph_client: GraphClient | None,
+    *,
+    mailbox: str = ALLOWED_MAILBOX,
+) -> str:
+    """NOTE-52: move AP email after header + PDF attach. Does not change categories."""
+    message_id = str(invoice.get("graph_message_id") or invoice.get("graphMessageId") or "").strip()
+    decision = should_move_to_fort_worth(
+        result=str(row.get("Result") or ""),
+        kimco_id=row.get("KIMCO id"),
+        attach_status=row.get("Attach status"),
+        message_id=message_id,
+    )
+    if decision != MOVE_MOVED:
+        row["Folder move"] = decision
+        if decision == MOVE_SKIPPED_NO_ATTACH:
+            notes = str(row.get("Notes") or "").strip()
+            extra = "NOTE-52: no Fort Worth move (PDF not attached)."
+            if extra not in notes:
+                row["Notes"] = f"{notes} {extra}".strip() if notes else extra
+        return decision
+    if graph_client is None:
+        row["Folder move"] = MOVE_DENIED
+        return MOVE_DENIED
+    try:
+        folder = graph_client.resolve_fort_worth_folder(mailbox)
+        dest = str(folder.get("id") or "")
+        if not dest:
+            row["Folder move"] = MOVE_SKIPPED_NO_FOLDER
+            return MOVE_SKIPPED_NO_FOLDER
+        moved = graph_client.move_message(mailbox, message_id, dest)
+    except MailboxRejected:
+        raise
+    except GraphError:
+        row["Folder move"] = MOVE_DENIED
+        return MOVE_DENIED
+    status = str(moved.get("status") or MOVE_DENIED)
+    row["Folder move"] = status
+    new_id = moved.get("new_id")
+    notes = str(row.get("Notes") or "").strip()
+    extra = f"NOTE-52 Fort Worth move={status}"
+    if new_id:
+        extra = f"{extra} new_id={new_id}"
+    if extra not in notes:
+        row["Notes"] = f"{notes} {extra}".strip() if notes else extra
+    if status == MOVE_MOVED:
+        _MOVED_MESSAGE_IDS.add(message_id)
+        if new_id:
+            _MOVED_MESSAGE_IDS.add(str(new_id))
+            invoice["graph_message_id"] = str(new_id)
     return status
