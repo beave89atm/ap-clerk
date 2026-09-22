@@ -1703,17 +1703,17 @@
       "PO": "59156",
       "Amount": 23151.42,
       "Result": "HOLD",
-      "Why": "HOLD missing_receipt after leftover recheck. PO 59156 has open leftovers (24025-24029, 24052, 24053) but they do not match PDF plate lines (no Select). Comments_1 Anthony plain added (mention-id unknown). Stay 722. Do not invent Success.",
+      "Why": "HOLD missing_receipt after leftover recheck. PO 59156 has open leftovers (24025-24029, 24052, 24053) but they do not match PDF plate lines (no Select). Comments_1 Anthony plain added (mention-id unknown). Stay 722. Do not invent Success. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10160,
-      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Batch": "Transfer AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=.",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1764,17 +1764,17 @@
       "PO": "58912",
       "Amount": 649.53,
       "Result": "HOLD",
-      "Why": "HOLD missing_receipt after leftover recheck. PO 58912 has open leftovers (23096, 23874, 23875, 23923, 23983, 23985) but they do not match PDF lines (no Select). Comments_1 Anthony plain added. Stay 722.",
+      "Why": "HOLD missing_receipt after leftover recheck. PO 58912 has open leftovers (23096, 23874, 23875, 23923, 23983, 23985) but they do not match PDF lines (no Select). Comments_1 Anthony plain added. Stay 722. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10163,
-      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Batch": "Transfer AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=.",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1827,17 +1827,17 @@
       "PO": "59085",
       "Amount": 6954.21,
       "Result": "HOLD",
-      "Why": "HOLD missing_receipt after leftover recheck. PO 59085 leftovers include 23932 (already on 10164) plus 23933/23934; none newly selectable for 15460995. Comments_1 Anthony already-on-tab. Stay 722.",
+      "Why": "HOLD missing_receipt after leftover recheck. PO 59085 leftovers include 23932 (already on 10164) plus 23933/23934; none newly selectable for 15460995. Comments_1 Anthony already-on-tab. Stay 722. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10175,
-      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Batch": "Transfer AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=.",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=move-skipped-already mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -1890,17 +1890,17 @@
       "PO": "59070",
       "Amount": 1115.68,
       "Result": "HOLD",
-      "Why": "HOLD missing_receipt after leftover recheck. PO 59070 leftovers 23581-23584 are the same over-gate pool as 10162; no match for $1115.68. Comments_1 Anthony already-on-tab. Stay 722. Sibling 15457895 is now Success; parent Outlook stays Entered with issues.",
+      "Why": "HOLD missing_receipt after leftover recheck. PO 59070 leftovers 23581-23584 are the same over-gate pool as 10162; no match for $1115.68. Comments_1 Anthony already-on-tab. Stay 722. Sibling 15457895 is now Success; parent Outlook stays Entered with issues. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10178,
-      "Batch": "API Agent - 9/21/26 O'Neal (722)",
+      "Batch": "Transfer AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
       "Flag status": "entered-with-issues",
       "Flag in Outlook": "Yes",
-      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=.",
+      "Notes": "NOTE-52 Fort Worth 9 - FORT WORTH ARCHIVE move=moved-fort-worth mid=AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=. Kyle 2026-09-22 NOTE-53 missing_receipt \u2192 Transfer AP 722\u2192375 status=moved.",
       "Receipts": "none",
       "outlook": "entered-with-issues"
     },
@@ -3292,6 +3292,304 @@
       "categories": [],
       "new_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdpAAA=",
       "http": 201
+    }
+  ],
+  "missing_receipt_transfer_0922": [
+    {
+      "kimco_id": 10160,
+      "invoice": "15469453",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10160,
+        "invoice": "15469453",
+        "amount": 0.0,
+        "verification": 23151.42,
+        "type": 3,
+        "po": "PO59156-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10160,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10160,
+        "invoice": "15469453",
+        "amount": 0.0,
+        "verification": 23151.42,
+        "type": 3,
+        "po": "PO59156-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10163,
+      "invoice": "15464707",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10163,
+        "invoice": "15464707",
+        "amount": 0.0,
+        "verification": 649.53,
+        "type": 3,
+        "po": "PO58912-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10163,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10163,
+        "invoice": "15464707",
+        "amount": 0.0,
+        "verification": 649.53,
+        "type": 3,
+        "po": "PO58912-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10175,
+      "invoice": "15460995",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10175,
+        "invoice": "15460995",
+        "amount": 0.0,
+        "verification": 6954.21,
+        "type": 3,
+        "po": "PO59085-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10175,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10175,
+        "invoice": "15460995",
+        "amount": 0.0,
+        "verification": 6954.21,
+        "type": 3,
+        "po": "PO59085-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10178,
+      "invoice": "15476365",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10178,
+        "invoice": "15476365",
+        "amount": 0.0,
+        "verification": 1115.68,
+        "type": 3,
+        "po": "PO59070-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10178,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10178,
+        "invoice": "15476365",
+        "amount": 0.0,
+        "verification": 1115.68,
+        "type": 3,
+        "po": "PO59070-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
     }
   ]
 }
