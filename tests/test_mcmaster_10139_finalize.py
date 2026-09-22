@@ -43,7 +43,7 @@ def test_finalize_targets_10139_only():
     assert ALLOWED_WRITE_IDS == {10139}
     assert 10139 not in LEAVE_ALONE_HOLD_IDS
     assert 10139 in DO_NOT_MUTATE_IDS
-    other_holds = {10140, 10142, 10143, 10146, 10148, 10152, 10154, 10158, 10159}
+    other_holds = {10140, 10142, 10143, 10146, 10148, 10154, 10158, 10159}
     assert other_holds <= LEAVE_ALONE_HOLD_IDS
     assert 23841 in FIRST_OPEN_DO_NOT_USE
 

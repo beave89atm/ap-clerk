@@ -1,5 +1,5 @@
 {
-  "proof": "mcmaster-10139-finalize",
+  "proof": "mcmaster-71401129",
   "invent": false,
   "mail_send": false,
   "vendor": "McMaster-Carr Supply Company",
@@ -7,103 +7,96 @@
   "batch_name": "API Agent - 9/18/26 McMaster",
   "batch_id": 721,
   "target": {
-    "invoice": "71080498",
-    "kimco_id": 10139,
-    "po": "59056"
+    "invoice": "71401129",
+    "kimco_id": 10152,
+    "po": "59125"
   },
   "preflight": {
-    "invoice": "71080498",
-    "kimco": 10139,
-    "pdf": "/workspace/runs/inbox-pdfs/kimco_10139_Invoice_71080498.PDF",
-    "pdf_amount": 395.31,
-    "pdf_po": "59056",
+    "invoice": "71401129",
+    "kimco": 10152,
+    "po": "59125",
+    "pdf": "/workspace/runs/inbox-pdfs/2026-09-05_Invoice_71401129_for_PO_59125.PDF",
+    "pdf_amount": 257.72,
     "lines": [
       {
-        "part": "9565K38",
-        "qty": 18.0,
-        "unit_price": 20.72,
-        "amount": 372.96,
+        "part": "1432N25",
+        "qty": 8.0,
+        "unit_price": 10.89,
+        "amount": 87.12,
         "po_line": 1,
         "wo": null,
-        "label": "9565K38 Polyethylene Square Plug, Snap-in, for 1.74\" to",
-        "description": "Polyethylene Square Plug, Snap-in, for 1.74\" to"
+        "label": "1432N25 Low-Pressure 304 Stainless Steel Pipe Fitting with",
+        "description": "Low-Pressure 304 Stainless Steel Pipe Fitting with"
+      },
+      {
+        "part": "4464K355",
+        "qty": 8.0,
+        "unit_price": 8.08,
+        "amount": 64.64,
+        "po_line": 2,
+        "wo": null,
+        "label": "4464K355 304 Stainless Steel Threaded Pipe Fitting,",
+        "description": "304 Stainless Steel Threaded Pipe Fitting,"
+      },
+      {
+        "part": "4464K511",
+        "qty": 16.0,
+        "unit_price": 5.71,
+        "amount": 91.36,
+        "po_line": 3,
+        "wo": null,
+        "label": "4464K511 304 Stainless Steel Threaded Pipe Fitting,",
+        "description": "304 Stainless Steel Threaded Pipe Fitting,"
       }
     ],
     "fees": [
       {
         "name": "Shipping",
-        "amount": 22.35
+        "amount": 14.6
       }
     ],
-    "header_amount": 395.2,
-    "header_verification": 395.31,
-    "header_batch": {
-      "id": 721,
-      "text": "API Agent - 9/18/26 McMaster",
-      "isAbstract": false
-    },
-    "header_po": {
-      "id": 7058,
-      "text": "PO59056-MCMASTER-CARR",
-      "isAbstract": false
-    },
-    "open_on_po": [
+    "header_amount": 272.32,
+    "header_verification": 257.72,
+    "header_batch": 721,
+    "already_selected": [
       {
-        "id": 23841,
+        "qty": 8.0,
+        "unit": 10.89,
+        "receipt": 23939,
+        "po_line": null
+      },
+      {
+        "qty": 8.0,
+        "unit": 8.08,
+        "receipt": 23940,
+        "po_line": null
+      },
+      {
         "qty": 16.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01",
-        "remaining": null
-      },
-      {
-        "id": 24246,
-        "qty": -16.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01",
-        "remaining": null
-      },
-      {
-        "id": 24247,
-        "qty": 18.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01",
-        "remaining": null
+        "unit": 5.71,
+        "receipt": 23941,
+        "po_line": null
       }
     ],
-    "usable": [
-      {
-        "id": 24246,
-        "qty": -16.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01"
-      },
-      {
-        "id": 24247,
-        "qty": 18.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01"
-      }
+    "already_fees": [
+      14.6
     ],
-    "skipped_locked": [
-      {
-        "id": 23841,
-        "reason": "first-open-23841",
-        "remaining": null
-      }
-    ],
+    "already_ppv": [],
+    "gap": -14.6,
+    "note47": 75.0,
     "leave_alone_still_includes_others": [
       10140,
       10142,
       10143,
       10146,
       10148,
-      10152,
       10154,
       10158,
       10159
     ],
     "do_not_mutate": [
       10138,
+      10139,
       10141,
       10144,
       10145,
@@ -115,154 +108,65 @@
       10155,
       10156,
       10157
-    ],
-    "outlook_message_found": true,
-    "comments_1": {
-      "api": "GET ap_invoices record lists.Comments_1",
-      "can_read": true,
-      "count": 0,
-      "item_ids": [],
-      "htmls": [],
-      "header_comments": "API Agent",
-      "header_is_wrong_surface": true,
-      "kyle_shawn_uom_note_present": false,
-      "api_agent_header_string": true
-    },
-    "freight_external_charges": [
-      {
-        "id": 5389,
-        "amount": 22.24
-      }
-    ],
-    "already_selected": [
-      {
-        "qty": 18.0,
-        "unit": 20.72,
-        "receipt": 24247
-      }
     ]
   },
   "finish": {
+    "before_amount": 272.32,
+    "pdf_amount": 257.72,
+    "gap": -14.6,
+    "over_note47": false,
+    "already_receipts": [
+      23939,
+      23940,
+      23941
+    ],
+    "already_fees": [
+      14.6
+    ],
     "wanted": [],
     "select_status": "already-selected",
-    "fee_status": "posted",
+    "fee_status": "already-posted",
     "ppv_status": "posted",
-    "ppv_amount": -22.24,
+    "ppv_amount": -14.6,
     "match_how": null,
-    "matched": [
-      {
-        "line": {
-          "part": "9565K38",
-          "qty": 18.0,
-          "unit_price": 20.72,
-          "amount": 372.96,
-          "po_line": 1,
-          "wo": null,
-          "label": "9565K38 Polyethylene Square Plug, Snap-in, for 1.74\" to",
-          "description": "Polyethylene Square Plug, Snap-in, for 1.74\" to"
-        },
-        "receipt": {
-          "id": 24247,
-          "slip": "PO59056-MCMASTER-CARR - 2026/9/21",
-          "part": "PO59056-01",
-          "description": "PO59056-MCMASTER-CARR - 2026/9/21",
-          "label": "PO59056-MCMASTER-CARR - 2026/9/21",
-          "qty": 18.0,
-          "unit_price": 20.72,
-          "amount": 372.96,
-          "cost": null,
-          "po_line": null,
-          "line": null,
-          "line_no": null,
-          "po": "59056",
-          "wo": "",
-          "name": "PO59056-MCMASTER-CARR - 2026/9/21",
-          "raw": {
-            "Name": "PO59056-MCMASTER-CARR - 2026/9/21",
-            "PO_Item_Number": {
-              "id": 17461,
-              "text": "PO59056-01",
-              "isAbstract": false
-            }
-          }
-        },
-        "score": 75,
-        "pass": "first",
-        "how": "part/PO-WO/slip"
-      }
-    ],
+    "matched": [],
     "skipped_over_ppv": false,
     "select_zero": false,
-    "open_on_po": [
-      {
-        "id": 24246,
-        "qty": -16.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01"
-      },
-      {
-        "id": 24247,
-        "qty": 18.0,
-        "unit_price": 20.72,
-        "part": "PO59056-01"
-      }
-    ],
-    "skipped_locked": [],
-    "freight_fix": {
-      "status": "blocked-200",
-      "kimco_id": 10139,
-      "put": 200,
-      "error": "{\"id\":10139,\"state\":\"Modified\",\"errors\":[{\"field\":\"InvoiceAdditionalCharges\",\"message\":\"Some of the items in this list are not valid\"}],\"values\":{},\"lists\":{\"InvoiceAdditionalCharges\":[{\"id\":5389,\"state\":\"Modified\",\"errors\":[{\"message\":\"The",
-      "leftover": [
-        5389
-      ]
-    },
-    "uom_pack_in_gate": true,
-    "note46_in_gate_ppv": true,
-    "note46": {
-      "action": "match",
-      "ppv": 0.0,
-      "hold": false,
-      "reason": "Invoice line matches PO line",
-      "po_comment": "",
-      "success_not_price_hold": true,
-      "transfer_ap": false,
-      "note": "NOTE-46"
-    },
+    "open_on_po": [],
     "proof": {
-      "invoice_amount": 395.31,
-      "verification": 395.31,
-      "receipts": "24247 18@20.72",
+      "invoice_amount": 257.72,
+      "verification": 257.72,
+      "receipts": "23939 8@10.89; 23940 8@8.08; 23941 16@5.71",
       "vendor_id": 117,
       "batch_id": 721,
       "fee_amounts": [
-        22.35
+        14.6
       ],
       "ppv_amounts": [
-        -22.24
+        -14.6
       ]
     }
   },
   "new_rows": [
     {
       "Vendor": "McMaster-Carr Supply Company",
-      "Invoice #": "71080498",
-      "date": "2026-08-31",
-      "PO": "59056",
-      "Amount": 395.31,
+      "Invoice #": "71401129",
+      "date": "2026-09-04",
+      "PO": "59125",
+      "Amount": 257.72,
       "Result": "Success",
-      "Why": "Finished bill (Invoice_Type 3). Header PO set=59056. Select Receipts 24247 18@20.72 on PO 59056. Invoice #=71080498 (exact PDF, not subject Order #). Fees=Shipping 22.35 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. Attach status=attached. Flag status=entered-in-ai.",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59125. Select Receipts 23939 8@10.89; 23940 8@8.08; 23941 16@5.71 on PO 59125. Invoice #=71401129 (exact PDF, not subject Order #). Fees=Shipping 14.6 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=-14.60. Attach status=attached. Flag status=entered-in-ai.",
       "Exception category": "",
       "Exception owner": "",
-      "KIMCO id": 10139,
+      "KIMCO id": 10152,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
-      "Fees and surcharges": "Shipping 22.35",
-      "PPV": "none",
+      "Fees and surcharges": "Shipping 14.6",
+      "PPV": "-14.60",
       "Attach status": "attached",
       "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "24247 18@20.72",
+      "Receipts": "23939 8@10.89; 23940 8@8.08; 23941 16@5.71",
       "outlook": "entered-in-ai"
     }
   ],
@@ -567,20 +471,20 @@
       "date": "2026-09-04",
       "PO": "59125",
       "Amount": 257.72,
-      "Result": "HOLD",
-      "Why": "category=missing_receipt; owner=Shawn McKibben. HOLD (receipt): no open receipt leftover on PO 59125 for McMaster invoice #71401129. Do not first-open guess. @Shawn McKibben: receiving must receive the PO so AP can Select Receipts. Comments_1 @Shawn (NOTE-45). Do not Transfer AP. Finish Select Receipts blocked-400 ids=[23939, 23940, 23941] fees=already-posted ppv=none. Outlook Entered with issues. Flag status=entered-with-issues. Comments_1 missing_receipt status=added tab=Comments tab persisted @Shawn McKibben (list Comments_1 item 888, mention-node id 104). User-alert/notify API not confirmed \u2014 dedicated GET comments/mentions/notifications are 404. Header Comments string is the wrong surface and is ignored. transfer_ap=False batch_still=API Agent - 9/18/26 McMaster mail_send=False.",
-      "Exception category": "missing_receipt",
-      "Exception owner": "Shawn McKibben",
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Header PO set=59125. Select Receipts 23939 8@10.89; 23940 8@8.08; 23941 16@5.71 on PO 59125. Invoice #=71401129 (exact PDF, not subject Order #). Fees=Shipping 14.6 (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=-14.60. Attach status=attached. Flag status=entered-in-ai.",
+      "Exception category": "",
+      "Exception owner": "",
       "KIMCO id": 10152,
       "Batch": "API Agent - 9/18/26 McMaster (721)",
       "Fees and surcharges": "Shipping 14.6",
-      "PPV": "none",
+      "PPV": "-14.60",
       "Attach status": "attached",
-      "Flag status": "entered-with-issues",
+      "Flag status": "entered-in-ai",
       "Flag in Outlook": "Yes",
       "Notes": "",
-      "Receipts": "none",
-      "outlook": "entered-with-issues"
+      "Receipts": "23939 8@10.89; 23940 8@8.08; 23941 16@5.71",
+      "outlook": "entered-in-ai"
     },
     {
       "Vendor": "McMaster-Carr Supply Company",
@@ -730,7 +634,7 @@
       "outlook": "entered-with-issues"
     }
   ],
-  "prior_proof": "mcmaster-plus20-0921",
+  "prior_proof": "mcmaster-10139-finalize",
   "leftover_pending": [
     {
       "invoice_number": "",
@@ -1517,31 +1421,5 @@
       "credit": false,
       "pay_reminder": false
     }
-  ],
-  "finish_cleanup": {
-    "removed_charge_ids": [
-      5389,
-      5393
-    ],
-    "kept_fee_id": 5392,
-    "invoice_amount": 395.31,
-    "verification": 395.31,
-    "fee_amounts": [
-      22.35
-    ],
-    "ppv_amounts": [],
-    "receipts": "24247 18@20.72",
-    "batch_id": 721
-  },
-  "comments_1": {
-    "api": "GET ap_invoices record lists.Comments_1",
-    "can_read": true,
-    "count": 0,
-    "item_ids": [],
-    "htmls": [],
-    "header_comments": "API Agent",
-    "header_is_wrong_surface": true,
-    "kyle_shawn_uom_note_present": false,
-    "api_agent_header_string": true
-  }
+  ]
 }
