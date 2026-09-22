@@ -92,6 +92,23 @@ def test_partial_multi_slip_does_not_stamp_ai_completed():
     assert decision["leftover"]
 
 
+def test_mcmaster_zip_30135_is_not_a_po():
+    from ap_clerk.packing_slips import extract_page_keys, extract_slip_po
+
+    zip_only = (
+        "McMASTER-CARR Packing List\n"
+        "1901 Riverside Pkwy Douglasville GA 30135-3150\n"
+        "Kannon Manufacturing Inc 5129 Vesta Farley Rd Fort Worth TX 76119\n"
+    )
+    assert extract_slip_po(zip_only) is None
+    assert extract_page_keys(zip_only, page_index=1)["po"] is None
+
+    real = zip_only + "\nThe purchase order number was changed from PO59235 to 59235.\n"
+    assert extract_slip_po(real) == "59235"
+    labeled = zip_only + "\nPurchase Order 59224\n"
+    assert extract_slip_po(labeled) == "59224"
+
+
 def test_attach_name_keeps_sharp_filename_when_whole_pdf():
     name = attach_name_for_slip(
         {"pages": [1, 2], "po": "59008"},
