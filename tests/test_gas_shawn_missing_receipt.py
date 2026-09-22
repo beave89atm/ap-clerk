@@ -52,6 +52,16 @@ def test_mention_html_uses_proven_id_104():
     assert "0040437952" in html
 
 
+def test_sheet_merge_keys_results_invoice():
+    from gas_shawn_missing_receipt import exact_invoice_number
+
+    results = [{"invoice": "0040438052", "status": "added", "comments_1": [{"id": 940}]}]
+    by_inv = {
+        exact_invoice_number(r.get("invoice") or r.get("Invoice #")): r for r in results
+    }
+    assert by_inv[exact_invoice_number("0040438052")]["status"] == "added"
+
+
 def test_restore_helper_only_targets_720():
     from gas_shawn_missing_receipt import KNOWN_BATCH_ID, move_back_to_720
 

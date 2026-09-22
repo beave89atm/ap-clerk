@@ -199,7 +199,9 @@ def ping_header(client: KimcoClient, spec: dict[str, Any]) -> dict[str, Any]:
 
 def patch_sheet(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
     prior = prior_rows_from_sidecar(SHEET_JSON)
-    by_inv = {exact_invoice_number(r.get("Invoice #")): r for r in results}
+    by_inv = {
+        exact_invoice_number(r.get("invoice") or r.get("Invoice #")): r for r in results
+    }
     updated: list[dict[str, Any]] = []
     for row in prior:
         inv = exact_invoice_number(row.get("Invoice #"))
