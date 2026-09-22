@@ -1,0 +1,184 @@
+{
+  "proof": "oneal-plus10-2026-09-22",
+  "invent": false,
+  "mail_send": false,
+  "note51": true,
+  "ppv_max": 75.0,
+  "batch": "API Agent - 9/21/26 O'Neal",
+  "batch_id": 722,
+  "locked_headers": {
+    "15469453": 10160,
+    "15457895": 10161,
+    "15457907": 10162,
+    "15464707": 10163,
+    "15464854": 10164
+  },
+  "preferred": [
+    "15460544",
+    "15460995",
+    "15461007",
+    "15461157"
+  ],
+  "chosen": [
+    {
+      "invoice": "15460544",
+      "po": "58920",
+      "amount": 64.5,
+      "date": "2026-08-12"
+    },
+    {
+      "invoice": "15460995",
+      "po": "59085",
+      "amount": 6954.21,
+      "date": "2026-08-12"
+    },
+    {
+      "invoice": "15461007",
+      "po": "59086",
+      "amount": 67.38,
+      "date": "2026-08-12"
+    },
+    {
+      "invoice": "15461157",
+      "po": "59092",
+      "amount": 1978.91,
+      "date": "2026-08-12"
+    },
+    {
+      "invoice": "15476365",
+      "po": "59070",
+      "amount": 1115.68,
+      "date": "2026-08-28"
+    },
+    {
+      "invoice": "15476879",
+      "po": "59236",
+      "amount": 245.28,
+      "date": "2026-08-28"
+    },
+    {
+      "invoice": "15477248",
+      "po": "59246",
+      "amount": 152.88,
+      "date": "2026-08-28"
+    }
+  ],
+  "leftover": [
+    {
+      "invoice_number": "15429965",
+      "po": "58848",
+      "date": "2026-07-31",
+      "amount": 638.88,
+      "received": "2026-08-06T04:20:43Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "why": "too-old (before 2026-08-01); not entered"
+    }
+  ],
+  "dry_run": false,
+  "anthony_mention_id": null,
+  "entered": [
+    {
+      "invoice": "15460544",
+      "kimco_id": 10174,
+      "result": "Success",
+      "po": "58920",
+      "amount": 64.5,
+      "exception_category": "",
+      "exception_owner": "",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "Finished bill (Invoice_Type 3). Header PO set=58920. Select Receipts 23730 240@0.2688 on PO 58920. Invoice #=15460544 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. At"
+    },
+    {
+      "invoice": "15460995",
+      "kimco_id": 10175,
+      "result": "HOLD",
+      "po": "59085",
+      "amount": 6954.21,
+      "exception_category": "missing_receipt",
+      "exception_owner": "Anthony",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59085 for O'Neal invoice #15460995. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comme"
+    },
+    {
+      "invoice": "15461007",
+      "kimco_id": 10176,
+      "result": "Success",
+      "po": "59086",
+      "amount": 67.38,
+      "exception_category": "",
+      "exception_owner": "",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "Finished after rounding PPV +0.18. Amount=67.38 equals PDF. Receipts already selected. Parent Outlook Entered with issues (siblings not all Success)."
+    },
+    {
+      "invoice": "15461157",
+      "kimco_id": 10177,
+      "result": "Success",
+      "po": "59092",
+      "amount": 1978.91,
+      "exception_category": "",
+      "exception_owner": "",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "Finished bill (Invoice_Type 3). Header PO set=59092. Select Receipts 23799 4@494.7275 on PO 59092. Invoice #=15461157 (exact PDF). Fees=none (Additional Charge Fees id 11, not missing merch lines / not PPV). PPV=none. At"
+    },
+    {
+      "invoice": "15476365",
+      "kimco_id": 10178,
+      "result": "HOLD",
+      "po": "59070",
+      "amount": 1115.68,
+      "exception_category": "missing_receipt",
+      "exception_owner": "Anthony",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "category=missing_receipt; owner=Anthony. HOLD (receipt): no open receipt leftover on PO 59070 for O'Neal invoice #15476365. Do not first-open guess. Anthony: receiving must receive the PO so AP can Select Receipts. Comme"
+    },
+    {
+      "invoice": "15476879",
+      "kimco_id": 10179,
+      "result": "Success",
+      "po": "59236",
+      "amount": 245.28,
+      "exception_category": "",
+      "exception_owner": "",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "False $75 lock reversed. Rounding PPV -0.04. Returned from Transfer AP to 722. Amount=245.28. Parent Outlook Entered with issues (15476365 still HOLD)."
+    },
+    {
+      "invoice": "15477248",
+      "kimco_id": 10180,
+      "result": "Success",
+      "po": "59246",
+      "amount": 152.88,
+      "exception_category": "",
+      "exception_owner": "",
+      "batch": "API Agent - 9/21/26 O'Neal (722)",
+      "outlook": "entered-with-issues",
+      "why": "False $75 lock reversed. Rounding PPV +1.20. Returned from Transfer AP to 722. Amount=152.88. Parent Outlook Entered with issues (15476365 still HOLD)."
+    }
+  ],
+  "outlook": {
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    }
+  },
+  "sheet": "/workspace/runs/AP-run-2026-09-21-oneal.xlsx"
+}
