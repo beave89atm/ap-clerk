@@ -49,6 +49,7 @@ GATE_PDF_LINK = "pdf-behind-link"
 GATE_VENDOR = "vendor-mismatch"
 GATE_ALREADY_ENTERED = "already-entered"
 GATE_TOO_OLD = "too-old"
+GATE_PACKING_SLIP = "missing-packing-slip"
 
 BROWSER_FAIL_LABELS = {
     "login-required": "guest browser landed on a login page",
@@ -513,11 +514,14 @@ def finish_gate(
     fees: list[dict[str, Any]] | None = None,
     fees_posted: bool = False,
     freight_vendor: bool = False,
+    packing_slip_attached: bool = False,
 ) -> tuple[str, str]:
-    """Success only if header + (Select Receipts when PO) + PDF attached
-    + Additional Charge Fees posted when fees were parsed
-    AND the Treyce-load self-check passes (she would not need to rework).
+    """Success only if header + (Select Receipts when PO) + vendor PDF
+    + ≥1 matched signed packing slip + Additional Charge Fees posted
+    when fees were parsed AND the Treyce-load self-check passes.
 
+    Invoice PDF alone is not Success (NOTE-49). Missing matched
+    receiving@ packing slip is HOLD missing-packing-slip, not Incomplete.
     Header-only with blocked-405 attach, receipts not selected, or fees
     noted on the sheet but not posted is Incomplete.
     Incomplete is not Success and must not be Entered in AI.
@@ -561,6 +565,18 @@ def finish_gate(
         ok, why = treyce_finish_selfcheck(selfcheck)
         if not ok:
             return RESULT_HOLD, why
+    if not packing_slip_attached:
+        return RESULT_HOLD, why_hold(
+            GATE_PACKING_SLIP,
+            "Vendor invoice PDF is on the header but no matched signed packing "
+            "slip from receiving@ (Sharp MFP scan). Success requires both the "
+            "vendor invoice PDF and ≥1 signed packing slip. Match by PO / "
+            "invoice # / vendor / dates. A slip may be more than one page — "
+            "keep consecutive pages of the same slip together; do not treat "
+            "1 page = 1 slip. Multi-slip scan PDFs are not 1 invoice. "
+            "Next: find the signed slip on receiving@ or HOLD until receiving "
+            "scans it. Do not enter invoices from receiving@.",
+        )
     return RESULT_SUCCESS, ""
 
 
@@ -571,6 +587,7 @@ def success_is_legal(
     po: Any = None,
     multi_po: bool = False,
     receipts_selected: bool = False,
+    packing_slip_attached: bool = False,
 ) -> bool:
     result, _why = finish_gate(
         header_created=header_created,
@@ -578,6 +595,7 @@ def success_is_legal(
         po=po,
         multi_po=multi_po,
         receipts_selected=receipts_selected,
+        packing_slip_attached=packing_slip_attached,
     )
     return result == RESULT_SUCCESS
 
@@ -792,6 +810,13 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
         failures.append(
             "Vendor PDF is not attached on the header. "
             "Fix: attach the PDF before Success. Treyce would still attach it."
+        )
+    if check.get("require_packing_slip") and not check.get("packing_slip_attached"):
+        failures.append(
+            "Signed packing slip from receiving@ is not on the header (NOTE-49). "
+            "Invoice PDF alone is not Success. Fix: match and attach ≥1 signed "
+            "packing slip (keep multi-page slips together). Do not enter invoices "
+            "from receiving@."
         )
     if check.get("require_select_receipts", False) and not check.get("receipts_selected"):
         failures.append(

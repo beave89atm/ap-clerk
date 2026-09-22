@@ -63,9 +63,11 @@ def _kimco(*, attach="attached", select="selected", created_id=8800):
 
 def _row(inv, *, kimco=None, po_index=None, samples=None):
     client = kimco or _kimco()
+    payload = dict(inv)
+    payload.setdefault("packing_slip_attached", True)
     return _process_invoice(
         client,
-        inv,
+        payload,
         batch={"id": 1},
         batch_label="API Agent - 9/11/26 (1)",
         invoice_by_number={},

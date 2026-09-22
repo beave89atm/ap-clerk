@@ -1,6 +1,7 @@
 """API-only finish of existing Incomplete AP headers (QUALITY V1.1).
 
-No KIMCO UI. Success requires header + (Select Receipts when PO) + PDF attached.
+No KIMCO UI. Success requires header + (Select Receipts when PO) + vendor
+invoice PDF + ≥1 signed packing slip from receiving@ (NOTE-49).
 Never prints secrets.
 """
 
@@ -13,6 +14,7 @@ from typing import Any
 
 from ap_clerk.daily import result_counts
 from ap_clerk.quality_v12 import apply_exception_category_owner
+from ap_clerk.packing_slips import packing_slip_attached_for_invoice
 from ap_clerk.gates import (
     GATE_QTY,
     RESULT_HOLD,
@@ -406,6 +408,7 @@ def finish_existing_header(
         fees=parsed_fees,
         fees_posted=fees_posted,
         freight_vendor=is_freight_vendor(str(inv.get("vendor") or out.get("Vendor") or "")),
+        packing_slip_attached=packing_slip_attached_for_invoice(inv),
     )
     out["Result"] = result
     out["Attach status"] = attach_status
