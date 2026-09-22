@@ -1,5 +1,5 @@
 {
-  "proof": "oneal-0921-fort-worth",
+  "proof": "oneal-0921-after-fort-worth-and-transfer-ap",
   "invent": false,
   "mail_send": false,
   "vendor": "O'Neal Steel - Dallas (GP)",
@@ -1707,7 +1707,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10160,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -1768,7 +1768,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10163,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -1831,7 +1831,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10175,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -1894,7 +1894,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Anthony",
       "KIMCO id": 10178,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -3591,5 +3591,108 @@
       "after_batch": 375,
       "status": "moved"
     }
-  ]
+  ],
+  "sheet_refresh": {
+    "live_batches": {
+      "10160": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice": "15469453",
+        "receipt_n": 0,
+        "amount": 0.0
+      },
+      "10161": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15457895",
+        "receipt_n": 1,
+        "amount": 687.26
+      },
+      "10162": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice": "15457907",
+        "receipt_n": 0,
+        "amount": 0.0
+      },
+      "10163": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice": "15464707",
+        "receipt_n": 0,
+        "amount": 0.0
+      },
+      "10164": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15464854",
+        "receipt_n": 1,
+        "amount": 471.42
+      },
+      "10174": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15460544",
+        "receipt_n": 1,
+        "amount": 64.51
+      },
+      "10175": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice": "15460995",
+        "receipt_n": 0,
+        "amount": 0.0
+      },
+      "10176": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15461007",
+        "receipt_n": 1,
+        "amount": 67.38
+      },
+      "10177": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15461157",
+        "receipt_n": 1,
+        "amount": 1978.91
+      },
+      "10178": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice": "15476365",
+        "receipt_n": 0,
+        "amount": 0.0
+      },
+      "10179": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15476879",
+        "receipt_n": 1,
+        "amount": 245.28
+      },
+      "10180": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15477248",
+        "receipt_n": 1,
+        "amount": 152.88
+      },
+      "10079": {
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "invoice": "15447737",
+        "receipt_n": 4,
+        "amount": 1683.01
+      }
+    },
+    "fort_worth_moved": 6,
+    "fort_worth_skipped_sibling": 7,
+    "missing_receipt_moved_to_375": [
+      10160,
+      10163,
+      10175,
+      10178
+    ]
+  }
 }

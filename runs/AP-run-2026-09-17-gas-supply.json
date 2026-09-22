@@ -1295,7 +1295,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10173,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -1316,7 +1316,7 @@
       "Exception category": "missing_receipt",
       "Exception owner": "Shawn McKibben",
       "KIMCO id": 10181,
-      "Batch": "Transfer AP (375)",
+      "Batch": "TRANSFER AP (375)",
       "Fees and surcharges": "none",
       "PPV": "none",
       "Attach status": "attached",
@@ -4496,5 +4496,25 @@
       "after_batch": 375,
       "status": "moved"
     }
-  ]
+  ],
+  "gas_10173_10181_transfer_ap": {
+    "10173": {
+      "invoice": "0040438052",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "amount": 0.0,
+      "verification": 5178.55,
+      "type": 3,
+      "receipt_n": 0
+    },
+    "10181": {
+      "invoice": "0040437952",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "amount": 0.0,
+      "verification": 241.46,
+      "type": 3,
+      "receipt_n": 0
+    }
+  }
 }
