@@ -43,7 +43,7 @@ from ap_clerk.graph import (
 from ap_clerk.inbox import sender_address, sender_name
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.outlook_finish import promote_ap_outlook_after_success
-from ap_clerk.pdf_invoice import parse_invoice_pdf
+from ap_clerk.pdf_invoice import parse_date_value, parse_invoice_pdf
 from ap_clerk.quality_v12 import (
     COL_EXCEPTION_CATEGORY,
     COL_EXCEPTION_OWNER,
@@ -119,6 +119,22 @@ def exact_invoice_number(value: Any) -> str:
     return invoice_number_key(value) or str(value or "").strip()
 
 
+def invoice_day(value: Any) -> date | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    iso = parse_date_value(str(value).strip())
+    if not iso:
+        return None
+    try:
+        return date.fromisoformat(iso)
+    except ValueError:
+        return None
+
+
 def is_3p_vendor_text(value: str | None) -> bool:
     blob = str(value or "")
     if names_match(blob, "3P") or names_match(blob, "3P Industries"):
@@ -183,13 +199,13 @@ def pick_oldest_open(
             continue
         if number in entered:
             continue
-        inv_day = parse_iso_date(str(bill.get("date") or "")[:10])
+        inv_day = invoice_day(bill.get("date"))
         if inv_day is not None and inv_day < min_date:
             continue
         open_bills.append(bill)
 
     def sort_key(bill: dict[str, Any]) -> tuple:
-        inv_day = parse_iso_date(str(bill.get("date") or "")[:10]) or date.max
+        inv_day = invoice_day(bill.get("date")) or date.max
         received = str(bill.get("receivedDateTime") or "")
         return (inv_day.isoformat(), received, exact_invoice_number(bill.get("invoice_number")))
 
@@ -574,7 +590,7 @@ def main(argv: list[str] | None = None) -> int:
         if skip:
             skipped.append({"reason": skip, "subject": msg.get("subject")})
             continue
-        received_day = parse_iso_date(str(msg.get("receivedDateTime") or "")[:10])
+        received_day = invoice_day(str(msg.get("receivedDateTime") or "")[:10])
         if received_day is not None and received_day < MIN_INVOICE_DATE:
             skipped.append({"reason": "received-before-aug1", "subject": msg.get("subject")})
             continue

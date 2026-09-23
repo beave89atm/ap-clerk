@@ -143,6 +143,16 @@ def test_pick_oldest_open_cap_five_skips_entered_and_pre_aug1():
     assert "142060" not in [b["invoice_number"] for b in picked]
 
 
+def test_pick_oldest_open_accepts_slash_dates():
+    bills = [
+        {"invoice_number": "142100", "date": "8/2/2026", "receivedDateTime": "2026-08-03T10:00:00Z"},
+        {"invoice_number": "142101", "date": "", "receivedDateTime": "2026-08-04T10:00:00Z"},
+        {"invoice_number": "142102", "date": "08/01/2026", "receivedDateTime": "2026-08-02T10:00:00Z"},
+    ]
+    picked = pick_oldest_open(bills, {}, cap=5)
+    assert [b["invoice_number"] for b in picked] == ["142102", "142100", "142101"]
+
+
 def test_3p_receiving_owner_is_ruben_plain_no_mention_id():
     entry = lookup_receiving_owner("3P")
     assert entry and entry["receiving_owner_raw"] == "Ruben"
