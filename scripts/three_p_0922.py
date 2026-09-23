@@ -293,13 +293,12 @@ def bills_from_message(graph: GraphClient, message: dict[str, Any], pdf_dir: Pat
         dest.write_bytes(content)
         parsed = parse_invoice_pdf(
             dest,
-            filename=name,
             subject=subject,
             from_name=from_name,
             from_address=sender_address(message),
         )
-        siblings = list(parsed.get("invoices") or parsed.get("splits") or [])
-        rows = siblings if siblings else [parsed]
+        extras = list(parsed.pop("siblings", []) or [])
+        rows = [parsed, *extras]
         for row in rows:
             number = exact_invoice_number(
                 row.get("invoice_number") or parsed.get("invoice_number") or extract_subject_invoice_number(subject)
@@ -574,6 +573,10 @@ def main(argv: list[str] | None = None) -> int:
             continue
         if skip:
             skipped.append({"reason": skip, "subject": msg.get("subject")})
+            continue
+        received_day = parse_iso_date(str(msg.get("receivedDateTime") or "")[:10])
+        if received_day is not None and received_day < MIN_INVOICE_DATE:
+            skipped.append({"reason": "received-before-aug1", "subject": msg.get("subject")})
             continue
         bills.extend(bills_from_message(graph, msg, PDF_DIR))
 
