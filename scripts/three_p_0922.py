@@ -43,7 +43,15 @@ from ap_clerk.graph import (
 from ap_clerk.inbox import sender_address, sender_name
 from ap_clerk.kimco import KimcoClient, KimcoError
 from ap_clerk.outlook_finish import promote_ap_outlook_after_success
-from ap_clerk.pdf_invoice import parse_date_value, parse_invoice_pdf
+from ap_clerk.pdf_invoice import (
+    extract_3p_lines,
+    extract_pdf_text,
+    first_invoice_page,
+    parse_date_value,
+    parse_invoice_pdf,
+    parse_invoice_text,
+    parse_money,
+)
 from ap_clerk.quality_v12 import (
     COL_EXCEPTION_CATEGORY,
     COL_EXCEPTION_OWNER,
@@ -113,10 +121,120 @@ INVOICE_HINT_RE = re.compile(r"\b(inv(?:oice)?|cpl)\b", flags=re.I)
 FREIGHT_FYI_RE = re.compile(r"freight\s+fyi|fyi\s+freight", flags=re.I)
 STATEMENT_RE = re.compile(r"\b(statement|account\s+statement)\b", flags=re.I)
 CORRECTED_RE = re.compile(r"\bcorrected\s+invoice\b", flags=re.I)
+THREE_P_INV_RE = re.compile(r"\b(14\d{4})\b")
+THREE_P_FALSE_INV = frozenset({"11942"})
+THREE_P_DATE_INV_RE = re.compile(r"\b(\d{1,2}/\d{1,2}/20\d{2})\s+(14\d{4})\b")
+THREE_P_TOTAL_RE = re.compile(r"\bTotal\s*[S$]?\s*([\d,]+\.\d{2})\b", flags=re.I)
+THREE_P_LINE_RE = re.compile(
+    r"(?m)^(?:\s*)(\d+(?:\.\d+)?)\s+(?:LINE\s+\d+:\s*)?([A-Z0-9]+(?:-[A-Z0-9]+)*)\b"
+    r".+?\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+THREE_P_PO_HEAD_RE = re.compile(r"(?m)^PO\s*#\s*(\d{5,6})\s*$", flags=re.I)
+THREE_P_HEADER_PO_RE = re.compile(
+    r"P\.?O\.?\s*Number\b.{0,80}?\b(5[7-9]\d{3})\b",
+    flags=re.I | re.S,
+)
 
 
 def exact_invoice_number(value: Any) -> str:
     return invoice_number_key(value) or str(value or "").strip()
+
+
+def prefer_3p_invoice_number(
+    *,
+    subject: str = "",
+    parsed: str | None = None,
+    pdf_text: str = "",
+) -> str:
+    """Never use 11942 (Tyler street). Prefer subject / Date+Invoice # 14xxxx."""
+    subject_inv = exact_invoice_number(extract_subject_invoice_number(subject))
+    parsed_inv = exact_invoice_number(parsed)
+    dated = ""
+    hit = THREE_P_DATE_INV_RE.search(pdf_text or "")
+    if hit:
+        dated = exact_invoice_number(hit.group(2))
+    for candidate in (subject_inv, dated, parsed_inv, *THREE_P_INV_RE.findall(pdf_text or "")):
+        if candidate in THREE_P_FALSE_INV:
+            continue
+        if re.fullmatch(r"14\d{4}", candidate or ""):
+            return candidate
+    if parsed_inv and parsed_inv not in THREE_P_FALSE_INV:
+        return parsed_inv
+    return subject_inv
+
+
+def recover_3p_fields(bill: dict[str, Any], pdf_text: str) -> dict[str, Any]:
+    """Fill invoice # / date / amount / lines from OCR without inventing."""
+    page = first_invoice_page(pdf_text or "")
+    number = prefer_3p_invoice_number(
+        subject=str(bill.get("subject") or ""),
+        parsed=str(bill.get("invoice_number") or ""),
+        pdf_text=page,
+    )
+    if number:
+        bill["invoice_number"] = number
+    dated = THREE_P_DATE_INV_RE.search(page)
+    if dated and not invoice_day(bill.get("date")):
+        bill["date"] = parse_date_value(dated.group(1))
+    if bill.get("amount") in (None, ""):
+        totals = [parse_money(m) for m in THREE_P_TOTAL_RE.findall(page)]
+        totals = [a for a in totals if a not in (None, 0)]
+        if totals:
+            bill["amount"] = totals[-1]
+    pos = [str(p) for p in (bill.get("pos") or []) if p]
+    header_po = THREE_P_HEADER_PO_RE.search(page)
+    if header_po and header_po.group(1) not in pos:
+        pos.append(header_po.group(1))
+    lines = list(bill.get("lines") or [])
+    if not lines:
+        lines = extract_3p_lines(page)
+    if not lines:
+        current_po = pos[0] if len(pos) == 1 else None
+        recovered: list[dict[str, Any]] = []
+        for raw in page.splitlines():
+            headed = THREE_P_PO_HEAD_RE.match(raw.strip())
+            if headed:
+                current_po = headed.group(1)
+                if current_po not in pos:
+                    pos.append(current_po)
+                continue
+            match = THREE_P_LINE_RE.match(raw.strip())
+            if not match:
+                continue
+            qty, part, each, amt = match.groups()
+            recovered.append(
+                {
+                    "part": part,
+                    "qty": parse_money(qty),
+                    "amount": parse_money(amt),
+                    "unit_price": parse_money(each),
+                    "po": current_po,
+                    "po_line": None,
+                    "wo": None,
+                    "label": raw.strip()[:80],
+                    "description": raw.strip()[:120],
+                }
+            )
+        lines = recovered
+    if lines:
+        bill["lines"] = lines
+        line_pos = [str(item.get("po") or "") for item in lines if item.get("po")]
+        for po in line_pos:
+            if po not in pos:
+                pos.append(po)
+        if bill.get("amount") in (None, ""):
+            line_sum = round(
+                sum(float(item["amount"]) for item in lines if item.get("amount") not in (None, "")),
+                2,
+            )
+            if line_sum:
+                bill["amount"] = line_sum
+    pos = [p for p in pos if p]
+    bill["pos"] = pos
+    bill["multi_po"] = len(pos) > 1
+    bill["po"] = None if bill["multi_po"] else (bill.get("po") or (pos[0] if pos else None))
+    return bill
 
 
 def invoice_day(value: Any) -> date | None:
@@ -307,17 +425,40 @@ def bills_from_message(graph: GraphClient, message: dict[str, Any], pdf_dir: Pat
     for name, content in pdfs:
         dest = pdf_dir / f"3p-{exact_invoice_number(extract_subject_invoice_number(subject) or name)}-{name}"
         dest.write_bytes(content)
-        parsed = parse_invoice_pdf(
-            dest,
+        pdf_text = extract_pdf_text(dest)
+        parsed = parse_invoice_text(
+            pdf_text,
             subject=subject,
             from_name=from_name,
             from_address=sender_address(message),
+            filename=name,
         )
         extras = list(parsed.pop("siblings", []) or [])
         rows = [parsed, *extras]
         for row in rows:
-            number = exact_invoice_number(
-                row.get("invoice_number") or parsed.get("invoice_number") or extract_subject_invoice_number(subject)
+            recovered = recover_3p_fields(
+                {
+                    "invoice_number": row.get("invoice_number"),
+                    "date": row.get("date"),
+                    "po": row.get("po"),
+                    "pos": list(row.get("pos") or []),
+                    "amount": row.get("amount"),
+                    "lines": list(row.get("lines") or []),
+                    "subject": subject,
+                },
+                pdf_text,
+            )
+            row.update(
+                {
+                    k: recovered[k]
+                    for k in ("invoice_number", "date", "po", "pos", "amount", "lines", "multi_po")
+                    if k in recovered
+                }
+            )
+            number = prefer_3p_invoice_number(
+                subject=subject,
+                parsed=row.get("invoice_number") or parsed.get("invoice_number"),
+                pdf_text=pdf_text,
             )
             pos = list(row.get("pos") or parsed.get("pos") or extract_subject_pos(subject) or [])
             pos = [str(p) for p in pos if p]

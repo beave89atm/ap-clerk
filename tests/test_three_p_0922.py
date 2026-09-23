@@ -30,6 +30,8 @@ is_3p_email = _MOD.is_3p_email
 is_3p_vendor_text = _MOD.is_3p_vendor_text
 is_other_vendor_email = _MOD.is_other_vendor_email
 pick_oldest_open = _MOD.pick_oldest_open
+prefer_3p_invoice_number = _MOD.prefer_3p_invoice_number
+recover_3p_fields = _MOD.recover_3p_fields
 skip_reason_for_message = _MOD.skip_reason_for_message
 
 
@@ -151,6 +153,36 @@ def test_pick_oldest_open_accepts_slash_dates():
     ]
     picked = pick_oldest_open(bills, {}, cap=5)
     assert [b["invoice_number"] for b in picked] == ["142102", "142100", "142101"]
+
+
+def test_prefer_3p_invoice_rejects_street_11942():
+    assert prefer_3p_invoice_number(subject="INV # 142173 / PL # 51969 / PO # 58887", parsed="11942") == "142173"
+    assert prefer_3p_invoice_number(parsed="11942", pdf_text="11942 LANEY ROAD\n8/17/2026 142173") == "142173"
+    assert prefer_3p_invoice_number(parsed="11942") == ""
+
+
+def test_recover_3p_fields_single_po_and_total():
+    text = (
+        "3P INDUSTRIES Invoice\n11942 LANEY ROAD\nDate Invoice #\n8/17/2026 142173\n"
+        "P.O. Number Terms Due Date\n58887 Net 60 10/16/2026\n"
+        "PACKING LIST # 51969\n10 2975-1 JIB POLE 39.80 398.00\nTotal $398.00\n"
+    )
+    out = recover_3p_fields(
+        {
+            "invoice_number": "11942",
+            "subject": "INV # 142173 / PL # 51969 / PO # 58887",
+            "pos": [],
+            "lines": [],
+        },
+        text,
+    )
+    assert out["invoice_number"] == "142173"
+    assert out["date"] == "2026-08-17"
+    assert out["po"] == "58887"
+    assert out["multi_po"] is False
+    assert out["amount"] == 398.0
+    assert out["lines"][0]["part"] == "2975-1"
+    assert out["lines"][0]["qty"] == 10.0
 
 
 def test_3p_receiving_owner_is_ruben_plain_no_mention_id():
