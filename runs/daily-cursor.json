@@ -1,10 +1,10 @@
 {
   "mailbox": "accountspayable@kannonmfg.com",
   "start_from": "2026-07-28",
-  "last_receivedDateTime": "2026-08-19T20:12:03Z",
-  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5ZcAAA=",
-  "last_run_date": "2026-09-15",
-  "last_batch": "API Agent - 9/15/26 (711)",
-  "processed_count": 480,
-  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-15 weekday live-10 advanced from 2026-08-19T00:04:36Z / 466 to 2026-08-19T20:12:03Z / 480 on API Agent - 9/15/26 (711). Next weekday continues AFTER this cursor. Do not restart at 7/28."
+  "last_receivedDateTime": "2026-08-20T04:57:35Z",
+  "last_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOGA5ZoAAA=",
+  "last_run_date": "2026-09-16",
+  "last_batch": "API Agent - 9/16/26 (715)",
+  "processed_count": 494,
+  "notes": "FIFO from 2026-07-28 America/Chicago toward today. 2026-09-16 weekday live-10 advanced from 2026-08-19T20:12:03Z / 480 to 2026-08-20T04:57:35Z / 494 on API Agent - 9/16/26 (715). Next weekday continues AFTER this cursor. Do not restart at 7/28."
 }
