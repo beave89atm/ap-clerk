@@ -14,17 +14,21 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from openpyxl import Workbook
 
 from ap_clerk.auth import load_credentials
 from ap_clerk.kimco import KimcoClient, KimcoError
-from ap_clerk.rules import AQPC_VENDOR_ID, is_aqpc_vendor, lookup_id, lookup_text, money
+from ap_clerk.rules import is_aqpc_vendor, lookup_id, lookup_text, money
 
-ROOT = Path(__file__).resolve().parent.parent
 ARTIFACT_JSON = Path("/opt/cursor/artifacts/aqpc-ruben-tag-2026-09-24.json")
 ARTIFACT_XLSX = Path("/opt/cursor/artifacts/aqpc-ruben-tag-2026-09-24.xlsx")
 PROOF = ROOT / "runs" / "aqpc-ruben-tag-2026-09-24.json"
