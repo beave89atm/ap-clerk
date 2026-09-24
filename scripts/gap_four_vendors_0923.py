@@ -617,6 +617,21 @@ def choose_batch(client: KimcoClient, vendor_key: str) -> dict[str, Any]:
     }
 
 
+def subject_invoice_candidates(subject: str) -> list[str]:
+    """Invoice numbers printed in the subject. Empty when the subject has none."""
+    found: list[str] = []
+    for pattern in (
+        r"\b(PS-INV\d+)\b",
+        r"\b(00\d{8})\b",
+        r"\binvoice\s+#?\s*([0-9]{4,})\b",
+    ):
+        for match in re.finditer(pattern, subject or "", flags=re.I):
+            key = invoice_number_key(match.group(1))
+            if key and key not in found:
+                found.append(key)
+    return found
+
+
 def _po_text(bill: dict[str, Any]) -> str:
     pos = [str(p) for p in (bill.get("pos") or []) if p]
     if len(pos) > 1:
@@ -990,6 +1005,41 @@ def main(argv: list[str] | None = None) -> int:
                     }
                 )
                 continue
+            subject_numbers = subject_invoice_candidates(subject)
+            if subject_numbers and all(num in kimco_index.get(vendor_key, {}) for num in subject_numbers):
+                for num in subject_numbers:
+                    dedupe = (vendor_key, num)
+                    if dedupe in seen_invoice:
+                        continue
+                    seen_invoice.add(dedupe)
+                    cats = list(msg.get("categories") or [])
+                    rows.append(
+                        {
+                            "Vendor": VENDORS[vendor_key]["label"],
+                            "Invoice #": num,
+                            "date": "",
+                            "PO": "",
+                            "Amount": "",
+                            "Result": "already in KIMCO",
+                            "Why": (
+                                f"Live KIMCO id {kimco_index[vendor_key][num]} already has this "
+                                "vendor invoice # from the email subject. PDF not re-read. Not re-entered."
+                            ),
+                            "Exception category": "",
+                            "Exception owner": "",
+                            "KIMCO id": kimco_index[vendor_key][num],
+                            "Batch": "",
+                            "Outlook category": ", ".join(cats),
+                            "Notes": "subject invoice # already in KIMCO",
+                            "_message_id": str(msg.get("id") or ""),
+                            "_vendor_key": vendor_key,
+                            "_new": False,
+                            "_folder": msg.get("_folder"),
+                            "_needs_category": not has_process_category({"categories": cats}),
+                        }
+                    )
+                continue
+            LOGGER.info("Parsing %s %s", vendor_key, subject[:90])
             bills, notes = bills_from_message(graph, msg, vendor_key)
             skipped.extend(notes)
             if not bills and not notes:

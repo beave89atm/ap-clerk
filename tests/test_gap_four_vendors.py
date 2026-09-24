@@ -2,7 +2,7 @@
 
 from datetime import date
 
-from scripts.gap_four_vendors_0923 import classify_vendor, in_scope
+from scripts.gap_four_vendors_0923 import classify_vendor, in_scope, subject_invoice_candidates
 
 
 def test_classify_four_vendors():
@@ -35,6 +35,15 @@ def test_classify_four_vendors():
         == "gas"
     )
     assert classify_vendor(subject="McMaster-Carr invoice", from_addr="noreply@mcmaster.com") is None
+
+
+def test_subject_invoice_candidates():
+    assert subject_invoice_candidates(
+        "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11020"
+    ) == ["11020"]
+    assert subject_invoice_candidates("Sales Invoice PS-INV104200") == ["PS-INV104200"]
+    assert "0040437952" in subject_invoice_candidates("Gas invoice 0040437952")
+    assert subject_invoice_candidates("O'Neal Steel Invoice For Account # 14748440") == []
 
 
 def test_in_scope_or_rule():
