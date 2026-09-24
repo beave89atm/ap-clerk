@@ -7,6 +7,7 @@ from scripts.gap_four_vendors_0923 import (
     credit_signed_amount,
     in_scope,
     invoice_portal_url,
+    statement_only_text,
     subject_invoice_candidates,
 )
 
@@ -65,6 +66,13 @@ def test_credit_memo_amount_is_negative():
     text = "CREDIT MEMO\nTOTAL CREDIT AMOUNT\n64.50-\n"
     assert credit_signed_amount(64.50, text) == -64.50
     assert credit_signed_amount(638.88, "TOTAL ORDER AMOUNT\n638.88\n") == 638.88
+
+
+def test_statement_page_is_not_an_invoice():
+    statement = "STATEMENT\n08/19/26 0040374117 INVOICE 240.00\nTOTAL BALANCE 97,362.24\n"
+    invoice = "ORIGINAL INVOICE\n09/22/26 A3050 0040446744\nAMOUNT THIS INVOICE INCLUDING TAX\n1891.88\n"
+    assert statement_only_text(statement) is True
+    assert statement_only_text(invoice) is False
 
 
 def test_in_scope_or_rule():

@@ -316,6 +316,56 @@ def install_invoice_link_filter(graph: Any) -> None:
     graph.download_public_pdf_from_text = wrapped
 
 
+# Headers created before the statement-page filter stopped the gas wave.
+# Their parent emails still need Fort Worth after the category stamp.
+ARCHIVE_AFTER_CREATE = {
+    "15429965",
+    "11020",
+    "11021",
+    "11012",
+    "11013",
+    "PS-INV104066",
+    "PS-INV104065",
+    "PS-INV104064",
+    "PS-INV104063",
+    "PS-INV104062",
+    "PS-INV104054",
+    "PS-INV104053",
+    "PS-INV104052",
+    "PS-INV104051",
+    "PS-INV104050",
+    "PS-INV104049",
+    "PS-INV104048",
+    "PS-INV104047",
+    "PS-INV104046",
+    "PS-INV104045",
+    "PS-INV104043",
+}
+
+
+def statement_only_text(text: str) -> bool:
+    """A statement lists old invoice numbers. It is not an invoice to enter."""
+    blob = text or ""
+    if not re.search(r"\bSTATEMENT\b", blob, flags=re.I):
+        return False
+    if re.search(r"ORIGINAL INVOICE|TOTAL ORDER AMOUNT|SALES INVOICE", blob, flags=re.I):
+        return False
+    return True
+
+
+def statement_only_bill(bill: dict[str, Any]) -> bool:
+    if bill.get("is_statement_doc"):
+        return True
+    path = str(bill.get("pdf_path") or "")
+    if not path or not Path(path).is_file():
+        return False
+    try:
+        text = extract_pdf_text(Path(path))
+    except OSError:
+        return False
+    return statement_only_text(text)
+
+
 def credit_signed_amount(amount: Any, pdf_text: str) -> Any:
     """O'Neal prints credits as 64.50-. Do not enter that as a positive payable."""
     value = money(amount)
@@ -833,6 +883,13 @@ def apply_hold_followthrough(client: KimcoClient, row: dict[str, Any]) -> dict[s
                 f"{row.get('Notes') or ''} missing_receipt Transfer AP {moved.get('status')}. "
                 "Receiving owner blank — no @tag."
             ).strip()
+            row["Why"] = re.sub(
+                r"category=missing_receipt;\s*owner=[^.]*\.",
+                "category=missing_receipt; owner=none / no dock receive.",
+                str(row.get("Why") or ""),
+                count=1,
+            )
+            why = str(row.get("Why") or "")
         row["Why"] = f"{why} NOTE-53 missing_receipt → Transfer AP ({moved.get('status')}).".strip()
     return row
 
@@ -1120,6 +1177,7 @@ def main(argv: list[str] | None = None) -> int:
                             "_new": False,
                             "_folder": msg.get("_folder"),
                             "_needs_category": not has_process_category({"categories": cats}),
+                            "_archive_after_create": num in ARCHIVE_AFTER_CREATE,
                         }
                     )
                 continue
@@ -1165,7 +1223,20 @@ def main(argv: list[str] | None = None) -> int:
                     }
                     if number:
                         seen_invoice.add(dedupe)
+                    if number in ARCHIVE_AFTER_CREATE:
+                        row["_archive_after_create"] = True
                     rows.append(row)
+                    continue
+                if vendor_key == "gas" and statement_only_bill(bill):
+                    skipped.append(
+                        {
+                            "vendor": vendor_key,
+                            "reason": "statement-not-an-invoice",
+                            "invoice": number,
+                            "date": bill.get("date"),
+                            "subject": str(bill.get("subject") or "")[:180],
+                        }
+                    )
                     continue
                 if bill.get("hold_reason") == "pdf-behind-link":
                     row = {
@@ -1314,15 +1385,26 @@ def main(argv: list[str] | None = None) -> int:
         if mid:
             by_message[mid].append(row)
     for mid, group in by_message.items():
-        actionable = [r for r in group if r.get("_new") or r.get("_category_target") or r.get("_needs_category")]
+        actionable = [
+            r
+            for r in group
+            if r.get("_new") or r.get("_category_target") or r.get("_needs_category") or r.get("_archive_after_create")
+        ]
         if not actionable:
             continue
         new_entered = [r for r in actionable if r.get("_new") and r.get("KIMCO id") not in (None, "")]
+        existing_cat = next((str(r.get("Outlook category") or "") for r in group if r.get("Outlook category")), "")
         if new_entered:
             category = outlook_category_for([r for r in actionable if r.get("_new")])
         elif any(r.get("_needs_category") and r.get("KIMCO id") not in (None, "") for r in actionable):
             kid = next(r.get("KIMCO id") for r in actionable if r.get("_needs_category") and r.get("KIMCO id") not in (None, ""))
             category = kimco_outlook_category(client, int(kid))
+        elif ENTERED_IN_AI_CATEGORY in existing_cat:
+            category = ENTERED_IN_AI_CATEGORY
+        elif ENTERED_WITH_ISSUES_CATEGORY in existing_cat:
+            category = ENTERED_WITH_ISSUES_CATEGORY
+        elif AI_HOLD_CATEGORY in existing_cat:
+            category = AI_HOLD_CATEGORY
         elif any(r.get("KIMCO id") not in (None, "") for r in group):
             # A credit/portal HOLD on mail that already has a KIMCO bill must not become AI HOLD.
             category = ENTERED_WITH_ISSUES_CATEGORY
@@ -1332,7 +1414,8 @@ def main(argv: list[str] | None = None) -> int:
         folder = next((r.get("_folder") for r in group if r.get("_folder")), None)
         # Move only after a header created this run. Category-only fixes stay in place.
         do_move = category in {ENTERED_IN_AI_CATEGORY, ENTERED_WITH_ISSUES_CATEGORY} and any(
-            r.get("_new") and r.get("KIMCO id") not in (None, "") for r in group
+            (r.get("_new") or r.get("_archive_after_create")) and r.get("KIMCO id") not in (None, "")
+            for r in group
         )
         stamped = stamp_parent(
             graph,
