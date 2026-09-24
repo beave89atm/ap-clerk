@@ -301,6 +301,169 @@ STATEMENT_FILE_HINT = re.compile(
     flags=re.I,
 )
 
+# NOTE-54: classify each PDF page before extract. Statement pages never
+# become payable rows. Incidental "view your account statement" footers
+# (Greentree) are not a statement page.
+PAGE_INVOICE = "invoice"
+PAGE_STATEMENT = "statement"
+PAGE_OTHER = "other"
+PAGE_UNCERTAIN = "uncertain"
+
+_INCIDENTAL_ACCOUNT_STATEMENT_RE = re.compile(
+    r"view\s+your\s+account\s+statement|see\s+(?:your\s+)?account\s+statement|"
+    r"account\s+statement\s+online",
+    flags=re.I,
+)
+_REMITTANCE_ADVICE_RE = re.compile(r"\bremittance\s+advice\b", flags=re.I)
+_STATEMENT_BALANCE_RE = re.compile(r"\bstatement\s+balance\b", flags=re.I)
+_ORIGINAL_INVOICE_RE = re.compile(r"\boriginal\s+invoice\b", flags=re.I)
+_INVOICE_NUMBER_LABEL_RE = re.compile(r"\binvoice\s*(?:number|no\.?|#)\b", flags=re.I)
+_PAYABLE_LABEL_RE = re.compile(
+    r"\b(amount\s+due|invoice\s+total|total\s+due|total\s+this\s+invoice|"
+    r"statement\s+balance|balance\s+due|please\s+pay\s+this\s+amount)\b",
+    flags=re.I,
+)
+_LABELED_PAYABLE_RE = re.compile(
+    r"(?:statement\s+balance|amount\s+due|balance\s+due|invoice\s+total|"
+    r"total\s+due|please\s+pay\s+this\s+amount)\s*[:.]?\s*\$?\s*([\d,]+\.\d{2})",
+    flags=re.I,
+)
+
+
+def split_pdf_pages(text: str) -> list[str]:
+    """Form-feed pages from extract_pdf_text. One page when there is no break."""
+    parts = re.split(r"\f", text or "")
+    return parts if parts else [""]
+
+
+def _labeled_payable_amounts(text: str) -> list[float]:
+    amounts: list[float] = []
+    for raw in _LABELED_PAYABLE_RE.findall(text or ""):
+        value = parse_money(raw)
+        if value is None:
+            continue
+        cents = round(float(value), 2)
+        if cents not in amounts:
+            amounts.append(cents)
+    return amounts
+
+
+def classify_pdf_page(text: str) -> str:
+    """NOTE-54 page class: invoice | statement | other | uncertain.
+
+    Uncertain is a same-page boundary (invoice face and statement heading
+    together). Callers HOLD that pack; they do not Success.
+    """
+    blob = _INCIDENTAL_ACCOUNT_STATEMENT_RE.sub(" ", text or "")
+    if not blob.strip():
+        return PAGE_OTHER
+    if _PACKING_SLIP_BODY.search(blob) and not _INVOICE_DOC_HINT.search(blob):
+        return PAGE_OTHER
+    has_original = bool(_ORIGINAL_INVOICE_RE.search(blob))
+    has_invoice_label = bool(_INVOICE_NUMBER_LABEL_RE.search(blob))
+    has_payable = bool(_PAYABLE_LABEL_RE.search(blob))
+    has_statement = bool(
+        _ACCOUNT_STATEMENT_HEADING_RE.search(blob)
+        or ACCOUNT_STATEMENT_DOC_RE.search(blob)
+        or PAST_DUE_LIST_RE.search(blob)
+        or _REMITTANCE_ADVICE_RE.search(blob)
+        or _STATEMENT_BALANCE_RE.search(blob)
+    )
+    invoice_face = has_original or (has_invoice_label and has_payable)
+    if has_statement and invoice_face:
+        # A statement that lists invoice numbers (past due / statement balance)
+        # is still a statement. ORIGINAL INVOICE plus a statement heading on
+        # the same page cannot be split — HOLD.
+        if not has_original and (
+            PAST_DUE_LIST_RE.search(blob) or _STATEMENT_BALANCE_RE.search(blob)
+        ):
+            return PAGE_STATEMENT
+        return PAGE_UNCERTAIN
+    if has_statement:
+        return PAGE_STATEMENT
+    if invoice_face or (has_payable and re.search(r"\binvoice\b", blob, flags=re.I)):
+        return PAGE_INVOICE
+    return PAGE_OTHER
+
+
+def classify_invoice_statement_pack(pages: list[str] | None) -> dict[str, Any]:
+    """NOTE-54 pack decision before amount parse / header create / Success.
+
+    invoice+statement → invoice pages only.
+    statement-only → NOTE-24 skip (caller keeps the statement text).
+    any uncertain page → HOLD pdf_capture, never Success.
+    """
+    page_list = list(pages or [""])
+    classes = [classify_pdf_page(page) for page in page_list]
+    invoice_idx = [i for i, klass in enumerate(classes) if klass == PAGE_INVOICE]
+    statement_idx = [i for i, klass in enumerate(classes) if klass == PAGE_STATEMENT]
+    uncertain_idx = [i for i, klass in enumerate(classes) if klass == PAGE_UNCERTAIN]
+    invoice_payables: list[float] = []
+    statement_payables: list[float] = []
+    for index, klass in enumerate(classes):
+        amounts = _labeled_payable_amounts(page_list[index])
+        if klass == PAGE_INVOICE:
+            invoice_payables.extend(amounts)
+        elif klass in {PAGE_STATEMENT, PAGE_UNCERTAIN}:
+            statement_payables.extend(amounts)
+    forbidden = [amt for amt in statement_payables if amt not in invoice_payables]
+    pack: dict[str, Any] = {
+        "classes": classes,
+        "invoice_pages": [i + 1 for i in invoice_idx],
+        "statement_pages": [i + 1 for i in statement_idx],
+        "uncertain_pages": [i + 1 for i in uncertain_idx],
+        "other_pages": [i + 1 for i, klass in enumerate(classes) if klass == PAGE_OTHER],
+        "forbidden_amounts": forbidden,
+        "invoice_text": "\f".join(page_list[i] for i in invoice_idx),
+    }
+    if uncertain_idx:
+        pack["action"] = "uncertain"
+    elif invoice_idx and statement_idx:
+        pack["action"] = "invoice_pages_only"
+    elif statement_idx and not invoice_idx:
+        pack["action"] = "statement_only"
+    else:
+        pack["action"] = "passthrough"
+    pack["why"] = note54_page_why(pack)
+    return pack
+
+
+def note54_page_why(pack: dict[str, Any]) -> str:
+    """Why text naming page classes. Empty when the pack is not mixed."""
+    action = str(pack.get("action") or "")
+    classes = list(pack.get("classes") or [])
+    if action == "passthrough" or not classes:
+        return ""
+    labeled = ", ".join(f"p{index + 1}={klass}" for index, klass in enumerate(classes))
+    if action == "uncertain":
+        return (
+            f"NOTE-54 uncertain mixed PDF. Page classes {labeled}. "
+            "HOLD pdf_capture. Do not Success on a statement total."
+        )
+    if action == "statement_only":
+        return (
+            f"NOTE-54 statement-only PDF. Page classes {labeled}. "
+            "Skipped (NOTE-24). No header."
+        )
+    ignored = pack.get("statement_pages") or []
+    kept = pack.get("invoice_pages") or []
+    return (
+        f"NOTE-54 classify-before-extract: page classes {labeled}. "
+        f"Ignored statement page(s) {', '.join(str(p) for p in ignored)}. "
+        f"Invoice total/lines/# from invoice page(s) {', '.join(str(p) for p in kept)} only."
+    )
+
+
+def prepare_note54_text(text: str) -> tuple[str, dict[str, Any]]:
+    """Strip statement pages before amount parse. Statement-only keeps text."""
+    pack = classify_invoice_statement_pack(split_pdf_pages(text))
+    action = pack["action"]
+    if action == "invoice_pages_only":
+        return str(pack.get("invoice_text") or ""), pack
+    if action == "uncertain":
+        return str(pack.get("invoice_text") or ""), pack
+    return text or "", pack
+
 
 DOMAIN_VENDORS = {
     "airproducts.com": "Air Products and Chemicals, Inc",
@@ -1813,7 +1976,10 @@ def parse_invoice_text(
     from_address: str = "",
     filename: str = "",
 ) -> dict[str, Any]:
-    pdf_text = text or ""
+    # NOTE-54: classify pages before amount / invoice # parse. Statement
+    # balances never become the payable total.
+    raw_text = text or ""
+    pdf_text, note54_pack = prepare_note54_text(raw_text)
     blob = "\n".join([subject, filename, pdf_text])
     sources = {"invoice_number": "", "date": "", "amount": "", "po": ""}
     vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=pdf_text)
@@ -2220,7 +2386,7 @@ def parse_invoice_text(
         )
         filename_only = False
         subject_only = False
-    return {
+    parsed = {
         "vendor": vendor,
         "invoice_number": invoice_number or "",
         "date": invoice_date,
@@ -2252,6 +2418,66 @@ def parse_invoice_text(
             else []
         ),
     }
+    action = str(note54_pack.get("action") or "passthrough")
+    parsed["note54_action"] = action
+    parsed["note54_page_classes"] = list(note54_pack.get("classes") or [])
+    parsed["note54_invoice_pages"] = list(note54_pack.get("invoice_pages") or [])
+    parsed["note54_ignored_statement_pages"] = list(note54_pack.get("statement_pages") or [])
+    parsed["note54_forbidden_amounts"] = list(note54_pack.get("forbidden_amounts") or [])
+    parsed["note54_work_text"] = pdf_text if action in {"invoice_pages_only", "uncertain"} else raw_text
+    parsed["note54_why"] = str(note54_pack.get("why") or "")
+    if action == "invoice_pages_only":
+        parsed["is_statement_doc"] = False
+        parsed["note54_invoice_pages_only"] = True
+        parsed["attachment_class"] = ATTACHMENT_INVOICE
+        if parsed["note54_why"]:
+            parsed["multi_invoice_note"] = parsed["note54_why"]
+    elif action == "statement_only":
+        parsed["is_statement_doc"] = True
+        parsed["hold_reason"] = parsed.get("hold_reason") or "statement"
+        parsed["note54_invoice_pages_only"] = False
+    elif action == "uncertain":
+        parsed["is_statement_doc"] = False
+        parsed["note54_uncertain"] = True
+        parsed["note54_invoice_pages_only"] = False
+        parsed["hold_reason"] = "pdf_capture"
+        parsed["attachment_class"] = ATTACHMENT_INVOICE
+        # Do not carry a statement-page payable into header create.
+        amount_now = parsed.get("amount")
+        forbidden = set(parsed["note54_forbidden_amounts"])
+        if amount_now not in (None, "") and round(float(amount_now), 2) in forbidden:
+            parsed["amount"] = None
+            sources = dict(parsed.get("field_sources") or {})
+            sources["amount"] = ""
+            parsed["field_sources"] = sources
+    return parsed
+
+
+def write_selected_pages_pdf(source: Path, dest: Path, pages_1based: list[int]) -> Path | None:
+    """Write specific 1-based pages. None when a subset is not feasible."""
+    wanted = [int(p) for p in pages_1based if int(p) > 0]
+    if not wanted:
+        return None
+    try:
+        reader = PdfReader(str(source))
+    except Exception:  # noqa: BLE001 - keep the full PDF
+        return None
+    total = len(reader.pages)
+    if total <= 1:
+        return None
+    indexes = [p - 1 for p in wanted if 1 <= p <= total]
+    if not indexes or len(indexes) >= total:
+        return None
+    try:
+        writer = PdfWriter()
+        for index in indexes:
+            writer.add_page(reader.pages[index])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with dest.open("wb") as handle:
+            writer.write(handle)
+    except Exception:  # noqa: BLE001 - attach the full pack instead
+        return None
+    return dest if dest.is_file() else None
 
 
 def write_page_range_pdf(source: Path, dest: Path, page_start: int, page_end: int) -> Path | None:
@@ -2297,6 +2523,47 @@ def assign_split_pdfs(source: Path, bills: list[dict[str, Any]]) -> list[dict[st
     return bills
 
 
+def _stamp_note54_pdf(source: Path, bills: list[dict[str, Any]], parsed: dict[str, Any]) -> None:
+    """Attach invoice pages only. Full pack + Why when a slice is not feasible."""
+    if str(parsed.get("note54_action") or "") != "invoice_pages_only":
+        return
+    original_pages = [int(p) for p in (parsed.get("note54_invoice_pages") or [])]
+    why = str(parsed.get("note54_why") or "")
+    for bill in bills:
+        bill["note54_action"] = "invoice_pages_only"
+        bill["note54_invoice_pages_only"] = True
+        bill["note54_page_classes"] = list(parsed.get("note54_page_classes") or [])
+        bill["note54_ignored_statement_pages"] = list(parsed.get("note54_ignored_statement_pages") or [])
+        bill["note54_forbidden_amounts"] = list(parsed.get("note54_forbidden_amounts") or [])
+        bill["note54_why"] = why
+        bill["is_statement_doc"] = False
+        if len(bills) == 1:
+            selected = original_pages
+        else:
+            start = int(bill.get("multi_invoice_page_start") or 1)
+            end = int(bill.get("multi_invoice_page_end") or start)
+            selected = original_pages[start - 1 : end] or original_pages
+        bill["note54_invoice_pages"] = selected
+        number = str(bill.get("invoice_number") or "invoice")
+        label = "-".join(str(p) for p in selected) or "invoice"
+        dest = source.with_name(f"{source.stem}_{number}_note54_p{label}{source.suffix}")
+        sliced = write_selected_pages_pdf(source, dest, selected) if selected else None
+        if sliced is None:
+            bill["pdf_path"] = str(source)
+            bill["pdf_split"] = False
+            bill["note54_attach_full_pack"] = True
+            extra = why + " Attached full pack because page-range split was not feasible."
+        else:
+            bill["pdf_path"] = str(sliced)
+            bill["pdf_split"] = True
+            bill["note54_attach_full_pack"] = False
+            extra = why
+        existing = str(bill.get("multi_invoice_note") or "")
+        if extra and extra not in existing:
+            bill["multi_invoice_note"] = f"{existing} {extra}".strip()
+        bill["pdf_on_disk"] = Path(str(bill.get("pdf_path") or "")).is_file()
+
+
 def parse_invoice_pdf(
     path: Path,
     *,
@@ -2312,19 +2579,40 @@ def parse_invoice_pdf(
         from_address=from_address,
         filename=path.name,
     )
-    bills = expand_oneal_invoices(text, parsed)
+    action = str(parsed.get("note54_action") or "passthrough")
+    # Statement-only stays NOTE-24. Do not expand listed invoice numbers
+    # on the statement into payable bills.
+    if action == "statement_only":
+        parsed["pdf_path"] = str(path)
+        parsed["pdf_on_disk"] = path.is_file()
+        parsed["pdf_text_empty"] = not (text or "").strip()
+        parsed["pdf_unavailable"] = not path.is_file()
+        return parsed
+    work = text if action == "passthrough" else str(parsed.get("note54_work_text") or "")
+    expand_text = work if action in {"invoice_pages_only", "uncertain"} else text
+    bills = expand_oneal_invoices(expand_text, parsed)
     if len(bills) <= 1:
-        bills = expand_fastenal_invoices(text, parsed)
+        bills = expand_fastenal_invoices(expand_text, parsed)
     if len(bills) <= 1:
-        bills = expand_gas_misc_invoices(text, parsed)
-    if len(bills) > 1:
+        bills = expand_gas_misc_invoices(expand_text, parsed)
+    if action == "invoice_pages_only":
+        _stamp_note54_pdf(path, bills, parsed)
+    if len(bills) > 1 and action != "invoice_pages_only":
         assign_split_pdfs(path, bills)
         parsed = bills[0]
         parsed["siblings"] = bills[1:]
+    elif len(bills) > 1:
+        parsed = bills[0]
+        parsed["siblings"] = bills[1:]
+        if not parsed.get("pdf_path"):
+            parsed["pdf_path"] = str(path)
     else:
         parsed = bills[0]
-        parsed["pdf_path"] = str(path)
-    parsed["pdf_on_disk"] = path.is_file()
+        if action != "invoice_pages_only":
+            parsed["pdf_path"] = str(path)
+        elif not parsed.get("pdf_path"):
+            parsed["pdf_path"] = str(path)
+    parsed["pdf_on_disk"] = Path(str(parsed.get("pdf_path") or path)).is_file()
     parsed["pdf_text_empty"] = not (text or "").strip()
     # File on disk is never "unavailable" — empty extract means OCR/retry, not no-pdf-on-vm.
     parsed["pdf_unavailable"] = not path.is_file()

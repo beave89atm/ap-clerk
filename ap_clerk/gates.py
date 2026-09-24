@@ -427,6 +427,16 @@ def preflight_parse_gate(inv: dict[str, Any]) -> tuple[bool, str]:
     HOLD parse / no-pdf only when the PDF is truly missing, or extract+OCR
     of that PDF failed. Why always describes THIS invoice.
     """
+    if inv.get("note54_uncertain") or str(inv.get("hold_reason") or "").strip().lower() == "pdf_capture":
+        classes = inv.get("note54_page_classes") or []
+        labeled = ", ".join(f"p{i + 1}={klass}" for i, klass in enumerate(classes)) or "unclassified"
+        detail = str(inv.get("note54_why") or "").strip()
+        if not detail:
+            detail = (
+                f"NOTE-54 uncertain mixed PDF. Page classes {labeled}. "
+                "HOLD pdf_capture. Do not Success on a statement total."
+            )
+        return False, why_hold(GATE_PREFLIGHT, detail)
     if is_auto_pay(
         vendor=str(inv.get("vendor") or ""),
         subject=str(inv.get("subject") or ""),
@@ -832,6 +842,37 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "cover (JPSteel 125315 / 24126 8@$33 + 24127 13@$33 = 21@$33). "
             "Combine those leftovers. Do not HOLD as unmatched. NOTE-37."
         )
+    if check.get("note54_uncertain"):
+        classes = check.get("note54_page_classes") or []
+        labeled = ", ".join(str(item) for item in classes) or "unclassified"
+        failures.append(
+            f"NOTE-54 uncertain mixed PDF page classes ({labeled}). "
+            "HOLD pdf_capture. Never Success on a statement total."
+        )
+    amount = check.get("amount")
+    forbidden = []
+    for raw in check.get("note54_forbidden_amounts") or []:
+        try:
+            forbidden.append(round(float(raw), 2))
+        except (TypeError, ValueError):
+            continue
+    if amount not in (None, "") and forbidden:
+        try:
+            amount_cents = round(float(amount), 2)
+        except (TypeError, ValueError):
+            amount_cents = None
+        if amount_cents is not None and amount_cents in forbidden:
+            failures.append(
+                "NOTE-54 payable amount is a statement-page total "
+                f"({amount_cents:.2f}). Invoice total must come from invoice pages only. "
+                "Never Success."
+            )
+    if check.get("note55_open_receipts_missing_receipt"):
+        failures.append(
+            "NOTE-55 open receipts exist but the HOLD is labeled missing_receipt. "
+            "Use quantity_variance or already_entered and name the exact qty ask. "
+            "Never Success."
+        )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),
@@ -905,4 +946,9 @@ def selfcheck_payload(
         "pdf_path": inv.get("pdf_path"),
         "pdf_on_disk": inv.get("pdf_on_disk"),
         "parsed_vendor": inv.get("vendor"),
+        "amount": inv.get("amount"),
+        "note54_uncertain": bool(inv.get("note54_uncertain")),
+        "note54_forbidden_amounts": list(inv.get("note54_forbidden_amounts") or []),
+        "note54_page_classes": list(inv.get("note54_page_classes") or []),
+        "note55_open_receipts_missing_receipt": bool(inv.get("note55_open_receipts_missing_receipt")),
     }
