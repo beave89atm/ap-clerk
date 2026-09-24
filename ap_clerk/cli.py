@@ -1,0 +1,2374 @@
+"""Daily-runnable AP Clerk CLI. Default target is KIMCO prototype."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import re
+from pathlib import Path
+from typing import Any
+
+from ap_clerk.auth import format_presence, load_credentials, resolve_target
+from ap_clerk.browser_pdf import format_intuit_session_presence
+from ap_clerk.cursor import DEFAULT_CURSOR_PATH, load_cursor, save_cursor
+from ap_clerk.daily import (
+    DEFAULT_DAILY_LIMIT,
+    cursor_from_run,
+    email_body_for,
+    email_subject_for,
+    hold_row_for_mailbox_block,
+    result_counts,
+    write_email_sidecar,
+)
+from ap_clerk.graph import (
+    AI_SKIPPED_CATEGORY,
+    ALLOWED_MAILBOX,
+    EMAIL_DENIED,
+    FLAG_NONE,
+    FLAG_NO_MESSAGE_ID,
+    FLAG_SKIPPED,
+    REPORT_TO,
+    GraphClient,
+    GraphError,
+    MailboxRejected,
+    apply_flag_after_match,
+    apply_fort_worth_move_after_enter,
+    assert_allowed_mailbox,
+    attach_message_ids,
+    format_graph_presence,
+    load_graph_credentials,
+)
+from ap_clerk.inbox import (
+    HARD_EMAIL_CAP,
+    apply_skip_outlook_flags,
+    clamp_email_limit,
+    pull_recent_bills,
+    skip_rows_for_report,
+)
+from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
+from ap_clerk.quality_v12 import (
+    COL_EXCEPTION_CATEGORY,
+    COL_EXCEPTION_OWNER,
+    apply_exception_category_owner,
+)
+from ap_clerk.report import write_report
+from ap_clerk.gates import (
+    GATE_ALREADY_ENTERED,
+    GATE_AUTO_PAY,
+    GATE_BILL_VS_NOISE,
+    GATE_PDF_LINK,
+    GATE_PO,
+    GATE_PREFLIGHT,
+    GATE_PRICE,
+    GATE_QTY,
+    GATE_RECEIPT,
+    GATE_TOO_OLD,
+    RESULT_FAIL,
+    RESULT_HOLD,
+    RESULT_SKIPPED,
+    RESULT_SUCCESS,
+    attach_presence_status,
+    drop_fee_disguised_as_ppv,
+    fees_required,
+    find_live_po,
+    finish_gate,
+    merchandise_amount,
+    selfcheck_payload,
+    pdf_file_present,
+    po_gate_decision,
+    preflight_parse_gate,
+    qty_gate,
+    vendor_confirmation_gate,
+    why_fail,
+    why_hold,
+    why_pdf_behind_link_detail,
+    why_preflight_this_invoice,
+    why_skipped,
+)
+from ap_clerk.transfer_ap import (
+    apply_missing_receipt_transfer_ap,
+    should_transfer_ap_missing_receipt,
+)
+from ap_clerk.rules import (
+    CURRENCY_USD_ID,
+    FORBIDDEN_BATCH_IDS,
+    FORBIDDEN_BATCH_NAMES,
+    FORBIDDEN_INVOICE_IDS,
+    NO_PO_ON_PDF_BUYER_COMMENT,
+    PRICE_DOES_NOT_MATCH,
+    PRICE_MISMATCH_PO_COMMENT,
+    TRANSFER_AP_BATCH_NAME,
+    batch_name_for,
+    chicago_today,
+    comments_for,
+    due_date_from_terms,
+    evaluate_bill_price_variance,
+    filter_matches_outside_ppv_gate,
+    extract_po_number,
+    flag_in_outlook_for,
+    format_fees,
+    format_ppv,
+    invoice_number_key,
+    is_noise_reason,
+    looks_like_account_statement,
+    invoice_type_for,
+    is_freight_vendor,
+    is_rfq_not_kimco_po,
+    kimco_datetime,
+    known_vendor_id,
+    lookup_id,
+    lookup_text,
+    format_selected_receipts,
+    receipt_select_refs,
+    format_unmatched_lines,
+    format_unmatched_pos,
+    INVOICE_TYPE_PO,
+    extract_subject_cpls,
+    extract_subject_invoice_number,
+    invoice_qty_evidence,
+    match_receipts,
+    merchandise_qty,
+    misc_purchase_item_for,
+    money,
+    names_match,
+    normalize_receipt,
+    po_vendor_name_from_text,
+    po_vendor_partial_match,
+    posted_vendor_fields,
+    should_transfer_ap_missing_po,
+    should_create_header,
+    vendor_match_score,
+    parse_iso_date,
+    aqpc_invoice_too_old,
+)
+
+LOGGER = logging.getLogger("ap_clerk")
+ROOT = Path(__file__).resolve().parent.parent
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
+    parser.add_argument(
+        "command",
+        choices=["enter", "pull", "daily", "probe"],
+        help=(
+            "enter: fixture or inbox invoices as header-only AP bills. "
+            "pull: list unflagged AP mailbox messages (no category write). "
+            "daily: weekday 5am America/Chicago FIFO (requires --live; hard-clamped to 10 emails). "
+            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail)."
+        ),
+    )
+    parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
+    parser.add_argument("--report", default=None, help="Output xlsx path. Default: runs/AP-run-YYYY-MM-DD.xlsx")
+    parser.add_argument("--as-of", default=None, help="Override Chicago calendar date YYYY-MM-DD")
+    parser.add_argument("--pdf-dir", default=None, help="Optional directory of invoice PDFs to attach")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Use live.kimcoerp.com + live GUIDs. Requires KIMCO_LIVE_*. Kyle said go for live writes.",
+    )
+    parser.add_argument(
+        "--from-inbox",
+        action="store_true",
+        help="Pull vendor-invoice PDFs from accountspayable@kannonmfg.com. Success→Entered in AI; bill HOLD/Fail→AI HOLD; noise→AI Skipped 2.",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help=(
+            "Mailbox messages to touch (any outcome). Hard-capped at 10 until further notice "
+            f"(Kyle 2026-09-11). enter --from-inbox and daily default {HARD_EMAIL_CAP}. "
+            "Bill-attempt mode is suspended. daily --limit 30 is clamped to 10."
+        ),
+    )
+    parser.add_argument(
+        "--cursor",
+        default=str(ROOT / DEFAULT_CURSOR_PATH),
+        help="daily: persisted FIFO cursor JSON (last received datetime / message id).",
+    )
+    parser.add_argument(
+        "--email-to",
+        default=REPORT_TO,
+        help=f"daily: send the Excel report to this address FROM {ALLOWED_MAILBOX}.",
+    )
+    parser.add_argument(
+        "--mailbox",
+        default=ALLOWED_MAILBOX,
+        help=f"Must be {ALLOWED_MAILBOX}. Any other mailbox is rejected.",
+    )
+    parser.add_argument(
+        "--match-inbox",
+        action="store_true",
+        help="Attach Graph message ids from the AP mailbox onto invoices, then flag after Success only.",
+    )
+    parser.add_argument("--inbox-from", default=None, help="Inbox window start YYYY-MM-DD (inclusive)")
+    parser.add_argument("--inbox-to", default=None, help="Inbox window end YYYY-MM-DD (inclusive)")
+    parser.add_argument("--out", default=None, help="pull: write unflagged message queue JSON here")
+    parser.add_argument(
+        "--match-fixture",
+        action="store_true",
+        help="pull: attach graph_message_id onto the fixture invoices (does not flag).",
+    )
+    args = parser.parse_args(argv)
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    try:
+        assert_allowed_mailbox(args.mailbox)
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+
+    if args.command == "pull":
+        return _run_pull(args)
+    if args.command == "probe":
+        return _run_probe(args)
+    if args.command == "daily":
+        return _run_daily(args)
+
+    target = resolve_target(live_flag=args.live)
+    creds = load_credentials(target=target)
+    print(format_presence(creds.presence), flush=True)
+    print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
+    print(f"Target: {creds.target}", flush=True)
+    if creds.key_source:
+        print(f"Using credential pair: {creds.key_source}", flush=True)
+    print(f"Instance host: {creds.instance_url}", flush=True)
+    if creds.target == "live":
+        print(
+            "Live target. Kyle said go. Writes use live host + live GUIDs only. "
+            "Success (finished bill) gets Entered in AI; Incomplete/HOLD/Fail get AI HOLD. "
+            "Noise Skipped gets AI Skipped 2. "
+            "No follow-up flag.",
+            flush=True,
+        )
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    batch_name = batch_name_for(as_of)
+    report_path = Path(args.report) if args.report else ROOT / "runs" / f"AP-run-{as_of.isoformat()}.xlsx"
+    fixture_path = Path(args.fixture)
+    graph_client = None
+    invoices: list[dict[str, Any]]
+    inbox_skip_rows: list[dict[str, Any]] = []
+    category_status = "not-attempted"
+    if args.from_inbox:
+        graph_client = _optional_graph_client()
+        if graph_client is None:
+            print("Graph credentials missing or authenticate failed. Cannot pull inbox.", flush=True)
+            return 2
+        try:
+            category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+            issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+            skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
+            print(f"AI HOLD master category: {category_status}", flush=True)
+            print(f"Entered with issues master category: {issues_status}", flush=True)
+            print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
+        except (GraphError, MailboxRejected):
+            print("AI HOLD master category: category-denied", flush=True)
+        from datetime import timedelta
+
+        start = parse_iso_date(args.inbox_from) if args.inbox_from else as_of - timedelta(days=45)
+        end = parse_iso_date(args.inbox_to) if args.inbox_to else as_of
+        pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
+        invoices, skipped = pull_recent_bills(
+            graph_client,
+            mailbox=args.mailbox,
+            limit=clamp_email_limit(args.limit),
+            received_from=start,
+            received_to=end,
+            pdf_dir=pdf_dir,
+            unprocessed_only=True,
+            mark_skips=True,
+        )
+        inbox_skip_rows = apply_skip_outlook_flags(
+            skip_rows_for_report(skipped, batch_name),
+            graph_client,
+            mailbox=args.mailbox,
+        )
+        print(
+            f"Inbox touched up to {HARD_EMAIL_CAP} email(s) from {args.mailbox} "
+            f"({start.isoformat()} to {end.isoformat()}); selected {len(invoices)} bill(s); "
+            f"skipped {len(skipped)} (already-flagged walked past; noise consumes the cap). "
+            "Success→Entered in AI; bill HOLD/Fail/Incomplete→AI HOLD; noise→AI Skipped 2.",
+            flush=True,
+        )
+        if not invoices:
+            print("No vendor invoices selected from inbox.", flush=True)
+            write_report(report_path, inbox_skip_rows)
+            return 2
+    else:
+        invoices = _load_fixture(fixture_path)
+        needs_graph = bool(args.match_inbox) or any(
+            inv.get("graph_message_id") or inv.get("graphMessageId") for inv in invoices
+        )
+        graph_client = _optional_graph_client() if needs_graph else None
+        if graph_client is not None:
+            try:
+                category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+                issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+                skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
+                print(f"AI HOLD master category: {category_status}", flush=True)
+                print(f"Entered with issues master category: {issues_status}", flush=True)
+                print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
+            except (GraphError, MailboxRejected):
+                print("AI HOLD master category: category-denied", flush=True)
+        if args.match_inbox:
+            invoices = _attach_inbox_ids(
+                invoices,
+                mailbox=args.mailbox,
+                start=args.inbox_from,
+                end=args.inbox_to,
+                graph_client=graph_client,
+                fixture_path=fixture_path,
+            )
+
+    if not creds.ready:
+        print(creds.error or "Credentials not ready. Writing HOLD report and stopping.", flush=True)
+        rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
+        rows.extend(inbox_skip_rows)
+        write_report(report_path, rows)
+        print(f"Wrote {report_path}", flush=True)
+        return 2
+
+    try:
+        client = KimcoClient.authenticate(
+            creds.instance_url,
+            creds.key or "",
+            creds.password or "",
+            target=creds.target,
+        )
+        if creds.target == "live":
+            print("Live auth success (token not printed). Proceeding with live writes.", flush=True)
+        pdf_dir = Path(args.pdf_dir) if args.pdf_dir else None
+        if args.from_inbox and pdf_dir is None:
+            pdf_dir = ROOT / "runs" / "inbox-pdfs"
+        elif args.from_inbox:
+            pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
+        rows = run_enter(
+            client,
+            invoices,
+            batch_name=batch_name,
+            pdf_dir=pdf_dir,
+            graph_client=graph_client,
+            mailbox=args.mailbox,
+            flag_outlook=True,
+        )
+    except KimcoError as exc:
+        label = "Live" if creds.target == "live" else "Prototype"
+        print(f"{label} call failed: {exc}", flush=True)
+        rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
+        rows.extend(inbox_skip_rows)
+        write_report(report_path, rows)
+        return 1
+
+    rows.extend(inbox_skip_rows)
+    write_report(report_path, rows)
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    return 0
+
+
+def run_enter(
+    client: KimcoClient,
+    invoices: list[dict[str, Any]],
+    *,
+    batch_name: str,
+    pdf_dir: Path | None = None,
+    graph_client: GraphClient | None = None,
+    mailbox: str = ALLOWED_MAILBOX,
+    flag_outlook: bool = True,
+) -> list[dict[str, Any]]:
+    LOGGER.info("Loading %s lists (invoices, batches, purchase lines)", client.target)
+    existing_invoices = client.list_items("ap_invoices")
+    batches = client.list_items("ap_batches")
+    purchase_lines = client.list_items("purchase_lines")
+
+    invoice_by_number = _index_invoices(existing_invoices)
+    vendor_samples = _vendor_samples(existing_invoices)
+    _seed_vendor_samples(client, vendor_samples, invoice_by_number, invoices)
+    po_index = _index_purchase_orders(purchase_lines)
+    receipts: list[dict[str, Any]] | None
+    try:
+        receipts = [normalize_receipt(item) for item in client.list_items("receipts")]
+        LOGGER.info("Loaded %s receipts for Select Receipts matching", len(receipts))
+    except KimcoError as exc:
+        LOGGER.info("Receipts list unavailable; will not HOLD-no-receipts without a search: %s", type(exc).__name__)
+        receipts = None
+    batch = _find_or_create_batch(client, batches, batch_name)
+    batch_label = f"{batch_name} ({batch['id']})"
+    LOGGER.info("Using batch %s", batch_label)
+
+    rows = []
+    for inv in invoices:
+        rows.append(
+            _process_invoice(
+                client,
+                inv,
+                batch=batch,
+                batch_label=batch_label,
+                invoice_by_number=invoice_by_number,
+                vendor_samples=vendor_samples,
+                po_index=po_index,
+                receipts=receipts,
+                pdf_dir=pdf_dir,
+                graph_client=graph_client,
+                mailbox=mailbox,
+                flag_outlook=flag_outlook,
+            )
+        )
+    return rows
+
+
+def _load_fixture(path: Path) -> list[dict[str, Any]]:
+    payload = json.loads(path.read_text())
+    invoices = payload.get("invoices") or []
+    if not invoices:
+        raise SystemExit(f"Fixture {path} has no invoices")
+    return invoices
+
+
+def _offline_row(inv: dict[str, Any], batch_name: str, why: str) -> dict[str, Any]:
+    result = RESULT_HOLD
+    if why.lower().startswith("fail"):
+        result = RESULT_FAIL
+    row = {
+        "Vendor": inv.get("vendor"),
+        "Invoice #": inv.get("invoice_number"),
+        "date": inv.get("date"),
+        "PO": inv.get("po") or "",
+        "Amount": inv.get("amount"),
+        "Result": result,
+        "Why": why,
+        COL_EXCEPTION_CATEGORY: "",
+        COL_EXCEPTION_OWNER: "",
+        "KIMCO id": "",
+        "Batch": batch_name,
+        "Fees and surcharges": format_fees(inv.get("fees")),
+        "PPV": "none",
+        "Attach status": attach_presence_status(inv),
+        "Flag status": FLAG_SKIPPED,
+        "Flag in Outlook": flag_in_outlook_for(result),
+        "Notes": "",
+    }
+    return apply_exception_category_owner(row)
+
+
+def _index_invoices(items: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    index: dict[str, list[dict[str, Any]]] = {}
+    for item in items:
+        values = item.get("values") or {}
+        key = invoice_number_key(values.get("Invoice_Number"))
+        if key:
+            index.setdefault(key, []).append(item)
+    return index
+
+
+def _is_clearly_other_vendor(parsed: str, posted_text: str, posted_id: Any) -> bool:
+    """True when the live header is a different company (AQPC 10938 ≠ JMOR 4779).
+
+    Unique invoice # is still a duplicate when the mailbox sender is weak
+    (NoreplyMV / Leeco). A noreply From must not create a second header.
+    """
+    if not parsed or not posted_text:
+        return False
+    if names_match(parsed, posted_text) or vendor_match_score(parsed, posted_text):
+        return False
+    if re.search(r"noreply|no[\s-]?reply|donotreply|do[\s-]?not[\s-]?reply", parsed, flags=re.I):
+        return False
+    parsed_id = known_vendor_id(parsed)
+    if posted_id not in (None, "") and parsed_id not in (None, "") and int(posted_id) != int(parsed_id):
+        return True
+    posted_known = known_vendor_id(posted_text)
+    if parsed_id not in (None, "") and posted_known not in (None, "") and int(parsed_id) != int(posted_known):
+        return True
+    if posted_id not in (None, ""):
+        return True
+    # List view may omit Vendor.id. A posted company name that does not match
+    # the parsed vendor is still a different bill (AQPC ≠ JMOR MACHINERY).
+    return bool(str(posted_text).strip())
+
+
+def _matching_existing_invoices(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    vendor: str,
+) -> list[dict[str, Any]]:
+    """Same vendor + invoice # on live or this run. Unique # is a dup even when
+    the mailbox sender name does not match (NoreplyMV / Leeco). Two vendors
+    sharing a number are not treated as the same bill — including a unique
+    number that already belongs to a different known vendor (AQPC 10938 vs
+    JMOR Machinery 4779).
+    """
+    items = invoice_by_number.get(invoice_number_key(number)) or []
+    if not items:
+        return []
+    if not vendor:
+        return list(items)
+    matched: list[dict[str, Any]] = []
+    other: list[dict[str, Any]] = []
+    for item in items:
+        values = item.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        posted_id = lookup_id(values.get("Vendor"))
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            matched.append(item)
+        elif _is_clearly_other_vendor(vendor, str(text or ""), posted_id):
+            other.append(item)
+        elif len(items) == 1:
+            matched.append(item)
+    if matched:
+        return matched
+    if other and len(other) == len(items):
+        return []
+    return matched
+
+
+def _find_existing_invoice(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    vendor: str,
+) -> dict[str, Any] | None:
+    found = _matching_existing_invoices(invoice_by_number, number, vendor)
+    return found[0] if found else None
+
+
+def _remember_invoice(
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    number: str,
+    item: dict[str, Any],
+) -> None:
+    invoice_by_number.setdefault(invoice_number_key(number), []).append(item)
+
+
+def _vendor_samples(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    samples = []
+    seen: set[int] = set()
+    for item in items:
+        values = item.get("values") or {}
+        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor")
+        vendor_id = lookup_id(vendor)
+        vendor_text = lookup_text(vendor) or lookup_text(values.get("Vendor_$_Display_Name"))
+        if vendor_id is None:
+            continue
+        if vendor_id in seen:
+            continue
+        seen.add(vendor_id)
+        samples.append(
+            {
+                "vendor_id": vendor_id,
+                "vendor_text": vendor_text,
+                "invoice_id": item.get("id"),
+                "po_text": lookup_text(values.get("Purchase_Order") or values.get("Purchase_Order_$_Display_Name")),
+            }
+        )
+    return samples
+
+
+def _seed_vendor_samples(
+    client: KimcoClient,
+    samples: list[dict[str, Any]],
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoices: list[dict[str, Any]],
+) -> None:
+    """GET a bounded set of existing invoices so no-PO vendor/remit/terms can be matched by name."""
+    needed = []
+    for inv in invoices:
+        if not should_create_header(inv)[0]:
+            continue
+        vendor_name = inv.get("vendor") or ""
+        alias_id = known_vendor_id(vendor_name)
+        # Prefer a known alias sample (MSC → 128) over fuzzy industrial/supply hits.
+        if alias_id and _sample_matching_alias(samples, alias_id, vendor_name):
+            continue
+        if alias_id:
+            needed.append(inv)
+            continue
+        if _best_vendor_sample(vendor_name, "", samples):
+            continue
+        needed.append(inv)
+    if not needed:
+        return
+
+    prefixes: set[str] = set()
+    for inv in needed:
+        key = invoice_number_key(str(inv.get("invoice_number") or ""))
+        for n in (4, 5, 6, 7):
+            if len(key) >= n:
+                prefixes.add(key[:n])
+
+    ranked: list[int] = []
+    seen = {int(s["invoice_id"]) for s in samples if s.get("invoice_id") is not None}
+    for key, items in invoice_by_number.items():
+        for item in items:
+            item_id = item.get("id")
+            if item_id is None or int(item_id) in seen:
+                continue
+            if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+                ranked.append(int(item_id))
+    extras = sorted(
+        (
+            int(item["id"])
+            for items in invoice_by_number.values()
+            for item in items
+            if item.get("id") is not None
+        ),
+        reverse=True,
+    )
+    # Mix recent ids with a stride through older invoices so utility/staffing
+    # vendors (Luxor, Priority 1, etc.) are not missed.
+    stride = extras[:: max(1, len(extras) // 200)]
+    for item_id in extras[:200] + stride:
+        if item_id not in seen and item_id not in ranked:
+            ranked.append(item_id)
+        if len(ranked) >= 600:
+            break
+
+    LOGGER.info("Seeding vendor samples from %s existing invoices for %s unmatched vendors", min(len(ranked), 350), len(needed))
+    probed = 0
+    for item_id in ranked:
+        if probed >= 350:
+            break
+        try:
+            item = client.get_item("ap_invoices", item_id)
+        except KimcoError:
+            continue
+        probed += 1
+        values = item.get("values") or {}
+        vendor_field = values.get("Vendor")
+        vendor_id = lookup_id(vendor_field)
+        if vendor_id is None:
+            continue
+        samples.append(
+            {
+                "vendor_id": vendor_id,
+                "vendor_text": lookup_text(vendor_field),
+                "invoice_id": item.get("id"),
+                "po_text": lookup_text(values.get("Purchase_Order")),
+            }
+        )
+        seen.add(item_id)
+
+
+def _index_purchase_orders(lines: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    index: dict[str, dict[str, Any]] = {}
+    for item in lines:
+        values = item.get("values") or {}
+        po = (
+            values.get("Purchase_Order_Number")
+            or values.get("Purchase_Order")
+            or values.get("Name")
+            or values.get("Display_Name")
+        )
+        po_id = lookup_id(po)
+        text = lookup_text(po) or lookup_text(values.get("Display_Name")) or lookup_text(values.get("Name"))
+        if not text and po is not None and not isinstance(po, dict):
+            text = str(po)
+        number = extract_po_number(text)
+        if not number:
+            continue
+        if not po_id:
+            continue
+        vendor = values.get("Vendor") or values.get("Purchase_Order_$_Vendor") or values.get("PO_Vendor")
+        vendor_id = lookup_id(vendor)
+        vendor_text = lookup_text(vendor) or lookup_text(values.get("Vendor_$_Display_Name"))
+        if not vendor_text and "-" in (text or ""):
+            vendor_text = text.split("-", 1)[1].strip()
+        line_no = values.get("Purchase_Line_Number") or values.get("Line_Number")
+        if isinstance(line_no, dict):
+            line_no = line_no.get("text") or line_no.get("id")
+        part = lookup_text(values.get("Item_Number") or values.get("Item") or values.get("PO_Item_Number")) or values.get("Item_Number")
+        qty = money(values.get("Quantity") or values.get("Qty"))
+        unit_price = money(values.get("Unit_Price") or values.get("Price") or values.get("Unit_Cost"))
+        amount = money(values.get("Amount") or values.get("Line_Amount") or values.get("Extended_Price"))
+        if amount is None and unit_price is not None and qty is not None:
+            amount = round(unit_price * qty, 2)
+        wo = lookup_text(values.get("Work_Order") or values.get("WO"))
+        description = lookup_text(
+            values.get("Description")
+            or values.get("Item_Description")
+            or values.get("PO_Item_Description")
+            or values.get("Part_Description")
+        )
+        line_row = {
+            "id": item.get("id"),
+            "line_no": line_no,
+            "po_line": line_no,
+            "line": line_no,
+            "part": str(part or "").strip(),
+            "description": str(description or part or "").strip(),
+            "label": str(description or part or "").strip(),
+            "qty": qty,
+            "quantity": qty,
+            "unit_price": unit_price,
+            "amount": amount,
+            "wo": wo,
+        }
+        current = index.get(number)
+        if current is None:
+            index[number] = {
+                "id": po_id,
+                "text": text,
+                "line_ids": [item.get("id")],
+                "vendor_id": vendor_id,
+                "vendor_text": vendor_text,
+                "lines": [line_row],
+            }
+        elif current["id"] == po_id:
+            current["line_ids"].append(item.get("id"))
+            current["lines"].append(line_row)
+            if current.get("vendor_id") is None and vendor_id is not None:
+                current["vendor_id"] = vendor_id
+            if not current.get("vendor_text") and vendor_text:
+                current["vendor_text"] = vendor_text
+    return index
+
+
+def _find_or_create_batch(client: KimcoClient, batches: list[dict[str, Any]], batch_name: str) -> dict[str, Any]:
+    if batch_name in FORBIDDEN_BATCH_NAMES:
+        raise KimcoError(f"Refusing forbidden batch name {batch_name}")
+    for item in batches:
+        values = item.get("values") or {}
+        name = values.get("AP_Invoice_Batch_ID")
+        batch_id = item.get("id")
+        if batch_id in FORBIDDEN_BATCH_IDS or name in FORBIDDEN_BATCH_NAMES:
+            continue
+        if name == batch_name:
+            if batch_id in FORBIDDEN_BATCH_IDS:
+                raise KimcoError("Matched a forbidden batch id")
+            LOGGER.info("Found existing batch id=%s name=%s", batch_id, name)
+            return {"id": batch_id, "name": name, "created": False}
+    LOGGER.info("Creating batch %s", batch_name)
+    values: dict[str, Any] = {
+        "AP_Invoice_Batch_ID": batch_name,
+        "Description": comments_for(client.target),
+        "Status": 0,
+    }
+    owner_id = _discover_batch_owner(client, batches)
+    if owner_id is not None:
+        values["Batch_Owner"] = {"id": owner_id}
+    elif client.target != "live":
+        values["Batch_Owner"] = {"id": 173}
+    created_id, body, status, error = client.create("ap_batches", values)
+    if created_id is None and "Batch_Owner" not in values:
+        # Retry with a looked-up owner only if create said owner is required.
+        owner_id = _discover_batch_owner(client, batches, any_owner=True)
+        if owner_id is not None:
+            values["Batch_Owner"] = {"id": owner_id}
+            created_id, body, status, error = client.create("ap_batches", values)
+    if created_id is None:
+        raise KimcoError(f"Batch create failed HTTP {status}: {error}")
+    if created_id in FORBIDDEN_BATCH_IDS:
+        raise KimcoError("Create returned forbidden batch id; aborting")
+    LOGGER.info("Created batch id=%s", created_id)
+    return {"id": created_id, "name": batch_name, "created": True, "raw": body}
+
+
+def _discover_batch_owner(
+    client: KimcoClient,
+    batches: list[dict[str, Any]],
+    *,
+    any_owner: bool = False,
+) -> int | None:
+    """Reuse an API Agent batch owner. Do not invent a person or reuse Mark Brown."""
+    for item in batches:
+        values = item.get("values") or {}
+        name = str(values.get("AP_Invoice_Batch_ID") or "")
+        batch_id = item.get("id")
+        if batch_id in FORBIDDEN_BATCH_IDS or name in FORBIDDEN_BATCH_NAMES:
+            continue
+        owner = lookup_id(values.get("Batch_Owner"))
+        if owner is None:
+            continue
+        if name.startswith("API Agent"):
+            return owner
+    if not any_owner:
+        return None
+    for item in batches:
+        values = item.get("values") or {}
+        name = str(values.get("AP_Invoice_Batch_ID") or "")
+        if item.get("id") in FORBIDDEN_BATCH_IDS or name in FORBIDDEN_BATCH_NAMES:
+            continue
+        owner = lookup_id(values.get("Batch_Owner"))
+        if owner is not None:
+            return owner
+    return None
+
+
+def _finish_row(
+    row: dict[str, Any],
+    inv: dict[str, Any],
+    graph_client: GraphClient | None,
+    mailbox: str,
+    *,
+    flag_outlook: bool,
+) -> dict[str, Any]:
+    result = str(row.get("Result") or "")
+    why = str(row.get("Why") or "").strip()
+    note = str(inv.get("multi_invoice_note") or "").strip()
+    if note and note not in why:
+        why = f"{why} {note}".strip() if why else note
+        row["Why"] = why
+    if result != RESULT_SUCCESS and not why:
+        row["Why"] = (
+            f"{result}: Treyce must review this bill (gate not named). "
+            "Do not treat as finished."
+        )
+    row["Flag in Outlook"] = flag_in_outlook_for(result)
+    if flag_outlook:
+        apply_flag_after_match(row, inv, graph_client, mailbox=mailbox)
+    else:
+        row["Flag status"] = FLAG_SKIPPED
+    apply_fort_worth_move_after_enter(row, inv, graph_client, mailbox=mailbox)
+    return apply_exception_category_owner(row)
+
+
+def _process_invoice(
+    client: KimcoClient,
+    inv: dict[str, Any],
+    *,
+    batch: dict[str, Any],
+    batch_label: str,
+    invoice_by_number: dict[str, list[dict[str, Any]]],
+    vendor_samples: list[dict[str, Any]],
+    po_index: dict[str, dict[str, Any]],
+    pdf_dir: Path | None,
+    receipts: list[dict[str, Any]] | None = None,
+    graph_client: GraphClient | None = None,
+    mailbox: str = ALLOWED_MAILBOX,
+    flag_outlook: bool = True,
+) -> dict[str, Any]:
+    vendor = inv.get("vendor") or ""
+    number = str(inv.get("invoice_number") or "")
+    po = inv.get("po")
+    po_display = "" if po is None else str(po)
+    amount = inv.get("amount")
+    fees = format_fees(inv.get("fees"))
+    attach = attach_presence_status(inv)
+    row = {
+        "Vendor": vendor,
+        "Invoice #": number,
+        "date": inv.get("date"),
+        "PO": po_display,
+        "Amount": amount,
+        "Result": RESULT_HOLD,
+        "Why": "",
+        COL_EXCEPTION_CATEGORY: "",
+        COL_EXCEPTION_OWNER: "",
+        "KIMCO id": "",
+        "Batch": batch_label,
+        "Fees and surcharges": fees,
+        "PPV": "none",
+        "Attach status": attach,
+        "Flag status": FLAG_NO_MESSAGE_ID,
+        "Flag in Outlook": "No",
+        "Notes": "",
+    }
+
+    if looks_like_account_statement(
+        subject=str(inv.get("subject") or ""),
+        preview=str(inv.get("bodyPreview") or inv.get("preview") or ""),
+        text=str(inv.get("text") or inv.get("pdf_text") or ""),
+        filename=str(inv.get("filename") or ""),
+        is_statement_doc=bool(inv.get("is_statement_doc")),
+    ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        subject = str(inv.get("subject") or "")
+        detail = f"statement. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+        if subject:
+            detail = (
+                f"statement. Subject: {subject}. Do not create a header. "
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+            )
+        row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    attachment_kind = str(inv.get("attachment_class") or "").strip().lower()
+    if (
+        inv.get("is_receipt_scan_doc")
+        or attachment_kind in {"packing_slip", "receipt_scan", "pod"}
+        or str(inv.get("hold_reason") or "").strip().lower() in {"pod", "packing_slip", "receipt_scan"}
+    ):
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        row["Invoice #"] = ""
+        detail = (
+            "packing slip / POD / signed delivery receipt. Not an invoice. "
+            "Do not create a header. Do not invent invoice # from Receipt_*.pdf. "
+            f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+        )
+        subject = str(inv.get("subject") or "")
+        if subject:
+            detail = (
+                f"packing slip / POD / signed delivery receipt. Subject: {subject}. "
+                "Not an invoice. Do not create a header. "
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+            )
+        row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if aqpc_invoice_too_old(
+        vendor=vendor,
+        invoice_date=inv.get("date") or inv.get("invoice_date"),
+        invoice_number=number,
+    ):
+        parsed_day = inv.get("date") or inv.get("invoice_date") or "unknown"
+        row["Result"] = RESULT_SKIPPED
+        row["KIMCO id"] = ""
+        row["Why"] = why_skipped(
+            GATE_TOO_OLD,
+            f"AQPC invoice date {parsed_day} is before 2026-08-01 "
+            f"(or Kyle-voided too-old # {number}). Do not create a header. "
+            "Do not walk older payment-requests into KIMCO. Kyle reverse 2026-09-15. "
+            "Do not stamp Entered in AI / Entered with issues / AI Skipped 2.",
+        )
+        row["Flag in Outlook"] = "No"
+        row["Flag status"] = FLAG_NONE
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=False)
+
+    existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
+    confirmed_hits: list[dict[str, Any]] = []
+    for hit in existing_hits:
+        values = hit.get("values") or {}
+        text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+        posted_id = lookup_id(values.get("Vendor"))
+        if (not text or posted_id is None) and hit.get("id") not in (None, "") and client is not None:
+            try:
+                live = client.get_item("ap_invoices", int(hit["id"]))
+                values = live.get("values") or {}
+                text = lookup_text(values.get("Vendor") or values.get("Vendor_$_Display_Name"))
+                posted_id = lookup_id(values.get("Vendor"))
+            except Exception:  # noqa: BLE001 - keep the list-view hit
+                confirmed_hits.append(hit)
+                continue
+        if names_match(vendor, text) or vendor_match_score(vendor, text):
+            confirmed_hits.append(hit)
+        elif _is_clearly_other_vendor(vendor, str(text or ""), posted_id):
+            LOGGER.info(
+                "Invoice #%s live id %s is other vendor %s (parsed %s); not a duplicate",
+                number,
+                hit.get("id"),
+                text,
+                vendor,
+            )
+        else:
+            confirmed_hits.append(hit)
+    existing_hits = confirmed_hits
+    if existing_hits and number:
+        existing_ids = [hit.get("id") for hit in existing_hits if hit.get("id") not in (None, "")]
+        existing_id = existing_ids[0] if existing_ids else existing_hits[0].get("id")
+        id_txt = ", ".join(str(i) for i in existing_ids) if existing_ids else str(existing_id)
+        row["KIMCO id"] = existing_id
+        row["Result"] = RESULT_HOLD
+        row["Why"] = why_hold(
+            GATE_ALREADY_ENTERED,
+            f"{vendor} invoice #{number} is already entered as KIMCO id(s) {id_txt}. "
+            "Duplicate / already-entered. Will not create another header.",
+        )
+        if pdf_file_present(inv):
+            row["Attach status"] = "pdf-on-vm"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    parse_ok, parse_why = preflight_parse_gate(inv)
+    if not parse_ok:
+        row["Why"] = parse_why
+        if pdf_file_present(inv):
+            # 8/18 Nova: PDF was on disk; no-pdf-on-vm was false/misleading.
+            row["Attach status"] = "pdf-on-vm"
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    create_ok, hold_reason = should_create_header(inv)
+    if not create_ok:
+        if is_noise_reason(hold_reason):
+            row["Result"] = RESULT_SKIPPED
+            row["Why"] = why_skipped(
+                GATE_BILL_VS_NOISE,
+                f"{hold_reason}. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD).",
+            )
+            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        reason_l = str(hold_reason).lower()
+        if reason_l in {"auto-pay", "auto pay"}:
+            row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
+        elif reason_l == "pdf-behind-link":
+            inv_no = number or extract_subject_invoice_number(str(inv.get("subject") or ""))
+            row["Invoice #"] = inv_no or row.get("Invoice #") or ""
+            if inv_no and not inv.get("invoice_number"):
+                inv = dict(inv)
+                inv["invoice_number"] = inv_no
+            row["Why"] = why_hold(GATE_PDF_LINK, why_pdf_behind_link_detail(inv))
+        elif reason_l == "price does not match":
+            row["Why"] = why_hold(GATE_PRICE, f"{hold_reason}.")
+        else:
+            row["Why"] = why_hold(
+                GATE_PREFLIGHT if reason_l == "parse-error" else "bill-vs-noise",
+                f"{hold_reason}. Do not create a header.",
+            )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if inv.get("gas_misc_ambiguous"):
+        row["Why"] = why_hold(GATE_PREFLIGHT, why_preflight_this_invoice(inv, "gas_ambiguous"))
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    packed = list(inv.get("invoice_numbers_in_pdf") or [])
+    if (
+        not inv.get("gas_split")
+        and len(packed) > 1
+        and ("gas and supply" in vendor.lower() or "gasandsupply" in vendor.lower())
+    ):
+        row["Why"] = why_hold(
+            GATE_PREFLIGHT,
+            f"{vendor} PDF has {len(packed)} invoice numbers ({', '.join(packed)}). "
+            "Expand to one bill per invoice # before enter. "
+            "Do not collapse to a single invoice / multi-PO Incomplete.",
+        )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    freight_vendor = is_freight_vendor(vendor)
+    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)]
+    if po and is_rfq_not_kimco_po(po):
+        po = None
+        po_display = ""
+        row["PO"] = ""
+    multi_po = bool(inv.get("multi_po")) and len(pos) > 1
+    if not pos:
+        multi_po = False
+    if multi_po:
+        row["PO"] = ", ".join(pos)
+    invoice_lines = list(inv.get("lines") or [])
+    parts = [str(line.get("part") or "") for line in invoice_lines if line.get("part")]
+    wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
+    po_info = None
+    po_missing_note = ""
+    resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
+    if resolved.get("info") and not multi_po:
+        po_info = resolved["info"]
+        po = resolved.get("number") or po
+        po_display = str(po or "")
+        row["PO"] = po_display
+        if resolved.get("how") == "vendor+part":
+            po_missing_note = f"PO {po} found on live by vendor + part/WO (printed PO was missing or wrong). "
+    ok_po, po_why, po_info = po_gate_decision(printed_pos=pos, multi_po=multi_po, resolved=resolved if not multi_po else None)
+    if not ok_po:
+        row["Why"] = po_why
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    if multi_po:
+        po_info = None
+        po_missing_note = po_why + " "
+    elif po_info:
+        po_vendor_text = str(po_info.get("vendor_text") or po_info.get("text") or "")
+        po_vendor_id = po_info.get("vendor_id")
+        invoice_vendor_id = known_vendor_id(vendor)
+        known_conflict = (
+            invoice_vendor_id is not None
+            and po_vendor_id is not None
+            and int(invoice_vendor_id) != int(po_vendor_id)
+            and not names_match(vendor, po_vendor_text)
+            and not vendor_match_score(vendor, po_vendor_text)
+        )
+        if known_conflict:
+            retry = find_live_po(po_index, printed_po=None, vendor=vendor, parts=parts, wo=wo)
+            if retry.get("info"):
+                po_info = retry["info"]
+                po = retry.get("number")
+                po_display = str(po or "")
+                row["PO"] = po_display
+                po_missing_note = f"Printed PO belonged to {po_vendor_text}; using live PO {po} by vendor + part/WO. "
+            else:
+                row["Why"] = why_hold(
+                    GATE_PO,
+                    f"PO {po} is {po_vendor_text}, not {vendor}, and no live PO matched vendor + part/WO. "
+                    "Will not enter as Misc Type 4.",
+                )
+                return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    vendor_info = _resolve_vendor(
+        client,
+        vendor,
+        po_info,
+        vendor_samples,
+        invoice_by_number=invoice_by_number,
+        invoice_number=number,
+    )
+    if not vendor_info and po_info:
+        vendor_info = _resolve_vendor_from_po_partial(vendor, po_info, vendor_samples)
+    if not vendor_info:
+        hint = f" (PO {po} exists as {po_info['text']})" if po_info else " (looked up by vendor name / alias / PO vendor)"
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail(
+            f"vendor missing on {client.target} for {vendor}{hint}. "
+            "Will not invent a vendor/remit-to ID."
+        )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    if not vendor_info.get("invoice_id"):
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail(
+            f"vendor {vendor_info.get('vendor_id')} is known "
+            f"({vendor_info.get('vendor_text') or vendor}) but no sample invoice "
+            "for remit/terms. Not a vendor-missing fail."
+        )
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    try:
+        sample = client.get_item("ap_invoices", int(vendor_info["invoice_id"]))
+    except KimcoError as exc:
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail(f"could not load vendor sample invoice: {exc}")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    sample_values = sample.get("values") or {}
+    remit = sample_values.get("Remit_To_Address")
+    terms = sample_values.get("Terms_Code")
+    if lookup_id(remit) is None or lookup_id(terms) is None:
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail("sample invoice missing remit or terms; will not invent them.")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    transfer_ap = should_transfer_ap_missing_po(
+        vendor=vendor,
+        printed_pos=pos,
+        resolved=resolved if not multi_po else None,
+        freight=freight_vendor,
+        gas_misc=bool(inv.get("gas_misc") or inv.get("gas_split") or misc_purchase_item_for(vendor)),
+    )
+    if freight_vendor:
+        parsed_fee_list = list(inv.get("fees") or [])
+        if not parsed_fee_list and amount not in (None, ""):
+            inv["fees"] = [{"name": "Freight External", "amount": amount, "fee": True, "freight_external": True}]
+        else:
+            for fee in parsed_fee_list:
+                if isinstance(fee, dict):
+                    fee["freight_external"] = True
+            inv["fees"] = parsed_fee_list
+        row["Fees and surcharges"] = format_fees(inv.get("fees"))
+    merch = merchandise_amount(amount, inv.get("fees"))
+    invoice_qty = money(inv.get("qty") if inv.get("qty") is not None else inv.get("quantity"))
+    if multi_po:
+        po_lines = []
+        for listed in pos:
+            info = po_index.get(str(listed))
+            if info:
+                po_lines.extend(list(info.get("lines") or []))
+    else:
+        po_lines = list((po_info or {}).get("lines") or [])
+    if not invoice_lines and po_lines and len(po_lines) == 1 and merch not in (None, ""):
+        # Do not copy PO qty onto the invoice (Fastenal TXFT4100079: PO/receipt 36 ≠ invoice 35).
+        synth: dict[str, Any] = {
+            "amount": merch,
+            "part": po_lines[0].get("part"),
+            "po_line": po_lines[0].get("po_line"),
+        }
+        if invoice_qty is not None:
+            synth["qty"] = invoice_qty
+        invoice_lines = [synth]
+    if invoice_qty is None:
+        invoice_qty = invoice_qty_evidence(invoice_lines)
+    price = evaluate_bill_price_variance(invoice_lines, po_lines, invoice_total=float(amount) if amount not in (None, "") else None)
+    issue_hold: tuple[str, str] | None = None
+    preset_hold = str(inv.get("hold_reason") or "").strip().lower()
+    ppv_value = drop_fee_disguised_as_ppv(price.get("ppv_total") or 0.0, inv.get("fees"))
+    price["ppv_total"] = ppv_value
+    if ppv_value:
+        row["PPV"] = format_ppv(ppv_value)
+    if price["hold"] or preset_hold == "price does not match":
+        issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
+        if PRICE_MISMATCH_PO_COMMENT not in issue_why:
+            issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
+        issue_why += " Create KIMCO header and attach PDF; do not finish the bill."
+        issue_hold = (GATE_PRICE, issue_why)
+    # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
+    # Freight companies have no Select Receipts / PO qty gate (Priority 1).
+    if not multi_po and not freight_vendor and not transfer_ap:
+        qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
+        if not qty_ok:
+            extra = qty_why
+            if issue_hold:
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {extra}")
+            else:
+                issue_hold = (GATE_QTY, extra + " Create KIMCO header and attach PDF; do not claim Success.")
+    if transfer_ap:
+        transfer_why = why_hold(
+            GATE_PO,
+            f"{NO_PO_ON_PDF_BUYER_COMMENT} Batch {TRANSFER_AP_BATCH_NAME}. "
+            "Create KIMCO header and attach PDF; do not invent a PO or Select Receipts.",
+        )
+        issue_hold = (GATE_PO, transfer_why)
+
+    receipt_note = ""
+    receipt_result: dict[str, Any] | None = None
+    if receipts is not None and (po_info or multi_po) and not freight_vendor and not transfer_ap:
+        # One matcher pass over every invoice line and every listed PO.
+        # Do not feed invoice-total qty/cost as a per-line gate (3P 142041).
+        # CPL numbers are a secondary hint only — never required.
+        one = match_receipts(
+            invoice_number=number,
+            invoice_lines=invoice_lines,
+            receipts=receipts,
+            po_number=str(po) if (po and not multi_po) else None,
+            po_numbers=pos or None,
+            invoice_qty=invoice_qty if not invoice_lines else None,
+            invoice_amount=merch if not invoice_lines else None,
+            slip_numbers=extract_subject_cpls(str(inv.get("subject") or "")),
+        )
+        combined_matched = list(one.get("matched") or [])
+        combined_unmatched = list(one.get("unmatched_lines") or [])
+        ppv_lock = filter_matches_outside_ppv_gate(
+            combined_matched, invoice_total=amount
+        )
+        ppv_lock_note = ""
+        if ppv_lock.get("skipped"):
+            combined_matched = list(ppv_lock.get("selectable") or [])
+            ppv_lock_note = (
+                "Over-PPV leftover(s) not selected (locks the receipt; "
+                "Shawn cannot unreceive / fix PO price / re-receive). NOTE-29. "
+            )
+            if ppv_lock.get("select_zero"):
+                ppv_lock_note += (
+                    "Whole bill is over the PPV gate; Select Receipts posted zero. "
+                )
+            skip_reason = ""
+            for hit in ppv_lock.get("skipped") or []:
+                skip_reason = str(hit.get("ppv_skip_reason") or "").strip()
+                if skip_reason:
+                    break
+            lock_why = why_hold(
+                GATE_PRICE,
+                (skip_reason or PRICE_DOES_NOT_MATCH)
+                + " Receipts NOT selected per Kyle lock rule (NOTE-29).",
+            )
+            if PRICE_MISMATCH_PO_COMMENT not in lock_why:
+                lock_why = f"{lock_why} {PRICE_MISMATCH_PO_COMMENT}"
+            lock_why += " Create KIMCO header and attach PDF; do not finish the bill."
+            if issue_hold is None:
+                issue_hold = (GATE_PRICE, lock_why)
+            elif "NOTE-29" not in str(issue_hold[1]):
+                issue_hold = (issue_hold[0], f"{issue_hold[1]} {ppv_lock_note}")
+        matched_pos = {
+            str((hit.get("receipt") or {}).get("po") or (hit.get("line") or {}).get("po") or "")
+            for hit in combined_matched
+        }
+        unmatched_pos = [p for p in pos if p and p not in matched_pos]
+        receipt_result = {
+            "hold_no_receipts": bool(one.get("hold_no_receipts")),
+            "matched": combined_matched,
+            "unmatched_lines": combined_unmatched,
+            "unmatched_pos": unmatched_pos,
+            "why": one.get("why") or "",
+        }
+        if one.get("ambiguous") and not combined_matched and issue_hold is None:
+            amb_why = str((one.get("ambiguous") or [{}])[0].get("why") or one.get("why") or "")
+            issue_hold = (
+                GATE_RECEIPT,
+                why_hold(
+                    GATE_RECEIPT,
+                    amb_why
+                    or "multiple open receipts on the PO differ in qty/cost. "
+                    "Will not guess first-open / second-open-on-po.",
+                )
+                + " Create KIMCO header and attach PDF; do not claim Success.",
+            )
+        # Blanket no-receipts HOLD only when ZERO lines matched. Partial
+        # Select Receipts is required when any line matches (Kyle 2026-09-14).
+        if receipt_result["hold_no_receipts"] and not combined_matched and issue_hold is None:
+            unmatched_txt = format_unmatched_lines(combined_unmatched)
+            unmatched_po_txt = format_unmatched_pos(unmatched_pos)
+            extra = ""
+            if unmatched_txt:
+                extra += (
+                    f" Unmatched invoice line(s): {unmatched_txt}. "
+                    "Select Receipts for each invoice line; do not stop after one."
+                )
+            if unmatched_po_txt:
+                extra += (
+                    f" Unmatched PO(s): {unmatched_po_txt}. "
+                    "Select Receipts per PO; do not skip a PO silently."
+                )
+            extra += " " + str(one.get("why") or "")
+            issue_hold = (
+                GATE_RECEIPT,
+                why_hold(
+                    GATE_RECEIPT,
+                    f"no receipts after second pass slip # / part / qty / PO line / open receipts on PO "
+                    f"(invoice {number}). Will not guess a qty-only slip.{extra}",
+                )
+                + " Create KIMCO header and attach PDF; do not claim Success.",
+            )
+        receipt_note = (receipt_result["why"] + " ") if receipt_result else ""
+        receipt_note += ppv_lock_note
+        if unmatched_pos and combined_matched:
+            receipt_note += (
+                f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
+                "Select Receipts per PO; do not skip a PO silently. "
+            )
+        elif unmatched_pos and not combined_matched:
+            receipt_note += (
+                f"Unmatched PO(s): {format_unmatched_pos(unmatched_pos)}. "
+                "Select Receipts per PO; do not skip a PO silently. "
+            )
+        selected_txt = format_selected_receipts(combined_matched)
+        if selected_txt:
+            receipt_note += f"Selected receipts: {selected_txt}. "
+        if combined_unmatched and combined_matched:
+            receipt_note += (
+                f"Selected vs unmatched: matched {len(combined_matched)}, "
+                f"unmatched {len(combined_unmatched)}. "
+            )
+        if receipt_result and combined_matched:
+            matched_receipts = [
+                {
+                    "part": (hit.get("receipt") or {}).get("part"),
+                    "qty": hit.get("select_qty")
+                    if hit.get("select_qty") is not None
+                    else (hit.get("receipt") or {}).get("qty"),
+                    "description": (hit.get("receipt") or {}).get("description")
+                    or (hit.get("receipt") or {}).get("part"),
+                    "label": (hit.get("line") or {}).get("label") or (hit.get("receipt") or {}).get("part"),
+                }
+                for hit in combined_matched
+            ]
+            rec_ok, rec_why = qty_gate(invoice_lines, matched_receipts)
+            unmatched_now = list(combined_unmatched)
+            # Qty HOLD must not wipe matched receipt ids. Select every line
+            # that matched; leftover lines stay on Why.
+            if not rec_ok and not unmatched_now and issue_hold is None:
+                issue_hold = (GATE_QTY, rec_why + " Create KIMCO header and attach PDF; do not claim Success.")
+            elif invoice_qty is not None and not unmatched_now:
+                picked_qty = merchandise_qty(matched_receipts)
+                if picked_qty is not None and picked_qty != invoice_qty and issue_hold is None:
+                    issue_hold = (
+                        GATE_QTY,
+                        why_hold(
+                            GATE_QTY,
+                            f"invoice qty {invoice_qty:g} ≠ selected receipt qty {picked_qty:g} "
+                            f"(Fastenal TXFT4100079 class). Do not take the first open receipt.",
+                        )
+                        + " Create KIMCO header and attach PDF; do not claim Success.",
+                    )
+
+    invoice_day = parse_iso_date(str(inv["date"]))
+    due = due_date_from_terms(invoice_day, lookup_text(terms))
+    # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
+    # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
+    if multi_po:
+        invoice_type = INVOICE_TYPE_PO
+    else:
+        invoice_type = invoice_type_for(po if (po_info or po) else None)
+        if invoice_type == 4 and po_info:
+            invoice_type = invoice_type_for(po)
+    currency = sample_values.get("Currency")
+    currency_id = lookup_id(currency) or CURRENCY_USD_ID
+    payload: dict[str, Any] = {
+        "AP_Invoice_Batch": {"id": batch["id"]},
+        "Vendor": {"id": vendor_info["vendor_id"]},
+        "Invoice_Number": number,
+        "Invoice_Type": invoice_type,
+        "Invoice_Date": kimco_datetime(invoice_day),
+        "Invoice_Verification_Amount": float(amount),
+        "Invoice_Due_Date": kimco_datetime(due),
+        "Terms_Code": {"id": lookup_id(terms)},
+        "Currency": {"id": currency_id},
+        "Remit_To_Address": {"id": lookup_id(remit)},
+        "Transaction_Date": kimco_datetime(invoice_day),
+        "Comments": comments_for(client.target),
+    }
+    if transfer_ap:
+        payload["Comments"] = f"{payload['Comments']} {NO_PO_ON_PDF_BUYER_COMMENT}".strip()
+        found_transfer = _find_existing_batch_named(client, TRANSFER_AP_BATCH_NAME)
+        if found_transfer:
+            payload["AP_Invoice_Batch"] = {"id": found_transfer["id"]}
+            row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({found_transfer['id']})"
+    if po_info and not multi_po and not transfer_ap:
+        payload["Purchase_Order"] = {"id": po_info["id"]}
+    created_id, _body, status, error = client.create("ap_invoices", payload)
+    if created_id is None:
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail(f"header create HTTP {status}: {error}")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    if created_id in FORBIDDEN_INVOICE_IDS:
+        row["Result"] = RESULT_FAIL
+        row["KIMCO id"] = created_id
+        row["Why"] = why_fail("create returned a forbidden existing invoice id; will not edit it.")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+    _remember_invoice(
+        invoice_by_number,
+        number,
+        {"id": created_id, "values": {"Invoice_Number": number, "Vendor": {"text": vendor}}},
+    )
+    pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
+    receipts_selected = False
+    select_status = ""
+    receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
+    if freight_vendor or transfer_ap:
+        receipt_ids = []
+    if (po_info or multi_po) and receipt_ids and not freight_vendor and not transfer_ap:
+        # Kyle 2026-09-14: select every matchable line. A price/qty/unmatched
+        # leftover must not skip Select Receipts for the lines that did match.
+        selector = getattr(client, "try_select_receipts", None)
+        if selector:
+            try:
+                select_status = selector(created_id, receipt_ids)
+            except KimcoError:
+                select_status = "blocked-405"
+        else:
+            select_status = "blocked-405"
+        receipts_selected = select_status == "selected"
+    elif issue_hold:
+        select_status = "held-unfinished"
+    elif po_info or multi_po:
+        selector = getattr(client, "try_select_receipts", None)
+        if selector:
+            try:
+                select_status = selector(created_id, receipt_ids)
+            except KimcoError:
+                select_status = "blocked-405"
+        else:
+            select_status = "blocked-405"
+        receipts_selected = select_status == "selected"
+    fees_posted = False
+    fee_status = "none"
+    parsed_fees = list(inv.get("fees") or [])
+    if fees_required(parsed_fees):
+        poster = getattr(client, "try_post_fees", None)
+        if poster:
+            try:
+                try:
+                    fee_status = poster(
+                        created_id,
+                        fees_with_amounts(parsed_fees),
+                        freight_vendor=freight_vendor,
+                        vendor=vendor,
+                    )
+                except TypeError:
+                    fee_status = poster(created_id, fees_with_amounts(parsed_fees))
+            except KimcoError:
+                fee_status = "blocked-405"
+        else:
+            fee_status = "blocked-no-fee-api"
+        fees_posted = fee_status == "posted"
+    ppv_status = "none"
+    if price.get("ppv_total"):
+        poster_ppv = getattr(client, "try_post_ppv", None)
+        if poster_ppv:
+            try:
+                ppv_status = poster_ppv(created_id, price["ppv_total"])
+            except KimcoError:
+                ppv_status = "blocked-405"
+        else:
+            ppv_status = "not-posted-api"
+    edit_hint = ""
+    probe = getattr(client, "try_put_probe_rejected", None)
+    if probe:
+        try:
+            edit_hint = probe("ap_invoices", created_id)
+        except KimcoError:
+            edit_hint = "options-failed"
+    row["KIMCO id"] = created_id
+    row["Attach status"] = pdf_status
+    posted = _confirm_posted_vendor(client, created_id)
+    vendor_ok, _vendor_why = vendor_confirmation_gate(
+        parsed_vendor=vendor,
+        posted_name=posted["name"] or None,
+        posted_id=posted["id"],
+        forced_mismatch=not posted["got"],
+    )
+    if issue_hold:
+        row["Result"] = RESULT_HOLD
+        misc_note = ""
+        misc_item = misc_purchase_item_for(vendor)
+        if misc_item and invoice_type == 4:
+            misc_note = f" Misc purchase item {misc_item}."
+        row["Why"] = (
+            f"{issue_hold[1]} {receipt_note}"
+            f"Header created (id {created_id}). Attach status={pdf_status}."
+            f" Select Receipts={select_status or 'not-posted'}.{misc_note} "
+            "Outlook Entered with issues (not Entered in AI)."
+        ).strip()
+        LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=HOLD-with-header", number, created_id, vendor, po, invoice_type)
+        # NOTE-53: missing_receipt HOLD → Transfer AP (supersedes stay-on-agent-batch).
+        if should_transfer_ap_missing_receipt(
+            result=RESULT_HOLD,
+            why=str(row.get("Why") or ""),
+            issue_gate=issue_hold[0],
+        ):
+            moved = apply_missing_receipt_transfer_ap(client, kimco_id=created_id)
+            if moved.get("status") in {"moved", "already-on-transfer-ap"} and moved.get("batch_id") not in (None, ""):
+                row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({moved['batch_id']})"
+            row["Why"] = (
+                f"{row['Why']} NOTE-53 missing_receipt → Transfer AP "
+                f"({moved.get('status')})."
+            ).strip()
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    result, finish_why = finish_gate(
+        header_created=True,
+        attach_status=pdf_status,
+        po=po if po_info else None,
+        multi_po=multi_po,
+        receipts_selected=receipts_selected,
+        kimco_id=created_id,
+        fees=parsed_fees,
+        fees_posted=fees_posted,
+        freight_vendor=freight_vendor,
+        selfcheck=_selfcheck_with_posted_vendor(
+            selfcheck_payload(
+                inv,
+                invoice_type=invoice_type,
+                po=po if po_info else None,
+                multi_po=multi_po,
+                price=price,
+                qty_hold=bool(issue_hold and issue_hold[0] == GATE_QTY),
+                receipt_result=receipt_result,
+                fees_posted=fees_posted,
+                receipt_qty_mismatch=bool(issue_hold and issue_hold[0] == GATE_QTY),
+            ),
+            parsed_vendor=vendor,
+            posted=posted,
+            vendor_ok=vendor_ok,
+        ),
+    )
+    row["Result"] = result
+    if po_info and not multi_po:
+        if select_status == "selected":
+            line_note = (
+                "Header PO set. Select Receipts-equivalent posted on the invoice record; "
+                "do not type Add Item. "
+            )
+        else:
+            line_note = (
+                f"Lines blocked ({edit_hint or select_status or 'blocked-405'}): "
+                "Select Receipts-equivalent uses the record URL; "
+                "check Can Edit Items / Inline on the list. "
+                "Do not type Add Item. "
+            )
+    else:
+        line_note = (
+            "Purchase Order left blank (no-PO or multi-PO). "
+            "Do not type Add Item. "
+        )
+    ppv_note = ""
+    if price["ppv_total"]:
+        posted_bit = "Posted" if ppv_status == "posted" else "Post"
+        ppv_note = (
+            f"{posted_bit} Additional Charge Purchase Price Variance {format_ppv(price['ppv_total'])} "
+            f"(signed; negative allowed; not Fees; status={ppv_status}). "
+        )
+        for item in price.get("items") or []:
+            if item.get("reason") and item.get("action") == "ppv":
+                ppv_note += item["reason"] + " "
+    misc_note = ""
+    misc_item = misc_purchase_item_for(vendor)
+    if misc_item and invoice_type == 4:
+        misc_note = f" Miscellaneous purchase item {misc_item}."
+    fee_note = ""
+    if fees_required(parsed_fees):
+        if fees_posted:
+            if freight_vendor:
+                fee_note = (
+                    f"Posted Additional Charge Freight External "
+                    f"({format_fees(parsed_fees)}; not Fees & Surcharges; not PPV). "
+                )
+            else:
+                fee_note = (
+                    f"Posted Additional Charge Fees and surcharges / F-Fees & Surcharges "
+                    f"({format_fees(parsed_fees)}; not PPV). "
+                )
+        else:
+            if freight_vendor:
+                fee_note = (
+                    f"Freight External {format_fees(parsed_fees)} was parsed but not posted "
+                    f"({fee_status}); sheet column is not enough. "
+                )
+            else:
+                fee_note = (
+                    f"Fees {format_fees(parsed_fees)} were parsed but not posted "
+                    f"({fee_status}); sheet column is not enough. "
+                )
+    if result == RESULT_SUCCESS:
+        row["Why"] = (
+            f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
+            f"{ppv_note}{fee_note}"
+            f"{misc_note}Attach status={pdf_status}."
+        )
+    else:
+        row["Why"] = (
+            f"{finish_why} {po_missing_note}{line_note}{receipt_note}{ppv_note}{fee_note}"
+            f"Attach status={pdf_status}."
+        ).strip()
+    LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=%s", number, created_id, vendor, po, invoice_type, result)
+    return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+
+
+def _sample_by_vendor_id(samples: list[dict[str, Any]], vendor_id: int | None) -> dict[str, Any] | None:
+    if vendor_id is None:
+        return None
+    for sample in samples:
+        if sample.get("vendor_id") == vendor_id:
+            return sample
+    return None
+
+
+def _sample_matching_alias(
+    samples: list[dict[str, Any]],
+    alias_id: int,
+    fixture_vendor: str,
+) -> dict[str, Any] | None:
+    """Find a remit/terms sample for a known API Vendor.id (MSC=128).
+
+    Invoice Vendor lookup-ids can differ from Vendor.id (1320-RMP ≠ 322).
+    Never return a sample whose name aliases to a different vendor.
+    Create posts the alias id, not a fuzzy lookup-id.
+    """
+    by_id = _sample_by_vendor_id(samples, alias_id)
+    if by_id:
+        return {**by_id, "vendor_id": int(alias_id)}
+    for sample in samples:
+        text = str(sample.get("vendor_text") or "")
+        sample_alias = known_vendor_id(text)
+        if sample_alias == alias_id:
+            return {**sample, "vendor_id": int(alias_id)}
+        if names_match(fixture_vendor, text) and sample_alias in {None, alias_id}:
+            return {**sample, "vendor_id": int(alias_id)}
+    return None
+
+
+def _confirm_posted_vendor(client: KimcoClient, invoice_id: int) -> dict[str, Any]:
+    """GET the header after create. Missing Vendor key is not a GET failure."""
+    try:
+        record = client.get_item("ap_invoices", int(invoice_id))
+    except KimcoError:
+        LOGGER.info("Could not GET invoice %s to confirm posted vendor", invoice_id)
+        return {"name": "", "id": None, "got": False}
+    name, vendor_id = posted_vendor_fields(record)
+    return {"name": name, "id": vendor_id, "got": True}
+
+
+def _selfcheck_with_posted_vendor(
+    payload: dict[str, Any],
+    *,
+    parsed_vendor: str,
+    posted: dict[str, Any],
+    vendor_ok: bool,
+) -> dict[str, Any]:
+    out = dict(payload)
+    out["parsed_vendor"] = parsed_vendor
+    out["posted_vendor"] = posted.get("name") or ""
+    out["posted_vendor_id"] = posted.get("id")
+    out["vendor_mismatch"] = not vendor_ok
+    return out
+
+
+def _find_existing_batch_named(client: KimcoClient, name: str) -> dict[str, Any] | None:
+    """Find Transfer AP (or any named batch). Never create. Never invent an id."""
+    wanted = (name or "").strip()
+    if not wanted:
+        return None
+    try:
+        items = client.list_items("ap_batches", page_size=200)
+    except (KimcoError, AttributeError, TypeError):
+        return None
+    for item in items or []:
+        values = item.get("values") or {}
+        label = str(values.get("AP_Invoice_Batch_ID") or values.get("Name") or "").strip()
+        if label == wanted and item.get("id") not in (None, ""):
+            return {"id": item["id"], "name": label}
+    return None
+
+
+def _resolve_vendor_from_po_partial(
+    parsed_vendor: str,
+    po_info: dict[str, Any] | None,
+    samples: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """McNichols 2559543: email/name fail + PO vendor partial match → use PO vendor.
+
+    Never invent a vendor id. Only the id already on the PO (or a sample for that same PO vendor).
+    """
+    if not po_info:
+        return None
+    po_text = str(po_info.get("text") or "")
+    po_name = str(po_info.get("vendor_text") or "") or po_vendor_name_from_text(po_text)
+    po_id = po_info.get("vendor_id")
+    if not po_vendor_partial_match(parsed_vendor, po_name or po_text):
+        return None
+    if po_id not in (None, ""):
+        from_po = _sample_by_vendor_id(samples, int(po_id))
+        if from_po:
+            return from_po
+    if po_name:
+        from_name = _best_vendor_sample(po_name, po_text, samples)
+        if from_name:
+            return from_name
+    if po_id not in (None, ""):
+        return {
+            "vendor_id": int(po_id),
+            "vendor_text": po_name or parsed_vendor,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_po_partial": True,
+        }
+    return None
+
+
+def _resolve_vendor(
+    client: KimcoClient,
+    fixture_vendor: str,
+    po_info: dict[str, Any] | None,
+    samples: list[dict[str, Any]],
+    *,
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoice_number: str,
+) -> dict[str, Any] | None:
+    """Known alias for the parsed name first, then name match, then the live PO.
+
+    Do not Fail vendor-missing when the PO has a vendor (Treyce 2026-08-28).
+    Prefer MSC → 128 over fuzzy sample seeding (8/18 70762501 posted as 1320-RMP).
+    Aliases: National Specialty Alloys=1386, Coherent Corp.=1410, MSC=128, RMP=322.
+    """
+    po_text = (po_info or {}).get("text") or ""
+    po_vendor_id = (po_info or {}).get("vendor_id")
+    po_vendor_text = (po_info or {}).get("vendor_text") or po_vendor_name_from_text(po_text)
+    parsed_alias = known_vendor_id(fixture_vendor)
+    alias_id = parsed_alias or known_vendor_id(po_vendor_text)
+
+    if parsed_alias:
+        aliased = _sample_matching_alias(samples, parsed_alias, fixture_vendor)
+        if aliased:
+            return aliased
+
+    match = _best_vendor_sample(fixture_vendor, po_text, samples)
+    if match and (not parsed_alias or known_vendor_id(match.get("vendor_text")) in {None, parsed_alias}):
+        if parsed_alias:
+            return {**match, "vendor_id": int(parsed_alias)}
+        return match
+    if parsed_alias:
+        discovered = _discover_vendor_from_invoices(
+            client,
+            fixture_vendor,
+            samples,
+            invoice_by_number=invoice_by_number,
+            invoice_number=invoice_number,
+            prefer_vendor_id=parsed_alias,
+        )
+        if discovered and (
+            discovered.get("vendor_id") == parsed_alias
+            or known_vendor_id(discovered.get("vendor_text")) == parsed_alias
+            or names_match(fixture_vendor, discovered.get("vendor_text"))
+        ):
+            return {**discovered, "vendor_id": int(parsed_alias)}
+        return {
+            "vendor_id": int(parsed_alias),
+            "vendor_text": fixture_vendor,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_alias": True,
+        }
+
+    if alias_id:
+        aliased = _sample_matching_alias(samples, alias_id, fixture_vendor or po_vendor_text)
+        if aliased:
+            return aliased
+    if po_vendor_id:
+        from_po = _sample_by_vendor_id(samples, int(po_vendor_id))
+        if from_po:
+            return from_po
+    if po_vendor_text:
+        from_po_name = _best_vendor_sample(po_vendor_text, po_text, samples)
+        if from_po_name:
+            return from_po_name
+
+    discovered = _discover_vendor_from_invoices(
+        client,
+        fixture_vendor,
+        samples,
+        invoice_by_number=invoice_by_number,
+        invoice_number=invoice_number,
+        prefer_vendor_id=alias_id or po_vendor_id,
+    )
+    if discovered:
+        return discovered
+
+    partial = _resolve_vendor_from_po_partial(fixture_vendor, po_info, samples)
+    if partial:
+        return partial
+
+    # Vendor is known from alias or the live PO; remit/terms sample may still be missing.
+    known_id = alias_id or po_vendor_id
+    if known_id:
+        return {
+            "vendor_id": int(known_id),
+            "vendor_text": fixture_vendor or po_vendor_text,
+            "invoice_id": None,
+            "po_text": po_text,
+            "from_po": True,
+        }
+    return _best_vendor_sample(fixture_vendor, po_text, samples)
+
+
+def _best_vendor_sample(fixture_vendor: str, po_text: str, samples: list[dict[str, Any]]) -> dict[str, Any] | None:
+    po_vendor = po_text.split("-", 1)[1] if "-" in po_text else po_text
+    scored: list[tuple[int, dict[str, Any]]] = []
+    for sample in samples:
+        score = max(
+            vendor_match_score(fixture_vendor, sample.get("vendor_text")),
+            vendor_match_score(po_vendor, sample.get("vendor_text")),
+            vendor_match_score(fixture_vendor, sample.get("po_text")),
+            vendor_match_score(po_vendor, sample.get("po_text")),
+        )
+        if score:
+            scored.append((score, sample))
+    if not scored:
+        return None
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    return scored[0][1]
+
+
+def _discover_vendor_from_invoices(
+    client: KimcoClient,
+    fixture_vendor: str,
+    samples: list[dict[str, Any]],
+    *,
+    invoice_by_number: dict[str, dict[str, Any]],
+    invoice_number: str,
+    prefer_vendor_id: int | None = None,
+) -> dict[str, Any] | None:
+    """GET existing invoices and match Vendor text or a known vendor id."""
+    needle = invoice_number_key(invoice_number)
+    prefixes = {needle[:n] for n in (4, 5, 6, 7) if len(needle) >= n}
+    ranked_ids: list[int] = []
+    seen_ids: set[int] = {s.get("invoice_id") for s in samples if s.get("invoice_id") is not None}
+    for key, items in invoice_by_number.items():
+        for item in items:
+            item_id = item.get("id")
+            if item_id is None or item_id in seen_ids:
+                continue
+            if any(key.startswith(prefix) for prefix in prefixes if len(prefix) >= 4):
+                ranked_ids.append(int(item_id))
+    extras = sorted(
+        (
+            int(item.get("id"))
+            for items in invoice_by_number.values()
+            for item in items
+            if item.get("id") is not None
+        ),
+        reverse=True,
+    )
+    for item_id in extras:
+        if item_id not in seen_ids and item_id not in ranked_ids:
+            ranked_ids.append(item_id)
+        if len(ranked_ids) >= 400:
+            break
+
+    LOGGER.info("Vendor name lookup for %s: probing %s existing invoices", fixture_vendor, min(len(ranked_ids), 250))
+    probed = 0
+    for item_id in ranked_ids:
+        if probed >= 250:
+            break
+        if item_id in seen_ids:
+            continue
+        try:
+            item = client.get_item("ap_invoices", item_id)
+        except KimcoError:
+            continue
+        probed += 1
+        values = item.get("values") or {}
+        vendor_field = values.get("Vendor")
+        vendor_id = lookup_id(vendor_field)
+        vendor_text = lookup_text(vendor_field)
+        if vendor_id is None:
+            continue
+        sample = {
+            "vendor_id": vendor_id,
+            "vendor_text": vendor_text,
+            "invoice_id": item.get("id"),
+            "po_text": lookup_text(values.get("Purchase_Order")),
+        }
+        samples.append(sample)
+        seen_ids.add(item_id)
+        if prefer_vendor_id is not None and vendor_id == int(prefer_vendor_id):
+            LOGGER.info("Matched vendor id %s from existing invoice id=%s", vendor_id, item.get("id"))
+            return sample
+        if _best_vendor_sample(fixture_vendor, "", [sample]):
+            LOGGER.info("Matched vendor %s from existing invoice id=%s", vendor_text, item.get("id"))
+            return sample
+    return None
+
+
+def _maybe_attach(
+    client: KimcoClient,
+    invoice_id: int,
+    invoice_number: str,
+    pdf_dir: Path | None,
+    explicit_pdf: str | None = None,
+) -> str:
+    pdf: Path | None = None
+    if explicit_pdf:
+        candidate = Path(explicit_pdf)
+        if candidate.exists() and candidate.suffix.lower() == ".pdf":
+            pdf = candidate
+    if pdf is None:
+        if pdf_dir is None or not pdf_dir.exists() or not invoice_number:
+            return "no-pdf-on-vm"
+        matches = list(pdf_dir.glob(f"*{invoice_number}*.pdf"))
+        named = [p for p in matches if invoice_number.lower() in p.name.lower()]
+        if not named:
+            return "no-pdf-on-vm"
+        pdf = named[0]
+    try:
+        content = pdf.read_bytes()
+        return client.try_official_attach(
+            invoice_id,
+            name=pdf.name,
+            content_type="application/pdf",
+            size=len(content),
+            content=content,
+        )
+    except KimcoError as exc:
+        LOGGER.info("Attach attempt failed without raising run: %s", type(exc).__name__)
+        text = str(exc)
+        if "405" in text:
+            return text if "Can Edit Items" in text else f"blocked-405: {text}"
+        return "blocked-405"
+    except Exception as exc:  # noqa: BLE001 - attach must not fail the run
+        LOGGER.info("Attach attempt failed without raising run: %s", type(exc).__name__)
+        return "blocked-405"
+
+
+def _optional_graph_client() -> GraphClient | None:
+    graph_creds = load_graph_credentials()
+    if not graph_creds.ready:
+        LOGGER.info("Graph client not ready; inbox match/flag will record no-message-id or graph-denied")
+        return None
+    try:
+        return GraphClient.authenticate(
+            graph_creds.tenant_id or "",
+            graph_creds.client_id or "",
+            graph_creds.client_secret or "",
+        )
+    except GraphError as exc:
+        LOGGER.info("Graph authenticate failed: %s", type(exc).__name__)
+        return None
+
+
+def _fixture_window(invoices_or_path: Path | list[dict[str, Any]]) -> tuple[Any, Any]:
+    if isinstance(invoices_or_path, Path):
+        payload = json.loads(invoices_or_path.read_text())
+        window = payload.get("window") or {}
+        start = window.get("from")
+        end = window.get("to")
+        return start, end
+    return None, None
+
+
+def _attach_inbox_ids(
+    invoices: list[dict[str, Any]],
+    *,
+    mailbox: str,
+    start: str | None,
+    end: str | None,
+    graph_client: GraphClient | None,
+    fixture_path: Path | None = None,
+) -> list[dict[str, Any]]:
+    """Keep Graph message ids on invoices. Does not flag."""
+    mailbox = assert_allowed_mailbox(mailbox)
+    if graph_client is None:
+        LOGGER.info("Skipping inbox match: Graph client unavailable")
+        return invoices
+    if not start or not end:
+        fixture_start, fixture_end = _fixture_window(fixture_path) if fixture_path else (None, None)
+        start = start or fixture_start
+        end = end or fixture_end
+    if not start or not end:
+        LOGGER.info("Skipping inbox match: --inbox-from/--inbox-to (or fixture window) required")
+        return invoices
+    messages = graph_client.list_messages(
+        mailbox,
+        received_from=parse_iso_date(str(start)),
+        received_to=parse_iso_date(str(end)),
+        unflagged_only=False,
+        include_attachment_names=True,
+    )
+    enriched = attach_message_ids(invoices, messages)
+    matched = sum(1 for inv in enriched if inv.get("graph_message_id"))
+    LOGGER.info("Attached Graph message ids to %s/%s invoices (flag happens after match, not now)", matched, len(enriched))
+    return enriched
+
+
+def _run_probe(args: argparse.Namespace) -> int:
+    """Graph-only: AI HOLD category + Mail.Send draft check. Never sendMail. Never KIMCO."""
+    print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
+    mailbox = assert_allowed_mailbox(args.mailbox)
+    graph_creds = load_graph_credentials()
+    if not graph_creds.ready:
+        print(graph_creds.error or "Graph credentials missing.", flush=True)
+        return 2
+    try:
+        client = GraphClient.authenticate(
+            graph_creds.tenant_id or "",
+            graph_creds.client_id or "",
+            graph_creds.client_secret or "",
+        )
+        category_status = client.ensure_ai_hold_category(mailbox)
+        issues_status = client.ensure_entered_with_issues_category(mailbox)
+        skipped_status = client.ensure_ai_skipped_category(mailbox)
+        probe = client.probe_send_authorization(mailbox)
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+    except GraphError as exc:
+        print(f"Graph probe failed: {exc}", flush=True)
+        return 1
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    out_path = Path(args.out) if args.out else ROOT / "runs" / f"graph-send-probe-{as_of.isoformat()}.json"
+    payload = {
+        "mailbox": mailbox,
+        "other_mailboxes_used": [],
+        "kimco_writes": False,
+        "send_mail_invoked": False,
+        "mail_sent_to_anyone": False,
+        "ai_hold_category": category_status,
+        "entered_with_issues_category": issues_status,
+        "ai_skipped_category": skipped_status,
+        "probe": probe,
+        "notes": (
+            "Draft created on the AP mailbox and deleted. sendMail was not called. "
+            "Daily still emails Treyce only after a real --live enter."
+        ),
+    }
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"AI HOLD master category: {category_status}", flush=True)
+    print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
+    print(
+        f"Mail.Send role={'present' if probe.get('mail_send_role') else 'absent'} "
+        f"draft={probe.get('draft_status')} draft_http={probe.get('draft_http')} "
+        f"deleted_http={probe.get('draft_deleted_http')} send_mail_invoked=false",
+        flush=True,
+    )
+    print(f"Wrote {out_path}. No mail was sent. No KIMCO writes.", flush=True)
+    return 0
+
+
+def _run_daily(args: argparse.Namespace) -> int:
+    """Weekday 5am America/Chicago FIFO. Requires --live. Hard-clamped to 10 emails."""
+    if not args.live:
+        print(
+            "daily requires --live (live KIMCO + live creds). "
+            "Refusing to run without the live flag so CI/prototype cannot post.",
+            flush=True,
+        )
+        return 2
+
+    target = resolve_target(live_flag=True)
+    creds = load_credentials(target=target)
+    print(format_presence(creds.presence), flush=True)
+    print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
+    print(f"Target: {creds.target}", flush=True)
+    if creds.key_source:
+        print(f"Using credential pair: {creds.key_source}", flush=True)
+    print(f"Instance host: {creds.instance_url}", flush=True)
+    print(
+        "Daily FIFO from 2026-07-28 America/Chicago toward today. "
+        "Skip already-flagged (Entered in AI / AI HOLD / Entered with issues / AI Skipped 2 / leftover AI Skipped / flag.flagStatus=flagged). "
+        "Hard email cap 10 until further notice (Kyle 2026-09-11). "
+        "Noise consumes the cap. Cursor persists. "
+        "Success→Entered in AI only; bill Incomplete/HOLD/Fail→AI HOLD; noise→AI Skipped 2. No flag.flagStatus.",
+        flush=True,
+    )
+
+    as_of = parse_iso_date(args.as_of) if args.as_of else chicago_today()
+    batch_name = batch_name_for(as_of)
+    report_path = Path(args.report) if args.report else ROOT / "runs" / f"AP-run-{as_of.isoformat()}.xlsx"
+    requested = DEFAULT_DAILY_LIMIT if args.limit is None else int(args.limit)
+    limit = clamp_email_limit(requested, default=DEFAULT_DAILY_LIMIT)
+    if requested > HARD_EMAIL_CAP:
+        print(
+            f"Hard email cap {HARD_EMAIL_CAP} until further notice (Kyle 2026-09-11). "
+            f"Clamped --limit {requested} to {limit} mailbox messages. "
+            "Bill-attempt mode is suspended; noise consumes the cap. "
+            "Already-flagged mail is walked past and does not count.",
+            flush=True,
+        )
+    cursor_path = Path(args.cursor)
+    cursor = load_cursor(cursor_path)
+    print(
+        f"Cursor: last_received={cursor.last_receivedDateTime or 'none (start 2026-07-28)'} "
+        f"last_message_id={'set' if cursor.last_message_id else 'none'}",
+        flush=True,
+    )
+
+    graph_client = _optional_graph_client()
+    if graph_client is None:
+        print("Graph credentials missing or authenticate failed. Cannot run daily inbox FIFO.", flush=True)
+        write_report(report_path, [])
+        write_email_sidecar(report_path, EMAIL_DENIED, subject=email_subject_for(as_of), to=args.email_to)
+        return 2
+
+    category_status = "not-attempted"
+    try:
+        category_status = graph_client.ensure_ai_hold_category(args.mailbox)
+        issues_status = graph_client.ensure_entered_with_issues_category(args.mailbox)
+        skipped_status = graph_client.ensure_ai_skipped_category(args.mailbox)
+    except (GraphError, MailboxRejected):
+        category_status = "category-denied"
+        issues_status = "category-denied"
+        skipped_status = "category-denied"
+    print(f"AI HOLD master category: {category_status}", flush=True)
+    print(f"Entered with issues master category: {issues_status}", flush=True)
+    print(f"AI Skipped 2 master category: {skipped_status}", flush=True)
+
+    pdf_dir = Path(args.pdf_dir) if args.pdf_dir else ROOT / "runs" / "inbox-pdfs"
+    try:
+        invoices, skipped = pull_recent_bills(
+            graph_client,
+            mailbox=args.mailbox,
+            limit=limit,
+            received_from=None,
+            received_to=as_of,
+            pdf_dir=pdf_dir,
+            max_messages=max(80, HARD_EMAIL_CAP * 8),
+            fifo=True,
+            unprocessed_only=True,
+            cursor=cursor,
+            mark_skips=True,
+        )
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+    except GraphError as exc:
+        print(f"Graph daily pull failed: {exc}", flush=True)
+        why = (
+            "HOLD graph-mailbox: mailbox read on the AP mailbox failed "
+            f"({exc}). "
+            "No emails touched. KIMCO batch not created. Cursor not advanced. "
+            "Do not invent Success. "
+            "Next action: restore Exchange/Graph mailbox access for the AP Clerk app, "
+            "then rerun daily --live --limit 10 from the persisted cursor."
+        )
+        rows = [hold_row_for_mailbox_block(why=why, batch_name=batch_name, as_of=as_of)]
+        write_report(report_path, rows)
+        save_cursor(
+            cursor_from_run([], [], as_of=as_of, batch=cursor.last_batch or batch_name, previous=cursor),
+            cursor_path,
+        )
+        print(f"Wrote {report_path}", flush=True)
+        _print_summary(rows)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_name, as_of=as_of, to=args.email_to)
+        return 1
+
+    print(
+        f"Daily touched up to {limit} email(s) from {args.mailbox} "
+        f"(hard cap {HARD_EMAIL_CAP}; selected {len(invoices)} bill(s); "
+        f"skipped {len(skipped)} including already-flagged walked past).",
+        flush=True,
+    )
+
+    skip_rows = apply_skip_outlook_flags(
+        skip_rows_for_report(skipped, batch_name),
+        graph_client,
+        mailbox=args.mailbox,
+    )
+    rows: list[dict[str, Any]] = []
+    batch_label = batch_name
+
+    if not creds.ready:
+        print(creds.error or "Live credentials not ready. Writing HOLD report and stopping.", flush=True)
+        rows = [_offline_row(inv, batch_name, creds.error or "credentials missing") for inv in invoices]
+        rows.extend(skip_rows)
+        write_report(report_path, rows)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
+        print(f"Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 2
+
+    if not invoices and not skip_rows:
+        write_report(report_path, [])
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
+        print(f"No unprocessed vendor invoices in the FIFO window. Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, [], batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 0
+
+    try:
+        client = KimcoClient.authenticate(
+            creds.instance_url,
+            creds.key or "",
+            creds.password or "",
+            target=creds.target,
+        )
+        print("Live auth success (token not printed). Proceeding with live writes.", flush=True)
+        if invoices:
+            rows = run_enter(
+                client,
+                invoices,
+                batch_name=batch_name,
+                pdf_dir=pdf_dir,
+                graph_client=graph_client,
+                mailbox=args.mailbox,
+                flag_outlook=True,
+            )
+            if rows:
+                batch_label = str(rows[0].get("Batch") or batch_name)
+        else:
+            rows = []
+    except KimcoError as exc:
+        print(f"Live call failed: {exc}", flush=True)
+        rows = [_offline_row(inv, batch_name, f"Fail: {exc}") for inv in invoices]
+        rows.extend(skip_rows)
+        write_report(report_path, rows)
+        save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
+        print(f"Wrote {report_path}", flush=True)
+        _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+        return 1
+
+    rows.extend(skip_rows)
+    write_report(report_path, rows)
+    save_cursor(
+            cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
+            cursor_path,
+        )
+    print(f"Wrote {report_path}", flush=True)
+    _print_summary(rows)
+    _email_daily_report(graph_client, report_path, rows, batch_label=batch_label, as_of=as_of, to=args.email_to)
+    return 0
+
+
+def _email_daily_report(
+    graph_client: GraphClient | None,
+    report_path: Path,
+    rows: list[dict[str, Any]],
+    *,
+    batch_label: str,
+    as_of,
+    to: str,
+) -> str:
+    subject = email_subject_for(as_of)
+    body = email_body_for(rows, batch_label=batch_label, as_of=as_of)
+    if graph_client is None:
+        status = EMAIL_DENIED
+    else:
+        try:
+            status = graph_client.send_run_report(
+                ALLOWED_MAILBOX,
+                to=to,
+                subject=subject,
+                body=body,
+                attachment_path=report_path,
+            )
+        except MailboxRejected:
+            raise
+        except GraphError:
+            status = EMAIL_DENIED
+    write_email_sidecar(report_path, status, subject=subject, to=to)
+    counts = result_counts(rows)
+    print(
+        f"Email status={status} to={to} subject={subject} "
+        f"Success={counts['Success']} Incomplete={counts.get('Incomplete', 0)} "
+        f"Fail={counts['Fail']} HOLD={counts['HOLD']} Skipped={counts.get('Skipped', 0)}",
+        flush=True,
+    )
+    return status
+
+
+def _run_pull(args: argparse.Namespace) -> int:
+    print(format_graph_presence(), flush=True)
+    print(format_intuit_session_presence(), flush=True)
+    mailbox = assert_allowed_mailbox(args.mailbox)
+    graph_creds = load_graph_credentials()
+    if not graph_creds.ready:
+        print(graph_creds.error or "Graph credentials missing.", flush=True)
+        return 2
+    start = args.inbox_from
+    end = args.inbox_to
+    if (not start or not end) and args.fixture:
+        start = start or _fixture_window(Path(args.fixture))[0]
+        end = end or _fixture_window(Path(args.fixture))[1]
+    if not start or not end:
+        print("pull requires --inbox-from and --inbox-to (or a fixture with window.from/to).", flush=True)
+        return 2
+    try:
+        client = GraphClient.authenticate(
+            graph_creds.tenant_id or "",
+            graph_creds.client_id or "",
+            graph_creds.client_secret or "",
+        )
+        messages = client.list_messages(
+            mailbox,
+            received_from=parse_iso_date(str(start)),
+            received_to=parse_iso_date(str(end)),
+            unflagged_only=True,
+            include_attachment_names=bool(args.match_fixture),
+        )
+    except MailboxRejected as exc:
+        print(str(exc), flush=True)
+        return 2
+    except GraphError as exc:
+        print(f"Graph pull failed: {exc}", flush=True)
+        return 1
+
+    queue = []
+    for message in messages:
+        flag = ((message.get("flag") or {}).get("flagStatus") or "notFlagged")
+        queue.append(
+            {
+                "graph_message_id": message.get("id"),
+                "subject": message.get("subject"),
+                "receivedDateTime": message.get("receivedDateTime"),
+                "hasAttachments": message.get("hasAttachments"),
+                "flagStatus": flag,
+                "attachment_names": message.get("attachment_names") or [],
+            }
+        )
+    payload: dict[str, Any] = {
+        "mailbox": mailbox,
+        "window": {"from": start, "to": end},
+        "notes": "Mail without category Entered in AI is the work queue. pull does not write categories. After enter Success the CLI adds Entered in AI.",
+        "messages": queue,
+    }
+    if args.match_fixture:
+        invoices = attach_message_ids(_load_fixture(Path(args.fixture)), messages)
+        payload["invoices"] = [
+            {
+                "vendor": inv.get("vendor"),
+                "invoice_number": inv.get("invoice_number"),
+                "date": inv.get("date"),
+                "graph_message_id": inv.get("graph_message_id") or "",
+            }
+            for inv in invoices
+        ]
+    out_path = Path(args.out) if args.out else ROOT / "runs" / f"inbox-unflagged-{start}-to-{end}.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(payload, indent=2) + "\n")
+    print(
+        f"Pulled {len(queue)} unflagged message(s) from {mailbox} ({start} to {end}). "
+        f"Wrote {out_path}. No messages were flagged.",
+        flush=True,
+    )
+    return 0
+
+
+def _print_summary(rows: list[dict[str, Any]]) -> None:
+    print("\nRun summary (no secrets):", flush=True)
+    for row in rows:
+        print(
+            f"  {row['Vendor']} | {row['Invoice #']} | {row['Result']} | "
+            f"id={row['KIMCO id'] or '-'} | flag={row.get('Flag status') or '-'} | {row['Why']}",
+            flush=True,
+        )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
