@@ -66,6 +66,7 @@ from ap_clerk.rules import (
     is_gas_and_supply,
     lookup_id,
     lookup_text,
+    money,
 )
 from ap_clerk.transfer_ap import apply_transfer_ap_batch_move
 from gas_supply_0917 import apply_type4_misc_lines
@@ -137,6 +138,12 @@ SKIP_FOLDER_NAMES = {
     "rss feeds",
     "rss subscriptions",
 }
+
+NOISE_SUBJECT = re.compile(
+    r"payment confirmation|market informer|payment status requested|"
+    r"order pending payment|pending payment status|remittance advice",
+    flags=re.I,
+)
 
 SEARCH_NEEDLES = (
     "O'Neal Steel",
@@ -561,9 +568,10 @@ def bills_from_message(graph, message: dict[str, Any], vendor_key: str) -> tuple
 
 
 def index_kimco(client: KimcoClient) -> dict[str, dict[str, int]]:
+    """Index by list-view Vendor_$_Display_Name. A fields=Vendor request drops the name."""
     found: dict[str, dict[str, int]] = {key: {} for key in VENDORS}
     try:
-        items = client.list_items("ap_invoices", fields="Invoice_Number,Vendor")
+        items = client.list_items("ap_invoices", fields="Invoice_Number,Vendor_$_Display_Name")
     except KimcoError:
         items = client.list_items("ap_invoices")
     for item in items:
@@ -968,6 +976,17 @@ def main(argv: list[str] | None = None) -> int:
 
     for vendor_key in VENDORS:
         for msg in grouped.get(vendor_key) or []:
+            subject = str(msg.get("subject") or "")
+            if NOISE_SUBJECT.search(subject) and "invoice" not in subject.lower():
+                skipped.append(
+                    {
+                        "vendor": vendor_key,
+                        "reason": "not-an-invoice",
+                        "subject": subject[:180],
+                        "received": msg.get("receivedDateTime"),
+                    }
+                )
+                continue
             bills, notes = bills_from_message(graph, msg, vendor_key)
             skipped.extend(notes)
             if not bills and not notes:
@@ -1038,6 +1057,31 @@ def main(argv: list[str] | None = None) -> int:
                         "_category_target": AI_HOLD_CATEGORY,
                     }
                     rows.append(row)
+                    continue
+                amount_value = money(bill.get("amount"))
+                if amount_value is not None and amount_value < 0:
+                    rows.append(
+                        {
+                            "Vendor": VENDORS[vendor_key]["label"],
+                            "Invoice #": number,
+                            "date": bill.get("date"),
+                            "PO": _po_text(bill),
+                            "Amount": bill.get("amount"),
+                            "Result": "HOLD",
+                            "Why": "Credit memo / negative amount. Not entered as a payable. Amount not invented.",
+                            "Exception category": "other",
+                            "Exception owner": "AP clerk",
+                            "KIMCO id": "",
+                            "Batch": "",
+                            "Outlook category": "",
+                            "Notes": "credit",
+                            "_message_id": bill.get("graph_message_id"),
+                            "_vendor_key": vendor_key,
+                            "_new": False,
+                            "_folder": bill.get("folder"),
+                            "_category_target": AI_HOLD_CATEGORY,
+                        }
+                    )
                     continue
                 if bill.get("amount") in (None, "") or not number or not bill.get("date"):
                     row = {
