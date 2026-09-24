@@ -1,0 +1,753 @@
+"""Select vendor invoices from the AP mailbox.
+
+Daily FIFO starts 2026-07-28 America/Chicago and walks toward today.
+Mail categorized `Entered in AI` or `AI Skipped 2` (or leftover `AI Skipped`)
+is already processed and is skipped.
+
+Hard email cap 10 until further notice (Kyle 2026-09-11). Cap = mailbox
+messages *touched* (Success, HOLD, Incomplete, Fail, Skipped/noise). Stop
+after that many emails. Do not walk past noise to fill N bill attempts.
+Bill-attempt mode is suspended until Kyle lifts this. Noise is still
+sheet-noted as Skipped and stamped Outlook `AI Skipped 2` (never `AI HOLD`).
+
+Already-flagged mail is walked past without touching and does **not**
+consume the cap: Outlook `Entered in AI`, `AI HOLD`, `Entered with issues`,
+`AI Skipped 2`, leftover `AI Skipped`, or Graph `flag.flagStatus=flagged`.
+Do not reprocess or re-stamp those.
+"""
+
+from __future__ import annotations
+
+import logging
+import re
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any
+from urllib.parse import urlparse
+
+from ap_clerk.cursor import DailyCursor, daily_floor_datetime, should_skip_already_seen
+from ap_clerk.gates import GATE_BILL_VS_NOISE, RESULT_SKIPPED, why_skipped
+from ap_clerk.graph import (
+    AI_SKIPPED_CATEGORY,
+    ALLOWED_MAILBOX,
+    FLAG_SKIP_ELIGIBLE,
+    GraphClient,
+    apply_flag_after_match,
+    assert_allowed_mailbox,
+    is_already_flagged,
+)
+from ap_clerk.pdf_invoice import (
+    ATTACHMENT_PAST_DUE,
+    ATTACHMENT_STATEMENT,
+    NON_INVOICE_ATTACHMENT_KINDS,
+    PO_DOCUMENT_FILE_RE,
+    RECEIPT_SCAN_FILE_RE,
+    classify_attachment,
+    filename_looks_like_invoice,
+    parse_invoice_pdf,
+)
+from ap_clerk.pdf_links import REASON_PDF_BEHIND_LINK, download_first_pdf
+from ap_clerk.rules import (
+    CHICAGO,
+    KNOWN_BILL_VENDOR_RE,
+    LINK_DOWNLOAD_VENDOR_RE,
+    classify_mail,
+    extract_subject_invoice_number,
+    extract_subject_pos,
+    has_invoice_hint,
+    has_invoice_link,
+    flag_in_outlook_for,
+    is_known_kimco_vendor,
+    is_melody_channell,
+    never_skip_vendor_invoice,
+    subject_has_invoice_bill_hint,
+)
+
+STATEMENT_FILE_RE = re.compile(
+    r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status|accountstatus",
+    flags=re.I,
+)
+# A vendor invoice email may also attach the customer's PO. Do not enter the PO PDF as a bill
+# (9/7 created Legacy 9888 / invoice # 58861 from Purchase_Order_58861.pdf).
+PO_FILE_RE = PO_DOCUMENT_FILE_RE
+RECEIPT_FILE_RE = RECEIPT_SCAN_FILE_RE
+
+LOGGER = logging.getLogger("ap_clerk")
+
+# Kyle 2026-09-11 until further notice. Bill-attempt mode is suspended.
+HARD_EMAIL_CAP = 10
+DEFAULT_INBOX_LIMIT = HARD_EMAIL_CAP
+
+SKIP_CLASSES = {"statement", "pod", "payment", "not-a-bill", "check_stop", "internal"}  # noise; consumes the email cap
+HOLD_SKIP_CLASSES = {
+    "statement",
+    "pod",
+    "payment",
+    "not-a-bill",
+    "check_stop",
+    "internal",
+    "unreadable-or-not-a-bill",
+}
+# Clear noise can skip before PDF download. Vague not-a-bill still inspects vendor PDFs (AQPC).
+# Statement is *not* always clear: Invoice/INV/bill subjects and attached PDFs
+# must be inspected first (Greentree 2026-09-15 false statement skip).
+CLEAR_SKIP_CLASSES = {"statement", "pod", "payment", "check_stop", "internal"}
+
+
+def _clear_skip_now(klass: str, *, subject: str = "", has_attachments: bool = False) -> bool:
+    """True when inbox may skip without downloading PDFs.
+
+    PDF-is-truth: do not AI Skipped 2 as statement when the subject is an
+    Invoice/INV/bill hint or an attachment still needs classify.
+    """
+    if klass not in CLEAR_SKIP_CLASSES:
+        return False
+    if klass == "statement" and (has_attachments or subject_has_invoice_bill_hint(subject)):
+        return False
+    return True
+
+
+def _as_start_datetime(value: date | datetime | None) -> datetime | None:
+    """Normalize a FIFO floor to an aware datetime (America/Chicago for dates)."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        if value.tzinfo is None:
+            return value.replace(tzinfo=CHICAGO)
+        return value
+    return datetime.combine(value, datetime.min.time(), tzinfo=CHICAGO)
+
+
+def fifo_start_datetime(
+    *,
+    received_from: date | datetime | None = None,
+    cursor: DailyCursor | None = None,
+) -> datetime:
+    """Oldest FIFO start: max(7/28 floor, persisted cursor, explicit from-date).
+
+    An explicit later date (Kyle: start 2026-08-16) wins over an earlier cursor
+    so the next 10 does not restart at 7/28 or re-walk 8/15 leftovers.
+    """
+    candidates = [daily_floor_datetime()]
+    cursor_dt = (cursor or DailyCursor()).after_received()
+    if cursor_dt is not None:
+        candidates.append(cursor_dt)
+    explicit = _as_start_datetime(received_from)
+    if explicit is not None:
+        candidates.append(explicit)
+    return max(candidates)
+
+
+def sender_name(message: dict[str, Any]) -> str:
+    frm = message.get("from") or {}
+    email_addr = frm.get("emailAddress") or frm
+    if isinstance(email_addr, dict):
+        return str(email_addr.get("name") or email_addr.get("address") or "")
+    return str(email_addr or "")
+
+
+def sender_address(message: dict[str, Any]) -> str:
+    frm = message.get("from") or {}
+    email_addr = frm.get("emailAddress") or frm
+    if isinstance(email_addr, dict):
+        return str(email_addr.get("address") or "").lower()
+    return ""
+
+
+def _safe_filename(name: str) -> str:
+    cleaned = re.sub(r"[^A-Za-z0-9._-]+", "_", name or "invoice.pdf")
+    return cleaned[:120] or "invoice.pdf"
+
+
+def _skip_flag_status(_message: dict[str, Any] | None = None) -> str:
+    """Noise is eligible for Outlook `AI Skipped 2` (never AI HOLD)."""
+    return FLAG_SKIP_ELIGIBLE
+
+
+def clamp_email_limit(requested: int | None, *, default: int = HARD_EMAIL_CAP) -> int:
+    """Hard-clamp a run to ≤10 mailbox messages (Kyle 2026-09-11)."""
+    raw = default if requested is None else int(requested)
+    return max(1, min(raw, HARD_EMAIL_CAP))
+
+
+def pull_recent_bills(
+    graph: GraphClient,
+    *,
+    mailbox: str = ALLOWED_MAILBOX,
+    limit: int = DEFAULT_INBOX_LIMIT,
+    received_from: date | datetime | None = None,
+    received_to: date | None = None,
+    pdf_dir: Path,
+    max_messages: int = 200,
+    fifo: bool = False,
+    unprocessed_only: bool = False,
+    cursor: DailyCursor | None = None,
+    mark_skips: bool = False,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Return (bills, skipped).
+
+    `limit` is mailbox messages touched, not bill attempts. Hard-clamped
+    to HARD_EMAIL_CAP (10) until Kyle lifts the 2026-09-11 rule. One
+    email with a multi-invoice PDF (Gas billing pack) is still one touch;
+    the N invoices become separate bill rows. Noise, HOLD, Incomplete,
+    Fail, and Success each consume one slot. Already flagged (process
+    category or follow-up flag), already-seen, and pre-floor messages
+    are walked past and do not consume the cap.
+
+    Default (fifo=False): most-recent emails first, then oldest-first among
+    selected bills. Daily FIFO (fifo=True): from 2026-07-28 or the persisted
+    cursor, oldest received first, toward today. Noise is sheet-noted as
+    Skipped and stamped Outlook `AI Skipped 2` — never AI HOLD.
+    """
+    mailbox = assert_allowed_mailbox(mailbox)
+    limit = clamp_email_limit(limit)
+    pdf_dir.mkdir(parents=True, exist_ok=True)
+    start = received_from
+    after = cursor or DailyCursor()
+    if fifo:
+        start = fifo_start_datetime(received_from=received_from, cursor=after)
+        if unprocessed_only is False:
+            unprocessed_only = True
+    messages = graph.list_messages(
+        mailbox,
+        received_from=start,
+        received_to=received_to,
+        unflagged_only=unprocessed_only,
+        include_attachment_names=False,
+        oldest_first=fifo,
+    )
+    selected: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    scanned = 0
+    touched = 0
+    examined: list[dict[str, Any]] = []
+    for message in messages:
+        if touched >= limit:
+            break
+        if scanned >= max_messages:
+            break
+        scanned += 1
+        if should_skip_already_seen(message, after):
+            continue
+        if fifo:
+            received = str(message.get("receivedDateTime") or "")
+            try:
+                received_dt = datetime.fromisoformat(received.replace("Z", "+00:00"))
+            except ValueError:
+                received_dt = None
+            floor = start if isinstance(start, datetime) else daily_floor_datetime()
+            if received_dt is not None and received_dt < floor:
+                continue
+        if is_already_flagged(message):
+            skipped.append(
+                {
+                    "subject": str(message.get("subject") or ""),
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": "already-flagged",
+                    "graph_message_id": str(message.get("id") or ""),
+                    "hold_reason": "already-flagged",
+                }
+            )
+            LOGGER.info(
+                "Walking past already-flagged mail (does not consume email cap): %s",
+                str(message.get("subject") or "")[:80],
+            )
+            continue
+        if sender_address(message) and "kyle" in sender_address(message) and "kannon" not in sender_address(message):
+            # Never treat Kyle's personal inbox as a source; this mailbox is AP-only.
+            continue
+        touched += 1
+        subject = str(message.get("subject") or "")
+        preview = str(message.get("bodyPreview") or "")
+        message_id = str(message.get("id") or "")
+        names = graph.list_attachment_names(mailbox, message_id) if message.get("hasAttachments") else []
+        message["attachment_names"] = names
+        examined.append(message)
+        from_name = sender_name(message)
+        klass = classify_mail(
+            subject=subject, attachment_names=names, preview=preview, from_name=from_name
+        )
+        # Mixed email: invoice PDF + statement/POD/receipt is still an invoice email.
+        # Classify each attachment; do not skip the whole message.
+        if any(filename_looks_like_invoice(n) for n in names) and klass in {
+            "statement",
+            "pod",
+            "not-a-bill",
+        }:
+            klass = "invoice"
+        elif (
+            names
+            and not any(filename_looks_like_invoice(n) for n in names)
+            and any(STATEMENT_FILE_RE.search(n or "") for n in names)
+            and not subject_has_invoice_bill_hint(subject)
+        ):
+            klass = "statement"
+        elif (
+            names
+            and not any(filename_looks_like_invoice(n) for n in names)
+            and all(classify_attachment(filename=n) in NON_INVOICE_ATTACHMENT_KINDS for n in names)
+        ):
+            # Receipt_114745 / POD / packing slip only — disregard, never a bill.
+            klass = "pod"
+        if klass == "auto-pay":
+            selected.append(
+                {
+                    "vendor": sender_name(message) or "Toyota Commercial Finance",
+                    "invoice_number": "",
+                    "date": None,
+                    "po": None,
+                    "amount": None,
+                    "hold_reason": "auto-pay",
+                    "action": "hold",
+                    "graph_message_id": message_id,
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "from_name": sender_name(message),
+                    "field_sources": {},
+                }
+            )
+            LOGGER.info("HOLD auto-pay (do not enter): %s", subject[:80])
+            continue
+        if _clear_skip_now(
+            klass, subject=subject, has_attachments=bool(message.get("hasAttachments") or names)
+        ):
+            flag_status = _skip_flag_status(message)
+            skipped.append(
+                {
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": klass,
+                    "attachment_names": names,
+                    "graph_message_id": message_id,
+                    "vendor": sender_name(message),
+                    "Flag status": flag_status,
+                    "hold_reason": klass,
+                }
+            )
+            LOGGER.info("Skipping %s mail: %s", klass, subject[:80])
+            continue
+        link_blob = f"{from_name}\n{subject}\n{preview}"
+        wants_link = bool(LINK_DOWNLOAD_VENDOR_RE.search(link_blob)) or (
+            is_known_kimco_vendor(from_name, subject, preview)
+            and has_invoice_link(subject=subject, preview=preview)
+        )
+        known_bill = never_skip_vendor_invoice(
+            subject=subject,
+            from_name=from_name,
+            preview=preview,
+            attachment_names=names,
+        ) or bool(
+            has_invoice_hint(subject=subject, attachment_names=names, preview=preview)
+            or KNOWN_BILL_VENDOR_RE.search(link_blob)
+            or is_melody_channell(f"{from_name} {subject} {preview}")
+        )
+        if not message.get("hasAttachments") and not wants_link:
+            if known_bill:
+                selected.append(
+                    {
+                        "vendor": from_name or "Vendor",
+                        "invoice_number": extract_subject_invoice_number(subject) or "",
+                        "date": None,
+                        "po": (extract_subject_pos(subject) or [None])[0],
+                        "pos": extract_subject_pos(subject),
+                        "multi_po": len(extract_subject_pos(subject)) > 1,
+                        "amount": None,
+                        "hold_reason": "parse-error",
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {"invoice_number": "subject"} if extract_subject_invoice_number(subject) else {},
+                    }
+                )
+                continue
+            flag_status = _skip_flag_status(message)
+            skipped.append(
+                {
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": "no-attachment",
+                    "attachment_names": names,
+                    "graph_message_id": message_id,
+                    "vendor": from_name,
+                    "Flag status": flag_status,
+                    "hold_reason": "not-a-bill",
+                }
+            )
+            continue
+        pdfs = graph.download_pdf_attachments(mailbox, message_id) if message.get("hasAttachments") else []
+        if not pdfs and wants_link:
+            pdfs, link_hold = _pdfs_from_body_link(
+                graph, mailbox, message_id, preview, subject=subject
+            )
+            if link_hold:
+                inv_no = extract_subject_invoice_number(subject) or ""
+                selected.append(
+                    {
+                        "vendor": from_name or "American Quality Powder Coating",
+                        "invoice_number": inv_no,
+                        "date": None,
+                        "po": None,
+                        "amount": None,
+                        "hold_reason": "pdf-behind-link",
+                        "pdf_behind_link": True,
+                        "pdf_link_url": str(link_hold.get("url") or ""),
+                        "pdf_link_host": str(link_hold.get("host") or ""),
+                        "browser_tried": bool(link_hold.get("browser_tried")),
+                        "browser_failure": str(link_hold.get("browser_failure") or ""),
+                        "download_method": str(link_hold.get("method") or ""),
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {"invoice_number": "subject"} if inv_no else {},
+                    }
+                )
+                LOGGER.info("HOLD pdf-behind-link: %s", subject[:80])
+                continue
+        if not pdfs:
+            if known_bill:
+                selected.append(
+                    {
+                        "vendor": from_name or "Vendor",
+                        "invoice_number": extract_subject_invoice_number(subject) or "",
+                        "date": None,
+                        "po": (extract_subject_pos(subject) or [None])[0],
+                        "pos": extract_subject_pos(subject),
+                        "multi_po": len(extract_subject_pos(subject)) > 1,
+                        "amount": None,
+                        "hold_reason": "parse-error",
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {"invoice_number": "subject"} if extract_subject_invoice_number(subject) else {},
+                    }
+                )
+                continue
+            flag_status = _skip_flag_status(message)
+            skipped.append(
+                {
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": "no-pdf",
+                    "attachment_names": names,
+                    "graph_message_id": message_id,
+                    "vendor": sender_name(message),
+                    "Flag status": flag_status,
+                    "hold_reason": "not-a-bill",
+                }
+            )
+            continue
+        from_addr = sender_address(message)
+        chosen_bills: list[dict[str, Any]] = []
+        ignored_non_invoice = 0
+        ignored_kinds: list[str] = []
+        mail_check_stop = False
+        for filename, content in pdfs:
+            name_kind = classify_attachment(filename=filename)
+            if name_kind in NON_INVOICE_ATTACHMENT_KINDS:
+                ignored_non_invoice += 1
+                ignored_kinds.append(name_kind)
+                LOGGER.info("Ignoring %s attachment %s", name_kind, filename)
+                continue
+            dest = pdf_dir / f"{_safe_filename(str(message.get('receivedDateTime') or '')[:10])}_{_safe_filename(filename)}"
+            if dest.exists():
+                dest = pdf_dir / f"{len(selected)+len(skipped)+len(chosen_bills)}_{dest.name}"
+            dest.write_bytes(content)
+            parsed = parse_invoice_pdf(dest, subject=subject, from_name=from_name, from_address=from_addr)
+            kind = str(parsed.get("attachment_class") or classify_attachment(
+                filename=filename,
+                text=str(parsed.get("text") or parsed.get("pdf_text") or ""),
+                subject=subject,
+            ))
+            if kind in NON_INVOICE_ATTACHMENT_KINDS or parsed.get("is_purchase_order_doc") or parsed.get("is_receipt_scan_doc") or parsed.get("is_statement_doc"):
+                ignored_non_invoice += 1
+                ignored_kinds.append(
+                    "statement" if parsed.get("is_statement_doc") else (kind or "not_an_invoice")
+                )
+                LOGGER.info("Ignoring %s attachment %s", kind or "non-invoice", filename)
+                continue
+            if parsed.get("check_stop"):
+                mail_check_stop = True
+                LOGGER.info("Ignoring CHECK STOP notice attachment %s", filename)
+                continue
+            extras = list(parsed.pop("siblings", []) or [])
+            for bill in [parsed, *extras]:
+                # Invoice # from THIS invoice PDF only. Never copy subject/filename
+                # onto a packing slip (Receipt_114745 → 114745).
+                inv_no = bill.get("invoice_number")
+                empty_unusable = (
+                    bill.get("pdf_text_empty")
+                    and bill.get("amount") in (None, "")
+                    and not inv_no
+                    and not known_bill
+                    and not wants_link
+                )
+                if empty_unusable:
+                    continue
+                if not inv_no and not bill.get("amount") and not known_bill and not wants_link:
+                    continue
+                if known_bill and not inv_no and bill.get("pdf_text_empty"):
+                    printed = extract_subject_invoice_number(subject)
+                    if printed:
+                        bill["invoice_number"] = printed
+                        sources = dict(bill.get("field_sources") or {})
+                        sources.setdefault("invoice_number", "subject")
+                        bill["field_sources"] = sources
+                split_path = str(bill.get("pdf_path") or "").strip()
+                if not split_path or not Path(split_path).is_file():
+                    bill["pdf_path"] = str(dest)
+                bill["graph_message_id"] = message_id
+                bill["subject"] = subject
+                bill["receivedDateTime"] = message.get("receivedDateTime")
+                bill["from_name"] = from_name
+                bill["action"] = "create"
+                bill["id"] = message_id
+                chosen_bills.append(bill)
+        chosen_bills = _prefer_printed_invoice_aliases(chosen_bills)
+        if not chosen_bills:
+            saw_invoice_named = any(filename_looks_like_invoice(n) for n in names)
+            if ignored_non_invoice and not saw_invoice_named:
+                skip_class = (
+                    "statement"
+                    if any(k in {ATTACHMENT_STATEMENT, ATTACHMENT_PAST_DUE, "statement"} for k in ignored_kinds)
+                    else "pod"
+                )
+                flag_status = _skip_flag_status(message)
+                skipped.append(
+                    {
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "class": skip_class,
+                        "attachment_names": names,
+                        "graph_message_id": message_id,
+                        "vendor": from_name,
+                        "Flag status": flag_status,
+                        "hold_reason": skip_class,
+                    }
+                )
+                LOGGER.info("No invoice PDFs; ignored packing slip/POD/PO/statement attachments")
+                continue
+            if mail_check_stop and not saw_invoice_named:
+                flag_status = _skip_flag_status(message)
+                skipped.append(
+                    {
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "class": "check_stop",
+                        "attachment_names": names,
+                        "graph_message_id": message_id,
+                        "vendor": from_name,
+                        "Flag status": flag_status,
+                        "hold_reason": "CHECK STOP",
+                    }
+                )
+                continue
+            if (
+                is_melody_channell(f"{from_name} {subject} {preview}")
+                or is_melody_channell(from_addr)
+                or known_bill
+            ):
+                selected.append(
+                    {
+                        "vendor": from_name or "Vendor",
+                        "invoice_number": extract_subject_invoice_number(subject) or "",
+                        "date": None,
+                        "po": (extract_subject_pos(subject) or [None])[0],
+                        "pos": extract_subject_pos(subject),
+                        "multi_po": len(extract_subject_pos(subject)) > 1,
+                        "amount": None,
+                        "hold_reason": "parse-error",
+                        "action": "hold",
+                        "graph_message_id": message_id,
+                        "subject": subject,
+                        "receivedDateTime": message.get("receivedDateTime"),
+                        "from_name": from_name,
+                        "field_sources": {"invoice_number": "subject"} if extract_subject_invoice_number(subject) else {},
+                        "pdf_unavailable": True,
+                    }
+                )
+                continue
+            flag_status = _skip_flag_status(message)
+            skipped.append(
+                {
+                    "subject": subject,
+                    "receivedDateTime": message.get("receivedDateTime"),
+                    "class": "unreadable-or-not-a-bill",
+                    "attachment_names": names,
+                    "graph_message_id": message_id,
+                    "vendor": from_name,
+                    "Flag status": flag_status,
+                    "hold_reason": "not-a-bill",
+                }
+            )
+            continue
+        for chosen in chosen_bills:
+            selected.append(chosen)
+            LOGGER.info(
+                "Touched email %s/%s selected bill vendor=%s invoice=%s received=%s",
+                touched,
+                limit,
+                chosen.get("vendor"),
+                chosen.get("invoice_number"),
+                chosen.get("receivedDateTime"),
+            )
+
+    if not fifo:
+        # Process oldest-first among the most-recent `limit`
+        selected.sort(key=lambda inv: str(inv.get("receivedDateTime") or ""))
+    return selected, skipped
+
+
+def _same_email_invoice_key(number: str) -> str:
+    """PS-INV103979 and 103979 are the same invoice on one email."""
+    text = (number or "").strip().upper()
+    match = re.fullmatch(r"PS-INV(\d{5,})", text)
+    if match:
+        return match.group(1)
+    return text
+
+
+def _prefer_printed_invoice_aliases(bills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Collapse PS-INV103979 vs stripped 103979 only. Multiple real invoices stay.
+
+    Does not force one-email-one-row. Two invoice PDFs or a split pack → N rows.
+    """
+    kept: list[dict[str, Any]] = []
+    index_by_key: dict[str, int] = {}
+    for bill in bills:
+        number = str(bill.get("invoice_number") or "")
+        key = _same_email_invoice_key(number)
+        if key and key in index_by_key:
+            existing = kept[index_by_key[key]]
+            existing_no = str(existing.get("invoice_number") or "")
+            existing_stub = existing.get("amount") in (None, "") and not existing.get("date")
+            incoming_printed = number.upper().startswith("PS-INV")
+            existing_printed = existing_no.upper().startswith("PS-INV")
+            if incoming_printed and not existing_printed:
+                kept[index_by_key[key]] = bill
+            elif existing_stub and bill.get("amount") not in (None, ""):
+                kept[index_by_key[key]] = bill
+            continue
+        if key:
+            index_by_key[key] = len(kept)
+        kept.append(bill)
+    return kept
+
+
+def _pdfs_from_body_link(
+    graph: GraphClient,
+    mailbox: str,
+    message_id: str,
+    preview: str,
+    *,
+    subject: str = "",
+) -> tuple[list[tuple[str, bytes]], dict[str, Any] | None]:
+    """AQPC-style https PDF download. Unauth GET, then guest browser. Auth wall → HOLD."""
+    body_text = preview or ""
+    getter = getattr(graph, "get_message", None)
+    if callable(getter):
+        try:
+            detail = getter(mailbox, message_id, select="id,bodyPreview,body")
+        except Exception:  # noqa: BLE001 - body fetch must not crash inbox
+            detail = {}
+        body = (detail or {}).get("body") or {}
+        if isinstance(body, dict):
+            body_text = str(body.get("content") or body_text)
+        body_text = body_text or str((detail or {}).get("bodyPreview") or preview or "")
+    downloader = getattr(graph, "download_public_pdf_from_text", None)
+    if callable(downloader):
+        result = downloader(body_text)
+    else:
+        result = download_first_pdf(body_text)
+    url = str(result.get("url") or "")
+    host = urlparse(url).netloc if url else ""
+    hold = {
+        "url": url,
+        "host": host,
+        "reason": str(result.get("reason") or ""),
+        "browser_tried": bool(result.get("browser_tried")),
+        "browser_failure": str(result.get("browser_failure") or ""),
+        "method": str(result.get("method") or ""),
+    }
+    if result.get("ok") and result.get("content"):
+        inv_no = extract_subject_invoice_number(subject) or extract_subject_invoice_number(body_text) or ""
+        name = f"invoice-{inv_no}.pdf" if inv_no else "download.pdf"
+        return [(name, result["content"])], None
+    if result.get("reason") == REASON_PDF_BEHIND_LINK:
+        return [], hold
+    if wants_hold_without_pdf(body_text):
+        return [], hold
+    return [], None
+
+
+def wants_hold_without_pdf(text: str) -> bool:
+    """If the body has an https link we tried, treat failure as pdf-behind-link."""
+    return "https://" in (text or "").lower()
+
+
+def skip_rows_for_report(skipped: list[dict[str, Any]], batch_name: str) -> list[dict[str, Any]]:
+    """Excel Skipped rows for inbox noise. Outlook category is `AI Skipped 2`."""
+    rows = []
+    for item in skipped:
+        if item.get("class") not in HOLD_SKIP_CLASSES and item.get("hold_reason") not in HOLD_SKIP_CLASSES:
+            continue
+        reason = item.get("hold_reason") or item.get("class") or "not-a-bill"
+        subject = str(item.get("subject") or "")
+        detail = f"{reason}. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+        if subject:
+            detail = (
+                f"{reason}. Subject: {subject}. Do not create a header. "
+                f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
+            )
+        why = why_skipped(GATE_BILL_VS_NOISE, detail)
+        received = str(item.get("receivedDateTime") or "")
+        rows.append(
+            {
+                "Vendor": item.get("vendor") or subject,
+                "Invoice #": item.get("invoice_number") or "",
+                "date": received[:10],
+                "PO": "",
+                "Amount": "",
+                "Result": RESULT_SKIPPED,
+                "Why": why,
+                "KIMCO id": "",
+                "Batch": batch_name,
+                "Fees and surcharges": "none",
+                "PPV": "none",
+                "Attach status": "no-pdf-on-vm",
+                "Flag status": FLAG_SKIP_ELIGIBLE,
+                "Flag in Outlook": flag_in_outlook_for(RESULT_SKIPPED),
+                "Notes": "",
+                "graph_message_id": item.get("graph_message_id") or "",
+                "receivedDateTime": received,
+                "subject": item.get("subject") or "",
+            }
+        )
+    return rows
+
+
+def apply_skip_outlook_flags(
+    rows: list[dict[str, Any]],
+    graph_client: GraphClient | None,
+    *,
+    mailbox: str = ALLOWED_MAILBOX,
+) -> list[dict[str, Any]]:
+    """Stamp `AI Skipped 2` on noise rows. Never AI HOLD."""
+    seen: set[str] = set()
+    for row in rows:
+        if str(row.get("Result") or "") != RESULT_SKIPPED:
+            continue
+        message_id = str(row.get("graph_message_id") or "")
+        if message_id and message_id in seen:
+            row["Flag in Outlook"] = flag_in_outlook_for(RESULT_SKIPPED)
+            continue
+        apply_flag_after_match(row, {"graph_message_id": message_id}, graph_client, mailbox=mailbox)
+        row["Flag in Outlook"] = flag_in_outlook_for(RESULT_SKIPPED)
+        if message_id:
+            seen.add(message_id)
+    return rows

@@ -1,0 +1,2331 @@
+"""Extract vendor-invoice fields from PDF text. No network I/O. Never logs PDF bytes."""
+
+from __future__ import annotations
+
+import logging
+import re
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from pypdf import PdfReader, PdfWriter
+
+from ap_clerk.rules import (
+    ACCOUNT_STATEMENT_DOC_RE,
+    PAST_DUE_LIST_RE,
+    FEE_KEYWORDS,
+    extract_po_number,
+    extract_subject_invoice_number,
+    extract_subject_pos,
+    is_fee_or_surcharge,
+    known_invoice_prefix,
+    printed_invoice_number,
+    subject_has_invoice_bill_hint,
+)
+
+LOGGER = logging.getLogger("ap_clerk")
+
+_INV_LABEL = re.compile(
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#)\s*[:.\s#]*([A-Z]{0,8}\d-?\d{3,}(?:\.\d{3})?[A-Z0-9/_-]*)",
+    flags=re.I,
+)
+_INV_TECHNI = re.compile(r"\b(S\d{6,}\.\d{3})\b")
+_INV_INSIGHT = re.compile(
+    r"(?:invoice\s*(?:number|no\.?|#)|inv(?:oice)?\s*#?)\s*[:.\s]*\n?\s*(\d{4,5})\b",
+    flags=re.I,
+)
+_INV_STACKED_SHORT = re.compile(
+    r"(?:^|\n)\s*(?:INVOICE(?:\s*(?:NUMBER|NO\.?|#))?)\s*\n\s*(\d{4,8})\b",
+    flags=re.I,
+)
+_INV_PREFIXED = re.compile(r"\b(\d-\d{5,8})\b")
+_PART_NUMBER = re.compile(r"\b(\d{3}-\d{4}-\d{3})\b")
+_INV_FASTENAL = re.compile(r"\b(TXFT\d{5,})\b", flags=re.I)
+_INV_GAS = re.compile(r"\b(00\d{8})\b")
+_INV_EMJ = re.compile(r"\bINVOICE NUMBER\s+([A-Z]\d{6,})\b", flags=re.I)
+_INV_PSI = re.compile(r"\b(PSI-\d{6,})\b", flags=re.I)
+_INV_NTEX = re.compile(r"\b(\d{2}-\d{4})\b")
+_INV_SV = re.compile(r"\b(SV\d{6,})\b", flags=re.I)
+_INV_DASH_IN = re.compile(r"\b(\d{6,}-IN)\b", flags=re.I)
+_INV_MCQUEARY = re.compile(r"\b(\d{2}-\d{5})\b")
+_INV_TUBE = re.compile(r"\b(011\d{5})\b")
+_INV_MSC_REAL = re.compile(r"Invoice Number\s+(\d{7,8})\b", flags=re.I)
+_INV_GRM = re.compile(r"Invoice\s{2,}(\d{7,8})\b", flags=re.I)
+_INV_PS_INV = re.compile(r"\b(PS-INV\d{5,})\b", flags=re.I)
+_INV_LS = re.compile(r"\b(LS-\d{4,})\b", flags=re.I)
+_INV_BILL_HASH = re.compile(r"\bBill\s*#\s*(\d{5,})\b", flags=re.I)
+_INV_STACKED = re.compile(r"(?:^|\n)\s*INVOICE\s*\n\s*(\d{6,8})\b", flags=re.I)
+_INV_UNIFIRST = re.compile(
+    r"Invoice\s*#:\s*(?:\n[^\n]{0,80}){0,16}\n\s*(28\d{8}|\d{10})\b",
+    flags=re.I,
+)
+_INV_JVT = re.compile(r"\b(JVT\s+SI-\d{4,})\b", flags=re.I)
+_INV_TMC = re.compile(r"\b(TMC-\d{5,})\b", flags=re.I)
+_INV_A1_STACKED = re.compile(
+    r"Invoice:\s*(?:\n+\s*INVOICE DATE)?\s*\n+\s*(\d{1,2}/\d{1,2}/\d{2,4})\s*\n+\s*(\d{5,})",
+    flags=re.I,
+)
+_INV_COLON_NUM = re.compile(r"Invoice:\s*\n+\s*(\d{5,8})\b", flags=re.I)
+_TOTAL_STACKED = re.compile(
+    r"(?:^|\n)\s*TOTAL\b[:. \t]*\n(?:[ \t]*[A-Za-z].*\n){0,6}[ \t]*([\d,]+\.\d{2})",
+    flags=re.I,
+)
+_AMOUNT_BALANCE = re.compile(
+    r"(?:balance\s+due|please\s+pay\s+this\s+amount)\s*[:.]?\s*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_PO_NONE = re.compile(r"purchase\s*order(?:\s*number)?\s*[:.\s#-]*none\b", flags=re.I)
+_PO_LABEL = re.compile(
+    r"(?:purchase\s*order(?:\s*number)?|customer\s*p\.?o\.?|your\s*p\.?o\.?|"
+    r"cust(?:omer)?\.?\s*p\.?o\.?|p\.?o\.?\s*(?:number|#|no\.?))\s*[:.#\s-]*([A-Z]{0,4}\d{4,8})",
+    flags=re.I,
+)
+_PO_BARE = re.compile(r"\bPO\s*[:.#]?\s*(\d{4,6})\b", flags=re.I)
+_AMOUNT_LABEL = re.compile(
+    r"(?:total\s+to\s+be\s+paid(?:\s+usd)?|invoice\s*total|amount\s*due|total\s*due|"
+    r"total\s*amount\s*due|total\s*-\s*this\s*invoice|invoice\s*amount|"
+    r"grand\s*total|total\s+order\s+amount|total\s+due\s*\(\s*usd\s*\)|"
+    r"total\s*\$?\s*incl\.?\s*tax|total\s+this\s+invoice)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2})?)",
+    flags=re.I,
+)
+_AMOUNT_USD_DUE = re.compile(
+    r"Total Due\s*(?:\(\s*USD\s*\))?\s*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_AMOUNT_USD_PREFIX = re.compile(r"\bUSD\s+([\d,]+(?:\.\d{2}))", flags=re.I)
+_AMOUNT_DUE_LABEL = re.compile(
+    r"(?:amount due|total current charges|current charges due)\s*[:.\s]*(?:USD\s*)?([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_EXT_PRICE = re.compile(r"Ext(?:ended)?\s*Price.{0,120}?([\d,]+\.\d{2})", flags=re.I | re.S)
+# Same line only. Do not let a merchandise line amount sitting on the
+# previous row steal "INVOICE TOTAL $ 896.86" (EMJ Z250725432 → 645.78).
+_AMOUNT_BEFORE = re.compile(
+    r"\$?\s*([\d,]+(?:\.\d{2}))[ \t]+(?:Invoice Total|Total Amount Due|Amount Due|AMOUNT DUE)",
+    flags=re.I,
+)
+_CUSTOMER_ACCOUNTS = {"TXFT40601", "14748440", "02627782"}
+_TOTAL_MONEY = re.compile(r"(?:^|\b)total(?:\s+\$|\s*[:.\s]*\$)\s*([\d,]+(?:\.\d{2})?)", flags=re.I)
+_MONEY = re.compile(r"\$?\s*([\d,]+(?:\.\d{2}))")
+_DATE_LABEL = re.compile(
+    r"(?:invoice\s*date|date\s*of\s*invoice|inv(?:oice)?\s*date)\s*[:.\s]*"
+    r"(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4}|[A-Za-z]{3,9}-\d{1,2}-\d{2,4})",
+    flags=re.I,
+)
+_DATE_ANY = re.compile(
+    r"\b(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}|\d{1,2}-[A-Za-z]{3}-\d{2,4}|[A-Za-z]{3,9}-\d{1,2}-\d{2,4})\b"
+)
+_CHECK_STOP = re.compile(r"\bcheck\s*stop\b", flags=re.I)
+_BAD_INVOICE_WORDS = {
+    "WHEN",
+    "TYPE",
+    "DUE",
+    "PLEASE",
+    "TOTAL",
+    "PAGE",
+    "DATE",
+    "NONE",
+    "INVOICE",
+    "NUMBER",
+    "ORIGINAL",
+    "STATEMENT",
+}
+
+PO_DOCUMENT_FILE_RE = re.compile(r"purchase[_ -]?order|packing[_ -]?list|packing[_ -]?slip", flags=re.I)
+RECEIPT_SCAN_FILE_RE = re.compile(
+    r"(?:^|[/\\._ -])receipt(?:[/\\._ -]|$)|receipt\s*scan|_dragged_",
+    flags=re.I,
+)
+POD_FILE_RE = re.compile(
+    r"(?:^|[/\\._ -])pod(?:[/\\._ -]|$)|proof[_ -]?of[_ -]?delivery|signed[_ -]?delivery",
+    flags=re.I,
+)
+_SALES_INVOICE_NAME = re.compile(
+    r"sales\s*invoice|ps-inv|\binvoice[-_ .]|inv[_-]|txft\d",
+    flags=re.I,
+)
+_PACKING_SLIP_BODY = re.compile(
+    r"\bpacking\s+slip\b|\bsigned\s+(?:packing\s+)?slip\b|\bcustomer\s+signature\b|"
+    r"\breceived\s+by\b|\bcarrier\s+signature\b|\bdelivery\s+receipt\b|"
+    r"\bproof\s+of\s+delivery\b|\bsigned\s+delivery\b",
+    flags=re.I,
+)
+
+ATTACHMENT_INVOICE = "invoice"
+ATTACHMENT_PO = "po"
+ATTACHMENT_POD = "pod"
+ATTACHMENT_PACKING_SLIP = "packing_slip"
+ATTACHMENT_RECEIPT_SCAN = "receipt_scan"
+ATTACHMENT_STATEMENT = "statement"
+ATTACHMENT_PAST_DUE = "past_due"
+ATTACHMENT_CHECK_STOP = "check_stop"
+ATTACHMENT_NOT_INVOICE = "not_an_invoice"
+ATTACHMENT_INSPECT = "inspect"
+NON_INVOICE_ATTACHMENT_KINDS = frozenset(
+    {
+        ATTACHMENT_PO,
+        ATTACHMENT_POD,
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_STATEMENT,
+        ATTACHMENT_PAST_DUE,
+        ATTACHMENT_CHECK_STOP,
+        ATTACHMENT_NOT_INVOICE,
+    }
+)
+# Do not treat the invoice field label "PURCHASE ORDER NUMBER" as a PO title
+# (Eastern Metal 818600 / 818601).
+_PO_DOC_HEADING = re.compile(r"(?:^|\n)\s*PURCHASE\s+ORDER\b(?!\s+NUMBER)", flags=re.I)
+_INVOICE_DOC_HINT = re.compile(
+    r"\b(invoice\s*(number|no\.?|#|total)|amount\s+due|total-?due|bill\s+to)\b",
+    flags=re.I,
+)
+
+
+def is_receipt_scan_document(*, text: str = "", filename: str = "") -> bool:
+    """True for a receipt / packing-slip scan that is not a second vendor invoice."""
+    return classify_attachment(filename=filename, text=text) in {
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_POD,
+    }
+
+
+def classify_attachment(*, filename: str = "", text: str = "", subject: str = "") -> str:
+    """Invoice vs not-an-invoice for one attachment. Never invent a bill from a slip.
+
+    Filename `Receipt_114745.pdf` / `Receipt_*_dragged_.pdf` is a signed packing
+    slip or POD (Kyle 2026-09-15), not invoice # 114745. Content “packing slip”
+    / proof of delivery is the same. Only `invoice` is entered.
+    """
+    name = filename or ""
+    blob = text or ""
+    sales_named = bool(_SALES_INVOICE_NAME.search(name))
+    if RECEIPT_SCAN_FILE_RE.search(name) and not sales_named:
+        return ATTACHMENT_PACKING_SLIP
+    if POD_FILE_RE.search(name) and not sales_named:
+        return ATTACHMENT_POD
+    if PO_DOCUMENT_FILE_RE.search(name):
+        if re.search(r"packing", name, flags=re.I):
+            return ATTACHMENT_PACKING_SLIP
+        return ATTACHMENT_PO
+    if STATEMENT_FILE_HINT.search(name) or PAST_DUE_LIST_RE.search(name):
+        if PAST_DUE_LIST_RE.search(name):
+            return ATTACHMENT_PAST_DUE
+        if blob and _INVOICE_DOC_HINT.search(blob):
+            return ATTACHMENT_INVOICE
+        if not blob.strip() and subject_has_invoice_bill_hint(subject):
+            # Filename hint only — inspect the PDF (Invoice-from + attached bill).
+            return ATTACHMENT_INSPECT
+        return ATTACHMENT_STATEMENT
+    if is_account_statement_document(text=blob, filename=name, subject=subject):
+        if blob and _INVOICE_DOC_HINT.search(blob) and subject_has_invoice_bill_hint(subject):
+            return ATTACHMENT_INVOICE
+        if PAST_DUE_LIST_RE.search(f"{name}\n{subject}\n{blob}"):
+            return ATTACHMENT_PAST_DUE
+        return ATTACHMENT_STATEMENT
+    if is_purchase_order_document(text=blob, filename=name):
+        return ATTACHMENT_PO
+    if blob and _PACKING_SLIP_BODY.search(blob) and not _INVOICE_DOC_HINT.search(blob):
+        return ATTACHMENT_PACKING_SLIP
+    if blob and _INVOICE_DOC_HINT.search(blob):
+        return ATTACHMENT_INVOICE
+    if blob and re.search(r"\binvoice\b", blob, flags=re.I):
+        # 3P "3P INDUSTRIES Invoice" / face-page packs. Receipt_ filename already
+        # returned packing_slip above.
+        return ATTACHMENT_INVOICE
+    if sales_named or re.search(r"\bPS-INV\d{5,}\b", blob, flags=re.I):
+        return ATTACHMENT_INVOICE
+    if not blob.strip():
+        # Unknown name, no text yet — caller must parse, then classify again.
+        return ATTACHMENT_INSPECT
+    if re.search(r"(?:^|\n)\s*INVOICE\b", blob) or re.search(r"\binvoice\s+no\.?\b", blob, flags=re.I):
+        return ATTACHMENT_INVOICE
+    return ATTACHMENT_NOT_INVOICE
+
+
+def filename_looks_like_invoice(filename: str) -> bool:
+    """True when the attachment name is a vendor invoice PDF, not a slip."""
+    return classify_attachment(filename=filename) == ATTACHMENT_INVOICE
+
+
+def is_purchase_order_document(*, text: str = "", filename: str = "") -> bool:
+    """True for a PO/packing-list attachment that must not be entered as a vendor invoice."""
+    name = filename or ""
+    if PO_DOCUMENT_FILE_RE.search(name):
+        return True
+    blob = text or ""
+    # Invoice forms print "INVOICE" plus a Purchase Order Number box.
+    if re.search(r"(?:^|\n)\s*INVOICE\b", blob) or _INVOICE_DOC_HINT.search(blob):
+        return False
+    if _PO_DOC_HEADING.search(blob) and not _INVOICE_DOC_HINT.search(blob):
+        return True
+    if _PO_DOC_HEADING.search(blob) and re.search(r"\bship\s+to\b", blob, flags=re.I):
+        if not re.search(r"\binvoice\s*(total|number|no\.?|#)\b", blob, flags=re.I):
+            return True
+    return False
+
+
+_ACCOUNT_STATEMENT_HEADING_RE = re.compile(
+    r"(?:^|\n)\s*(?:account\s+statement|statement[\s_-]+of[\s_-]+account|aging\s+report)\b",
+    flags=re.I,
+)
+
+
+def is_account_statement_document(*, text: str = "", filename: str = "", subject: str = "") -> bool:
+    """True for an aging / Account Statement / statement-of-account PDF (Leeco 1058256.pdf).
+
+    Incidental preview/footer `account statement` on a real invoice PDF is not
+    a statement (Greentree Invoice-from + QBO “view your account statement”).
+    """
+    name = filename or ""
+    subj = subject or ""
+    body = text or ""
+    if PAST_DUE_LIST_RE.search(f"{name}\n{subj}\n{body}"):
+        return True
+    if STATEMENT_FILE_HINT.search(name):
+        return True
+    if ACCOUNT_STATEMENT_DOC_RE.search(subj) or ACCOUNT_STATEMENT_DOC_RE.search(name):
+        return True
+    if _ACCOUNT_STATEMENT_HEADING_RE.search(body):
+        if subject_has_invoice_bill_hint(subj) and _INVOICE_DOC_HINT.search(body):
+            return False
+        return True
+    if ACCOUNT_STATEMENT_DOC_RE.search(body) and not _INVOICE_DOC_HINT.search(body):
+        return True
+    return False
+
+
+STATEMENT_FILE_HINT = re.compile(
+    r"statement|custstate|pastdue|past[_ -]?due|aging|account[_ -]?status",
+    flags=re.I,
+)
+
+
+DOMAIN_VENDORS = {
+    "airproducts.com": "Air Products and Chemicals, Inc",
+    "emjmetals.com": "Earle M. Jorgensen Co",
+    "onealsteel.com": "O'Neal Steel - Dallas (GP)",
+    "gasandsupply.com": "Gas and Supply North Texas, LLC",
+    "fastenal.com": "Fastenal Company",
+    "mcmaster.com": "McMaster-Carr Supply Company",
+    "modernht.com": "Modern Heat Treat Inc",
+    "ii-vi.com": "Coherent Corp.",
+    "nsalloys.com": "National Specialty Alloys, Inc",
+    "mscdirect.com": "MSC Industrial Supply",
+    "metalsupermarkets.com": "Metal Supermarkets",
+    "marmonkeystone.com": "Marmon/Keystone",
+    "amada.com": "Amada America",
+    "curbellplastics.com": "Curbell Plastics",
+    "engieresources.com": "ENGIE Resources LLC",
+    "wcicustomer.com": "Waste Connections Lone Star, Inc",
+    "unifirstfirstaidandsafety.com": "UniFirst First Aid & Safety",
+    "unifirst.com": "UniFirst Corporation",
+    "ntexelectric.com": "NTEX Electric Inc.",
+    "kloeckner.com": "Kloeckner Metals Corporation",
+    "kloecknermetals.com": "Kloeckner Metals Corporation",
+    "altparts.com": "Alternative Parts Inc",
+    "grmdocument.com": "GRM Information Management Services",
+    "grmdocumentmanagement.com": "GRM Information Management Services",
+    "tubesupply.com": "Tube Supply",
+    "crosslinktx.com": "Crosslink Powder Coating",
+    "ryerson.com": "Joseph T. Ryerson & Son, Inc",
+    "austinhardware.com": "Austin Hardware & Supply Inc.",
+    "a1image.com": "A1 Image Office Systems",
+    "gexpro.com": "Gexpro Services",
+    "gexproservices.com": "Gexpro Services",
+    "maynardnexsen.com": "Maynard Nexsen PC",
+    "leecosteel.com": "Leeco Steel, LLC",
+    "versalift.com": "Versalift National Parts Distribution Center",
+    "aft-corp.com": "Automated Finishing Technology",
+    "morgansteel.net": "Morgan Steel",
+    "pctsupport.com": "PCT Support",
+    "orthmanconveying.com": "Orthman Conveying Systems",
+    "spectrumvoip.com": "SpectrumVoIP",
+    "xcaliberind.com": "Xcaliber Industrial LLC",
+    "aqpowder.com": "American Quality Powder Coating",
+    "americanqualitypowder.com": "American Quality Powder Coating",
+    "insightcontrollerservices.com": "Insight Controller Services",
+    "techni-tool.com": "Techni-Tool",
+    "technitool.com": "Techni-Tool",
+    "toyota.com": "Toyota Commercial Finance",
+    "mcnichols.com": "McNichols",
+    "e.mcnichols.com": "McNichols",
+}
+
+SUBJECT_VENDORS = (
+    (re.compile(r"fastenal", re.I), "Fastenal Company"),
+    (re.compile(r"mcmaster", re.I), "McMaster-Carr Supply Company"),
+    (re.compile(r"o'?neal", re.I), "O'Neal Steel - Dallas (GP)"),
+    (re.compile(r"earle m\.?\s*jorgensen|\bemj\b", re.I), "Earle M. Jorgensen Co"),
+    (re.compile(r"air products", re.I), "Air Products and Chemicals, Inc"),
+    (re.compile(r"gas\s*&?\s*supply", re.I), "Gas and Supply North Texas, LLC"),
+    (re.compile(r"luxor", re.I), "Luxor Staffing, Inc."),
+    (re.compile(r"national specialty alloys", re.I), "National Specialty Alloys, Inc"),
+    (re.compile(r"modern heat treat", re.I), "Modern Heat Treat Inc"),
+    (re.compile(r"coherent|ii-vi", re.I), "Coherent Corp."),
+    (re.compile(r"telecom products", re.I), "Telecom Products Inc."),
+    (re.compile(r"rmp industrial", re.I), "RMP Industrial Supply Inc"),
+    (re.compile(r"tejas transportation", re.I), "Tejas Transportation"),
+    (re.compile(r"telecom products", re.I), "Telecom Products Inc."),
+    (re.compile(r"service experts", re.I), "Service Experts"),
+    (re.compile(r"priority\s*1|priority1invoice", re.I), "Priority 1"),
+    (re.compile(r"\bmsc\b|msc industrial", re.I), "MSC Industrial Supply"),
+    (re.compile(r"metal supermarket", re.I), "Metal Supermarkets"),
+    (re.compile(r"marmon|keystone", re.I), "Marmon/Keystone"),
+    (re.compile(r"\bamada\b", re.I), "Amada America"),
+    (re.compile(r"exotic metals", re.I), "Exotic Metals"),
+    (re.compile(r"jp steel", re.I), "JP Steel"),
+    (re.compile(r"curbell", re.I), "Curbell Plastics"),
+    (re.compile(r"capital machine", re.I), "Capital Machine Technologies, Inc"),
+    (re.compile(r"clear kut", re.I), "Clear Kut Engraving"),
+    (re.compile(r"willbanks", re.I), "Willbanks Metals"),
+    (re.compile(r"waste connections", re.I), "Waste Connections Lone Star, Inc"),
+    (re.compile(r"\bengie\b", re.I), "ENGIE Resources LLC"),
+    (re.compile(r"unifirst\s+first\s+aid|unifirstfirstaid|firstaidinquiry", re.I), "UniFirst First Aid & Safety"),
+    (re.compile(r"unifirst", re.I), "UniFirst Corporation"),
+    (re.compile(r"shoppa", re.I), "Shoppa's Material Handling"),
+    (re.compile(r"eastern metal", re.I), "Eastern Metal Supply of Texas"),
+    (re.compile(r"\b3p\b|rachel\s+bailey", re.I), "3P"),
+    (re.compile(r"green valley compressor", re.I), "Green Valley Compressor LLC"),
+    (re.compile(r"purvis", re.I), "Purvis Industries"),
+    (re.compile(r"ntex", re.I), "NTEX Electric Inc."),
+    (re.compile(r"kloeckner", re.I), "Kloeckner Metals Corporation"),
+    (re.compile(r"american bearing", re.I), "American Bearing Company"),
+    (re.compile(r"morgan steel", re.I), "Morgan Steel"),
+    (re.compile(r"\bgrm\b", re.I), "GRM Information Management Services"),
+    (re.compile(r"alternative parts|altparts", re.I), "Alternative Parts Inc"),
+    (re.compile(r"tube supply|tubesupply", re.I), "Tube Supply"),
+    (re.compile(r"lavanture", re.I), "Lavanture Products"),
+    (re.compile(r"leeco", re.I), "Leeco Steel, LLC"),
+    (re.compile(r"austin hardware", re.I), "Austin Hardware & Supply Inc."),
+    (re.compile(r"a1[\s_]*image", re.I), "A1 Image Office Systems"),
+    (re.compile(r"maynard\s+nexsen|nexsen", re.I), "Maynard Nexsen PC"),
+    (re.compile(r"legacy wire", re.I), "Legacy Wire Products"),
+    (re.compile(r"gexpro", re.I), "Gexpro Services"),
+    (re.compile(r"beshert|triple-?s steel|steel warehouse", re.I), "Beshert Steel Processing"),
+    (re.compile(r"precision fabrication", re.I), "Precision Fabrication Services"),
+    (re.compile(r"versalift", re.I), "Versalift National Parts Distribution Center"),
+    (re.compile(r"automated finishing|aft industries", re.I), "Automated Finishing Technology"),
+    (re.compile(r"polymer products", re.I), "Polymer Products"),
+    (re.compile(r"hapeco", re.I), "Hapeco, Inc"),
+    (re.compile(r"morgan steel", re.I), "Morgan Steel"),
+    (re.compile(r"pct\s+support|pctsupport", re.I), "PCT Support"),
+    (re.compile(r"orthman", re.I), "Orthman Conveying Systems"),
+    (re.compile(r"spectrumvoip|spectrum\s*voip", re.I), "SpectrumVoIP"),
+    (re.compile(r"xcaliber", re.I), "Xcaliber Industrial LLC"),
+    (re.compile(r"american\s+quality\s+powder|aqpc", re.I), "American Quality Powder Coating"),
+    (re.compile(r"insight\s+controller", re.I), "Insight Controller Services"),
+    (re.compile(r"techni[\s-]?tool", re.I), "Techni-Tool"),
+    (re.compile(r"toyota\s+commercial\s+finance|toyota\s+financial", re.I), "Toyota Commercial Finance"),
+    (re.compile(r"melody\s+channell", re.I), "Melody Channell"),
+    (re.compile(r"crosslink", re.I), "Crosslink Powder Coating"),
+    (re.compile(r"ryerson", re.I), "Joseph T. Ryerson & Son, Inc"),
+    (re.compile(r"mcqueary", re.I), "McQueary Industries"),
+    (re.compile(r"hudson energy", re.I), "Hudson Energy"),
+    (re.compile(r"nova\s+alloys", re.I), "Nova Alloys"),
+    (re.compile(r"mcnichols", re.I), "McNichols"),
+)
+
+
+def extract_pdf_text(path: Path) -> str:
+    """Read PDF text. If pypdf gets nothing, OCR/retry. Never invent no-pdf-on-vm."""
+    text = _extract_pypdf_text(path)
+    if (text or "").strip():
+        return text
+    ocr = _ocr_pdf_text(path)
+    if (ocr or "").strip():
+        LOGGER.info("OCR/retry extracted %s chars from %s", len(ocr), path.name)
+        return ocr
+    return text or ""
+
+
+def _extract_pypdf_text(path: Path) -> str:
+    try:
+        reader = PdfReader(str(path))
+    except Exception:  # noqa: BLE001 - unreadable PDF still exists on disk
+        return ""
+    pages = []
+    for page in reader.pages:
+        try:
+            pages.append(page.extract_text() or "")
+        except Exception:  # noqa: BLE001 - one bad page must not kill the invoice
+            pages.append("")
+    return "\n\f".join(pages)
+
+
+def _ocr_pdf_text(path: Path) -> str:
+    """Best-effort OCR/retry when pypdf extracted no text. Tools optional. No network."""
+    import subprocess
+    import tempfile
+
+    commands = (
+        ["pdftotext", "-layout", str(path), "-"],
+        ["pdftotext", str(path), "-"],
+    )
+    for cmd in commands:
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=30, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            continue
+        text = (result.stdout or "").strip()
+        if text:
+            return text
+    # Scanned vendor packs (3P 142041–142044) need image OCR. Optional tools.
+    try:
+        with tempfile.TemporaryDirectory(prefix="ap-ocr-") as tmp:
+            prefix = str(Path(tmp) / "page")
+            render = subprocess.run(
+                ["pdftoppm", "-png", "-r", "200", str(path), prefix],
+                capture_output=True,
+                timeout=120,
+                check=False,
+            )
+            if render.returncode != 0:
+                return ""
+            parts: list[str] = []
+            for image in sorted(Path(tmp).glob("page*.png")):
+                ocr = subprocess.run(
+                    ["tesseract", str(image), "stdout", "--psm", "6"],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
+                    check=False,
+                )
+                if (ocr.stdout or "").strip():
+                    parts.append(ocr.stdout)
+            return "\n\f".join(parts).strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+
+
+def parse_money(value: str | None) -> float | None:
+    if value is None:
+        return None
+    text = str(value).replace(",", "").replace("$", "").strip()
+    if not text:
+        return None
+    try:
+        return round(float(text), 2)
+    except ValueError:
+        return None
+
+
+def parse_date_value(value: str | None) -> str | None:
+    if not value:
+        return None
+    text = value.strip().replace(",", "")
+    for fmt in (
+        "%Y-%m-%d",
+        "%m/%d/%Y",
+        "%m/%d/%y",
+        "%m-%d-%Y",
+        "%m-%d-%y",
+        "%d-%b-%Y",
+        "%d-%b-%y",
+        "%B %d %Y",
+        "%b %d %Y",
+        "%B %d, %Y",
+        "%b %d, %Y",
+        "%b-%d-%Y",
+        "%b-%d-%y",
+        "%B-%d-%Y",
+    ):
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            continue
+    return None
+
+
+def _unique(items: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for item in items:
+        key = item.strip().upper()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(item.strip())
+    return out
+
+
+def _looks_like_date_token(token: str) -> bool:
+    if parse_date_value(token):
+        return True
+    if re.fullmatch(r"\d{1,2}[/-]\d{1,2}[/-]\d{2,4}", token or ""):
+        return True
+    # AUG-03-2026 leftovers like 03-2026
+    return bool(re.fullmatch(r"\d{1,2}-20\d{2}", token or ""))
+
+
+def _usable_invoice_number(token: str | None) -> str | None:
+    if not token:
+        return None
+    value = token.strip(" .:-#")
+    if not value or value.upper() in _BAD_INVOICE_WORDS:
+        return None
+    if _looks_like_date_token(value):
+        return None
+    if re.fullmatch(r"20\d{2}", value):
+        return None
+    if re.fullmatch(r"[A-Za-z]+", value):
+        return None
+    if len(re.sub(r"\D", "", value)) < 3:
+        return None
+    if len(value) > 24:
+        return None
+    return value
+
+
+def extract_po_numbers(text: str) -> list[str]:
+    if _PO_NONE.search(text or ""):
+        return []
+    found: list[str] = []
+    for match in _PO_LABEL.finditer(text or ""):
+        raw = match.group(1)
+        if raw.upper() in {"NONE", "NET"} or raw.upper().startswith("TXFT"):
+            continue
+        window = (text or "")[max(0, match.start() - 12) : match.start()]
+        if re.search(r"\brfq\b", window, flags=re.I):
+            continue
+        if re.fullmatch(r"C\d{5,8}", raw.upper()):
+            continue
+        number = extract_po_number(raw) or re.sub(r"\D", "", raw)
+        if number and 4 <= len(number) <= 8 and not number.startswith("00"):
+            found.append(number)
+    for match in _PO_BARE.finditer(text or ""):
+        found.append(match.group(1))
+    modern = re.search(r"\b(\d{5}),\s*line\b", text or "", flags=re.I)
+    if modern:
+        found.append(modern.group(1))
+    # Fastenal: Cust. No. / Cust. P.O. then TXFTxxxxx \n 58xxx
+    fastenal = re.search(
+        r"Cust(?:omer)?\.?\s*P\.?O\.?.{0,80}?TXFT\d+\s+(\d{5,6})",
+        text or "",
+        flags=re.I | re.S,
+    )
+    if fastenal:
+        found.append(fastenal.group(1))
+    # Fastenal column dump: customer number then PO on the next line
+    stacked = re.search(r"\bTXFT\d{5,}\s+(\d{5,6})\b", text or "", flags=re.I)
+    if stacked:
+        found.append(stacked.group(1))
+    your_po = re.findall(r"Your\s+PO\s+(\d{5,6})", text or "", flags=re.I)
+    found.extend(your_po)
+    # Live KIMCO POs are 57xxx–59xxx and often sit unlabeled on Tube Supply / Morgan PDFs.
+    # UniFirst "SZ Prem Charge 58002" is a garment code, not a KIMCO PO.
+    blob = text or ""
+    if "unifirst" not in blob.lower():
+        found.extend(re.findall(r"\b(5[7-9]\d{3})\b", blob))
+    else:
+        for hit in re.finditer(r"\b(5[7-9]\d{3})\b", blob):
+            window = blob[max(0, hit.start() - 24) : hit.start()]
+            if re.search(r"prem(?:ium)?\s*charge|sz\s*prem", window, flags=re.I):
+                continue
+            found.append(hit.group(1))
+    # Shoppas / UniFirst customer accounts like C109050 are not POs.
+    cleaned: list[str] = []
+    for number in _unique(found):
+        if re.search(rf"\bC{re.escape(number)}\b", text or "", flags=re.I):
+            continue
+        # Vendor-internal 8-digit POs (Kloeckner 25576511) are not KIMCO POs.
+        if len(number) >= 8:
+            continue
+        cleaned.append(number)
+    kimco = [n for n in cleaned if re.fullmatch(r"5[7-9]\d{3}", n)]
+    return kimco or cleaned
+
+
+_3P_PO_HEAD = re.compile(r"^PO\s*#\s*(\d{5,6})\s*$", flags=re.I)
+_3P_LINE = re.compile(
+    r"^(\S+)\s+([A-Z0-9]+(?:-[A-Z0-9]+)*)\b.+\s+([\d,]+\.\d{2})\s+([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+
+
+def first_invoice_page(text: str) -> str:
+    """Keep the invoice face page. Later scan pages are packing lists / noise."""
+    return (text or "").split("\f", 1)[0]
+
+
+_AQPC_ITEM = re.compile(
+    r"^\s*(\d+)\.\s+([A-Z0-9][A-Z0-9/_-]{2,})\s+(.*)$",
+    flags=re.I,
+)
+_AQPC_ITEM_INLINE = re.compile(
+    r"^\s*(\d+)\.\s+([A-Z0-9][A-Z0-9/_-]{2,})\s+(.+?)\s+"
+    r"(\d+(?:\.\d+)?)\s+\$?([\d,]+\.\d{2})\s+\$?([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+_AQPC_QTY_ROW = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+\$([\d,]+\.\d{2})\s+\$([\d,]+\.\d{2})\s*$"
+)
+_AQPC_STOP = re.compile(r"^(total|amount\s+due|balance\s+due|subtotal)\b", flags=re.I)
+
+
+def looks_like_aqpc_intuit(text: str, vendor: str = "") -> bool:
+    """QuickBooks payment-request invoices from American Quality Powder Coating."""
+    blob = f"{vendor}\n{text or ''}"
+    return bool(re.search(r"american\s+quality\s+powder|aqpc", blob, flags=re.I))
+
+
+def extract_aqpc_intuit_lines(text: str) -> list[dict[str, Any]]:
+    """AQPC Intuit/QBO rows: ``1. PART  desc`` then ``100  $3.00  $300.00``.
+
+    The leading ``1.`` is the line number, not qty. Generic steel-line parsing
+    treated ``End Plate`` + ``1.`` as qty 1 (11002 is qty 100 @ $3).
+    """
+    lines: list[dict[str, Any]] = []
+    pending: dict[str, Any] | None = None
+    for raw in (text or "").splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        if _AQPC_STOP.match(stripped):
+            break
+        inline = _AQPC_ITEM_INLINE.match(stripped)
+        if inline:
+            qty = parse_money(inline.group(4))
+            unit = parse_money(inline.group(5))
+            amt = parse_money(inline.group(6))
+            part = inline.group(2).strip()
+            desc = re.sub(r"\s+", " ", inline.group(3)).strip()
+            lines.append(
+                {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amt,
+                    "unit_price": unit,
+                    "po_line": int(inline.group(1)),
+                    "wo": None,
+                    "label": f"{part} {desc}".strip()[:80],
+                    "description": desc[:120],
+                }
+            )
+            pending = None
+            continue
+        headed = _AQPC_ITEM.match(stripped)
+        if headed:
+            pending = {
+                "line_no": int(headed.group(1)),
+                "part": headed.group(2).strip(),
+                "desc": re.sub(r"\s+", " ", headed.group(3)).strip(),
+            }
+            continue
+        money = _AQPC_QTY_ROW.match(stripped)
+        if money and pending:
+            qty = parse_money(money.group(1))
+            unit = parse_money(money.group(2))
+            amt = parse_money(money.group(3))
+            part = str(pending.get("part") or "")
+            desc = str(pending.get("desc") or "")
+            lines.append(
+                {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amt,
+                    "unit_price": unit,
+                    "po_line": pending.get("line_no"),
+                    "wo": None,
+                    "label": f"{part} {desc}".strip()[:80],
+                    "description": desc[:120],
+                }
+            )
+            pending = None
+            continue
+        if pending and not _AQPC_QTY_ROW.match(stripped):
+            pending["desc"] = f"{pending['desc']} {stripped}".strip()
+    return lines
+
+
+def extract_3p_lines(text: str) -> list[dict[str, Any]]:
+    """3P Industries face-page lines: `PO # 58766` then `qty part ... unit ext`."""
+    page = first_invoice_page(text)
+    lines: list[dict[str, Any]] = []
+    current_po: str | None = None
+    for raw in page.splitlines():
+        stripped = raw.strip()
+        headed = _3P_PO_HEAD.match(stripped)
+        if headed:
+            current_po = headed.group(1)
+            continue
+        match = _3P_LINE.match(stripped)
+        if not match or not current_po:
+            continue
+        qty_raw, part, each, amt = match.groups()
+        each_n = parse_money(each)
+        amt_n = parse_money(amt)
+        qty = parse_money(qty_raw) if re.fullmatch(r"\d+(?:\.\d+)?", qty_raw) else None
+        if qty in (None, 0) and each_n not in (None, 0) and amt_n not in (None, 0):
+            qty = round(float(amt_n) / float(each_n), 2)
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt_n,
+                "po": current_po,
+                "po_line": None,
+                "wo": None,
+                "label": stripped[:80],
+                "description": stripped[:120],
+            }
+        )
+    return lines
+
+
+def extract_fees(text: str) -> list[dict[str, Any]]:
+    fees: list[dict[str, Any]] = []
+    rows = list((text or "").splitlines())
+    for index, line in enumerate(rows):
+        stripped = line.strip()
+        if not stripped or not is_fee_or_surcharge(stripped):
+            continue
+        amounts = [parse_money(m) for m in _MONEY.findall(stripped)]
+        amounts = [a for a in amounts if a is not None and a < 100000]
+        if not amounts:
+            # Wrapped "Freight Charge - Wholesale - In / State / 246.75".
+            window = "\n".join(rows[index : index + 7])
+            window = re.split(
+                r"\b(?:amount\s+subject|subtotal|amount\s+due|invoice\s+total)\b|"
+                r"total\s+\$",
+                window,
+                flags=re.I,
+            )[0]
+            amounts = [parse_money(m) for m in _MONEY.findall(window)]
+            amounts = [a for a in amounts if a is not None and a < 100000]
+        if not amounts:
+            # Prepaid / shipping-date text with a null amount is not a fee.
+            continue
+        name = re.sub(r"\s+\$?[\d,]+\.\d{2}\s*$", "", stripped)
+        name = re.sub(r"\s{2,}", " ", name).strip(" :-")
+        if not name:
+            name = next((k for k in FEE_KEYWORDS if k in stripped.lower()), "fee")
+        fees.append({"name": name[:80], "amount": amounts[-1]})
+    dedup: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for fee in fees:
+        key = str(fee["name"]).lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        dedup.append(fee)
+    return dedup[:8]
+
+
+_LEGACY_EACH = re.compile(
+    r"(?P<qty>\d+(?:\.\d+)?)\s+Each\s+(?P<unit>[\d,]+\.\d{2})\s+(?P<amt>[\d,]+\.\d{2})",
+    flags=re.I,
+)
+_LEGACY_ITEM = re.compile(
+    r"\b(KANNON-[A-Z0-9]+(?:-[A-Z0-9]+)+|[A-Z]-\d{4,6}-\d{3,}|\d{1,3}-\d{2,6}-\d{3,})\b",
+    flags=re.I,
+)
+_LEGACY_FREIGHT_BLOCK = re.compile(
+    r"(?P<name>Freight(?:\s+Charge)?[^\n]*)(?:\n[^\n]{0,80}){0,6}?"
+    r"\n\s*(?P<qty>\d+(?:\.\d+)?)\s*\n\s*(?P<unit>[\d,]+\.\d{2})\s*\n\s*(?P<amt>[\d,]+\.\d{2})",
+    flags=re.I,
+)
+
+
+_CROSSLINK_AMT_ROW = re.compile(
+    r"(?P<po>\d{5}(?:-\d+)?)\s+(?P<unit>[\d,]+\.\d{2})\s+(?P<qty>\d+(?:\.\d+)?)\s+"
+    r"\$(?P<amt>[\d,]+\.\d{2})"
+)
+_CROSSLINK_PART = re.compile(r"\b(\d{6,8}-\d+)\b")
+_CROSSLINK_TOUCHUP = re.compile(r"\bCustomer\s+Touchup\b", flags=re.I)
+_CROSSLINK_FEE_HEAD = re.compile(
+    r"packaging\s*/\s*shop\s+supplies|shop\s+supplies\s+recovery",
+    flags=re.I,
+)
+_CROSSLINK_TABLE_STOP = re.compile(r"Part Number Description", flags=re.I)
+
+
+def looks_like_crosslink(text: str, vendor: str = "") -> bool:
+    blob = f"{vendor}\n{text or ''}"
+    return bool(re.search(r"crosslink", blob, flags=re.I))
+
+
+_JPSTEEL_TAIL = re.compile(
+    r"(?P<weight>[\d,]+\.\d{2})\s+"
+    r"\$(?P<price>[\d,]+\.\d{2})\s+"
+    r"\$(?P<ext>[\d,]+\.\d{2})\s+"
+    r"E(?P<inch>[\d.]+)\"?\s+[EF]\s+"
+    r"(?P<pcs>\d+)\s+(?P<soline>\d+)\s+P"
+    r"(?:\s+(?P<lenft>[\d.]+)'(?P<totft>[\d.]+)')?",
+)
+_JPSTEEL_STOP = re.compile(
+    r"Invoice Totals|Tag#|Mill Tag|Country Of Origin|ACH INFORMATION|Messages:",
+    flags=re.I,
+)
+
+
+def looks_like_jpsteel(text: str, vendor: str = "") -> bool:
+    blob = f"{vendor}\n{text or ''}"
+    if re.search(r"jp\s*steel|jpsteel\.us", blob, flags=re.I):
+        return True
+    return bool(re.search(r"Invoice No:\s*\d{5,6}", blob) and re.search(r"Customer P\.O\.#:", blob))
+
+
+def extract_jpsteel_bill(text: str) -> list[dict[str, Any]]:
+    """JP Steel Enmark invoice lines. PDF-is-truth.
+
+    Piece-priced: ``21 x $33.00 = $693.00`` → qty is pieces.
+    Foot-priced: ``240.00' x $2.88 = $691.20`` → qty is rolled inches
+    (240*12=2880) so PO/receipt inches match. Per-piece cut length
+    (``E289"`` / ``9.875"``) is never qty.
+    """
+    blob = text or ""
+    if not blob:
+        return []
+    lines: list[dict[str, Any]] = []
+    last = 0
+    for match in _JPSTEEL_TAIL.finditer(blob):
+        window = blob[last : match.start()]
+        last = match.end()
+        if _JPSTEEL_STOP.search(window) and "BOL No" not in window[-80:]:
+            # Keep description after the last BOL; drop Tag# / totals noise.
+            bol = list(re.finditer(r"BOL No:", window, flags=re.I))
+            if bol:
+                window = window[bol[-1].start() :]
+        desc = re.sub(r"\s+", " ", window)
+        desc = re.sub(r".*BOL No:\s*\d+\s*-+\s*", "", desc, flags=re.I)
+        desc = re.sub(r"Tag#.*", "", desc, flags=re.I)
+        desc = desc.strip(" -\n\t")
+        if not desc or desc.lower().startswith("invoice"):
+            continue
+        price = parse_money(match.group("price"))
+        ext = parse_money(match.group("ext"))
+        pcs = parse_money(match.group("pcs"))
+        tot_ft = parse_money(match.group("totft"))
+        cut_in = parse_money(match.group("inch"))
+        so_line = int(match.group("soline"))
+        if price is None or ext is None or pcs is None:
+            continue
+        piece_priced = abs(round(price * pcs, 2) - ext) <= 0.05
+        foot_priced = (
+            tot_ft is not None and abs(round(price * tot_ft, 2) - ext) <= 0.05
+        )
+        if piece_priced:
+            qty = pcs
+            unit = price
+            qty_uom = "pcs"
+        elif foot_priced:
+            raw_in = round(tot_ft * 12.0, 4)
+            qty = float(round(raw_in)) if abs(raw_in - round(raw_in)) <= 0.05 else raw_in
+            unit = round(price / 12.0, 6)
+            qty_uom = "in"
+        else:
+            qty = pcs
+            unit = price
+            qty_uom = "pcs"
+        part = ""
+        part_hit = re.search(r"\b(\d{4,6}-\d)\b", desc)
+        if part_hit:
+            part = part_hit.group(1)
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": ext,
+                "unit_price": unit,
+                "po_line": None,
+                "so_line": so_line,
+                "wo": None,
+                "label": desc[:80],
+                "description": desc[:160],
+                "qty_uom": qty_uom,
+                "pcs": pcs,
+                "billed_unit_price": price,
+                "length_inches": cut_in,
+                "total_feet": tot_ft,
+            }
+        )
+    return lines
+
+
+def extract_crosslink_bill(text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Crosslink Line-Name table: part/qty/unit merch + one Supplies Recovery fee.
+
+    ``Packaging/Shop Supplies Recovery`` at unit 0.01 is Additional Charge Fees
+    (SH:27591 class), never PPV and never a receipt qty. ``46.250" TALL`` /
+    ``52.25"`` are heights, not qty and not fees.
+    """
+    lines: list[dict[str, Any]] = []
+    fees: list[dict[str, Any]] = []
+    blob = text or ""
+    if not blob:
+        return lines, fees
+    table = _CROSSLINK_TABLE_STOP.split(blob, maxsplit=1)[0]
+    start = 0
+    headed = re.search(r"Line Name Coating", table, flags=re.I)
+    if headed:
+        start = headed.end()
+    matches = list(_CROSSLINK_AMT_ROW.finditer(table, start))
+    last = start
+    for match in matches:
+        unit = parse_money(match.group("unit"))
+        qty = parse_money(match.group("qty"))
+        amt = parse_money(match.group("amt"))
+        po = match.group("po")
+        window = table[last : match.start()]
+        last = match.end()
+        fee_row = bool(_CROSSLINK_FEE_HEAD.search(window)) or (
+            unit == 0.01 and amt not in (None, 0) and qty not in (None, 0) and qty >= 10
+        )
+        if fee_row:
+            if amt not in (None, 0):
+                fees.append(
+                    {
+                        "name": "Packaging/Shop Supplies Recovery",
+                        "amount": amt,
+                        "fee": True,
+                    }
+                )
+            continue
+        part = ""
+        parts = _CROSSLINK_PART.findall(window)
+        if parts:
+            part = parts[-1]
+        elif _CROSSLINK_TOUCHUP.search(window) or _CROSSLINK_TOUCHUP.search(match.group(0)):
+            part = "Customer Touchup"
+        if not part:
+            continue
+        if qty is not None and _qty_is_inch_dimension(window, qty):
+            continue
+        po_header = re.match(r"(\d{5})", po or "")
+        desc = re.sub(r"\s+", " ", window).strip()[:120]
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt,
+                "unit_price": unit,
+                "po": po_header.group(1) if po_header else po,
+                "po_line": None,
+                "wo": None,
+                "label": f"{part} {desc}".strip()[:80],
+                "description": desc,
+            }
+        )
+    seen_fee: set[float] = set()
+    uniq_fees: list[dict[str, Any]] = []
+    for fee in fees:
+        key = float(fee["amount"])
+        if key in seen_fee:
+            continue
+        seen_fee.add(key)
+        uniq_fees.append(fee)
+    return lines, uniq_fees
+
+
+def looks_like_legacy_sales_invoice(text: str) -> bool:
+    blob = text or ""
+    return bool(
+        re.search(r"\bPS-INV\d{5,}\b", blob, flags=re.I)
+        or (
+            re.search(r"legacy\s+wire", blob, flags=re.I)
+            and re.search(r"External Document No\.", blob, flags=re.I)
+        )
+    )
+
+
+def extract_legacy_wire_bill(text: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Legacy Wire Business Central sales invoice: Each rows + freight Fees.
+
+    `77\"` in `BIFOLD GATE-77\"(2\"TUBE)` is an inch dimension, not invoice qty.
+    Qty 0 / $0 rows are not merchandise. Freight Charge is Fees, never a receipt.
+    """
+    lines: list[dict[str, Any]] = []
+    fees: list[dict[str, Any]] = []
+    blob = text or ""
+    if not blob:
+        return lines, fees
+    fee_spans = [m.span() for m in _LEGACY_FREIGHT_BLOCK.finditer(blob)]
+    for match in _LEGACY_FREIGHT_BLOCK.finditer(blob):
+        amt = parse_money(match.group("amt"))
+        if amt in (None, 0):
+            continue
+        name = re.sub(r"\s+", " ", match.group("name")).strip(" :-") or "Freight Charge"
+        fees.append({"name": name[:80], "amount": amt, "fee": True})
+    for match in _LEGACY_EACH.finditer(blob):
+        start = match.start()
+        if any(left <= start < right for left, right in fee_spans):
+            continue
+        qty = parse_money(match.group("qty"))
+        amt = parse_money(match.group("amt"))
+        unit = parse_money(match.group("unit"))
+        if qty in (None, 0) and amt in (None, 0):
+            continue
+        before = blob[max(0, start - 400) : start]
+        if is_fee_or_surcharge(before[-160:]):
+            if amt not in (None, 0):
+                fees.append({"name": "Freight Charge", "amount": amt, "fee": True})
+            continue
+        items = _LEGACY_ITEM.findall(before)
+        part = str(items[-1] or "").strip() if items else ""
+        desc_lines = [ln.strip() for ln in before.splitlines() if ln.strip()]
+        desc = " ".join(desc_lines[-6:])[:120]
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amt,
+                "unit_price": unit,
+                "po_line": None,
+                "wo": None,
+                "label": (part or desc)[:80],
+                "description": desc,
+            }
+        )
+    return lines, fees
+
+
+_STEEL_LINE_RE = re.compile(
+    r"\b(?:SCH(?:EDULE)?\s*\d+|A500|A36|A572|PIPE|HR\s+(?:FLT|FLAT|RND|ROUND|RECT)|"
+    r"FLAT\s+BAR|ANGLE|BEAM|PLATE|TUBE|RECT\s+TUBE|SQ\s+TUBE)\b",
+    flags=re.I,
+)
+_EMJ_NUMBERED_LINE = re.compile(
+    r"^\s*(\d{1,3})\s+(?:(\d{5,8})\s+)?(.{6,80}?)\s+(\d+(?:\.\d+)?)\s+"
+    r"(FT|LF|PC|PCS|EA|LB|CWT|IN)\b.*?([\d,]+\.\d{2})\s*$",
+    flags=re.I,
+)
+_LINE_SKIP_RE = re.compile(
+    r"invoice\s+total|amount\s+due|customer\s+po|invoice\s+(?:number|date)|"
+    r"ship(?:ping)?\s+date|prepaid|page\s+\d|bill\s+to|ship\s+to",
+    flags=re.I,
+)
+
+
+_GAS_ITEM_LINE = re.compile(
+    r"(?m)^(?P<part>\$?[A-Z0-9][A-Z0-9._/-]{2,})\s+"
+    r"(?P<qty>\d+(?:\.\d+)?)\s+\d+\s+"
+    r"(?:(?P<ship>\d+)\s+(?P<ret>\d+)\s+)?"
+    r"(?P<desc>.+?)\s+"
+    r"(?P<uom>EA|CYL|LB|GAL|CS|PR|PK|FT|BOX|SET|KIT|BG|RL)\s+"
+    r"(?P<unit>[\d,]+\.\d{2,})\s+"
+    r"(?:(?P<ext>[\d,]+\.\d{2})\s+N\b)?",
+)
+
+
+def extract_gas_item_lines(text: str) -> list[dict[str, Any]]:
+    """Gas merchandise rows. Fuel surcharge is a fee, not a receipt line."""
+    lines: list[dict[str, Any]] = []
+    for match in _GAS_ITEM_LINE.finditer(text or ""):
+        part = str(match.group("part") or "").strip()
+        desc = re.sub(r"\s{2,}", " ", str(match.group("desc") or "")).strip()
+        blob = f"{part} {desc}"
+        if is_fee_or_surcharge(blob) or part.startswith("$SUR"):
+            continue
+        qty = parse_money(match.group("qty"))
+        amount = parse_money(match.group("ext"))
+        unit = parse_money(match.group("unit"))
+        if amount is None and qty not in (None, "") and unit not in (None, ""):
+            amount = round(float(qty) * float(unit), 2)
+        # Billed merch only. Qty 0 / $0 backorder is not a PO-match line here.
+        if qty in (None, 0, 0.0) or amount in (None, 0, 0.0):
+            continue
+        lines.append(
+            {
+                "part": part,
+                "qty": qty,
+                "amount": amount,
+                "unit_price": unit,
+                "po_line": None,
+                "wo": None,
+                "label": desc[:80] or part,
+                "description": desc[:160] or part,
+                "qty_uom": str(match.group("uom") or "").lower(),
+            }
+        )
+    return lines
+
+
+def extract_invoice_lines(text: str) -> list[dict[str, Any]]:
+    """Part numbers and nearby qty/amount from PDF text. Used for Select Receipts.
+
+    EMJ / mill invoices (Z250725432) print steel descriptions (HR FLT A36)
+    without XXX-XXXX-XXX parts — those must still become merchandise lines.
+    """
+    lines: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    if re.search(r"gas\s+and\s+supply|gasandsupply", text or "", flags=re.I):
+        gas_lines = extract_gas_item_lines(text)
+        if gas_lines:
+            return gas_lines
+    raw_rows = [raw.strip() for raw in (text or "").splitlines() if raw.strip()]
+    for index, stripped in enumerate(raw_rows):
+        if _LINE_SKIP_RE.search(stripped) and not _STEEL_LINE_RE.search(stripped):
+            continue
+        emj = _EMJ_NUMBERED_LINE.match(stripped)
+        if emj:
+            po_line = int(emj.group(1))
+            item_no = emj.group(2) or ""
+            desc = re.sub(r"\s{2,}", " ", emj.group(3)).strip()
+            qty = parse_money(emj.group(4))
+            amount = parse_money(emj.group(6))
+            key = f"emj-{po_line}-{desc.upper()[:40]}"
+            if key not in seen:
+                seen.add(key)
+                lines.append(
+                    {
+                        "part": item_no or desc,
+                        "qty": qty,
+                        "amount": amount,
+                        "po_line": po_line,
+                        "wo": None,
+                        "label": desc[:80] or stripped[:80],
+                        "description": desc[:120] or stripped[:120],
+                    }
+                )
+            continue
+        parts = _PART_NUMBER.findall(stripped)
+        desc_only = bool(not parts and _STEEL_LINE_RE.search(stripped))
+        if not parts and not desc_only:
+            continue
+        blob = stripped
+        nxt = raw_rows[index + 1] if index + 1 < len(raw_rows) else ""
+        if nxt and not _LINE_SKIP_RE.search(nxt) and not _PART_NUMBER.findall(nxt) and not _STEEL_LINE_RE.search(nxt):
+            blob = f"{stripped} {nxt}"
+        amounts = [parse_money(m) for m in _MONEY.findall(blob)]
+        amounts = [a for a in amounts if a is not None and a < 100000]
+        qty = None
+        qty_match = re.search(r"\b(?:qty|quantity)\s*[:.]?\s*(\d+(?:\.\d+)?)\b", blob, flags=re.I)
+        um_qty = re.search(r"\b(\d+(?:\.\d+)?)\s*(?:FT|LF|PC|PCS|EA|LB|CWT)\b", blob, flags=re.I)
+        inch_pair = re.search(
+            r"\b(\d+(?:\.\d+)?)\s*@\s*(\d+(?:\.\d+)?)\s*(?:in(?:ch(?:es)?)?|[\"″])\b",
+            blob,
+            flags=re.I,
+        )
+        if qty_match:
+            qty = parse_money(qty_match.group(1))
+        elif um_qty:
+            qty = parse_money(um_qty.group(1))
+        elif inch_pair:
+            qty = parse_money(inch_pair.group(1))
+        elif amounts and len(amounts) >= 2:
+            qty = amounts[0]
+            if qty is not None and amounts[-1] is not None and qty == amounts[-1]:
+                qty = None
+        length_inches = parse_money(inch_pair.group(2)) if inch_pair else None
+        if qty is not None and _qty_is_inch_dimension(blob, qty):
+            qty = None
+        po_line = None
+        line_match = re.search(r"^\s*(\d{1,3})\s+|(?:line|ln)\s*[:.#-]?\s*(\d{1,3})\b", stripped, flags=re.I)
+        if line_match:
+            po_line = int(line_match.group(1) or line_match.group(2))
+        wo_match = re.search(r"\bWO[:\s#-]*(\d{3,})\b", blob, flags=re.I)
+        for part in parts:
+            if part in seen:
+                continue
+            seen.add(part)
+            line_row = {
+                    "part": part,
+                    "qty": qty,
+                    "amount": amounts[-1] if amounts else None,
+                    "po_line": po_line,
+                    "wo": wo_match.group(1) if wo_match else None,
+                    "label": stripped[:80],
+                    "description": stripped[:120],
+            }
+            if length_inches is not None:
+                line_row["length_inches"] = length_inches
+            lines.append(line_row)
+        # O'Neal / EMJ mill descriptions without XXX-XXXX-XXX part numbers.
+        if desc_only:
+            key = re.sub(r"\s+", " ", stripped.upper())[:48]
+            if key not in seen:
+                seen.add(key)
+                if qty is None:
+                    bare_qty = re.search(
+                        r"\b(\d+(?:\.\d+)?)\s*(?:EA|PC|PCS|FT|LF)?\b(?!\s*[\"″''])",
+                        blob,
+                        flags=re.I,
+                    )
+                    if bare_qty:
+                        qty = parse_money(bare_qty.group(1))
+                    if qty is not None and _qty_is_inch_dimension(blob, qty):
+                        qty = None
+                if qty is None and not amounts:
+                    continue
+                desc_row = {
+                        "part": "",
+                        "qty": qty,
+                        "amount": amounts[-1] if amounts else None,
+                        "po_line": po_line,
+                        "wo": wo_match.group(1) if wo_match else None,
+                        "label": stripped[:80],
+                        "description": (desc_only and stripped[:120]) or blob[:120],
+                }
+                if length_inches is not None:
+                    desc_row["length_inches"] = length_inches
+                lines.append(desc_row)
+    return lines[:40]
+
+
+def _qty_is_inch_dimension(blob: str, qty: float) -> bool:
+    """77\" in a part description is a size, not invoice qty (Legacy PS-INV103979)."""
+    token = f"{qty:g}"
+    return bool(re.search(rf"(?<![\d.]){re.escape(token)}\s*[\"″'']", blob or ""))
+
+
+_COMPANY_LEGAL_RE = re.compile(
+    r"([A-Za-z][A-Za-z0-9&.'\s]{1,50}?),\s*(INC\.?|LLC|L\.L\.C\.|LTD\.?|CORP\.?|CO\.?)\b",
+    flags=re.I,
+)
+_COMPANY_BEFORE_INVOICE_RE = re.compile(
+    r"^\s*([A-Za-z][A-Za-z0-9&.'\s,]{2,70}?)\s*[-–—|:]\s*(?:Invoice|Inv\.?|Inv\b)",
+    flags=re.I,
+)
+_COMPANY_WORD_RE = re.compile(
+    r"\b(inc|llc|ltd|co|company|corp|supply|steel|products|staffing|alloys|industries|services|metals)\b",
+    flags=re.I,
+)
+
+
+def _looks_like_person_name(name: str) -> bool:
+    """True for a From display name like Erica Barrett — not a company."""
+    cleaned = re.sub(r"\s+", " ", name or "").strip()
+    if not cleaned or "@" in cleaned:
+        return False
+    if _COMPANY_WORD_RE.search(cleaned) or _COMPANY_LEGAL_RE.search(cleaned):
+        return False
+    parts = [p for p in re.split(r"\s+", cleaned) if p]
+    if not (2 <= len(parts) <= 3):
+        return False
+    return all(part[0].isalpha() and part[0].isupper() for part in parts)
+
+
+def _title_company(name: str) -> str:
+    small = {"inc", "inc.", "llc", "ltd", "ltd.", "corp", "co", "co.", "l.l.c."}
+    out: list[str] = []
+    for tok in re.split(r"(\s+|,)", name.strip()):
+        if not tok or tok.isspace() or tok == ",":
+            out.append(tok)
+            continue
+        key = tok.lower()
+        if key in small:
+            out.append(tok[0].upper() + tok[1:].lower())
+        elif tok.isupper():
+            out.append(tok.title())
+        else:
+            out.append(tok)
+    return re.sub(r"\s+", " ", "".join(out)).strip()
+
+
+def company_from_subject_or_text(*, subject: str = "", text: str = "") -> str:
+    """Company printed in the subject or PDF — never a From person's name."""
+    for blob in (subject or "", text or ""):
+        legal = _COMPANY_LEGAL_RE.search(blob)
+        if legal:
+            return _title_company(f"{legal.group(1).strip()}, {legal.group(2).strip()}")
+    headed = _COMPANY_BEFORE_INVOICE_RE.search(subject or "")
+    if headed:
+        raw = headed.group(1).strip(" -–—|:,")
+        if raw and not _looks_like_person_name(raw):
+            return _title_company(raw)
+    return ""
+
+
+def _vendor_from_pdf_text(text: str) -> str:
+    """Company printed on the vendor PDF. Subject/From are hints only."""
+    if not (text or "").strip():
+        return ""
+    for pattern, vendor in SUBJECT_VENDORS:
+        if pattern.search(text):
+            return vendor
+    for line in text.splitlines():
+        stripped = line.strip()
+        if re.match(
+            r"^(air products|fastenal|gas and supply|earle m|o'?neal|luxor|coherent|modern heat|national specialty|mcmaster|telecom products|rmp industrial|priority\s*1|msc industrial|metal supermarket|marmon|amada|exotic metals|jp steel|curbell|capital machine|clear kut|willbanks|waste connections|engie|unifirst|shoppa|eastern metal|green valley|purvis|ntex|kloeckner|american bearing|american quality powder|morgan steel|grm|alternative parts|tube supply|lavanture|crosslink|ryerson|mcqueary|hudson energy|leeco|austin hardware|a1 image|maynard nexsen|legacy wire|gexpro|beshert|precision fabrication|versalift|automated finishing|polymer products|hapeco|aft industries|pct support|orthman|spectrumvoip|xcaliber|insight controller|techni|toyota commercial|melody channell|nova alloys|mcnichols)",
+            stripped,
+            re.I,
+        ):
+            return stripped[:80]
+    return company_from_subject_or_text(subject="", text=text)
+
+
+def vendor_from_context(*, subject: str = "", from_name: str = "", from_address: str = "", text: str = "") -> str:
+    # PDF is the version of the truth for vendor when the invoice text names a company.
+    pdf_vendor = _vendor_from_pdf_text(text)
+    if pdf_vendor:
+        return pdf_vendor
+    addr = (from_address or "").lower()
+    if "firstaid" in addr or "first aid" in (from_name or "").lower() or "firstaid" in (subject or "").lower():
+        return "UniFirst First Aid & Safety"
+    if "@" in addr:
+        domain = addr.split("@", 1)[1]
+        if domain in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[domain]
+        parts = domain.split(".")
+        for index in range(1, len(parts) - 1):
+            parent = ".".join(parts[index:])
+            if parent in DOMAIN_VENDORS:
+                return DOMAIN_VENDORS[parent]
+    blob = f"{subject}\n{from_name}\n{from_address}"
+    for pattern, vendor in SUBJECT_VENDORS:
+        if pattern.search(blob):
+            return vendor
+    company = company_from_subject_or_text(subject=subject, text="")
+    if company:
+        return company[:80]
+    if from_name and "@" not in from_name and not _looks_like_person_name(from_name):
+        cleaned = re.sub(r"\s+", " ", from_name).strip()
+        if _COMPANY_WORD_RE.search(cleaned):
+            return cleaned[:80]
+    # Kyle 8/18 Nova 258145: never prefer Erica Barrett over a company in subject/PDF.
+    if _looks_like_person_name(from_name):
+        return (company or subject.split("-")[0] or subject or "").strip()[:80]
+    raw = (from_name or subject or "").strip()
+    if "@" in raw:
+        domain = raw.split("@", 1)[1].lower()
+        if domain in DOMAIN_VENDORS:
+            return DOMAIN_VENDORS[domain]
+        parts = domain.split(".")
+        for index in range(len(parts) - 1):
+            parent = ".".join(parts[index:])
+            if parent in DOMAIN_VENDORS:
+                return DOMAIN_VENDORS[parent]
+        token = parts[-2] if len(parts) >= 2 else domain
+        if token and token not in {"com", "net", "org", "edu"}:
+            return token.replace("-", " ").title()[:80]
+        return ""
+    return raw[:80]
+
+
+def _invoice_from_filename(filename: str) -> str | None:
+    name = filename or ""
+    # Receipt_114745.pdf is a packing slip. Never invent invoice # 114745.
+    if classify_attachment(filename=name) != ATTACHMENT_INVOICE:
+        return None
+    for pattern in (
+        r"(TXFT\d{5,})",
+        r"(PS-INV\d{5,})",
+        r"(TMC-\d{5,})",
+        r"\b(\d{2}-\d{4,5})\b",
+        r"\b(\d-\d{5,8})\b",
+        r"Invoice[-_ ]+(\d-\d{5,8}|\d{2}-\d{4,5}|\d{4,})",
+        r"Invoice0+(\d{5,})",
+        r"Inv[_-]?(\d-\d{5,8}|\d{5,})",
+        r"[-_](\d-\d{5,8})\.pdf$",
+        r"[-_](\d{5,})\.pdf$",
+        r"inv[-_ ]+(\d{4,})",
+        r"(00\d{8})",
+        r"[-_]([A-Z]\d{7,})",
+        r"(PSI-\d{6,})",
+        r"(SV\d{6,})",
+        r"(\d{6,}-IN)",
+    ):
+        match = re.search(pattern, name, flags=re.I)
+        if match:
+            return _usable_invoice_number(match.group(1))
+    return None
+
+
+def _invoice_from_subject(subject: str) -> str | None:
+    hashed = extract_subject_invoice_number(subject)
+    if hashed:
+        return hashed
+    for pattern in (
+        r"Invoice\s*(?:Number|#|No\.?)?\s*[-:#]?\s*([A-Z]{0,8}\d{4,})",
+        r"\b(TXFT\d{5,})\b",
+        r"\b(00\d{8})\b",
+        r"\binv(?:oice)?\s+(\d{4,})\b",
+    ):
+        match = re.search(pattern, subject or "", flags=re.I)
+        if match:
+            return _usable_invoice_number(match.group(1))
+    return None
+
+
+_ONEAL_INV = re.compile(r"\b(15\d{6})\b")
+_ONEAL_PO = re.compile(r"Customer\s+PO#\s+(\d{5})", flags=re.I)
+_ONEAL_TOTAL = re.compile(
+    r"TOTAL ORDER AMOUNT.{0,500}?([\d,]+\.\d{2})\s*\n\s*\.00\s*\n\s*([\d,]+\.\d{2})",
+    flags=re.I | re.S,
+)
+
+
+def _oneal_invoice_numbers(text: str) -> list[str]:
+    found: list[str] = []
+    for match in _ONEAL_INV.finditer(text or ""):
+        number = match.group(1)
+        if number not in found:
+            found.append(number)
+    return found
+
+
+def _oneal_totals(text: str) -> list[float]:
+    totals: list[float] = []
+    for match in _ONEAL_TOTAL.finditer(text or ""):
+        amount = parse_money(match.group(2))
+        if amount not in (None, 0, 0.0):
+            totals.append(amount)
+    return totals
+
+
+def expand_oneal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """Batched O'Neal PDFs can hold more than one 15xxxxxx invoice."""
+    vendor = str(parsed.get("vendor") or "")
+    if "oneal" not in vendor.lower() and "o'neal" not in vendor.lower():
+        return [parsed]
+    numbers = _oneal_invoice_numbers(text)
+    totals = _oneal_totals(text)
+    pos = _ONEAL_PO.findall(text or "")
+    parsed = dict(parsed)
+    if totals:
+        parsed["amount"] = totals[0]
+    if len(pos) == 1:
+        parsed["po"] = pos[0]
+        parsed["pos"] = pos
+        parsed["multi_po"] = False
+    if len(numbers) <= 1:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    for index, number in enumerate(numbers):
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        if index < len(totals):
+            bill["amount"] = totals[index]
+        if index < len(pos) and len(pos) == len(numbers):
+            bill["po"] = pos[index]
+            bill["pos"] = [pos[index]]
+            bill["multi_po"] = False
+        elif len(pos) == 1:
+            bill["po"] = pos[0]
+            bill["pos"] = pos
+            bill["multi_po"] = False
+        else:
+            bill["po"] = None
+            bill["pos"] = pos
+            bill["multi_po"] = len(pos) > 1
+        bill.pop("siblings", None)
+        bills.append(bill)
+    return bills
+
+
+_FASTENAL_BLOCK = re.compile(
+    r"Cust\.?\s*P\.?O\.?.{0,80}?TXFT\d+\s+(\d{5,6}).{0,400}?Invoice No\.\s+(TXFT\d{5,}).{0,120}?Invoice Total\s+([\d,]+\.\d{2})",
+    flags=re.I | re.S,
+)
+
+
+def expand_fastenal_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """One Fastenal email PDF can hold more than one TXFT invoice (each with its own PO)."""
+    vendor = str(parsed.get("vendor") or "")
+    if "fastenal" not in vendor.lower():
+        return [parsed]
+    blocks = list(_FASTENAL_BLOCK.finditer(text or ""))
+    if len(blocks) <= 1:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    for match in blocks:
+        po, number, total = match.group(1), match.group(2).upper(), parse_money(match.group(3))
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        bill["po"] = po
+        bill["pos"] = [po]
+        bill["multi_po"] = False
+        if total not in (None, 0, 0.0):
+            bill["amount"] = total
+        sources = dict(bill.get("field_sources") or {})
+        sources["invoice_number"] = "pdf"
+        sources["po"] = "pdf"
+        if total not in (None, 0, 0.0):
+            sources["amount"] = "pdf"
+        bill["field_sources"] = sources
+        bill.pop("siblings", None)
+        bills.append(bill)
+    return bills or [parsed]
+
+
+_AFTER_TAX_LABEL = re.compile(
+    r"(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|grand\s+total|"
+    r"total\s+to\s+be\s+paid|total\s+this\s+invoice|total\s+amount\s+due|"
+    r"amount\s+this\s+invoice(?:\s+including\s+tax)?|"
+    r"please\s+pay\s+this\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_BEFORE_TAX_LABEL = re.compile(
+    r"(?:sub[\s-]*total|merchandise(?:\s+total)?|taxable(?:\s+amount)?|"
+    r"before\s+tax|total\s+before\s+tax|net\s+amount)\s*[:.\s]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+_AFTER_TAX_STACKED = re.compile(
+    r"(?m)^[ \t]*(?:amount\s+due|invoice\s*total|total\s*due|balance\s+due|"
+    r"grand\s+total|total\s+to\s+be\s+paid|total\s+this\s+invoice|"
+    r"total\s+amount\s+due|amount\s+this\s+invoice(?:\s+including\s+tax)?|"
+    r"please\s+pay\s+this\s+amount|total)\b"
+    r"[^\n]{0,40}\n(?:[ \t]*[A-Za-z][^\n]*\n){0,3}[ \t]*\$?\s*([\d,]+(?:\.\d{2}))",
+    flags=re.I,
+)
+# Printed invoice # sits on the date/account header. 0011xxxxxx-00 is the order #.
+_GAS_HEADER_INV = re.compile(
+    r"(?m)\d{1,2}/\d{1,2}/\d{2}\s+[A-Z]\d{4}\s+(00\d{8})\b"
+)
+_GAS_ORDER_SUFFIX = re.compile(r"00\d{8}-\d{2}")
+# Form columns: TAXABLE AMOUNT | AMOUNT THIS INVOICE INCLUDING TAX
+# Footer after TAX CD is: <tax> <including-tax total>
+_GAS_INCLUDING_TAX_FOOTER = re.compile(
+    r"TAX\s*CD:[^\n]*\n\s*([\d,]+\.\d{2})\s+([\d,]+\.\d{2})",
+    flags=re.I,
+)
+
+
+def _stacked_after_tax_totals(text: str) -> list[float]:
+    """Label on one line, amount on the next. Never invent. Never take Subtotal.
+
+    Gas 2026-09-16 packs failed preflight because Amount Due / Total sat
+    above the dollars. One note was a single-invoice PDF.
+    """
+    found: list[float] = []
+    for match in _AFTER_TAX_STACKED.finditer(text or ""):
+        line = match.group(0).splitlines()[0]
+        if re.search(r"sub[\s-]*total|merchandise|taxable|before\s+tax", line, flags=re.I):
+            continue
+        amount = parse_money(match.group(1))
+        if amount not in (None, 0, 0.0):
+            found.append(amount)
+    return found
+
+
+def _bare_grand_totals(text: str) -> list[float]:
+    """Line-start Total 348.57 — not Subtotal / Merchandise / Before Tax."""
+    found: list[float] = []
+    for match in re.finditer(r"(?m)^[ \t]*(total\b[^\n]{0,48})", text or "", flags=re.I):
+        line = match.group(1)
+        if re.search(r"sub[\s-]*total|merchandise|taxable|before\s+tax|due\s+date|order\s+amount", line, flags=re.I):
+            continue
+        money = re.search(r"\$?\s*([\d,]+(?:\.\d{2}))", line)
+        if not money:
+            continue
+        amount = parse_money(money.group(1))
+        if amount not in (None, 0, 0.0):
+            found.append(amount)
+    return found
+
+
+def gas_amount_including_tax(text: str) -> float | None:
+    """Labeled Amount This Invoice Including Tax from the TAX CD footer.
+
+    Never invent. Never take Subtotal / Merchandise. Requires the including-tax
+    form header (or AMOUNT THIS INVOICE) plus the two-amount TAX CD footer.
+    """
+    blob = text or ""
+    if not re.search(
+        r"amount\s+this\s+invoice|including\s+tax|gas\s+and\s+supply",
+        blob,
+        flags=re.I,
+    ):
+        return None
+    match = _GAS_INCLUDING_TAX_FOOTER.search(blob)
+    if not match:
+        return None
+    tax = parse_money(match.group(1))
+    total = parse_money(match.group(2))
+    if total in (None, 0, 0.0):
+        return None
+    if tax is not None and tax > total + 0.001:
+        return None
+    return total
+
+
+def prefer_after_tax_amount(text: str, current: float | None = None) -> float | None:
+    """Final total / amount due after tax. Never a subtotal when a grand total exists.
+
+    Gas 0040370068: sheet took 322 before tax; Amount Due after tax must win.
+    Prefer Amount Due / Invoice Total / Total Due / Balance Due / Total when
+    that Total is the grand total. Reject Subtotal / Merchandise / Taxable /
+    Before Tax when a higher grand total is on the same section.
+    Do not replace an already-chosen grand total with the first Invoice Total
+    line of a stacked block (UniFirst).
+    """
+    after = [parse_money(m) for m in _AFTER_TAX_LABEL.findall(text or "")]
+    after = [a for a in after if a not in (None, 0, 0.0)]
+    after.extend(_bare_grand_totals(text))
+    after.extend(_stacked_after_tax_totals(text))
+    including = gas_amount_including_tax(text)
+    if including not in (None, 0, 0.0):
+        after.append(including)
+    before = [parse_money(m) for m in _BEFORE_TAX_LABEL.findall(text or "")]
+    before = [a for a in before if a not in (None, 0, 0.0)]
+    grand = [a for a in after if a not in before]
+    if including not in (None, 0, 0.0) and including not in grand:
+        grand.append(including)
+    if current in before:
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return None
+    if current in (None, 0, 0.0):
+        if including not in (None, 0, 0.0):
+            return including
+        if grand:
+            return max(grand)
+        if after:
+            return max(after)
+        return current
+    return current
+
+
+def gas_invoice_numbers(text: str) -> list[str]:
+    """Distinct printed invoice numbers (date + account + 00xxxxxxxx).
+
+    Order numbers like 0011118988-00 are not invoices. A one-invoice PDF
+    that also prints the order # is not multiple Misc (NOTE-36).
+    """
+    numbers: list[str] = []
+    for hit in _GAS_HEADER_INV.findall(text or ""):
+        token = _usable_invoice_number(hit)
+        if token and token not in numbers:
+            numbers.append(token)
+    if numbers:
+        return numbers
+    orderish = {m[:10] for m in _GAS_ORDER_SUFFIX.findall(text or "")}
+    for hit in _INV_GAS.findall(text or ""):
+        token = _usable_invoice_number(hit)
+        if not token or token in numbers or token in orderish:
+            continue
+        numbers.append(token)
+    return numbers
+
+
+def _gas_section_pages(text: str, start: int, end: int, *, index: int, count: int) -> tuple[int, int]:
+    """Best-effort page range for one invoice section. Form-feed or 1-based index."""
+    blob = text or ""
+    prefix = blob[:start]
+    section = blob[start:end]
+    breaks_before = prefix.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", prefix, flags=re.I))
+    breaks_in = section.count("\f") + len(re.findall(r"(?:^|\n)\s*page\s+(\d+)\b", section, flags=re.I))
+    if breaks_before or breaks_in:
+        page0 = breaks_before + 1
+        page1 = page0 + max(breaks_in, 0)
+        return page0, max(page1, page0)
+    return index, index
+
+
+def _split_gas_invoice_sections(text: str, numbers: list[str]) -> list[tuple[str, str, int, int]]:
+    """[(invoice_number, section_text, page_start, page_end), ...]"""
+    blob = text or ""
+    hits: list[tuple[int, str]] = []
+    for number in numbers:
+        match = re.search(rf"\b{re.escape(number)}\b", blob)
+        if match:
+            hits.append((match.start(), number))
+    hits.sort()
+    sections: list[tuple[str, str, int, int]] = []
+    for index, (start, number) in enumerate(hits):
+        end = hits[index + 1][0] if index + 1 < len(hits) else len(blob)
+        prev_end = hits[index - 1][0] if index else 0
+        header = blob.rfind("ORIGINAL INVOICE", prev_end, start)
+        if header >= 0:
+            window_start = header
+        else:
+            line_start = blob.rfind("\n", 0, start)
+            window_start = line_start + 1 if line_start >= 0 else start
+        page0, page1 = _gas_section_pages(blob, window_start, end, index=index + 1, count=len(hits))
+        sections.append((number, blob[window_start:end], page0, page1))
+    return sections
+
+
+def expand_gas_misc_invoices(text: str, parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    """One Gas billing PDF → one bill per invoice # (0040370068 pack: 6, not 1).
+
+    Parse amount/date/PO/lines per section. After-tax Amount Due wins over
+    Subtotal. Only mark gas_misc_ambiguous when a section has no amount.
+    Never collapse N>1 numbers into one invoice + multi-PO Incomplete.
+    """
+    vendor = str(parsed.get("vendor") or "")
+    if "gas and supply" not in vendor.lower() and "gasandsupply" not in vendor.lower():
+        return [parsed]
+    numbers = gas_invoice_numbers(text)
+    if len(numbers) <= 1:
+        out = dict(parsed)
+        corrected = prefer_after_tax_amount(text, out.get("amount"))
+        if corrected not in (None, ""):
+            out["amount"] = corrected
+            sources = dict(out.get("field_sources") or {})
+            sources["amount"] = "pdf"
+            out["field_sources"] = sources
+        return [out]
+    sections = _split_gas_invoice_sections(text, numbers)
+    if not sections:
+        return [parsed]
+    bills: list[dict[str, Any]] = []
+    count = len(sections)
+    for index, (number, section, page0, page1) in enumerate(sections):
+        section_parsed = parse_invoice_text(
+            section,
+            from_name=str(parsed.get("vendor") or vendor),
+            from_address="billing@gasandsupply.com",
+        )
+        pos = extract_po_numbers(section)
+        amount = prefer_after_tax_amount(section, section_parsed.get("amount"))
+        bill = dict(parsed)
+        bill["invoice_number"] = number
+        bill["amount"] = amount
+        bill["date"] = section_parsed.get("date") or parsed.get("date")
+        bill["po"] = pos[0] if len(pos) == 1 else None
+        bill["pos"] = pos
+        bill["multi_po"] = len(pos) > 1
+        bill["lines"] = extract_invoice_lines(section)
+        bill["fees"] = extract_fees(section)
+        bill["gas_misc"] = True
+        bill["gas_split"] = True
+        bill["misc_item"] = "Shop Supplies - G&S"
+        bill["multi_invoice_pdf"] = True
+        bill["multi_invoice_count"] = count
+        bill["multi_invoice_index"] = index + 1
+        bill["multi_invoice_page_start"] = page0
+        bill["multi_invoice_page_end"] = page1
+        bill["multi_invoice_note"] = f"multi-invoice-pdf page {page0}–{page1} of {count}"
+        sources = dict(bill.get("field_sources") or {})
+        sources["invoice_number"] = "pdf"
+        if amount not in (None, ""):
+            sources["amount"] = "pdf"
+        if bill.get("date"):
+            sources["date"] = "pdf"
+        if pos:
+            sources["po"] = "pdf"
+        bill["field_sources"] = sources
+        if amount in (None, ""):
+            bill["gas_misc_ambiguous"] = True
+            if count == 1:
+                bill["gas_single_invoice"] = True
+                bill["multi_invoice_pdf"] = False
+        else:
+            bill.pop("gas_misc_ambiguous", None)
+            if count == 1:
+                bill["gas_single_invoice"] = True
+                bill["multi_invoice_pdf"] = False
+        bill.pop("siblings", None)
+        bills.append(bill)
+    return bills or [parsed]
+
+
+def parse_invoice_text(
+    text: str,
+    *,
+    subject: str = "",
+    from_name: str = "",
+    from_address: str = "",
+    filename: str = "",
+) -> dict[str, Any]:
+    pdf_text = text or ""
+    blob = "\n".join([subject, filename, pdf_text])
+    sources = {"invoice_number": "", "date": "", "amount": "", "po": ""}
+    vendor = vendor_from_context(subject=subject, from_name=from_name, from_address=from_address, text=pdf_text)
+    invoice_number = None
+    invoice_from_pdf = False
+    if known_invoice_prefix(vendor):
+        prefixed = _INV_PREFIXED.search(pdf_text)
+        if prefixed:
+            invoice_number = _usable_invoice_number(prefixed.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    for rx in (
+        _INV_TECHNI,
+        _INV_EMJ,
+        _INV_PS_INV,
+        _INV_LS,
+        _INV_TMC,
+        _INV_JVT,
+        _INV_UNIFIRST,
+        _INV_COLON_NUM,
+        _INV_SV,
+        _INV_DASH_IN,
+        _INV_MSC_REAL,
+        _INV_GRM,
+        _INV_LABEL,
+        _INV_BILL_HASH,
+        _INV_GAS,
+    ):
+        if invoice_number:
+            break
+        match = rx.search(pdf_text)
+        if match:
+            invoice_number = _usable_invoice_number(match.group(1))
+            if invoice_number and invoice_number.upper() not in _CUSTOMER_ACCOUNTS:
+                invoice_from_pdf = True
+                break
+            invoice_number = None
+    vendor_l = (vendor or "").lower()
+    blob_l = blob.lower()
+    if not invoice_number and ("mcqueary" in vendor_l or "mcqueary" in pdf_text.lower()):
+        mcq = _INV_MCQUEARY.search(pdf_text)
+        if mcq:
+            invoice_number = _usable_invoice_number(mcq.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if ("gas and supply" in vendor_l or "gasandsupply" in blob_l):
+        gas = _INV_GAS.search(pdf_text)
+        if gas:
+            invoice_number = _usable_invoice_number(gas.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number and ("ntex" in vendor_l or "ntex" in pdf_text.lower()):
+        ntex = _INV_NTEX.search(pdf_text)
+        if ntex:
+            invoice_number = _usable_invoice_number(ntex.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number and ("tube supply" in vendor_l or "tubesupply" in pdf_text.lower()):
+        tube = _INV_TUBE.search(pdf_text)
+        if tube:
+            invoice_number = _usable_invoice_number(tube.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        msc_pair = re.search(
+            r"Customer Number\s+Invoice Number\s+(\d{7,8})\s+(\d{7,8})",
+            pdf_text,
+            flags=re.I,
+        )
+        if msc_pair:
+            first, second = msc_pair.group(1), msc_pair.group(2)
+            pick = second if first.upper() in _CUSTOMER_ACCOUNTS else first
+            if pick.upper() not in _CUSTOMER_ACCOUNTS:
+                invoice_number = _usable_invoice_number(pick)
+                invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        a1_stacked = _INV_A1_STACKED.search(pdf_text)
+        if a1_stacked:
+            invoice_number = _usable_invoice_number(a1_stacked.group(2))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        stacked_nums = [_usable_invoice_number(n) for n in _INV_STACKED.findall(pdf_text)]
+        stacked_nums = [n for n in stacked_nums if n]
+        if stacked_nums:
+            # RMP prints a form id then the real invoice under a second INVOICE heading.
+            invoice_number = stacked_nums[-1]
+            invoice_from_pdf = True
+    if not invoice_number:
+        short_stacked = [_usable_invoice_number(n) for n in _INV_STACKED_SHORT.findall(pdf_text)]
+        short_stacked = [n for n in short_stacked if n]
+        if short_stacked:
+            invoice_number = short_stacked[-1]
+            invoice_from_pdf = True
+    if not invoice_number and (
+        "insight" in vendor_l
+        or "insight" in pdf_text.lower()
+        or "melody" in vendor_l
+        or "melody channell" in pdf_text.lower()
+        or re.search(r"\binvoice\s*(?:number|no\.?|#)\s*[:.\s]*\d{4}\b", pdf_text, flags=re.I)
+    ):
+        insight = _INV_INSIGHT.search(pdf_text)
+        if insight:
+            invoice_number = _usable_invoice_number(insight.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        psi = _INV_PSI.search(pdf_text)
+        if psi:
+            invoice_number = _usable_invoice_number(psi.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    if not invoice_number:
+        fastenal_hits = [
+            tok.upper()
+            for tok in _INV_FASTENAL.findall(pdf_text)
+            if tok.upper() not in _CUSTOMER_ACCOUNTS
+        ]
+        if fastenal_hits:
+            invoice_number = fastenal_hits[0]
+            invoice_from_pdf = True
+    filename_only = False
+    subject_only = False
+    statement_doc = is_account_statement_document(text=pdf_text, filename=filename, subject=subject)
+    if statement_doc:
+        # Filename 1058256.pdf on a Leeco Account Statement is not an invoice #.
+        filename_inv = None
+    attachment_kind = classify_attachment(filename=filename, text=pdf_text, subject=subject)
+    if not invoice_number and not statement_doc and attachment_kind == ATTACHMENT_INVOICE:
+        filename_inv = _invoice_from_filename(filename)
+        if filename_inv and filename_inv.upper() not in _CUSTOMER_ACCOUNTS:
+            invoice_number = filename_inv
+            filename_only = True
+    if not invoice_number and attachment_kind == ATTACHMENT_INVOICE:
+        subject_inv = _invoice_from_subject(subject)
+        if subject_inv and subject_inv.upper() not in _CUSTOMER_ACCOUNTS and "account #" not in (subject or "").lower():
+            invoice_number = subject_inv
+            subject_only = True
+    elif attachment_kind in {
+        ATTACHMENT_PACKING_SLIP,
+        ATTACHMENT_POD,
+        ATTACHMENT_RECEIPT_SCAN,
+        ATTACHMENT_STATEMENT,
+        ATTACHMENT_PAST_DUE,
+        ATTACHMENT_PO,
+        ATTACHMENT_CHECK_STOP,
+    }:
+        # Confirmed slip / POD / PO / statement: never invent 114745 / 103979.
+        invoice_number = None
+        filename_only = False
+        subject_only = False
+    elif attachment_kind != ATTACHMENT_INVOICE:
+        # Sparse invoice PDFs (Tube / Leeco) may classify as not_an_invoice
+        # before labels are obvious. Keep a # already read from PDF text.
+        invoice_number = invoice_number if invoice_from_pdf else None
+        filename_only = False
+        subject_only = False
+    luxor = re.search(r"Invoice\s*#\s*\n\s*\d{1,2}/\d{1,2}/\d{2,4}\s+(\d{4,})", pdf_text, flags=re.I)
+    if luxor and (not invoice_number or filename_only or subject_only):
+        invoice_number = _usable_invoice_number(luxor.group(1))
+        invoice_from_pdf = bool(invoice_number)
+        filename_only = False
+        subject_only = False
+    if not invoice_number:
+        plain = re.search(r"\bInvoice\s+(\d{5,8})\b", pdf_text, flags=re.I)
+        if plain:
+            invoice_number = _usable_invoice_number(plain.group(1))
+            invoice_from_pdf = bool(invoice_number)
+    # O'Neal invoice numbers look like 15452509 and appear twice (filename is often the date).
+    oneal = re.findall(r"\b(15\d{6})\b", pdf_text)
+    if oneal and (not invoice_number or _looks_like_date_token(invoice_number) or re.fullmatch(r"8?\d{6,7}", invoice_number or "") or filename_only):
+        if "oneal" in blob.lower() or "o'neal" in blob.lower() or "o_neal" in (filename or "").lower():
+            invoice_number = oneal[0]
+            invoice_from_pdf = True
+            filename_only = False
+            subject_only = False
+    if not invoice_number and "eastern metal" in (vendor or "").lower():
+        ems = re.findall(r"\b(8\d{5})\b", pdf_text)
+        if ems:
+            invoice_number = _usable_invoice_number(ems[0])
+            invoice_from_pdf = bool(invoice_number)
+    # Filename/subject # that also appears in PDF text is PDF-confirmed
+    # (Crosslink invoice-27943.pdf; Nova subject 258145).
+    if (
+        invoice_number
+        and pdf_text
+        and re.search(rf"\b{re.escape(str(invoice_number))}\b", pdf_text, flags=re.I)
+    ):
+        invoice_from_pdf = True
+        filename_only = False
+        subject_only = False
+    printed = printed_invoice_number(invoice_number, vendor=vendor, text=pdf_text)
+    if printed and printed != invoice_number and printed in pdf_text:
+        invoice_from_pdf = True
+        filename_only = False
+        subject_only = False
+    invoice_number = printed
+    if invoice_from_pdf:
+        sources["invoice_number"] = "pdf-prefix" if known_invoice_prefix(vendor) and invoice_number and "-" in invoice_number else "pdf"
+    elif filename_only:
+        sources["invoice_number"] = "filename"
+    elif subject_only:
+        sources["invoice_number"] = "subject"
+    elif invoice_number:
+        sources["invoice_number"] = "pdf"
+
+    pos = extract_po_numbers(pdf_text)
+    if pos:
+        sources["po"] = "pdf"
+    extra_pos = extract_subject_pos(subject)
+    if extra_pos:
+        for number in extra_pos:
+            if number not in pos:
+                pos.append(number)
+        if not sources.get("po"):
+            sources["po"] = "subject"
+    amount = None
+    # Amount must come from vendor PDF text, never subject/filename (Gas 0040323616).
+    due_label = _AMOUNT_DUE_LABEL.search(pdf_text)
+    if due_label:
+        amount = parse_money(due_label.group(1))
+        if amount == 0:
+            amount = None
+    if amount is None and ("unifirst" in vendor_l or "unifirst" in pdf_text.lower()):
+        usd_hits = [parse_money(m) for m in _AMOUNT_USD_PREFIX.findall(pdf_text)]
+        usd_hits = [a for a in usd_hits if a not in (None, 0, 0.0) and a < 20000]
+        if usd_hits:
+            amount = usd_hits[0]
+    bal = _AMOUNT_BALANCE.search(pdf_text)
+    if amount is None and bal:
+        amount = parse_money(bal.group(1))
+        if amount == 0:
+            amount = None
+    stacked_total = re.search(r"Invoice Total:\s*\n(.{0,240})", pdf_text, flags=re.I | re.S)
+    if amount is None and stacked_total:
+        nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", stacked_total.group(1))]
+        nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
+        if nums:
+            amount = max(nums)
+    amt_match = None
+    if amount is None:
+        # Label-then-amount (INVOICE TOTAL $ 896.86) beats a line amount
+        # immediately before the total label (645.78\nINVOICE TOTAL).
+        amt_match = _AMOUNT_LABEL.search(pdf_text) or _AMOUNT_BEFORE.search(pdf_text)
+    if amt_match:
+        amount = parse_money(amt_match.group(1))
+        if amount == 0:
+            amount = None
+    if amount is None:
+        totals = [parse_money(m) for m in _TOTAL_MONEY.findall(pdf_text)]
+        totals = [a for a in totals if a not in (None, 0, 0.0)]
+        if totals:
+            amount = max(totals)
+    if amount is None:
+        usd_vals = []
+        for left, right in re.findall(r"USD\s*([\d,]+(?:\.\d{2}))|([\d,]+(?:\.\d{2}))\s+USD", pdf_text, flags=re.I):
+            usd_vals.append(parse_money(left or right))
+        usd_vals = [a for a in usd_vals if a not in (None, 0, 0.0)]
+        if usd_vals:
+            best = max(usd_vals)
+            if amount is None or best > amount:
+                amount = best
+    if amount is None:
+        sub = re.search(r"\b(?:SUB-?TOTAL|AMOUNT DUE)\s*:?\s*([\d,]+(?:\.\d{2}))", pdf_text, flags=re.I)
+        if sub:
+            amount = parse_money(sub.group(1))
+            if amount == 0:
+                amount = None
+    if amount is None:
+        due = _AMOUNT_USD_DUE.search(pdf_text)
+        if due:
+            amount = parse_money(due.group(1))
+    if amount is None:
+        stacked_total_amt = _TOTAL_STACKED.search(pdf_text)
+        if stacked_total_amt:
+            amount = parse_money(stacked_total_amt.group(1))
+            if amount == 0:
+                amount = None
+    if amount is None:
+        ext_block = re.search(r"Ext(?:ended)?\s*Price(.{0,400})", pdf_text, flags=re.I | re.S)
+        if ext_block:
+            ext_nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", ext_block.group(1))]
+            ext_nums = [a for a in ext_nums if a not in (None, 0, 0.0) and a < 100000]
+            if ext_nums:
+                amount = max(ext_nums)
+    if amount is None:
+        # Capital Machine prints a lone $1,067.50 on the last line.
+        trailing = re.findall(r"\$([\d,]+(?:\.\d{2}))", pdf_text)
+        trailing_amt = [parse_money(m) for m in trailing]
+        trailing_amt = [a for a in trailing_amt if a not in (None, 0, 0.0) and a < 100000]
+        if trailing_amt:
+            amount = trailing_amt[-1]
+    due_all = re.search(r"Total amount due:\s*\$?\s*([\d,]+(?:\.\d{2}))", pdf_text, flags=re.I)
+    if due_all:
+        amount = parse_money(due_all.group(1)) or amount
+    if "oneal" in vendor_l or "o'neal" in vendor_l or "o_neal" in blob_l:
+        oneal_totals = _oneal_totals(pdf_text)
+        if oneal_totals:
+            amount = oneal_totals[0]
+    if amount is None:
+        # UniFirst First Aid: Invoice Total: then Net / Tax / Total / Balance.
+        block = re.search(r"Invoice Total:(.{0,240})", pdf_text, flags=re.I | re.S)
+        if block:
+            nums = [parse_money(m) for m in re.findall(r"([\d,]+(?:\.\d{2}))", block.group(1))]
+            nums = [a for a in nums if a not in (None, 0, 0.0) and a < 100000]
+            if nums:
+                amount = max(nums)
+    after_tax = prefer_after_tax_amount(pdf_text, amount)
+    if after_tax not in (None, ""):
+        amount = after_tax
+    if amount not in (None, ""):
+        sources["amount"] = "pdf"
+
+    # Printed invoice date only. Never subject "Dated:" or the email received day.
+    invoice_date = None
+    date_match = _DATE_LABEL.search(pdf_text)
+    if date_match:
+        invoice_date = parse_date_value(date_match.group(1))
+    if not invoice_date:
+        loose = re.search(
+            r"(?:^|\n)\s*date\s*[:.\s]+(\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{2}-\d{2}|\d{1,2}-[A-Za-z]{3}-\d{2,4})",
+            pdf_text,
+            flags=re.I,
+        )
+        if loose:
+            invoice_date = parse_date_value(loose.group(1))
+    if not invoice_date:
+        for raw in _DATE_ANY.findall(pdf_text):
+            parsed = parse_date_value(raw)
+            if not parsed or parsed < "2025-01-01":
+                continue
+            # MSC / Austin print Due Date before Invoice Date in the extracted text.
+            around = pdf_text
+            idx = around.lower().find(raw.lower())
+            window = around[max(0, idx - 24) : idx] if idx >= 0 else ""
+            if re.search(r"\bdue\s*date\b", window, flags=re.I):
+                continue
+            invoice_date = parsed
+            break
+    if invoice_date:
+        sources["date"] = "pdf"
+
+    # CHECK STOP on the subject/filename is not enough when the PDF has invoice pages
+    # (Gas & Supply 0040367887: 5 Misc invoices). Real notices have no invoice to enter.
+    po_doc = is_purchase_order_document(text=pdf_text, filename=filename)
+    receipt_scan_doc = is_receipt_scan_document(text=pdf_text, filename=filename)
+    check_stop_in_pdf = bool(_CHECK_STOP.search(pdf_text))
+    check_stop_in_subject = bool(_CHECK_STOP.search(f"{subject}\n{filename}"))
+    has_invoice_pages = bool(
+        invoice_from_pdf and invoice_number and amount not in (None, "") and not po_doc
+    )
+    if has_invoice_pages:
+        check_stop = False
+    else:
+        check_stop = check_stop_in_pdf or (check_stop_in_subject and not invoice_from_pdf)
+    fees = extract_fees(pdf_text)
+    lines = extract_invoice_lines(pdf_text)
+    if looks_like_crosslink(pdf_text, vendor):
+        xl_lines, xl_fees = extract_crosslink_bill(pdf_text)
+        if xl_lines:
+            lines = xl_lines
+        # Crosslink supply-fee rows must replace generic keyword hits
+        # (46.250" TALL is not a Recovery fee; SH:27591 class).
+        fees = xl_fees
+    if looks_like_jpsteel(pdf_text, vendor):
+        jp_lines = extract_jpsteel_bill(pdf_text)
+        if jp_lines:
+            lines = jp_lines
+    if looks_like_aqpc_intuit(pdf_text, vendor):
+        aqpc_lines = extract_aqpc_intuit_lines(pdf_text)
+        if aqpc_lines:
+            lines = aqpc_lines
+    if looks_like_legacy_sales_invoice(pdf_text) or "legacy wire" in vendor_l:
+        legacy_lines, legacy_fees = extract_legacy_wire_bill(pdf_text)
+        if legacy_lines:
+            lines = legacy_lines
+        for fee in legacy_fees:
+            key = str(fee.get("name") or "").strip().lower()
+            if not key:
+                continue
+            existing = next(
+                (row for row in fees if str(row.get("name") or "").strip().lower() == key),
+                None,
+            )
+            if existing:
+                # Wrapped "Freight Charge" must not keep Invoice Total as the fee.
+                if fee.get("amount") not in (None, 0):
+                    existing["amount"] = fee["amount"]
+                    existing["fee"] = True
+            else:
+                fees.append(fee)
+    if "3p" in vendor_l or "rachel bailey" in blob_l or re.search(r"\b3p\s+industries\b", pdf_text or "", flags=re.I):
+        three_p = extract_3p_lines(pdf_text)
+        if three_p:
+            lines = three_p
+            pos = list(dict.fromkeys(str(item.get("po") or "") for item in three_p if item.get("po")))
+            extra_pos = extract_subject_pos(subject)
+            for number in extra_pos:
+                if number not in pos:
+                    pos.append(number)
+            sources["po"] = "pdf"
+            line_sum = round(sum(float(item["amount"]) for item in three_p if item.get("amount") not in (None, "")), 2)
+            if line_sum:
+                if amount is None or float(amount) > line_sum * 1.25:
+                    amount = line_sum
+                    sources["amount"] = "pdf"
+    po = pos[0] if len(pos) == 1 else None
+    pdf_text_empty = not (pdf_text or "").strip()
+    if invoice_number and pdf_text and invoice_number in pdf_text:
+        sources["invoice_number"] = (
+            "pdf-prefix" if known_invoice_prefix(vendor) and "-" in invoice_number else "pdf"
+        )
+        filename_only = False
+        subject_only = False
+    return {
+        "vendor": vendor,
+        "invoice_number": invoice_number or "",
+        "date": invoice_date,
+        "po": po,
+        "pos": pos,
+        "amount": amount,
+        "fees": fees,
+        "lines": lines,
+        "check_stop": check_stop,
+        "hold_reason": "CHECK STOP" if check_stop else ("parse-error" if po_doc else ""),
+        "multi_po": len(pos) > 1,
+        "text_chars": len(pdf_text),
+        "field_sources": sources,
+        "is_purchase_order_doc": po_doc,
+        "is_receipt_scan_doc": receipt_scan_doc,
+        "is_statement_doc": statement_doc,
+        "attachment_class": classify_attachment(filename=filename, text=pdf_text, subject=subject),
+        "pdf_text_empty": pdf_text_empty,
+        "pdf_unavailable": pdf_text_empty,
+        "parse_verified": bool(
+            sources.get("invoice_number") in {"pdf", "pdf-prefix"}
+            and sources.get("amount") == "pdf"
+            and sources.get("date") == "pdf"
+            and not po_doc
+        ),
+        "invoice_numbers_in_pdf": (
+            gas_invoice_numbers(pdf_text)
+            if "gas and supply" in (vendor or "").lower() or "gasandsupply" in (vendor or "").lower()
+            else []
+        ),
+    }
+
+
+def write_page_range_pdf(source: Path, dest: Path, page_start: int, page_end: int) -> Path | None:
+    """Write a 1-based inclusive page slice. None when split is not feasible."""
+    try:
+        reader = PdfReader(str(source))
+    except Exception:  # noqa: BLE001 - keep the full PDF
+        return None
+    total = len(reader.pages)
+    if total <= 1:
+        return None
+    start = max(0, int(page_start) - 1)
+    end = min(total, int(page_end))
+    if start >= end or (start == 0 and end == total):
+        return None
+    try:
+        writer = PdfWriter()
+        for index in range(start, end):
+            writer.add_page(reader.pages[index])
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        with dest.open("wb") as handle:
+            writer.write(handle)
+    except Exception:  # noqa: BLE001 - attach the full pack instead
+        return None
+    return dest if dest.is_file() else None
+
+
+def assign_split_pdfs(source: Path, bills: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Prefer a page-range PDF per invoice. Else keep the full pack on each bill."""
+    source = Path(source)
+    for bill in bills:
+        page0 = int(bill.get("multi_invoice_page_start") or 0)
+        page1 = int(bill.get("multi_invoice_page_end") or page0)
+        number = str(bill.get("invoice_number") or "invoice")
+        dest = source.with_name(f"{source.stem}_{number}_p{page0}-{page1}{source.suffix}")
+        sliced = write_page_range_pdf(source, dest, page0, page1) if page0 and page1 else None
+        bill["pdf_path"] = str(sliced or source)
+        bill["pdf_on_disk"] = Path(bill["pdf_path"]).is_file()
+        if sliced is None:
+            bill["pdf_split"] = False
+        else:
+            bill["pdf_split"] = True
+    return bills
+
+
+def parse_invoice_pdf(
+    path: Path,
+    *,
+    subject: str = "",
+    from_name: str = "",
+    from_address: str = "",
+) -> dict[str, Any]:
+    text = extract_pdf_text(path)
+    parsed = parse_invoice_text(
+        text,
+        subject=subject,
+        from_name=from_name,
+        from_address=from_address,
+        filename=path.name,
+    )
+    bills = expand_oneal_invoices(text, parsed)
+    if len(bills) <= 1:
+        bills = expand_fastenal_invoices(text, parsed)
+    if len(bills) <= 1:
+        bills = expand_gas_misc_invoices(text, parsed)
+    if len(bills) > 1:
+        assign_split_pdfs(path, bills)
+        parsed = bills[0]
+        parsed["siblings"] = bills[1:]
+    else:
+        parsed = bills[0]
+        parsed["pdf_path"] = str(path)
+    parsed["pdf_on_disk"] = path.is_file()
+    parsed["pdf_text_empty"] = not (text or "").strip()
+    # File on disk is never "unavailable" — empty extract means OCR/retry, not no-pdf-on-vm.
+    parsed["pdf_unavailable"] = not path.is_file()
+    return parsed
