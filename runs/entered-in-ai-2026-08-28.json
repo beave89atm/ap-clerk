@@ -1,0 +1,299 @@
+{
+  "mailbox": "accountspayable@kannonmfg.com",
+  "masterCategories_http": 403,
+  "masterCategories_note": "GET outlook/masterCategories returned 403 ErrorAccessDenied. Exact name taken from existing messages.",
+  "exact_category": "Entered in AI",
+  "legacy_removed": "AP Matched",
+  "followup_flag_used_as_marker": false,
+  "kimco_writes": false,
+  "applied_count": 14,
+  "skipped_count": 6,
+  "applied": [
+    {
+      "kimco_id": 9663,
+      "vendor": "TELECOM PRODUCTS INC.",
+      "invoice_number": "17601",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqhAAA=",
+      "subject": "Invoice - 17601",
+      "receivedDateTime": "2026-08-26T21:32:29Z",
+      "categories_before": [
+        "AP Matched"
+      ],
+      "flag_before": "flagged",
+      "category_patch_http": 200,
+      "flag_clear_http": 200,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9664,
+      "vendor": "RMP Industrial Supply Inc",
+      "invoice_number": "1472035",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqiAAA=",
+      "subject": "RMP Industrial Supply Inc - Invoice# 1472035",
+      "receivedDateTime": "2026-08-26T23:01:55Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9665,
+      "vendor": "Tejas Transportation",
+      "invoice_number": "523856",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqjAAA=",
+      "subject": "New payment request from Tejas Transportation - invoice 523856",
+      "receivedDateTime": "2026-08-26T23:56:05Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9666,
+      "vendor": "Air Products and Chemicals, Inc",
+      "invoice_number": "436251638",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqkAAA=",
+      "subject": "Air Products Invoice 0436251638 (US10)",
+      "receivedDateTime": "2026-08-27T01:22:12Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9667,
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_number": "S814379432",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqlAAA=",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 08/26/26",
+      "receivedDateTime": "2026-08-27T03:09:54Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9668,
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice_number": "15452509",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqmAAA=",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "receivedDateTime": "2026-08-27T04:27:19Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9669,
+      "vendor": "Gas and Supply North Texas, LLC",
+      "invoice_number": "0040386181",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqoAAA=",
+      "subject": "Gas&Supply Invoice/Statement",
+      "receivedDateTime": "2026-08-27T04:59:09Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9670,
+      "vendor": "McMaster-Carr Supply Company",
+      "invoice_number": "70846521",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqpAAA=",
+      "subject": "Invoice for Your Order 59045",
+      "receivedDateTime": "2026-08-27T06:50:50Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9671,
+      "vendor": "Luxor Staffing, Inc.",
+      "invoice_number": "364459",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVqwAAA=",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "receivedDateTime": "2026-08-27T14:59:53Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9672,
+      "vendor": "Modern Heat Treat Inc",
+      "invoice_number": "220804",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq2AAA=",
+      "subject": "Modern Heat Treat Inc., Invoice Number: 220804  Dated: 8/27/2026",
+      "receivedDateTime": "2026-08-27T19:13:09Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9673,
+      "vendor": "TELECOM PRODUCTS INC.",
+      "invoice_number": "17602",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq3AAA=",
+      "subject": "Invoice - 17602",
+      "receivedDateTime": "2026-08-27T19:52:53Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9674,
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT499726",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq5AAA=",
+      "subject": "Fastenal invoice(s) have been generated for you.",
+      "receivedDateTime": "2026-08-27T21:31:21Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9675,
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT499646",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq8AAA=",
+      "subject": "Fastenal invoice(s) have been generated for you.",
+      "receivedDateTime": "2026-08-27T21:31:25Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    },
+    {
+      "kimco_id": 9676,
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT499357",
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOMxVq6AAA=",
+      "subject": "Fastenal invoice(s) have been generated for you.",
+      "receivedDateTime": "2026-08-27T21:31:25Z",
+      "categories_before": [],
+      "flag_before": "notFlagged",
+      "category_patch_http": 200,
+      "flag_clear_http": null,
+      "categories_after": [
+        "Entered in AI"
+      ],
+      "flag_after": "notFlagged",
+      "has_entered_in_ai": true,
+      "has_ap_matched": false
+    }
+  ],
+  "skipped": [
+    {
+      "kimco_id": 9677,
+      "invoice_number": "TXFT499356",
+      "why": "HOLD-no-receipts; do not mark"
+    },
+    {
+      "kimco_id": null,
+      "invoice_number": "453743",
+      "why": "Fail: vendor missing (NSA)"
+    },
+    {
+      "kimco_id": null,
+      "invoice_number": "120953",
+      "why": "Fail: vendor missing (Coherent)"
+    },
+    {
+      "kimco_id": 6488,
+      "invoice_number": "TXFT496725",
+      "why": "Fail/already exists"
+    },
+    {
+      "kimco_id": 9642,
+      "invoice_number": "TXFT499639",
+      "why": "Fail/already exists"
+    },
+    {
+      "kimco_id": 9444,
+      "invoice_number": "TXFT499528",
+      "why": "Fail/already exists"
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "run": "3p-next5-2026-09-24",
+  "entered_at": "2026-09-24",
+  "host": "https://live.kimcoerp.com",
+  "vendor": "999-3P INDUSTRIES",
+  "vendor_id": 1,
+  "batch_id": 724,
+  "batch_name": "API Agent - 9/22/26 3P",
+  "posted": false,
+  "emails_sent": false,
+  "packing_slip_gate": "suspended",
+  "selection": "Five oldest unentered 3P invoices on or after 2026-08-01. All five are freight-only pages of the 2026-09-09 pack. PDF PO field is the word FREIGHT, so header PO is blank and Invoice_Type is 4.",
+  "charge_code": {
+    "requested": "OUTSIDE FREIGHT",
+    "posted": "Freight External",
+    "lookup_id": 1,
+    "live_text": "Freight External-Freight External",
+    "gl": "6032100 Freight External",
+    "note": "The live Additional Charges list has no code named OUTSIDE FREIGHT. Freight External lookup id 1 is the outside-freight code already used by the playbook. F-Fees and F-Customer Freight were not used."
+  },
+  "email": {
+    "mailbox": "accountspayable@kannonmfg.com",
+    "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+    "from": "rachel@3pindustries.com",
+    "received": "2026-09-09T15:15:59Z",
+    "folder": "9 - FORT WORTH ARCHIVE",
+    "moved_this_run": false,
+    "already_in_fort_worth": true,
+    "email_moved": "yes",
+    "categories": [
+      "Entered in AI"
+    ],
+    "note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+    "unentered_siblings_on_same_pdf": [
+      "142238",
+      "142239",
+      "142240",
+      "142241"
+    ]
+  },
+  "needs_kyle": [
+    "Confirm Freight External (lookup id 1, GL 6032100) is the Additional Charge to use when the instruction says OUTSIDE FREIGHT. No live code is named OUTSIDE FREIGHT.",
+    "142238, 142239, 142240, and 142241 are separate freight-only invoices on the same PDF. They were not in the oldest five, so they were not entered. The parent email is already in 9 - FORT WORTH ARCHIVE.",
+    "Parts invoices still open and newer than this five: 142176 (2026-08-21), 142179 (2026-08-25), 142188 (2026-08-27), 142216 (2026-08-31), 142421 (2026-09-11). 142281 (2026-08-28) is another freight-only $500.00 bill for invoice 142280 and was not in the oldest five.",
+    "142231 / KIMCO 10186 was left untouched. It is still HOLD on batch 724 with Invoice_Amount 5000.00 against verification 1000.00."
+  ],
+  "invoices": [
+    {
+      "invoice": "142232",
+      "pdf_date": "2026-08-06",
+      "pdf_due": "2026-10-05",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "kimco_id": 10299,
+      "batch": 724,
+      "batch_name": "API Agent - 9/22/26 3P",
+      "status": "Success",
+      "invoice_type": 4,
+      "receipts_selected": [],
+      "ppv": null,
+      "charges_posted": [
+        {
+          "code": "Freight External",
+          "lookup_id": 1,
+          "charge_id": 5507,
+          "amount": 500.0,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_moved": "yes",
+      "email_move_note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+      "lines_count": 0,
+      "posted": null,
+      "kimco_status": 1,
+      "attachment": "142232.pdf",
+      "pdf_page": 3,
+      "pdf_line": "1 FREIGHT FOR INVOICE # 142041 @ 500.00 = 500.00"
+    },
+    {
+      "invoice": "142233",
+      "pdf_date": "2026-08-07",
+      "pdf_due": "2026-10-06",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "kimco_id": 10300,
+      "batch": 724,
+      "batch_name": "API Agent - 9/22/26 3P",
+      "status": "Success",
+      "invoice_type": 4,
+      "receipts_selected": [],
+      "ppv": null,
+      "charges_posted": [
+        {
+          "code": "Freight External",
+          "lookup_id": 1,
+          "charge_id": 5508,
+          "amount": 500.0,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_moved": "yes",
+      "email_move_note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+      "lines_count": 0,
+      "posted": null,
+      "kimco_status": 1,
+      "attachment": "142233.pdf",
+      "pdf_page": 5,
+      "pdf_line": "1 FREIGHT FOR INVOICE # 141942 @ 500.00 = 500.00"
+    },
+    {
+      "invoice": "142234",
+      "pdf_date": "2026-08-14",
+      "pdf_due": "2026-10-13",
+      "pdf_total": 1000.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "kimco_id": 10301,
+      "batch": 724,
+      "batch_name": "API Agent - 9/22/26 3P",
+      "status": "Success",
+      "invoice_type": 4,
+      "receipts_selected": [],
+      "ppv": null,
+      "charges_posted": [
+        {
+          "code": "Freight External",
+          "lookup_id": 1,
+          "charge_id": 5509,
+          "amount": 1000.0,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 1000.0,
+      "verification_amount": 1000.0,
+      "comments_1": "",
+      "email_moved": "yes",
+      "email_move_note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+      "lines_count": 0,
+      "posted": null,
+      "kimco_status": 1,
+      "attachment": "142234.pdf",
+      "pdf_page": 7,
+      "pdf_line": "2 FREIGHT FOR INVOICE # 142043 & 142044 @ 500.00 = 1000.00"
+    },
+    {
+      "invoice": "142235",
+      "pdf_date": "2026-08-17",
+      "pdf_due": "2026-10-16",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "kimco_id": 10302,
+      "batch": 724,
+      "batch_name": "API Agent - 9/22/26 3P",
+      "status": "Success",
+      "invoice_type": 4,
+      "receipts_selected": [],
+      "ppv": null,
+      "charges_posted": [
+        {
+          "code": "Freight External",
+          "lookup_id": 1,
+          "charge_id": 5510,
+          "amount": 500.0,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_moved": "yes",
+      "email_move_note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+      "lines_count": 0,
+      "posted": null,
+      "kimco_status": 1,
+      "attachment": "142235.pdf",
+      "pdf_page": 9,
+      "pdf_line": "1 FREIGHT FOR INVOICE # 142173 @ 500.00 = 500.00"
+    },
+    {
+      "invoice": "142236",
+      "pdf_date": "2026-08-18",
+      "pdf_due": "2026-10-17",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "kimco_id": 10303,
+      "batch": 724,
+      "batch_name": "API Agent - 9/22/26 3P",
+      "status": "Success",
+      "invoice_type": 4,
+      "receipts_selected": [],
+      "ppv": null,
+      "charges_posted": [
+        {
+          "code": "Freight External",
+          "lookup_id": 1,
+          "charge_id": 5511,
+          "amount": 500.0,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_moved": "yes",
+      "email_move_note": "Parent message (Rachel Bailey, received 2026-09-09T15:15:59Z, subject INV # 142231 through 142241) was already in Inbox folder 9 - FORT WORTH ARCHIVE before this run. Confirmed still there after the five headers. Not moved again. Category left Entered in AI. No email sent.",
+      "lines_count": 0,
+      "posted": null,
+      "kimco_status": 1,
+      "attachment": "142236.pdf",
+      "pdf_page": 11,
+      "pdf_line": "1 FREIGHT FOR INVOICE # 142174 & 142175 @ 500.00 = 500.00"
+    }
+  ]
+}

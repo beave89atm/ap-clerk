@@ -1,0 +1,66 @@
+{
+  "kind": "live-select-receipts-probe",
+  "as_of": "2026-09-09",
+  "host": "https://live.kimcoerp.com",
+  "ap_invoice_guid": "bcca4094b6ec4564942b19f5d7bb255c",
+  "receipts_guid": "494eafafa31a42bba7eb8697a36a3f0a",
+  "invoice_id": 9931,
+  "invoice_number": "701684",
+  "vendor": "Orthman Conveying Systems",
+  "po": "58636",
+  "receipt_line_id": 23879,
+  "kimco_ui_opened": false,
+  "void_or_delete": false,
+  "bills_written": 1,
+  "payload_shape": {
+    "id": 9931,
+    "state": "Modified",
+    "lists": {
+      "APInvoiceLine": [
+        {
+          "state": "Added",
+          "values": {
+            "Receipt": {"id": 23879},
+            "Purchase_Order_Number": {"id": 6638},
+            "Purchase_Order_Line": {"id": 17666},
+            "Part_ID": {"id": 20560},
+            "Quantity": 24.0,
+            "Unit_Price": 54.0,
+            "Invoice_Number": {"id": 9931},
+            "Vendor": {"id": 434}
+          }
+        }
+      ]
+    }
+  },
+  "calls": {
+    "authenticate": 200,
+    "GET_9931_before": 200,
+    "PUT_receipt_only": 400,
+    "PUT_state_1_receipt_only": 400,
+    "PATCH": 405,
+    "PUT_state_Added_receipt_only": 400,
+    "PUT_proven_receipt_plus_po_part_qty": 200,
+    "GET_9931_after": 200,
+    "GET_receipt_23879_after": 200
+  },
+  "before": {
+    "Lines_Count": 0,
+    "Total_Line_Net_Amounts": 0.0,
+    "APInvoiceLine_len": 0
+  },
+  "after": {
+    "Lines_Count": 1,
+    "Total_Line_Net_Amounts": 1296.0,
+    "Last_Line_Number": 1,
+    "Invoice_Verification_Amount": 1242.94,
+    "line_id": 20296,
+    "Receipt.id": 23879,
+    "Purchase_Order_Line": "PO58636-06",
+    "Part_ID": "1007038-1 - TUBE, RECTANGLE",
+    "Quantity": 24.0,
+    "receipt_Invoiced": true,
+    "receipt_AP_Invoice_Number": "701684"
+  },
+  "notes": "Receipt-only PUT is 400. Proven PUT copies PO/part/qty/price from the receipt LINE GET. Match was part/PO-WO line 06 (Shawn added line 6), not first leftover qty. Slips 701599 already invoiced on 701599."
+}

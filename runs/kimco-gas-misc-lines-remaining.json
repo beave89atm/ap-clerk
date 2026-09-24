@@ -1,0 +1,1075 @@
+{
+  "lookup": {
+    "misc_item": {
+      "id": 31,
+      "text": "Shop Supplies - G&S-."
+    },
+    "gl_account": {
+      "id": 200,
+      "text": "5081100 - Shop Supplies - G&S"
+    }
+  },
+  "leave_alone": {
+    "10135": "0040421569",
+    "holds": [
+      "0040423658",
+      "0040424839",
+      "0040430010",
+      "0040438053",
+      "0040438055",
+      "0040438056",
+      "0040438057"
+    ]
+  },
+  "mail_send": false,
+  "validate_invoice": false,
+  "invent": false,
+  "results": [
+    {
+      "invoice_id": 10128,
+      "invoice_number": "0040435122",
+      "before_header": {
+        "id": 10128,
+        "invoice_number": "0040435122",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 0.0,
+        "verification": 120.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [],
+      "pdf_invoice": "0040435122",
+      "pdf_amount": 120.0,
+      "pdf_lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 5.0,
+          "amount": 120.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10128,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+                "Quantity": 5.0,
+                "Unit_Price": 24.0,
+                "Invoice_Number": {
+                  "id": 10128
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10128,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10128\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040435122\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-15T00:00:00\",\"Invoice_Verification_Amount\":120.0,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10128,
+        "invoice_number": "0040435122",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 120.0,
+        "verification": 120.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 1,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20696,
+          "desc": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty": 5.0,
+          "unit": 24.0,
+          "ext": 120.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10129,
+      "invoice_number": "0040434973",
+      "before_header": {
+        "id": 10129,
+        "invoice_number": "0040434973",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 0.0,
+        "verification": 192.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [],
+      "pdf_invoice": "0040434973",
+      "pdf_amount": 192.0,
+      "pdf_lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 8.0,
+          "amount": 192.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10129,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+                "Quantity": 8.0,
+                "Unit_Price": 24.0,
+                "Invoice_Number": {
+                  "id": 10129
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10129,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10129\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040434973\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-15T00:00:00\",\"Invoice_Verification_Amount\":192.0,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10129,
+        "invoice_number": "0040434973",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 192.0,
+        "verification": 192.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 1,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20697,
+          "desc": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty": 8.0,
+          "unit": 24.0,
+          "ext": 192.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10130,
+      "invoice_number": "0040431060",
+      "before_header": {
+        "id": 10130,
+        "invoice_number": "0040431060",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 17.5,
+        "verification": 245.5,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "pdf_invoice": "0040431060",
+      "pdf_amount": 245.5,
+      "pdf_lines": [
+        {
+          "part": "AR90CD300",
+          "qty": 6.0,
+          "amount": 168.0,
+          "unit_price": 28.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "description": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty_uom": "cyl"
+        },
+        {
+          "part": "ARG300",
+          "qty": 2.0,
+          "amount": 60.0,
+          "unit_price": 30.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 SZ ARGON UN1006 HAZARDOUS",
+          "description": "300 SZ ARGON UN1006 HAZARDOUS",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [
+        {
+          "name": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N",
+          "amount": 17.5
+        }
+      ],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10130,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+                "Quantity": 6.0,
+                "Unit_Price": 28.0,
+                "Invoice_Number": {
+                  "id": 10130
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            },
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+                "Quantity": 2.0,
+                "Unit_Price": 30.0,
+                "Invoice_Number": {
+                  "id": 10130
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10130,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10130\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040431060\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-14T00:00:00\",\"Invoice_Verification_Amount\":245.5,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10130,
+        "invoice_number": "0040431060",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 245.5,
+        "verification": 245.5,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 2,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20698,
+          "desc": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty": 6.0,
+          "unit": 28.0,
+          "ext": 168.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        },
+        {
+          "id": 20699,
+          "desc": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+          "qty": 2.0,
+          "unit": 30.0,
+          "ext": 60.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10131,
+      "invoice_number": "0040425657",
+      "before_header": {
+        "id": 10131,
+        "invoice_number": "0040425657",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 0.0,
+        "verification": 216.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [],
+      "pdf_invoice": "0040425657",
+      "pdf_amount": 216.0,
+      "pdf_lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 9.0,
+          "amount": 216.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10131,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+                "Quantity": 9.0,
+                "Unit_Price": 24.0,
+                "Invoice_Number": {
+                  "id": 10131
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10131,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10131\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040425657\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-09T00:00:00\",\"Invoice_Verification_Amount\":216.0,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10131,
+        "invoice_number": "0040425657",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 216.0,
+        "verification": 216.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 1,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20700,
+          "desc": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty": 9.0,
+          "unit": 24.0,
+          "ext": 216.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10132,
+      "invoice_number": "0040425612",
+      "before_header": {
+        "id": 10132,
+        "invoice_number": "0040425612",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 0.0,
+        "verification": 240.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [],
+      "pdf_invoice": "0040425612",
+      "pdf_amount": 240.0,
+      "pdf_lines": [
+        {
+          "part": "PRO7.5C",
+          "qty": 10.0,
+          "amount": 240.0,
+          "unit_price": 24.0,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "description": "UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10132,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+                "Quantity": 10.0,
+                "Unit_Price": 24.0,
+                "Invoice_Number": {
+                  "id": 10132
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10132,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10132\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040425612\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-09T00:00:00\",\"Invoice_Verification_Amount\":240.0,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10132,
+        "invoice_number": "0040425612",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 240.0,
+        "verification": 240.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 1,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20701,
+          "desc": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1",
+          "qty": 10.0,
+          "unit": 24.0,
+          "ext": 240.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10133,
+      "invoice_number": "0040424382",
+      "before_header": {
+        "id": 10133,
+        "invoice_number": "0040424382",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 17.5,
+        "verification": 335.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "pdf_invoice": "0040424382",
+      "pdf_amount": 335.0,
+      "pdf_lines": [
+        {
+          "part": "AR90CD300",
+          "qty": 7.0,
+          "amount": 196.0,
+          "unit_price": 28.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "description": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty_uom": "cyl"
+        },
+        {
+          "part": "ARG300",
+          "qty": 3.0,
+          "amount": 90.0,
+          "unit_price": 30.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 SZ ARGON UN1006 HAZARDOUS",
+          "description": "300 SZ ARGON UN1006 HAZARDOUS",
+          "qty_uom": "cyl"
+        },
+        {
+          "part": "C25300",
+          "qty": 1.0,
+          "amount": 31.5,
+          "unit_price": 31.5,
+          "po_line": null,
+          "wo": null,
+          "label": "UN1956 COMPRESSED GAS, N.O.S.",
+          "description": "UN1956 COMPRESSED GAS, N.O.S.",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [
+        {
+          "name": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N",
+          "amount": 17.5
+        }
+      ],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10133,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+                "Quantity": 7.0,
+                "Unit_Price": 28.0,
+                "Invoice_Number": {
+                  "id": 10133
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            },
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+                "Quantity": 3.0,
+                "Unit_Price": 30.0,
+                "Invoice_Number": {
+                  "id": 10133
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            },
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "C25300 UN1956 COMPRESSED GAS, N.O.S.",
+                "Quantity": 1.0,
+                "Unit_Price": 31.5,
+                "Invoice_Number": {
+                  "id": 10133
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10133,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10133\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040424382\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-09T00:00:00\",\"Invoice_Verification_Amount\":335.0,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10133,
+        "invoice_number": "0040424382",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 335.0,
+        "verification": 335.0,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 3,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20702,
+          "desc": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty": 7.0,
+          "unit": 28.0,
+          "ext": 196.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        },
+        {
+          "id": 20703,
+          "desc": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+          "qty": 3.0,
+          "unit": 30.0,
+          "ext": 90.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        },
+        {
+          "id": 20704,
+          "desc": "C25300 UN1956 COMPRESSED GAS, N.O.S.",
+          "qty": 1.0,
+          "unit": 31.5,
+          "ext": 31.5,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "lines_ok": true,
+      "status": "added"
+    },
+    {
+      "invoice_id": 10136,
+      "invoice_number": "0040438494",
+      "before_header": {
+        "id": 10136,
+        "invoice_number": "0040438494",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 17.5,
+        "verification": 331.5,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 0,
+        "posted": null
+      },
+      "before_lines": [],
+      "before_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "pdf_invoice": "0040438494",
+      "pdf_amount": 331.5,
+      "pdf_lines": [
+        {
+          "part": "AR90CD300",
+          "qty": 8.0,
+          "amount": 224.0,
+          "unit_price": 28.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "description": "300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty_uom": "cyl"
+        },
+        {
+          "part": "ARG300",
+          "qty": 3.0,
+          "amount": 90.0,
+          "unit_price": 30.0,
+          "po_line": null,
+          "wo": null,
+          "label": "300 SZ ARGON UN1006 HAZARDOUS",
+          "description": "300 SZ ARGON UN1006 HAZARDOUS",
+          "qty_uom": "cyl"
+        }
+      ],
+      "pdf_fees": [
+        {
+          "name": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N",
+          "amount": 17.5
+        }
+      ],
+      "siblings_not_used": true,
+      "put_payload": {
+        "id": 10136,
+        "state": "Modified",
+        "lists": {
+          "APInvoiceLine": [
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+                "Quantity": 8.0,
+                "Unit_Price": 28.0,
+                "Invoice_Number": {
+                  "id": 10136
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            },
+            {
+              "state": "Added",
+              "values": {
+                "MFG_Miscellaneous_Item": {
+                  "id": 31
+                },
+                "Misc_Description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+                "Quantity": 3.0,
+                "Unit_Price": 30.0,
+                "Invoice_Number": {
+                  "id": 10136
+                },
+                "Vendor": {
+                  "id": 71
+                },
+                "Purchase_GL_Account": {
+                  "id": 200
+                }
+              }
+            }
+          ]
+        }
+      },
+      "dry_run": false,
+      "put_http": 200,
+      "put_text": "{\"id\":10136,\"url\":\"https://live.kimcoerp.com/api/v2/bcca4094b6ec4564942b19f5d7bb255c/10136\",\"values\":{\"AP_Invoice_Batch\":{\"id\":720,\"text\":\"API Agent - 9/17/26 Gas & Supply\",\"isAbstract\":false},\"Vendor\":{\"id\":71,\"text\":\"1069-GAS AND SUPPLY\",\"isAbstract\":false},\"Invoice_Number\":\"0040438494\",\"Invoice_Type\":4,\"Invoice_Date\":\"2026-09-17T00:00:00\",\"Invoice_Verification_Amount\":331.5,\"Status\":1,\"Posting_",
+      "after_header": {
+        "id": 10136,
+        "invoice_number": "0040438494",
+        "vendor": {
+          "id": 71,
+          "text": "1069-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "invoice_type": 4,
+        "invoice_amount": 331.5,
+        "verification": 331.5,
+        "batch": {
+          "id": 720,
+          "text": "API Agent - 9/17/26 Gas & Supply",
+          "isAbstract": false
+        },
+        "po": null,
+        "lines_count": 2,
+        "posted": null
+      },
+      "after_lines": [
+        {
+          "id": 20705,
+          "desc": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+          "qty": 8.0,
+          "unit": 28.0,
+          "ext": 224.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        },
+        {
+          "id": 20706,
+          "desc": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+          "qty": 3.0,
+          "unit": 30.0,
+          "ext": 90.0,
+          "misc": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-.",
+            "isAbstract": false
+          },
+          "gl": null,
+          "receipt": null
+        }
+      ],
+      "after_fees": [
+        {
+          "lookup": {
+            "id": 11,
+            "text": "F-Fees & Surcharges",
+            "isAbstract": false
+          },
+          "amount": 17.5,
+          "name": "F-Fees & Surcharges"
+        }
+      ],
+      "lines_ok": true,
+      "status": "added"
+    }
+  ]
+}
