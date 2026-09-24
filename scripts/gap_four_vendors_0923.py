@@ -51,8 +51,10 @@ from ap_clerk.misc_lines import misc_line_snapshot, type4_shop_supplies_lines_ok
 from ap_clerk.pdf_invoice import (
     NON_INVOICE_ATTACHMENT_KINDS,
     classify_attachment,
+    extract_pdf_text,
     parse_invoice_pdf,
 )
+from ap_clerk.pdf_links import extract_https_links, is_tracking_or_asset
 from ap_clerk.quality_v12 import COL_EXCEPTION_CATEGORY, COL_EXCEPTION_OWNER
 from ap_clerk.receiving_owners import (
     missing_receipt_comments_1_html,
@@ -269,6 +271,65 @@ def in_scope(*, received: Any, invoice_date: Any) -> bool:
     return False
 
 
+_MARKETING_LINK = re.compile(
+    r"instagram\.com|facebook\.com|linkedin\.com|exclaimer\.net|emailfooter|/images/|"
+    r"\.(?:gif|png|jpe?g|svg|webp)(?:\?|$)",
+    flags=re.I,
+)
+_INVOICE_PORTAL = re.compile(r"invoice|intuit|payment|aqpowder|\.pdf", flags=re.I)
+
+
+def invoice_portal_url(url: str) -> bool:
+    """True for a guest invoice/PDF link. Logos, pixels, and social links are not bills."""
+    raw = (url or "").strip()
+    if not raw.lower().startswith("https://"):
+        return False
+    if is_tracking_or_asset(raw):
+        return False
+    if _MARKETING_LINK.search(raw):
+        return False
+    low = raw.lower()
+    if "urldefense.com" in low and not _INVOICE_PORTAL.search(raw):
+        return False
+    return bool(_INVOICE_PORTAL.search(raw))
+
+
+def install_invoice_link_filter(graph: Any) -> None:
+    """Do not open a browser for footer images or marketing clicks."""
+    original = graph.download_public_pdf_from_text
+
+    def wrapped(text: str) -> dict[str, Any]:
+        links = extract_https_links(text)
+        useful = [url for url in links if invoice_portal_url(url)]
+        if not useful:
+            return {
+                "ok": False,
+                "content": None,
+                "reason": "not-pdf",
+                "url": links[0] if links else "",
+                "browser_tried": False,
+                "browser_failure": "skipped-non-invoice-link",
+                "method": "filter",
+            }
+        return original(text)
+
+    graph.download_public_pdf_from_text = wrapped
+
+
+def credit_signed_amount(amount: Any, pdf_text: str) -> Any:
+    """O'Neal prints credits as 64.50-. Do not enter that as a positive payable."""
+    value = money(amount)
+    if value is None or value < 0:
+        return amount
+    blob = pdf_text or ""
+    if not re.search(r"CREDIT MEMO|TOTAL CREDIT AMOUNT", blob, flags=re.I):
+        return amount
+    plain = f"{abs(value):.2f}"
+    if re.search(rf"{re.escape(plain)}\s*-", blob):
+        return -abs(value)
+    return amount
+
+
 def vendor_text_key(text: str | None, vendor_id: Any = None) -> str | None:
     if is_aqpc_vendor(text, vendor_id):
         return "aqpc"
@@ -468,10 +529,22 @@ def bills_from_message(graph, message: dict[str, Any], vendor_key: str) -> tuple
         )
     if not pdfs:
         if link_hold:
-            inv = ""
-            match = re.search(r"invoice\s+([A-Z0-9][A-Z0-9-]{2,})", subject, flags=re.I)
-            if match:
-                inv = match.group(1)
+            url = str(link_hold.get("url") or "")
+            subject_numbers = subject_invoice_candidates(subject)
+            real_portal = invoice_portal_url(url) or (vendor_key == "aqpc" and bool(subject_numbers))
+            if not real_portal:
+                notes.append(
+                    {
+                        "vendor": vendor_key,
+                        "reason": "link-without-invoice-number",
+                        "url": url[:200],
+                        "subject": subject[:180],
+                        "received": message.get("receivedDateTime"),
+                        "browser_failure": link_hold.get("browser_failure"),
+                    }
+                )
+                return [], notes
+            inv = subject_numbers[0] if subject_numbers else ""
             bill = _stamp_bill(
                 {
                     "invoice_number": inv,
@@ -562,7 +635,17 @@ def bills_from_message(graph, message: dict[str, Any], vendor_key: str) -> tuple
                     }
                 )
                 continue
-            chosen.append(_stamp_bill(bill, message, vendor_key, str(bill.get("pdf_path") or dest)))
+            stamped = _stamp_bill(bill, message, vendor_key, str(bill.get("pdf_path") or dest))
+            if vendor_key == "oneal" and money(stamped.get("amount")) not in (None, 0) and float(money(stamped.get("amount")) or 0) > 0:
+                pdf_path = str(stamped.get("pdf_path") or dest)
+                try:
+                    signed = credit_signed_amount(stamped.get("amount"), extract_pdf_text(Path(pdf_path)))
+                except OSError:
+                    signed = stamped.get("amount")
+                if money(signed) is not None and float(money(signed)) < 0:
+                    stamped["amount"] = signed
+                    stamped["credit_memo"] = True
+            chosen.append(stamped)
     chosen = _prefer_printed_invoice_aliases(chosen)
     return chosen, notes
 
@@ -957,6 +1040,7 @@ def main(argv: list[str] | None = None) -> int:
     graph = _optional_graph_client()
     if graph is None:
         raise SystemExit("Graph client required")
+    install_invoice_link_filter(graph)
 
     LOGGER.info("Indexing live KIMCO AP invoices")
     kimco_index = index_kimco(client)
@@ -1056,8 +1140,6 @@ def main(argv: list[str] | None = None) -> int:
                 dedupe = (vendor_key, number)
                 if number and dedupe in seen_invoice:
                     continue
-                if number:
-                    seen_invoice.add(dedupe)
                 existing = kimco_index.get(vendor_key, {}).get(number) if number else None
                 if existing:
                     cats = list(bill.get("categories") or [])
@@ -1081,6 +1163,8 @@ def main(argv: list[str] | None = None) -> int:
                         "_folder": bill.get("folder"),
                         "_needs_category": not has_process_category({"categories": cats}),
                     }
+                    if number:
+                        seen_invoice.add(dedupe)
                     rows.append(row)
                     continue
                 if bill.get("hold_reason") == "pdf-behind-link":
@@ -1109,6 +1193,8 @@ def main(argv: list[str] | None = None) -> int:
                         "_folder": bill.get("folder"),
                         "_category_target": AI_HOLD_CATEGORY,
                     }
+                    if number:
+                        seen_invoice.add(dedupe)
                     rows.append(row)
                     continue
                 amount_value = money(bill.get("amount"))
@@ -1135,30 +1221,24 @@ def main(argv: list[str] | None = None) -> int:
                             "_category_target": AI_HOLD_CATEGORY,
                         }
                     )
+                    if number:
+                        seen_invoice.add(dedupe)
                     continue
                 if bill.get("amount") in (None, "") or not number or not bill.get("date"):
-                    row = {
-                        "Vendor": VENDORS[vendor_key]["label"],
-                        "Invoice #": number,
-                        "date": bill.get("date"),
-                        "PO": _po_text(bill),
-                        "Amount": bill.get("amount"),
-                        "Result": "HOLD",
-                        "Why": "HOLD parse-error. Invoice #, date, or after-tax amount missing from the PDF. Not invented.",
-                        "Exception category": "parse-error",
-                        "Exception owner": "AP clerk",
-                        "KIMCO id": "",
-                        "Batch": "",
-                        "Outlook category": "",
-                        "Notes": "",
-                        "_message_id": bill.get("graph_message_id"),
-                        "_vendor_key": vendor_key,
-                        "_new": False,
-                        "_folder": bill.get("folder"),
-                        "_category_target": AI_HOLD_CATEGORY,
-                    }
-                    rows.append(row)
+                    # Statement-page siblings and partial extracts. Not a payable row,
+                    # and not an Outlook category. A later complete parse of the same # can still enter.
+                    skipped.append(
+                        {
+                            "vendor": vendor_key,
+                            "reason": "amount-missing" if bill.get("amount") in (None, "") else "parse-incomplete",
+                            "invoice": number,
+                            "date": bill.get("date"),
+                            "subject": str(bill.get("subject") or "")[:180],
+                        }
+                    )
                     continue
+                if number:
+                    seen_invoice.add(dedupe)
                 pending[vendor_key].append(bill)
 
     discovery = {
@@ -1234,27 +1314,25 @@ def main(argv: list[str] | None = None) -> int:
         if mid:
             by_message[mid].append(row)
     for mid, group in by_message.items():
-        new_ones = [r for r in group if r.get("_new") or r.get("_category_target") or r.get("_needs_category")]
-        if not new_ones:
+        actionable = [r for r in group if r.get("_new") or r.get("_category_target") or r.get("_needs_category")]
+        if not actionable:
             continue
-        if any(r.get("_new") or r.get("_category_target") for r in group):
-            targets = [r.get("_category_target") for r in group if r.get("_category_target")]
-            if targets and not any(r.get("_new") for r in group):
-                category = targets[0]
-            else:
-                fresh = [r for r in group if r.get("_new") or r.get("Result") in {"Success", "HOLD", "Incomplete", "Fail"}]
-                category = outlook_category_for(fresh or group)
-                if any(str(r.get("Result")) == "HOLD" and not r.get("KIMCO id") for r in group):
-                    if not any(r.get("KIMCO id") for r in group if r.get("_new")):
-                        category = AI_HOLD_CATEGORY
+        new_entered = [r for r in actionable if r.get("_new") and r.get("KIMCO id") not in (None, "")]
+        if new_entered:
+            category = outlook_category_for([r for r in actionable if r.get("_new")])
+        elif any(r.get("_needs_category") and r.get("KIMCO id") not in (None, "") for r in actionable):
+            kid = next(r.get("KIMCO id") for r in actionable if r.get("_needs_category") and r.get("KIMCO id") not in (None, ""))
+            category = kimco_outlook_category(client, int(kid))
+        elif any(r.get("KIMCO id") not in (None, "") for r in group):
+            # A credit/portal HOLD on mail that already has a KIMCO bill must not become AI HOLD.
+            category = ENTERED_WITH_ISSUES_CATEGORY
         else:
-            # KIMCO exists, Outlook had no process category.
-            kid = next((r.get("KIMCO id") for r in group if r.get("KIMCO id")), None)
-            category = kimco_outlook_category(client, int(kid)) if kid else ENTERED_WITH_ISSUES_CATEGORY
+            targets = [r.get("_category_target") for r in actionable if r.get("_category_target")]
+            category = targets[0] if targets else AI_HOLD_CATEGORY
         folder = next((r.get("_folder") for r in group if r.get("_folder")), None)
-        # Move only after a header we created or an already-entered bill with lines category.
+        # Move only after a header created this run. Category-only fixes stay in place.
         do_move = category in {ENTERED_IN_AI_CATEGORY, ENTERED_WITH_ISSUES_CATEGORY} and any(
-            r.get("KIMCO id") for r in group
+            r.get("_new") and r.get("KIMCO id") not in (None, "") for r in group
         )
         stamped = stamp_parent(
             graph,
