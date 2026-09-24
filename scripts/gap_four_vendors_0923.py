@@ -976,6 +976,9 @@ def main(argv: list[str] | None = None) -> int:
 
     for vendor_key in VENDORS:
         for msg in grouped.get(vendor_key) or []:
+            received_day = parse_day(msg.get("receivedDateTime"))
+            if received_day is not None and received_day < LIST_FROM:
+                continue
             subject = str(msg.get("subject") or "")
             if NOISE_SUBJECT.search(subject) and "invoice" not in subject.lower():
                 skipped.append(
