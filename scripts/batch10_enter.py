@@ -8,6 +8,7 @@ A gap of $75 or more is a HOLD and those receipts are not selected.
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import sys
@@ -772,7 +773,7 @@ def write_comment(client: Any, kimco_id: int, text: str, *, mention: bool) -> di
     mention_saved = False
     needle = text.split("@Shawn McKibben", 1)[-1][:40].strip() if "@Shawn McKibben" in text else text[10:50]
     for comment in (record.get("lists") or {}).get("Comments_1") or []:
-        html_live = str((comment.get("values") or {}).get("HtmlValue") or "")
+        html_live = html.unescape(str((comment.get("values") or {}).get("HtmlValue") or ""))
         tagged = 'data-mention-id="104"' in html_live
         if needle[:24] and needle[:24] in html_live:
             match = comment.get("id")
