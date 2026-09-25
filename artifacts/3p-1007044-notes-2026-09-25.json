@@ -1,0 +1,215 @@
+{
+  "run": "3p-1007044-notes-2026-09-25",
+  "host": "https://live.kimcoerp.com",
+  "vendor": "999-3P INDUSTRIES",
+  "posted": false,
+  "emails_sent": false,
+  "mentions_added": false,
+  "receipts_changed": false,
+  "prices_changed": false,
+  "amounts_changed": false,
+  "batches_changed": false,
+  "status_changed": false,
+  "bills": [
+    {
+      "bill_id": 10306,
+      "invoice": "142179",
+      "qty_verification": "yes",
+      "verified": true,
+      "receipts": [
+        {
+          "id": 23414,
+          "po": "58925",
+          "expected_qty": 4,
+          "quantity_received": 4.0,
+          "quantity_remaining": 3.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO58925-04"
+        }
+      ],
+      "differences": [],
+      "new_comment_id": 1071,
+      "saved_text": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 4, receipt 23414, PO price $361.46 vs invoice $97.50, gap $1,055.84. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward.",
+      "existing_comment_ids": [
+        1061
+      ],
+      "existing_comments_kept": true,
+      "amount_unchanged": true,
+      "batch_unchanged": true,
+      "status_unchanged": true,
+      "put_http": 200,
+      "readback_comment_ids": [
+        1071,
+        1061
+      ]
+    },
+    {
+      "bill_id": 10308,
+      "invoice": "142188",
+      "qty_verification": "yes",
+      "verified": true,
+      "receipts": [
+        {
+          "id": 23543,
+          "po": "58925",
+          "expected_qty": 2,
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO58925-04"
+        }
+      ],
+      "differences": [],
+      "new_comment_id": 1072,
+      "saved_text": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 2, receipt 23543, PO price $361.46 vs invoice $97.50, gap $527.92. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward.",
+      "existing_comment_ids": [
+        1062
+      ],
+      "existing_comments_kept": true,
+      "amount_unchanged": true,
+      "batch_unchanged": true,
+      "status_unchanged": true,
+      "put_http": 200,
+      "readback_comment_ids": [
+        1072,
+        1062
+      ]
+    },
+    {
+      "bill_id": 10312,
+      "invoice": "142216",
+      "qty_verification": "yes",
+      "verified": true,
+      "receipts": [
+        {
+          "id": 23528,
+          "po": "58925",
+          "expected_qty": 1,
+          "quantity_received": 1.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO58925-04"
+        },
+        {
+          "id": 23529,
+          "po": "58952",
+          "expected_qty": 3,
+          "quantity_received": 3.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO58952-01"
+        },
+        {
+          "id": 23527,
+          "po": "58972",
+          "expected_qty": 2,
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO58972-08"
+        },
+        {
+          "id": 23530,
+          "po": "59002",
+          "expected_qty": 4,
+          "quantity_received": 4.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO59002-07"
+        }
+      ],
+      "differences": [],
+      "new_comment_id": 1073,
+      "saved_text": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 1, receipt 23528, PO price $361.46 vs invoice $97.50, gap $263.96. PO 58952 qty 3, receipt 23529, PO price $361.46 vs invoice $97.50, gap $791.88. PO 58972 qty 2, receipt 23527, PO price $361.46 vs invoice $97.50, gap $527.92. PO 59002 qty 4, receipt 23530, PO price $361.46 vs invoice $97.50, gap $1,055.84. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward.",
+      "existing_comment_ids": [
+        1068
+      ],
+      "existing_comments_kept": true,
+      "amount_unchanged": true,
+      "batch_unchanged": true,
+      "status_unchanged": true,
+      "put_http": 200,
+      "readback_comment_ids": [
+        1073,
+        1068
+      ]
+    },
+    {
+      "bill_id": 10314,
+      "invoice": "142280",
+      "qty_verification": "yes",
+      "verified": true,
+      "receipts": [
+        {
+          "id": 23917,
+          "po": "59002",
+          "expected_qty": 2,
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO59002-07"
+        },
+        {
+          "id": 23920,
+          "po": "59031",
+          "expected_qty": 2,
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO59031-09"
+        },
+        {
+          "id": 23921,
+          "po": "59031",
+          "expected_qty": 1,
+          "quantity_received": 1.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46,
+          "purchase_cost": 361.46,
+          "po_unit_price": 361.46,
+          "open": true,
+          "po_line": "PO59031-10"
+        }
+      ],
+      "differences": [],
+      "new_comment_id": 1074,
+      "saved_text": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 59002 qty 2, receipt 23917, PO price $361.46 vs invoice $97.50, gap $527.92. PO 59031 qty 3, receipt 23920 qty 2 + receipt 23921 qty 1, PO price $361.46 vs invoice $97.50, gap $791.88. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward.",
+      "existing_comment_ids": [
+        1070
+      ],
+      "existing_comments_kept": true,
+      "amount_unchanged": true,
+      "batch_unchanged": true,
+      "status_unchanged": true,
+      "put_http": 200,
+      "readback_comment_ids": [
+        1074,
+        1070
+      ]
+    }
+  ]
+}
