@@ -1,0 +1,425 @@
+{
+  "run": "fastenal-rest-2026-09-25",
+  "mailbox": "accountspayable@kannonmfg.com",
+  "received_from": "2026-08-01",
+  "received_to": "2026-09-25",
+  "scan": "Mailbox-wide Graph search for Fastenal and TXFT, plus the FASTENAL subfolder under 9 - FORT WORTH ARCHIVE. That subfolder has 13 messages and none received on or after 2026-08-01.",
+  "batch_name": "API Agent - 9/25/26 Fastenal",
+  "batch_id": 731,
+  "posted": false,
+  "unique_invoices": 21,
+  "already_in_kimco_count": 21,
+  "entered_count": 0,
+  "invoices": [],
+  "already_in_kimco": [
+    {
+      "invoice_number": "TXFT4100045",
+      "kimco_bill_id": 9924,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 39.31,
+      "pdf_total": 39.31,
+      "po": "58904",
+      "received": [
+        "2026-08-14",
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100079",
+      "kimco_bill_id": 9968,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 1148.63,
+      "pdf_total": 1148.63,
+      "po": "58692",
+      "received": [
+        "2026-08-18",
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100140",
+      "kimco_bill_id": 10080,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 14.57,
+      "pdf_total": 14.57,
+      "po": "58841",
+      "received": [
+        "2026-08-22",
+        "2026-09-24"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100300",
+      "kimco_bill_id": 10239,
+      "posted": false,
+      "batch": "TRANSFER AP",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 0.0,
+      "pdf_total": 6.15,
+      "po": "59053",
+      "received": [
+        "2026-09-02"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100349",
+      "kimco_bill_id": 10320,
+      "posted": null,
+      "batch": "API Agent - 9/25/26 Fastenal",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 1150.21,
+      "pdf_total": 1150.21,
+      "po": "59055",
+      "received": [
+        "2026-09-04"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100376",
+      "kimco_bill_id": 10321,
+      "posted": null,
+      "batch": "API Agent - 9/25/26 Fastenal",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 2334.07,
+      "pdf_total": 2334.07,
+      "po": "59054",
+      "received": [
+        "2026-09-04"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100503",
+      "kimco_bill_id": 10322,
+      "posted": null,
+      "batch": "TRANSFER AP",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 0.0,
+      "pdf_total": 268.14,
+      "po": "59190",
+      "received": [
+        "2026-09-19"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT4100537",
+      "kimco_bill_id": 10323,
+      "posted": null,
+      "batch": "TRANSFER AP",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 0.0,
+      "pdf_total": 2265.41,
+      "po": "59179",
+      "received": [
+        "2026-09-19"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT496725",
+      "kimco_bill_id": 6488,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 343.45,
+      "pdf_total": 357.35,
+      "po": "56787",
+      "received": [
+        "2026-08-27"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499356",
+      "kimco_bill_id": 9677,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 19.8,
+      "pdf_total": 19.8,
+      "po": "58015",
+      "received": [
+        "2026-08-27"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499357",
+      "kimco_bill_id": 9676,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 134.86,
+      "pdf_total": 134.86,
+      "po": "58462",
+      "received": [
+        "2026-08-27"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499528",
+      "kimco_bill_id": 9444,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 1798.53,
+      "pdf_total": 1798.53,
+      "po": "58603",
+      "received": [
+        "2026-08-27"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499639",
+      "kimco_bill_id": 9642,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 92.17,
+      "pdf_total": 92.17,
+      "po": "58692",
+      "received": [
+        "2026-08-27",
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499646",
+      "kimco_bill_id": 9675,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 78.19,
+      "pdf_total": 78.19,
+      "po": "58707",
+      "received": [
+        "2026-08-27",
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499726",
+      "kimco_bill_id": 9674,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 296.59,
+      "pdf_total": 296.59,
+      "po": "58732",
+      "received": [
+        "2026-08-27",
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499739",
+      "kimco_bill_id": 9725,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 2620.08,
+      "pdf_total": 2620.08,
+      "po": "58749",
+      "received": [
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499769",
+      "kimco_bill_id": 9748,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 424.88,
+      "pdf_total": 424.88,
+      "po": "58764",
+      "received": [
+        "2026-08-01",
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499809",
+      "kimco_bill_id": 9697,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 182.15,
+      "pdf_total": 182.15,
+      "po": "58786",
+      "received": [
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499875",
+      "kimco_bill_id": 9937,
+      "posted": true,
+      "batch": "",
+      "type": "misc",
+      "invoice_type": 4,
+      "kimco_amount": 6.28,
+      "pdf_total": 6.28,
+      "po": null,
+      "received": [
+        "2026-08-11",
+        "2026-09-17"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499930",
+      "kimco_bill_id": 10324,
+      "posted": null,
+      "batch": "API Agent - 9/25/26 Fastenal",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 72.85,
+      "pdf_total": 72.85,
+      "po": "58835",
+      "received": [
+        "2026-08-11",
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    },
+    {
+      "invoice_number": "TXFT499945",
+      "kimco_bill_id": 9930,
+      "posted": true,
+      "batch": "",
+      "type": "parts",
+      "invoice_type": 3,
+      "kimco_amount": 62.98,
+      "pdf_total": 62.98,
+      "po": "58841",
+      "received": [
+        "2026-08-14",
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "skipped": "already in KIMCO; not entered again"
+    }
+  ],
+  "ignored": [
+    {
+      "kind": "statement",
+      "received": "2026-09-03",
+      "reason": "Open balance inquiry. Not an invoice. Invoice numbers on it are in already_in_kimco."
+    },
+    {
+      "kind": "past-due reminder",
+      "reason": "Resends of invoices already counted. Not new invoice numbers."
+    },
+    {
+      "kind": "credit memo",
+      "reason": "None found in the window."
+    }
+  ],
+  "aug11_ai_hold": {
+    "left_alone": true,
+    "reason": "Both invoices on that notice are already in KIMCO: TXFT499875 bill 9937 and TXFT499930 bill 10324."
+  },
+  "mention": {
+    "comment_940_bill": 10173,
+    "comment_940_how": "HtmlValue span data-mention-id=104 data-mention-name=Shawn McKibben data-mention-email=Shawn.McKibben@kannonmfg.com class=prosemirror-mention-node. The Mention field is not on that comment.",
+    "mention_field": "Invalid Field on Comments_1",
+    "edit_existing_html": "PUT Modified HtmlValue on 1087 returned unexpected error. PUT Removed on 1087 and 1088 returned unexpected error. Those two notes are unchanged.",
+    "add_span": "PUT Added HtmlValue with the 940 span persisted.",
+    "applied": [
+      {
+        "invoice_number": "TXFT4100503",
+        "kimco_bill_id": 10322,
+        "previous_comments_1_id": 1087,
+        "mention_comments_1_id": 1091,
+        "readback_data_mention_id_104": true
+      },
+      {
+        "invoice_number": "TXFT4100537",
+        "kimco_bill_id": 10323,
+        "previous_comments_1_id": 1088,
+        "mention_comments_1_id": 1092,
+        "readback_data_mention_id_104": true
+      }
+    ],
+    "works": true
+  },
+  "ppv_qc": {
+    "command": "python -m ap_clerk.ppv_qc --live --batch 731",
+    "scanned": 3,
+    "nonzero_gap_count": 0,
+    "bills": [
+      {
+        "kimco_bill_id": 10320,
+        "invoice_number": "TXFT4100349",
+        "lines": 1095.44,
+        "charges": 54.77,
+        "gap": 0.0,
+        "rollup_gap": 0.0,
+        "success_allowed": true,
+        "posted": null
+      },
+      {
+        "kimco_bill_id": 10321,
+        "invoice_number": "TXFT4100376",
+        "lines": 2222.92,
+        "charges": 111.15,
+        "gap": 0.0,
+        "rollup_gap": 0.0,
+        "success_allowed": true,
+        "posted": null
+      },
+      {
+        "kimco_bill_id": 10324,
+        "invoice_number": "TXFT499930",
+        "lines": 50.87,
+        "charges": 21.98,
+        "gap": 0.0,
+        "rollup_gap": 0.0,
+        "success_allowed": true,
+        "posted": null
+      }
+    ]
+  }
+}
