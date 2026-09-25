@@ -1,0 +1,1880 @@
+{
+  "generated_at": "2026-09-25T16:32:02Z",
+  "mailbox": "accountspayable@kannonmfg.com",
+  "window": {
+    "received_from": "2026-09-04",
+    "received_through": "2026-09-25",
+    "timezone": "America/Chicago"
+  },
+  "read_only": true,
+  "scope": {
+    "messages_in_window": 487,
+    "folders_with_mail": [
+      {
+        "name": "Inbox",
+        "parent": null,
+        "listed": 403
+      },
+      {
+        "name": "9 - FORT WORTH ARCHIVE",
+        "parent": "Inbox",
+        "listed": 84
+      }
+    ],
+    "other_folders": "Every other mailbox folder was listed, including subfolders of 9 - FORT WORTH ARCHIVE. None of those had messages received in this window. Deleted Items in the window: 0. Sent Items, Drafts, and Junk were not treated as received vendor mail.",
+    "dedupe": "Same vendor + invoice number across resends, reminders, and forwards counts once.",
+    "statements": "Account statements and past-due statement packs were skipped.",
+    "credit_memos": "None found in subjects, attachment names, or the 1 - CM/RETURNS folder for this window.",
+    "amounts": "Dollars come from the invoice PDF or the email body when the PDF text was readable. Unknown amounts are excluded from the dollar total.",
+    "kimco": "Live KIMCO AP bills (10,053 listed, read-only). A bill counts as already entered only when the invoice number matches and the vendor name matches. Voided bills are not counted as entered."
+  },
+  "excluded_already_worked": {
+    "O'Neal Steel": {
+      "unique_invoices": 37,
+      "emails": 18,
+      "samples": [
+        {
+          "invoice": "15464367",
+          "vendor": "O'Neal Steel - Dallas (GP)",
+          "subject": "O'Neal Steel Credit Invoice For Account # 14748440"
+        },
+        {
+          "invoice": "15439109",
+          "vendor": "O'Neal Steel - Dallas (GP)",
+          "subject": "O'Neal Steel Credit Invoice For Account # 14748440"
+        },
+        {
+          "invoice": "15390604",
+          "vendor": "O'Neal Steel - Dallas (GP)",
+          "subject": "ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440"
+        },
+        {
+          "invoice": "15455556",
+          "vendor": "O'Neal Steel - Dallas (GP)",
+          "subject": "ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440"
+        },
+        {
+          "invoice": "15447737",
+          "vendor": "O'Neal Steel - Dallas (GP)",
+          "subject": "ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440"
+        }
+      ]
+    },
+    "AQPC": {
+      "unique_invoices": 12,
+      "emails": 13,
+      "samples": [
+        {
+          "invoice": "10991",
+          "vendor": "AMERICAN QUALITY POWDER COATING",
+          "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10991"
+        },
+        {
+          "invoice": "11004",
+          "vendor": "AMERICAN QUALITY POWDER COATING",
+          "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004"
+        },
+        {
+          "invoice": "11003",
+          "vendor": "AMERICAN QUALITY POWDER COATING",
+          "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11003"
+        },
+        {
+          "invoice": "10984",
+          "vendor": "AMERICAN QUALITY POWDER COATING",
+          "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10984"
+        },
+        {
+          "invoice": "10999",
+          "vendor": "AMERICAN QUALITY POWDER COATING",
+          "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10999"
+        }
+      ]
+    },
+    "Legacy Wire": {
+      "unique_invoices": 21,
+      "emails": 22,
+      "samples": [
+        {
+          "invoice": "PS-INV104046",
+          "vendor": "Legacy Wire Products",
+          "subject": "Legacy Wire Products - Sales Invoice PS-INV104046"
+        },
+        {
+          "invoice": "PS-INV104046",
+          "vendor": "Legacy Wire Products",
+          "subject": "Legacy Wire Products - Sales Invoice PS-INV104046"
+        },
+        {
+          "invoice": "PS-INV104051",
+          "vendor": "Legacy Wire Products",
+          "subject": "Legacy Wire Products - Sales Invoice PS-INV104051"
+        },
+        {
+          "invoice": "PS-INV104051",
+          "vendor": "Legacy Wire Products",
+          "subject": "Legacy Wire Products - Sales Invoice PS-INV104051"
+        },
+        {
+          "invoice": "PS-INV104015",
+          "vendor": "Legacy Wire Products",
+          "subject": "Legacy Wire Products - Sales Invoice PS-INV104015"
+        }
+      ]
+    },
+    "Gas & Supply": {
+      "unique_invoices": 24,
+      "emails": 13,
+      "samples": [
+        {
+          "invoice": "0040449524",
+          "vendor": "Gas and Supply North Texas, LLC",
+          "subject": "Gas&Supply Invoice/Statement"
+        },
+        {
+          "invoice": "0040448084",
+          "vendor": "Gas and Supply North Texas, LLC",
+          "subject": "Gas&Supply Invoice/Statement"
+        },
+        {
+          "invoice": "0040449478",
+          "vendor": "Gas and Supply North Texas, LLC",
+          "subject": "Gas&Supply Invoice/Statement"
+        },
+        {
+          "invoice": "0040421569",
+          "vendor": "Gas and Supply North Texas, LLC",
+          "subject": "Gas&Supply Invoice/Statement"
+        },
+        {
+          "invoice": "0040424382",
+          "vendor": "Gas and Supply North Texas, LLC",
+          "subject": "Gas&Supply Invoice/Statement"
+        }
+      ]
+    },
+    "3P": {
+      "unique_invoices": 6,
+      "emails": 6,
+      "samples": [
+        {
+          "invoice": "142216",
+          "vendor": "Rachel Bailey",
+          "subject": "INV # 142216 / CPL # 76981, 76980, PO # 58925, 58952, 58972, 59002, 59031"
+        },
+        {
+          "invoice": "141918",
+          "vendor": "Rachel Bailey",
+          "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241"
+        },
+        {
+          "invoice": "76945",
+          "vendor": "Rachel Bailey",
+          "subject": "INV # 76945, 76946, 76943, 76944, 76942, 76947, 76940, 76941 / PO # 58952, 58925, 58972, 59031, 5900"
+        },
+        {
+          "invoice": "142281",
+          "vendor": "Rachel Bailey",
+          "subject": "INV # 142281 "
+        },
+        {
+          "invoice": "142296",
+          "vendor": "Rachel Bailey",
+          "subject": "INV # 142296 / CPL # 76798, 76800, 76797. 51969 / PO # 58925, 58887"
+        }
+      ]
+    }
+  },
+  "skipped": {
+    "statements": 9,
+    "credit_memos": 0,
+    "noise": 10,
+    "no_number": 11,
+    "not_invoice": 243
+  },
+  "vendor_count_after_exclusions": 50,
+  "invoice_count_after_exclusions": 163,
+  "top3": [
+    {
+      "rank": 1,
+      "vendor": "Fastenal Company",
+      "invoice_count": 15,
+      "dollars_known": 11041.94,
+      "in_kimco": 10,
+      "not_entered": 5,
+      "dollars_not_entered": 6090.68,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 2,
+      "vendor": "Crosslink Powder Coating",
+      "invoice_count": 12,
+      "dollars_known": 15437.03,
+      "in_kimco": 8,
+      "not_entered": 4,
+      "dollars_not_entered": 7326.92,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 3,
+      "vendor": "JP Steel",
+      "invoice_count": 11,
+      "dollars_known": 13365.7,
+      "in_kimco": 3,
+      "not_entered": 8,
+      "dollars_not_entered": 8561.97,
+      "po_or_no_po": "PO"
+    }
+  ],
+  "tie_note": "JP Steel and Earle M. Jorgensen both have 11 invoices. JP Steel is ranked 3rd because its known dollars are higher ($13,365.70 vs $11,138.02).",
+  "top10": [
+    {
+      "rank": 1,
+      "vendor": "Fastenal Company",
+      "invoice_count": 15,
+      "dollars_known": 11041.94,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 6090.68,
+      "in_kimco": 10,
+      "not_entered": 5,
+      "po_or_no_po": "PO",
+      "po_count": 14,
+      "no_po_count": 1,
+      "from_addresses": [
+        "fastenalreporting@fastenal.com",
+        "invoices@fastenal-invoices.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "TXFT4100045",
+          "amount": 39.31,
+          "po": "58904",
+          "in_kimco": true,
+          "kimco_ids": [
+            9924
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 1
+        },
+        {
+          "invoice_number": "TXFT4100079",
+          "amount": 1148.63,
+          "po": "58692",
+          "in_kimco": true,
+          "kimco_ids": [
+            9968
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT4100349",
+          "amount": 1150.21,
+          "po": "59055",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-04",
+          "folder": "Inbox",
+          "subject": "Fastenal Invoice Notice",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT4100376",
+          "amount": 2334.07,
+          "po": "59054",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-04",
+          "folder": "Inbox",
+          "subject": "Fastenal Invoice Notice",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT4100503",
+          "amount": 268.14,
+          "po": "59190",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-19",
+          "folder": "Inbox",
+          "subject": "Fastenal Invoice Notice",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT4100537",
+          "amount": 2265.41,
+          "po": "59179",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-19",
+          "folder": "Inbox",
+          "subject": "Fastenal Invoice Notice",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499639",
+          "amount": 92.17,
+          "po": "58692",
+          "in_kimco": true,
+          "kimco_ids": [
+            9642
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499646",
+          "amount": 78.19,
+          "po": "58707",
+          "in_kimco": true,
+          "kimco_ids": [
+            9675
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499726",
+          "amount": 296.59,
+          "po": "58732",
+          "in_kimco": true,
+          "kimco_ids": [
+            9674
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499739",
+          "amount": 2620.08,
+          "po": "58749",
+          "in_kimco": true,
+          "kimco_ids": [
+            9725
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499769",
+          "amount": 424.88,
+          "po": "58764",
+          "in_kimco": true,
+          "kimco_ids": [
+            9748
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499809",
+          "amount": 182.15,
+          "po": "58786",
+          "in_kimco": true,
+          "kimco_ids": [
+            9697
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499875",
+          "amount": 6.28,
+          "po": "",
+          "in_kimco": true,
+          "kimco_ids": [
+            9937
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499930",
+          "amount": 72.85,
+          "po": "58835",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "TXFT499945",
+          "amount": 62.98,
+          "po": "58841",
+          "in_kimco": true,
+          "kimco_ids": [
+            9930
+          ],
+          "kimco_vendor": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Fastenal invoice(s) have been generated for you.",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 2,
+      "vendor": "Crosslink Powder Coating",
+      "invoice_count": 12,
+      "dollars_known": 15437.03,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 7326.92,
+      "in_kimco": 8,
+      "not_entered": 4,
+      "po_or_no_po": "PO",
+      "po_count": 12,
+      "no_po_count": 0,
+      "from_addresses": [
+        "quickbooks@notification.intuit.com",
+        "update+accountingcrosslinktxcom@orders.gosteelhead.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "27319",
+          "amount": 195.88,
+          "po": "58326",
+          "in_kimco": true,
+          "kimco_ids": [
+            9193
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "Invoice SH:27319 Re:",
+          "resends": 0
+        },
+        {
+          "invoice_number": "27755",
+          "amount": 1107.57,
+          "po": "58701",
+          "in_kimco": true,
+          "kimco_ids": [
+            9758
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-08",
+          "folder": "Inbox",
+          "subject": "Invoice SH:27755 Re:",
+          "resends": 1
+        },
+        {
+          "invoice_number": "27756",
+          "amount": 1252.18,
+          "po": "58723",
+          "in_kimco": true,
+          "kimco_ids": [
+            9756
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-08",
+          "folder": "Inbox",
+          "subject": "Invoice SH:27756 Re:",
+          "resends": 1
+        },
+        {
+          "invoice_number": "28100",
+          "amount": 1245.81,
+          "po": "59022",
+          "in_kimco": true,
+          "kimco_ids": [
+            10104
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-04",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice #28100 for 59022-01 (#8421) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28102",
+          "amount": 2104.11,
+          "po": "58902",
+          "in_kimco": true,
+          "kimco_ids": [
+            10105
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-04",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice #28102 for 58902 (#8242) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28113",
+          "amount": 830.54,
+          "po": "59038",
+          "in_kimco": true,
+          "kimco_ids": [
+            10102
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-04",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice #28113 for 59038 (#8432) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28114",
+          "amount": 1174.02,
+          "po": "59052",
+          "in_kimco": true,
+          "kimco_ids": [
+            10103
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-04",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice #28114 for 59052 (#8451) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28166",
+          "amount": 200.0,
+          "po": "59087",
+          "in_kimco": true,
+          "kimco_ids": [
+            10101
+          ],
+          "kimco_vendor": "1276-Crosslink Powder Coating",
+          "received": "2026-09-11",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice #28166 for 59087 (#8497) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28251",
+          "amount": 1453.45,
+          "po": "59137",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "Invoice #28251 for 59137 (#8550) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28273",
+          "amount": 2255.98,
+          "po": "59117",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-21",
+          "folder": "Inbox",
+          "subject": "Invoice #28273 for 59117 (#8532) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28307",
+          "amount": 1748.77,
+          "po": "59186",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "Invoice #28307 for 59186 (#8626) from Crosslink Powder Coating",
+          "resends": 0
+        },
+        {
+          "invoice_number": "28308",
+          "amount": 1868.72,
+          "po": "59203",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "Invoice #28308 for 59203 (#8641) from Crosslink Powder Coating",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 3,
+      "vendor": "JP Steel",
+      "invoice_count": 11,
+      "dollars_known": 13365.7,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 8561.97,
+      "in_kimco": 3,
+      "not_entered": 8,
+      "po_or_no_po": "PO",
+      "po_count": 11,
+      "no_po_count": 0,
+      "from_addresses": [
+        "krista.woodruff@jpsteel.us"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "125314",
+          "amount": 2530.0,
+          "po": "59104",
+          "in_kimco": true,
+          "kimco_ids": [
+            10109
+          ],
+          "kimco_vendor": "1098-JP STEEL",
+          "received": "2026-09-16",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "JP Steel Invoice#  (125314) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125315",
+          "amount": 693.0,
+          "po": "59128",
+          "in_kimco": true,
+          "kimco_ids": [
+            10107
+          ],
+          "kimco_vendor": "1098-JP STEEL",
+          "received": "2026-09-16",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125315) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125316",
+          "amount": 1580.73,
+          "po": "59154",
+          "in_kimco": true,
+          "kimco_ids": [
+            10108
+          ],
+          "kimco_vendor": "1098-JP STEEL",
+          "received": "2026-09-16",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "JP Steel Invoice#  (125316) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125362",
+          "amount": 1259.7,
+          "po": "58937",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125362) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125363",
+          "amount": 1303.33,
+          "po": "59105",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125363) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125364",
+          "amount": 1208.27,
+          "po": "59131",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125364) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125365",
+          "amount": 742.5,
+          "po": "59152",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125365) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125366",
+          "amount": 2357.61,
+          "po": "59163",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125366) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125367",
+          "amount": 594.0,
+          "po": "59168",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125367) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125436",
+          "amount": 583.0,
+          "po": "59194",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125436) Transmission for KANNON MFG",
+          "resends": 0
+        },
+        {
+          "invoice_number": "125437",
+          "amount": 513.56,
+          "po": "59214",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "JP Steel Invoice#  (125437) Transmission for KANNON MFG",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 4,
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_count": 11,
+      "dollars_known": 11138.02,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 11138.02,
+      "in_kimco": 0,
+      "not_entered": 11,
+      "po_or_no_po": "mixed",
+      "po_count": 7,
+      "no_po_count": 4,
+      "from_addresses": [
+        "emjcreditsouth@emjmetals.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "B154229432",
+          "amount": 907.2,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-22",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/21/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S815368432",
+          "amount": 399.74,
+          "po": "59122",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-09",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/08/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S815465432",
+          "amount": 1884.6,
+          "po": "59143",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/17/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S815562432",
+          "amount": 418.12,
+          "po": "59153",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/10/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S815764432",
+          "amount": 439.25,
+          "po": "59173",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/16/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S816035432",
+          "amount": 220.16,
+          "po": "59215",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-19",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/18/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "S816419432",
+          "amount": 276.6,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/24/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "T607621432",
+          "amount": 475.06,
+          "po": "58913",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-10",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/09/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "T607753432",
+          "amount": 4756.01,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-15",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/14/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "T607927432",
+          "amount": 367.68,
+          "po": "59141",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-16",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/15/26",
+          "resends": 0
+        },
+        {
+          "invoice_number": "T608354432",
+          "amount": 993.6,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/22/26",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 5,
+      "vendor": "NTEX Electric Inc.",
+      "invoice_count": 7,
+      "dollars_known": 131545.45,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 38850.97,
+      "in_kimco": 3,
+      "not_entered": 4,
+      "po_or_no_po": "mixed",
+      "po_count": 2,
+      "no_po_count": 5,
+      "from_addresses": [
+        "quickbooks@notification.intuit.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "17-2520",
+          "amount": 19720.0,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2520 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2521",
+          "amount": 5530.0,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2521 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2522",
+          "amount": 44000.0,
+          "po": "56564",
+          "in_kimco": true,
+          "kimco_ids": [
+            8481
+          ],
+          "kimco_vendor": "1132-NTEX ELECTRIC",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2522 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2523",
+          "amount": 47000.0,
+          "po": "56741",
+          "in_kimco": true,
+          "kimco_ids": [
+            8482
+          ],
+          "kimco_vendor": "1132-NTEX ELECTRIC",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2523 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2526",
+          "amount": 11159.24,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2526 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2529",
+          "amount": 2441.73,
+          "po": "",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2529 from NTEX Electric Inc.",
+          "resends": 0
+        },
+        {
+          "invoice_number": "17-2557",
+          "amount": 1694.48,
+          "po": "",
+          "in_kimco": true,
+          "kimco_ids": [
+            9765
+          ],
+          "kimco_vendor": "1132-NTEX ELECTRIC",
+          "received": "2026-09-25",
+          "folder": "Inbox",
+          "subject": "Reminder: Invoice 17-2557 from NTEX Electric Inc.",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 6,
+      "vendor": "Morgan Steel",
+      "invoice_count": 7,
+      "dollars_known": 72070.84,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 46018.0,
+      "in_kimco": 2,
+      "not_entered": 5,
+      "po_or_no_po": "PO",
+      "po_count": 7,
+      "no_po_count": 0,
+      "from_addresses": [
+        "emily.keith@morgansteel.net",
+        "jim.saxon@morgansteel.net"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "128249",
+          "amount": 17532.84,
+          "po": "58716",
+          "in_kimco": true,
+          "kimco_ids": [
+            9752
+          ],
+          "kimco_vendor": "1302-Morgan Steel",
+          "received": "2026-09-22",
+          "folder": "Inbox",
+          "subject": "Past Due",
+          "resends": 1
+        },
+        {
+          "invoice_number": "129320",
+          "amount": 8520.0,
+          "po": "58894",
+          "in_kimco": true,
+          "kimco_ids": [
+            10260
+          ],
+          "kimco_vendor": "1302-Morgan Steel",
+          "received": "2026-09-04",
+          "folder": "9 - FORT WORTH ARCHIVE",
+          "subject": "Invoice 129320",
+          "resends": 0
+        },
+        {
+          "invoice_number": "129425",
+          "amount": 4960.0,
+          "po": "58968",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-09",
+          "folder": "Inbox",
+          "subject": "Invoice 129425",
+          "resends": 0
+        },
+        {
+          "invoice_number": "129501",
+          "amount": 16898.0,
+          "po": "58965",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "Invoice 129501",
+          "resends": 0
+        },
+        {
+          "invoice_number": "129511",
+          "amount": 9060.0,
+          "po": "58995",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "Invoice 129511",
+          "resends": 0
+        },
+        {
+          "invoice_number": "129827",
+          "amount": 9060.0,
+          "po": "59062",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "Invoice 129827",
+          "resends": 0
+        },
+        {
+          "invoice_number": "129828",
+          "amount": 6040.0,
+          "po": "59062",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-23",
+          "folder": "Inbox",
+          "subject": "Invoice 129828",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 7,
+      "vendor": "MSC Industrial Supply",
+      "invoice_count": 7,
+      "dollars_known": 6289.5,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 6289.5,
+      "in_kimco": 0,
+      "not_entered": 7,
+      "po_or_no_po": "PO",
+      "po_count": 7,
+      "no_po_count": 0,
+      "from_addresses": [
+        "donotreply@invoices.mscdirect.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "60517341",
+          "amount": 446.71,
+          "po": "VENDING/1562",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-17",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 60517341, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1562     (DXED#2026260135043643976A)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "77062711",
+          "amount": 1237.78,
+          "po": "VENDING/1570",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-09",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 77062711, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1570     (DXED#2026252134305413F7D1)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "78129701",
+          "amount": 1857.28,
+          "po": "VENDING/1571",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 78129701, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1571     (DXED#2026254114949717FE29)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "78482801",
+          "amount": 511.8,
+          "po": "VENDING/1572",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-14",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 78482801, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1572     (DXED#2026257081908300C83A)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "79166301",
+          "amount": 528.4,
+          "po": "VENDING/1571",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-16",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 79166301, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1571     (DXED#20262591352078005D9A)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "80905881",
+          "amount": 501.44,
+          "po": "VENDING/1573",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-22",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 80905881, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1573     (DXED#20262651521446832640)",
+          "resends": 0
+        },
+        {
+          "invoice_number": "81976171",
+          "amount": 1206.09,
+          "po": "VENDING/1574",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-24",
+          "folder": "Inbox",
+          "subject": "MSC Invoice 81976171, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1574     (DXED#2026267130848480B8DC)",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 8,
+      "vendor": "Joseph T. Ryerson & Son, Inc",
+      "invoice_count": 5,
+      "dollars_known": 2859.78,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 2859.78,
+      "in_kimco": 0,
+      "not_entered": 5,
+      "po_or_no_po": "PO",
+      "po_count": 5,
+      "no_po_count": 0,
+      "from_addresses": [
+        "donotreplyinvoice@ryerson.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "9307057099",
+          "amount": 703.31,
+          "po": "59064",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-05",
+          "folder": "Inbox",
+          "subject": "PO 59064 Inv# 9307057099",
+          "resends": 0
+        },
+        {
+          "invoice_number": "9307088587",
+          "amount": 60.0,
+          "po": "59139",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "PO 59139 Inv# 9307088587",
+          "resends": 0
+        },
+        {
+          "invoice_number": "9307092378",
+          "amount": 862.19,
+          "po": "59184",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-19",
+          "folder": "Inbox",
+          "subject": "PO 59184 Inv# 9307092378",
+          "resends": 0
+        },
+        {
+          "invoice_number": "9307096238",
+          "amount": 632.99,
+          "po": "59112",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-22",
+          "folder": "Inbox",
+          "subject": "PO 59112 Inv# 9307096238",
+          "resends": 0
+        },
+        {
+          "invoice_number": "9307103750",
+          "amount": 601.29,
+          "po": "59146",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-24",
+          "folder": "Inbox",
+          "subject": "PO 59146 Inv# 9307103750",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 9,
+      "vendor": "Capital Machine Technologies, Inc",
+      "invoice_count": 5,
+      "dollars_known": 2226.45,
+      "unknown_amount_count": 1,
+      "dollars_not_entered": 2226.45,
+      "in_kimco": 1,
+      "not_entered": 4,
+      "po_or_no_po": "PO",
+      "po_count": 5,
+      "no_po_count": 0,
+      "from_addresses": [
+        "accountspayable@kannonmfg.com",
+        "ar@capitalmachine.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "25641",
+          "amount": null,
+          "po": "58543",
+          "in_kimco": true,
+          "kimco_ids": [
+            9445
+          ],
+          "kimco_vendor": "1043-CAPITAL MACHINE TECHNOLOGIES",
+          "received": "2026-09-09",
+          "folder": "Inbox",
+          "subject": "RE: Invoice 25641 - KANNON MANUFACTURING - AMTECH - DUE UPON RECEIPT-PAST DUE",
+          "resends": 1
+        },
+        {
+          "invoice_number": "PS-INV103317",
+          "amount": 610.0,
+          "po": "58989",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "Capital Machine - Sales Invoice PS-INV103317 - KANNON MANUFACTURING - AMTECH",
+          "resends": 0
+        },
+        {
+          "invoice_number": "PS-INV103344",
+          "amount": 610.0,
+          "po": "59088",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-11",
+          "folder": "Inbox",
+          "subject": "Capital Machine - Sales Invoice PS-INV103344 - KANNON MANUFACTURING - AMTECH",
+          "resends": 0
+        },
+        {
+          "invoice_number": "PS-INV103508",
+          "amount": 386.45,
+          "po": "58989",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-18",
+          "folder": "Inbox",
+          "subject": "Capital Machine Technologies, LLC - Sales Invoice PS-INV103508 - KANNON MANUFACTURING - AMTECH",
+          "resends": 0
+        },
+        {
+          "invoice_number": "PS-INV103602",
+          "amount": 620.0,
+          "po": "59116",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-19",
+          "folder": "Inbox",
+          "subject": "Capital Machine Technologies, LLC - Sales Invoice PS-INV103602",
+          "resends": 0
+        }
+      ]
+    },
+    {
+      "rank": 10,
+      "vendor": "Beshert Steel Processing",
+      "invoice_count": 4,
+      "dollars_known": 24989.75,
+      "unknown_amount_count": 0,
+      "dollars_not_entered": 24989.75,
+      "in_kimco": 0,
+      "not_entered": 4,
+      "po_or_no_po": "PO",
+      "po_count": 4,
+      "no_po_count": 0,
+      "from_addresses": [
+        "maria.paz@beshertsteel.com"
+      ],
+      "invoices": [
+        {
+          "invoice_number": "JVT SI-44211",
+          "amount": 5410.79,
+          "po": "58975",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-10",
+          "folder": "Inbox",
+          "subject": "Invoice-JVT SI-44211",
+          "resends": 0
+        },
+        {
+          "invoice_number": "JVT SI-44212",
+          "amount": 4481.1,
+          "po": "58999",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-10",
+          "folder": "Inbox",
+          "subject": "Invoice-JVT SI-44212",
+          "resends": 0
+        },
+        {
+          "invoice_number": "JVT SI-44213",
+          "amount": 11030.4,
+          "po": "59029",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-10",
+          "folder": "Inbox",
+          "subject": "Invoice-JVT SI-44213",
+          "resends": 0
+        },
+        {
+          "invoice_number": "JVT SI-44214",
+          "amount": 4067.46,
+          "po": "59071",
+          "in_kimco": false,
+          "kimco_ids": [],
+          "kimco_vendor": "",
+          "received": "2026-09-10",
+          "folder": "Inbox",
+          "subject": "Invoice-JVT SI-44214",
+          "resends": 0
+        }
+      ]
+    }
+  ],
+  "ranked_after_top10": [
+    {
+      "rank": 11,
+      "vendor": "Telecom Products Inc.",
+      "invoice_count": 4,
+      "dollars_known": 23470.56,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 4,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 12,
+      "vendor": "Air Products and Chemicals, Inc",
+      "invoice_count": 4,
+      "dollars_known": 5568.39,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 4,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 13,
+      "vendor": "T Galvanizing Company, Inc",
+      "invoice_count": 4,
+      "dollars_known": 4082.92,
+      "unknown_amount_count": 0,
+      "in_kimco": 1,
+      "not_entered": 3,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 14,
+      "vendor": "RMP Industrial Supply Inc",
+      "invoice_count": 4,
+      "dollars_known": 0,
+      "unknown_amount_count": 4,
+      "in_kimco": 0,
+      "not_entered": 4,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 15,
+      "vendor": "Kloeckner Metals Corporation",
+      "invoice_count": 3,
+      "dollars_known": 25169.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 2,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 16,
+      "vendor": "Greentree Packaging & Lumber",
+      "invoice_count": 3,
+      "dollars_known": 8307.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 2,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 17,
+      "vendor": "Precision Fabrication Services",
+      "invoice_count": 3,
+      "dollars_known": 7217.46,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 18,
+      "vendor": "UniFirst First Aid & Safety",
+      "invoice_count": 3,
+      "dollars_known": 2883.51,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 19,
+      "vendor": "Guedry, Polly",
+      "invoice_count": 3,
+      "dollars_known": 1805.11,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 20,
+      "vendor": "Eastern Metal Supply of Texas",
+      "invoice_count": 3,
+      "dollars_known": 1674.46,
+      "unknown_amount_count": 1,
+      "in_kimco": 1,
+      "not_entered": 2,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 21,
+      "vendor": "Automated Finishing Technology",
+      "invoice_count": 3,
+      "dollars_known": 833.3,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 22,
+      "vendor": "Metal Supermarkets",
+      "invoice_count": 3,
+      "dollars_known": 545.61,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 23,
+      "vendor": "Farley Rd. Amtech Manufacturingkannon Menufacturing, Inc",
+      "invoice_count": 3,
+      "dollars_known": 50.0,
+      "unknown_amount_count": 2,
+      "in_kimco": 0,
+      "not_entered": 3,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 24,
+      "vendor": "Phoenix Metals Company",
+      "invoice_count": 2,
+      "dollars_known": 23709.16,
+      "unknown_amount_count": 0,
+      "in_kimco": 1,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 25,
+      "vendor": "Insight Controller Services",
+      "invoice_count": 2,
+      "dollars_known": 7555.56,
+      "unknown_amount_count": 0,
+      "in_kimco": 2,
+      "not_entered": 0,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 26,
+      "vendor": "Green Valley Compressor LLC",
+      "invoice_count": 2,
+      "dollars_known": 2712.69,
+      "unknown_amount_count": 0,
+      "in_kimco": 1,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 27,
+      "vendor": "American Bearing Company",
+      "invoice_count": 2,
+      "dollars_known": 2017.35,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 2,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 28,
+      "vendor": "Xcaliber Industrial LLC",
+      "invoice_count": 2,
+      "dollars_known": 1404.76,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 2,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 29,
+      "vendor": "PCT Support",
+      "invoice_count": 2,
+      "dollars_known": 1390.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 2,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 30,
+      "vendor": "Accounts Payable",
+      "invoice_count": 2,
+      "dollars_known": 1290.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 2,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 31,
+      "vendor": "Shoppa's Material Handling",
+      "invoice_count": 2,
+      "dollars_known": 793.67,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 2,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 32,
+      "vendor": "Tejas Transportation",
+      "invoice_count": 2,
+      "dollars_known": 700.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 2,
+      "not_entered": 0,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 33,
+      "vendor": "Rolled Alloys, Inc",
+      "invoice_count": 1,
+      "dollars_known": 16591.05,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 34,
+      "vendor": "Hapeco, Inc",
+      "invoice_count": 1,
+      "dollars_known": 13584.45,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 35,
+      "vendor": "Texas 76119 Production Metals, Inc",
+      "invoice_count": 1,
+      "dollars_known": 8475.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 36,
+      "vendor": "Leeco Steel, LLC",
+      "invoice_count": 1,
+      "dollars_known": 4900.61,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 37,
+      "vendor": "Exotic Metals",
+      "invoice_count": 1,
+      "dollars_known": 4781.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 38,
+      "vendor": "Meridian Finance, Llc",
+      "invoice_count": 1,
+      "dollars_known": 3050.66,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 39,
+      "vendor": "Luxor Staffing, Inc.",
+      "invoice_count": 1,
+      "dollars_known": 2990.75,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 40,
+      "vendor": "Willbanks Metals",
+      "invoice_count": 1,
+      "dollars_known": 2790.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 41,
+      "vendor": "Freepoint Solution Customer Relations",
+      "invoice_count": 1,
+      "dollars_known": 2559.67,
+      "unknown_amount_count": 0,
+      "in_kimco": 1,
+      "not_entered": 0,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 42,
+      "vendor": "Prepaid Freight Central Expanded Metal, Llc",
+      "invoice_count": 1,
+      "dollars_known": 2460.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 43,
+      "vendor": "Rob Brown",
+      "invoice_count": 1,
+      "dollars_known": 2453.4,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 44,
+      "vendor": "McQueary Industries",
+      "invoice_count": 1,
+      "dollars_known": 2400.0,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 45,
+      "vendor": "Toyota Commercial Finance",
+      "invoice_count": 1,
+      "dollars_known": 1843.92,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 46,
+      "vendor": "Quench Usa, Inc",
+      "invoice_count": 1,
+      "dollars_known": 1467.29,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 47,
+      "vendor": "A1 Image Office Systems",
+      "invoice_count": 1,
+      "dollars_known": 550.64,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 48,
+      "vendor": "SpectrumVoIP",
+      "invoice_count": 1,
+      "dollars_known": 93.13,
+      "unknown_amount_count": 0,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "no-PO"
+    },
+    {
+      "rank": 49,
+      "vendor": "Alternative Parts Inc",
+      "invoice_count": 1,
+      "dollars_known": 0,
+      "unknown_amount_count": 1,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    },
+    {
+      "rank": 50,
+      "vendor": "Bato Source Metals, Inc",
+      "invoice_count": 1,
+      "dollars_known": 0,
+      "unknown_amount_count": 1,
+      "in_kimco": 0,
+      "not_entered": 1,
+      "po_or_no_po": "PO"
+    }
+  ]
+}
