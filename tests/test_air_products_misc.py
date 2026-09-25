@@ -172,4 +172,5 @@ def test_batch_entry_path_does_not_hold_air_products_as_missing_po():
     assert round(sum(row["amount"] for row in plan["charges"]), 2) == 1859.80
     other = next(bill for bill in module.BILLS if bill["invoice_number"] == "IN000037249")
     held = module.plan_bill(other, [], [])
-    assert held["action"] == "missing_po"
+    assert held["action"] == "unifirst_first_aid_misc"
+    assert held["missing_po"] is False

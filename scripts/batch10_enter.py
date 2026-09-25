@@ -26,8 +26,10 @@ from ap_clerk.ppv_qc import pre_finish_totals_check, scan_ids
 from ap_clerk.receiving_owners import lookup_receiving_owner, mention_span
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
-    air_products_entry_decision,
     air_products_success_comment,
+    needs_kyle_review_comment,
+    standing_vendor_entry_decision,
+    unifirst_first_aid_success_comment,
     due_date_from_terms,
     extract_po_number,
     invoice_number_key,
@@ -555,10 +557,18 @@ def receipt_extension(rows: list[dict[str, Any]]) -> float:
 def plan_bill(bill: dict[str, Any], po_lines: list[dict[str, Any]], receipts: list[dict[str, Any]]) -> dict[str, Any]:
     po = str(bill.get("po") or "")
     fee_total = round(sum(float(fee.get("amount") or 0) for fee in bill.get("fees") or []), 2)
-    air = air_products_entry_decision(str(bill.get("vendor") or ""), bill)
-    if air is not None:
+    standing = standing_vendor_entry_decision(str(bill.get("vendor") or ""), bill, vendor_id=bill.get("vendor_id"))
+    if standing is not None:
+        if standing.get("mode") == "needs_kyle_review":
+            action = "needs_kyle_review"
+        elif standing.get("ready"):
+            action = str(standing.get("vendor_rule") or "shop_supplies")
+        elif standing.get("vendor_rule") == "air_products_misc":
+            action = "air_products_totals"
+        else:
+            action = "unifirst_first_aid_totals"
         return {
-            "action": "air_products_misc" if air["ready"] else "air_products_totals",
+            "action": action,
             "missing_po": False,
             "receipts": [],
             "considered": [],
@@ -569,10 +579,16 @@ def plan_bill(bill: dict[str, Any], po_lines: list[dict[str, Any]], receipts: li
             "gap": None,
             "qty_difference": False,
             "match": None,
-            "charges": air["charges"],
-            "invoice_type": air["invoice_type"],
+            "charges": standing.get("charges") or [],
+            "invoice_type": standing.get("invoice_type"),
             "post_bill": False,
-            "finish": air["finish"],
+            "finish": standing.get("finish"),
+            "hold_reason": standing.get("hold_reason") or "",
+            "line_count": standing.get("line_count"),
+            "line_limit": standing.get("line_limit"),
+            "note": standing.get("note") or "",
+            "vendor_rule": standing.get("vendor_rule"),
+            "transfer_ap": False,
         }
     po_rows = [row for row in po_lines if str(row.get("po") or "") == po]
     open_rows = [row for row in receipts if str(row.get("po") or "") == po]
@@ -997,9 +1013,16 @@ def enter(*, write: bool) -> dict[str, Any]:
             results.append(public_invoice(bill, status="HOLD", reason="PO id missing", kimco_id=None, batch=BATCH_NAME, note=note, ppv=0))
             print(f"NO-PO-ID {number}", flush=True)
             continue
-        air_plan = plan["action"] in {"air_products_misc", "air_products_totals"}
-        invoice_type = 4 if air_plan else (3 if po_id else 4)
-        po_for_header = None if air_plan else po_id
+        standing_actions = {
+            "air_products_misc",
+            "air_products_totals",
+            "unifirst_first_aid_misc",
+            "unifirst_first_aid_totals",
+            "needs_kyle_review",
+        }
+        standing_plan = plan["action"] in standing_actions
+        invoice_type = 4 if standing_plan else (3 if po_id else 4)
+        po_for_header = None if standing_plan else po_id
         created_id, status, error = _create_for_bill(client, bill, batch_id, sample, invoice_type, po_for_header)
         if created_id is None:
             note = f"AP Clerk: {bill['vendor']} invoice {number} header was not created (HTTP {status}). The bill is not posted."
@@ -1009,7 +1032,7 @@ def enter(*, write: bool) -> dict[str, Any]:
         pdf_path = Path(bill["pdf_path"])
         pdf = pdf_path.read_bytes()
         attach = client.try_official_attach(created_id, name=f"{number}.pdf", content_type="application/pdf", size=len(pdf), content=pdf)
-        if plan["action"] == "air_products_misc":
+        if plan["action"] in {"air_products_misc", "unifirst_first_aid_misc"}:
             shop_status = client.try_post_shop_supplies(created_id, plan.get("charges") or [])
             record = client.get_item("ap_invoices", created_id)
             values = record.get("values") or {}
@@ -1018,11 +1041,18 @@ def enter(*, write: bool) -> dict[str, Any]:
                 amount = money((charge.get("values") or {}).get("Amount"))
                 if amount is not None:
                     charge_sum = round(charge_sum + amount, 2)
-            note = air_products_success_comment(
-                invoice_number=number,
-                charges=plan.get("charges") or [],
-                pdf_total=bill["total"],
-            )
+            if plan["action"] == "air_products_misc":
+                note = air_products_success_comment(
+                    invoice_number=number,
+                    charges=plan.get("charges") or [],
+                    pdf_total=bill["total"],
+                )
+            else:
+                note = unifirst_first_aid_success_comment(
+                    invoice_number=number,
+                    charges=plan.get("charges") or [],
+                    pdf_total=bill["total"],
+                )
             comment = write_comment(client, created_id, note, mention=False)
             success = (
                 shop_status == "posted"
@@ -1035,7 +1065,7 @@ def enter(*, write: bool) -> dict[str, Any]:
                 public_invoice(
                     bill,
                     status="Success" if success else "HOLD",
-                    reason="air_products_misc" if success else "shop supplies total",
+                    reason=plan["action"] if success else "shop supplies total",
                     kimco_id=created_id,
                     batch=BATCH_NAME,
                     transfer_ap="no",
@@ -1049,7 +1079,39 @@ def enter(*, write: bool) -> dict[str, Any]:
             results[-1]["_attached"] = attach == "attached"
             results[-1]["_message_id"] = bill.get("message_id")
             print(
-                f"AIR-PRODUCTS {number} id={created_id} charges={charge_sum} posted={values.get('Posted')} comment={comment.get('id')}",
+                f"SHOP-SUPPLIES {number} id={created_id} charges={charge_sum} posted={values.get('Posted')} comment={comment.get('id')}",
+                flush=True,
+            )
+            continue
+        if plan["action"] == "needs_kyle_review":
+            note = str(plan.get("note") or "") or needs_kyle_review_comment(
+                kind="uniform" if plan.get("vendor_rule") == "unifirst_uniform_kyle_review" else "first_aid",
+                invoice_number=number,
+                pdf_total=bill["total"],
+                line_count=plan.get("line_count"),
+                line_limit=plan.get("line_limit"),
+            )
+            comment = write_comment(client, created_id, note, mention=False)
+            results.append(
+                public_invoice(
+                    bill,
+                    status="HOLD",
+                    reason="needs_kyle_review",
+                    kimco_id=created_id,
+                    batch=BATCH_NAME,
+                    transfer_ap="no",
+                    receipts="",
+                    ppv=0.0,
+                    comments_1_id=comment.get("id"),
+                    note=note,
+                    email_moved="pending",
+                )
+            )
+            results[-1]["_attached"] = attach == "attached"
+            results[-1]["_message_id"] = bill.get("message_id")
+            results[-1]["line_count"] = plan.get("line_count")
+            print(
+                f"KYLE-REVIEW {number} id={created_id} lines={plan.get('line_count')} comment={comment.get('id')}",
                 flush=True,
             )
             continue
@@ -1059,7 +1121,11 @@ def enter(*, write: bool) -> dict[str, Any]:
             comment = write_comment(client, created_id, note, mention=mention and "@Shawn McKibben" in note)
             moved = {"status": "not-moved", "batch_name": BATCH_NAME}
             mention_ok = (not mention) or comment.get("mention") is True
-            if plan["action"] != "missing_po" and comment.get("id") and mention_ok:
+            if (
+                plan["action"] not in {"missing_po", "air_products_totals", "unifirst_first_aid_totals"}
+                and comment.get("id")
+                and mention_ok
+            ):
                 moved = apply_transfer_ap_batch_move(client, kimco_id=created_id)
             on_transfer = moved.get("status") in {"moved", "already-on-transfer-ap"}
             results.append(

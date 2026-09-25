@@ -115,8 +115,7 @@ from ap_clerk.rules import (
     looks_like_account_statement,
     invoice_type_for,
     air_products_charges_match,
-    air_products_shop_supplies_charges,
-    is_air_products_vendor,
+    standing_vendor_entry_decision,
     is_freight_vendor,
     is_rfq_not_kimco_po,
     kimco_datetime,
@@ -1065,9 +1064,13 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     freight_vendor = is_freight_vendor(vendor)
-    air_products = is_air_products_vendor(vendor)
-    if air_products:
-        # Standing rule: Miscellaneous, no PO, never a missing_po HOLD.
+    standing = standing_vendor_entry_decision(vendor, inv)
+    # Shop supplies (Air Products, UniFirst First Aid at or under the line
+    # limit) and needs_kyle_review (First Aid over the limit, UniFirst
+    # uniforms) are miscellaneous, no PO, never a missing_po HOLD, never
+    # Transfer AP. Exact KIMCO vendor id is applied again after vendor resolve.
+    misc_shop = standing is not None
+    if misc_shop:
         po = None
         po_display = ""
         row["PO"] = ""
@@ -1075,7 +1078,7 @@ def _process_invoice(
         inv["po"] = None
         inv["pos"] = []
         inv["multi_po"] = False
-    pos = [] if air_products else [
+    pos = [] if misc_shop else [
         str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)
     ]
     if po and is_rfq_not_kimco_po(po):
@@ -1092,8 +1095,8 @@ def _process_invoice(
     wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
     po_info = None
     po_missing_note = ""
-    if air_products:
-        resolved = {"info": None, "number": None, "how": "air-products-misc"}
+    if misc_shop:
+        resolved = {"info": None, "number": None, "how": str((standing or {}).get("vendor_rule") or "misc-shop")}
     else:
         resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
     if resolved.get("info") and not multi_po:
@@ -1156,6 +1159,27 @@ def _process_invoice(
         )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
+    confirmed = standing_vendor_entry_decision(
+        str(vendor_info.get("vendor_text") or vendor),
+        inv,
+        vendor_id=vendor_info.get("vendor_id"),
+    )
+    if vendor_info.get("vendor_id") not in (None, ""):
+        # API Vendor.id wins over the printed name. Vendor 341 is Tube Supply.
+        standing = confirmed
+        misc_shop = standing is not None
+        if misc_shop:
+            po = None
+            po_display = ""
+            po_info = None
+            pos = []
+            multi_po = False
+            row["PO"] = ""
+            resolved = {
+                "info": None,
+                "number": None,
+                "how": str(standing.get("vendor_rule") or "misc-shop"),
+            }
     if not vendor_info.get("invoice_id"):
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail(
@@ -1187,6 +1211,8 @@ def _process_invoice(
         freight=freight_vendor,
         gas_misc=bool(inv.get("gas_misc") or inv.get("gas_split") or misc_purchase_item_for(vendor)),
     )
+    if misc_shop:
+        transfer_ap = False
     if freight_vendor:
         parsed_fee_list = list(inv.get("fees") or [])
         if not parsed_fee_list and amount not in (None, ""):
@@ -1226,7 +1252,7 @@ def _process_invoice(
     price["ppv_total"] = ppv_value
     if ppv_value:
         row["PPV"] = format_ppv(ppv_value)
-    if not air_products and (price["hold"] or preset_hold == "price does not match"):
+    if not misc_shop and (price["hold"] or preset_hold == "price does not match"):
         issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
         if PRICE_MISMATCH_PO_COMMENT not in issue_why:
             issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
@@ -1234,7 +1260,7 @@ def _process_invoice(
         issue_hold = (GATE_PRICE, issue_why)
     # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
     # Freight companies have no Select Receipts / PO qty gate (Priority 1).
-    if not multi_po and not freight_vendor and not transfer_ap and not air_products:
+    if not multi_po and not freight_vendor and not transfer_ap and not misc_shop:
         qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
         if not qty_ok:
             extra = qty_why
@@ -1405,7 +1431,7 @@ def _process_invoice(
     due = due_date_from_terms(invoice_day, lookup_text(terms))
     # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
     # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
-    if air_products:
+    if misc_shop:
         invoice_type = invoice_type_for(None)
     elif multi_po:
         invoice_type = INVOICE_TYPE_PO
@@ -1435,11 +1461,11 @@ def _process_invoice(
         if found_transfer:
             payload["AP_Invoice_Batch"] = {"id": found_transfer["id"]}
             row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({found_transfer['id']})"
-    if po_info and not multi_po and not transfer_ap and not air_products:
+    if po_info and not multi_po and not transfer_ap and not misc_shop:
         payload["Purchase_Order"] = {"id": po_info["id"]}
-    if air_products and payload.get("Posted") not in (None, "", False):
+    if misc_shop and payload.get("Posted") not in (None, "", False):
         row["Result"] = RESULT_FAIL
-        row["Why"] = why_fail("Air Products standing rule forbids posting the bill.")
+        row["Why"] = why_fail("Standing miscellaneous rule forbids posting the bill.")
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
@@ -1490,14 +1516,26 @@ def _process_invoice(
     fees_posted = False
     fee_status = "none"
     shop_status = "none"
-    if air_products:
-        shop_charges = air_products_shop_supplies_charges(inv)
+    if standing and standing.get("mode") == "needs_kyle_review":
+        review_note = str(standing.get("note") or "").strip()
+        issue_hold = (
+            GATE_FINISH,
+            why_hold(
+                GATE_FINISH,
+                review_note
+                or "needs_kyle_review. No invoice lines were entered. Do not post the bill.",
+            ),
+        )
+        inv = dict(inv)
+        inv["fees"] = []
+    elif standing and standing.get("mode") == "shop_supplies":
+        shop_charges = list(standing.get("charges") or [])
         if not air_products_charges_match(shop_charges, amount):
             issue_hold = (
                 GATE_FINISH,
                 why_hold(
                     GATE_FINISH,
-                    "Air Products shop supplies lines do not total the PDF invoice to the penny. "
+                    "Shop supplies lines do not total the PDF invoice to the penny. "
                     "This is not a missing_po HOLD. Do not post the bill.",
                 ),
             )
@@ -1515,7 +1553,7 @@ def _process_invoice(
                     GATE_FINISH,
                     why_hold(
                         GATE_FINISH,
-                        f"Air Products shop supplies additional charges were not saved ({shop_status}). "
+                        f"Shop supplies additional charges were not saved ({shop_status}). "
                         "Do not post the bill.",
                     ),
                 )
@@ -1541,7 +1579,7 @@ def _process_invoice(
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
     ppv_status = "none"
-    if price.get("ppv_total") and not air_products:
+    if price.get("ppv_total") and not misc_shop:
         poster_ppv = getattr(client, "try_post_ppv", None)
         if poster_ppv:
             try:
@@ -1680,10 +1718,15 @@ def _process_invoice(
                     f"Fees {format_fees(parsed_fees)} were parsed but not posted "
                     f"({fee_status}); sheet column is not enough. "
                 )
-    if result == RESULT_SUCCESS and air_products:
+    if result == RESULT_SUCCESS and standing and standing.get("mode") == "shop_supplies":
+        shop_label = (
+            "Air Products"
+            if standing.get("vendor_rule") == "air_products_misc"
+            else "UniFirst First Aid & Safety"
+        )
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type} Miscellaneous). "
-            "Air Products shop supplies bill entered as miscellaneous per the standing rule. "
+            f"{shop_label} shop supplies bill entered as miscellaneous per the standing rule. "
             f"Additional Charges lines described shop supplies total the PDF ({amount}). "
             f"Shop supplies status={shop_status}. The bill is not posted. "
             f"Attach status={pdf_status}."
