@@ -483,7 +483,8 @@ def skip_why(number: str, kimco_id: int | None, meta: dict[str, Any]) -> str:
 def receipt_label(lines: list[dict[str, Any]]) -> str:
     bits = []
     for line in lines:
-        bits.append(f"{line.get('receipt')} qty {line.get('qty')} @ {line.get('price')}")
+        rid = line.get("receipt") if line.get("receipt") not in (None, "") else line.get("id")
+        bits.append(f"{rid} qty {line.get('qty')} @ {line.get('price')}")
     return "; ".join(bits) if bits else "none"
 
 

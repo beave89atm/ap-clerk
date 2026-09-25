@@ -1,0 +1,777 @@
+{
+  "run": "3p-finish-2026-09-25",
+  "host": "https://live.kimcoerp.com",
+  "vendor": "999-3P INDUSTRIES",
+  "vendor_id": 1,
+  "batch_id": 724,
+  "batch_name": "API Agent - 9/22/26 3P",
+  "posted": false,
+  "emails_sent": false,
+  "packing_slip_gate": "suspended",
+  "login": "API Agent key. Bills are not posted. Treyce Hodges (id 33) posts.",
+  "untouched_verified": true,
+  "untouched": [
+    {
+      "invoice": "142179",
+      "kimco_id": 10306
+    },
+    {
+      "invoice": "142188",
+      "kimco_id": 10308
+    },
+    {
+      "invoice": "142216",
+      "kimco_id": 10312
+    },
+    {
+      "invoice": "142173",
+      "kimco_id": 10187
+    },
+    {
+      "invoice": "142231",
+      "kimco_id": 10186
+    }
+  ],
+  "scope": "Every 3P invoice PDF in accountspayable@ from 2026-08-01 onward, including Inbox and 9 - FORT WORTH ARCHIVE. Only 142280 was not already a vendor-1 bill. 142173 was excluded because no corrected qty-20 invoice arrived.",
+  "invoices": [
+    {
+      "invoice": "142280",
+      "pdf_date": "2026-08-28",
+      "pdf_total": 1631.56,
+      "type": "parts",
+      "kind": "parts",
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "58952",
+        "58925",
+        "58972",
+        "59002",
+        "59031"
+      ],
+      "kimco_id": 10314,
+      "status": "HOLD",
+      "exception": "price_variance",
+      "why": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142280. Matching receipts selected: 23918, 23919, 23913, 23914, 23922, 23915, 23916. qty 25 of part 33213-1 on PO 58972 is $22.30 on the invoice ($557.50) and receipt 23913 is at PO price $19.82 ($495.50). |PPV| $62.00 is under $75, so that receipt was selected at the PO extended cost and no unit-price PPV was stacked on it. qty 2 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($195.00) and receipt 23917 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 2. qty 3 of part 1007044-1 on PO 59031 is $97.50 on the invoice ($292.50). Receipt 23920 qty 2 is already at PO price $361.46 ($722.92) and receipt 23921 qty 1 is already at PO price $361.46 ($361.46). Combined PO extended $1084.38. |PPV| $791.88 is $75 or more, so those receipts were not selected and the unit price was not changed. Unreceive, set PO 59031 part 1007044-1 to $97.50, and re-receive qty 3.",
+      "receipts": [
+        {
+          "id": 23918,
+          "qty": 5.0,
+          "price": 12.3,
+          "ext": 61.5,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-09"
+        },
+        {
+          "id": 23919,
+          "qty": 1.0,
+          "price": 7.76,
+          "ext": 7.76,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-06"
+        },
+        {
+          "id": 23913,
+          "qty": 25.0,
+          "price": 19.82,
+          "ext": 495.5,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-03"
+        },
+        {
+          "id": 23914,
+          "qty": 3.0,
+          "price": 83.02,
+          "ext": 249.06,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-07"
+        },
+        {
+          "id": 23922,
+          "qty": 2.0,
+          "price": 83.02,
+          "ext": 166.04,
+          "po": "PO59031-3P INDUSTRIES",
+          "po_line": "PO59031-11"
+        },
+        {
+          "id": 23915,
+          "qty": 8.0,
+          "price": 3.65,
+          "ext": 29.2,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-05"
+        },
+        {
+          "id": 23916,
+          "qty": 20.0,
+          "price": 3.65,
+          "ext": 73.0,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-06"
+        }
+      ],
+      "receipts_selected": [
+        {
+          "id": 23918,
+          "qty": 5.0,
+          "price": 12.3,
+          "ext": 61.5,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-09"
+        },
+        {
+          "id": 23919,
+          "qty": 1.0,
+          "price": 7.76,
+          "ext": 7.76,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-06"
+        },
+        {
+          "id": 23913,
+          "qty": 25.0,
+          "price": 19.82,
+          "ext": 495.5,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-03"
+        },
+        {
+          "id": 23914,
+          "qty": 3.0,
+          "price": 83.02,
+          "ext": 249.06,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-07"
+        },
+        {
+          "id": 23922,
+          "qty": 2.0,
+          "price": 83.02,
+          "ext": 166.04,
+          "po": "PO59031-3P INDUSTRIES",
+          "po_line": "PO59031-11"
+        },
+        {
+          "id": 23915,
+          "qty": 8.0,
+          "price": 3.65,
+          "ext": 29.2,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-05"
+        },
+        {
+          "id": 23916,
+          "qty": 20.0,
+          "price": 3.65,
+          "ext": 73.0,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-06"
+        }
+      ],
+      "ppv": null,
+      "price_gap": 549.5,
+      "transfer_ap": "yes",
+      "charges": [],
+      "invoice_amount_after": 1082.06,
+      "verification_amount": 1631.56,
+      "comments_1": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142280. Matching receipts selected: 23918, 23919, 23913, 23914, 23922, 23915, 23916. qty 25 of part 33213-1 on PO 58972 is $22.30 on the invoice ($557.50) and receipt 23913 is at PO price $19.82 ($495.50). |PPV| $62.00 is under $75, so that receipt was selected at the PO extended cost and no unit-price PPV was stacked on it. qty 2 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($195.00) and receipt 23917 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 2. qty 3 of part 1007044-1 on PO 59031 is $97.50 on the invoice ($292.50). Receipt 23920 qty 2 is already at PO price $361.46 ($722.92) and receipt 23921 qty 1 is already at PO price $361.46 ($361.46). Combined PO extended $1084.38. |PPV| $791.88 is $75 or more, so those receipts were not selected and the unit price was not changed. Unreceive, set PO 59031 part 1007044-1 to $97.50, and re-receive qty 3.",
+      "comments_1_id": 1070,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": true,
+      "email_subject": "INV # 76945, 76946, 76943, 76944, 76942, 76947, 76940, 76941 / PO # 58952, 58925, 58972, 59031, 59002, 59031, 59002 ",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142280.pdf"
+      ],
+      "email": {
+        "email_moved": "yes",
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "moved_this_run": true,
+        "subject": "INV # 76945, 76946, 76943, 76944, 76942, 76947, 76940, 76941 / PO # 58952, 58925, 58972, 59031, 59002, 59031, 59002 "
+      },
+      "live": {
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "amount": 1082.06,
+        "verification": 1631.56,
+        "lines": [
+          {
+            "id": 23918,
+            "qty": 5.0,
+            "price": 12.3,
+            "ext": 61.5,
+            "po": "PO58952-3P INDUSTRIES",
+            "po_line": "PO58952-09"
+          },
+          {
+            "id": 23919,
+            "qty": 1.0,
+            "price": 7.76,
+            "ext": 7.76,
+            "po": "PO58925-3P INDUSTRIES",
+            "po_line": "PO58925-06"
+          },
+          {
+            "id": 23913,
+            "qty": 25.0,
+            "price": 19.82,
+            "ext": 495.5,
+            "po": "PO58972-3P INDUSTRIES",
+            "po_line": "PO58972-03"
+          },
+          {
+            "id": 23914,
+            "qty": 3.0,
+            "price": 83.02,
+            "ext": 249.06,
+            "po": "PO58972-3P INDUSTRIES",
+            "po_line": "PO58972-07"
+          },
+          {
+            "id": 23922,
+            "qty": 2.0,
+            "price": 83.02,
+            "ext": 166.04,
+            "po": "PO59031-3P INDUSTRIES",
+            "po_line": "PO59031-11"
+          },
+          {
+            "id": 23915,
+            "qty": 8.0,
+            "price": 3.65,
+            "ext": 29.2,
+            "po": "PO59002-3P INDUSTRIES",
+            "po_line": "PO59002-05"
+          },
+          {
+            "id": 23916,
+            "qty": 20.0,
+            "price": 3.65,
+            "ext": 73.0,
+            "po": "PO59002-3P INDUSTRIES",
+            "po_line": "PO59002-06"
+          }
+        ]
+      },
+      "select": {
+        "http": 200,
+        "error": "",
+        "count": 7
+      },
+      "attach": "attached"
+    }
+  ],
+  "skipped": [
+    {
+      "invoice": "141679",
+      "kimco_id": 9661,
+      "why": "already in KIMCO bill 9661. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-14",
+      "pdf_total": "1,336.53",
+      "subject": "** CORRECTED INVOICES - 141679, 141749, 141871, 141873 **",
+      "received": "2026-08-11T19:21:20Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141749",
+      "kimco_id": 9658,
+      "why": "already in KIMCO bill 9658. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-15",
+      "pdf_total": null,
+      "subject": "** CORRECTED INVOICES - 141679, 141749, 141871, 141873 **",
+      "received": "2026-08-11T19:21:20Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141869",
+      "kimco_id": 9802,
+      "why": "already in KIMCO bill 9802. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-24",
+      "pdf_total": null,
+      "subject": "INV # 141869 / CPL # 76458, 76462, 76459, 76463, 76461, 76465, 76464, 76466, 76467, 76460 / PO # 58719, 58755, 58677, 58639, 58755, 58657",
+      "received": "2026-08-05T19:56:34Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141870",
+      "kimco_id": 9795,
+      "why": "already in KIMCO bill 9795. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-28",
+      "pdf_total": "3,058.08",
+      "subject": "INV # 141870 / CPL # 51997, 51970, 76519, 62655, 76522, 76523, 76521, 76525, 76520, 76524 / PO # 58766, 58677, 58719, 58592, 58755, 58833, 58604 ",
+      "received": "2026-08-05T15:33:33Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141871",
+      "kimco_id": 9796,
+      "why": "already in KIMCO bill 9796. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-30",
+      "pdf_total": null,
+      "subject": "INV # 141871 / CPL # 76554, 76556, 76558, 76557, 76555, 76556, 76559, 76560 / PO # 58766, 58755, 58719, 58767",
+      "received": "2026-08-05T15:42:39Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141873",
+      "kimco_id": 9797,
+      "why": "already in KIMCO bill 9797. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-31",
+      "pdf_total": null,
+      "subject": "INV # 141873 / CPL# 51970, 52021, 76591 / PO # 58677, 58755, 58767, 58793",
+      "received": "2026-08-05T15:50:34Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141879",
+      "kimco_id": 9803,
+      "why": "already in KIMCO bill 9803. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-01",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141880",
+      "kimco_id": 9804,
+      "why": "already in KIMCO bill 9804. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-06",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141881",
+      "kimco_id": 9805,
+      "why": "already in KIMCO bill 9805. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-08",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141882",
+      "kimco_id": 9806,
+      "why": "already in KIMCO bill 9806. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-10",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141883",
+      "kimco_id": 9807,
+      "why": "already in KIMCO bill 9807. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-14",
+      "pdf_total": "5500.08",
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141884",
+      "kimco_id": 9808,
+      "why": "already in KIMCO bill 9808. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-15",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141885",
+      "kimco_id": 9809,
+      "why": "already in KIMCO bill 9809. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-16",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141886",
+      "kimco_id": 9810,
+      "why": "already in KIMCO bill 9810. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-17",
+      "pdf_total": "500.00",
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141887",
+      "kimco_id": 9811,
+      "why": "already in KIMCO bill 9811. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-21",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141888",
+      "kimco_id": 9812,
+      "why": "already in KIMCO bill 9812. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-24",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141889",
+      "kimco_id": 9813,
+      "why": "already in KIMCO bill 9813. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-28",
+      "pdf_total": "500.00",
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141890",
+      "kimco_id": 9814,
+      "why": "already in KIMCO bill 9814. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-30",
+      "pdf_total": "500.00",
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141891",
+      "kimco_id": 9815,
+      "why": "already in KIMCO bill 9815. Invoice date is before 2026-08-01. The mailbox copy was received on or after Aug 1.",
+      "pdf_date": "2026-07-31",
+      "pdf_total": null,
+      "subject": "INV # 141879, 141880, 141881, 141882, 141883, 141884, 141885, 141886, 141887, 141888, 141889, 141890, 141891",
+      "received": "2026-08-05T19:58:52Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "141918",
+      "kimco_id": 9817,
+      "why": "already in KIMCO bill 9817.",
+      "pdf_date": "2026-08-04",
+      "pdf_total": "8,322.12",
+      "subject": "INV # 141918 / PL # 52043 / PO # 58788",
+      "received": "2026-08-05T21:19:24Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141941",
+      "kimco_id": 9863,
+      "why": "already in KIMCO bill 9863.",
+      "pdf_date": "2026-08-07",
+      "pdf_total": "281.05",
+      "subject": "INV # 141941 / PL # 52117 / PO # 58844",
+      "received": "2026-08-11T14:48:03Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "141942",
+      "kimco_id": 9864,
+      "why": "already in KIMCO bill 9864.",
+      "pdf_date": "2026-08-07",
+      "pdf_total": null,
+      "subject": "INV # 141942 / PL # 52042 / PO # 58767",
+      "received": "2026-08-11T14:51:48Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142041",
+      "kimco_id": 9988,
+      "why": "already in KIMCO bill 9988.",
+      "pdf_date": "2026-08-06",
+      "pdf_total": null,
+      "subject": "INV # 142041 / CPL # 76659, 76664, 76663, 76661, 76660, 76662 / PO # 58766, 58767, 58844",
+      "received": "2026-08-18T18:37:59Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142042",
+      "kimco_id": 9989,
+      "why": "already in KIMCO bill 9989.",
+      "pdf_date": "2026-08-12",
+      "pdf_total": null,
+      "subject": "INV # 142042 / CPL # 76740, 76741 / PO # 58862, 58844",
+      "received": "2026-08-18T18:45:14Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142043",
+      "kimco_id": 10000,
+      "why": "already in KIMCO bill 10000.",
+      "pdf_date": "2026-08-14",
+      "pdf_total": null,
+      "subject": "INV # 142043 / CPL # 76753, 76755 / PO # 58862, 58887",
+      "received": "2026-08-18T18:53:29Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142044",
+      "kimco_id": 9991,
+      "why": "already in KIMCO bill 9991.",
+      "pdf_date": "2026-08-14",
+      "pdf_total": null,
+      "subject": "INV # 142044 / CPL # 76757, 76756, 76758 / PO # 58887, 58844",
+      "received": "2026-08-18T19:00:37Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142173",
+      "kimco_id": 10187,
+      "why": "excluded. Existing KIMCO bill 10187. The vendor PDF still shows qty 10 of part 2975-1 shipped on PO 58887, not a corrected invoice for 20. Existing bill was not modified.",
+      "pdf_date": "2026-08-17",
+      "pdf_total": null,
+      "subject": "INV # 142173 / PL # 51969 / PO # 58887",
+      "received": "2026-09-01T17:53:12Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142174",
+      "kimco_id": 10188,
+      "why": "already in KIMCO bill 10188.",
+      "pdf_date": "2026-08-18",
+      "pdf_total": "324.30",
+      "subject": "INV # 142174 / PL # 52161 / PO # 58862",
+      "received": "2026-09-01T18:10:06Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142175",
+      "kimco_id": 10189,
+      "why": "already in KIMCO bill 10189.",
+      "pdf_date": "2026-08-18",
+      "pdf_total": "28.20",
+      "subject": "INV # 142175 / PL # 51970 / PO # 58677",
+      "received": "2026-09-01T18:13:30Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142176",
+      "kimco_id": 10304,
+      "why": "already in KIMCO bill 10304.",
+      "pdf_date": "2026-08-21",
+      "pdf_total": "364.92",
+      "subject": "INV # 142176 / CPL  # 76847, 76848 / PO # 58952, 58925",
+      "received": "2026-09-01T18:24:22Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142179",
+      "kimco_id": 10306,
+      "why": "already in KIMCO bill 10306.",
+      "pdf_date": "2026-08-25",
+      "pdf_total": null,
+      "subject": "INV # 142179 / CPL # 76884, 76881, 76887, 76885, 76882, 76886, 76883 / PO # 58952, 58925",
+      "received": "2026-09-01T18:42:01Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142188",
+      "kimco_id": 10308,
+      "why": "already in KIMCO bill 10308.",
+      "pdf_date": "2026-08-27",
+      "pdf_total": null,
+      "subject": "INV # 142188, CPL # 76923, 76925, 76924, 76920, 76922, 76916, 76917, 76921, 76918, 76919 / PO # 58972, 59002, 58925, 58952, 59002",
+      "received": "2026-09-01T19:24:56Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142216",
+      "kimco_id": 10312,
+      "why": "already in KIMCO bill 10312.",
+      "pdf_date": "2026-08-31",
+      "pdf_total": null,
+      "subject": "INV # 142216 / CPL # 76981, 76980, PO # 58925, 58952, 58972, 59002, 59031",
+      "received": "2026-09-04T19:58:13Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142231",
+      "kimco_id": 10186,
+      "why": "already in KIMCO bill 10186.",
+      "pdf_date": "2026-08-04",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142232",
+      "kimco_id": 10299,
+      "why": "already in KIMCO bill 10299.",
+      "pdf_date": "2026-08-06",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142233",
+      "kimco_id": 10300,
+      "why": "already in KIMCO bill 10300.",
+      "pdf_date": "2026-08-07",
+      "pdf_total": "500.00",
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142234",
+      "kimco_id": 10301,
+      "why": "already in KIMCO bill 10301.",
+      "pdf_date": "2026-08-14",
+      "pdf_total": "1,000.00",
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142235",
+      "kimco_id": 10302,
+      "why": "already in KIMCO bill 10302.",
+      "pdf_date": "2026-08-17",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142236",
+      "kimco_id": 10303,
+      "why": "already in KIMCO bill 10303.",
+      "pdf_date": "2026-08-18",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142238",
+      "kimco_id": 10305,
+      "why": "already in KIMCO bill 10305.",
+      "pdf_date": "2026-08-21",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142239",
+      "kimco_id": 10307,
+      "why": "already in KIMCO bill 10307.",
+      "pdf_date": "2026-08-25",
+      "pdf_total": null,
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142240",
+      "kimco_id": 10309,
+      "why": "already in KIMCO bill 10309.",
+      "pdf_date": "2026-08-27",
+      "pdf_total": "500.00",
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142241",
+      "kimco_id": 10310,
+      "why": "already in KIMCO bill 10310.",
+      "pdf_date": "2026-08-31",
+      "pdf_total": "500.00",
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "received": "2026-09-09T15:15:59Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142281",
+      "kimco_id": 10311,
+      "why": "already in KIMCO bill 10311.",
+      "pdf_date": "2026-08-28",
+      "pdf_total": "500.00",
+      "subject": "INV # 142281 ",
+      "received": "2026-09-10T18:27:01Z",
+      "freight": true,
+      "corrected": false
+    },
+    {
+      "invoice": "142296",
+      "kimco_id": 10190,
+      "why": "already in KIMCO bill 10190.",
+      "pdf_date": "2026-08-18",
+      "pdf_total": null,
+      "subject": "INV # 142296 / CPL # 76798, 76800, 76797. 51969 / PO # 58925, 58887",
+      "received": "2026-09-10T20:04:28Z",
+      "freight": false,
+      "corrected": false
+    },
+    {
+      "invoice": "142421",
+      "kimco_id": 10313,
+      "why": "already in KIMCO bill 10313.",
+      "pdf_date": "2026-09-11",
+      "pdf_total": null,
+      "subject": "INV # 142421 / CPL # 77102, 77101, 77089, 77099, 77098, 77100 / PO # 59124, 59107, 59090, 59031",
+      "received": "2026-09-21T20:57:04Z",
+      "freight": false,
+      "corrected": false
+    }
+  ]
+}
