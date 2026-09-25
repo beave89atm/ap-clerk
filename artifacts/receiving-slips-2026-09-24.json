@@ -1,0 +1,337 @@
+{
+  "run": "receiving-slips-2026-09-24",
+  "host": "https://live.kimcoerp.com",
+  "mailbox": "receiving@kannonmfg.com",
+  "emails_in_mailbox": 3,
+  "emails_sent": false,
+  "posted": false,
+  "packing_slip_success_gate": "suspended",
+  "status_amount_lines_posting_changed": false,
+  "note": "Three Sharp MFP scans, none categorized before this run. The 2026-09-22 run had already attached two slip pages (PO 59224 page 2 and PO 59235 page 1) and left the categories blank. This run attached the remaining slips, added Comments_1 only on Transfer AP batch 375 for slips attached now, then PATCHed AI Completed. Header status, amounts, lines, batch, PO, and Posted were unchanged.",
+  "emails": [
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBZwAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "received": "2026-09-22T12:11:58Z",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "categories_before": [],
+      "categories_after": ["AI Completed"],
+      "category_patch_http": 200,
+      "category_error": "",
+      "attachments": [
+        {
+          "name": "Kannon Manufacturing_20260922_072849.pdf",
+          "content_type": "application/pdf",
+          "size": 99374,
+          "pages": 1
+        }
+      ],
+      "slips_found": [
+        {
+          "pages": [1],
+          "vendor": "McMaster-Carr",
+          "po": "59219",
+          "packing_list": "5680403-01",
+          "order_placed": "2026-09-16",
+          "parts": [
+            {
+              "part": "91247A860",
+              "description": "Medium-Strength Grade 5 Steel Hex Head Screw, Zinc-Plated, 3/4\"-10 x 6-1/2\", Partially Threaded, Packs of 1",
+              "ordered": 40,
+              "shipped": 40,
+              "your_part_number": "Cesar"
+            }
+          ],
+          "read_note": "RECEIVED stamp covers the PO and the packing-list suffix. Order-placed date on the scan is 2026-09-16 and the packing-list base reads 5680403. Invoice 72012111 is the only live McMaster bill with that date and that packing list (5680403-01, the only list on the invoice) for this 40-pack line.",
+          "matched_header": {
+            "kimco_id": 10145,
+            "invoice_number": "72012111",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59219-MCMASTER-CARR",
+            "batch_id": null,
+            "batch": "",
+            "status": 1,
+            "posted": true,
+            "amount": 217.39
+          },
+          "attached_now": true,
+          "already_attached": false,
+          "attachment_name": "packing-slip-59219-PL5680403-01.pdf",
+          "attach_status": "attached",
+          "get_verified": true,
+          "comments_1": "not added (header is not Transfer AP batch 375)"
+        }
+      ],
+      "verdict": "One slip. Attached to KIMCO 10145. Category set to AI Completed.",
+      "error": ""
+    },
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBaAAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "received": "2026-09-22T12:14:51Z",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "categories_before": [],
+      "categories_after": ["AI Completed"],
+      "category_patch_http": 200,
+      "category_error": "",
+      "attachments": [
+        {
+          "name": "Kannon Manufacturing_20260922_073148.pdf",
+          "content_type": "application/pdf",
+          "size": 146307,
+          "pages": 2
+        }
+      ],
+      "slips_found": [
+        {
+          "pages": [1],
+          "vendor": "McMaster-Carr",
+          "po": "59224",
+          "packing_list": "5765761-01",
+          "order_placed": "2026-09-17",
+          "carrier": "FedEx 541303406960",
+          "shipped_from": "Atlanta warehouse",
+          "parts": [
+            {
+              "part": "93320A385",
+              "description": "Polished Unthreaded Spacers, 1\" OD, 1\" Long, for 1/2\" screw, Packs of 2",
+              "ordered": 2,
+              "shipped_on_this_slip": 1
+            },
+            {
+              "part": "3616N12",
+              "description": "Horizontal-Surface-Mount Level, 2-1/2\" x 1\", Black, Packs of 2",
+              "ordered": 6,
+              "shipped": 6,
+              "note": "Listed on the slip; invoice assigns the UPS shipment to packing list 5765761-02"
+            },
+            {
+              "part": "2151A27",
+              "description": "Magnetic Level for Tight Spaces, 10\" Long",
+              "ordered": 1,
+              "shipped": 1
+            },
+            {
+              "part": "5513T12",
+              "description": "Easy-Install Wire Rope Clamp, 18-8, for 1/8\" rope",
+              "ordered": 1,
+              "shipped": 1
+            }
+          ],
+          "matched_header": {
+            "kimco_id": 10142,
+            "invoice_number": "72094446",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59224-MCMASTER-CARR",
+            "batch_id": 375,
+            "batch": "TRANSFER AP",
+            "status": 1,
+            "posted": null,
+            "amount": 42.15
+          },
+          "attached_now": true,
+          "already_attached": false,
+          "attachment_name": "packing-slip-59224-PL5765761-01.pdf",
+          "attach_status": "attached",
+          "get_verified": true,
+          "comments_1": {
+            "added": true,
+            "id": 1063,
+            "http": 200,
+            "text": "AP Clerk: Attached signed packing slip (PO 59224, PL 5765761-01) from receiving@ scan dated 2026-09-22."
+          }
+        },
+        {
+          "pages": [2],
+          "vendor": "McMaster-Carr",
+          "po": "59224",
+          "packing_list": "5765761-02",
+          "order_placed": "2026-09-17",
+          "carrier": "UPS 1Z3527040392349979",
+          "shipped_from": "Chicago warehouse",
+          "parts": [
+            {
+              "part": "3616N12",
+              "description": "Horizontal-Surface-Mount Level, 2-1/2\" x 1\", Black, Packs of 2",
+              "ordered": 6,
+              "shipped": 6
+            },
+            {
+              "part": "2151A27",
+              "description": "Magnetic Level for Tight Spaces, 10\" Long",
+              "ordered": 1,
+              "shipped": 1
+            },
+            {
+              "part": "5513T12",
+              "description": "Easy-Install Wire Rope Clamp, 18-8, for 1/8\" rope",
+              "ordered": 1,
+              "shipped": 1
+            },
+            {
+              "part": "93320A385",
+              "description": "Polished Unthreaded Spacers, 1\" OD, 1\" Long, for 1/2\" screw, Packs of 2",
+              "ordered": 2,
+              "shipped_on_this_slip": 1
+            }
+          ],
+          "matched_header": {
+            "kimco_id": 10142,
+            "invoice_number": "72094446",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59224-MCMASTER-CARR",
+            "batch_id": 375,
+            "batch": "TRANSFER AP",
+            "status": 1,
+            "posted": null,
+            "amount": 42.15
+          },
+          "attached_now": false,
+          "already_attached": true,
+          "existing_attachment_name": "packing-slip-59224-page 2.pdf",
+          "existing_attachment_modified": "2026-09-22T11:43:37.78",
+          "already_attached_check": "Same page as the file already on the header (rendered-page difference 4.0). Not uploaded again. Vendor invoice PDF left in place.",
+          "comments_1": "not added for this already-attached page"
+        }
+      ],
+      "verdict": "Two slips, both on KIMCO 10142. Page 2 was already attached on 2026-09-22. Page 1 (PL 5765761-01) attached now, with Comments_1 1063 because the bill is on Transfer AP 375. Category set to AI Completed.",
+      "error": ""
+    },
+    {
+      "message_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMARgAAA5er2Soe3K1LvedsnObFmngHANU5nbfcoe1HkSLaR7UlazYAAAIBDAAAANU5nbfcoe1HkSLaR7UlazYAAAIBaQAAAA==",
+      "subject": "Scanned image from Kannon Manufacturing",
+      "received": "2026-09-22T12:15:11Z",
+      "from": "scans@sharp-mfp.com",
+      "from_name": "Kannon Manufacturing",
+      "categories_before": [],
+      "categories_after": ["AI Completed"],
+      "category_patch_http": 200,
+      "category_error": "",
+      "attachments": [
+        {
+          "name": "Kannon Manufacturing_20260922_073207.pdf",
+          "content_type": "application/pdf",
+          "size": 283594,
+          "pages": 3
+        }
+      ],
+      "slips_found": [
+        {
+          "pages": [1],
+          "vendor": "McMaster-Carr",
+          "po": "59235",
+          "packing_list": "5756929-01",
+          "order_placed": "2026-09-17",
+          "order_placed_by": "Monica Torres",
+          "carrier": "FedEx 539677514939",
+          "parts": [
+            {
+              "part": "91306A416",
+              "description": "Zinc-Plated Button Head Hex-Drive Screw, Alloy Steel, 3/8\"-16 x 3/4\", Packs of 10",
+              "ordered": 3,
+              "shipped": 3
+            }
+          ],
+          "slip_note": "The purchase order number was changed from PO59235 to 59235 on September 17th.",
+          "matched_header": {
+            "kimco_id": 10144,
+            "invoice_number": "72087570",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59235-MCMASTER-CARR",
+            "batch_id": null,
+            "batch": "",
+            "status": 1,
+            "posted": true,
+            "amount": 30.32
+          },
+          "attached_now": false,
+          "already_attached": true,
+          "existing_attachment_name": "packing-slip-59235-page 1.pdf",
+          "existing_attachment_modified": "2026-09-22T11:42:27.07",
+          "already_attached_check": "Same page as the file already on the header (rendered-page difference 2.3). Not uploaded again.",
+          "comments_1": "not added (header is not Transfer AP batch 375)"
+        },
+        {
+          "pages": [2],
+          "vendor": "McMaster-Carr",
+          "po": "58221",
+          "packing_list": "5687917-01",
+          "order_placed": "2026-09-16",
+          "order_placed_by": "Shawn",
+          "parts": [
+            {
+              "part": "4082T15",
+              "description": "Brass Body On/Off Valve with T-Handle, 3/4 NPT Female",
+              "ordered": 24,
+              "shipped": 24,
+              "your_part_number": "Cesar"
+            }
+          ],
+          "read_note": "Slip and vendor invoice both print PO 58221 and packing list 5687917-01. The live header Purchase Order text is PO59221-MCMASTER-CARR. That field was not changed.",
+          "matched_header": {
+            "kimco_id": 10146,
+            "invoice_number": "72013304",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59221-MCMASTER-CARR",
+            "invoice_pdf_po": "58221",
+            "batch_id": 375,
+            "batch": "TRANSFER AP",
+            "status": 1,
+            "posted": null,
+            "amount": 443.49
+          },
+          "attached_now": true,
+          "already_attached": false,
+          "attachment_name": "packing-slip-58221-PL5687917-01.pdf",
+          "attach_status": "attached",
+          "get_verified": true,
+          "comments_1": {
+            "added": true,
+            "id": 1064,
+            "http": 200,
+            "text": "AP Clerk: Attached signed packing slip (PO 58221, PL 5687917-01) from receiving@ scan dated 2026-09-22."
+          }
+        },
+        {
+          "pages": [3],
+          "vendor": "McMaster-Carr",
+          "po": "59191",
+          "packing_list": "5539373-01",
+          "order_placed": "2026-09-14",
+          "order_placed_by": "Shawn",
+          "parts": [
+            {
+              "part": "91247A860",
+              "description": "Medium-Strength Grade 5 Steel Hex Head Screw, Zinc-Plated, 3/4\"-10 x 6-1/2\", Partially Threaded, Packs of 1",
+              "ordered": 40,
+              "shipped": 40,
+              "your_part_number": "Cesar"
+            }
+          ],
+          "matched_header": {
+            "kimco_id": 10147,
+            "invoice_number": "71839575",
+            "vendor": "1115-MCMASTER-CARR",
+            "header_po": "PO59191-MCMASTER-CARR",
+            "batch_id": null,
+            "batch": "",
+            "status": 1,
+            "posted": true,
+            "amount": 217.39
+          },
+          "attached_now": true,
+          "already_attached": false,
+          "attachment_name": "packing-slip-59191-PL5539373-01.pdf",
+          "attach_status": "attached",
+          "get_verified": true,
+          "comments_1": "not added (header is not Transfer AP batch 375)"
+        }
+      ],
+      "verdict": "Three slips. Page 1 was already on KIMCO 10144. Page 2 attached to 10146 with Comments_1 1064 (Transfer AP 375). Page 3 attached to 10147. Category set to AI Completed.",
+      "error": ""
+    }
+  ],
+  "blockers": []
+}
