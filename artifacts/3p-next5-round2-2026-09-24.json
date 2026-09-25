@@ -1,0 +1,374 @@
+{
+  "run": "3p-next5-round2-2026-09-24",
+  "host": "https://live.kimcoerp.com",
+  "vendor": "999-3P INDUSTRIES",
+  "vendor_id": 1,
+  "batch_id": 724,
+  "batch_name": "API Agent - 9/22/26 3P",
+  "posted": false,
+  "emails_sent": false,
+  "invent": false,
+  "untouched": {
+    "invoice": "142231",
+    "kimco_id": 10186
+  },
+  "selection": "Five oldest unentered 3P invoices by PDF date, then invoice number. Live list had no header for 142176, 142238, 142179, 142239, or 142188.",
+  "invoices": [
+    {
+      "invoice": "142176",
+      "pdf_date": "2026-08-21",
+      "pdf_total": 364.92,
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "58952",
+        "58925"
+      ],
+      "kimco_id": 10304,
+      "status": "Success",
+      "exception": null,
+      "receipts": [
+        {
+          "id": 23429,
+          "qty": 2.0,
+          "price": 91.23,
+          "ext": 182.46,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-02"
+        },
+        {
+          "id": 23417,
+          "qty": 1.0,
+          "price": 91.23,
+          "ext": 91.23,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-03"
+        },
+        {
+          "id": 23428,
+          "qty": 1.0,
+          "price": 91.23,
+          "ext": 91.23,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-01"
+        }
+      ],
+      "charges": [],
+      "invoice_amount_after": 364.92,
+      "verification_amount": 364.92,
+      "comments_1": "",
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved_this_run": true,
+      "why": "Parts. Invoice_Amount 364.92 matches the PDF total. Selected 3 receipts. No PPV. Header PO blank (PDF SEE BELOW). Not posted.",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142176.pdf"
+      ]
+    },
+    {
+      "invoice": "142238",
+      "pdf_date": "2026-08-21",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "pos": [],
+      "kimco_id": 10305,
+      "status": "Success",
+      "exception": null,
+      "receipts": [],
+      "charges": [
+        {
+          "code": "Freight External-Freight External",
+          "id": 5513,
+          "amount": 500.0
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved_this_run": false,
+      "why": "Freight-only. Invoice_Amount 500.00 matches the PDF total. Freight External lookup id 1. No lines. Not posted.",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 4,
+      "attachments": [
+        "142238.pdf"
+      ]
+    },
+    {
+      "invoice": "142179",
+      "pdf_date": "2026-08-25",
+      "pdf_total": 1855.8,
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "58952",
+        "58925"
+      ],
+      "kimco_id": 10306,
+      "status": "HOLD",
+      "exception": "price_variance",
+      "receipts": [
+        {
+          "id": 23547,
+          "qty": 1.0,
+          "price": 91.23,
+          "ext": 91.23,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-02"
+        },
+        {
+          "id": 23521,
+          "qty": 4.0,
+          "price": 7.76,
+          "ext": 31.04,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-06"
+        },
+        {
+          "id": 23522,
+          "qty": 16.0,
+          "price": 7.76,
+          "ext": 124.16,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-07"
+        },
+        {
+          "id": 23420,
+          "qty": 7.0,
+          "price": 39.35,
+          "ext": 275.45,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-06"
+        },
+        {
+          "id": 23421,
+          "qty": 1.0,
+          "price": 39.35,
+          "ext": 39.35,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-07"
+        },
+        {
+          "id": 23422,
+          "qty": 4.0,
+          "price": 39.35,
+          "ext": 157.4,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-08"
+        },
+        {
+          "id": 23423,
+          "qty": 25.0,
+          "price": 12.3,
+          "ext": 307.5,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-09"
+        },
+        {
+          "id": 23418,
+          "qty": 10.0,
+          "price": 39.97,
+          "ext": 399.7,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-04"
+        },
+        {
+          "id": 23419,
+          "qty": 1.0,
+          "price": 39.97,
+          "ext": 39.97,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-05"
+        }
+      ],
+      "charges": [],
+      "invoice_amount_after": 1465.8,
+      "verification_amount": 1855.8,
+      "comments_1": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142179. qty 4 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($390.00) and receipt 23414 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 4.",
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved_this_run": true,
+      "why": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142179. qty 4 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($390.00) and receipt 23414 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 4.",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142179.pdf"
+      ]
+    },
+    {
+      "invoice": "142239",
+      "pdf_date": "2026-08-25",
+      "pdf_total": 500.0,
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "pos": [],
+      "kimco_id": 10307,
+      "status": "Success",
+      "exception": null,
+      "receipts": [],
+      "charges": [
+        {
+          "code": "Freight External-Freight External",
+          "id": 5514,
+          "amount": 500.0
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "",
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved_this_run": false,
+      "why": "Freight-only. Invoice_Amount 500.00 matches the PDF total. Freight External lookup id 1. No lines. Not posted.",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 4,
+      "attachments": [
+        "142239.pdf"
+      ]
+    },
+    {
+      "invoice": "142188",
+      "pdf_date": "2026-08-27",
+      "pdf_total": 2553.27,
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "58972",
+        "59002",
+        "58952",
+        "58925"
+      ],
+      "kimco_id": 10308,
+      "status": "HOLD",
+      "exception": "price_variance",
+      "receipts": [
+        {
+          "id": 23531,
+          "qty": 1.0,
+          "price": 91.23,
+          "ext": 91.23,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-01"
+        },
+        {
+          "id": 23538,
+          "qty": 2.0,
+          "price": 83.02,
+          "ext": 166.04,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-02"
+        },
+        {
+          "id": 23539,
+          "qty": 4.0,
+          "price": 83.02,
+          "ext": 332.08,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-03"
+        },
+        {
+          "id": 23544,
+          "qty": 70.0,
+          "price": 7.76,
+          "ext": 543.2,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-05"
+        },
+        {
+          "id": 23545,
+          "qty": 19.0,
+          "price": 7.76,
+          "ext": 147.44,
+          "po": "PO58925-3P INDUSTRIES",
+          "po_line": "PO58925-06"
+        },
+        {
+          "id": 23532,
+          "qty": 4.0,
+          "price": 91.23,
+          "ext": 364.92,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-02"
+        },
+        {
+          "id": 23537,
+          "qty": 3.0,
+          "price": 91.23,
+          "ext": 273.69,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-01"
+        },
+        {
+          "id": 23535,
+          "qty": 25.0,
+          "price": 3.65,
+          "ext": 91.25,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-04"
+        },
+        {
+          "id": 23536,
+          "qty": 7.0,
+          "price": 3.65,
+          "ext": 25.55,
+          "po": "PO59002-3P INDUSTRIES",
+          "po_line": "PO59002-05"
+        },
+        {
+          "id": 23540,
+          "qty": 10.0,
+          "price": 12.3,
+          "ext": 123.0,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-04"
+        },
+        {
+          "id": 23541,
+          "qty": 10.0,
+          "price": 12.3,
+          "ext": 123.0,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-05"
+        },
+        {
+          "id": 23542,
+          "qty": 3.0,
+          "price": 12.3,
+          "ext": 36.9,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-06"
+        },
+        {
+          "id": 23546,
+          "qty": 1.0,
+          "price": 39.97,
+          "ext": 39.97,
+          "po": "PO58952-3P INDUSTRIES",
+          "po_line": "PO58952-05"
+        }
+      ],
+      "charges": [],
+      "invoice_amount_after": 2358.27,
+      "verification_amount": 2553.27,
+      "comments_1": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142188. qty 2 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($195.00) and receipt 23543 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 2.",
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved_this_run": true,
+      "why": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142188. qty 2 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($195.00) and receipt 23543 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 2.",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142188.pdf"
+      ]
+    }
+  ]
+}
