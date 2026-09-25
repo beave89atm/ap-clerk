@@ -1,0 +1,582 @@
+{
+  "run_date": "2026-09-25",
+  "target": "https://live.kimcoerp.com",
+  "vendor": {
+    "id": 137,
+    "text": "1135-ONEAL STEEL, LLC."
+  },
+  "batch": {
+    "id": 730,
+    "name": "API Agent - 9/25/26 O'Neal",
+    "created": true,
+    "posted": false
+  },
+  "never_posted": true,
+  "existing_bills_edited": false,
+  "transfer_ap_touched": false,
+  "ppv_rule": "Under $75 posts Purchase Price Variance (lookup id 13) and Success. $75 or more would HOLD price_variance, move the new bill to Transfer AP, and comment @Shawn McKibben mention-id 104. A gap of $0.02 or less is a match and is not a PPV charge. This run had no price hold.",
+  "credit_15478871": {
+    "entered": false,
+    "email_moved": false,
+    "email_untouched": true,
+    "folder": "Inbox",
+    "categories_unchanged": [
+      "AI HOLD"
+    ],
+    "note": "Left in Inbox. Category was already AI HOLD before this run and was not changed."
+  },
+  "invoices": [
+    {
+      "invoice_number": "15450763",
+      "status": "Success",
+      "reason": "Receipt 23342 Quantity_Received 10080 IN equals invoice qty 10080 IN (840 ft x 12) and PO ordered 10080 IN. PPV +0.34 is under $75.",
+      "type": "PO invoice",
+      "invoice_type": 3,
+      "pdf_amount": 2654.4,
+      "kimco_invoice_amount": 2654.4,
+      "kimco_verification_amount": 2654.4,
+      "kimco_bill_id": 10315,
+      "batch": "API Agent - 9/25/26 O'Neal",
+      "batch_id": 730,
+      "transfer_ap": false,
+      "posted": null,
+      "posted_date": null,
+      "void": false,
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "purchase_order": {
+        "id": 7006,
+        "text": "PO59004-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "invoice_date": "2026-08-25T00:00:00",
+      "header_comments": "API Agent",
+      "receipts_selected": [
+        23342
+      ],
+      "receipts_not_selected": [],
+      "lines": [
+        {
+          "line_id": 21045,
+          "receipt_id": 23342,
+          "quantity": 10080.0,
+          "unit_price": 0.2633
+        }
+      ],
+      "ppv": 0.34,
+      "charges": [
+        {
+          "id": 5519,
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance",
+            "isAbstract": false
+          },
+          "amount": 0.34
+        }
+      ],
+      "comments_1_id": null,
+      "comments_1": [],
+      "attachment": [
+        {
+          "id": 160026,
+          "name": "IV-15450763 - ONEAL STEEL, LLC."
+        }
+      ],
+      "email_moved": true,
+      "email_folder_before": "Inbox",
+      "email_folder_after": "9 - FORT WORTH ARCHIVE",
+      "email_category": [
+        "Entered in AI"
+      ],
+      "email_category_status": "entered-in-ai",
+      "email_move_status": "moved-fort-worth",
+      "email_other_invoice_numbers": [],
+      "email_blocked_reason": null,
+      "note": "",
+      "qty_check": [
+        {
+          "line": "1",
+          "description": "FTPIPE A500 B BARE 1-1/2 SCH 40 X21",
+          "invoice_qty_in": 10080,
+          "quantity_received": 10080,
+          "po_ordered": 10080,
+          "po_received": 10080,
+          "po_unit_price": 0.2633,
+          "invoice_extended": 2654.4,
+          "receipt_extended": 2654.06,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        }
+      ]
+    },
+    {
+      "invoice_number": "15453980",
+      "status": "Success",
+      "reason": "Both receipts match invoice inches and ordered qty. Line 1 PPV 0.00. Line 2 PPV +0.66. Bill PPV +0.66 is under $75.",
+      "type": "PO invoice",
+      "invoice_type": 3,
+      "pdf_amount": 5882.42,
+      "kimco_invoice_amount": 5882.42,
+      "kimco_verification_amount": 5882.42,
+      "kimco_bill_id": 10316,
+      "batch": "API Agent - 9/25/26 O'Neal",
+      "batch_id": 730,
+      "transfer_ap": false,
+      "posted": null,
+      "posted_date": null,
+      "void": false,
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "purchase_order": {
+        "id": 7043,
+        "text": "PO59041-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "invoice_date": "2026-08-27T00:00:00",
+      "header_comments": "API Agent",
+      "receipts_selected": [
+        23458,
+        23459
+      ],
+      "receipts_not_selected": [],
+      "lines": [
+        {
+          "line_id": 21046,
+          "receipt_id": 23458,
+          "quantity": 756.0,
+          "unit_price": 0.145
+        },
+        {
+          "line_id": 21047,
+          "receipt_id": 23459,
+          "quantity": 19680.0,
+          "unit_price": 0.2933
+        }
+      ],
+      "ppv": 0.66,
+      "charges": [
+        {
+          "id": 5520,
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance",
+            "isAbstract": false
+          },
+          "amount": 0.66
+        }
+      ],
+      "comments_1_id": null,
+      "comments_1": [],
+      "attachment": [
+        {
+          "id": 160027,
+          "name": "IV-15453980 - ONEAL STEEL, LLC."
+        }
+      ],
+      "email_moved": true,
+      "email_folder_before": "Inbox",
+      "email_folder_after": "9 - FORT WORTH ARCHIVE",
+      "email_category": [
+        "Entered in AI"
+      ],
+      "email_category_status": "entered-in-ai",
+      "email_move_status": "moved-fort-worth",
+      "email_other_invoice_numbers": [],
+      "email_blocked_reason": null,
+      "note": "",
+      "qty_check": [
+        {
+          "line": "1",
+          "description": "FTPIPE A513 TY 1 1/2 SCH 40 X21",
+          "invoice_qty_in": 756,
+          "quantity_received": 756,
+          "po_ordered": 756,
+          "po_received": 756,
+          "po_unit_price": 0.145,
+          "invoice_extended": 109.62,
+          "receipt_extended": 109.62,
+          "receipt_id": 23458,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        },
+        {
+          "line": "2",
+          "description": "FTSQTB HREW A500 B 2 X11GA X20",
+          "invoice_qty_in": 19680,
+          "quantity_received": 19680,
+          "po_ordered": 19680,
+          "po_received": 19680,
+          "po_unit_price": 0.2933,
+          "invoice_extended": 5772.8,
+          "receipt_extended": 5772.14,
+          "receipt_id": 23459,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        }
+      ]
+    },
+    {
+      "invoice_number": "15455478",
+      "status": "HOLD",
+      "reason": "quantity_variance. Line 2 receipt 23563 Quantity_Received 14400 IN does not equal invoice qty 1200 IN (5 pc x 20 ft) or PO ordered 1200 IN. Line 1 receipt 23562 matches and was selected. Not missing_receipt. Not price_variance (gap at ordered qty is -0.07). Standing rules do not move quantity_variance to Transfer AP.",
+      "type": "PO invoice",
+      "invoice_type": 3,
+      "pdf_amount": 257.46,
+      "kimco_invoice_amount": 57.72,
+      "kimco_verification_amount": 257.46,
+      "kimco_bill_id": 10317,
+      "batch": "API Agent - 9/25/26 O'Neal",
+      "batch_id": 730,
+      "transfer_ap": false,
+      "posted": null,
+      "posted_date": null,
+      "void": false,
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "purchase_order": {
+        "id": 7061,
+        "text": "PO59059-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "invoice_date": "2026-08-28T00:00:00",
+      "header_comments": "API Agent",
+      "receipts_selected": [
+        23562
+      ],
+      "receipts_not_selected": [
+        23563
+      ],
+      "lines": [
+        {
+          "line_id": 21048,
+          "receipt_id": 23562,
+          "quantity": 240.0,
+          "unit_price": 0.2405
+        }
+      ],
+      "ppv": null,
+      "charges": [],
+      "comments_1_id": 1084,
+      "comments_1": [
+        {
+          "id": 1084,
+          "html": "<p>AP Clerk: category=quantity_variance; owner=buyer. PO 59059 line 2 CWANGLE A36/A529G50 1-1/4X1-1/4X3/16 X20 (part ANG-1.25 X 1.25 X 0.188-A36, receipt 23563): invoice qty 1200 IN (5 pc x 20 ft) vs receipt Quantity_Received 14400 IN vs PO ordered Quantity 1200 IN. PO price 0.1665 per IN. Invoice line extended 199.73 (invoice price 0.1664417 per IN on 1200 IN). At the ordered qty the PO extended is 199.80, gap -0.07, which is under $75 and is not the hold. Receipt extended at Quantity_Received 14400 IN is 2397.60. Quantity_Remaining was not used. Do not select receipt 23563. Line 1 receipt 23562 (240 IN, ordered 240 IN) was selected. Buyer: unreceive the extra quantity so Quantity_Received equals ordered 1200 IN, then AP can select receipt 23563. Not missing_receipt. Not Transfer AP.</p>"
+        }
+      ],
+      "attachment": [
+        {
+          "id": 160028,
+          "name": "IV-15455478 - ONEAL STEEL, LLC."
+        }
+      ],
+      "email_moved": true,
+      "email_folder_before": "Inbox",
+      "email_folder_after": "9 - FORT WORTH ARCHIVE",
+      "email_category": [
+        "Entered with issues"
+      ],
+      "email_category_status": "entered-with-issues",
+      "email_move_status": "moved-fort-worth",
+      "email_other_invoice_numbers": [],
+      "email_blocked_reason": null,
+      "note": "<p>AP Clerk: category=quantity_variance; owner=buyer. PO 59059 line 2 CWANGLE A36/A529G50 1-1/4X1-1/4X3/16 X20 (part ANG-1.25 X 1.25 X 0.188-A36, receipt 23563): invoice qty 1200 IN (5 pc x 20 ft) vs receipt Quantity_Received 14400 IN vs PO ordered Quantity 1200 IN. PO price 0.1665 per IN. Invoice line extended 199.73 (invoice price 0.1664417 per IN on 1200 IN). At the ordered qty the PO extended is 199.80, gap -0.07, which is under $75 and is not the hold. Receipt extended at Quantity_Received 14400 IN is 2397.60. Quantity_Remaining was not used. Do not select receipt 23563. Line 1 receipt 23562 (240 IN, ordered 240 IN) was selected. Buyer: unreceive the extra quantity so Quantity_Received equals ordered 1200 IN, then AP can select receipt 23563. Not missing_receipt. Not Transfer AP.</p>",
+      "qty_check": [
+        {
+          "line": "1",
+          "description": "CWANGLE A36/A529G50 1-1/4X1-1/4X1/8 X20",
+          "invoice_qty_in": 240,
+          "quantity_received": 240,
+          "po_ordered": 240,
+          "po_received": 240,
+          "po_unit_price": 0.2405,
+          "invoice_extended": 57.73,
+          "receipt_extended": 57.72,
+          "receipt_id": 23562,
+          "selected": true,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true,
+          "line_ppv": 0.01,
+          "line_ppv_treatment": "match within 0.02; no PPV charge"
+        },
+        {
+          "line": "2",
+          "description": "CWANGLE A36/A529G50 1-1/4X1-1/4X3/16 X20",
+          "part": "ANG-1.25 X 1.25 X 0.188-A36",
+          "invoice_qty_in": 1200,
+          "quantity_received": 14400,
+          "po_ordered": 1200,
+          "po_received": 14400,
+          "po_unit_price": 0.1665,
+          "invoice_price_per_in": 0.1664417,
+          "invoice_extended": 199.73,
+          "po_extended_at_ordered_qty": 199.8,
+          "price_gap_at_ordered_qty": -0.07,
+          "receipt_extended_at_quantity_received": 2397.6,
+          "receipt_id": 23563,
+          "selected": false,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        }
+      ]
+    },
+    {
+      "invoice_number": "15464074",
+      "status": "Success",
+      "reason": "Receipt 23880 Quantity_Received 240 IN equals invoice qty 240 IN (1 pc x 20 ft) and PO ordered 240 IN. Invoice extended 192.85 vs receipt extended 192.86 is a $0.01 match. No PPV. KIMCO Invoice_Amount stays at the receipt extended 192.86; Invoice_Verification_Amount is the PDF total 192.85.",
+      "type": "PO invoice",
+      "invoice_type": 3,
+      "pdf_amount": 192.85,
+      "kimco_invoice_amount": 192.86,
+      "kimco_verification_amount": 192.85,
+      "kimco_bill_id": 10318,
+      "batch": "API Agent - 9/25/26 O'Neal",
+      "batch_id": 730,
+      "transfer_ap": false,
+      "posted": null,
+      "posted_date": null,
+      "void": false,
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "purchase_order": {
+        "id": 7123,
+        "text": "PO59121-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "invoice_date": "2026-09-08T00:00:00",
+      "header_comments": "API Agent",
+      "receipts_selected": [
+        23880
+      ],
+      "receipts_not_selected": [],
+      "lines": [
+        {
+          "line_id": 21049,
+          "receipt_id": 23880,
+          "quantity": 240.0,
+          "unit_price": 0.8036
+        }
+      ],
+      "ppv": null,
+      "charges": [],
+      "comments_1_id": null,
+      "comments_1": [],
+      "attachment": [
+        {
+          "id": 160029,
+          "name": "IV-15464074 - ONEAL STEEL, LLC."
+        }
+      ],
+      "email_moved": true,
+      "email_folder_before": "Inbox",
+      "email_folder_after": "9 - FORT WORTH ARCHIVE",
+      "email_category": [
+        "Entered in AI"
+      ],
+      "email_category_status": "entered-in-ai",
+      "email_move_status": "moved-fort-worth",
+      "email_other_invoice_numbers": [],
+      "email_blocked_reason": null,
+      "note": "",
+      "qty_check": [
+        {
+          "line": "1",
+          "description": "CWFLAT A36/A529G50 1 X2 X20",
+          "invoice_qty_in": 240,
+          "quantity_received": 240,
+          "po_ordered": 240,
+          "po_received": 240,
+          "po_unit_price": 0.8036,
+          "invoice_extended": 192.85,
+          "receipt_extended": 192.86,
+          "receipt_id": 23880,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        }
+      ]
+    },
+    {
+      "invoice_number": "15467969",
+      "status": "Success",
+      "reason": "All five receipts match invoice inches and ordered qty. Combined PPV +3.22 (includes the $0.01 angle rounding) is under $75.",
+      "type": "PO invoice",
+      "invoice_type": 3,
+      "pdf_amount": 916.18,
+      "kimco_invoice_amount": 916.18,
+      "kimco_verification_amount": 916.18,
+      "kimco_bill_id": 10319,
+      "batch": "API Agent - 9/25/26 O'Neal",
+      "batch_id": 730,
+      "transfer_ap": false,
+      "posted": null,
+      "posted_date": null,
+      "void": false,
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "purchase_order": {
+        "id": 7142,
+        "text": "PO59140-ONEAL STEEL, LLC.",
+        "isAbstract": false
+      },
+      "invoice_date": "2026-09-11T00:00:00",
+      "header_comments": "API Agent",
+      "receipts_selected": [
+        24042,
+        24043,
+        24044,
+        24045,
+        24046
+      ],
+      "receipts_not_selected": [],
+      "lines": [
+        {
+          "line_id": 21050,
+          "receipt_id": 24042,
+          "quantity": 240.0,
+          "unit_price": 0.1592
+        },
+        {
+          "line_id": 21051,
+          "receipt_id": 24043,
+          "quantity": 240.0,
+          "unit_price": 0.1592
+        },
+        {
+          "line_id": 21052,
+          "receipt_id": 24044,
+          "quantity": 240.0,
+          "unit_price": 0.3396
+        },
+        {
+          "line_id": 21053,
+          "receipt_id": 24045,
+          "quantity": 480.0,
+          "unit_price": 0.6124
+        },
+        {
+          "line_id": 21054,
+          "receipt_id": 24046,
+          "quantity": 1440.0,
+          "unit_price": 0.3202
+        }
+      ],
+      "ppv": 3.22,
+      "charges": [
+        {
+          "id": 5521,
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance",
+            "isAbstract": false
+          },
+          "amount": 3.22
+        }
+      ],
+      "comments_1_id": null,
+      "comments_1": [],
+      "attachment": [
+        {
+          "id": 160030,
+          "name": "IV-15467969 - ONEAL STEEL, LLC."
+        }
+      ],
+      "email_moved": true,
+      "email_folder_before": "Inbox",
+      "email_folder_after": "9 - FORT WORTH ARCHIVE",
+      "email_category": [
+        "Entered in AI"
+      ],
+      "email_category_status": "entered-in-ai",
+      "email_move_status": "moved-fort-worth",
+      "email_other_invoice_numbers": [],
+      "email_blocked_reason": null,
+      "note": "",
+      "qty_check": [
+        {
+          "line": "1",
+          "description": "CWCD RND 1018 1/2 X18/22RL",
+          "invoice_qty_in": 480,
+          "receipts": [
+            {
+              "id": 24042,
+              "quantity_received": 240,
+              "po_ordered": 240,
+              "po_received": 240,
+              "po_unit_price": 0.1592,
+              "extended": 38.21
+            },
+            {
+              "id": 24043,
+              "quantity_received": 240,
+              "po_ordered": 240,
+              "po_received": 240,
+              "po_unit_price": 0.1592,
+              "extended": 38.21
+            }
+          ],
+          "invoice_extended": 77.07,
+          "receipt_extended": 76.42,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        },
+        {
+          "line": "4",
+          "description": "CWANGLE A36/A529G50 2 X2 X1/4 X20",
+          "invoice_qty_in": 1440,
+          "quantity_received": 1440,
+          "po_ordered": 1440,
+          "po_received": 1440,
+          "po_unit_price": 0.3202,
+          "invoice_extended": 461.08,
+          "receipt_extended": 461.09,
+          "receipt_id": 24046,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        },
+        {
+          "line": "5",
+          "description": "CWCD RND 1018 1-1/4 X18/22RL",
+          "invoice_qty_in": 480,
+          "quantity_received": 480,
+          "po_ordered": 480,
+          "po_received": 480,
+          "po_unit_price": 0.6124,
+          "invoice_extended": 295.17,
+          "receipt_extended": 293.95,
+          "receipt_id": 24045,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        },
+        {
+          "line": "6",
+          "description": "CWCD RND 1018 3/4 X18/22RL",
+          "invoice_qty_in": 240,
+          "quantity_received": 240,
+          "po_ordered": 240,
+          "po_received": 240,
+          "po_unit_price": 0.3396,
+          "invoice_extended": 82.86,
+          "receipt_extended": 81.5,
+          "receipt_id": 24044,
+          "uom": "IN-Inches",
+          "quantity_remaining_not_used": true
+        }
+      ]
+    }
+  ]
+}
