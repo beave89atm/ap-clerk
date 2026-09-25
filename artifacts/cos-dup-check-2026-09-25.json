@@ -1,0 +1,687 @@
+{
+  "kind": "cos-dup-check",
+  "as_of": "2026-09-25",
+  "host": "https://live.kimcoerp.com",
+  "access": "GET only after POST /api/v2/authenticate (HTTP 200). No writes, voids, deselects, charge edits, notes, or email.",
+  "created_date_user": {
+    "available_on_ap_invoice_get": false,
+    "note": "AP invoice record GET does not return CreatedOn or CreatorId (also omitted when requested via fields=). GET .../9888/history, /audit, /changes, and /activity each returned HTTP 404 Not Found. modified_on/modified_by and Comments_1 created_on/created_by are the timestamps the invoice GET does return."
+  },
+  "complete_definition": "complete=true only when Closed is true. On this pull that is bill 9866 (Status 2). Posted bills can still be Status 1 with Closed null.",
+  "items": [
+    {
+      "item": 1,
+      "topic": "Legacy Wire bill 9888 vs 9866",
+      "verdict": "corrected",
+      "reason": "9888 still exists but is an archived, unposted $0 stub with no receipts, so it does not duplicate posted bill 9866 (receipt 23756, PO58861-01, 300 @ 0.75 = $225).",
+      "bill_9888_exists": true,
+      "same_receipts": false,
+      "shared_receipt_ids": [],
+      "same_po": true,
+      "po": "PO58861-Legacy Wire Products (id 6863)",
+      "same_invoice_amount": false,
+      "notes": "9888 invoice number is 58861 (the PO number). Both bills carry verification $225. 9866 invoice number is PS-INV103969, amount $225, posted and closed. No receipt is selected on both.",
+      "bills": [
+        {
+          "bill_id": 9888,
+          "exists": true,
+          "vendor_id": 292,
+          "vendor": "1290-Legacy Wire Products",
+          "invoice_number": "58861",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": true,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=True; void=False",
+          "batch_id": 700,
+          "batch_name": "API Agent - 9/7/26",
+          "posted": false,
+          "posted_date": null,
+          "posted_by": null,
+          "invoice_amount": 0.0,
+          "verification_amount": 225.0,
+          "po_id": 6863,
+          "po": "PO58861-Legacy Wire Products",
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-05T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-08T09:57:51.957",
+          "modified_by": "Treyce Hodges",
+          "receipt_lines": [],
+          "charges": [],
+          "comments_1": [],
+          "attachments": []
+        },
+        {
+          "bill_id": 9866,
+          "exists": true,
+          "vendor_id": 292,
+          "vendor": "1290-Legacy Wire Products",
+          "invoice_number": "PS-INV103969",
+          "status": 2,
+          "closed": true,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": true,
+          "status_summary": "Status 2; closed=True; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-03T14:59:30.58",
+          "posted_by": "Treyce Hodges",
+          "invoice_amount": 225.0,
+          "verification_amount": 225.0,
+          "po_id": 6863,
+          "po": "PO58861-Legacy Wire Products",
+          "header_comments": null,
+          "invoice_date": "2026-08-11T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-18T11:59:29.373",
+          "modified_by": "Treyce Hodges",
+          "receipt_lines": [
+            {
+              "ap_line_id": 20183,
+              "receipt_id": 23756,
+              "receipt_text": "PO58861-Legacy Wire Products - 2026/9/3",
+              "po_line_id": 17006,
+              "po_line": "PO58861-01",
+              "qty": 300.0,
+              "unit_price": 0.75,
+              "extended": 225.0
+            }
+          ],
+          "charges": [],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 155385,
+              "file_id": 92304,
+              "name": "Sales Invoice PS-INV103969.pdf",
+              "size": 401407
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item": 2,
+      "topic": "3P bill 10186 vs 10299-10303 freight",
+      "verdict": "corrected",
+      "reason": "10186 now has one $500 Freight External charge for merchandise invoice 141918, and none of 141918's freight appears on 10299-10303.",
+      "prior_issue": "10186 previously had 8 freight charges totaling $5,000 against a $1,000 verification.",
+      "overlap_with_10186": [],
+      "pdf_note": "Each bill has one attached invoice PDF (image). Text is OCR of that attachment. No separate multi-shipment freight packet is attached. Merchandise-invoice references do not overlap 10186.",
+      "freight_from_pdf": {
+        "10186": {
+          "file": "142231.pdf",
+          "ocr": "1 FREIGHT FOR INVOICE # 141918 500.00 500.00",
+          "merchandise_invoices": [
+            "141918"
+          ],
+          "pdf_total": 500.0
+        },
+        "10299": {
+          "file": "142232.pdf",
+          "ocr": "1 FREIGHT FOR INVOICE # 142041 500.00 500.00",
+          "merchandise_invoices": [
+            "142041"
+          ],
+          "pdf_total": 500.0
+        },
+        "10300": {
+          "file": "142233.pdf",
+          "ocr": "1 FREIGHT FOR INVOICE # 141942 500.00 500.00",
+          "merchandise_invoices": [
+            "141942"
+          ],
+          "pdf_total": 500.0
+        },
+        "10301": {
+          "file": "142234.pdf",
+          "ocr": "2 FREIGHT FOR INVOICE # 142043 & 142044 500.00 1,000.00 (2 trucks)",
+          "merchandise_invoices": [
+            "142043",
+            "142044"
+          ],
+          "pdf_total": 1000.0
+        },
+        "10302": {
+          "file": "142235.pdf",
+          "ocr": "1 FREIGHT FOR INVOICE # 142173 500.00 500.00",
+          "merchandise_invoices": [
+            "142173"
+          ],
+          "pdf_total": 500.0
+        },
+        "10303": {
+          "file": "142236.pdf",
+          "ocr": "1 FREIGHT FOR INVOICE # 142174 & 142175 500.00 500.00",
+          "merchandise_invoices": [
+            "142174",
+            "142175"
+          ],
+          "pdf_total": 500.0
+        }
+      },
+      "bills": [
+        {
+          "bill_id": 10186,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142231",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:10.967",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 500.0,
+          "verification_amount": 500.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-04T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:11.643",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5512,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 500.0,
+              "amount": 500.0
+            }
+          ],
+          "comments_1": [
+            {
+              "id": 1060,
+              "created_on": "2026-09-24T20:32:44.917",
+              "created_by": "API Agent",
+              "text": "AP Clerk: Corrected 142231 to freight-only per 3P rule. Removed 8 F-Fees charges ($5,000 total, which were other invoices' freight). Now one Freight External charge $500.00 for freight on invoice 141918. Invoice_Amount $500.00 matches PDF."
+            }
+          ],
+          "attachments": [
+            {
+              "attachment_id": 159942,
+              "file_id": 95348,
+              "name": "142231.pdf",
+              "size": 175359
+            }
+          ]
+        },
+        {
+          "bill_id": 10299,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142232",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:12.89",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 500.0,
+          "verification_amount": 500.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-06T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:13.81",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5507,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 500.0,
+              "amount": 500.0
+            }
+          ],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 159933,
+              "file_id": 95339,
+              "name": "142232.pdf",
+              "size": 181819
+            }
+          ]
+        },
+        {
+          "bill_id": 10300,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142233",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:14.277",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 500.0,
+          "verification_amount": 500.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-07T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:14.95",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5508,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 500.0,
+              "amount": 500.0
+            }
+          ],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 159934,
+              "file_id": 95340,
+              "name": "142233.pdf",
+              "size": 180621
+            }
+          ]
+        },
+        {
+          "bill_id": 10301,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142234",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:15.37",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 1000.0,
+          "verification_amount": 1000.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-14T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:16.057",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5509,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 1000.0,
+              "amount": 1000.0
+            }
+          ],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 159935,
+              "file_id": 95341,
+              "name": "142234.pdf",
+              "size": 183108
+            }
+          ]
+        },
+        {
+          "bill_id": 10302,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142235",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:16.47",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 500.0,
+          "verification_amount": 500.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-17T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:17.127",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5510,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 500.0,
+              "amount": 500.0
+            }
+          ],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 159936,
+              "file_id": 95342,
+              "name": "142235.pdf",
+              "size": 186907
+            }
+          ]
+        },
+        {
+          "bill_id": 10303,
+          "exists": true,
+          "vendor_id": 1,
+          "vendor": "999-3P INDUSTRIES",
+          "invoice_number": "142236",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-25T09:42:17.57",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 500.0,
+          "verification_amount": 500.0,
+          "po_id": null,
+          "po": null,
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-18T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-25T09:42:18.1",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [],
+          "charges": [
+            {
+              "charge_id": 5511,
+              "code_id": 1,
+              "code": "Freight External-Freight External",
+              "description": "Freight External",
+              "quantity": 1.0,
+              "price": 500.0,
+              "amount": 500.0
+            }
+          ],
+          "comments_1": [],
+          "attachments": [
+            {
+              "attachment_id": 159937,
+              "file_id": 95343,
+              "name": "142236.pdf",
+              "size": 183728
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "item": 3,
+      "topic": "Gas & Supply receipt 24332 on bills 10172 and 10297",
+      "verdict": "corrected",
+      "reason": "Receipt 24332 (880 @ $8.91, PO59006-01) is selected on posted bill 10172 only; 10297 is invoice 0040385309 at $294.28 on receipts 24599, 24600, and 24601.",
+      "receipt_24332_on_10172": true,
+      "receipt_24332_on_10297": false,
+      "receipt_headers": {
+        "23756": {
+          "invoiced": true,
+          "ap_invoice_number": "PS-INV103969",
+          "po_line": "PO58861-01",
+          "qty": 300.0,
+          "price": 0.75,
+          "extended": 225.0
+        },
+        "24332": {
+          "invoiced": false,
+          "ap_invoice_number": null,
+          "po_line": "PO59006-01",
+          "qty": 880.0,
+          "price": 8.91,
+          "extended": 7840.8,
+          "name": "PO59006-GAS AND SUPPLY - 2026/9/22"
+        },
+        "24599": {
+          "invoiced": true,
+          "ap_invoice_number": "0040385309",
+          "po_line": "PO59006-04",
+          "qty": 2.0,
+          "price": 89.286,
+          "extended": 178.57
+        },
+        "24600": {
+          "invoiced": true,
+          "ap_invoice_number": "0040385309",
+          "po_line": "PO59006-05",
+          "qty": 1.0,
+          "price": 8.286,
+          "extended": 8.29
+        },
+        "24601": {
+          "invoiced": true,
+          "ap_invoice_number": "0040385309",
+          "po_line": "PO59006-06",
+          "qty": 2.0,
+          "price": 53.71,
+          "extended": 107.42
+        }
+      },
+      "receipt_header_note": "Receipt 24332's own record still has Invoiced=false and AP_Invoice_Number null, unlike receipt 23756 and receipts 24599-24601, which show Invoiced=true and the bill's invoice number. Bill 10172's AP line nonetheless references receipt 24332 and is posted at $7,840.80, matching its PDF.",
+      "pdf_10297_page1": "Invoice 0040385309 dated 08/26/26, PO 59006, lines 2 @ 89.286 = 178.57, 1 @ 8.286 = 8.29, 2 @ 53.71 = 107.42, total $294.28.",
+      "pdf_10297_page2": "A second invoice in the same PDF, 0040385063, subtotal $241.50 (continued). That page is not on bill 10297.",
+      "pdf_10172": "Invoice 0040414962, LINEDS30778 880 @ 8.91 = $7,840.80.",
+      "bills": [
+        {
+          "bill_id": 10172,
+          "exists": true,
+          "vendor_id": 71,
+          "vendor": "1069-GAS AND SUPPLY",
+          "invoice_number": "0040414962",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": null,
+          "batch_name": null,
+          "posted": true,
+          "posted_date": "2026-09-22T11:04:03.733",
+          "posted_by": "Kyle Cleaver",
+          "invoice_amount": 7840.8,
+          "verification_amount": 7840.8,
+          "po_id": 7008,
+          "po": "PO59006-GAS AND SUPPLY",
+          "header_comments": "API Agent",
+          "invoice_date": "2026-09-02T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-22T11:04:05.57",
+          "modified_by": "Kyle Cleaver",
+          "receipt_lines": [
+            {
+              "ap_line_id": 20797,
+              "receipt_id": 24332,
+              "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/22",
+              "po_line_id": 17889,
+              "po_line": "PO59006-01",
+              "qty": 880.0,
+              "unit_price": 8.91,
+              "extended": 7840.8
+            }
+          ],
+          "charges": [],
+          "comments_1": [
+            {
+              "id": 922,
+              "created_on": "2026-09-21T17:50:04.483",
+              "created_by": "API Agent",
+              "text": "HOLD missing_receipt on Gas and Supply 0040414962 PO 59006. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving must receive the PO. Do not Transfer AP."
+            }
+          ],
+          "attachments": [
+            {
+              "attachment_id": 159185,
+              "file_id": 94827,
+              "name": "0_gas_2026-09-03_billing01_A3050_c_0040414962_p2-2.pdf",
+              "size": 9103
+            }
+          ]
+        },
+        {
+          "bill_id": 10297,
+          "exists": true,
+          "vendor_id": 71,
+          "vendor": "1069-GAS AND SUPPLY",
+          "invoice_number": "0040385309",
+          "status": 1,
+          "closed": null,
+          "open": true,
+          "archived": false,
+          "void": false,
+          "complete": false,
+          "status_summary": "Status 1; closed=False; archived=False; void=False",
+          "batch_id": 375,
+          "batch_name": "TRANSFER AP",
+          "posted": false,
+          "posted_date": null,
+          "posted_by": null,
+          "invoice_amount": 294.28,
+          "verification_amount": 294.28,
+          "po_id": 7008,
+          "po": "PO59006-GAS AND SUPPLY",
+          "header_comments": "API Agent",
+          "invoice_date": "2026-08-26T00:00:00",
+          "created_on": null,
+          "created_by": null,
+          "modified_on": "2026-09-24T11:11:34.383",
+          "modified_by": "Treyce Hodges",
+          "receipt_lines": [
+            {
+              "ap_line_id": 21000,
+              "receipt_id": 24599,
+              "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+              "po_line_id": 17988,
+              "po_line": "PO59006-04",
+              "qty": 2.0,
+              "unit_price": 89.286,
+              "extended": 178.57
+            },
+            {
+              "ap_line_id": 21001,
+              "receipt_id": 24600,
+              "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+              "po_line_id": 17989,
+              "po_line": "PO59006-05",
+              "qty": 1.0,
+              "unit_price": 8.286,
+              "extended": 8.29
+            },
+            {
+              "ap_line_id": 21002,
+              "receipt_id": 24601,
+              "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+              "po_line_id": 17990,
+              "po_line": "PO59006-06",
+              "qty": 2.0,
+              "unit_price": 53.71,
+              "extended": 107.42
+            }
+          ],
+          "charges": [],
+          "comments_1": [
+            {
+              "id": 1051,
+              "created_on": "2026-09-24T11:12:17.45",
+              "created_by": "Treyce Hodges",
+              "text": "@Shawn McKibben Removed receipt 24332 (PO59006-01, qty 880 @ 8.91 = 7840.80) from invoice 0040385309. That receipt is not this bill. Selected receipts 24599, 24600, and 24601 (PO59006-04, PO59006-05, PO59006-06). Extended total 294.28. Invoice_Amount is 294.28 and matches this invoice page. The other invoice page in the PDF was not applied here. Bill was not posted."
+            },
+            {
+              "id": 1034,
+              "created_on": "2026-09-24T09:15:53.743",
+              "created_by": "Shawn McKibben",
+              "text": "@API Agent @Treyce Hodges Added parts and received. Ready to pay. -S"
+            },
+            {
+              "id": 994,
+              "created_on": "2026-09-23T23:46:28.367",
+              "created_by": "API Agent",
+              "text": "@Shawn McKibben HOLD price_variance on Gas & Supply invoice 0040385309 PO 59006. |PPV| is $75 or more. Over-gate receipts were not selected. No email."
+            }
+          ],
+          "attachments": [
+            {
+              "attachment_id": 159755,
+              "file_id": 95223,
+              "name": "0_2026-08-27_billing01_A3050_c_0040385309_p2-3.pdf",
+              "size": 10741
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
