@@ -1,5 +1,11 @@
 """Mandatory live PPV QC.
 
+Before Finish, re-read the live bill. Header invoice total, PDF total, and
+selected receipt lines + all charges must match to the penny. |gap| < $75
+posts one signed Purchase Price Variance first. |gap| >= $75 is HOLD
+price_variance and does not post. Finish is blocked when that pre-check
+fails. The same check runs again after Finish on the live readback.
+
 After a bill is created or fixed, re-read it and post one signed Purchase
 Price Variance when the header total misses merchandise lines + charges by
 under $75. |gap| >= $75 is HOLD price_variance. Success requires the live
@@ -18,14 +24,20 @@ import logging
 from typing import Any
 
 from ap_clerk.auth import load_credentials
-from ap_clerk.gates import GATE_PRICE, RESULT_HOLD, RESULT_SUCCESS, why_hold
+from ap_clerk.gates import (
+    GATE_PRICE,
+    RESULT_HOLD,
+    RESULT_SUCCESS,
+    finish_gate,
+    why_hold,
+)
 from ap_clerk.kimco import (
     ADDITIONAL_CHARGE_LISTS,
     KimcoClient,
     KimcoError,
     invoice_lines_from_record,
 )
-from ap_clerk.rules import money, ppv_qc_gap
+from ap_clerk.rules import TOTALS_MATCH_BEFORE_FINISH, money, ppv_qc_gap, totals_match_to_the_penny
 
 LOGGER = logging.getLogger("ap_clerk.ppv_qc")
 
@@ -139,6 +151,81 @@ def apply_post_entry_ppv_gate(client: Any, invoice_id: int | str) -> dict[str, A
         "success_allowed": after.get("success_allowed"),
         "enforced": after.get("enforced"),
     }
+
+
+def _blocked_why(detail: str) -> str:
+    text = (detail or "").strip()
+    if "Finish blocked" not in text:
+        text = f"{text} Finish blocked.".strip()
+    if "totals match before finishing" not in text.lower():
+        text = f"{text} {TOTALS_MATCH_BEFORE_FINISH}".strip()
+    return text
+
+
+def pre_finish_totals_check(client: Any, invoice_id: int | str) -> dict[str, Any]:
+    """Live totals check that must pass before Finish.
+
+    Header invoice total == PDF total == selected receipt lines + all charges,
+    to the penny. |gap| < ppv_limit() posts one signed PPV first and re-reads.
+    |gap| >= the limit is HOLD and does not post. ok is True only when that
+    readback matches, or the read has no header total to enforce. A failed
+    read is not ok, so Finish is blocked.
+    """
+    try:
+        outcome = apply_post_entry_ppv_gate(client, invoice_id)
+    except (KimcoError, AttributeError, TypeError, ValueError):
+        return {
+            "ok": False,
+            "blocked": True,
+            "enforced": True,
+            "gap": None,
+            "action": "read-failed",
+            "success_allowed": False,
+            "fixed": False,
+            "note": "",
+            "why": _blocked_why(
+                why_hold(
+                    "finish",
+                    f"Pre-Finish totals check could not re-read live bill {invoice_id}.",
+                )
+            ),
+        }
+    matched = bool(outcome.get("enforced")) and totals_match_to_the_penny(outcome)
+    ok = matched or outcome.get("enforced") is not True
+    why = ""
+    if not ok:
+        why = _blocked_why(str(outcome.get("why") or _qc_why(outcome)))
+    return {
+        **outcome,
+        "ok": ok,
+        "blocked": not ok,
+        "why": why,
+    }
+
+
+def remember_pre_finish_fix(row: dict[str, Any], pre: dict[str, Any]) -> None:
+    """Keep the Notes text when the pre-Finish check posted a PPV."""
+    if pre.get("fixed") and pre.get("note"):
+        row["_ppv_qc_fixed"] = True
+        row["Notes"] = pre["note"]
+        posted = float(pre.get("ppv_posted") or 0)
+        if posted:
+            row["PPV"] = f"{posted:.2f}"
+
+
+def finish_after_totals_check(
+    client: Any,
+    invoice_id: int | str,
+    row: dict[str, Any],
+    **gate_kwargs: Any,
+) -> tuple[str, str]:
+    """Run the pre-Finish totals check, then Finish.
+
+    finish_gate returns HOLD, never Success, when the pre-check fails.
+    """
+    pre = pre_finish_totals_check(client, invoice_id)
+    remember_pre_finish_fix(row, pre)
+    return finish_gate(**gate_kwargs, pre_finish=pre)
 
 
 def stamp_ppv_qc_on_row(client: Any, row: dict[str, Any]) -> dict[str, Any]:

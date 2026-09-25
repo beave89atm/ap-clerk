@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 from ap_clerk.daily import result_counts
+from ap_clerk.ppv_qc import finish_after_totals_check, stamp_ppv_qc_on_row
 from ap_clerk.quality_v12 import apply_exception_category_owner
 from ap_clerk.gates import (
     GATE_QTY,
@@ -19,7 +20,6 @@ from ap_clerk.gates import (
     RESULT_INCOMPLETE,
     RESULT_SUCCESS,
     fees_required,
-    finish_gate,
     header_created_with_issues,
     is_noise_result,
     merchandise_amount,
@@ -395,7 +395,10 @@ def finish_existing_header(
             + f" API finish of paused dry-run header {invoice_id}."
         )
         return apply_exception_category_owner(out)
-    result, finish_why = finish_gate(
+    result, finish_why = finish_after_totals_check(
+        client,
+        int(invoice_id),
+        out,
         header_created=True,
         attach_status=attach_status,
         po=po,
@@ -430,6 +433,7 @@ def finish_existing_header(
             f"{finish_why} API finish of paused dry-run header {invoice_id}. "
             f"{line_note}{receipt_note}{fee_note} Attach status={attach_status}."
         ).strip()
+    stamp_ppv_qc_on_row(client, out)
     return apply_exception_category_owner(out)
 
 

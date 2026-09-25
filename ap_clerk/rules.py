@@ -685,6 +685,29 @@ def ppv_limit() -> float:
     return round(float(raw), 2)
 
 
+# Kyle: always make sure totals match before finishing. Top-level AP rule.
+TOTALS_MATCH_BEFORE_FINISH = (
+    "Always make sure totals match before finishing. "
+    "Header invoice total == PDF total == selected receipt lines + all charges, to the penny."
+)
+
+
+def totals_match_to_the_penny(decision: dict[str, Any]) -> bool:
+    """True when the header, the PDF total, and lines + charges are the same cent.
+
+    Header is Invoice_Amount. PDF total is Invoice_Verification_Amount.
+    Covered is selected receipt / misc lines plus every additional charge.
+    """
+    if decision.get("success_allowed") is not True:
+        return False
+    invoice = money(decision.get("invoice_amount"))
+    verification = money(decision.get("verification_amount"))
+    if invoice is None or verification is None:
+        return False
+    covered = round(float(decision.get("lines") or 0) + float(decision.get("charges") or 0), 2)
+    return invoice == verification == covered and decision.get("gap") in (0, 0.0)
+
+
 def penny_ppv_for_header_gap(
     *,
     header_total: Any,

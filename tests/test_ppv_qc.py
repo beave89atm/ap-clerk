@@ -6,15 +6,17 @@ from pathlib import Path
 
 from openpyxl import load_workbook
 
-from ap_clerk.gates import treyce_finish_selfcheck
+from ap_clerk.finish import finish_existing_header
+from ap_clerk.gates import RESULT_HOLD, RESULT_SUCCESS, finish_gate, treyce_finish_selfcheck
 from ap_clerk.ppv_qc import (
     apply_batch_ppv_qc,
     apply_post_entry_ppv_gate,
+    finish_after_totals_check,
     ppv_qc_from_record,
     stamp_ppv_qc_on_row,
 )
 from ap_clerk.report import COLUMNS, write_report
-from ap_clerk.rules import ppv_qc_gap
+from ap_clerk.rules import TOTALS_MATCH_BEFORE_FINISH, ppv_qc_gap, totals_match_to_the_penny
 
 
 def _record(*, amount, verification, lines, charges):
@@ -245,3 +247,189 @@ def test_record_reader_uses_verification_not_the_rollup():
     assert decision["gap"] == -0.03
     assert decision["rollup_gap"] == 0.0
     assert decision["ppv"] == -0.03
+
+
+def test_totals_match_before_finish_is_a_top_level_ap_rule():
+    """Kyle: header == PDF == lines + charges, before Finish and again after."""
+    head = Path("QUALITY.md").read_text().split("**Hard email cap")[0]
+    assert TOTALS_MATCH_BEFORE_FINISH in head
+    assert "Finish is blocked" in head
+    assert "after Finish" in head
+
+    closed = ppv_qc_gap(
+        invoice_amount=192.85,
+        verification_amount=192.85,
+        line_amounts=[192.86],
+        charge_amounts=[-0.01],
+    )
+    assert totals_match_to_the_penny(closed) is True
+
+    penny = ppv_qc_gap(invoice_amount=192.86, verification_amount=192.85, line_amounts=[192.86])
+    assert totals_match_to_the_penny(penny) is False
+
+
+def test_finish_gate_blocks_success_when_the_pre_check_fails():
+    blocked, why = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        kimco_id=10317,
+        pre_finish={"ok": False, "why": f"HOLD (price-does-not-match): gap 199.74. {TOTALS_MATCH_BEFORE_FINISH}"},
+    )
+    assert blocked == RESULT_HOLD
+    assert blocked != RESULT_SUCCESS
+    assert "Finish blocked" in why
+    assert "price-does-not-match" in why
+
+    allowed, empty = finish_gate(
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        kimco_id=10318,
+        pre_finish={"ok": True},
+    )
+    assert allowed == RESULT_SUCCESS
+    assert empty == ""
+
+
+class _TotalsClient:
+    def __init__(self, open_record, closed_record=None):
+        self.open_record = open_record
+        self.closed_record = closed_record
+        self.ppv: list[tuple[int, float]] = []
+
+    def get_item(self, service, item_id):
+        assert service == "ap_invoices"
+        return self.closed_record if self.ppv and self.closed_record is not None else self.open_record
+
+    def try_post_ppv(self, invoice_id, amount):
+        self.ppv.append((int(invoice_id), float(amount)))
+        return "posted"
+
+
+def test_pre_finish_posts_a_penny_before_finish_and_holds_at_75():
+    penny = _TotalsClient(
+        _record(amount=192.86, verification=192.85, lines=[192.86], charges=[]),
+        _record(amount=192.85, verification=192.85, lines=[192.86], charges=[-0.01]),
+    )
+    row: dict = {"Notes": "", "PPV": "none"}
+    result, why = finish_after_totals_check(
+        penny,
+        10318,
+        row,
+        header_created=True,
+        attach_status="attached",
+        po=None,
+        receipts_selected=False,
+        kimco_id=10318,
+    )
+    assert penny.ppv == [(10318, -0.01)]
+    assert result == RESULT_SUCCESS
+    assert why == ""
+    assert row["_ppv_qc_fixed"] is True
+    assert "-0.01" in row["Notes"]
+
+    held = _TotalsClient(_record(amount=257.46, verification=257.46, lines=[57.72], charges=[]))
+    held_row: dict = {"Notes": ""}
+    held_result, held_why = finish_after_totals_check(
+        held,
+        10317,
+        held_row,
+        header_created=True,
+        attach_status="attached",
+        po="59121",
+        receipts_selected=True,
+        kimco_id=10317,
+    )
+    assert held.ppv == []
+    assert held_result == RESULT_HOLD
+    assert held_result != RESULT_SUCCESS
+    assert "Finish blocked" in held_why
+    assert "price-does-not-match" in held_why
+    assert TOTALS_MATCH_BEFORE_FINISH in held_why
+    assert held_row.get("_ppv_qc_fixed") is not True
+
+
+def test_after_finish_readback_blocks_success_when_the_gap_reopens(tmp_path: Path):
+    """Pre-Finish sees a match. The live readback after Finish does not."""
+    pdf = tmp_path / "15464074.pdf"
+    pdf.write_bytes(b"%PDF-1.4")
+    balanced = _record(amount=192.85, verification=192.85, lines=[192.86], charges=[-0.01])
+    reopened = _record(amount=192.86, verification=192.85, lines=[192.86], charges=[])
+
+    class Client:
+        def __init__(self):
+            self.phase = "balanced"
+            self.ppv: list[tuple[int, float]] = []
+
+        def get_item(self, service, item_id):
+            assert service == "ap_invoices"
+            return reopened if self.phase == "reopened" else balanced
+
+        def list_attachments(self, invoice_id):
+            return [{"name": "15464074.pdf"}]
+
+        def try_official_attach(self, invoice_id, **kwargs):
+            return "attached"
+
+        def try_select_receipts(self, invoice_id, receipt_ids=None):
+            return "selected"
+
+        def try_post_ppv(self, invoice_id, amount):
+            self.ppv.append((int(invoice_id), float(amount)))
+            return "posted"
+
+    client = Client()
+    real_stamp = stamp_ppv_qc_on_row
+
+    def stamp_after_finish(kimco, row):
+        kimco.phase = "reopened"
+        return real_stamp(kimco, row)
+
+    import ap_clerk.finish as finish_mod
+
+    original = finish_mod.stamp_ppv_qc_on_row
+    finish_mod.stamp_ppv_qc_on_row = stamp_after_finish
+    try:
+        row = finish_existing_header(
+            client,
+            {
+                "Vendor": "1135-ONEAL STEEL, LLC.",
+                "Invoice #": "15464074",
+                "date": "2026-09-08",
+                "PO": "",
+                "Amount": 192.85,
+                "Result": "Incomplete",
+                "Why": "Incomplete (finish): header created (id 10318).",
+                "KIMCO id": 10318,
+                "Batch": "API Agent - 9/25/26 O'Neal (730)",
+                "Fees and surcharges": "none",
+                "PPV": "none",
+                "Attach status": "attached",
+                "Flag status": "ai-hold",
+                "Flag in Outlook": "Yes",
+                "Notes": "",
+            },
+            {
+                "vendor": "1135-ONEAL STEEL, LLC.",
+                "invoice_number": "15464074",
+                "po": None,
+                "pos": [],
+                "amount": 192.85,
+                "date": "2026-09-08",
+                "lines": [],
+                "fees": [],
+                "pdf_path": str(pdf),
+            },
+            receipts=[],
+            pdf_dir=tmp_path,
+            flag_outlook=False,
+        )
+    finally:
+        finish_mod.stamp_ppv_qc_on_row = original
+
+    assert row["Result"] == RESULT_HOLD
+    assert row["Result"] != RESULT_SUCCESS
+    assert "0.00" in row["Why"]

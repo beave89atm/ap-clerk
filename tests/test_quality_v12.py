@@ -262,7 +262,7 @@ def test_v12_registry_covers_all_notes():
         "invoice-statement-mixed-pdf-classify-before-extract",
         "open-receipts-forbid-missing-receipt",
         "penny-ppv-when-lines-miss-header",
-        "ppv-qc-live-readback-before-success",
+        "ppv-qc-live-readback-before-finish",
     }
 
 

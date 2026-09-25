@@ -970,7 +970,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
     },
     {
         "id": "NOTE-57",
-        "slug": "ppv-qc-live-readback-before-success",
+        "slug": "ppv-qc-live-readback-before-finish",
         "gate": GATE_PRICE,
         "cases": (
             "Live gap +$0.01 and −$0.01 post one signed PPV",
@@ -985,6 +985,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "the line total, so the miss was invisible on that field."
         ),
         "expected": (
+            "Before Finish, and again after Finish on the live readback, "
+            "header invoice total == PDF total == selected receipt lines + all "
+            "charges, to the penny. Finish is blocked in code when the "
+            "pre-check fails. |gap| < $75 posts one signed PPV first. "
+            "|gap| >= $75 → HOLD price_variance, do not post PPV. "
             "After every bill is created or fixed, re-read it live. "
             "gap = invoice header total − (selected receipt / misc lines + all "
             "charges). Header total is Invoice_Verification_Amount when set "
@@ -1140,11 +1145,12 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "ppv-qc-live-gap-zero",
         "check": (
-            "After create or fix, re-read the live bill. Success only when "
-            "header total − (merchandise lines + fees/freight/PPV) is 0.00. "
-            "|gap| < $75 posts one signed PPV. |gap| >= $75 is HOLD "
-            "price_variance. Notes records a PPV QC fix and no other QC column "
-            "is added (NOTE-57)."
+            "Before Finish, header invoice total == PDF total == selected "
+            "receipt lines + all charges, to the penny. |gap| < $75 posts one "
+            "signed PPV first. |gap| >= $75 is HOLD price_variance. Finish is "
+            "blocked when that pre-check fails. Run the same check again after "
+            "Finish on the live readback. Success only when that gap is 0.00. "
+            "Notes records a PPV QC fix and no other QC column is added (NOTE-57)."
         ),
     },
 )

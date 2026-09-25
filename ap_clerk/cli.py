@@ -52,7 +52,7 @@ from ap_clerk.quality_v12 import (
     COL_EXCEPTION_OWNER,
     apply_exception_category_owner,
 )
-from ap_clerk.ppv_qc import apply_batch_ppv_qc, stamp_ppv_qc_on_row
+from ap_clerk.ppv_qc import apply_batch_ppv_qc, finish_after_totals_check, stamp_ppv_qc_on_row
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
     GATE_ALREADY_ENTERED,
@@ -73,7 +73,6 @@ from ap_clerk.gates import (
     drop_fee_disguised_as_ppv,
     fees_required,
     find_live_po,
-    finish_gate,
     merchandise_amount,
     selfcheck_payload,
     pdf_file_present,
@@ -1537,7 +1536,10 @@ def _process_invoice(
                 f"({moved.get('status')})."
             ).strip()
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
-    result, finish_why = finish_gate(
+    result, finish_why = finish_after_totals_check(
+        client,
+        created_id,
+        row,
         header_created=True,
         attach_status=pdf_status,
         po=po if po_info else None,
