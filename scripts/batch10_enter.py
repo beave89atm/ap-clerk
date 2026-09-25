@@ -26,6 +26,17 @@ from ap_clerk.ppv_qc import pre_finish_totals_check, scan_ids
 from ap_clerk.receiving_owners import lookup_receiving_owner, mention_span
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
+    SHAWN_MENTION_HTML,
+    air_products_success_comment,
+    default_missing_po_decision,
+    is_freight_vendor,
+    is_vending_po_reference,
+    misc_purchase_item_for,
+    missing_po_owner_note,
+    msc_one_time_success_comment,
+    needs_kyle_review_comment,
+    standing_vendor_entry_decision,
+    unifirst_first_aid_success_comment,
     due_date_from_terms,
     extract_po_number,
     invoice_number_key,
@@ -46,12 +57,6 @@ OUT_JSON = ROOT / "artifacts" / "batch10-2026-09-25.json"
 CACHE = Path("/tmp/batch10")
 PPV_LIMIT = ppv_limit()
 TARGET_COUNT = 10
-
-SHAWN_MENTION_HTML = (
-    '<span data-mention-id="104" data-mention-name="Shawn McKibben" '
-    'data-mention-email="Shawn.McKibben@kannonmfg.com" '
-    'class="prosemirror-mention-node">@Shawn McKibben</span>'
-)
 
 # Existing non-void live invoices. GET 2026-09-25. Used only to copy remit and terms.
 # Greentree 272 is PO_Number_$_Vendor on receipt 23876, confirmed on invoice 3412.
@@ -98,7 +103,10 @@ BILLS: list[dict[str, Any]] = [
             {"name": "Hazmat Charge", "amount": 120.00, "fee": True},
             {"name": "Product Surcharge", "amount": 6.07, "fee": True},
         ],
-        "tax": 141.74,
+        "taxes": [
+            {"name": "State Tax", "amount": 107.38},
+            {"name": "City Tax", "amount": 34.36},
+        ],
         "no_po_on_pdf": True,
     },
     {
@@ -550,12 +558,80 @@ def receipt_extension(rows: list[dict[str, Any]]) -> float:
 def plan_bill(bill: dict[str, Any], po_lines: list[dict[str, Any]], receipts: list[dict[str, Any]]) -> dict[str, Any]:
     po = str(bill.get("po") or "")
     fee_total = round(sum(float(fee.get("amount") or 0) for fee in bill.get("fees") or []), 2)
+    standing = standing_vendor_entry_decision(str(bill.get("vendor") or ""), bill, vendor_id=bill.get("vendor_id"))
+    if standing is not None and standing.get("mode") == "missing_po":
+        return {
+            "action": "missing_po",
+            "missing_po": True,
+            "receipts": [],
+            "considered": [],
+            "open_rows": [],
+            "wo_checked": [],
+            "fee_total": fee_total,
+            "received_ext": 0.0,
+            "gap": None,
+            "qty_difference": False,
+            "match": None,
+            "charges": [],
+            "invoice_type": standing.get("invoice_type"),
+            "post_bill": False,
+            "finish": "HOLD",
+            "hold_reason": "missing_po",
+            "note": standing.get("note") or "",
+            "vendor_rule": standing.get("vendor_rule"),
+            "transfer_ap": True,
+        }
+    if standing is not None:
+        if standing.get("mode") == "needs_kyle_review":
+            action = "needs_kyle_review"
+        elif standing.get("ready"):
+            action = str(standing.get("vendor_rule") or "shop_supplies")
+        elif standing.get("vendor_rule") == "air_products_misc":
+            action = "air_products_totals"
+        elif standing.get("vendor_rule") == "msc_one_time_misc":
+            action = "msc_one_time_totals"
+        else:
+            action = "unifirst_first_aid_totals"
+        return {
+            "action": action,
+            "missing_po": False,
+            "receipts": [],
+            "considered": [],
+            "open_rows": [],
+            "wo_checked": [],
+            "fee_total": fee_total,
+            "received_ext": 0.0,
+            "gap": None,
+            "qty_difference": False,
+            "match": None,
+            "charges": standing.get("charges") or [],
+            "invoice_type": standing.get("invoice_type"),
+            "post_bill": False,
+            "finish": standing.get("finish"),
+            "hold_reason": standing.get("hold_reason") or "",
+            "line_count": standing.get("line_count"),
+            "line_limit": standing.get("line_limit"),
+            "note": standing.get("note") or "",
+            "vendor_rule": standing.get("vendor_rule"),
+            "transfer_ap": False,
+        }
     po_rows = [row for row in po_lines if str(row.get("po") or "") == po]
     open_rows = [row for row in receipts if str(row.get("po") or "") == po]
     wo_rows = [row for row in open_rows if row.get("wo") or row.get("work_order_id")]
-    if not po:
+    if not po or is_vending_po_reference(po):
+        vendor_name = str(bill.get("vendor") or "")
+        own_rule = bool(is_freight_vendor(vendor_name) or misc_purchase_item_for(vendor_name))
+        decision = None if own_rule else default_missing_po_decision(vendor_name, bill, vendor_id=bill.get("vendor_id"))
+        note = str((decision or {}).get("note") or "") or missing_po_owner_note(
+            vendor=vendor_name,
+            invoice_number=str(bill.get("invoice_number") or ""),
+            pdf_total=bill.get("total"),
+            vendor_id=bill.get("vendor_id"),
+            printed_reference=str(bill.get("printed_po_not_kimco") or po or ""),
+        )
         return {
             "action": "missing_po",
+            "missing_po": True,
             "receipts": [],
             "considered": [],
             "open_rows": [],
@@ -565,6 +641,10 @@ def plan_bill(bill: dict[str, Any], po_lines: list[dict[str, Any]], receipts: li
             "gap": None,
             "qty_difference": False,
             "match": None,
+            "note": "" if own_rule else note,
+            "transfer_ap": not own_rule,
+            "hold_reason": "missing_po",
+            "vendor_rule": None if own_rule else "default_missing_po",
         }
     matched = match_receipts(
         invoice_number=bill["invoice_number"],
@@ -973,8 +1053,19 @@ def enter(*, write: bool) -> dict[str, Any]:
             results.append(public_invoice(bill, status="HOLD", reason="PO id missing", kimco_id=None, batch=BATCH_NAME, note=note, ppv=0))
             print(f"NO-PO-ID {number}", flush=True)
             continue
-        invoice_type = 3 if po_id else 4
-        created_id, status, error = _create_for_bill(client, bill, batch_id, sample, invoice_type, po_id)
+        standing_actions = {
+            "air_products_misc",
+            "air_products_totals",
+            "unifirst_first_aid_misc",
+            "unifirst_first_aid_totals",
+            "msc_one_time_misc",
+            "msc_one_time_totals",
+            "needs_kyle_review",
+        }
+        standing_plan = plan["action"] in standing_actions
+        invoice_type = 4 if standing_plan else (3 if po_id else 4)
+        po_for_header = None if standing_plan else po_id
+        created_id, status, error = _create_for_bill(client, bill, batch_id, sample, invoice_type, po_for_header)
         if created_id is None:
             note = f"AP Clerk: {bill['vendor']} invoice {number} header was not created (HTTP {status}). The bill is not posted."
             results.append(public_invoice(bill, status="HOLD", reason=f"header HTTP {status}", kimco_id=None, batch=BATCH_NAME, note=note, ppv=0))
@@ -983,14 +1074,109 @@ def enter(*, write: bool) -> dict[str, Any]:
         pdf_path = Path(bill["pdf_path"])
         pdf = pdf_path.read_bytes()
         attach = client.try_official_attach(created_id, name=f"{number}.pdf", content_type="application/pdf", size=len(pdf), content=pdf)
-        mention = plan["action"] in {"missing_receipt", "price_variance", "quantity_variance"}
+        if plan["action"] in {"air_products_misc", "unifirst_first_aid_misc", "msc_one_time_misc"}:
+            shop_status = client.try_post_shop_supplies(created_id, plan.get("charges") or [])
+            record = client.get_item("ap_invoices", created_id)
+            values = record.get("values") or {}
+            charge_sum = 0.0
+            for charge in (record.get("lists") or {}).get("InvoiceAdditionalCharges") or []:
+                amount = money((charge.get("values") or {}).get("Amount"))
+                if amount is not None:
+                    charge_sum = round(charge_sum + amount, 2)
+            if plan["action"] == "air_products_misc":
+                note = air_products_success_comment(
+                    invoice_number=number,
+                    charges=plan.get("charges") or [],
+                    pdf_total=bill["total"],
+                )
+            elif plan["action"] == "msc_one_time_misc":
+                note = msc_one_time_success_comment(
+                    invoice_number=number,
+                    charges=plan.get("charges") or [],
+                    pdf_total=bill["total"],
+                )
+            else:
+                note = unifirst_first_aid_success_comment(
+                    invoice_number=number,
+                    charges=plan.get("charges") or [],
+                    pdf_total=bill["total"],
+                )
+            comment = write_comment(client, created_id, note, mention=False)
+            success = (
+                shop_status == "posted"
+                and charge_sum == float(bill["total"])
+                and money(values.get("Invoice_Verification_Amount")) == float(bill["total"])
+                and values.get("Posted") in (None, "", False)
+                and int(values.get("Invoice_Type") or 0) == 4
+            )
+            results.append(
+                public_invoice(
+                    bill,
+                    status="Success" if success else "HOLD",
+                    reason=plan["action"] if success else "shop supplies total",
+                    kimco_id=created_id,
+                    batch=BATCH_NAME,
+                    transfer_ap="no",
+                    receipts="",
+                    ppv=0.0,
+                    comments_1_id=comment.get("id"),
+                    note=note,
+                    email_moved="pending",
+                )
+            )
+            results[-1]["_attached"] = attach == "attached"
+            results[-1]["_message_id"] = bill.get("message_id")
+            print(
+                f"SHOP-SUPPLIES {number} id={created_id} charges={charge_sum} posted={values.get('Posted')} comment={comment.get('id')}",
+                flush=True,
+            )
+            continue
+        if plan["action"] == "needs_kyle_review":
+            note = str(plan.get("note") or "") or needs_kyle_review_comment(
+                kind="uniform" if plan.get("vendor_rule") == "unifirst_uniform_kyle_review" else "first_aid",
+                invoice_number=number,
+                pdf_total=bill["total"],
+                line_count=plan.get("line_count"),
+                line_limit=plan.get("line_limit"),
+            )
+            comment = write_comment(client, created_id, note, mention=False)
+            results.append(
+                public_invoice(
+                    bill,
+                    status="HOLD",
+                    reason="needs_kyle_review",
+                    kimco_id=created_id,
+                    batch=BATCH_NAME,
+                    transfer_ap="no",
+                    receipts="",
+                    ppv=0.0,
+                    comments_1_id=comment.get("id"),
+                    note=note,
+                    email_moved="pending",
+                )
+            )
+            results[-1]["_attached"] = attach == "attached"
+            results[-1]["_message_id"] = bill.get("message_id")
+            results[-1]["line_count"] = plan.get("line_count")
+            print(
+                f"KYLE-REVIEW {number} id={created_id} lines={plan.get('line_count')} comment={comment.get('id')}",
+                flush=True,
+            )
+            continue
+        mention = plan["action"] in {"missing_receipt", "price_variance", "quantity_variance", "missing_po"}
         if plan["action"] != "select":
-            note = build_note(bill, plan, status="HOLD", amount_entered=0, ppv=0)
+            note = str(plan.get("note") or "") or build_note(bill, plan, status="HOLD", amount_entered=0, ppv=0)
             comment = write_comment(client, created_id, note, mention=mention and "@Shawn McKibben" in note)
             moved = {"status": "not-moved", "batch_name": BATCH_NAME}
             mention_ok = (not mention) or comment.get("mention") is True
-            if plan["action"] != "missing_po" and comment.get("id") and mention_ok:
-                moved = apply_transfer_ap_batch_move(client, kimco_id=created_id)
+            skip_transfer = plan["action"] in {
+                "air_products_totals",
+                "unifirst_first_aid_totals",
+                "msc_one_time_totals",
+            } or (plan["action"] == "missing_po" and plan.get("transfer_ap") is False)
+            if plan["action"] != "missing_po" or plan.get("transfer_ap") is not False:
+                if not skip_transfer and comment.get("id") and mention_ok:
+                    moved = apply_transfer_ap_batch_move(client, kimco_id=created_id)
             on_transfer = moved.get("status") in {"moved", "already-on-transfer-ap"}
             results.append(
                 public_invoice(

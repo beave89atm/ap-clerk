@@ -284,7 +284,7 @@ def test_process_invoice_success_flags_and_hold_skips():
         pdf_dir=None,
         graph_client=graph,
     )
-    assert success_row["Result"] == "Incomplete"
+    assert success_row["Result"] == "HOLD"
     assert success_row["KIMCO id"] == 9508
     assert success_row["Flag status"] == FLAG_ENTERED_WITH_ISSUES
     assert success_row["Flag status"] != "entered-in-ai"

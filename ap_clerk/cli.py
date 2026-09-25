@@ -46,7 +46,7 @@ from ap_clerk.inbox import (
     pull_recent_bills,
     skip_rows_for_report,
 )
-from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
+from ap_clerk.kimco import KimcoClient, KimcoError, added_comment_payload, fees_with_amounts
 from ap_clerk.quality_v12 import (
     COL_EXCEPTION_CATEGORY,
     COL_EXCEPTION_OWNER,
@@ -58,6 +58,7 @@ from ap_clerk.gates import (
     GATE_ALREADY_ENTERED,
     GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
+    GATE_FINISH,
     GATE_PDF_LINK,
     GATE_PO,
     GATE_PREFLIGHT,
@@ -113,6 +114,11 @@ from ap_clerk.rules import (
     is_noise_reason,
     looks_like_account_statement,
     invoice_type_for,
+    air_products_charges_match,
+    is_vending_po_reference,
+    missing_po_owner_note,
+    shawn_mention_html,
+    standing_vendor_entry_decision,
     is_freight_vendor,
     is_rfq_not_kimco_po,
     kimco_datetime,
@@ -1061,8 +1067,26 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     freight_vendor = is_freight_vendor(vendor)
-    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)]
-    if po and is_rfq_not_kimco_po(po):
+    standing = standing_vendor_entry_decision(vendor, inv)
+    # Shop supplies (Air Products, UniFirst First Aid at or under the line
+    # limit) and needs_kyle_review (First Aid over the limit, UniFirst
+    # uniforms) are miscellaneous, no PO, never a missing_po HOLD, never
+    # Transfer AP. Exact KIMCO vendor id is applied again after vendor resolve.
+    misc_shop = standing is not None and standing.get("mode") in {"shop_supplies", "needs_kyle_review"}
+    if misc_shop:
+        po = None
+        po_display = ""
+        row["PO"] = ""
+        inv = dict(inv)
+        inv["po"] = None
+        inv["pos"] = []
+        inv["multi_po"] = False
+    pos = [] if misc_shop else [
+        str(p)
+        for p in (inv.get("pos") or ([po] if po else []))
+        if p and not is_rfq_not_kimco_po(p) and not is_vending_po_reference(p)
+    ]
+    if po and (is_rfq_not_kimco_po(po) or is_vending_po_reference(po)):
         po = None
         po_display = ""
         row["PO"] = ""
@@ -1076,7 +1100,10 @@ def _process_invoice(
     wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
     po_info = None
     po_missing_note = ""
-    resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
+    if misc_shop:
+        resolved = {"info": None, "number": None, "how": str((standing or {}).get("vendor_rule") or "misc-shop")}
+    else:
+        resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
     if resolved.get("info") and not multi_po:
         po_info = resolved["info"]
         po = resolved.get("number") or po
@@ -1137,6 +1164,27 @@ def _process_invoice(
         )
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
+    confirmed = standing_vendor_entry_decision(
+        str(vendor_info.get("vendor_text") or vendor),
+        inv,
+        vendor_id=vendor_info.get("vendor_id"),
+    )
+    if vendor_info.get("vendor_id") not in (None, ""):
+        # API Vendor.id wins over the printed name. Vendor 341 is Tube Supply.
+        standing = confirmed
+        misc_shop = standing is not None and standing.get("mode") in {"shop_supplies", "needs_kyle_review"}
+        if misc_shop:
+            po = None
+            po_display = ""
+            po_info = None
+            pos = []
+            multi_po = False
+            row["PO"] = ""
+            resolved = {
+                "info": None,
+                "number": None,
+                "how": str(standing.get("vendor_rule") or "misc-shop"),
+            }
     if not vendor_info.get("invoice_id"):
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail(
@@ -1163,11 +1211,15 @@ def _process_invoice(
 
     transfer_ap = should_transfer_ap_missing_po(
         vendor=vendor,
+        vendor_id=vendor_info.get("vendor_id"),
+        invoice_number=number,
         printed_pos=pos,
         resolved=resolved if not multi_po else None,
         freight=freight_vendor,
         gas_misc=bool(inv.get("gas_misc") or inv.get("gas_split") or misc_purchase_item_for(vendor)),
     )
+    if misc_shop:
+        transfer_ap = False
     if freight_vendor:
         parsed_fee_list = list(inv.get("fees") or [])
         if not parsed_fee_list and amount not in (None, ""):
@@ -1207,7 +1259,7 @@ def _process_invoice(
     price["ppv_total"] = ppv_value
     if ppv_value:
         row["PPV"] = format_ppv(ppv_value)
-    if price["hold"] or preset_hold == "price does not match":
+    if not misc_shop and (price["hold"] or preset_hold == "price does not match"):
         issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
         if PRICE_MISMATCH_PO_COMMENT not in issue_why:
             issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
@@ -1215,7 +1267,7 @@ def _process_invoice(
         issue_hold = (GATE_PRICE, issue_why)
     # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
     # Freight companies have no Select Receipts / PO qty gate (Priority 1).
-    if not multi_po and not freight_vendor and not transfer_ap:
+    if not multi_po and not freight_vendor and not transfer_ap and not misc_shop:
         qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
         if not qty_ok:
             extra = qty_why
@@ -1386,7 +1438,9 @@ def _process_invoice(
     due = due_date_from_terms(invoice_day, lookup_text(terms))
     # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
     # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
-    if multi_po:
+    if misc_shop:
+        invoice_type = invoice_type_for(None)
+    elif multi_po:
         invoice_type = INVOICE_TYPE_PO
     else:
         invoice_type = invoice_type_for(po if (po_info or po) else None)
@@ -1414,8 +1468,12 @@ def _process_invoice(
         if found_transfer:
             payload["AP_Invoice_Batch"] = {"id": found_transfer["id"]}
             row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({found_transfer['id']})"
-    if po_info and not multi_po and not transfer_ap:
+    if po_info and not multi_po and not transfer_ap and not misc_shop:
         payload["Purchase_Order"] = {"id": po_info["id"]}
+    if misc_shop and payload.get("Posted") not in (None, "", False):
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail("Standing miscellaneous rule forbids posting the bill.")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
         row["Result"] = RESULT_FAIL
@@ -1433,6 +1491,22 @@ def _process_invoice(
         {"id": created_id, "values": {"Invoice_Number": number, "Vendor": {"text": vendor}}},
     )
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
+    if transfer_ap:
+        owner_note = missing_po_owner_note(
+            vendor=vendor,
+            invoice_number=number,
+            pdf_total=amount,
+            vendor_id=vendor_info.get("vendor_id"),
+            printed_reference=str(inv.get("printed_po_not_kimco") or ""),
+        )
+        writer = getattr(client, "update", None)
+        if writer:
+            try:
+                writer(created_id, added_comment_payload(created_id, shawn_mention_html(owner_note)))
+            except TypeError:
+                writer("ap_invoices", created_id, added_comment_payload(created_id, shawn_mention_html(owner_note)))
+            except KimcoError as exc:
+                LOGGER.info("Missing-PO Shawn comment was not saved on %s: %s", created_id, exc)
     receipts_selected = False
     select_status = ""
     receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
@@ -1464,6 +1538,50 @@ def _process_invoice(
         receipts_selected = select_status == "selected"
     fees_posted = False
     fee_status = "none"
+    shop_status = "none"
+    if standing and standing.get("mode") == "needs_kyle_review":
+        review_note = str(standing.get("note") or "").strip()
+        issue_hold = (
+            GATE_FINISH,
+            why_hold(
+                GATE_FINISH,
+                review_note
+                or "needs_kyle_review. No invoice lines were entered. Do not post the bill.",
+            ),
+        )
+        inv = dict(inv)
+        inv["fees"] = []
+    elif standing and standing.get("mode") == "shop_supplies":
+        shop_charges = list(standing.get("charges") or [])
+        if not air_products_charges_match(shop_charges, amount):
+            issue_hold = (
+                GATE_FINISH,
+                why_hold(
+                    GATE_FINISH,
+                    "Shop supplies lines do not total the PDF invoice to the penny. "
+                    "This is not a missing_po HOLD. Do not post the bill.",
+                ),
+            )
+        else:
+            poster_shop = getattr(client, "try_post_shop_supplies", None)
+            if poster_shop:
+                try:
+                    shop_status = poster_shop(created_id, shop_charges)
+                except KimcoError:
+                    shop_status = "blocked-405"
+            else:
+                shop_status = "blocked-no-shop-supplies-api"
+            if shop_status != "posted":
+                issue_hold = (
+                    GATE_FINISH,
+                    why_hold(
+                        GATE_FINISH,
+                        f"Shop supplies additional charges were not saved ({shop_status}). "
+                        "Do not post the bill.",
+                    ),
+                )
+        inv = dict(inv)
+        inv["fees"] = []
     parsed_fees = list(inv.get("fees") or [])
     if fees_required(parsed_fees):
         poster = getattr(client, "try_post_fees", None)
@@ -1484,7 +1602,7 @@ def _process_invoice(
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
     ppv_status = "none"
-    if price.get("ppv_total"):
+    if price.get("ppv_total") and not misc_shop:
         poster_ppv = getattr(client, "try_post_ppv", None)
         if poster_ppv:
             try:
@@ -1511,12 +1629,15 @@ def _process_invoice(
     )
     if issue_hold:
         row["Result"] = RESULT_HOLD
+        hold_why = issue_hold[1]
+        if not vendor_ok and _vendor_why:
+            hold_why = f"{_vendor_why} {hold_why}"
         misc_note = ""
         misc_item = misc_purchase_item_for(vendor)
         if misc_item and invoice_type == 4:
             misc_note = f" Misc purchase item {misc_item}."
         row["Why"] = (
-            f"{issue_hold[1]} {receipt_note}"
+            f"{hold_why} {receipt_note}"
             f"Header created (id {created_id}). Attach status={pdf_status}."
             f" Select Receipts={select_status or 'not-posted'}.{misc_note} "
             "Outlook Entered with issues (not Entered in AI)."
@@ -1623,7 +1744,23 @@ def _process_invoice(
                     f"Fees {format_fees(parsed_fees)} were parsed but not posted "
                     f"({fee_status}); sheet column is not enough. "
                 )
-    if result == RESULT_SUCCESS:
+    if result == RESULT_SUCCESS and standing and standing.get("mode") == "shop_supplies":
+        shop_label = {
+            "air_products_misc": "Air Products",
+            "unifirst_first_aid_misc": "UniFirst First Aid & Safety",
+            "msc_one_time_misc": "MSC Industrial Supply",
+        }.get(str(standing.get("vendor_rule") or ""), "Shop supplies")
+        extra = ""
+        if standing.get("vendor_rule") == "msc_one_time_misc":
+            extra = " Kyle approved this one invoice as miscellaneous. Future MSC invoices need a purchase order."
+        row["Why"] = (
+            f"Finished bill (Invoice_Type {invoice_type} Miscellaneous). "
+            f"{shop_label} shop supplies bill entered as miscellaneous.{extra} "
+            f"Additional Charges lines described shop supplies total the PDF ({amount}). "
+            f"Shop supplies status={shop_status}. The bill is not posted. "
+            f"Attach status={pdf_status}."
+        )
+    elif result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
             f"{ppv_note}{fee_note}"

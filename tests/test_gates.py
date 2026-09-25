@@ -236,7 +236,8 @@ def test_incomplete_gets_entered_with_issues_not_entered_in_ai():
         graph_client=graph,
         flag_outlook=True,
     )
-    assert row["Result"] == RESULT_INCOMPLETE
+    assert row["Result"] == RESULT_HOLD
+    assert "missing" in (row["Why"] or "").lower()
     assert row["Flag status"] == FLAG_ENTERED_WITH_ISSUES
     assert row["Flag status"] != "entered-in-ai"
     assert row["Flag status"] != FLAG_AI_HOLD

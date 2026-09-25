@@ -84,6 +84,94 @@ CREATE_HEADER_ON_HOLD = {
 HOLD_ONLY_REASONS = NOISE_REASONS | BILL_HOLD_REASONS
 GAS_AND_SUPPLY_MISC_ITEM = "Shop Supplies - G&S"
 
+# Kyle 2026-09-25 standing rule: Air Products and Chemicals, Inc invoices are
+# always Miscellaneous (Invoice_Type 4). They have no PO. Never HOLD them as
+# missing_po and never send them to Transfer AP for a missing PO. Each PDF
+# line is an Additional Charges line described "shop supplies", including
+# freight, fees, and tax when the PDF lists those separately. The lines must
+# total the PDF invoice total to the penny. Finish as Success. Never post.
+AIR_PRODUCTS_VENDOR_ID = 13
+AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION = "shop supplies"
+AIR_PRODUCTS_VENDOR_RULE = {
+    "vendor_id": AIR_PRODUCTS_VENDOR_ID,
+    "names": ("air products", "air products and chemicals"),
+    "invoice_type": INVOICE_TYPE_NO_PO,
+    "never_missing_po": True,
+    "transfer_ap": False,
+    "select_receipts": False,
+    "additional_charge_description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+    "include_freight_fees_tax": True,
+    "finish": "Success",
+    "post": False,
+}
+
+# Kyle 2026-09-25: UniFirst First Aid & Safety follows the Air Products
+# miscellaneous shop-supplies rule. Live API Vendor.id on invoice 10357
+# (IN000037249) is 209, text "1207-UNIFIRST FIRST AID & SAFETY".
+# https://live.kimcoerp.com/Form/39?i=341 is not that vendor. API Vendor.id
+# 341 is Tube Supply (invoice 10364 / 01178303, "1339-Tube Supply"). Matching
+# the API Vendor.id keeps First Aid, uniforms, and Tube Supply apart.
+# More than SHOP_SUPPLIES_LINE_LIMIT invoice lines (default 10, override with
+# AP_SHOP_SUPPLIES_LINE_LIMIT) are not entered. Those bills stay HOLD
+# needs_kyle_review. UniFirst uniforms (API Vendor.id 189) are never shop
+# supplies; they are HOLD needs_kyle_review with no lines entered.
+UNIFIRST_FIRST_AID_VENDOR_ID = 209
+UNIFIRST_UNIFORM_VENDOR_ID = 189
+TUBE_SUPPLY_VENDOR_ID = 341
+SHOP_SUPPLIES_LINE_LIMIT = 10
+SHOP_SUPPLIES_LINE_LIMIT_ENV = "AP_SHOP_SUPPLIES_LINE_LIMIT"
+NEEDS_KYLE_REVIEW = "needs_kyle_review"
+UNIFIRST_FIRST_AID_VENDOR_RULE = {
+    "vendor_id": UNIFIRST_FIRST_AID_VENDOR_ID,
+    "names": ("unifirst first aid",),
+    "invoice_type": INVOICE_TYPE_NO_PO,
+    "never_missing_po": True,
+    "transfer_ap": False,
+    "select_receipts": False,
+    "additional_charge_description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+    "include_freight_fees_tax": True,
+    "line_limit": SHOP_SUPPLIES_LINE_LIMIT,
+    "line_limit_env": SHOP_SUPPLIES_LINE_LIMIT_ENV,
+    "over_limit": NEEDS_KYLE_REVIEW,
+    "finish": "Success",
+    "post": False,
+}
+# Kyle 2026-09-25: MSC Industrial Supply invoices need a KIMCO PO.
+# Vending references such as VENDING/1570 are not a PO. No matching PO means
+# HOLD missing_po, move to Transfer AP, and a Comments_1 note that @mentions
+# Shawn McKibben (data-mention-id 104). Invoice 77062711 is the one exception
+# Kyle approved as miscellaneous shop supplies. Do not reuse that exception.
+MSC_VENDOR_ID = 128
+MSC_ONE_TIME_MISC_INVOICE = "77062711"
+MSC_VENDOR_RULE = {
+    "vendor_id": MSC_VENDOR_ID,
+    "names": ("msc industrial",),
+    "needs_po": True,
+    "vending_is_not_po": True,
+    "one_time_misc_invoice": MSC_ONE_TIME_MISC_INVOICE,
+    "missing_po_batch": "Transfer AP",
+    "owner": "Shawn McKibben",
+    "mention_id": 104,
+    "post": False,
+}
+SHAWN_MENTION_HTML = (
+    '<span data-mention-id="104" data-mention-name="Shawn McKibben" '
+    'data-mention-email="Shawn.McKibben@kannonmfg.com" '
+    'class="prosemirror-mention-node">@Shawn McKibben</span>'
+)
+UNIFIRST_UNIFORM_VENDOR_RULE = {
+    "vendor_id": UNIFIRST_UNIFORM_VENDOR_ID,
+    "names": ("unifirst corporation", "unifirst"),
+    "exclude_names": ("first aid",),
+    "invoice_type": INVOICE_TYPE_NO_PO,
+    "enter_lines": False,
+    "transfer_ap": False,
+    "select_receipts": False,
+    "finish": "HOLD",
+    "hold_reason": NEEDS_KYLE_REVIEW,
+    "post": False,
+}
+
 
 def is_noise_reason(reason: str | None) -> bool:
     """True for bill-vs-noise skips (statement, CHECK STOP, POD, payment, dup, not-a-bill)."""
@@ -406,6 +494,674 @@ def vendor_expects_printed_po(name: str | None) -> bool:
     )
 
 
+def _vendor_id_int(vendor_id: Any) -> int | None:
+    if vendor_id in (None, ""):
+        return None
+    try:
+        return int(vendor_id)
+    except (TypeError, ValueError):
+        return None
+
+
+def shop_supplies_line_limit() -> int:
+    """How many shop-supplies lines may be entered. Default 10.
+
+    More than this count is needs_kyle_review for UniFirst First Aid.
+    AP_SHOP_SUPPLIES_LINE_LIMIT overrides the default for a run.
+    """
+    raw = os.environ.get(SHOP_SUPPLIES_LINE_LIMIT_ENV)
+    if raw in (None, ""):
+        return int(SHOP_SUPPLIES_LINE_LIMIT)
+    return int(raw)
+
+
+def is_air_products_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """Air Products and Chemicals, Inc (live Vendor.id 13).
+
+    A provided vendor id wins. Vendor.id 13 is Air Products even when the
+    printed name disagrees. Any other id is not Air Products.
+    """
+    vid = _vendor_id_int(vendor_id)
+    if vid is not None:
+        return vid == int(AIR_PRODUCTS_VENDOR_RULE["vendor_id"])
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    if not raw:
+        return False
+    return any(token in raw for token in AIR_PRODUCTS_VENDOR_RULE["names"])
+
+
+def is_unifirst_first_aid_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """UniFirst First Aid & Safety (live API Vendor.id 209).
+
+    A provided vendor id wins, so vendor 189 (uniforms) and vendor 341
+    (Tube Supply) are never treated as First Aid, even if the printed name
+    says First Aid. Name-only matching uses the longest alias, so
+    "unifirst first aid" is not collapsed to bare Unifirst.
+    """
+    vid = _vendor_id_int(vendor_id)
+    if vid is not None:
+        return vid == int(UNIFIRST_FIRST_AID_VENDOR_RULE["vendor_id"])
+    resolved = known_vendor_id(name)
+    if resolved is not None:
+        return int(resolved) == int(UNIFIRST_FIRST_AID_VENDOR_RULE["vendor_id"])
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    return "unifirst" in raw and "first aid" in raw
+
+
+def is_unifirst_uniform_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """UniFirst uniforms (live API Vendor.id 189), not First Aid and not Tube Supply.
+
+    A provided vendor id wins. Vendor 209 stays on the First Aid rule.
+    Vendor 341 is Tube Supply and is not a Unifirst uniform bill.
+    """
+    vid = _vendor_id_int(vendor_id)
+    if vid is not None:
+        return vid == int(UNIFIRST_UNIFORM_VENDOR_RULE["vendor_id"])
+    if is_unifirst_first_aid_vendor(name):
+        return False
+    resolved = known_vendor_id(name)
+    if resolved is not None:
+        return int(resolved) == int(UNIFIRST_UNIFORM_VENDOR_RULE["vendor_id"])
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    if "tube supply" in raw or "first aid" in raw:
+        return False
+    return "unifirst" in raw
+
+
+def _air_products_amount(row: dict[str, Any]) -> float | None:
+    amount = money(row.get("amount"))
+    if amount is None:
+        amount = money(row.get("line_amount"))
+    return amount
+
+
+def _air_products_source(row: dict[str, Any], fallback: str) -> str:
+    source = str(row.get("source") or row.get("description") or row.get("name") or row.get("part") or fallback).strip()
+    return re.sub(r"\s+", " ", source) or fallback
+
+
+def air_products_shop_supplies_charges(bill: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """One Additional Charges row per PDF line, each described shop supplies.
+
+    Merchandise, freight, fees, and tax stay separate when the source lists
+    them separately. A single tax amount stays one line. Summary rows such as
+    net value are not charges.
+    """
+    data = bill or {}
+    description = str(AIR_PRODUCTS_VENDOR_RULE["additional_charge_description"])
+    preset = data.get("shop_supplies_charges") or data.get("air_products_charges")
+    source_rows: list[tuple[str, float]] = []
+    if preset:
+        for row in preset:
+            if not isinstance(row, dict):
+                continue
+            amount = _air_products_amount(row)
+            if amount in (None, 0, 0.0):
+                continue
+            source_rows.append((_air_products_source(row, "line"), amount))
+    else:
+        for row in data.get("lines") or []:
+            if not isinstance(row, dict) or row.get("fee"):
+                continue
+            amount = _air_products_amount(row)
+            if amount in (None, 0, 0.0):
+                continue
+            source_rows.append((_air_products_source(row, "Product"), amount))
+        for row in data.get("fees") or []:
+            if not isinstance(row, dict):
+                continue
+            amount = _air_products_amount(row)
+            if amount in (None, 0, 0.0):
+                continue
+            source_rows.append((_air_products_source(row, "Fee"), amount))
+        taxes = data.get("taxes")
+        if taxes is None and data.get("tax") not in (None, ""):
+            taxes = data.get("tax")
+        if isinstance(taxes, list):
+            for row in taxes:
+                if isinstance(row, dict):
+                    amount = _air_products_amount(row)
+                    if amount in (None, 0, 0.0):
+                        continue
+                    source_rows.append((_air_products_source(row, "Tax"), amount))
+                else:
+                    amount = money(row)
+                    if amount in (None, 0, 0.0):
+                        continue
+                    source_rows.append(("Tax", amount))
+        else:
+            amount = money(taxes)
+            if amount not in (None, 0, 0.0):
+                source_rows.append(("Tax", amount))
+    charges: list[dict[str, Any]] = []
+    for source, amount in source_rows:
+        charges.append(
+            {
+                "description": description,
+                "source": source,
+                "amount": amount,
+                "name": description,
+            }
+        )
+    return charges
+
+
+def air_products_charges_total(charges: list[dict[str, Any]] | None) -> float:
+    return round(sum(float(_air_products_amount(row) or 0) for row in (charges or []) if isinstance(row, dict)), 2)
+
+
+def air_products_charges_match(charges: list[dict[str, Any]] | None, pdf_total: Any) -> bool:
+    """True when shop-supplies lines equal the PDF total to the penny."""
+    total = money(pdf_total)
+    rows = [row for row in (charges or []) if isinstance(row, dict)]
+    if total is None or not rows:
+        return False
+    if any(str(row.get("description") or "") != AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION for row in rows):
+        return False
+    return air_products_charges_total(rows) == total
+
+
+def air_products_success_comment(
+    *,
+    invoice_number: str,
+    charges: list[dict[str, Any]],
+    pdf_total: Any,
+) -> str:
+    """Plain-English Comments_1 note. Starts with AP Clerk:."""
+    bits = []
+    for row in charges:
+        amount = _air_products_amount(row)
+        source = _air_products_source(row, "line")
+        bits.append(f"{source} ${amount:,.2f}" if amount is not None else source)
+    listed = "; ".join(bits)
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    number = str(invoice_number or "").strip()
+    return (
+        "AP Clerk: This is an Air Products shop supplies bill entered as miscellaneous "
+        f"per the standing rule. Invoice {number}. Additional Charges lines, each described "
+        f"shop supplies: {listed}. Those lines total {total_txt}, which matches the PDF total. "
+        "The bill is not posted."
+    )
+
+
+def air_products_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """How a misc/no-PO entry path must treat this vendor. None for everyone else.
+
+    Air Products is always Miscellaneous, never a missing_po HOLD, never posted.
+    """
+    data = dict(bill or {})
+    if not is_air_products_vendor(vendor or data.get("vendor"), vendor_id or data.get("vendor_id")):
+        return None
+    charges = air_products_shop_supplies_charges(data)
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    ready = air_products_charges_match(charges, total)
+    return {
+        "vendor_rule": "air_products_misc",
+        "invoice_type": int(AIR_PRODUCTS_VENDOR_RULE["invoice_type"]),
+        "missing_po_hold": False,
+        "transfer_ap": False,
+        "select_receipts": False,
+        "post_bill": False,
+        "description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+        "charges": charges,
+        "pdf_total": total,
+        "charges_total": air_products_charges_total(charges),
+        "ready": ready,
+        "finish": "Success" if ready else "HOLD",
+        "hold_reason": "" if ready else "shop supplies lines do not total the PDF invoice",
+        "mode": "shop_supplies",
+        "enter_charges": True,
+        "vendor_id": int(AIR_PRODUCTS_VENDOR_RULE["vendor_id"]),
+        "line_count": len(charges),
+        "line_limit": None,
+    }
+
+
+def _kyle_review_decision(
+    *,
+    vendor_rule: str,
+    vendor_id: int,
+    invoice_number: str,
+    pdf_total: Any,
+    line_count: int,
+    line_limit: int | None,
+    kind: str,
+) -> dict[str, Any]:
+    note = needs_kyle_review_comment(
+        kind=kind,
+        invoice_number=invoice_number,
+        pdf_total=pdf_total,
+        line_count=line_count,
+        line_limit=line_limit,
+    )
+    return {
+        "vendor_rule": vendor_rule,
+        "mode": "needs_kyle_review",
+        "enter_charges": False,
+        "invoice_type": INVOICE_TYPE_NO_PO,
+        "missing_po_hold": False,
+        "transfer_ap": False,
+        "select_receipts": False,
+        "post_bill": False,
+        "description": "",
+        "charges": [],
+        "pdf_total": money(pdf_total),
+        "charges_total": 0.0,
+        "line_count": line_count,
+        "line_limit": line_limit,
+        "ready": False,
+        "finish": "HOLD",
+        "hold_reason": NEEDS_KYLE_REVIEW,
+        "vendor_id": vendor_id,
+        "note": note,
+    }
+
+
+def unifirst_first_aid_success_comment(
+    *,
+    invoice_number: str,
+    charges: list[dict[str, Any]],
+    pdf_total: Any,
+) -> str:
+    """Plain-English Comments_1 note for a finished First Aid shop-supplies bill."""
+    bits = []
+    for row in charges:
+        amount = _air_products_amount(row)
+        source = _air_products_source(row, "line")
+        bits.append(f"{source} ${amount:,.2f}" if amount is not None else source)
+    listed = "; ".join(bits)
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    number = str(invoice_number or "").strip()
+    return (
+        "AP Clerk: This is a UniFirst First Aid & Safety shop supplies bill entered as "
+        "miscellaneous per the standing rule. Invoice "
+        f"{number}. Additional Charges lines, each described shop supplies: {listed}. "
+        f"Those lines total {total_txt}, which matches the PDF total. The bill is not posted."
+    )
+
+
+def needs_kyle_review_comment(
+    *,
+    kind: str,
+    invoice_number: str,
+    pdf_total: Any,
+    line_count: int | None = None,
+    line_limit: int | None = None,
+) -> str:
+    """Plain-English HOLD note. Starts with AP Clerk:. Reason is needs_kyle_review."""
+    number = str(invoice_number or "").strip()
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    if kind == "uniform":
+        return (
+            "AP Clerk: This is a UniFirst uniform invoice, not UniFirst First Aid & Safety. "
+            f"Invoice {number}. It is waiting on Kyle's review (needs_kyle_review). "
+            f"No invoice lines were entered. The PDF total is {total_txt}. The bill is not posted."
+        )
+    count = int(line_count or 0)
+    limit = int(line_limit if line_limit is not None else shop_supplies_line_limit())
+    return (
+        "AP Clerk: UniFirst First Aid & Safety invoice "
+        f"{number} is waiting on Kyle's review (needs_kyle_review). "
+        f"The invoice has {count} line items, which is more than the {limit} line threshold, "
+        "so the lines were not entered. "
+        f"The PDF total is {total_txt}. The bill is not posted."
+    )
+
+
+def unifirst_first_aid_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """First Aid shop supplies, or needs_kyle_review when the line count is over the limit.
+
+    None for every other vendor, including UniFirst uniforms and Tube Supply.
+    """
+    data = dict(bill or {})
+    if not is_unifirst_first_aid_vendor(vendor or data.get("vendor"), vendor_id or data.get("vendor_id")):
+        return None
+    charges = air_products_shop_supplies_charges(data)
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    limit = shop_supplies_line_limit()
+    number = str(data.get("invoice_number") or "")
+    if len(charges) > limit:
+        return _kyle_review_decision(
+            vendor_rule="unifirst_first_aid_kyle_review",
+            vendor_id=UNIFIRST_FIRST_AID_VENDOR_ID,
+            invoice_number=number,
+            pdf_total=total,
+            line_count=len(charges),
+            line_limit=limit,
+            kind="first_aid",
+        )
+    ready = air_products_charges_match(charges, total)
+    return {
+        "vendor_rule": "unifirst_first_aid_misc",
+        "mode": "shop_supplies",
+        "enter_charges": True,
+        "invoice_type": int(UNIFIRST_FIRST_AID_VENDOR_RULE["invoice_type"]),
+        "missing_po_hold": False,
+        "transfer_ap": False,
+        "select_receipts": False,
+        "post_bill": False,
+        "description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+        "charges": charges,
+        "pdf_total": total,
+        "charges_total": air_products_charges_total(charges),
+        "line_count": len(charges),
+        "line_limit": limit,
+        "ready": ready,
+        "finish": "Success" if ready else "HOLD",
+        "hold_reason": "" if ready else "shop supplies lines do not total the PDF invoice",
+        "vendor_id": UNIFIRST_FIRST_AID_VENDOR_ID,
+        "note": unifirst_first_aid_success_comment(
+            invoice_number=number,
+            charges=charges,
+            pdf_total=total,
+        )
+        if ready
+        else "",
+    }
+
+
+def unifirst_uniform_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """Uniforms are HOLD needs_kyle_review. No shop-supplies lines. None for other vendors."""
+    data = dict(bill or {})
+    if not is_unifirst_uniform_vendor(vendor or data.get("vendor"), vendor_id or data.get("vendor_id")):
+        return None
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    rows = [row for row in (data.get("lines") or []) if isinstance(row, dict)]
+    rows += [row for row in (data.get("fees") or []) if isinstance(row, dict)]
+    return _kyle_review_decision(
+        vendor_rule="unifirst_uniform_kyle_review",
+        vendor_id=UNIFIRST_UNIFORM_VENDOR_ID,
+        invoice_number=str(data.get("invoice_number") or ""),
+        pdf_total=total,
+        line_count=len(rows),
+        line_limit=None,
+        kind="uniform",
+    )
+
+
+def standing_vendor_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """Misc/no-PO decision for Air Products, UniFirst First Aid, and UniFirst uniforms.
+
+    None for every other vendor, including Tube Supply (API Vendor.id 341).
+    A provided vendor id wins over the printed name.
+    """
+    air = air_products_entry_decision(vendor, bill, vendor_id=vendor_id)
+    if air is not None:
+        return air
+    first_aid = unifirst_first_aid_entry_decision(vendor, bill, vendor_id=vendor_id)
+    if first_aid is not None:
+        return first_aid
+    uniform = unifirst_uniform_entry_decision(vendor, bill, vendor_id=vendor_id)
+    if uniform is not None:
+        return uniform
+    return msc_entry_decision(vendor, bill, vendor_id=vendor_id)
+
+
+def is_vending_po_reference(value: Any) -> bool:
+    """VENDING/1570 and the same class of vending machine refs are not KIMCO POs."""
+    text = str(value or "").strip()
+    if not text:
+        return False
+    return bool(re.search(r"\bvending\b", text, flags=re.I))
+
+
+def is_kimco_po_number(value: Any) -> bool:
+    """True for a KIMCO purchase-order number. Vending refs and RFQs do not count."""
+    if is_vending_po_reference(value) or is_rfq_not_kimco_po(value):
+        return False
+    text = str(value or "").strip()
+    if not text:
+        return False
+    number = extract_po_number(text) or re.sub(r"\D", "", text)
+    return bool(re.fullmatch(r"5[7-9]\d{3}", number or ""))
+
+
+def is_msc_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """MSC Industrial Supply (live API Vendor.id 128). A provided id wins."""
+    vid = _vendor_id_int(vendor_id)
+    if vid is not None:
+        return vid == MSC_VENDOR_ID
+    resolved = known_vendor_id(name)
+    if resolved is not None:
+        return int(resolved) == MSC_VENDOR_ID
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    return "msc industrial" in raw
+
+
+def is_msc_one_time_misc_exception(
+    vendor: str | None = None,
+    invoice_number: str | None = None,
+    *,
+    vendor_id: Any = None,
+) -> bool:
+    """Kyle's one-time miscellaneous approval. Invoice 77062711 only, and only for MSC."""
+    if not is_msc_vendor(vendor, vendor_id):
+        return False
+    return invoice_number_key(str(invoice_number or "")) == MSC_ONE_TIME_MISC_INVOICE
+
+
+def shawn_mention_html(note: str) -> str:
+    """Comments_1 HtmlValue. The @Shawn token becomes the live mention span."""
+    text = str(note or "").strip()
+    if "@Shawn McKibben" not in text:
+        raise ValueError("Shawn note is missing @Shawn McKibben")
+    body = text.replace("@Shawn McKibben", SHAWN_MENTION_HTML, 1)
+    return body if body.startswith("<") else f"<p>{body}</p>"
+
+
+def missing_po_owner_note(
+    *,
+    vendor: str | None,
+    invoice_number: str | None,
+    pdf_total: Any,
+    vendor_id: Any = None,
+    printed_reference: str | None = None,
+) -> str:
+    """Plain-English missing-PO note. Names Shawn as the owner and starts with AP Clerk:."""
+    number = str(invoice_number or "").strip()
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    company = str(vendor or "This vendor").strip()
+    vending = ""
+    if printed_reference and is_vending_po_reference(printed_reference):
+        vending = f" The printed reference {printed_reference} is not a KIMCO purchase order."
+    if is_msc_vendor(company, vendor_id):
+        return (
+            "AP Clerk: @Shawn McKibben MSC Industrial Supply needs a purchase order. "
+            f"Invoice {number}. The PDF total is {total_txt}.{vending} "
+            "Please create the purchase order or point AP at the purchase order so this bill can be matched. "
+            "The bill is on hold, moved to Transfer AP, and is not posted."
+        )
+    return (
+        "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. "
+        f"{company} invoice {number} needs a purchase order. The PDF total is {total_txt}.{vending} "
+        "Please create the purchase order or point AP at the purchase order so this bill can be matched. "
+        "The bill is on hold, moved to Transfer AP, and is not posted."
+    )
+
+
+def msc_one_time_success_comment(
+    *,
+    invoice_number: str,
+    charges: list[dict[str, Any]],
+    pdf_total: Any,
+) -> str:
+    """Kyle approved this one MSC bill as miscellaneous. Future MSC invoices need a PO."""
+    bits = []
+    for row in charges:
+        amount = _air_products_amount(row)
+        source = _air_products_source(row, "line")
+        bits.append(f"{source} ${amount:,.2f}" if amount is not None else source)
+    listed = "; ".join(bits)
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    number = str(invoice_number or "").strip()
+    return (
+        "AP Clerk: Kyle approved entering this MSC Industrial Supply invoice as miscellaneous. "
+        f"Invoice {number}. Additional Charges lines, each described shop supplies: {listed}. "
+        f"Those lines total {total_txt}, which matches the PDF total. "
+        "Future MSC invoices need a purchase order. The bill is not posted."
+    )
+
+
+def _missing_po_transfer_decision(
+    *,
+    vendor_rule: str,
+    vendor_id: int | None,
+    vendor: str | None,
+    invoice_number: str,
+    pdf_total: Any,
+    printed_reference: str | None = None,
+) -> dict[str, Any]:
+    note = missing_po_owner_note(
+        vendor=vendor,
+        invoice_number=invoice_number,
+        pdf_total=pdf_total,
+        vendor_id=vendor_id,
+        printed_reference=printed_reference,
+    )
+    return {
+        "vendor_rule": vendor_rule,
+        "mode": "missing_po",
+        "enter_charges": False,
+        "invoice_type": INVOICE_TYPE_NO_PO,
+        "missing_po_hold": True,
+        "transfer_ap": True,
+        "select_receipts": False,
+        "post_bill": False,
+        "description": "",
+        "charges": [],
+        "pdf_total": money(pdf_total),
+        "charges_total": 0.0,
+        "line_count": 0,
+        "line_limit": None,
+        "ready": False,
+        "finish": "HOLD",
+        "hold_reason": "missing_po",
+        "vendor_id": vendor_id,
+        "note": note,
+    }
+
+
+def msc_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """MSC needs a PO, except invoice 77062711 which Kyle approved as shop supplies.
+
+    A real KIMCO PO on any other MSC invoice stays on the normal receipt path.
+    Vending references are not that PO.
+    """
+    data = dict(bill or {})
+    name = vendor or data.get("vendor")
+    vid = vendor_id if vendor_id not in (None, "") else data.get("vendor_id")
+    if not is_msc_vendor(name, vid):
+        return None
+    number = str(data.get("invoice_number") or "")
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    if is_msc_one_time_misc_exception(name, number, vendor_id=vid):
+        charges = air_products_shop_supplies_charges(data)
+        ready = air_products_charges_match(charges, total)
+        return {
+            "vendor_rule": "msc_one_time_misc",
+            "mode": "shop_supplies",
+            "enter_charges": True,
+            "invoice_type": INVOICE_TYPE_NO_PO,
+            "missing_po_hold": False,
+            "transfer_ap": False,
+            "select_receipts": False,
+            "post_bill": False,
+            "description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+            "charges": charges,
+            "pdf_total": total,
+            "charges_total": air_products_charges_total(charges),
+            "line_count": len(charges),
+            "line_limit": None,
+            "ready": ready,
+            "finish": "Success" if ready else "HOLD",
+            "hold_reason": "" if ready else "shop supplies lines do not total the PDF invoice",
+            "vendor_id": MSC_VENDOR_ID,
+            "note": msc_one_time_success_comment(invoice_number=number, charges=charges, pdf_total=total)
+            if ready
+            else "",
+        }
+    printed = data.get("po") or data.get("printed_po_not_kimco")
+    extras = list(data.get("pos") or [])
+    if is_kimco_po_number(printed) or any(is_kimco_po_number(item) for item in extras):
+        return None
+    reference = str(data.get("printed_po_not_kimco") or printed or "")
+    return _missing_po_transfer_decision(
+        vendor_rule="msc_needs_po",
+        vendor_id=MSC_VENDOR_ID,
+        vendor=str(name or "MSC Industrial Supply"),
+        invoice_number=number,
+        pdf_total=total,
+        printed_reference=reference if is_vending_po_reference(reference) else None,
+    )
+
+
+def default_missing_po_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """No-PO default for vendors that do not have their own rule.
+
+    Own rules (Air Products, UniFirst First Aid, UniFirst uniforms, MSC, freight,
+    Gas & Supply misc) are not this path. A matching KIMCO PO is not this path.
+    """
+    data = dict(bill or {})
+    name = vendor or data.get("vendor")
+    vid = vendor_id if vendor_id not in (None, "") else data.get("vendor_id")
+    if is_freight_vendor(name) or misc_purchase_item_for(name):
+        return None
+    if standing_vendor_entry_decision(name, data, vendor_id=vid) is not None:
+        return None
+    printed = data.get("po")
+    extras = list(data.get("pos") or [])
+    if is_kimco_po_number(printed) or any(is_kimco_po_number(item) for item in extras):
+        return None
+    if data.get("resolved_po"):
+        return None
+    number = str(data.get("invoice_number") or "")
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    reference = str(data.get("printed_po_not_kimco") or printed or "")
+    return _missing_po_transfer_decision(
+        vendor_rule="default_missing_po",
+        vendor_id=_vendor_id_int(vid),
+        vendor=name,
+        invoice_number=number,
+        pdf_total=total,
+        printed_reference=reference if is_vending_po_reference(reference) else None,
+    )
+
+
 def should_transfer_ap_missing_po(
     *,
     vendor: str | None,
@@ -413,20 +1169,39 @@ def should_transfer_ap_missing_po(
     resolved: dict[str, Any] | None = None,
     freight: bool = False,
     gas_misc: bool = False,
+    invoice_number: str | None = None,
+    vendor_id: Any = None,
 ) -> bool:
     """No-PO-on-PDF → purchasing comment + Transfer AP batch. Not a fake receipt HOLD.
 
     Owner for contact is Shawn McKibben. Transfer AP is the destination
     batch only. Misty McCoy is not a hard default.
+
+    Air Products, UniFirst First Aid, and UniFirst uniforms have their own
+    rules and are never a missing-PO transfer. MSC invoice 77062711 is the
+    one miscellaneous exception. Every other vendor with no matching KIMCO
+    PO uses this transfer. Vending references do not count as that PO.
+    Freight companies and Gas & Supply misc bills keep their own rules.
     """
     if freight or gas_misc or is_freight_vendor(vendor):
         return False
-    if not vendor_expects_printed_po(vendor):
+    if (
+        is_air_products_vendor(vendor)
+        or is_unifirst_first_aid_vendor(vendor)
+        or is_unifirst_uniform_vendor(vendor)
+    ):
         return False
-    usable = [str(p) for p in (printed_pos or []) if p and not is_rfq_not_kimco_po(p)]
+    if is_msc_one_time_misc_exception(vendor, invoice_number, vendor_id=vendor_id):
+        return False
     if resolved and resolved.get("info"):
         return False
-    return True if not usable else not bool(resolved and resolved.get("info"))
+    usable = [str(item) for item in (printed_pos or []) if is_kimco_po_number(item)]
+    if len(usable) > 1:
+        # Multi-PO is Select Receipts per PO, not a missing-PO transfer.
+        return False
+    if usable:
+        return not bool(resolved and resolved.get("info"))
+    return True
 
 
 def known_vendor_id(name: str | None) -> int | None:
