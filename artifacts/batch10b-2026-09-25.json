@@ -1,0 +1,4874 @@
+{
+  "run": "batch10b-2026-09-25",
+  "batch_name": "API Agent - 9/25/26 Batch 10 #2",
+  "batch_id": 736,
+  "posted": false,
+  "packing_slip_gate": "suspended",
+  "quantity_field": "Quantity_Received",
+  "mailbox_scan": {
+    "messages_in_window": 523,
+    "folder_count": 156,
+    "by_folder": {
+      "/Sent Items": 12,
+      "Inbox/9 - FORT WORTH ARCHIVE": 123,
+      "/Inbox": 383,
+      "/Junk Email": 5
+    }
+  },
+  "skipped": [
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "New payment request from Tejas Transportation - invoice 523858",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T14:42:15Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYYAAA=",
+      "pdf_name": "523858_TRUCK_PRO_BOL.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "ID 2434, past due invoices",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T15:03:16Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYZAAA=",
+      "pdf_name": "Aged Receivable Report.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "ID 2434, past due invoices",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T15:03:16Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Check# 18553",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T17:11:56Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYaAAA=",
+      "pdf_name": "Kannon Manufacturing_20260904_122636.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "***IMPORTANT*** 09/09/2026 IPFS Notice of Cancellation for non-payment of Installment #5 due 08/17/2026",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T18:38:48Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYcAAA=",
+      "pdf_name": "09092026 IPFS NOTICE OF INTENT TO CANCEL_F22041_KANNON MANUFACTURING INC.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Capital Machine - Sales Order S-ORD101969",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T19:01:31Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYdAAA=",
+      "pdf_name": "Sales Order S-ORD101969.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 142216 / CPL # 76981, 76980, PO # 58925, 58952, 58972, 59002, 59031",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T19:58:13Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybznAAA=",
+      "pdf_name": "09042026_007.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Kannon inv 120712",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T20:02:47Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHYgAAA=",
+      "pdf_name": "Kannon inv 120712.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "MSC Past Due Notification     (DXED#202624717232246358DC)",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T21:26:07Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYiAAA=",
+      "pdf_name": "20052712_992.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "MSC Past Due Notification     (DXED#202624717232246358DC)",
+      "email_received": "2026-09-04",
+      "email_received_utc": "2026-09-04T21:26:07Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Credit from Your Order 58889",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T06:21:34Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYoAAA=",
+      "pdf_name": "Credit 71358735.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59125",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T06:21:34Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SddAAA=",
+      "pdf_name": "Invoice 71401129 for PO 59125.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PO 59064 Inv# 9307057099",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T06:29:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYqAAA=",
+      "pdf_name": "PO 59064 Inv# 9307057099.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Mansfield False Alarm Reduction Program",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T12:03:55Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYwAAA=",
+      "pdf_name": "524847.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "C06512 KANNON MANUFACTURING INC: Second Reminder - $8,029.22 due          Ref:0003082671",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T12:08:31Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "0094208534",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "Mitsubishi Electric Account Statement",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T14:40:39Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYzAAA=",
+      "pdf_name": "Mitsubishi Electric Account Statement.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-06",
+      "email_received_utc": "2026-09-06T13:39:10Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-06",
+      "email_received_utc": "2026-09-06T13:39:11Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "271319-Curbell Plastics Notice of Past Due Balance",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T12:02:16Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX22nAAA=",
+      "pdf_name": "271319-Curbell Plastics Notice of Past Due Balance.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice Details - Kannon Manufacturing Inc",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T14:48:13Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX22pAAA=",
+      "pdf_name": "15206040.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Statement from Crosslink Powder Coating of TX, LLC",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T15:30:08Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "RE: ***IMPORTANT*** 09/09/2026 IPFS Notice of Cancellation for non-payment of Installment #5 due 08/17/2026",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T16:15:07Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX22yAAA=",
+      "pdf_name": "09092026 IPFS NOTICE OF INTENT TO CANCEL_F22041_KANNON MANUFACTURING INC.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: QU KANNON MANUFACTURING INC (019586) --  #G72390 -- PO#: SHAWN QUOTE  PO 59095",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T16:17:02Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX22zAAA=",
+      "pdf_name": "open invoices 9.8.26.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice from Greentree Packaging & Lumber",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T16:49:17Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX222AAA=",
+      "pdf_name": "112589 packing.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Notice for Account A3050",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T18:05:38Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Notice for Account G1378",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T18:06:09Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Notice for Account F5147",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T18:06:27Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104015",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T19:05:05Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8vAAA=",
+      "pdf_name": "POD LWP-046 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104017",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T21:29:37Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8uAAA=",
+      "pdf_name": "POD LWP-046 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104018",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T21:39:27Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8tAAA=",
+      "pdf_name": "POD LWP-046 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104018",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T21:39:27Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8tAAA=",
+      "pdf_name": "POD LWP-047.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104019",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T21:55:03Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8sAAA=",
+      "pdf_name": "POD LWP-046.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104019",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T21:55:03Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8sAAA=",
+      "pdf_name": "POD LWP-045 .pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Auto-Email of A/R Statement",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-09T00:46:39Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23FAAA=",
+      "pdf_name": "ARS10628720260908194559ID881289.pdf"
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "15464367",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "O'Neal Steel Credit Invoice For Account # 14748440",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-09T03:34:46Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23HAAA=",
+      "pdf_name": "O'Neal Steel Invoice 982026.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your attached invoice is ready",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-09T03:52:11Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23IAAA=",
+      "pdf_name": "6709801835_20260904_06I6709801835_OZK11_nocal_27687.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:08Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:08Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:09Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T15:15:59Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdqAAA=",
+      "pdf_name": "09092026_001.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T16:26:46Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "subject": "Re: Statement from METRO SPROCKET AND GEAR INC",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T16:46:35Z",
+      "reason": "Account statement is not an invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "19466, 19467, 19468",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T16:49:30Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23jAAA=",
+      "pdf_name": "19468.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "19466, 19467, 19468",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T16:49:30Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23jAAA=",
+      "pdf_name": "19467.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "19466, 19467, 19468",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T16:49:30Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23jAAA=",
+      "pdf_name": "19466.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Past Due Invoices",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T17:15:03Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23nAAA=",
+      "pdf_name": "CustState11702-0909261244.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Invoices",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T17:15:03Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T18:50:31Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104020",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T19:28:55Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOb0t8rAAA=",
+      "pdf_name": "POD LWP-046 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your Work Order with A-1 IMAGE INC. is completed",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T19:37:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23uAAA=",
+      "pdf_name": "WO-4447.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Fw: PAST DUE INVOICES",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T19:56:50Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "819009",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "Invoice : 821391 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-10T00:01:17Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX230AAA=",
+      "pdf_name": "doc01181418.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your Statement from Service Experts Dallas",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T09:12:03Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX237AAA=",
+      "pdf_name": "Statement.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "KANNON MFG INV 120778",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T16:41:48Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24EAAA=",
+      "pdf_name": "KANNON MFG INV 120778.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 76945, 76946, 76943, 76944, 76942, 76947, 76940, 76941 / PO # 58952, 58925, 58972, 59031, 59002, 59031, 59002 ",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T18:26:08Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOgxTEWAAA=",
+      "pdf_name": "09102026_007.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 142281 ",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T18:27:01Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzmAAA=",
+      "pdf_name": "09102026_008.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T19:07:53Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24TAAA=",
+      "pdf_name": "AXNew - CREDEB - 15455556.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T19:07:53Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24TAAA=",
+      "pdf_name": "AXNew - CREDEB - 15464367.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T19:38:36Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24UAAA=",
+      "pdf_name": "KANNON INV 9.10.26.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T19:38:36Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24UAAA=",
+      "pdf_name": "Kannon Manufacturing_20260908_093505.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 142296 / CPL # 76798, 76800, 76797. 51969 / PO # 58925, 58887",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T20:04:28Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SduAAA=",
+      "pdf_name": "09102026_020.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Fastenal Past due",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-10T20:53:18Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Amada America Inc - Customer Statement",
+      "email_received": "2026-09-10",
+      "email_received_utc": "2026-09-11T02:35:01Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiuEAAA=",
+      "pdf_name": "CustomerStatementsSimpleReportViewer_89828dca-0e7e-40b6-a313-0c0ea0e2476e.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59161",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T07:47:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdcAAA=",
+      "pdf_name": "Invoice 71647463 for PO 59161.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59120",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T07:47:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdbAAA=",
+      "pdf_name": "Invoice 71668723 for PO 59120.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59159",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T07:47:51Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdaAAA=",
+      "pdf_name": "Invoice 71642803 for PO 59159.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Exotic Metals & Alloys | Invoice Submission |Thank You for Your Business",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T13:53:58Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiuNAAA=",
+      "pdf_name": "INVOICE 960283 KANNON.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T14:19:36Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T14:27:53Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T15:54:50Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Statement of Account",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T19:08:36Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiuZAAA=",
+      "pdf_name": "KANNON MANUFACTURING INC.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Capital Machine - Sales Invoice PS-INV103317 - KANNON MANUFACTURING - AMTECH",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T19:11:40Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiuaAAA=",
+      "pdf_name": "PO - J  - Amtech Manufacturing 425012 SN 10014 8.27.26 #856 S-INV102288.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Capital Machine - Sales Invoice PS-INV103344 - KANNON MANUFACTURING - AMTECH",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T19:12:10Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiubAAA=",
+      "pdf_name": "J - PO - Amtech Manufactuirng S20A 8B1017975T 9.3.26 941 S-INV102338.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Certificate(s) of Insurance from Aon",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-12T00:20:00Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOXNiujAAA=",
+      "pdf_name": "570122795108.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Statement from Marmon/Keystone",
+      "email_received": "2026-09-12",
+      "email_received_utc": "2026-09-12T06:23:28Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOX-Ds6AAA=",
+      "pdf_name": "CS00101297.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59120",
+      "email_received": "2026-09-12",
+      "email_received_utc": "2026-09-12T06:31:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdZAAA=",
+      "pdf_name": "Invoice 71740547 for PO 59120.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59159",
+      "email_received": "2026-09-12",
+      "email_received_utc": "2026-09-12T06:31:28Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdUAAA=",
+      "pdf_name": "Invoice 71743140 for PO 59159.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Credit from Your Order 59159",
+      "email_received": "2026-09-12",
+      "email_received_utc": "2026-09-12T06:31:34Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOX-Ds9AAA=",
+      "pdf_name": "Credit 71692288.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "",
+      "email_received": "2026-09-13",
+      "email_received_utc": "2026-09-13T19:26:47Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOYxSlqAAA=",
+      "pdf_name": "amtech911.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-14",
+      "email_received_utc": "2026-09-14T13:59:25Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-14",
+      "email_received_utc": "2026-09-14T14:38:10Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: [EXTERNAL]RE: Kannon Manufacturing - Past Due Invoices",
+      "email_received": "2026-09-14",
+      "email_received_utc": "2026-09-14T14:49:34Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Leeco Steel MTR 623592",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-15T07:13:31Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDfAAA=",
+      "pdf_name": "48147892.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59191",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-15T07:14:53Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdTAAA=",
+      "pdf_name": "Invoice 71839575 for PO 59191.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "271319-Curbell Plastics Notice of Past Due Balance",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-15T12:01:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDjAAA=",
+      "pdf_name": "271319-Curbell Plastics Notice of Past Due Balance.PDF"
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "Fw: Arlington Credit #9129944 for Customer KANMAN",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-15T13:23:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDmAAA=",
+      "pdf_name": "CREDIT_9129944_260910_050016.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice Details - Kannon Manufacturing Inc",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-15T13:31:48Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDnAAA=",
+      "pdf_name": "15206040.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Leeco Account Statement",
+      "email_received": "2026-09-15",
+      "email_received_utc": "2026-09-16T00:00:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uD0AAA=",
+      "pdf_name": "1058256.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PHOENIX METALS",
+      "email_received": "2026-09-16",
+      "email_received_utc": "2026-09-16T17:47:35Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uEEAAA=",
+      "pdf_name": "496274f.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "An update from GRM Information Management - 13010065",
+      "email_received": "2026-09-16",
+      "email_received_utc": "2026-09-16T21:08:23Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uERAAA=",
+      "pdf_name": "Renewal Account Update - 13010065.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "An update from GRM Information Management - 13010065",
+      "email_received": "2026-09-16",
+      "email_received_utc": "2026-09-16T21:08:23Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uERAAA=",
+      "pdf_name": "13010065_SOC_10.1.2026.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 58221",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T06:50:24Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdSAAA=",
+      "pdf_name": "Invoice 72013304 for PO 58221.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59219",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T06:50:25Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdRAAA=",
+      "pdf_name": "Invoice 72012111 for PO 59219.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INVOICE 470223      PO 59060",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T13:45:52Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObQuYOAAA=",
+      "pdf_name": "SKANNO 470223  PO 59060.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your Work Order with A-1 IMAGE INC. is en route",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T17:50:25Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9TdAAA=",
+      "pdf_name": "WO-4543.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T18:16:17Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9TfAAA=",
+      "pdf_name": "KANNON INV 9.17.26.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your Work Order with A-1 IMAGE INC. is completed",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T18:48:21Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9TgAAA=",
+      "pdf_name": "WO-4543.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Freepoint Solutions - Kannon Manufacturing LLC - Portal Login",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T18:50:10Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9ThAAA=",
+      "pdf_name": "Portal Registration Instructions.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Your Work Order with A-1 IMAGE INC. is completed",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T19:50:56Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9TlAAA=",
+      "pdf_name": "WO-4552.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Reminder: Invoice 111138 from Greentree Packaging & Lumber",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T21:13:31Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9ToAAA=",
+      "pdf_name": "111138 packing.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Reminder: Invoice 111914 from Greentree Packaging & Lumber",
+      "email_received": "2026-09-17",
+      "email_received_utc": "2026-09-17T21:14:07Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAObq9TpAAA=",
+      "pdf_name": "111914 packing.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PO 59139 Inv# 9307088587",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T06:34:38Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rYfAAA=",
+      "pdf_name": "PO 59139 Inv# 9307088587.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Credit from Your Order 58221",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T06:43:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rYgAAA=",
+      "pdf_name": "Credit 72022981.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59235",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T06:43:52Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdQAAA=",
+      "pdf_name": "Invoice 72087570 for PO 59235.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 58221",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T06:43:57Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdPAAA=",
+      "pdf_name": "Invoice 72068812 for PO 58221.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59224",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T06:43:57Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdOAAA=",
+      "pdf_name": "Invoice 72094446 for PO 59224.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Invoice(s) - 17566 - Kannon Manufacturing Inc",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T12:21:47Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "SV1426672 - Past Due Invoice",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T14:19:01Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "CK# 18642",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T14:52:57Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rYvAAA=",
+      "pdf_name": "Kannon Manufacturing_20260918_100819.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Rent Statement",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T17:49:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rY4AAA=",
+      "pdf_name": "statement.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: Overdue Balance Notice_1001050098",
+      "email_received": "2026-09-18",
+      "email_received_utc": "2026-09-18T18:30:36Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rY5AAA=",
+      "pdf_name": "Overdue Balance Notice_1001050098.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PO 59184 Inv# 9307092378",
+      "email_received": "2026-09-19",
+      "email_received_utc": "2026-09-19T06:32:17Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOb0rZDAAA=",
+      "pdf_name": "PO 59184 Inv# 9307092378.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104043",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T14:39:00Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzcAAA=",
+      "pdf_name": "Receipt_2026-09-21_093234.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104043",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T14:39:00Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzcAAA=",
+      "pdf_name": "Receipt_2026-09-21_093027.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: Your receipt from Anthropic, PBC #2645-9420-9293",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T15:26:06Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQfAAA=",
+      "pdf_name": "Receipt-2645-9420-9293.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Updating the shipment for kannon",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T15:29:45Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQgAAA=",
+      "pdf_name": "Receipt_2026-09-21_102624.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104045",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T16:28:47Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzbAAA=",
+      "pdf_name": "Receipt_2026-09-21_104324.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104045",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T16:28:47Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzbAAA=",
+      "pdf_name": "Receipt_2026-09-21_104112.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "MSC Past Due Notification     (DXED#20262641447213976405)",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T18:49:37Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQnAAA=",
+      "pdf_name": "20052712_998.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "MSC Past Due Notification     (DXED#20262641447213976405)",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T18:49:37Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104046",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T18:59:20Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQpAAA=",
+      "pdf_name": "Receipt_2026-09-21_134850.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104046",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T18:59:20Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQpAAA=",
+      "pdf_name": "Receipt_2026-09-21_135029.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104046",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T19:41:19Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzaAAA=",
+      "pdf_name": "Receipt_2026-09-21_135029.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104046",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T19:41:19Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzaAAA=",
+      "pdf_name": "Receipt_2026-09-21_134850.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104047",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T19:55:51Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzZAAA=",
+      "pdf_name": "Receipt_2026-09-21_144741.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104047",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T19:55:51Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzZAAA=",
+      "pdf_name": "Receipt_2026-09-21_144712.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104048",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T20:10:20Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzYAAA=",
+      "pdf_name": "Receipt_2026-09-21_150521.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104048",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T20:10:20Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzYAAA=",
+      "pdf_name": "Receipt_2026-09-21_150256.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "INV # 142421 / CPL # 77102, 77101, 77089, 77099, 77098, 77100 / PO # 59124, 59107, 59090, 59031",
+      "email_received": "2026-09-21",
+      "email_received_utc": "2026-09-21T20:57:04Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzoAAA=",
+      "pdf_name": "09212026_017.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PO 59112 Inv# 9307096238",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T06:36:04Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ3AAA=",
+      "pdf_name": "PO 59112 Inv# 9307096238.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104049",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T12:27:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzXAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104049",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T12:27:50Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzXAAA=",
+      "pdf_name": "Receipt_2026-09-21_150256.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104050",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T12:47:06Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzWAAA=",
+      "pdf_name": "Receipt_2026-09-22_074016.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104050",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T12:47:06Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzWAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Kannon forgot to send the shipment paper sign",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T13:04:25Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RFtAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104051",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T13:58:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RFuAAA=",
+      "pdf_name": "Receipt_2026-09-22_085258.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104051",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T13:58:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RFuAAA=",
+      "pdf_name": "Receipt_2026-09-21_135029.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104052",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:17:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzVAAA=",
+      "pdf_name": "Receipt_2026-09-22_085258.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104052",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:17:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzVAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104052",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:17:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzVAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104052",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:17:26Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzVAAA=",
+      "pdf_name": "Receipt_2026-09-21_144712.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104053",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:43:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzTAAA=",
+      "pdf_name": "Receipt_2026-09-22_092850.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104053",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:43:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzTAAA=",
+      "pdf_name": "Receipt_2026-09-22_092708.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104053",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:43:32Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzTAAA=",
+      "pdf_name": "Receipt_2026-09-22_071119 (dragged).pdf"
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/22/26",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:55:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RFzAAA=",
+      "pdf_name": "Invoices.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104054",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T15:41:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzSAAA=",
+      "pdf_name": "Receipt_2026-09-22_102551.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104054",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T15:41:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzSAAA=",
+      "pdf_name": "Receipt_2026-09-22_071429 (dragged).pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Past Due Notice - 631",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T21:25:41Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RF_AAA=",
+      "pdf_name": "PastDueNotice_631.PDF"
+    },
+    {
+      "kind": "credit_memo",
+      "invoice_number": "15478871",
+      "page": 1,
+      "reason": "Credit memo. Treyce handles credit memos.",
+      "subject": "O'Neal Steel Credit Invoice For Account # 14748440",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-23T03:40:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RGBAAA=",
+      "pdf_name": "O'Neal Steel Invoice 9222026.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104062",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:18:46Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzRAAA=",
+      "pdf_name": "Receipt_2026-09-22_092850.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104062",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:18:46Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzRAAA=",
+      "pdf_name": "2026-09-23_055655.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104063",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:39:12Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzQAAA=",
+      "pdf_name": "Receipt_2026-09-23_062538.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104063",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:39:12Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzQAAA=",
+      "pdf_name": "2026-09-23_061725.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104064",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:48:51Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzPAAA=",
+      "pdf_name": "Receipt_2026-09-23_064323.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104064",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:48:51Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzPAAA=",
+      "pdf_name": "Receipt_2026-09-23_064249.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104065",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:59:55Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzOAAA=",
+      "pdf_name": "Receipt_2026-09-23_065330.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104065",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T11:59:55Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzOAAA=",
+      "pdf_name": "Receipt_2026-09-23_065159.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104066",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T12:06:40Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzNAAA=",
+      "pdf_name": "Receipt_2026-09-23_065809.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Legacy Wire Products - Sales Invoice PS-INV104066",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T12:06:40Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzNAAA=",
+      "pdf_name": "Receipt_2026-09-23_065707.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: Your receipt from Anthropic, PBC #2309-1784-3063",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T12:20:23Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RGJAAA=",
+      "pdf_name": "Receipt-2309-1784-3063.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Kannon inv 120955 Supersedes inv 120949",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T14:18:46Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RGOAAA=",
+      "pdf_name": "Kannon inv 120955 Supersedes inv 120949.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T17:55:38Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbUAAA=",
+      "pdf_name": "Purchase_Order_58407.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T17:55:38Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbUAAA=",
+      "pdf_name": "DocFile-3224-32-4820963.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T18:19:15Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbVAAA=",
+      "pdf_name": "DocFile-3224-32-4820963.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T18:19:15Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbVAAA=",
+      "pdf_name": "Purchase_Order_58407.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Fw: Your receipt from Anthropic, PBC #2636-8504-5906",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T21:21:54Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbdAAA=",
+      "pdf_name": "Receipt-2636-8504-5906.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "PO 59146 Inv# 9307103750",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T06:35:20Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ97AAA=",
+      "pdf_name": "PO 59146 Inv# 9307103750.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:29Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:32Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:37Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Past Due Invoice(s) - 17566 - Kannon Manufacturing Inc",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T16:23:53Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T16:31:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ_HAAA=",
+      "pdf_name": "KANNON 9.20 -1.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Luxor Staffing Invoice-Kannon Manufacturing, Inc",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T16:31:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ_HAAA=",
+      "pdf_name": "KANNON 9.20 -2.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "KANNON MFG INV 120990",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T18:18:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ_MAAA=",
+      "pdf_name": "KANNON MFG INV 120990.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Kannon Manufacturing---Refund",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T21:26:14Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ_RAAA=",
+      "pdf_name": "Document.pdf"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Invoice for Your Order 59265",
+      "email_received": "2026-09-25",
+      "email_received_utc": "2026-09-25T06:41:43Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfyZ_fAAA=",
+      "pdf_name": "Invoice 72502162 for PO 59265.PDF"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Kannon Manufacturing Inc - Proactive Reminder",
+      "email_received": "2026-09-25",
+      "email_received_utc": "2026-09-25T11:13:56Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOgxTrdAAA=",
+      "pdf_name": "15206713.pdf"
+    },
+    {
+      "kind": "reminder",
+      "subject": "RE: [EXTERNAL]Re: ORDER PENDING   14748440 KANNON MFG",
+      "email_received": "2026-09-25",
+      "email_received_utc": "2026-09-25T14:14:34Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice.",
+      "subject": "Phone Call Follow Up: Invoice 65594812 with McMaster-Carr",
+      "email_received": "2026-09-25",
+      "email_received_utc": "2026-09-25T16:07:58Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOgzJjTAAA=",
+      "pdf_name": "Invoice 65594812 for PO 58206.PDF"
+    },
+    {
+      "kind": "reminder",
+      "subject": "PAST DUE INVOICES",
+      "email_received": "2026-09-25",
+      "email_received_utc": "2026-09-25T19:35:11Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice. Statement Ref 0003082102 lists older Versalift invoices and a balance due. It was not entered.",
+      "subject": "C06512 KANNON MANUFACTURING INC: Statement          Ref:0003082102",
+      "email_received": "2026-09-05",
+      "email_received_utc": "2026-09-05T12:14:25Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYyAAA=",
+      "pdf_name": "Statement - EN_8372353_38.pdf",
+      "vendor": "Versalift National Parts Distribution Center",
+      "invoice_number": "0003082102"
+    },
+    {
+      "kind": "statement",
+      "reason": "Account statement is not an invoice. The Trace Metal statement lists INV 237704 and INV 237705. Those invoice PDFs were not in this mail, so neither invoice was entered.",
+      "subject": "Statement from TRACE METAL INDUSTRIES, INC..",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T15:17:11Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23UAAA=",
+      "pdf_name": "Statement1_from_TRACE_METAL_INDUSTRIES__INC1948.pdf",
+      "vendor": "Tx 76119 Trace Metal Industries, Inc",
+      "invoice_number": "237704"
+    }
+  ],
+  "already_in_kimco": [
+    {
+      "invoice_number": "129320",
+      "vendor": "Morgan Steel",
+      "kimco_bill_id": 10260,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 8520.0,
+      "po": "58894"
+    },
+    {
+      "invoice_number": "15381496",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9660,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1802.88,
+      "po": null
+    },
+    {
+      "invoice_number": "15388841",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9171,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1802.88,
+      "po": null
+    },
+    {
+      "invoice_number": "15391814",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9215,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1802.88,
+      "po": null
+    },
+    {
+      "invoice_number": "213645",
+      "vendor": "Willbanks Metals",
+      "kimco_bill_id": 10355,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 2790.0,
+      "po": "59074"
+    },
+    {
+      "invoice_number": "28100",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10104,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1245.81,
+      "po": "59022"
+    },
+    {
+      "invoice_number": "28102",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10105,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 2104.11,
+      "po": "58902"
+    },
+    {
+      "invoice_number": "28113",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10102,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 830.54,
+      "po": "59038"
+    },
+    {
+      "invoice_number": "28114",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10103,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1174.02,
+      "po": "59052"
+    },
+    {
+      "invoice_number": "436333415",
+      "vendor": "Air Products and Chemicals, Inc",
+      "kimco_bill_id": 10356,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1859.8,
+      "po": null
+    },
+    {
+      "invoice_number": "523858",
+      "vendor": "Tejas Transportation",
+      "kimco_bill_id": 10258,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 450.0,
+      "po": null
+    },
+    {
+      "invoice_number": "TXFT4100349",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10320,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1150.21,
+      "po": "59055"
+    },
+    {
+      "invoice_number": "TXFT4100376",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10321,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 2334.07,
+      "po": "59054"
+    },
+    {
+      "invoice_number": "2158",
+      "vendor": "Green Valley Compressor LLC",
+      "kimco_bill_id": 10244,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-05"
+      ],
+      "pdf_total": 405.94,
+      "po": null
+    },
+    {
+      "invoice_number": "IN000037249",
+      "vendor": "UniFirst First Aid & Safety",
+      "kimco_bill_id": 10357,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-05"
+      ],
+      "pdf_total": 1089.71,
+      "po": null
+    },
+    {
+      "invoice_number": "1814",
+      "vendor": "Insight Controller Services",
+      "kimco_bill_id": 9932,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-06",
+        "2026-09-08"
+      ],
+      "pdf_total": 3777.78,
+      "po": null
+    },
+    {
+      "invoice_number": "0040421569",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10135,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 331.5,
+      "po": null
+    },
+    {
+      "invoice_number": "0204730",
+      "vendor": "Fw: Energy Invoice",
+      "kimco_bill_id": 10118,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 2559.67,
+      "po": null
+    },
+    {
+      "invoice_number": "112589",
+      "vendor": "ackaging.com Invoice Bill To Kannon Manufacturing, Inc",
+      "kimco_bill_id": 10358,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 4304.0,
+      "po": "59073"
+    },
+    {
+      "invoice_number": "14748440",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10050,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-11"
+      ],
+      "pdf_total": 192.85,
+      "po": "59121"
+    },
+    {
+      "invoice_number": "15439109",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9912,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 638.88,
+      "po": "15439"
+    },
+    {
+      "invoice_number": "15464367",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9975,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 638.88,
+      "po": "15439"
+    },
+    {
+      "invoice_number": "27755",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 9758,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "pdf_total": 1107.57,
+      "po": "58701"
+    },
+    {
+      "invoice_number": "27756",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 9756,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "pdf_total": 1252.18,
+      "po": "58723"
+    },
+    {
+      "invoice_number": "PS-INV104015",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10115,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 220.85,
+      "po": "58977"
+    },
+    {
+      "invoice_number": "PS-INV104017",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10116,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 114.28,
+      "po": "58807"
+    },
+    {
+      "invoice_number": "PS-INV104018",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10114,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 1437.42,
+      "po": "59030"
+    },
+    {
+      "invoice_number": "PS-INV104019",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10113,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 2600.0,
+      "po": "59030"
+    },
+    {
+      "invoice_number": "S815368432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10325,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08"
+      ],
+      "pdf_total": 399.74,
+      "po": "59122"
+    },
+    {
+      "invoice_number": "0040423658",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10134,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 173.5,
+      "po": "58948"
+    },
+    {
+      "invoice_number": "0040424382",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10133,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 335.0,
+      "po": null
+    },
+    {
+      "invoice_number": "0040424839",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10166,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 224.94,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040425612",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10132,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 240.0,
+      "po": null
+    },
+    {
+      "invoice_number": "0040425657",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10131,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 216.0,
+      "po": null
+    },
+    {
+      "invoice_number": "0098626-IN",
+      "vendor": "Alternative Parts Inc",
+      "kimco_bill_id": 10359,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": null,
+      "po": "59130"
+    },
+    {
+      "invoice_number": "01178303",
+      "vendor": "Tube Supply",
+      "kimco_bill_id": 10364,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 374.88,
+      "po": "59093"
+    },
+    {
+      "invoice_number": "129425",
+      "vendor": "Morgan Steel",
+      "kimco_bill_id": 10362,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 4960.0,
+      "po": "58968"
+    },
+    {
+      "invoice_number": "15390604",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9186,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15395841",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9310,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15396202",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9971,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-11"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15398467",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9356,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15398891",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9372,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15399796",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9972,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15400210",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9389,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15401860",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9423,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15402415",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9973,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15402927",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9441,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15403449",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9442,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15447737",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10079,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15455556",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9974,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09",
+        "2026-09-10",
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22"
+      ],
+      "pdf_total": 38365.32,
+      "po": null
+    },
+    {
+      "invoice_number": "15464707",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10163,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 649.53,
+      "po": "58912"
+    },
+    {
+      "invoice_number": "15464854",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10164,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 471.42,
+      "po": "59085"
+    },
+    {
+      "invoice_number": "17912",
+      "vendor": "Telecom Products Inc.",
+      "kimco_bill_id": 10360,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 2825.16,
+      "po": "58644"
+    },
+    {
+      "invoice_number": "17916",
+      "vendor": "Telecom Products Inc.",
+      "kimco_bill_id": 10361,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 9562.08,
+      "po": "58824"
+    },
+    {
+      "invoice_number": "77062711",
+      "vendor": "MSC Industrial Supply",
+      "kimco_bill_id": 10363,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 1237.78,
+      "po": null
+    },
+    {
+      "invoice_number": "819009",
+      "vendor": "Eastern Metal Supply of Texas",
+      "kimco_bill_id": 9997,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": null,
+      "po": "58915"
+    },
+    {
+      "invoice_number": "PS-INV104020",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10112,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 1029.0,
+      "po": "59034"
+    },
+    {
+      "invoice_number": "T607621432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10326,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-09"
+      ],
+      "pdf_total": 475.06,
+      "po": "58913"
+    },
+    {
+      "invoice_number": "S815562432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10327,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-10"
+      ],
+      "pdf_total": 418.12,
+      "po": "59153"
+    },
+    {
+      "invoice_number": "28166",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10101,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-11"
+      ],
+      "pdf_total": 200.0,
+      "po": "59087"
+    },
+    {
+      "invoice_number": "PS-INV103317",
+      "vendor": "Capital Machine Technologies, Inc",
+      "kimco_bill_id": 5694,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-11"
+      ],
+      "pdf_total": 610.0,
+      "po": "58989"
+    },
+    {
+      "invoice_number": "0040430010",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10165,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-12"
+      ],
+      "pdf_total": 14.0,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040431060",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10130,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 245.5,
+      "po": null
+    },
+    {
+      "invoice_number": "15469453",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10160,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 23151.42,
+      "po": "59156"
+    },
+    {
+      "invoice_number": "43315835",
+      "vendor": "South",
+      "kimco_bill_id": 10184,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 515.11,
+      "po": "59102"
+    },
+    {
+      "invoice_number": "9055991",
+      "vendor": "Fw: [EXTERNAL]  Fw: Kannon Mfg Purchase Order # 58959",
+      "kimco_bill_id": 9547,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 22577.87,
+      "po": "58704"
+    },
+    {
+      "invoice_number": "T607753432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10328,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 4756.01,
+      "po": null
+    },
+    {
+      "invoice_number": "T607834432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10329,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-14"
+      ],
+      "pdf_total": 607.04,
+      "po": "59122"
+    },
+    {
+      "invoice_number": "0040434973",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10129,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-15"
+      ],
+      "pdf_total": 192.0,
+      "po": null
+    },
+    {
+      "invoice_number": "0040435122",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10128,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-15"
+      ],
+      "pdf_total": 120.0,
+      "po": null
+    },
+    {
+      "invoice_number": "T607927432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10330,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-15"
+      ],
+      "pdf_total": 367.68,
+      "po": "59141"
+    },
+    {
+      "invoice_number": "01175961",
+      "vendor": "Tube Supply",
+      "kimco_bill_id": 9769,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-16"
+      ],
+      "pdf_total": null,
+      "po": null
+    },
+    {
+      "invoice_number": "125314",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10109,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-16"
+      ],
+      "pdf_total": 2530.0,
+      "po": "59104"
+    },
+    {
+      "invoice_number": "125315",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10107,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-16"
+      ],
+      "pdf_total": 693.0,
+      "po": "59128"
+    },
+    {
+      "invoice_number": "125316",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10108,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-16"
+      ],
+      "pdf_total": 1580.73,
+      "po": "59154"
+    },
+    {
+      "invoice_number": "S815764432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10331,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-16"
+      ],
+      "pdf_total": 439.25,
+      "po": "59173"
+    },
+    {
+      "invoice_number": "0040437952",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10181,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 241.46,
+      "po": "59006"
+    },
+    {
+      "invoice_number": "0040438052",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10173,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 5178.55,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040438053",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10170,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 182.5,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040438055",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10169,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 27.82,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040438056",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10168,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 207.53,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040438057",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10167,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 36.12,
+      "po": "59081"
+    },
+    {
+      "invoice_number": "0040438494",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10136,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 331.5,
+      "po": null
+    },
+    {
+      "invoice_number": "111138",
+      "vendor": "ackaging.com Invoice Bill To Kannon Manufacturing, Inc",
+      "kimco_bill_id": 9745,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 2265.0,
+      "po": "58746"
+    },
+    {
+      "invoice_number": "111914",
+      "vendor": "ackaging.com Invoice Bill To Kannon Manufacturing, Inc",
+      "kimco_bill_id": 10006,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 1738.0,
+      "po": "58908"
+    },
+    {
+      "invoice_number": "15406239",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9468,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 42818.73,
+      "po": null
+    },
+    {
+      "invoice_number": "15407157",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9492,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 42818.73,
+      "po": null
+    },
+    {
+      "invoice_number": "15408130",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9493,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 42818.73,
+      "po": null
+    },
+    {
+      "invoice_number": "15409280",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9519,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 42818.73,
+      "po": null
+    },
+    {
+      "invoice_number": "28251",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10351,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 1453.45,
+      "po": "59137"
+    },
+    {
+      "invoice_number": "S815465432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10332,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 1884.6,
+      "po": "59143"
+    },
+    {
+      "invoice_number": "TXFT4100045",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9924,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "pdf_total": 39.31,
+      "po": "58904"
+    },
+    {
+      "invoice_number": "TXFT4100079",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9968,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "pdf_total": 1148.63,
+      "po": "58692"
+    },
+    {
+      "invoice_number": "TXFT499639",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9642,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 92.17,
+      "po": "58692"
+    },
+    {
+      "invoice_number": "TXFT499646",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9675,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 78.19,
+      "po": "58707"
+    },
+    {
+      "invoice_number": "TXFT499726",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9674,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 296.59,
+      "po": "58732"
+    },
+    {
+      "invoice_number": "TXFT499739",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9725,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 2620.08,
+      "po": "58749"
+    },
+    {
+      "invoice_number": "TXFT499769",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9748,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 424.88,
+      "po": "58764"
+    },
+    {
+      "invoice_number": "TXFT499809",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9697,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17"
+      ],
+      "pdf_total": 182.15,
+      "po": "58786"
+    },
+    {
+      "invoice_number": "TXFT499875",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9937,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "pdf_total": 6.28,
+      "po": null
+    },
+    {
+      "invoice_number": "TXFT499930",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10324,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "pdf_total": 72.85,
+      "po": "58835"
+    },
+    {
+      "invoice_number": "TXFT499945",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 9930,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-17",
+        "2026-09-24"
+      ],
+      "pdf_total": 62.98,
+      "po": "58841"
+    },
+    {
+      "invoice_number": "125362",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10340,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 1259.7,
+      "po": "58937"
+    },
+    {
+      "invoice_number": "125363",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10341,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 1303.33,
+      "po": "59105"
+    },
+    {
+      "invoice_number": "125364",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10342,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 1208.27,
+      "po": "59131"
+    },
+    {
+      "invoice_number": "125365",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10343,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 742.5,
+      "po": "59152"
+    },
+    {
+      "invoice_number": "125366",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10344,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 2357.61,
+      "po": "59163"
+    },
+    {
+      "invoice_number": "125367",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10345,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 594.0,
+      "po": "59168"
+    },
+    {
+      "invoice_number": "1820",
+      "vendor": "Insight Controller Services",
+      "kimco_bill_id": 10183,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18",
+        "2026-09-20"
+      ],
+      "pdf_total": 3777.78,
+      "po": null
+    },
+    {
+      "invoice_number": "27319",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 9193,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 195.88,
+      "po": "58326"
+    },
+    {
+      "invoice_number": "S816035432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10333,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 220.16,
+      "po": "59215"
+    },
+    {
+      "invoice_number": "0040441555",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10286,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-19"
+      ],
+      "pdf_total": 192.0,
+      "po": null
+    },
+    {
+      "invoice_number": "PS-INV103602",
+      "vendor": "Capital Machine Technologies, Inc",
+      "kimco_bill_id": 8452,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-19"
+      ],
+      "pdf_total": 620.0,
+      "po": "59116"
+    },
+    {
+      "invoice_number": "TXFT4100503",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10322,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-19"
+      ],
+      "pdf_total": 268.14,
+      "po": "59190"
+    },
+    {
+      "invoice_number": "TXFT4100537",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10323,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-19"
+      ],
+      "pdf_total": 2265.41,
+      "po": "59179"
+    },
+    {
+      "invoice_number": "0040442936",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10285,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 904.48,
+      "po": null
+    },
+    {
+      "invoice_number": "0040443847",
+      "vendor": "Gas and Supply North Texas, LLC",
+      "kimco_bill_id": 10284,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 29.25,
+      "po": null
+    },
+    {
+      "invoice_number": "15411914",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9555,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 52752.05,
+      "po": null
+    },
+    {
+      "invoice_number": "15412969",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9574,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 52752.05,
+      "po": null
+    },
+    {
+      "invoice_number": "15415288",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9594,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21",
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 52752.05,
+      "po": null
+    },
+    {
+      "invoice_number": "15476365",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10178,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 1115.68,
+      "po": "59070"
+    },
+    {
+      "invoice_number": "15476879",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10179,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 245.28,
+      "po": "59236"
+    },
+    {
+      "invoice_number": "15477248",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 10180,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 152.88,
+      "po": "59246"
+    },
+    {
+      "invoice_number": "28273",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10352,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 2255.98,
+      "po": "59117"
+    },
+    {
+      "invoice_number": "B154229432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10334,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 907.2,
+      "po": null
+    },
+    {
+      "invoice_number": "PS-INV104043",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10282,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 26.0,
+      "po": "59212"
+    },
+    {
+      "invoice_number": "PS-INV104045",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10281,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 1035.0,
+      "po": "59196"
+    },
+    {
+      "invoice_number": "PS-INV104046",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10280,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 2331.89,
+      "po": "59213"
+    },
+    {
+      "invoice_number": "PS-INV104047",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10279,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 379.61,
+      "po": "59150"
+    },
+    {
+      "invoice_number": "PS-INV104048",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10278,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 921.91,
+      "po": "59101"
+    },
+    {
+      "invoice_number": "S816212432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10335,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-21"
+      ],
+      "pdf_total": 261.66,
+      "po": "59231"
+    },
+    {
+      "invoice_number": "0040446744",
+      "vendor": "Marmon/Keystone",
+      "kimco_bill_id": 10283,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 1891.88,
+      "po": null
+    },
+    {
+      "invoice_number": "128249",
+      "vendor": "Morgan Steel",
+      "kimco_bill_id": 9752,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 17532.84,
+      "po": null
+    },
+    {
+      "invoice_number": "128249",
+      "vendor": "Fw: Past Due",
+      "kimco_bill_id": 9752,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 17532.84,
+      "po": null
+    },
+    {
+      "invoice_number": "15415889",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9610,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 58178.5,
+      "po": null
+    },
+    {
+      "invoice_number": "15416408",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9611,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 58178.5,
+      "po": null
+    },
+    {
+      "invoice_number": "15439230",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "kimco_bill_id": 9913,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22",
+        "2026-09-23"
+      ],
+      "pdf_total": 64.5,
+      "po": "15439"
+    },
+    {
+      "invoice_number": "523861",
+      "vendor": "Tejas Transportation",
+      "kimco_bill_id": 10191,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 250.0,
+      "po": null
+    },
+    {
+      "invoice_number": "PS-INV104049",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10277,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 1592.7,
+      "po": "59101"
+    },
+    {
+      "invoice_number": "PS-INV104050",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10276,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 1369.43,
+      "po": "59201"
+    },
+    {
+      "invoice_number": "PS-INV104051",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10275,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 743.26,
+      "po": "59213"
+    },
+    {
+      "invoice_number": "PS-INV104052",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10274,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 978.89,
+      "po": "59150"
+    },
+    {
+      "invoice_number": "PS-INV104053",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10273,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 315.63,
+      "po": "59229"
+    },
+    {
+      "invoice_number": "PS-INV104054",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10272,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 113.23,
+      "po": "58807"
+    },
+    {
+      "invoice_number": "T608354432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10336,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 993.6,
+      "po": null
+    },
+    {
+      "invoice_number": "T608428432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10337,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-22"
+      ],
+      "pdf_total": 1263.28,
+      "po": "59207"
+    },
+    {
+      "invoice_number": "125436",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10346,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 583.0,
+      "po": "59194"
+    },
+    {
+      "invoice_number": "125437",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10347,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 513.56,
+      "po": "59214"
+    },
+    {
+      "invoice_number": "28307",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10353,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 1748.77,
+      "po": "59186"
+    },
+    {
+      "invoice_number": "28308",
+      "vendor": "Crosslink Powder Coating",
+      "kimco_bill_id": 10354,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 1868.72,
+      "po": "59203"
+    },
+    {
+      "invoice_number": "PS-INV104062",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10271,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 252.96,
+      "po": "59229"
+    },
+    {
+      "invoice_number": "PS-INV104063",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10270,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 1203.2,
+      "po": "59147"
+    },
+    {
+      "invoice_number": "PS-INV104064",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10269,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 543.2,
+      "po": "59195"
+    },
+    {
+      "invoice_number": "PS-INV104065",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10268,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 543.2,
+      "po": "59202"
+    },
+    {
+      "invoice_number": "PS-INV104066",
+      "vendor": "Legacy Wire Products",
+      "kimco_bill_id": 10267,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-23"
+      ],
+      "pdf_total": 555.2,
+      "po": "59094"
+    },
+    {
+      "invoice_number": "17-2522",
+      "vendor": "NTEX Electric Inc.",
+      "kimco_bill_id": 8481,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 44000.0,
+      "po": null
+    },
+    {
+      "invoice_number": "17-2523",
+      "vendor": "NTEX Electric Inc.",
+      "kimco_bill_id": 8482,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 47000.0,
+      "po": null
+    },
+    {
+      "invoice_number": "17-2557",
+      "vendor": "NTEX Electric Inc.",
+      "kimco_bill_id": 9765,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 1694.48,
+      "po": null
+    },
+    {
+      "invoice_number": "S816419432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10338,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 276.6,
+      "po": null
+    },
+    {
+      "invoice_number": "S816504432",
+      "vendor": "Earle M. Jorgensen Co",
+      "kimco_bill_id": 10339,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 312.0,
+      "po": "59267"
+    },
+    {
+      "invoice_number": "TXFT4100140",
+      "vendor": "Fastenal Company",
+      "kimco_bill_id": 10080,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-24"
+      ],
+      "pdf_total": 14.57,
+      "po": "58841"
+    },
+    {
+      "invoice_number": "125499",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10348,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-25"
+      ],
+      "pdf_total": 5738.4,
+      "po": "59230"
+    },
+    {
+      "invoice_number": "125500",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10349,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-25"
+      ],
+      "pdf_total": 1650.0,
+      "po": "59238"
+    },
+    {
+      "invoice_number": "125501",
+      "vendor": "JP Steel",
+      "kimco_bill_id": 10350,
+      "posted": false,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": null,
+      "verification_amount": null,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-25"
+      ],
+      "pdf_total": 892.38,
+      "po": "59218"
+    }
+  ],
+  "invoices": [
+    {
+      "vendor": "A1 Image Office Systems",
+      "invoice_number": "67067",
+      "status": "HOLD",
+      "reason": "missing_po",
+      "type": "misc",
+      "pdf_total": 550.64,
+      "kimco_bill_id": 10367,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1118,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. A1 Image Office Systems invoice 67067 needs a purchase order. The PDF total is $550.64. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+      "email_received": [
+        "2026-09-09"
+      ],
+      "amount": 550.64
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "invoice_number": "821669",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 980.48,
+      "kimco_bill_id": 10368,
+      "batch": "API Agent - 9/25/26 Batch 10 #2",
+      "transfer_ap": "no",
+      "receipts_selected": "23969 qty 648 @ 1.4205",
+      "ppv": 0.0,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Eastern Metal Supply of Texas invoice 821669 is entered and is not posted. The PDF total is $980.48. Amount entered is $980.48. PO 59084. Receipts selected by Quantity_Received: 23969 qty 648 @ 1.4205. The selected receipt lines and fees equal the PDF total, so no Purchase Price Variance was posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 980.48
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "invoice_number": "821670",
+      "status": "HOLD",
+      "reason": "quantity_variance",
+      "type": "parts",
+      "pdf_total": 693.98,
+      "kimco_bill_id": 10369,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1119,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Eastern Metal Supply of Texas invoice 821670 cannot be finished. The PDF total is $693.98. Amount entered on receipt lines is $0.00. PO 59095. The 1 inch square tube is 120 feet, which is 1,440 inches. Receipt 24032 Quantity_Received is 1,440 inches at $0.2354, which extends to $338.98. The invoice line for that tube is $338.88. The 1-1/2 inch square bar is 24 feet, which is 288 inches, for $355.10. There is no open receipt for that bar on PO 59095. Receipt 24033 is 288 inches of that bar at $1.233, which extends to $355.10, but it is on PO 59084, so it was not used. Work-order and outside-service lines on the open receipt were checked and the receipt does not carry a work order. No receipts were selected and no Purchase Price Variance was posted, because the bar line has no receipt on this purchase order and the dollar gap is $355.00, which is $75.00 or more. Shawn should receive the 1-1/2 inch bar on PO 59095 for the invoiced 288 inches. After that receipt exists, AP will select the receipts by Quantity_Received and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 693.98
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "invoice_number": "JVT SI-44211",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 5410.79,
+      "kimco_bill_id": 10370,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1120,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Beshert Steel Processing invoice JVT SI-44211 cannot be finished. The PDF total is $5,410.79. Amount entered on receipt lines is $0.00. PO 58975. Receipts by Quantity_Received: 23927 qty 13 @ 368.13. Work-order and outside-service lines on the PO were checked and none were found. Invoice total minus the receipt lines and fees is $625.10, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 5410.79
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "invoice_number": "JVT SI-44212",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 4481.1,
+      "kimco_bill_id": 10371,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1121,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Beshert Steel Processing invoice JVT SI-44212 cannot be finished. The PDF total is $4,481.10. Amount entered on receipt lines is $0.00. PO 58999. Receipts by Quantity_Received: 23929 qty 13 @ 306.4. Work-order and outside-service lines on the PO were checked and none were found. Invoice total minus the receipt lines and fees is $497.90, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 4481.1
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "invoice_number": "JVT SI-44213",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 11030.4,
+      "kimco_bill_id": 10372,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1122,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Beshert Steel Processing invoice JVT SI-44213 cannot be finished. The PDF total is $11,030.40. Amount entered on receipt lines is $0.00. PO 59029. Receipts by Quantity_Received: 23930 qty 24 @ 408.38. Work-order and outside-service lines on the PO were checked and none were found. Invoice total minus the receipt lines and fees is $1,229.28, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 11030.4
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "invoice_number": "JVT SI-44214",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 4067.46,
+      "kimco_bill_id": 10373,
+      "batch": "API Agent - 9/25/26 Batch 10 #2",
+      "transfer_ap": "no",
+      "receipts_selected": "23931 qty 9 @ 451.77",
+      "ppv": 1.53,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Beshert Steel Processing invoice JVT SI-44214 is entered and is not posted. The PDF total is $4,067.46. Amount entered is $4,067.46. PO 59071. Receipts selected by Quantity_Received: 23931 qty 9 @ 451.77. Invoice total minus the receipt lines and fees was $1.53, which is under $75.00, so one signed Purchase Price Variance of $1.53 was posted.",
+      "email_received": [
+        "2026-09-10"
+      ],
+      "amount": 4067.46
+    },
+    {
+      "vendor": "Morgan Steel",
+      "invoice_number": "129501",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 16898.0,
+      "kimco_bill_id": 10374,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1123,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Morgan Steel invoice 129501 cannot be finished. The PDF total is $16,898.00. Amount entered on receipt lines is $0.00. PO 58965. Receipts by Quantity_Received: 23951 qty 60 @ 129.0; 23952 qty 59 @ 129.0. Work-order and outside-service lines were checked. receipt 23951 work order SO34877.01.W000 - 75-10-201007; receipt 23952 work order SO34902.01.W000 - 75-10-201007. Invoice total minus the receipt lines and fees is $1,547.00, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-11"
+      ],
+      "amount": 16898.0
+    },
+    {
+      "vendor": "Morgan Steel",
+      "invoice_number": "129511",
+      "status": "HOLD",
+      "reason": "missing_receipt",
+      "type": "parts",
+      "pdf_total": 9060.0,
+      "kimco_bill_id": 10375,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1124,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Morgan Steel invoice 129511 cannot be finished. The PDF total is $9,060.00. Amount entered on receipt lines is $0.00. PO 58995. The invoice is 60 pieces of floor plate at $151.00. Receipt 23950 shows Quantity_Received 60, receipt 24686 shows Quantity_Received -60, receipt 24687 shows Quantity_Received 60, and receipt 24688 shows Quantity_Received -60. Those four receipts net to Quantity_Received 0, so there is no open quantity to select. Work-order and outside-service lines were checked. Each of those receipts is work order 16467, SO34925.01.W000. This is a missing receipt, not a price variance. No receipts were selected and no Purchase Price Variance was posted. Shawn should receive the invoiced quantity of 60 on PO 58995. After that receipt exists, AP will select it by Quantity_Received and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-11"
+      ],
+      "amount": 9060.0
+    },
+    {
+      "vendor": "RMP Industrial Supply Inc",
+      "invoice_number": "1473030",
+      "status": "HOLD",
+      "reason": "missing_po",
+      "type": "misc",
+      "pdf_total": 19.6,
+      "kimco_bill_id": 10376,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1125,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. RMP Industrial Supply Inc invoice 1473030 needs a purchase order. The PDF total is $19.60. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+      "email_received": [
+        "2026-09-11"
+      ],
+      "amount": 19.6
+    }
+  ],
+  "ppv_qc": {
+    "read_only": true,
+    "scanned": 10,
+    "nonzero_gap_count": 8,
+    "gaps": [
+      {
+        "kimco_id": 10367,
+        "invoice": "67067",
+        "vendor": "1006-A1 IMAGE OFFICE SYSTEMS",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 550.64,
+        "lines": 0,
+        "charges": 0,
+        "gap": 550.64,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10369,
+        "invoice": "821670",
+        "vendor": "1062-EASTERN METAL SUPPLY OF TEXAS",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 693.98,
+        "lines": 0,
+        "charges": 0,
+        "gap": 693.98,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10370,
+        "invoice": "JVT SI-44211",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 5410.79,
+        "lines": 0,
+        "charges": 0,
+        "gap": 5410.79,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10371,
+        "invoice": "JVT SI-44212",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 4481.1,
+        "lines": 0,
+        "charges": 0,
+        "gap": 4481.1,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10372,
+        "invoice": "JVT SI-44213",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 11030.4,
+        "lines": 0,
+        "charges": 0,
+        "gap": 11030.4,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10374,
+        "invoice": "129501",
+        "vendor": "1302-Morgan Steel",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 16898.0,
+        "lines": 0,
+        "charges": 0,
+        "gap": 16898.0,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10375,
+        "invoice": "129511",
+        "vendor": "1302-Morgan Steel",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 9060.0,
+        "lines": 0,
+        "charges": 0,
+        "gap": 9060.0,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10376,
+        "invoice": "1473030",
+        "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 19.6,
+        "lines": 0,
+        "charges": 0,
+        "gap": 19.6,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      }
+    ],
+    "bills": [
+      {
+        "kimco_id": 10367,
+        "invoice": "67067",
+        "vendor": "1006-A1 IMAGE OFFICE SYSTEMS",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 550.64,
+        "lines": 0,
+        "charges": 0,
+        "gap": 550.64,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10368,
+        "invoice": "821669",
+        "vendor": "1062-EASTERN METAL SUPPLY OF TEXAS",
+        "batch_id": 736,
+        "batch_name": "API Agent - 9/25/26 Batch 10 #2",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 980.48,
+        "verification_amount": 980.48,
+        "lines": 920.48,
+        "charges": 60.0,
+        "gap": 0.0,
+        "rollup_gap": 0.0,
+        "action": "match",
+        "success_allowed": true,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "Lines + charges equal the header total."
+      },
+      {
+        "kimco_id": 10369,
+        "invoice": "821670",
+        "vendor": "1062-EASTERN METAL SUPPLY OF TEXAS",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 693.98,
+        "lines": 0,
+        "charges": 0,
+        "gap": 693.98,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10370,
+        "invoice": "JVT SI-44211",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 5410.79,
+        "lines": 0,
+        "charges": 0,
+        "gap": 5410.79,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10371,
+        "invoice": "JVT SI-44212",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 4481.1,
+        "lines": 0,
+        "charges": 0,
+        "gap": 4481.1,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10372,
+        "invoice": "JVT SI-44213",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 11030.4,
+        "lines": 0,
+        "charges": 0,
+        "gap": 11030.4,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10373,
+        "invoice": "JVT SI-44214",
+        "vendor": "1035-BESHERT STEEL PROCESSING",
+        "batch_id": 736,
+        "batch_name": "API Agent - 9/25/26 Batch 10 #2",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 4067.46,
+        "verification_amount": 4067.46,
+        "lines": 4065.93,
+        "charges": 1.53,
+        "gap": 0.0,
+        "rollup_gap": 0.0,
+        "action": "match",
+        "success_allowed": true,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "Lines + charges equal the header total."
+      },
+      {
+        "kimco_id": 10374,
+        "invoice": "129501",
+        "vendor": "1302-Morgan Steel",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 16898.0,
+        "lines": 0,
+        "charges": 0,
+        "gap": 16898.0,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10375,
+        "invoice": "129511",
+        "vendor": "1302-Morgan Steel",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 9060.0,
+        "lines": 0,
+        "charges": 0,
+        "gap": 9060.0,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10376,
+        "invoice": "1473030",
+        "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 19.6,
+        "lines": 0,
+        "charges": 0,
+        "gap": 19.6,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      }
+    ]
+  }
+}
