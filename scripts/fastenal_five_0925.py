@@ -464,16 +464,30 @@ def build_note(
     return re.sub(r"\s+", " ", text).strip()
 
 
+# Comments_1 940 on bill 10173 tags Shawn inside HtmlValue. The Mention
+# field is rejected as Invalid Field. This is the span that read back.
+SHAWN_MENTION_HTML = (
+    '<span data-mention-id="104" data-mention-name="Shawn McKibben" '
+    'data-mention-email="Shawn.McKibben@kannonmfg.com" '
+    'class="prosemirror-mention-node">@Shawn McKibben</span>'
+)
+
+
+def html_with_shawn_mention(text: str) -> str:
+    """Wrap a plain hold note the way Comments_1 940 tags Shawn."""
+    if "@Shawn McKibben" not in text:
+        raise RuntimeError("hold note must name @Shawn McKibben")
+    body = text.replace("@Shawn McKibben", SHAWN_MENTION_HTML, 1)
+    return f"<p>{body}</p>"
+
+
 def comment_values(kimco_id: int, text: str, *, mention: bool) -> dict[str, Any]:
-    values: dict[str, Any] = {
-        "HtmlValue": text,
+    return {
+        "HtmlValue": html_with_shawn_mention(text) if mention else text,
         "Entity": {"id": 203},
         "ObjectId": int(kimco_id),
         "FormId": 218,
     }
-    if mention:
-        values["Mention"] = {"id": SHAWN_MENTION_ID}
-    return values
 
 
 def _po_token(value: Any) -> str:
@@ -692,15 +706,23 @@ def write_comment(client: Any, kimco_id: int, text: str, *, mention: bool) -> di
             continue
         live = snapshot_amounts(client, kimco_id)
         match = None
+        mention_saved = False
+        needle = text.split("@Shawn McKibben", 1)[-1][:60].strip()
         for comment in live["comments"]:
-            if text[:80] in str(comment.get("html") or ""):
+            html = str(comment.get("html") or "").replace("&amp;", "&")
+            tagged = 'data-mention-id="104"' in html and needle in html
+            plain = text[:80] in html
+            if tagged or plain:
                 match = comment.get("id")
+                mention_saved = tagged
+                if tagged:
+                    break
         last = {
             "status": "persisted" if status < 400 and match else f"put-{status}",
             "put": status,
             "error": error,
             "id": match,
-            "mention": "Mention" in values,
+            "mention": mention_saved,
         }
         if last["status"] == "persisted":
             return last

@@ -195,6 +195,33 @@ def test_over_ppv_does_not_select():
     assert abs(plan["merch_gap"]) >= 75
 
 
+def test_shawn_mention_uses_comment_940_span():
+    invoice = _invoice_from("sep19-0.txt", "TXFT4100503")
+    note = build_note(
+        invoice,
+        status="HOLD",
+        action="missing_receipt",
+        problems=[{
+            "line": "PO59190-01",
+            "part": "33819",
+            "desc": "washer",
+            "ordered": 250,
+            "invoiced": 250,
+            "received": 0,
+            "receipts": [],
+        }],
+        amount_entered=0,
+    )
+    html = _MOD.html_with_shawn_mention(note)
+    assert html.startswith("<p>AP Clerk: <span data-mention-id=\"104\" ")
+    assert 'data-mention-name="Shawn McKibben"' in html
+    assert 'data-mention-email="Shawn.McKibben@kannonmfg.com"' in html
+    assert 'class="prosemirror-mention-node">@Shawn McKibben</span>' in html
+    assert "PDF total is $268.14" in html
+    assert "Transfer AP" in html
+    assert "Mention" not in _MOD.comment_values(1, note, mention=True)
+
+
 def test_success_note_is_plain_english():
     invoice = _invoice_from("sep17-0.txt", "TXFT499930")
     note = build_note(
