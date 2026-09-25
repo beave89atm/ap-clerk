@@ -192,6 +192,9 @@ VENDOR_ID_ALIASES = {
     "hapeco": 384,
     "mcmaster": 117,
     "air products": 13,
+    # Confirmed 2026-09-25 via GET of receipt 23876 (PO_Number_$_Vendor) and invoice 3412.
+    "greentree": 272,
+    "greentree packaging": 272,
     "earle": 208,
     "emj": 208,
     # Confirmed 2026-09-08 via GET of existing live invoices (API Vendor.id).
