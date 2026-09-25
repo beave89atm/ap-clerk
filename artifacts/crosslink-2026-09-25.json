@@ -1,0 +1,443 @@
+{
+  "run": "crosslink-2026-09-25",
+  "batch_name": "API Agent - 9/25/26 Crosslink",
+  "batch_id": 734,
+  "posted": false,
+  "packing_slip_gate": "suspended",
+  "quantity_field": "Quantity_Received",
+  "mailbox_scan": {
+    "messages_in_window": 519,
+    "folder_count": 156,
+    "by_folder": {
+      "/Sent Items": 12,
+      "Inbox/9 - FORT WORTH ARCHIVE": 109,
+      "/Inbox": 393,
+      "/Junk Email": 5
+    },
+    "crosslink_messages": 23
+  },
+  "skipped": [
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-06",
+      "email_received_utc": "2026-09-06T13:39:10Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-06",
+      "email_received_utc": "2026-09-06T13:39:11Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "statement",
+      "subject": "Statement from Crosslink Powder Coating of TX, LLC",
+      "email_received": "2026-09-08",
+      "email_received_utc": "2026-09-08T15:30:08Z",
+      "reason": "Account statement is not an invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:08Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:08Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-09",
+      "email_received_utc": "2026-09-09T13:37:09Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:29Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:32Z",
+      "reason": "Payment reminder is not a new invoice."
+    },
+    {
+      "kind": "reminder",
+      "subject": "Friendly payment reminder, as your account with us now appears as past due",
+      "email_received": "2026-09-24",
+      "email_received_utc": "2026-09-24T13:37:37Z",
+      "reason": "Payment reminder is not a new invoice."
+    }
+  ],
+  "already_in_kimco": [
+    {
+      "invoice_number": "27319",
+      "kimco_bill_id": 9193,
+      "posted": false,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "invoice_amount": 0.0,
+      "verification_amount": 783.52,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-18"
+      ],
+      "pdf_total": 195.88,
+      "po": "58326"
+    },
+    {
+      "invoice_number": "27755",
+      "kimco_bill_id": 9758,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 1107.57,
+      "verification_amount": 1107.57,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "pdf_total": 1107.57,
+      "po": "58701"
+    },
+    {
+      "invoice_number": "27756",
+      "kimco_bill_id": 9756,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 1252.18,
+      "verification_amount": 1252.18,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-08",
+        "2026-09-09"
+      ],
+      "pdf_total": 1252.18,
+      "po": "58723"
+    },
+    {
+      "invoice_number": "28100",
+      "kimco_bill_id": 10104,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 1245.81,
+      "verification_amount": 1245.81,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1245.81,
+      "po": "59022"
+    },
+    {
+      "invoice_number": "28102",
+      "kimco_bill_id": 10105,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 2104.11,
+      "verification_amount": 2104.11,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 2104.11,
+      "po": "58902"
+    },
+    {
+      "invoice_number": "28113",
+      "kimco_bill_id": 10102,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 830.54,
+      "verification_amount": 830.54,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 830.54,
+      "po": "59038"
+    },
+    {
+      "invoice_number": "28114",
+      "kimco_bill_id": 10103,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 1174.02,
+      "verification_amount": 1174.02,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-04"
+      ],
+      "pdf_total": 1174.02,
+      "po": "59052"
+    },
+    {
+      "invoice_number": "28166",
+      "kimco_bill_id": 10101,
+      "posted": true,
+      "batch": null,
+      "batch_id": null,
+      "invoice_amount": 200.0,
+      "verification_amount": 200.0,
+      "left_alone": true,
+      "email_received": [
+        "2026-09-11"
+      ],
+      "pdf_total": 200.0,
+      "po": "59087"
+    }
+  ],
+  "invoices": [
+    {
+      "invoice_number": "28251",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 1453.45,
+      "kimco_bill_id": 10351,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1096,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Crosslink Powder Coating invoice 28251 cannot be finished. The PDF total is $1,453.45. Amount entered on receipt lines is $0.00. PO 59137. PO line PO59137-01 part 1020249-1 was ordered 7 at $193.94 each. The invoice bills 7 at $205.58 each, which is $1,439.06. Quantity_Received is 7. Receipts by Quantity_Received: 24136 qty 5 @ 193.94; 24558 qty 2 @ 193.94. Those receipt lines extend to $1,357.58. The PDF also has a packaging and shop supplies recovery fee of $14.39. Invoice total minus the receipt lines and that fee is $81.48, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-17"
+      ]
+    },
+    {
+      "invoice_number": "28273",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 2255.98,
+      "kimco_bill_id": 10352,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1097,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Crosslink Powder Coating invoice 28273 cannot be finished. The PDF total is $2,255.98. Amount entered on receipt lines is $0.00. PO 59117. PO line PO59117-01 part 1020249-1 was ordered 8 at $193.94 each. The invoice bills 8 at $205.58 each, which is $1,644.64. Quantity_Received is 8. Receipts by Quantity_Received: 24054 qty 5 @ 193.94; 24134 qty 3 @ 193.94. PO line PO59117-02 part 1020249-4 was ordered 2 at $193.94 each. The invoice bills 2 at $294.50 each, which is $589.00. Quantity_Received is 2. Receipts by Quantity_Received: 24055 qty 1 @ 193.94; 24135 qty 1 @ 193.94. Those receipt lines extend to $1,939.40. The PDF also has a packaging and shop supplies recovery fee of $22.34. Invoice total minus the receipt lines and that fee is $294.24, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-21"
+      ]
+    },
+    {
+      "invoice_number": "28307",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 1748.77,
+      "kimco_bill_id": 10353,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1098,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Crosslink Powder Coating invoice 28307 cannot be finished. The PDF total is $1,748.77. Amount entered on receipt lines is $0.00. PO 59186. PO line PO59186-01 part 1020249-3 was ordered 5 at $193.94 each. The invoice bills 5 at $264.06 each, which is $1,320.30. Quantity_Received is 5. Receipts by Quantity_Received: 24509 qty 5 @ 193.94. PO line PO59186-02 part 1020249-1 was ordered 2 at $205.58 each. The invoice bills 2 at $205.58 each, which is $411.16. Quantity_Received is 2. Receipts by Quantity_Received: 24510 qty 2 @ 205.58. Those receipt lines extend to $1,380.86. The PDF also has a packaging and shop supplies recovery fee of $17.31. Invoice total minus the receipt lines and that fee is $350.60, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-23"
+      ]
+    },
+    {
+      "invoice_number": "28308",
+      "status": "HOLD",
+      "reason": "price_variance",
+      "type": "parts",
+      "pdf_total": 1868.72,
+      "kimco_bill_id": 10354,
+      "batch": "TRANSFER AP",
+      "transfer_ap": "yes",
+      "receipts_selected": "",
+      "ppv": 0.0,
+      "comments_1_id": 1099,
+      "email_moved": "yes",
+      "note": "AP Clerk: @Shawn McKibben Crosslink Powder Coating invoice 28308 cannot be finished. The PDF total is $1,868.72. Amount entered on receipt lines is $0.00. PO 59203. PO line PO59203-01 part 1020249-1 was ordered 9 at $193.94 each. The invoice bills 9 at $205.58 each, which is $1,850.22. Quantity_Received is 9. Receipts by Quantity_Received: 24508 qty 9 @ 193.94. Those receipt lines extend to $1,745.46. The PDF also has a packaging and shop supplies recovery fee of $18.50. Invoice total minus the receipt lines and that fee is $104.76, which is $75.00 or more, so no Purchase Price Variance was posted and the receipts were not selected. Selecting them would lock the receipt and block an unreceive. The quantity matches, so this is a price difference, not a missing receipt. Shawn should unreceive the line, set the PO price to the invoice price, and re-receive the same quantity. After that, AP will select the receipts and finish the bill. The bill was moved to Transfer AP and is not posted.",
+      "email_received": [
+        "2026-09-23"
+      ]
+    }
+  ],
+  "ppv_qc": {
+    "read_only": true,
+    "scanned": 4,
+    "nonzero_gap_count": 4,
+    "gaps": [
+      {
+        "kimco_id": 10351,
+        "invoice": "28251",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1453.45,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1453.45,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10352,
+        "invoice": "28273",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 2255.98,
+        "lines": 0,
+        "charges": 0,
+        "gap": 2255.98,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10353,
+        "invoice": "28307",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1748.77,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1748.77,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10354,
+        "invoice": "28308",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1868.72,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1868.72,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      }
+    ],
+    "bills": [
+      {
+        "kimco_id": 10351,
+        "invoice": "28251",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1453.45,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1453.45,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10352,
+        "invoice": "28273",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 2255.98,
+        "lines": 0,
+        "charges": 0,
+        "gap": 2255.98,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10353,
+        "invoice": "28307",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1748.77,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1748.77,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      },
+      {
+        "kimco_id": 10354,
+        "invoice": "28308",
+        "vendor": "1276-Crosslink Powder Coating",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "posted": null,
+        "void": false,
+        "invoice_amount": 0.0,
+        "verification_amount": 1868.72,
+        "lines": 0,
+        "charges": 0,
+        "gap": 1868.72,
+        "rollup_gap": 0.0,
+        "action": "no-lines",
+        "success_allowed": false,
+        "header_field": "Invoice_Verification_Amount",
+        "reason": "No merchandise lines. Do not invent a full-invoice PPV."
+      }
+    ]
+  }
+}

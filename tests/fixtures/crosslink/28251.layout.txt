@@ -1,0 +1,65 @@
+                                                                                                                 Invoice
+Crosslink Powder Coating
+5001 Northeast Pkwy                                                                                                  INVOICE #
+Fort Worth, TX 76106
+                                                                                                                        28251
+8173351224
+accounting@crosslinktx.com                                                                                               DATE
+                                                                                                                   09/17/2026
+
+Bill To:                                                                                                                   TERMS
+                                                                                                                           Net 30
+Kannon Manufacturing
+
+Address:
+
+5129 Vesta Farley Rd
+Fort Worth, TX 76119
+
+
+Part Number Details:
+Part Number                       Description                   Packing Slip # SO#                  PO #           WO#
+1020249-1                         1020249-1 - 46.250" TALL      5403            8550                59137          12446
+                                  PEDESTAL WELDMENT
+                                  Premasking before
+                                  sandblast
+                                  Masking AFTER
+                                  sandblasting
+1020249-1                         1020249-1 - 46.250" TALL      5410            8550                59137          12446
+                                  PEDESTAL WELDMENT
+                                  Premasking before
+                                  sandblast
+                                  Masking AFTER
+                                  sandblasting
+
+
+Sales Order Lines:
+Line Name                 Coating Color               Product           PO #           Unit Price      Qty        Line Total
+1020249-1                 Sandblasting                                  59137          205.58          7          $1439.06
+                          Zinc Rich Epoxy Primer -
+                          Tiger
+                          Time White - PPG
+Packaging/Shop Supplies                               Packaging/Shop    59137          0.01            1439       $14.39
+Recovery                                              Supplies
+                                                      Recovery
+
+
+
+
+                                                                                                      SUBTOTAL: $1,453.45
+                                                                                                               TAX: $0.00
+                                                                                                             TOTAL:
+                                                                                                             $1,453.45
+
+
+----- PAGE -----
+
+                                                   *Please note that a 1.5% late fee will apply 14 days after invoice due date.
+                                *Crosslink carries no warranty, express or implied, unless specifically requested prior to work commencement.
+                               *Blasting is an aggressive process and Crosslink holds no responsibility for potential damage caused by blasting.
+
+
+
+
+Powered by PDF Generator API
+

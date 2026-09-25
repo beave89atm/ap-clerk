@@ -1,0 +1,75 @@
+                                                                                                                 Invoice
+Crosslink Powder Coating
+5001 Northeast Pkwy                                                                                                  INVOICE #
+Fort Worth, TX 76106
+                                                                                                                        28273
+8173351224
+accounting@crosslinktx.com                                                                                               DATE
+                                                                                                                   09/18/2026
+
+Bill To:                                                                                                                   TERMS
+                                                                                                                           Net 30
+Kannon Manufacturing
+
+Address:
+
+5129 Vesta Farley Rd
+Fort Worth, TX 76119
+
+
+Part Number Details:
+Part Number                       Description                      Packing Slip # SO#                  PO #        WO#
+1020249-1                         1020249-1 - 46.250" TALL         5385            8532                59117       12428
+                                  PEDESTAL WELDMENT
+                                  Premasking before
+                                  sandblast
+                                  Masking AFTER
+                                  sandblasting
+1020249-4                         1020249-4 - Pedestal             5385            8532                59117       12428
+1020249-1                         1020249-1 - 46.250" TALL         5403            8532                59117       12428
+                                  PEDESTAL WELDMENT
+                                  Premasking before
+                                  sandblast
+                                  Masking AFTER
+                                  sandblasting
+1020249-4                         1020249-4 - Pedestal             5403            8532                59117       12428
+
+
+Sales Order Lines:
+Line Name                 Coating Color                  Product           PO #           Unit Price      Qty     Line Total
+1020249-1                 Sandblasting                                     59117          205.58          8       $1644.64
+                          Zinc Rich Epoxy Primer -
+                          Tiger
+                          Time White - PPG
+1020249-4                 Sandblasting                                     59117          294.50          2       $589.00
+                          Zinc Rich Epoxy Primer -
+                          Tiger
+                          Time White - PPG
+Packaging/Shop Supplies                                  Packaging/Shop    59117          0.01            2234    $22.34
+Recovery                                                 Supplies
+                                                         Recovery
+
+
+
+
+                                                                                                         SUBTOTAL: $2,255.98
+                                                                                                                  TAX: $0.00
+
+
+----- PAGE -----
+
+                                                                                                                                       TOTAL:
+                                                                                                                                       $2,255.98
+
+
+
+
+                                                   *Please note that a 1.5% late fee will apply 14 days after invoice due date.
+                                *Crosslink carries no warranty, express or implied, unless specifically requested prior to work commencement.
+                               *Blasting is an aggressive process and Crosslink holds no responsibility for potential damage caused by blasting.
+
+
+
+
+Powered by PDF Generator API
+
