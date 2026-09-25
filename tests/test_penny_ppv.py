@@ -46,6 +46,36 @@ def test_gas_0040443847_unit_rounds_and_header_gap_is_three_cents():
     assert "Purchase Price Variance" in decision["reason"]
 
 
+def test_gas_0040446744_positive_three_cent_gap_is_not_a_negative_ppv():
+    """0040446744 / KIMCO 10283: verification 1891.88 vs extensions 1891.85.
+
+    The matching PPV is +0.03. A reported -0.03 charge leaves 1891.82.
+    """
+    lines = [275.50, 42.60, 563.00, 511.00, 11.35, 12.95, 39.34, 20.61, 12.00, 403.50]
+    decision = penny_ppv_for_header_gap(header_total=1891.88, line_amounts=lines)
+    assert decision["action"] == "ppv"
+    assert decision["lines"] == 1891.85
+    assert decision["ppv"] == 0.03
+    assert decision["gap"] == 0.03
+
+    widened = penny_ppv_for_header_gap(
+        header_total=1891.88,
+        line_amounts=lines,
+        charge_amounts=[-0.03],
+    )
+    assert widened["action"] == "ppv"
+    assert widened["ppv"] == 0.06
+    assert round(widened["lines"] + widened["charges"], 2) == 1891.82
+
+    closed = penny_ppv_for_header_gap(
+        header_total=1891.88,
+        line_amounts=lines,
+        charge_amounts=[0.03],
+    )
+    assert closed["action"] == "match"
+    assert closed["ppv"] == 0.0
+
+
 def test_penny_header_gap_is_not_waived_at_one_or_two_cents():
     one = penny_ppv_for_header_gap(header_total=192.85, line_amounts=[192.86])
     assert one["action"] == "ppv"

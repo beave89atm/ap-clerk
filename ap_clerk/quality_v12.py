@@ -944,6 +944,7 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "cases": (
             "Gas 0040443847 / KIMCO 10284 PDF unit 1.2076 stored as 1.21",
             "Header verification 29.25 vs line extensions 29.28",
+            "Gas 0040446744 / KIMCO 10283 verification 1891.88 vs extensions 1891.85",
         ),
         "9_25_bug": (
             "2026-09-23 gap enter (gap_four_vendors_0923 → apply_type4_misc_lines) "
@@ -961,7 +962,9 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Do not waive that header gap as two-cent rounding. |gap| >= $75 is "
             "not a penny PPV. Do not change the batch, receipts, or verification. "
             "Never post the bill from this reconciliation. Success only after "
-            "lines + charges equal the header. 0040443847 → PPV −0.03."
+            "lines + charges equal the header. 0040443847 → PPV −0.03. "
+            "0040446744 → PPV +0.03 (verification 1891.88 is above extensions "
+            "1891.85; a negative charge widens that gap)."
         ),
         "never_success": True,
     },

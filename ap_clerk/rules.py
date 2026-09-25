@@ -682,11 +682,13 @@ def penny_ppv_for_header_gap(
 ) -> dict[str, Any]:
     """Signed PPV so lines + existing charges + this PPV equal the header total.
 
-    NOTE-56 (Gas 0040443847 / KIMCO 10284). After KIMCO extends qty × rounded
-    unit price, a one-cent remainder is still a gap. Do not waive $0.01,
-    $0.02, or $0.03 as two-cent rounding — that waiver stays on per-line
-    `decide_ppv` only, when the extended amounts already add up. |gap| >= $75
-    is not a penny PPV.
+    NOTE-56 (Gas 0040443847 / KIMCO 10284 and Gas 0040446744 / KIMCO 10283).
+    After KIMCO extends qty × rounded unit price, a one-cent remainder is
+    still a gap. The sign is header minus lines minus charges: 29.25 − 29.28
+    is −0.03, and 1891.88 − 1891.85 is +0.03. Do not waive $0.01, $0.02, or
+    $0.03 as two-cent rounding — that waiver stays on per-line `decide_ppv`
+    only, when the extended amounts already add up. |gap| >= $75 is not a
+    penny PPV.
     """
     header = money(header_total)
     if header is None:
