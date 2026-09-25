@@ -780,6 +780,74 @@ def fees_payload(
     return payload
 
 
+def header_penny_ppv_from_record(record: dict[str, Any] | None) -> dict[str, Any]:
+    """NOTE-56: PPV that makes line extensions + charges equal verification.
+
+    Header total is Invoice_Verification_Amount (the PDF total stored on the
+    header). Invoice_Amount is the rollup and moves when the charge posts.
+    """
+    from ap_clerk.rules import penny_ppv_for_header_gap
+
+    if not isinstance(record, dict):
+        return penny_ppv_for_header_gap(header_total=None)
+    values = record.get("values") if isinstance(record.get("values"), dict) else {}
+    header = values.get("Invoice_Verification_Amount")
+    if header in (None, ""):
+        header = values.get("Invoice_Amount")
+    line_amounts: list[float] = []
+    for line in invoice_lines_from_record(record):
+        raw = line.get("values") if isinstance(line, dict) and isinstance(line.get("values"), dict) else line
+        if not isinstance(raw, dict):
+            continue
+        ext = money(raw.get("Extended_Amount"))
+        if ext is None:
+            ext = money(raw.get("Net_Amount"))
+        if ext is None:
+            qty = money(raw.get("Quantity"))
+            price = money(raw.get("Unit_Price"))
+            if qty is not None and price is not None:
+                ext = round(qty * price, 2)
+        if ext is not None:
+            line_amounts.append(ext)
+    charge_amounts: list[float] = []
+    lists = record.get("lists") if isinstance(record.get("lists"), dict) else {}
+    for key in ADDITIONAL_CHARGE_LISTS:
+        for item in lists.get(key) or []:
+            if not isinstance(item, dict):
+                continue
+            child = item.get("values") if isinstance(item.get("values"), dict) else item
+            amount = money(child.get("Amount") or child.get("Charge_Amount"))
+            if amount is not None:
+                charge_amounts.append(amount)
+    return penny_ppv_for_header_gap(
+        header_total=header,
+        line_amounts=line_amounts,
+        charge_amounts=charge_amounts,
+    )
+
+
+def post_header_penny_ppv(client: Any, invoice_id: int | str) -> dict[str, Any]:
+    """Read the live header and post one PPV when lines+charges miss it.
+
+    Does not change the batch, receipt lines, or verification. Does not post
+    the bill. |gap| >= $75 is left unposted.
+    """
+    record = client.get_item("ap_invoices", int(invoice_id))
+    decision = header_penny_ppv_from_record(record)
+    if not decision.get("lines"):
+        return {**decision, "action": "skip", "ppv": 0.0, "ppv_status": "no-lines", "mutated": False}
+    status = "none"
+    if decision.get("action") == "ppv" and decision.get("ppv"):
+        status = client.try_post_ppv(int(invoice_id), decision["ppv"])
+    elif decision.get("action") == "match":
+        status = "match"
+    elif decision.get("action") == "hold":
+        status = "over-75"
+    else:
+        status = str(decision.get("action") or "none")
+    return {**decision, "ppv_status": status, "mutated": status == "posted"}
+
+
 def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[str, Any]:
     """Record PUT body for Additional Charge Purchase Price Variance (lookup id 13)."""
     value = money(amount)

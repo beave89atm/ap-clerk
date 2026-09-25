@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import date, datetime, timedelta
 from typing import Any
@@ -584,8 +585,9 @@ def decide_ppv(
         invoice_amt = money(invoice_line_amount) or 0.0
         po_amt = money(po_line_amount) or 0.0
     variance = round(invoice_amt - po_amt, 2)
-    # Two-cent rounding is a match, not an invented PPV (3P 142041 amounts add cleanly).
-    if variance == 0 or abs(variance) <= 0.02:
+    # Exact zero is a match. Exactly $0.02 stays a match (NOTE-23 / 3P 142041).
+    # $0.01 is a PPV (O'Neal 15464074: PDF 192.85 vs receipt 23880 extended 192.86).
+    if variance == 0 or abs(variance) == 0.02:
         return {
             "action": "match",
             "ppv": 0.0,
@@ -667,6 +669,207 @@ def rounding_ppv_to_hit_pdf_total(
         po_line_amount=posted,
         invoice_total=pdf,
     )
+
+
+# Header reconciliation. Under $75, matching NOTE-47. Equal to $75 does not post.
+# Single PPV absolute limit. AP_PPV_LIMIT overrides it for a run.
+PENNY_PPV_MAX_ABS = 75.0
+PPV_LIMIT_ENV = "AP_PPV_LIMIT"
+
+
+def ppv_limit() -> float:
+    """The one PPV absolute limit, in dollars. Default 75. Set AP_PPV_LIMIT to override."""
+    raw = os.environ.get(PPV_LIMIT_ENV)
+    if raw in (None, ""):
+        return PENNY_PPV_MAX_ABS
+    return round(float(raw), 2)
+
+
+# Kyle: always make sure totals match before finishing. Top-level AP rule.
+TOTALS_MATCH_BEFORE_FINISH = (
+    "Always make sure totals match before finishing. "
+    "Header invoice total == PDF total == selected receipt lines + all charges, to the penny."
+)
+
+
+def totals_match_to_the_penny(decision: dict[str, Any]) -> bool:
+    """True when the header, the PDF total, and lines + charges are the same cent.
+
+    Header is Invoice_Amount. PDF total is Invoice_Verification_Amount.
+    Covered is selected receipt / misc lines plus every additional charge.
+    """
+    if decision.get("success_allowed") is not True:
+        return False
+    invoice = money(decision.get("invoice_amount"))
+    verification = money(decision.get("verification_amount"))
+    if invoice is None or verification is None:
+        return False
+    covered = round(float(decision.get("lines") or 0) + float(decision.get("charges") or 0), 2)
+    return invoice == verification == covered and decision.get("gap") in (0, 0.0)
+
+
+def penny_ppv_for_header_gap(
+    *,
+    header_total: Any,
+    line_amounts: list[Any] | None = None,
+    charge_amounts: list[Any] | None = None,
+    max_abs: float | None = None,
+) -> dict[str, Any]:
+    """Signed PPV so lines + existing charges + this PPV equal the header total.
+
+    NOTE-56 (Gas 0040443847 / KIMCO 10284 and Gas 0040446744 / KIMCO 10283).
+    After KIMCO extends qty × rounded unit price, a one-cent remainder is
+    still a gap. The sign is header minus lines minus charges: 29.25 − 29.28
+    is −0.03, and 1891.88 − 1891.85 is +0.03. There is no tolerance: $0.01
+    posts a PPV. |gap| >= ppv_limit() ($75 unless AP_PPV_LIMIT is set) is
+    not a penny PPV.
+    """
+    if max_abs is None:
+        max_abs = ppv_limit()
+    header = money(header_total)
+    if header is None:
+        return {
+            "action": "skip",
+            "ppv": 0.0,
+            "gap": None,
+            "lines": 0.0,
+            "charges": 0.0,
+            "reason": "Header total missing; do not invent PPV.",
+        }
+    lines = round(sum(money(amount) or 0.0 for amount in (line_amounts or [])), 2)
+    charges = round(sum(money(amount) or 0.0 for amount in (charge_amounts or [])), 2)
+    covered = round(lines + charges, 2)
+    gap = round(header - covered, 2)
+    if gap == 0:
+        return {
+            "action": "match",
+            "ppv": 0.0,
+            "gap": 0.0,
+            "lines": lines,
+            "charges": charges,
+            "reason": "Lines + charges equal the header total.",
+        }
+    if abs(gap) >= max_abs:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "gap": gap,
+            "lines": lines,
+            "charges": charges,
+            "reason": (
+                f"|gap| {abs(gap):.2f} is not under ${max_abs:.0f}. "
+                "Do not post penny PPV."
+            ),
+        }
+    return {
+        "action": "ppv",
+        "ppv": gap,
+        "gap": gap,
+        "lines": lines,
+        "charges": charges,
+        "reason": (
+            f"Additional Charge Purchase Price Variance {gap:.2f} "
+            f"so lines {lines:.2f} + charges {charges:.2f} hit header {header:.2f}."
+        ),
+    }
+
+
+def ppv_qc_gap(
+    *,
+    invoice_amount: Any = None,
+    verification_amount: Any = None,
+    line_amounts: list[Any] | None = None,
+    charge_amounts: list[Any] | None = None,
+    max_abs: float | None = None,
+) -> dict[str, Any]:
+    """Mandatory PPV QC. Success only when the live gap is 0.00.
+
+    gap = invoice header total − (merchandise lines + every additional charge).
+    Merchandise lines are the bill's selected receipt lines and Type 4 misc
+    lines. Charges include fees, freight, and PPV.
+
+    The header total is Invoice_Verification_Amount when that field is set.
+    That is the PDF invoice total stored at header create, and it does not
+    move when a charge is added. Invoice_Amount is the rollup of lines +
+    charges, so Invoice_Amount − (lines + charges) stays 0.00 on the penny
+    bills this gate exists to catch (0040443847, 0040446744). When
+    verification is absent, the header total is Invoice_Amount.
+
+    Success requires both the header gap and the Invoice_Amount rollup gap
+    to be 0.00. |gap| < $75 posts one signed PPV for the exact header gap.
+    |gap| >= $75 is HOLD price_variance and does not post PPV. No merchandise
+    lines does not invent a full-invoice PPV.
+    """
+    if max_abs is None:
+        max_abs = ppv_limit()
+    lines = [money(amount) for amount in (line_amounts or [])]
+    line_values = [amount for amount in lines if amount is not None]
+    charge_values = [amount for amount in (money(amount) for amount in (charge_amounts or [])) if amount is not None]
+    verification = money(verification_amount)
+    invoice = money(invoice_amount)
+    header = verification if verification is not None else invoice
+    header_field = (
+        "Invoice_Verification_Amount" if verification is not None else "Invoice_Amount"
+    )
+    decision = penny_ppv_for_header_gap(
+        header_total=header,
+        line_amounts=line_values,
+        charge_amounts=charge_values,
+        max_abs=max_abs,
+    )
+    covered = round(float(decision["lines"]) + float(decision["charges"]), 2)
+    rollup_gap = None if invoice is None else round(invoice - covered, 2)
+    gap = decision.get("gap")
+    has_lines = bool(line_values)
+    enforced = header is not None
+    action = str(decision.get("action") or "skip")
+    ppv = float(decision.get("ppv") or 0.0)
+    category = ""
+    if not has_lines and action in {"ppv", "hold"}:
+        action = "no-lines"
+        ppv = 0.0
+    elif action == "hold":
+        category = "price_variance"
+        ppv = 0.0
+    elif action == "match" and rollup_gap not in (None, 0.0):
+        action = "rollup"
+        ppv = 0.0
+    if not enforced:
+        success_allowed = None
+    elif action == "match" and gap == 0.0 and rollup_gap in (None, 0.0):
+        success_allowed = True
+    else:
+        success_allowed = False
+    reason = str(decision.get("reason") or "")
+    if action == "no-lines":
+        reason = "No merchandise lines. Do not invent a full-invoice PPV."
+    elif action == "rollup":
+        reason = (
+            f"Invoice_Amount rollup gap {rollup_gap:.2f} is not 0.00. "
+            "Do not post another PPV against a header that already matches."
+        )
+    elif action == "hold":
+        reason = (
+            f"|gap| {abs(float(gap or 0)):.2f} is not under ${max_abs:.0f}. "
+            "HOLD price_variance. Do not post PPV."
+        )
+    return {
+        "action": action,
+        "ppv": ppv,
+        "gap": gap,
+        "rollup_gap": rollup_gap,
+        "lines": decision["lines"],
+        "charges": decision["charges"],
+        "header": header,
+        "header_field": header_field,
+        "invoice_amount": invoice,
+        "verification_amount": verification,
+        "enforced": enforced,
+        "has_lines": has_lines,
+        "success_allowed": success_allowed,
+        "exception_category": category,
+        "reason": reason,
+    }
 
 
 def evaluate_bill_price_variance(

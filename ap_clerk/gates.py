@@ -523,10 +523,16 @@ def finish_gate(
     fees: list[dict[str, Any]] | None = None,
     fees_posted: bool = False,
     freight_vendor: bool = False,
+    pre_finish: dict[str, Any] | None = None,
 ) -> tuple[str, str]:
     """Success only if header + (Select Receipts when PO) + PDF attached
     + Additional Charge Fees posted when fees were parsed
     AND the Treyce-load self-check passes (she would not need to rework).
+
+    When `pre_finish` is present, Success also requires that live check to
+    have passed: header invoice total == PDF total == selected receipt lines
+    + all charges, to the penny. A failed pre-Finish check is HOLD. Finish
+    does not return Success.
 
     Header-only with blocked-405 attach, receipts not selected, or fees
     noted on the sheet but not posted is Incomplete.
@@ -571,6 +577,18 @@ def finish_gate(
         ok, why = treyce_finish_selfcheck(selfcheck)
         if not ok:
             return RESULT_HOLD, why
+    if pre_finish is not None and pre_finish.get("ok") is not True:
+        why = str(pre_finish.get("why") or "").strip()
+        if not why:
+            why = why_hold(
+                GATE_PRICE,
+                "Pre-Finish totals check failed. Header invoice total, PDF total, "
+                "and selected receipt lines + all charges must match to the penny. "
+                "Finish blocked.",
+            )
+        elif "Finish blocked" not in why:
+            why = f"{why} Finish blocked."
+        return RESULT_HOLD, why
     return RESULT_SUCCESS, ""
 
 
@@ -873,6 +891,19 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "Use quantity_variance or already_entered and name the exact qty ask. "
             "Never Success."
         )
+    if "ppv_live_gap" in check:
+        raw_gap = check.get("ppv_live_gap")
+        try:
+            live_gap = round(float(raw_gap), 2)
+        except (TypeError, ValueError):
+            live_gap = None
+        if live_gap != 0.0:
+            shown = "missing" if live_gap is None else f"{live_gap:.2f}"
+            failures.append(
+                f"PPV QC live readback gap is {shown}, not 0.00. "
+                "Post one signed Purchase Price Variance when |gap| < $75, "
+                "or HOLD price_variance when |gap| >= $75. Never Success."
+            )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),

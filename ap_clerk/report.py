@@ -15,6 +15,7 @@ from ap_clerk.quality_v12 import (
     apply_exception_category_owner,
     exception_category_counts,
 )
+from ap_clerk.rules import ppv_limit
 
 COLUMNS = [
     "Vendor",
@@ -59,7 +60,9 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
         "Noise": PatternFill("solid", fgColor="D9D9D9"),
     }
     for row_idx, row in enumerate(stamped, start=2):
-        values = ["" if col == "Notes" else row.get(col, "") for col in COLUMNS]
+        # Notes stays blank unless this run posted a PPV QC charge.
+        note = row.get("Notes") if row.get("_ppv_qc_fixed") else ""
+        values = [note if col == "Notes" else row.get(col, "") for col in COLUMNS]
         for col, value in enumerate(values, start=1):
             cell = sheet.cell(row_idx, col, value)
             cell.alignment = Alignment(wrap_text=True, vertical="top")
@@ -73,7 +76,11 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
     sheet.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{max(1, len(rows) + 1)}"
     sheet.freeze_panes = "A2"
     sheet.row_dimensions[1].height = 22
-    _write_exception_counts_sheet(workbook, stamped, header_font, header_fill)
+    limit = ppv_limit()
+    sheet.oddHeader.left.text = f"PPV limit ${limit:.2f}"
+    sheet.oddHeader.left.font = "Calibri"
+    sheet.oddHeader.left.size = 9
+    _write_exception_counts_sheet(workbook, stamped, header_font, header_fill, ppv_abs_limit=limit)
     workbook.save(path)
     return path
 
@@ -83,6 +90,8 @@ def _write_exception_counts_sheet(
     rows: list[dict[str, Any]],
     header_font: Font,
     header_fill: PatternFill,
+    *,
+    ppv_abs_limit: float,
 ) -> None:
     """Counts by Exception category only. Never invent Success/touchless rates."""
     sheet = workbook.create_sheet("Exception counts")
@@ -90,9 +99,13 @@ def _write_exception_counts_sheet(
         cell = sheet.cell(1, col, name)
         cell.font = header_font
         cell.fill = header_fill
-    for row_idx, (category, count) in enumerate(exception_category_counts(rows), start=2):
+    counts = exception_category_counts(rows)
+    for row_idx, (category, count) in enumerate(counts, start=2):
         sheet.cell(row_idx, 1, category)
         sheet.cell(row_idx, 2, count)
+    limit_row = len(counts) + 3
+    sheet.cell(limit_row, 1, "PPV limit")
+    sheet.cell(limit_row, 2, ppv_abs_limit)
     sheet.column_dimensions["A"].width = 22
     sheet.column_dimensions["B"].width = 10
     sheet.freeze_panes = "A2"

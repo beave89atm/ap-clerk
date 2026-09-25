@@ -207,9 +207,11 @@ def test_v12_registry_covers_all_notes():
         "NOTE-53",
         "NOTE-54",
         "NOTE-55",
+        "NOTE-56",
+        "NOTE-57",
     )
-    assert len(TREYCE_NOTES_V12) == 45
-    assert len(TREYCE_FINISH_CHECKLIST) == 19
+    assert len(TREYCE_NOTES_V12) == 47
+    assert len(TREYCE_FINISH_CHECKLIST) == 20
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -259,6 +261,8 @@ def test_v12_registry_covers_all_notes():
         "missing-receipt-hold-transfer-ap",
         "invoice-statement-mixed-pdf-classify-before-extract",
         "open-receipts-forbid-missing-receipt",
+        "penny-ppv-when-lines-miss-header",
+        "ppv-qc-live-readback-before-finish",
     }
 
 
@@ -693,6 +697,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "missing-receipt-hold-transfer-ap",
         "classify-before-extract-mixed-pdf",
         "open-receipts-not-missing-receipt",
+        "ppv-qc-live-gap-zero",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4549,7 +4554,10 @@ def test_never_repeat_jpsteel_125316_rounding_ppv():
     assert "125051" in n["9_17_bug"] or "10111" in n["9_17_bug"]
     assert "0.06" in n["expected"]
 
-    two_cent = rounding_ppv_to_hit_pdf_total(832.03, 832.02, receipts_selected=True)
+    one_cent = rounding_ppv_to_hit_pdf_total(832.03, 832.02, receipts_selected=True)
+    assert one_cent["action"] == "ppv"
+    assert one_cent["ppv"] == 0.01
+    two_cent = rounding_ppv_to_hit_pdf_total(832.04, 832.02, receipts_selected=True)
     assert two_cent["action"] == "match"
     assert two_cent["ppv"] == 0.0
 

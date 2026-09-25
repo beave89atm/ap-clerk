@@ -183,6 +183,19 @@ def test_cli_live_auth_success_runs_enter(
     class FakeClient:
         target = "live"
 
+        def get_item(self, service, item_id):
+            return {
+                "id": item_id,
+                "values": {
+                    "Invoice_Amount": 1.0,
+                    "Invoice_Verification_Amount": 1.0,
+                },
+                "lists": {
+                    "APInvoiceLine": [{"values": {"Extended_Amount": 1.0}}],
+                    "InvoiceAdditionalCharges": [],
+                },
+            }
+
     def fake_auth(base_url: str, key: str, password: str, *, target: str = "prototype") -> FakeClient:
         assert target == "live"
         assert base_url == LIVE_URL

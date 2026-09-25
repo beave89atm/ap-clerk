@@ -937,6 +937,81 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-56",
+        "slug": "penny-ppv-when-lines-miss-header",
+        "gate": GATE_PRICE,
+        "cases": (
+            "Gas 0040443847 / KIMCO 10284 PDF unit 1.2076 stored as 1.21",
+            "Header verification 29.25 vs line extensions 29.28",
+            "Gas 0040446744 / KIMCO 10283 verification 1891.88 vs extensions 1891.85",
+        ),
+        "9_25_bug": (
+            "2026-09-23 gap enter (gap_four_vendors_0923 → apply_type4_misc_lines) "
+            "stored Gas unit 1.2076 as Unit_Price 1.21. KIMCO extended 12×1.21=14.52 "
+            "instead of the printed 14.49. Verification stayed 29.25 and Invoice_Amount "
+            "rolled to 29.28. Type 4 no-PO finish returned ppv_status none. decide_ppv "
+            "still waives a two-cent per-line compare, so the $0.03 header gap was "
+            "left with no Purchase Price Variance. The 9/24 recheck kept Result Success."
+        ),
+        "expected": (
+            "When line extensions + additional charges do not equal the header "
+            "total (Invoice_Verification_Amount, the PDF total) to the penny, "
+            "post one signed Additional Charge Purchase Price Variance (lookup "
+            "id 13) for the exact remainder, including $0.01, $0.02, and $0.03. "
+            "Do not waive that header gap as two-cent rounding. |gap| >= $75 is "
+            "not a penny PPV. Do not change the batch, receipts, or verification. "
+            "Never post the bill from this reconciliation. Success only after "
+            "lines + charges equal the header. 0040443847 → PPV −0.03. "
+            "0040446744 → PPV +0.03 (verification 1891.88 is above extensions "
+            "1891.85; a negative charge widens that gap)."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-57",
+        "slug": "ppv-qc-live-readback-before-finish",
+        "gate": GATE_PRICE,
+        "cases": (
+            "Live gap +$0.01 and −$0.01 post one signed PPV",
+            "Live gap 0.00 may be Success",
+            "Live |gap| >= $75 HOLD price_variance",
+            "Gas 0040443847 / 10284 and 0040446744 / 10283",
+        ),
+        "9_25_bug": (
+            "Penny PPV was a one-off repair. Entry could still report Success "
+            "when Invoice_Verification_Amount did not equal merchandise lines "
+            "plus fees, freight, and PPV. Invoice_Amount had already rolled to "
+            "the line total, so the miss was invisible on that field."
+        ),
+        "expected": (
+            "Before Finish, and again after Finish on the live readback, "
+            "header invoice total == PDF total == selected receipt lines + all "
+            "charges, to the penny. Finish is blocked in code when the "
+            "pre-check fails. |gap| < $75 posts one signed PPV first. "
+            "|gap| >= $75 → HOLD price_variance, do not post PPV. "
+            "After every bill is created or fixed, re-read it live. "
+            "gap = invoice header total − (selected receipt / misc lines + all "
+            "charges). Header total is Invoice_Verification_Amount when set "
+            "(it does not move when PPV posts); otherwise Invoice_Amount. "
+            "Also require Invoice_Amount − (lines + charges) = 0.00. "
+            "|gap| < $75 → one signed PPV for the exact gap, then re-read. "
+            "|gap| >= $75 → HOLD price_variance, do not post PPV. "
+            "No merchandise lines → do not invent a full-invoice PPV. "
+            "Success only when the live readback gap is 0.00. "
+            "Before a run spreadsheet is written or sent, re-read every bill "
+            "and fail Success when the gap is not 0.00. No new columns; Notes "
+            "gets text only when a PPV QC charge was posted. "
+            "No tolerance: a $0.01 gap posts PPV (O'Neal 15464074 / 10318 / "
+            "receipt 23880, PDF 192.85 vs extended 192.86 → PPV −0.01). "
+            "decide_ppv must not treat $0.01 as a match. Exactly $0.02 stays "
+            "a match (NOTE-23). The absolute limit is ppv_limit() (default $75, "
+            "AP_PPV_LIMIT override) and is logged on each run workbook. "
+            "Read-only scan: python -m ap_clerk.ppv_qc --live --batch 720 --ids 10284,10283. "
+            "Never post the bill. Do not move the batch from this gate."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1065,6 +1140,17 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "lines are quantity_variance or already_entered, never "
             "missing_receipt. Why names the exact qty ask. Receiving-owner "
             "@tag only for true missing_receipt (NOTE-55)."
+        ),
+    },
+    {
+        "id": "ppv-qc-live-gap-zero",
+        "check": (
+            "Before Finish, header invoice total == PDF total == selected "
+            "receipt lines + all charges, to the penny. |gap| < $75 posts one "
+            "signed PPV first. |gap| >= $75 is HOLD price_variance. Finish is "
+            "blocked when that pre-check fails. Run the same check again after "
+            "Finish on the live readback. Success only when that gap is 0.00. "
+            "Notes records a PPV QC fix and no other QC column is added (NOTE-57)."
         ),
     },
 )
