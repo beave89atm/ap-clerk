@@ -1,0 +1,231 @@
+{
+  "run": "3p-1007044-receiving-notes-2026-09-25",
+  "host": "https://live.kimcoerp.com",
+  "posted": false,
+  "emails_sent": false,
+  "mentions_added": false,
+  "bills": [
+    {
+      "bill_id": 10306,
+      "invoice": "142179",
+      "receipts": [
+        {
+          "id": 23414,
+          "po": "58925",
+          "quantity_received": 4.0,
+          "quantity_remaining": 3.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "mismatches": [
+        {
+          "id": 23414,
+          "po": "58925",
+          "quantity_received": 4.0,
+          "quantity_remaining": 3.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "noted": true,
+      "left_alone": false,
+      "new_comment_id": 1075,
+      "saved_text": "AP Clerk: Receiving check on part 1007044-1: receipt 23414 shows Quantity_Received 4 but Quantity_Remaining 3 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "existing_comment_ids": [
+        1071,
+        1061
+      ],
+      "problems": [],
+      "put_http": 200,
+      "existing_comments_kept": true,
+      "readback_comment_ids": [
+        1075,
+        1071,
+        1061
+      ]
+    },
+    {
+      "bill_id": 10308,
+      "invoice": "142188",
+      "receipts": [
+        {
+          "id": 23543,
+          "po": "58925",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "mismatches": [
+        {
+          "id": 23543,
+          "po": "58925",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "noted": true,
+      "left_alone": false,
+      "new_comment_id": 1076,
+      "saved_text": "AP Clerk: Receiving check on part 1007044-1: receipt 23543 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "existing_comment_ids": [
+        1072,
+        1062
+      ],
+      "problems": [],
+      "put_http": 200,
+      "existing_comments_kept": true,
+      "readback_comment_ids": [
+        1076,
+        1072,
+        1062
+      ]
+    },
+    {
+      "bill_id": 10312,
+      "invoice": "142216",
+      "receipts": [
+        {
+          "id": 23528,
+          "po": "58925",
+          "quantity_received": 1.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23529,
+          "po": "58952",
+          "quantity_received": 3.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23527,
+          "po": "58972",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23530,
+          "po": "59002",
+          "quantity_received": 4.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "mismatches": [
+        {
+          "id": 23528,
+          "po": "58925",
+          "quantity_received": 1.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23529,
+          "po": "58952",
+          "quantity_received": 3.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23527,
+          "po": "58972",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23530,
+          "po": "59002",
+          "quantity_received": 4.0,
+          "quantity_remaining": 2.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "noted": true,
+      "left_alone": false,
+      "new_comment_id": 1077,
+      "saved_text": "AP Clerk: Receiving check on part 1007044-1: receipt 23528 shows Quantity_Received 1 but Quantity_Remaining 2 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23529 shows Quantity_Received 3 but Quantity_Remaining 0 on PO 58952. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23527 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58972. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23530 shows Quantity_Received 4 but Quantity_Remaining 2 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "existing_comment_ids": [
+        1073,
+        1068
+      ],
+      "problems": [],
+      "put_http": 200,
+      "existing_comments_kept": true,
+      "readback_comment_ids": [
+        1077,
+        1073,
+        1068
+      ]
+    },
+    {
+      "bill_id": 10314,
+      "invoice": "142280",
+      "receipts": [
+        {
+          "id": 23917,
+          "po": "59002",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23920,
+          "po": "59031",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23921,
+          "po": "59031",
+          "quantity_received": 1.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "mismatches": [
+        {
+          "id": 23917,
+          "po": "59002",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23920,
+          "po": "59031",
+          "quantity_received": 2.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        },
+        {
+          "id": 23921,
+          "po": "59031",
+          "quantity_received": 1.0,
+          "quantity_remaining": 0.0,
+          "unit_cost": 361.46
+        }
+      ],
+      "noted": true,
+      "left_alone": false,
+      "new_comment_id": 1078,
+      "saved_text": "AP Clerk: Receiving check on part 1007044-1: receipt 23917 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23920 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23921 shows Quantity_Received 1 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "existing_comment_ids": [
+        1074,
+        1070
+      ],
+      "problems": [],
+      "put_http": 200,
+      "existing_comments_kept": true,
+      "readback_comment_ids": [
+        1078,
+        1074,
+        1070
+      ]
+    }
+  ]
+}
