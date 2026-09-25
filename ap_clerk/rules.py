@@ -669,6 +669,73 @@ def rounding_ppv_to_hit_pdf_total(
     )
 
 
+# Header reconciliation. Under $75, matching NOTE-47. Equal to $75 does not post.
+PENNY_PPV_MAX_ABS = 75.0
+
+
+def penny_ppv_for_header_gap(
+    *,
+    header_total: Any,
+    line_amounts: list[Any] | None = None,
+    charge_amounts: list[Any] | None = None,
+    max_abs: float = PENNY_PPV_MAX_ABS,
+) -> dict[str, Any]:
+    """Signed PPV so lines + existing charges + this PPV equal the header total.
+
+    NOTE-56 (Gas 0040443847 / KIMCO 10284). After KIMCO extends qty × rounded
+    unit price, a one-cent remainder is still a gap. Do not waive $0.01,
+    $0.02, or $0.03 as two-cent rounding — that waiver stays on per-line
+    `decide_ppv` only, when the extended amounts already add up. |gap| >= $75
+    is not a penny PPV.
+    """
+    header = money(header_total)
+    if header is None:
+        return {
+            "action": "skip",
+            "ppv": 0.0,
+            "gap": None,
+            "lines": 0.0,
+            "charges": 0.0,
+            "reason": "Header total missing; do not invent PPV.",
+        }
+    lines = round(sum(money(amount) or 0.0 for amount in (line_amounts or [])), 2)
+    charges = round(sum(money(amount) or 0.0 for amount in (charge_amounts or [])), 2)
+    covered = round(lines + charges, 2)
+    gap = round(header - covered, 2)
+    if gap == 0:
+        return {
+            "action": "match",
+            "ppv": 0.0,
+            "gap": 0.0,
+            "lines": lines,
+            "charges": charges,
+            "reason": "Lines + charges equal the header total.",
+        }
+    if abs(gap) >= max_abs:
+        return {
+            "action": "hold",
+            "ppv": 0.0,
+            "gap": gap,
+            "lines": lines,
+            "charges": charges,
+            "reason": (
+                f"|gap| {abs(gap):.2f} is not under ${max_abs:.0f}. "
+                "Do not post penny PPV."
+            ),
+        }
+    return {
+        "action": "ppv",
+        "ppv": gap,
+        "gap": gap,
+        "lines": lines,
+        "charges": charges,
+        "reason": (
+            f"Additional Charge Purchase Price Variance {gap:.2f} "
+            f"so lines {lines:.2f} + charges {charges:.2f} hit header {header:.2f}."
+        ),
+    }
+
+
 def evaluate_bill_price_variance(
     invoice_lines: list[dict[str, Any]] | None,
     po_lines: list[dict[str, Any]] | None,

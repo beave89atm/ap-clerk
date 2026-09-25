@@ -207,8 +207,9 @@ def test_v12_registry_covers_all_notes():
         "NOTE-53",
         "NOTE-54",
         "NOTE-55",
+        "NOTE-56",
     )
-    assert len(TREYCE_NOTES_V12) == 45
+    assert len(TREYCE_NOTES_V12) == 46
     assert len(TREYCE_FINISH_CHECKLIST) == 19
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
@@ -259,6 +260,7 @@ def test_v12_registry_covers_all_notes():
         "missing-receipt-hold-transfer-ap",
         "invoice-statement-mixed-pdf-classify-before-extract",
         "open-receipts-forbid-missing-receipt",
+        "penny-ppv-when-lines-miss-header",
     }
 
 

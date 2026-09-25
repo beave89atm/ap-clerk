@@ -98,6 +98,7 @@ from ap_clerk.rules import (  # noqa: E402
     names_match,
     normalize_receipt,
     parse_iso_date,
+    penny_ppv_for_header_gap,
     receipt_cost,
     receipt_select_refs,
     rounding_ppv_to_hit_pdf_total,
@@ -777,12 +778,25 @@ def apply_type4_misc_lines(
     if payload_has_receipt(payload):
         raise KimcoError("Refusing payload that includes Receipt")
     put = client.request("PUT", client._record_url("ap_invoices", kimco_id), json=payload)
+    penny: dict[str, Any] = {}
+    if put.status_code < 400:
+        # NOTE-56: KIMCO extends qty × 2-decimal unit price. A printed
+        # 4-decimal price (1.2076 → 1.21) leaves a penny vs verification.
+        from ap_clerk.kimco import post_header_penny_ppv
+
+        try:
+            penny = post_header_penny_ppv(client, int(kimco_id))
+        except KimcoError:
+            penny = {"ppv_status": "blocked", "ppv": 0.0, "action": "skip"}
     return {
         "status": "added" if put.status_code < 400 else "blocker",
         "http": put.status_code,
         "lines": len(merch),
         "category": found.get("misc_item"),
         "why": None if put.status_code < 400 else f"PUT HTTP {put.status_code}",
+        "ppv_status": penny.get("ppv_status"),
+        "ppv_amount": penny.get("ppv") or 0.0,
+        "penny_ppv": penny,
     }
 
 
@@ -1148,12 +1162,27 @@ def finish_hold_header(
     po = str(parsed.get("po") or "").strip()
     proof = gas_proof(client, kimco_id)
     if not po:
+        penny_status = "none"
+        penny_amount = 0.0
+        # Lines already stored: close a penny vs verification. Header-only
+        # (no Lines-K yet) must not become a full-invoice PPV.
+        if proof.get("misc_lines") and getattr(client, "get_item", None) and getattr(client, "try_post_ppv", None):
+            from ap_clerk.kimco import post_header_penny_ppv
+
+            try:
+                penny = post_header_penny_ppv(client, int(kimco_id))
+            except KimcoError:
+                penny = {"ppv_status": "blocked", "ppv": 0.0}
+            penny_status = str(penny.get("ppv_status") or "none")
+            penny_amount = money(penny.get("ppv")) or 0.0
+            if penny_status == "posted":
+                proof = gas_proof(client, kimco_id)
         return {
             "wanted": [],
             "select_status": "no-po-misc",
             "fee_status": "none",
-            "ppv_status": "none",
-            "ppv_amount": 0.0,
+            "ppv_status": penny_status,
+            "ppv_amount": penny_amount,
             "skipped_over_ppv": False,
             "select_zero": False,
             "matched": [],
@@ -1452,6 +1481,27 @@ def quality_gas_row(
             and abs(rolled - pdf_amt) <= 0.02
         ):
             amount_ok = True
+    if type4_misc and misc_lines:
+        line_amts: list[float] = []
+        for ln in misc_lines:
+            ext = money(ln.get("ext"))
+            if ext is None:
+                qty = money(ln.get("qty"))
+                unit = money(ln.get("unit") if ln.get("unit") is not None else ln.get("unit_price"))
+                if qty is not None and unit is not None:
+                    ext = round(qty * unit, 2)
+            if ext is not None:
+                line_amts.append(ext)
+        header_total = ver if ver is not None else pdf_amt
+        if line_amts and header_total is not None:
+            penny = penny_ppv_for_header_gap(
+                header_total=header_total,
+                line_amounts=line_amts,
+                charge_amounts=[*(fee_amts or []), *(ppv_amts or [])],
+            )
+            # NOTE-56: a leftover penny vs verification is not Success.
+            if penny.get("action") == "ppv":
+                amount_ok = False
     price_hold = bool((finish or {}).get("select_zero") or (finish or {}).get("skipped_over_ppv"))
     vendor_ok = vendor_id not in (None, "") and proof.get("vendor_id") == vendor_id
     already_posted = bool(recs) and amount_ok and (not qty_hold if needs_receipts else True)

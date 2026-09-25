@@ -937,6 +937,34 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-56",
+        "slug": "penny-ppv-when-lines-miss-header",
+        "gate": GATE_PRICE,
+        "cases": (
+            "Gas 0040443847 / KIMCO 10284 PDF unit 1.2076 stored as 1.21",
+            "Header verification 29.25 vs line extensions 29.28",
+        ),
+        "9_25_bug": (
+            "2026-09-23 gap enter (gap_four_vendors_0923 → apply_type4_misc_lines) "
+            "stored Gas unit 1.2076 as Unit_Price 1.21. KIMCO extended 12×1.21=14.52 "
+            "instead of the printed 14.49. Verification stayed 29.25 and Invoice_Amount "
+            "rolled to 29.28. Type 4 no-PO finish returned ppv_status none. decide_ppv "
+            "still waives a two-cent per-line compare, so the $0.03 header gap was "
+            "left with no Purchase Price Variance. The 9/24 recheck kept Result Success."
+        ),
+        "expected": (
+            "When line extensions + additional charges do not equal the header "
+            "total (Invoice_Verification_Amount, the PDF total) to the penny, "
+            "post one signed Additional Charge Purchase Price Variance (lookup "
+            "id 13) for the exact remainder, including $0.01, $0.02, and $0.03. "
+            "Do not waive that header gap as two-cent rounding. |gap| >= $75 is "
+            "not a penny PPV. Do not change the batch, receipts, or verification. "
+            "Never post the bill from this reconciliation. Success only after "
+            "lines + charges equal the header. 0040443847 → PPV −0.03."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
