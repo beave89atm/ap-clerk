@@ -1,0 +1,318 @@
+{
+  "run": "emj-2026-09-25",
+  "batch_name": "API Agent - 9/25/26 EMJ",
+  "batch_id": 732,
+  "posted": false,
+  "packing_slip_gate": "suspended",
+  "quantity_field": "Quantity_Received",
+  "mailbox_scan": {
+    "messages_in_window": 516,
+    "folder_count": 156,
+    "by_folder": {
+      "/Sent Items": 12,
+      "Inbox/9 - FORT WORTH ARCHIVE": 87,
+      "/Inbox": 412,
+      "/Junk Email": 5
+    },
+    "emj_messages": 14
+  },
+  "skipped": [
+    {
+      "kind": "statement",
+      "subject": "Statement of Account",
+      "email_received": "2026-09-11",
+      "email_received_utc": "2026-09-11T19:08:36Z",
+      "reason": "Account statement is not an invoice."
+    },
+    {
+      "invoice_number": "C120102432",
+      "amount": -475.06,
+      "original_invoice": "T607621",
+      "kind": "credit_memo",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/22/26",
+      "email_received": "2026-09-22",
+      "email_received_utc": "2026-09-22T14:55:09Z",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RFzAAA=",
+      "reason": "Credit memo ignored. It is not a new invoice."
+    },
+    {
+      "kind": "no_pdf",
+      "subject": "RE: [EXTERNAL]  RE: Kannon Mfg/EMJ skipped invoice",
+      "email_received": "2026-09-23",
+      "email_received_utc": "2026-09-23T18:45:52Z",
+      "reason": "EMJ email has no PDF attachment, so it is not a new invoice."
+    }
+  ],
+  "invoices": [
+    {
+      "invoice_number": "S815368432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 399.74,
+      "kimco_bill_id": 10325,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "23878 qty 228.6 @ 1.5835",
+      "ppv": 37.75,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S815368432 is entered as a parts bill on PO 59122 and is not posted. The PDF total is $399.74. Amount entered is $399.74. The invoice line is 18 PCs of 103698, shipped 253 IN. PO line PO59122-02 was ordered 228.6. Quantity_Received on the selected receipts is 228.6. Receipts selected: 23878 qty 228.6 @ 1.5835. The receipt extension missed the PDF total by $37.75, which is under $75.00, so one signed Purchase Price Variance of $37.75 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-08"
+      ]
+    },
+    {
+      "invoice_number": "T607621432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 475.06,
+      "kimco_bill_id": 10326,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "23912 qty 1200 @ 0.4017",
+      "ppv": -6.98,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T607621432 is entered as a parts bill on PO 58913 and is not posted. The PDF total is $475.06. Amount entered is $475.06. The invoice line is 5 TUBES of ST-1.00X0.125-6061, shipped 1187.65 IN. PO line PO58913-03, PO58913-07 was ordered 1200. Quantity_Received on the selected receipts is 1200. Receipts selected: 23912 qty 1200 @ 0.4017. The receipt extension missed the PDF total by $-6.98, which is under $75.00, so one signed Purchase Price Variance of $-6.98 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-09"
+      ]
+    },
+    {
+      "invoice_number": "S815562432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 418.12,
+      "kimco_bill_id": 10327,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "23966 qty 512 @ 0.82",
+      "ppv": -1.72,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S815562432 is entered as a parts bill on PO 59153 and is not posted. The PDF total is $418.12. Amount entered is $418.12. The invoice line is 2 Tubes of 103879, shipped 509.9 IN. PO line PO59153-01 was ordered 480. Quantity_Received on the selected receipts is 512. Receipts selected: 23966 qty 512 @ 0.82. The receipt extension missed the PDF total by $-1.72, which is under $75.00, so one signed Purchase Price Variance of $-1.72 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-10"
+      ]
+    },
+    {
+      "invoice_number": "T607753432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 4756.01,
+      "kimco_bill_id": 10328,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24048 qty 774 @ 3.905; 24049 qty 438 @ 3.905",
+      "ppv": 23.15,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T607753432 is entered as a parts bill on PO 59108 and is not posted. The PDF total is $4,756.01. Amount entered is $4,756.01. The invoice line is 5 TUBES of RT-6.00 X 5.25 X 0.375, shipped 1216.37 IN. PO line PO59108-01 was ordered 1200. Quantity_Received on the selected receipts is 1212. Receipts selected: 24048 qty 774 @ 3.905; 24049 qty 438 @ 3.905. The receipt extension missed the PDF total by $23.15, which is under $75.00, so one signed Purchase Price Variance of $23.15 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-14"
+      ]
+    },
+    {
+      "invoice_number": "T607834432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 607.04,
+      "kimco_bill_id": 10329,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24047 qty 240 @ 2.5215",
+      "ppv": 1.88,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T607834432 is entered as a parts bill on PO 59122 and is not posted. The PDF total is $607.04. Amount entered is $607.04. The invoice line is 18 PCs of 102120, shipped 240.89 IN. PO line PO59122-01 was ordered 234. Quantity_Received on the selected receipts is 240. Receipts selected: 24047 qty 240 @ 2.5215. The receipt extension missed the PDF total by $1.88, which is under $75.00, so one signed Purchase Price Variance of $1.88 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-14"
+      ]
+    },
+    {
+      "invoice_number": "T607927432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 367.68,
+      "kimco_bill_id": 10330,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24096 qty 6.5 @ 18.855; 24097 qty 6.5 @ 18.855; 24098 qty 6.5 @ 18.855",
+      "ppv": 0.0,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T607927432 is entered as a parts bill on PO 59141 and is not posted. The PDF total is $367.68. Amount entered is $367.68. The invoice line is 6 PCs of 520345, shipped 6 EA. PO line PO59141-01, PO59141-02, PO59141-03 was ordered 19.5. Quantity_Received on the selected receipts is 19.5. Receipts selected: 24096 qty 6.5 @ 18.855; 24097 qty 6.5 @ 18.855; 24098 qty 6.5 @ 18.855. The selected receipt lines equal the PDF total, so the gap is $0.00 and no Purchase Price Variance was posted. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-15"
+      ]
+    },
+    {
+      "invoice_number": "S815764432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 439.25,
+      "kimco_bill_id": 10331,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24174 qty 240 @ 1.73",
+      "ppv": 24.05,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S815764432 is entered as a parts bill on PO 59173 and is not posted. The PDF total is $439.25. Amount entered is $439.25. The invoice line is 1 Tube of 108566, shipped 253.9 IN. PO line PO59173-01 was ordered 240. Quantity_Received on the selected receipts is 240. Receipts selected: 24174 qty 240 @ 1.73. The receipt extension missed the PDF total by $24.05, which is under $75.00, so one signed Purchase Price Variance of $24.05 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-16"
+      ]
+    },
+    {
+      "invoice_number": "S815465432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 1884.6,
+      "kimco_bill_id": 10332,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24193 qty 468 @ 4.0269",
+      "ppv": 0.01,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S815465432 is entered as a parts bill on PO 59143 and is not posted. The PDF total is $1,884.60. Amount entered is $1,884.60. The invoice line is 90 PCs of RB-3.75-1018, shipped 90 EA. PO line PO59143-01 was ordered 468. Quantity_Received on the selected receipts is 468. Receipts selected: 24193 qty 468 @ 4.0269. The receipt extension missed the PDF total by $0.01, which is under $75.00, so one signed Purchase Price Variance of $0.01 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-17"
+      ]
+    },
+    {
+      "invoice_number": "S816035432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 220.16,
+      "kimco_bill_id": 10333,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24231 qty 36 @ 3.0578; 24232 qty 36 @ 3.0578",
+      "ppv": 0.0,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S816035432 is entered as a parts bill on PO 59215 and is not posted. The PDF total is $220.16. Amount entered is $220.16. The invoice line is 2 PCs of 501124, shipped 64 LB. PO line PO59215-01, PO59215-02 was ordered 72. Quantity_Received on the selected receipts is 72. Receipts selected: 24231 qty 36 @ 3.0578; 24232 qty 36 @ 3.0578. The selected receipt lines equal the PDF total, so the gap is $0.00 and no Purchase Price Variance was posted. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-18"
+      ]
+    },
+    {
+      "invoice_number": "B154229432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 907.2,
+      "kimco_bill_id": 10334,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24280 qty 576 @ 0.7875; 24281 qty 576 @ 0.7875",
+      "ppv": 0.0,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice B154229432 is entered as a parts bill on PO 59208 and is not posted. The PDF total is $907.20. Amount entered is $907.20. The invoice line is 8 PCs of RDTA, shipped 96 FT. PO line PO59208-01, PO59208-02 was ordered 1152. Quantity_Received on the selected receipts is 1152. Receipts selected: 24280 qty 576 @ 0.7875; 24281 qty 576 @ 0.7875. The selected receipt lines equal the PDF total, so the gap is $0.00 and no Purchase Price Variance was posted. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-21"
+      ]
+    },
+    {
+      "invoice_number": "S816212432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 261.66,
+      "kimco_bill_id": 10335,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24304 qty 17 @ 2.67; 24305 qty 13 @ 2.67; 24306 qty 5 @ 2.67; 24307 qty 62 @ 2.67",
+      "ppv": 2.67,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S816212432 is entered as a parts bill on PO 59231 and is not posted. The PDF total is $261.66. Amount entered is $261.66. The invoice line is 1 PC of 525417, shipped 49 LB. PO line PO59231-01, PO59231-02, PO59231-03, PO59231-04 was ordered 98. Quantity_Received on the selected receipts is 97. Receipts selected: 24304 qty 17 @ 2.67; 24305 qty 13 @ 2.67; 24306 qty 5 @ 2.67; 24307 qty 62 @ 2.67. The receipt extension missed the PDF total by $2.67, which is under $75.00, so one signed Purchase Price Variance of $2.67 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-21"
+      ]
+    },
+    {
+      "invoice_number": "T608354432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 993.6,
+      "kimco_bill_id": 10336,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24460 qty 960 @ 1.035",
+      "ppv": 0.0,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T608354432 is entered as a parts bill on PO 59198 and is not posted. The PDF total is $993.60. Amount entered is $993.60. The invoice line is 4 TUBES of 109876, shipped 80 FT. PO line PO59198-01 was ordered 960. Quantity_Received on the selected receipts is 960. Receipts selected: 24460 qty 960 @ 1.035. The selected receipt lines equal the PDF total, so the gap is $0.00 and no Purchase Price Variance was posted. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-22"
+      ]
+    },
+    {
+      "invoice_number": "T608428432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 1263.28,
+      "kimco_bill_id": 10337,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24459 qty 271 @ 4.67",
+      "ppv": -2.29,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice T608428432 is entered as a parts bill on PO 59207 and is not posted. The PDF total is $1,263.28. Amount entered is $1,263.28. The invoice line is 1 TUBE of 108048, shipped 270.51 IN. PO line PO59207-01 was ordered 240. Quantity_Received on the selected receipts is 271. Receipts selected: 24459 qty 271 @ 4.67. The receipt extension missed the PDF total by $-2.29, which is under $75.00, so one signed Purchase Price Variance of $-2.29 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-22"
+      ]
+    },
+    {
+      "invoice_number": "S816419432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 276.6,
+      "kimco_bill_id": 10338,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24617 qty 228.75 @ 1.2091",
+      "ppv": 0.02,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S816419432 is entered as a parts bill on PO 59257 and is not posted. The PDF total is $276.60. Amount entered is $276.60. The invoice line is 15 PCs of 501104, shipped 15 EA. PO line PO59257-01 was ordered 228.75. Quantity_Received on the selected receipts is 228.75. Receipts selected: 24617 qty 228.75 @ 1.2091. The receipt extension missed the PDF total by $0.02, which is under $75.00, so one signed Purchase Price Variance of $0.02 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-24"
+      ]
+    },
+    {
+      "invoice_number": "S816504432",
+      "status": "Success",
+      "reason": "totals match to the penny",
+      "type": "parts",
+      "pdf_total": 312.0,
+      "kimco_bill_id": 10339,
+      "batch": "API Agent - 9/25/26 EMJ",
+      "transfer_ap": "no",
+      "receipts_selected": "24618 qty 432 @ 0.7223",
+      "ppv": -0.03,
+      "comments_1_id": null,
+      "email_moved": "yes",
+      "note": "AP Clerk: Earle M. Jorgensen invoice S816504432 is entered as a parts bill on PO 59267 and is not posted. The PDF total is $312.00. Amount entered is $312.00. The invoice line is 3 Bars of 513159, shipped 75 LB. PO line PO59267-01 was ordered 432. Quantity_Received on the selected receipts is 432. Receipts selected: 24618 qty 432 @ 0.7223. The receipt extension missed the PDF total by $-0.03, which is under $75.00, so one signed Purchase Price Variance of $-0.03 was posted. After that charge the gap is $0.00. Nothing is waiting on purchasing.",
+      "email_received": [
+        "2026-09-24"
+      ]
+    }
+  ]
+}
