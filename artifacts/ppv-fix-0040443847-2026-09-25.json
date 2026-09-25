@@ -162,25 +162,53 @@
     },
     "root_cause": "Same 2026-09-23 Type 4 Gas enter as 10284. parse_money stored 4-decimal units as cents, KIMCO extended qty × those units, and finish_hold_header returned ppv_status none. Net of the rounded extensions is 1891.85 against PDF total 1891.88."
   },
-  "other_bills_not_fixed": [
-    {
-      "kimco_id": 10318,
-      "invoice": "15464074",
-      "vendor": "1135-ONEAL STEEL, LLC.",
-      "batch_id": 730,
-      "batch_name": "API Agent - 9/25/26 O'Neal",
-      "posted": null,
+  "oneal_fixed": {
+    "invoice_number": "15464074",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "vendor_id": 137,
+    "kimco_id": 10318,
+    "batch_id": 730,
+    "batch_name": "API Agent - 9/25/26 O'Neal",
+    "batch_changed": false,
+    "posted_before": null,
+    "posted_after": null,
+    "status": 1,
+    "bill_posted": false,
+    "header_amount_put": false,
+    "receipts_changed": false,
+    "purchase_order": "PO59121",
+    "comments": "API Agent",
+    "selected_receipts": [{"receipt_id": 23880, "line_id": 21049, "qty": 240, "unit_price": 0.8036, "extended": 192.86}],
+    "before": {
       "invoice_amount": 192.86,
       "verification_amount": 192.85,
       "line_extensions": 192.86,
       "charges": [],
-      "ppv": [],
-      "gap_invoice_amount_minus_lines_and_charges": 0.0,
+      "charge_sum": 0.0,
       "gap_verification_minus_lines_and_charges": -0.01,
-      "n_lines": 1,
-      "same_class_as_10284": true,
-      "note": "API Agent enter 2026-09-25. One-cent verification gap, no PPV. Not changed."
+      "pdf_total": 192.85
     },
+    "ppv_added": {
+      "charge_id": 5524,
+      "lookup_id": 13,
+      "charge_code": "Purchase Price Variance",
+      "amount": -0.01,
+      "post_status": "charge-written",
+      "bill_posted": false
+    },
+    "readback": {
+      "invoice_amount": 192.85,
+      "verification_amount": 192.85,
+      "line_extensions": 192.86,
+      "charge_sum": -0.01,
+      "lines_plus_charges": 192.85,
+      "lines_plus_charges_equal_header": true,
+      "lines_plus_charges_equal_verification": true,
+      "invoice_amount_note": "KIMCO rolled Invoice_Amount from 192.86 to 192.85 when the charge was added. The header amount field was not PUT. Verification was already the PDF total 192.85."
+    },
+    "why_missed": "decide_ppv treated abs(variance) <= $0.02 as a match, so the $0.01 gap between PDF 192.85 and receipt 23880 extended 192.86 posted no PPV. $0.01 is now a PPV. Exactly $0.02 stays a match for NOTE-23."
+  },
+  "other_bills_not_fixed": [
     {
       "kimco_id": 10263,
       "invoice": "11020",
@@ -221,6 +249,6 @@
   "scan": {
     "window": "API Agent comments or API Agent attachment, enter/attach stamp on or after 2026-09-15, KIMCO ids 10000-10319",
     "excluded": "VOID too-old AQPC headers 10040/10041/10042 (NOTE-28). Invoice_Amount already equals lines+charges on those voids; leftover verification was not treated as an open penny gap.",
-    "fixed_in_this_run": [10284, 10283]
+    "fixed_in_this_run": [10284, 10283, 10318]
   }
 }

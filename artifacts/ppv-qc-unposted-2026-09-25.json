@@ -1,7 +1,7 @@
 {
   "read_only": true,
   "scanned": 13,
-  "nonzero_gap_count": 2,
+  "nonzero_gap_count": 1,
   "gaps": [
     {
       "kimco_id": 10317,
@@ -21,25 +21,6 @@
       "success_allowed": false,
       "header_field": "Invoice_Verification_Amount",
       "reason": "|gap| 199.74 is not under $75. HOLD price_variance. Do not post PPV."
-    },
-    {
-      "kimco_id": 10318,
-      "invoice": "15464074",
-      "vendor": "1135-ONEAL STEEL, LLC.",
-      "batch_id": 730,
-      "batch_name": "API Agent - 9/25/26 O'Neal",
-      "posted": null,
-      "void": false,
-      "invoice_amount": 192.86,
-      "verification_amount": 192.85,
-      "lines": 192.86,
-      "charges": 0,
-      "gap": -0.01,
-      "rollup_gap": 0.0,
-      "action": "ppv",
-      "success_allowed": false,
-      "header_field": "Invoice_Verification_Amount",
-      "reason": "Additional Charge Purchase Price Variance -0.01 so lines 192.86 + charges 0.00 hit header 192.85."
     }
   ],
   "parts": [
@@ -53,7 +34,7 @@
         730
       ],
       "scanned": 13,
-      "nonzero_gap_count": 2,
+      "nonzero_gap_count": 1,
       "gaps": [
         {
           "kimco_id": 10317,
@@ -73,25 +54,6 @@
           "success_allowed": false,
           "header_field": "Invoice_Verification_Amount",
           "reason": "|gap| 199.74 is not under $75. HOLD price_variance. Do not post PPV."
-        },
-        {
-          "kimco_id": 10318,
-          "invoice": "15464074",
-          "vendor": "1135-ONEAL STEEL, LLC.",
-          "batch_id": 730,
-          "batch_name": "API Agent - 9/25/26 O'Neal",
-          "posted": null,
-          "void": false,
-          "invoice_amount": 192.86,
-          "verification_amount": 192.85,
-          "lines": 192.86,
-          "charges": 0,
-          "gap": -0.01,
-          "rollup_gap": 0.0,
-          "action": "ppv",
-          "success_allowed": false,
-          "header_field": "Invoice_Verification_Amount",
-          "reason": "Additional Charge Purchase Price Variance -0.01 so lines 192.86 + charges 0.00 hit header 192.85."
         }
       ],
       "bills": [
@@ -312,16 +274,16 @@
           "batch_name": "API Agent - 9/25/26 O'Neal",
           "posted": null,
           "void": false,
-          "invoice_amount": 192.86,
+          "invoice_amount": 192.85,
           "verification_amount": 192.85,
           "lines": 192.86,
-          "charges": 0,
-          "gap": -0.01,
+          "charges": -0.01,
+          "gap": 0.0,
           "rollup_gap": 0.0,
-          "action": "ppv",
-          "success_allowed": false,
+          "action": "match",
+          "success_allowed": true,
           "header_field": "Invoice_Verification_Amount",
-          "reason": "Additional Charge Purchase Price Variance -0.01 so lines 192.86 + charges 0.00 hit header 192.85."
+          "reason": "Lines + charges equal the header total."
         },
         {
           "kimco_id": 10319,

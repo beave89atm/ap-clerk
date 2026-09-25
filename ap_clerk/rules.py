@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import date, datetime, timedelta
 from typing import Any
@@ -584,8 +585,9 @@ def decide_ppv(
         invoice_amt = money(invoice_line_amount) or 0.0
         po_amt = money(po_line_amount) or 0.0
     variance = round(invoice_amt - po_amt, 2)
-    # Two-cent rounding is a match, not an invented PPV (3P 142041 amounts add cleanly).
-    if variance == 0 or abs(variance) <= 0.02:
+    # Exact zero is a match. Exactly $0.02 stays a match (NOTE-23 / 3P 142041).
+    # $0.01 is a PPV (O'Neal 15464074: PDF 192.85 vs receipt 23880 extended 192.86).
+    if variance == 0 or abs(variance) == 0.02:
         return {
             "action": "match",
             "ppv": 0.0,
@@ -670,7 +672,17 @@ def rounding_ppv_to_hit_pdf_total(
 
 
 # Header reconciliation. Under $75, matching NOTE-47. Equal to $75 does not post.
+# Single PPV absolute limit. AP_PPV_LIMIT overrides it for a run.
 PENNY_PPV_MAX_ABS = 75.0
+PPV_LIMIT_ENV = "AP_PPV_LIMIT"
+
+
+def ppv_limit() -> float:
+    """The one PPV absolute limit, in dollars. Default 75. Set AP_PPV_LIMIT to override."""
+    raw = os.environ.get(PPV_LIMIT_ENV)
+    if raw in (None, ""):
+        return PENNY_PPV_MAX_ABS
+    return round(float(raw), 2)
 
 
 def penny_ppv_for_header_gap(
@@ -678,18 +690,19 @@ def penny_ppv_for_header_gap(
     header_total: Any,
     line_amounts: list[Any] | None = None,
     charge_amounts: list[Any] | None = None,
-    max_abs: float = PENNY_PPV_MAX_ABS,
+    max_abs: float | None = None,
 ) -> dict[str, Any]:
     """Signed PPV so lines + existing charges + this PPV equal the header total.
 
     NOTE-56 (Gas 0040443847 / KIMCO 10284 and Gas 0040446744 / KIMCO 10283).
     After KIMCO extends qty × rounded unit price, a one-cent remainder is
     still a gap. The sign is header minus lines minus charges: 29.25 − 29.28
-    is −0.03, and 1891.88 − 1891.85 is +0.03. Do not waive $0.01, $0.02, or
-    $0.03 as two-cent rounding — that waiver stays on per-line `decide_ppv`
-    only, when the extended amounts already add up. |gap| >= $75 is not a
-    penny PPV.
+    is −0.03, and 1891.88 − 1891.85 is +0.03. There is no tolerance: $0.01
+    posts a PPV. |gap| >= ppv_limit() ($75 unless AP_PPV_LIMIT is set) is
+    not a penny PPV.
     """
+    if max_abs is None:
+        max_abs = ppv_limit()
     header = money(header_total)
     if header is None:
         return {
@@ -744,7 +757,7 @@ def ppv_qc_gap(
     verification_amount: Any = None,
     line_amounts: list[Any] | None = None,
     charge_amounts: list[Any] | None = None,
-    max_abs: float = PENNY_PPV_MAX_ABS,
+    max_abs: float | None = None,
 ) -> dict[str, Any]:
     """Mandatory PPV QC. Success only when the live gap is 0.00.
 
@@ -764,6 +777,8 @@ def ppv_qc_gap(
     |gap| >= $75 is HOLD price_variance and does not post PPV. No merchandise
     lines does not invent a full-invoice PPV.
     """
+    if max_abs is None:
+        max_abs = ppv_limit()
     lines = [money(amount) for amount in (line_amounts or [])]
     line_values = [amount for amount in lines if amount is not None]
     charge_values = [amount for amount in (money(amount) for amount in (charge_amounts or [])) if amount is not None]

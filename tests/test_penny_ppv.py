@@ -83,10 +83,13 @@ def test_penny_header_gap_is_not_waived_at_one_or_two_cents():
     two = penny_ppv_for_header_gap(header_total=10.02, line_amounts=[10.00])
     assert two["action"] == "ppv"
     assert two["ppv"] == 0.02
-    # Per-line PO compare still treats two cents as a match (NOTE-38).
+    # Exactly two cents stays a per-line match (NOTE-23). One cent does not.
     per_line = decide_ppv(invoice_line_amount=10.02, po_line_amount=10.00, invoice_total=10.02)
     assert per_line["action"] == "match"
     assert per_line["ppv"] == 0.0
+    oneal = decide_ppv(invoice_line_amount=192.85, po_line_amount=192.86, invoice_total=192.85)
+    assert oneal["action"] == "ppv"
+    assert oneal["ppv"] == -0.01
 
 
 def test_penny_ppv_matches_when_closed_and_holds_at_75():

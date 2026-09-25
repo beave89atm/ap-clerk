@@ -4554,7 +4554,10 @@ def test_never_repeat_jpsteel_125316_rounding_ppv():
     assert "125051" in n["9_17_bug"] or "10111" in n["9_17_bug"]
     assert "0.06" in n["expected"]
 
-    two_cent = rounding_ppv_to_hit_pdf_total(832.03, 832.02, receipts_selected=True)
+    one_cent = rounding_ppv_to_hit_pdf_total(832.03, 832.02, receipts_selected=True)
+    assert one_cent["action"] == "ppv"
+    assert one_cent["ppv"] == 0.01
+    two_cent = rounding_ppv_to_hit_pdf_total(832.04, 832.02, receipts_selected=True)
     assert two_cent["action"] == "match"
     assert two_cent["ppv"] == 0.0
 

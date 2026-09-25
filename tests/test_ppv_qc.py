@@ -223,6 +223,12 @@ def test_notes_column_is_unchanged_unless_ppv_qc_posted(tmp_path: Path):
     assert headers == COLUMNS
     assert headers[-1] == "Notes"
     assert not book.active.cell(2, len(COLUMNS)).value
+    assert "75.00" in str(book.active.oddHeader.left.text or "")
+    counts = book["Exception counts"]
+    labels = [counts.cell(row, 1).value for row in range(1, counts.max_row + 1)]
+    assert "PPV limit" in labels
+    limit_row = labels.index("PPV limit") + 1
+    assert counts.cell(limit_row, 2).value == 75
 
     write_report(
         path,

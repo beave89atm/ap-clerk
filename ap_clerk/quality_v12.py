@@ -997,6 +997,11 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
             "Before a run spreadsheet is written or sent, re-read every bill "
             "and fail Success when the gap is not 0.00. No new columns; Notes "
             "gets text only when a PPV QC charge was posted. "
+            "No tolerance: a $0.01 gap posts PPV (O'Neal 15464074 / 10318 / "
+            "receipt 23880, PDF 192.85 vs extended 192.86 → PPV −0.01). "
+            "decide_ppv must not treat $0.01 as a match. Exactly $0.02 stays "
+            "a match (NOTE-23). The absolute limit is ppv_limit() (default $75, "
+            "AP_PPV_LIMIT override) and is logged on each run workbook. "
             "Read-only scan: python -m ap_clerk.ppv_qc --live --batch 720 --ids 10284,10283. "
             "Never post the bill. Do not move the batch from this gate."
         ),
