@@ -289,6 +289,20 @@ def test_receipt_line_values_from_records_copies_po_part_qty() -> None:
     assert values["Part_ID"] == {"id": 20560}
     assert values["Quantity"] == 24.0
     assert values["Unit_Price"] == 54.0
+    work_order = receipt_line_values_from_records(
+        {"id": 10320, "values": {"Vendor": {"id": 66}}},
+        {
+            "id": 23758,
+            "values": {
+                "Quantity_Received": 240.0,
+                "PO_Item_Number_$_Unit_Price": 0.99,
+                "Work_Order_Issue": {"id": 16474, "text": "SO34926.06.W000"},
+            },
+        },
+    )
+    assert work_order["Work_Order"] == {"id": 16474}
+    kept = select_receipts_payload([work_order], invoice_id=10320)
+    assert kept["lists"]["APInvoiceLine"][0]["values"]["Work_Order"] == {"id": 16474}
     covered = receipt_line_values_from_records(
         {"id": 9931, "values": {"Vendor": {"id": 434}}},
         {

@@ -1180,10 +1180,299 @@ def _finish_mail(graph: Any, results: list[dict[str, Any]]) -> None:
             row["email_categories"] = after.get("categories")
 
 
+def _receipt_ids_on_bill(record: dict[str, Any]) -> set[int]:
+    found: set[int] = set()
+    for line in (record.get("lists") or {}).get("APInvoiceLine") or []:
+        rid = lookup_id((line.get("values") or {}).get("Receipt"))
+        if rid:
+            found.add(int(rid))
+    return found
+
+
+def _fee_amounts(record: dict[str, Any]) -> list[float]:
+    from ap_clerk.kimco import fee_amounts_from_record
+
+    return [float(amount) for amount in fee_amounts_from_record(record)]
+
+
+def _replace_comment(client: Any, kimco_id: int, comment_id: int | None, text: str) -> dict[str, Any]:
+    """Replace a stale hold note when we have its id. Otherwise add the note."""
+    if comment_id:
+        payload = {
+            "state": "Modified",
+            "id": int(kimco_id),
+            "lists": {
+                "Comments_1": [
+                    {
+                        "id": int(comment_id),
+                        "state": "Modified",
+                        "values": {"HtmlValue": text},
+                    }
+                ]
+            },
+        }
+        try:
+            _body, status, error = client.update("ap_invoices", kimco_id, payload)
+        except KimcoError as exc:
+            status, error = 0, str(exc)[:200]
+        live = snapshot_amounts(client, kimco_id)
+        for comment in live["comments"]:
+            html = str(comment.get("html") or "").replace("&amp;", "&")
+            if text[:80] in html or text[:80] in str(comment.get("html") or ""):
+                return {"status": "persisted", "id": comment.get("id"), "put": status, "error": error}
+    return write_comment(client, kimco_id, text, mention=False)
+
+
+def _attach_invoice_pdf(client: Any, kimco_id: int, invoice_number: str, pdf_bytes: bytes) -> str:
+    """Attach the invoice page. If that complete call fails, attach the source PDF."""
+    page = page_pdf(pdf_bytes, invoice_number)
+    status = client.try_official_attach(
+        kimco_id,
+        name=f"{invoice_number}.pdf",
+        content_type="application/pdf",
+        size=len(page),
+        content=page,
+    )
+    if status == "attached":
+        return status
+    print(f"ATTACH page {invoice_number} {status}; retrying source PDF", flush=True)
+    return client.try_official_attach(
+        kimco_id,
+        name=f"{invoice_number}.pdf",
+        content_type="application/pdf",
+        size=len(pdf_bytes),
+        content=pdf_bytes,
+    )
+
+
+def finish_open() -> dict[str, Any]:
+    """Finish bills this run already created. Does not create a second header."""
+    from ap_clerk.auth import load_credentials, resolve_target
+    from ap_clerk.cli import _optional_graph_client
+    from ap_clerk.kimco import KimcoClient, post_header_penny_ppv
+    from ap_clerk.pdf_invoice import extract_pdf_text
+
+    if not OUT_JSON.exists():
+        raise SystemExit(f"Missing {OUT_JSON}")
+    payload = json.loads(OUT_JSON.read_text())
+    graph = _optional_graph_client()
+    if graph is None:
+        raise SystemExit("Graph credentials missing")
+    creds = load_credentials(target=resolve_target(live_flag=True))
+    if not creds.ready:
+        raise SystemExit(creds.error)
+    client = KimcoClient.authenticate(
+        creds.instance_url, creds.key or "", creds.password or "", target="live"
+    )
+    downloads: dict[str, bytes] = {}
+    parsed: dict[str, dict[str, Any]] = {}
+    for label, mid in SOURCE_MESSAGES.items():
+        path = Path("/tmp/fastenal-enter") / f"{label}.pdf"
+        content = b""
+        try:
+            pdfs = graph.download_pdf_attachments(ALLOWED_MAILBOX, mid)
+        except Exception as exc:
+            print(f"PDF {label} download failed ({exc}); using cached file", flush=True)
+            pdfs = []
+        if len(pdfs) == 1:
+            _name, content = pdfs[0]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+        elif path.exists():
+            content = path.read_bytes()
+            print(f"PDF {label} using cached {path}", flush=True)
+        else:
+            raise SystemExit(f"{label} PDF unavailable after the mailbox move")
+        downloads[label] = content
+        for bill in parse_fastenal_text(extract_pdf_text(path)):
+            if bill["invoice_number"] in TARGET_NUMBERS:
+                bill["source"] = label
+                bill["message_id"] = mid
+                parsed[bill["invoice_number"]] = bill
+    po_lines = load_po_lines(client)
+    receipts = load_receipts(client)
+    for row in payload["invoices"]:
+        if row.get("status") == "Success" or row.get("transfer_ap") == "yes":
+            continue
+        number = row["invoice_number"]
+        kimco_id = row.get("kimco_bill_id")
+        if not kimco_id:
+            continue
+        invoice = parsed[number]
+        row["source"] = invoice["source"]
+        row["message_id"] = invoice["message_id"]
+        print(f"FINISH {number} id={kimco_id}", flush=True)
+        record = client.get_item("ap_invoices", int(kimco_id))
+        if (record.get("values") or {}).get("Posted") not in (None, "", False):
+            row["status"] = "HOLD"
+            row["reason"] = "bill is posted; left untouched"
+            continue
+        if lookup_text((record.get("values") or {}).get("Invoice_Number")).upper() != number and str(
+            (record.get("values") or {}).get("Invoice_Number") or ""
+        ).upper() != number:
+            raise SystemExit(f"{kimco_id} is not {number}")
+        on_bill = _receipt_ids_on_bill(record)
+        po_receipts = []
+        for rec in receipts:
+            if str(rec.get("po")) != invoice["po"]:
+                continue
+            confirmed = receipt_from_record(client.get_item("receipts", int(rec["id"])))
+            if not confirmed:
+                continue
+            # Receipts already on this bill are Invoiced. Keep them in the plan.
+            if int(confirmed["id"]) in on_bill:
+                confirmed["invoiced"] = None
+                confirmed["ap"] = ""
+            po_receipts.append(confirmed)
+        plan = choose_receipts(invoice, po_lines, po_receipts)
+        if plan["action"] != "select":
+            row["reason"] = plan["action"]
+            print(f"FINISH {number} still {plan['action']}", flush=True)
+            continue
+        have = on_bill
+        missing = [int(rec["id"]) for rec in plan["receipts"] if int(rec["id"]) not in have]
+        select_status = "selected" if not missing else "pending"
+        if missing:
+            select_status = client.try_select_receipts(int(kimco_id), missing)
+            record = client.get_item("ap_invoices", int(kimco_id))
+            still = [rid for rid in missing if rid not in _receipt_ids_on_bill(record)]
+            if still:
+                select_status = "selected"
+                for rid in still:
+                    one = client.try_select_receipts(int(kimco_id), [rid])
+                    if one != "selected":
+                        select_status = one
+                        print(f"SELECT {number} receipt {rid} {one}", flush=True)
+        record = client.get_item("ap_invoices", int(kimco_id))
+        if not client.list_attachments(int(kimco_id)):
+            attach = _attach_invoice_pdf(client, int(kimco_id), number, downloads[invoice["source"]])
+        else:
+            attach = "attached"
+        fees = _fee_amounts(record)
+        if any(abs(amount - float(invoice["shipping"])) < 0.001 for amount in fees):
+            fee_status = "posted"
+        else:
+            fee_status = client.try_post_fees(
+                int(kimco_id),
+                [{"name": "Shipping & Handling", "amount": invoice["shipping"]}],
+            )
+        ppv_post = post_header_penny_ppv(client, int(kimco_id))
+        live = snapshot_amounts(client, int(kimco_id))
+        qc = live["qc"]
+        gap = qc.get("gap")
+        ppv_amount = ppv_post.get("ppv") if ppv_post.get("ppv_status") == "posted" else 0.0
+        planned = {int(rec["id"]) for rec in plan["receipts"]}
+        live_ids = {int(rec["id"]) for rec in live["receipt_rows"] if rec.get("id")}
+        success = (
+            select_status == "selected"
+            and fee_status == "posted"
+            and attach == "attached"
+            and planned == live_ids
+            and qc.get("success_allowed") is True
+            and gap in (0, 0.0)
+            and qc.get("rollup_gap") in (None, 0, 0.0)
+            and live["posted"] in (None, "", False)
+            and live["verification"] == invoice["total"]
+        )
+        if not success:
+            row["status"] = "HOLD"
+            row["reason"] = (
+                f"finish select={select_status} fee={fee_status} attach={attach} "
+                f"gap={gap} receipts={len(live_ids)}/{len(planned)}"
+            )
+            row["receipts_selected"] = receipt_label(live["receipt_rows"])
+            row["ppv"] = ppv_amount
+            row["gap"] = gap
+            print(f"FINISH-HOLD {number} {row['reason']}", flush=True)
+            continue
+        note = build_note(
+            invoice,
+            status="Success",
+            action="select",
+            receipt_rows=live["receipt_rows"],
+            amount_entered=live["amount"],
+            ppv=ppv_amount,
+            gap=0.0,
+        )
+        comment = _replace_comment(client, int(kimco_id), row.get("comments_1_id"), note)
+        row.update(
+            {
+                "status": "Success" if comment.get("id") else "HOLD",
+                "reason": "totals match to the penny"
+                if comment.get("id")
+                else "entered but Comments_1 did not persist",
+                "receipts_selected": receipt_label(live["receipt_rows"]),
+                "ppv": ppv_amount or 0.0,
+                "comments_1_id": comment.get("id"),
+                "note": note,
+                "batch": BATCH_NAME,
+                "transfer_ap": "no",
+                "email_moved": row.get("email_moved") or "yes",
+            }
+        )
+        print(f"FINISH-SUCCESS {number} ppv={ppv_amount} gap={gap} comment={comment.get('id')}", flush=True)
+    _refresh_success_categories(graph, payload["invoices"])
+    payload["invoices"] = [
+        {
+            "invoice_number": row["invoice_number"],
+            "status": row["status"],
+            "reason": row["reason"],
+            "type": row["type"],
+            "pdf_total": row["pdf_total"],
+            "kimco_bill_id": row["kimco_bill_id"],
+            "batch": row["batch"],
+            "transfer_ap": row["transfer_ap"],
+            "receipts_selected": row["receipts_selected"],
+            "ppv": row["ppv"],
+            "comments_1_id": row["comments_1_id"],
+            "email_moved": row["email_moved"],
+            "note": row["note"],
+        }
+        for row in payload["invoices"]
+    ]
+    OUT_JSON.write_text(json.dumps(payload, indent=2) + "\n")
+    print(f"WROTE {OUT_JSON}", flush=True)
+    return payload
+
+
+def _refresh_success_categories(graph: Any, rows: list[dict[str, Any]]) -> None:
+    """If every invoice from an email is Success, the category is Entered in AI."""
+    by_source: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        by_source.setdefault(row.get("source") or "", []).append(row)
+    for source, group in by_source.items():
+        if not source or not all(row.get("status") == "Success" for row in group):
+            continue
+        message_id = group[0].get("message_id") or SOURCE_MESSAGES.get(source)
+        if not message_id:
+            continue
+        try:
+            graph.get_message(ALLOWED_MAILBOX, message_id, select="id,parentFolderId,categories")
+            target = message_id
+        except Exception:
+            found = graph.search_messages(ALLOWED_MAILBOX, group[0]["invoice_number"], top=10)
+            target = ""
+            for message in found:
+                target = str(message.get("id") or "")
+                if target:
+                    break
+        if not target:
+            print(f"CATEGORY {source} message not found", flush=True)
+            continue
+        flag = graph.flag_matched(ALLOWED_MAILBOX, target)
+        after = graph.get_message(ALLOWED_MAILBOX, target, select="id,parentFolderId,categories")
+        print(f"CATEGORY {source} {flag} {after.get('categories')}", flush=True)
+        for row in group:
+            row["email_categories"] = after.get("categories")
+
+
 def main(argv: list[str] | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     if "--dry" in args:
         enter_live(write=False)
+        return 0
+    if "--finish" in args:
+        finish_open()
         return 0
     if "--live" not in args:
         print("Refusing to write. Re-run with --live.", flush=True)

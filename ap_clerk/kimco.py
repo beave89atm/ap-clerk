@@ -1031,6 +1031,11 @@ def receipt_line_values_from_records(
         price = rv.get("Unit_Cost")
     if price not in (None, ""):
         values["Unit_Price"] = price
+    # Work-order receipts are rejected ("items in this list are not valid")
+    # unless the AP line carries the same work order the receipt was issued to.
+    work_order = rv.get("Work_Order_Issue") or rv.get("Work_Order")
+    if isinstance(work_order, dict) and work_order.get("id") not in (None, ""):
+        values["Work_Order"] = {"id": work_order["id"]}
     return values
 
 
@@ -1078,6 +1083,7 @@ def _line_values(raw: Any) -> dict[str, Any]:
         "Unit_Price",
         "Invoice_Number",
         "Vendor",
+        "Work_Order",
     )
     out: dict[str, Any] = {}
     for key in keep:
