@@ -12,12 +12,11 @@ Monica mention-ids were not found on a live Comments_1 scan — do not invent.
 from __future__ import annotations
 
 import json
-import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from ap_clerk.rules import names_match, normalize_name
+from ap_clerk.rules import names_match, normalize_name, plain_hold_note
 
 DATA_PATH = Path(__file__).resolve().parent / "data" / "receiving_owners.json"
 COMMENTS_1_LIST = "Comments_1"
@@ -165,34 +164,41 @@ def mention_span(person: dict[str, Any]) -> str:
 
 
 def missing_receipt_comment_text(vendor: str | None, path: str | None = None) -> str:
-    """Plain Comments_1 / Why text. Empty when the sheet says no dock receive."""
+    """Plain Comments_1 text. Empty when the sheet says no dock receive."""
     entry = lookup_receiving_owner(vendor, path)
     if entry is None:
         return ""
     if not entry.get("needs_dock_receive"):
         return ""
     tags = " ".join(p["tag"] for p in owner_people(entry))
-    bits = [tags, "missing receipt — dock receive."]
     raw = str(entry.get("receiving_owner_raw") or "")
+    extra = ""
     if " for " in raw.lower() or "/" in raw:
-        bits.append(f"Sheet owner: {raw}.")
+        extra = f"Sheet owner: {raw}"
+    uncertain = ""
     if entry.get("uncertain"):
-        bits.append("Owner marked Anthony? until Kyle confirms.")
-    return " ".join(b for b in bits if b).strip()
+        uncertain = "Owner marked Anthony? until Kyle confirms."
+    return plain_hold_note(
+        "missing_receipt",
+        mention=tags,
+        vendor=vendor,
+        extra=extra,
+        uncertain=uncertain,
+    )
 
 
 def missing_receipt_comments_1_html(vendor: str | None, path: str | None = None) -> str:
-    """HtmlValue for lists.Comments_1. Empty when we must not @tag."""
+    """HtmlValue for lists.Comments_1. Empty when we must not @tag.
+
+    The sheet note stays plain. Mention spans are added only in this HTML.
+    """
     text = missing_receipt_comment_text(vendor, path)
     if not text:
         return ""
     entry = lookup_receiving_owner(vendor, path)
-    html_tags = " ".join(mention_span(p) for p in owner_people(entry))
-    rest = text
+    body = text
     for person in owner_people(entry):
-        rest = rest.replace(person["tag"], "", 1)
-    rest = re.sub(r"\s+", " ", rest).strip()
-    body = f"{html_tags} {rest}".strip()
+        body = body.replace(person["tag"], mention_span(person), 1)
     return f"<p>{body}</p>"
 
 

@@ -88,7 +88,9 @@ from ap_clerk.gates import (
 )
 from ap_clerk.transfer_ap import (
     apply_missing_receipt_transfer_ap,
+    apply_qty_uom_transfer_ap,
     should_transfer_ap_missing_receipt,
+    should_transfer_ap_qty_uom,
 )
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
@@ -103,6 +105,7 @@ from ap_clerk.rules import (
     chicago_today,
     comments_for,
     due_date_from_terms,
+    assess_bill_qty_uom,
     evaluate_bill_price_variance,
     filter_matches_outside_ppv_gate,
     extract_po_number,
@@ -1433,6 +1436,17 @@ def _process_invoice(
         {"id": created_id, "values": {"Invoice_Number": number, "Vendor": {"text": vendor}}},
     )
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
+    qty_uom_decision = assess_bill_qty_uom(
+        invoice_lines=invoice_lines,
+        po_lines=po_lines,
+        receipts=list(receipts or []),
+        invoice_total=amount,
+        invoice_qty=invoice_qty,
+        po=po,
+        invoice_number=number,
+    )
+    if should_transfer_ap_qty_uom(qty_uom_decision):
+        issue_hold = (GATE_QTY, str(qty_uom_decision.get("note") or ""))
     receipts_selected = False
     select_status = ""
     receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
@@ -1522,8 +1536,25 @@ def _process_invoice(
             "Outlook Entered with issues (not Entered in AI)."
         ).strip()
         LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=HOLD-with-header", number, created_id, vendor, po, invoice_type)
+        # NOTE-58: qty/UOM disconnect over the PPV limit → Transfer AP + @Shawn.
+        # Same batch PUT as missing_receipt. Does not post.
+        if should_transfer_ap_qty_uom(qty_uom_decision):
+            routed = apply_qty_uom_transfer_ap(
+                client,
+                kimco_id=created_id,
+                note=str(qty_uom_decision.get("note") or ""),
+            )
+            moved = routed.get("move") or {}
+            if moved.get("status") in {"moved", "already-on-transfer-ap"} and moved.get("batch_id") not in (None, ""):
+                row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({moved['batch_id']})"
+            row["Notes"] = str(qty_uom_decision.get("note") or "")
+            row["_hold_sheet_note"] = True
+            row["Why"] = (
+                f"{row['Why']} NOTE-58 quantity/UOM disconnect → Transfer AP "
+                f"({moved.get('status')})."
+            ).strip()
         # NOTE-53: missing_receipt HOLD → Transfer AP (supersedes stay-on-agent-batch).
-        if should_transfer_ap_missing_receipt(
+        elif should_transfer_ap_missing_receipt(
             result=RESULT_HOLD,
             why=str(row.get("Why") or ""),
             issue_gate=issue_hold[0],

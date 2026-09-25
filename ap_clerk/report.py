@@ -60,8 +60,12 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
         "Noise": PatternFill("solid", fgColor="D9D9D9"),
     }
     for row_idx, row in enumerate(stamped, start=2):
-        # Notes stays blank unless this run posted a PPV QC charge.
-        note = row.get("Notes") if row.get("_ppv_qc_fixed") else ""
+        # Notes stays blank unless this run posted a PPV QC charge or a
+        # plain-English HOLD note (NOTE-58 / NOTE-59).
+        if row.get("_ppv_qc_fixed") or row.get("_hold_sheet_note"):
+            note = row.get("Notes") or ""
+        else:
+            note = ""
         values = [note if col == "Notes" else row.get(col, "") for col in COLUMNS]
         for col, value in enumerate(values, start=1):
             cell = sheet.cell(row_idx, col, value)

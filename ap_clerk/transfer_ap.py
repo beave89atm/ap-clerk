@@ -2,8 +2,11 @@
 
 Supersedes the 2026-09-21 rule that left missing_receipt on the current
 API Agent batch. Over-PPV / price_variance still Transfer AP + @Shawn
-(unchanged). invent=false. Never invent batch id 375 — lookup by name.
-Does not rewrite Comments / Comments_1. Does not change Outlook categories.
+(unchanged). NOTE-58 uses this same move for a quantity/UOM disconnect
+whose dollar gap is over the PPV limit. invent=false. Never invent batch
+id 375 — lookup by name. The missing_receipt helper does not rewrite
+Comments / Comments_1. The quantity/UOM helper adds one @Shawn Comments_1
+note. Neither posts the bill. Outlook categories are unchanged.
 """
 
 from __future__ import annotations
@@ -14,7 +17,12 @@ from typing import Any
 from ap_clerk.gates import GATE_PRICE, GATE_RECEIPT, RESULT_HOLD
 from ap_clerk.kimco import KimcoError
 from ap_clerk.quality_v12 import classify_exception
-from ap_clerk.rules import TRANSFER_AP_BATCH_NAME, lookup_id
+from ap_clerk.rules import (
+    SHAWN_USER_ID,
+    TRANSFER_AP_BATCH_NAME,
+    comments_1_html,
+    lookup_id,
+)
 
 LOGGER = logging.getLogger("ap_clerk.transfer_ap")
 
@@ -174,6 +182,76 @@ def apply_transfer_ap_batch_move(
         "kimco_id": int(kimco_id),
         "comment_written": bool(comment),
     }
+
+
+def should_transfer_ap_qty_uom(decision: dict[str, Any] | None) -> bool:
+    """NOTE-58: qty/UOM disconnect over the PPV limit → Transfer AP."""
+    if not isinstance(decision, dict):
+        return False
+    return bool(decision.get("hold") and decision.get("transfer_ap"))
+
+
+def post_shawn_comments_1(client: Any, kimco_id: int, note: str) -> dict[str, Any]:
+    """Add one Comments_1 note with the existing @Shawn mention span (user id 104)."""
+    html = comments_1_html(note, mention_id=SHAWN_USER_ID)
+    payload = {
+        "state": "Modified",
+        "id": int(kimco_id),
+        "lists": {
+            "Comments_1": [
+                {
+                    "state": "Added",
+                    "values": {
+                        "HtmlValue": html,
+                        "Entity": {"id": 203},
+                        "ObjectId": int(kimco_id),
+                        "FormId": 218,
+                    },
+                }
+            ]
+        },
+    }
+    updater = getattr(client, "update", None)
+    if updater is None:
+        return {"status": "skipped", "invent": False, "kimco_id": int(kimco_id)}
+    try:
+        _body, status, error = updater("ap_invoices", int(kimco_id), payload)
+    except (KimcoError, AttributeError, TypeError) as exc:
+        return {
+            "status": "blocked",
+            "error": str(exc)[:240],
+            "invent": False,
+            "kimco_id": int(kimco_id),
+        }
+    return {
+        "status": "persisted" if status is not None and int(status) < 400 else f"put-{status}",
+        "put": status,
+        "error": error,
+        "invent": False,
+        "kimco_id": int(kimco_id),
+        "mention_id": SHAWN_USER_ID,
+    }
+
+
+def apply_qty_uom_transfer_ap(
+    client: Any,
+    *,
+    kimco_id: int,
+    note: str,
+) -> dict[str, Any]:
+    """NOTE-58: same Transfer AP PUT as missing_receipt, plus one @Shawn note.
+
+    Does not post the bill. Does not select receipts.
+    """
+    moved = apply_transfer_ap_batch_move(client, kimco_id=int(kimco_id))
+    comment = post_shawn_comments_1(client, int(kimco_id), note)
+    LOGGER.info(
+        "NOTE-58 qty/UOM Transfer AP kimco_id=%s move=%s comment=%s",
+        kimco_id,
+        moved.get("status"),
+        comment.get("status"),
+    )
+    return {"move": moved, "comment": comment}
 
 
 def apply_missing_receipt_transfer_ap(

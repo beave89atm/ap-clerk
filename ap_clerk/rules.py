@@ -99,6 +99,9 @@ PPV_MAX_PCT_OF_INVOICE = 0.10
 PPV_MAX_ABS_ON_BILL = 100.00
 PRICE_DOES_NOT_MATCH = "price does not match"
 SHAWN_MCKIBBEN = "@Shawn McKibben"
+# Live Comments_1 mention. Kyle + existing @Shawn notes. Do not invent another id.
+SHAWN_USER_ID = 104
+QTY_UOM_OWNER = "Shawn McKibben"
 PRICE_MISMATCH_PO_COMMENT = (
     "@Shawn McKibben price does not match. Purchasing must unreceive, change the PO price, "
     "and re-receive. Do not alter receipt unit price in GI (breaks WO cost, material cost, "
@@ -683,6 +686,493 @@ def ppv_limit() -> float:
     if raw in (None, ""):
         return PENNY_PPV_MAX_ABS
     return round(float(raw), 2)
+
+
+# Kyle: quantity/UOM disconnects whose dollar gap is at or over ppv_limit()
+# are HOLD, Transfer AP, and an @Shawn Comments_1 note. Shawn fixes them.
+# Ordinary under-limit quantity holds stay with the buyer.
+HOLD_NOTE_CATEGORIES: tuple[str, ...] = (
+    "missing_receipt",
+    "quantity_variance",
+    "price_variance",
+    "missing_po",
+    "vendor_mismatch",
+    "already_entered",
+    "pdf_capture",
+    "auto_pay",
+    "partial_match",
+    "other",
+)
+_KEY_VALUE_SHORTHAND_RE = re.compile(r"(?i)\b(?:category|owner)\s*=")
+_HTML_TAG_RE = re.compile(r"<[^>]+>")
+
+
+def _fmt_money(value: Any) -> str:
+    amount = money(value)
+    if amount is None:
+        return "unknown"
+    return f"${amount:,.2f}"
+
+
+def _fmt_qty(value: Any, uom: str | None = None) -> str:
+    amount = money(value)
+    if amount is None:
+        return "unknown"
+    if abs(amount - round(amount)) < 0.001:
+        text = f"{int(round(amount)):,}"
+    else:
+        text = f"{amount:,.2f}"
+    unit = str(uom or "").strip()
+    return f"{text} {unit}".strip()
+
+
+def _note_bit(value: Any, default: str = "unknown") -> str:
+    if value in (None, ""):
+        return default
+    return str(value)
+
+
+def sheet_note_problems(text: str | None) -> list[str]:
+    """Why a Comments_1 / run-sheet note is not plain English.
+
+    Rejects category=/owner= shorthand and HTML. Requires the AP Clerk prefix
+    and a complete sentence.
+    """
+    body = str(text or "").strip()
+    problems: list[str] = []
+    if not body.startswith("AP Clerk:"):
+        problems.append("missing AP Clerk: prefix")
+    if _KEY_VALUE_SHORTHAND_RE.search(body):
+        problems.append("key=value shorthand")
+    if _HTML_TAG_RE.search(body):
+        problems.append("html")
+    if not body.endswith((".", "!", "?")):
+        problems.append("not a complete sentence")
+    return problems
+
+
+def comments_1_html(plain: str, *, mention_id: int | None = None) -> str:
+    """Comments_1 HtmlValue. Sheet notes stay plain; only this wrapper adds the mention span."""
+    body = str(plain or "").strip()
+    if mention_id == SHAWN_USER_ID:
+        span = (
+            '<span data-mention-id="104" data-mention-name="Shawn McKibben" '
+            'data-mention-email="Shawn.McKibben@kannonmfg.com" '
+            'class="prosemirror-mention-node">@Shawn McKibben</span>'
+        )
+        if "@Shawn McKibben" in body:
+            body = body.replace("@Shawn McKibben", span, 1)
+        elif "@Shawn" in body:
+            short = (
+                '<span data-mention-id="104" data-mention-name="Shawn McKibben" '
+                'data-mention-email="Shawn.McKibben@kannonmfg.com" '
+                'class="prosemirror-mention-node">@Shawn</span>'
+            )
+            body = body.replace("@Shawn", short, 1)
+    if not body.startswith("<p>"):
+        body = f"<p>{body}</p>"
+    return body
+
+
+def _quantity_note(facts: dict[str, Any]) -> str:
+    over = bool(facts.get("over_ppv"))
+    who = SHAWN_MCKIBBEN if over else "The buyer"
+    ask = (
+        f"{SHAWN_MCKIBBEN} must unreceive the extra so the receipt quantity matches "
+        "the invoiced quantity."
+        if over
+        else "The buyer must correct the received quantity so it matches the invoiced quantity."
+    )
+    why_not = (
+        f"The dollar gap of {_fmt_money(facts.get('gap'))} is over the "
+        f"{_fmt_money(facts.get('limit') if facts.get('limit') is not None else ppv_limit())} "
+        "PPV limit, so it cannot be written off as a price variance and the receipt must not be selected as-is."
+        if over
+        else (
+            f"The dollar gap of {_fmt_money(facts.get('gap'))} is under the PPV limit, "
+            "but the quantity still does not match, so the line cannot be entered as-is."
+        )
+    )
+    return (
+        f"AP Clerk: {who} The quantity does not match. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} total {_fmt_money(facts.get('invoice_total'))} "
+        f"has {_fmt_money(facts.get('amount_entered'))} entered. "
+        f"Line {_note_bit(facts.get('line'))} on PO {_note_bit(facts.get('po'))}, "
+        f"receipt {_note_bit(facts.get('receipt'))}: "
+        f"received {_fmt_qty(facts.get('qty_received'), facts.get('uom'))}, "
+        f"invoiced {_fmt_qty(facts.get('qty_invoiced'), facts.get('uom'))}, "
+        f"ordered {_fmt_qty(facts.get('qty_ordered'), facts.get('uom'))}. "
+        f"{why_not} {ask} "
+        "Once that quantity is fixed, AP can select the receipt and the bill should match "
+        f"the invoice total of {_fmt_money(facts.get('invoice_total'))} to the penny."
+    )
+
+
+def _missing_receipt_note(facts: dict[str, Any]) -> str:
+    mention = _note_bit(facts.get("mention"), "the receiving owner")
+    extra = str(facts.get("extra") or "").strip()
+    uncertain = str(facts.get("uncertain") or "").strip()
+    sentences = [
+        f"AP Clerk: {mention} The receipt is missing, so this invoice cannot be entered.",
+        (
+            f"Invoice {_note_bit(facts.get('invoice_number'))} for {_note_bit(facts.get('vendor'), 'this vendor')} "
+            f"on PO {_note_bit(facts.get('po'))} has no selectable receipt that matches the invoice lines."
+        ),
+        f"The invoice total is {_fmt_money(facts.get('invoice_total'))}.",
+    ]
+    if extra:
+        sentences.append(extra if extra.endswith(".") else extra + ".")
+    sentences.append("Please receive the PO at the dock for the invoiced quantity.")
+    if uncertain:
+        sentences.append(uncertain if uncertain.endswith(".") else uncertain + ".")
+    sentences.append(
+        "Once that receipt is in, AP can select it and the bill should match the invoice total to the penny."
+    )
+    return " ".join(sentences)
+
+
+def _price_note(facts: dict[str, Any]) -> str:
+    return (
+        f"AP Clerk: {SHAWN_MCKIBBEN} The price does not match. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} total {_fmt_money(facts.get('invoice_total'))} "
+        f"versus the PO leaves a gap of {_fmt_money(facts.get('gap'))}, "
+        f"which is over the {_fmt_money(facts.get('limit') if facts.get('limit') is not None else ppv_limit())} "
+        "PPV limit, so it cannot be written off as a price variance and the receipt was not selected. "
+        f"Line {_note_bit(facts.get('line'))} on PO {_note_bit(facts.get('po'))}, receipt {_note_bit(facts.get('receipt'))}. "
+        f"{SHAWN_MCKIBBEN} must unreceive, change the PO price, and re-receive. "
+        "Do not change the receipt unit price in GI. "
+        "Once the PO price matches the invoice, AP can select the receipt and the bill should match "
+        f"the invoice total of {_fmt_money(facts.get('invoice_total'))} to the penny."
+    )
+
+
+def _missing_po_note(facts: dict[str, Any]) -> str:
+    return (
+        f"AP Clerk: {SHAWN_MCKIBBEN} The PO number is missing from this invoice, so it cannot be entered against a receipt. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} for {_note_bit(facts.get('vendor'), 'this vendor')} "
+        f"totals {_fmt_money(facts.get('invoice_total'))}. "
+        "Do not invent a PO and do not fake a receipt hold. "
+        f"{SHAWN_MCKIBBEN} must identify the live PO. "
+        "The bill goes to Transfer AP until that PO is on the invoice. "
+        "Once the PO is identified, AP can match receipts and the bill should match "
+        f"the invoice total of {_fmt_money(facts.get('invoice_total'))} to the penny."
+    )
+
+
+def _vendor_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: The vendor on the invoice does not match the vendor posted on the bill. "
+        f"The PDF vendor is {_note_bit(facts.get('vendor'), 'unknown')} and the posted vendor is "
+        f"{_note_bit(facts.get('posted_vendor'), 'unknown')}. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} totals {_fmt_money(facts.get('invoice_total'))}. "
+        "It cannot be finished until the vendor on the header is the company on the PDF. "
+        "AP must correct the vendor master or the header vendor. "
+        "After that correction, AP can match the lines and finish the bill."
+    )
+
+
+def _already_entered_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: This invoice is already entered, so it cannot be entered again. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} on PO {_note_bit(facts.get('po'))} "
+        f"is already billed on the matching lines. The invoice total is {_fmt_money(facts.get('invoice_total'))}. "
+        "Selecting those receipts again would double-pay. "
+        "Review the existing bill and leave this duplicate alone. "
+        "No further receipt selection is required."
+    )
+
+
+def _pdf_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: The invoice PDF could not be captured, so the totals and lines are not safe to enter. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} from {_note_bit(facts.get('vendor'), 'this vendor')} "
+        f"totals {_fmt_money(facts.get('invoice_total'))}. "
+        "AP must download the original PDF and attach it to the bill. "
+        "Once the PDF is attached and the invoice total, lines, and PO can be read, AP can enter the bill."
+    )
+
+
+def _autopay_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: This bill is auto-pay, so it must not be entered in KIMCO. "
+        f"Vendor {_note_bit(facts.get('vendor'), 'unknown')} invoice {_note_bit(facts.get('invoice_number'))} "
+        f"for {_fmt_money(facts.get('invoice_total'))} is paid outside the AP batch. "
+        "Leave it out of the batch. Do not select receipts and do not move it to Transfer AP."
+    )
+
+
+def _partial_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: Only part of this invoice matched open receipts, so it cannot be finished. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} on PO {_note_bit(facts.get('po'))} "
+        f"totals {_fmt_money(facts.get('invoice_total'))} and {_fmt_money(facts.get('amount_entered'))} is entered so far. "
+        f"Line {_note_bit(facts.get('line'))}, receipt {_note_bit(facts.get('receipt'))}. "
+        "AP must match the remaining lines or name the exact quantity still needed. "
+        "After every line is selected or explicitly held, the bill can be finished to the invoice total."
+    )
+
+
+def _other_note(facts: dict[str, Any]) -> str:
+    return (
+        "AP Clerk: This bill cannot be finished as entered. "
+        f"Invoice {_note_bit(facts.get('invoice_number'))} for {_note_bit(facts.get('vendor'), 'this vendor')} "
+        f"on PO {_note_bit(facts.get('po'))} totals {_fmt_money(facts.get('invoice_total'))}. "
+        f"The amount entered is {_fmt_money(facts.get('amount_entered'))}. "
+        "AP must review the bill and correct the specific mismatch before it is finished. "
+        "Once that correction is in, the bill should match the invoice total to the penny."
+    )
+
+
+_HOLD_NOTE_BUILDERS = {
+    "missing_receipt": _missing_receipt_note,
+    "quantity_variance": _quantity_note,
+    "price_variance": _price_note,
+    "missing_po": _missing_po_note,
+    "vendor_mismatch": _vendor_note,
+    "already_entered": _already_entered_note,
+    "pdf_capture": _pdf_note,
+    "auto_pay": _autopay_note,
+    "partial_match": _partial_note,
+    "other": _other_note,
+}
+
+
+def plain_hold_note(category: str, **facts: Any) -> str:
+    """Plain-English Comments_1 / run-sheet note for one HOLD reason.
+
+    No category=/owner= shorthand and no HTML. Keeps the AP Clerk prefix.
+    """
+    builder = _HOLD_NOTE_BUILDERS.get(category)
+    if builder is None:
+        raise KeyError(category)
+    text = builder(dict(facts))
+    problems = sheet_note_problems(text)
+    if problems:
+        raise ValueError(f"{category} note is not plain English: {', '.join(problems)}")
+    return text
+
+
+def _plain_number(value: Any) -> float | None:
+    """Qty and unit price. Do not round a 4-decimal unit (0.1665) to cents."""
+    if value is None or value == "":
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _qty_number(line: dict[str, Any] | None, *keys: str) -> float | None:
+    if not isinstance(line, dict):
+        return None
+    for key in keys:
+        if line.get(key) not in (None, ""):
+            return _plain_number(line.get(key))
+    return None
+
+
+def _uom_text(value: Any) -> str:
+    if isinstance(value, dict):
+        value = value.get("text") or value.get("name") or ""
+    return str(value or "").strip()
+
+
+def _same_uom(left: str, right: str) -> bool:
+    a = re.sub(r"[^a-z0-9]+", "", left.lower())
+    b = re.sub(r"[^a-z0-9]+", "", right.lower())
+    if not a or not b:
+        return True
+    return a == b or a in b or b in a
+
+
+def qty_uom_disconnect_over_ppv(
+    *,
+    invoice_qty: Any = None,
+    receipt_qty: Any = None,
+    po_qty: Any = None,
+    invoice_uom: Any = None,
+    receipt_uom: Any = None,
+    po_uom: Any = None,
+    unit_price: Any = None,
+    invoice_extended: Any = None,
+    receipt_extended: Any = None,
+    invoice_total: Any = None,
+    amount_entered: Any = None,
+    limit: float | None = None,
+    line: Any = None,
+    po: Any = None,
+    receipt: Any = None,
+    invoice_number: Any = None,
+    part: Any = None,
+) -> dict[str, Any]:
+    """HOLD + Transfer AP + @Shawn when a qty/UOM disconnect's dollar gap is over the PPV limit.
+
+    |gap| >= ppv_limit() (default $75) cannot be written off as price variance.
+    Under the limit, this rule does not fire and the owner stays the buyer.
+    """
+    if limit is None:
+        limit = ppv_limit()
+    inv_q = _plain_number(invoice_qty)
+    rec_q = _plain_number(receipt_qty)
+    po_q = _plain_number(po_qty)
+    inv_uom = _uom_text(invoice_uom)
+    rec_uom = _uom_text(receipt_uom)
+    po_u = _uom_text(po_uom)
+    qty_disconnect = any(
+        left is not None and right is not None and not _qty_close(left, right)
+        for left, right in ((inv_q, rec_q), (rec_q, po_q), (inv_q, po_q))
+    )
+    present_uoms = [item for item in (inv_uom, rec_uom, po_u) if item]
+    uom_disconnect = False
+    if len(present_uoms) >= 2:
+        uom_disconnect = any(not _same_uom(present_uoms[0], other) for other in present_uoms[1:])
+    disconnect = qty_disconnect or uom_disconnect
+    price = _plain_number(unit_price)
+    inv_ext = money(invoice_extended)
+    rec_ext = money(receipt_extended)
+    gaps: list[float] = []
+    if inv_ext is not None and rec_ext is not None:
+        gaps.append(abs(rec_ext - inv_ext))
+    if price is not None and inv_q is not None and rec_q is not None:
+        gaps.append(abs((rec_q - inv_q) * price))
+    if price is not None and po_q is not None and rec_q is not None:
+        gaps.append(abs((rec_q - po_q) * price))
+    header_gap = None
+    header_total = money(invoice_total)
+    entered = money(amount_entered)
+    if header_total is not None and entered is not None:
+        header_gap = round(abs(header_total - entered), 2)
+        if disconnect:
+            gaps.append(header_gap)
+    gap = round(max(gaps), 2) if gaps else None
+    over = bool(disconnect and gap is not None and abs(gap) >= float(limit))
+    uom = rec_uom or inv_uom or po_u or None
+    note = ""
+    if over:
+        note = plain_hold_note(
+            "quantity_variance",
+            over_ppv=True,
+            invoice_qty=inv_q,
+            qty_invoiced=inv_q,
+            qty_received=rec_q,
+            qty_ordered=po_q,
+            uom=uom,
+            unit_price=price,
+            gap=gap,
+            limit=limit,
+            invoice_total=header_total,
+            amount_entered=entered,
+            line=line,
+            po=po,
+            receipt=receipt,
+            invoice_number=invoice_number,
+            part=part,
+        )
+    return {
+        "hold": over,
+        "transfer_ap": over,
+        "category": "quantity_variance" if over else "",
+        "owner": QTY_UOM_OWNER if over else "",
+        "mention_id": SHAWN_USER_ID if over else None,
+        "gap": gap,
+        "header_gap": header_gap,
+        "disconnect": disconnect,
+        "qty_disconnect": qty_disconnect,
+        "uom_disconnect": uom_disconnect,
+        "limit": float(limit),
+        "note": note,
+    }
+
+
+def _line_part(line: dict[str, Any] | None) -> str:
+    """Part key that keeps dimensions. normalize_name() drops the digits that distinguish 1/4 from 3/8."""
+    if not isinstance(line, dict):
+        return ""
+    raw = str(line.get("part") or line.get("item") or line.get("label") or line.get("description") or "")
+    return re.sub(r"[^a-z0-9]+", "", raw.lower())
+
+
+def _qty_close(left: float | None, right: float | None, tol: float = 0.02) -> bool:
+    if left is None or right is None:
+        return False
+    return abs(left - right) <= tol
+
+
+def _line_qty_value(line: dict[str, Any] | None) -> float | None:
+    return _qty_number(line, "qty", "quantity", "Quantity")
+
+
+def _line_price_value(line: dict[str, Any] | None) -> float | None:
+    return _qty_number(line, "unit_price", "price", "Unit_Price", "unit")
+
+
+def _line_extended(line: dict[str, Any] | None) -> float | None:
+    return _qty_number(line, "amount", "line_amount", "extended", "Extended_Amount")
+
+
+def assess_bill_qty_uom(
+    *,
+    invoice_lines: list[dict[str, Any]] | None = None,
+    po_lines: list[dict[str, Any]] | None = None,
+    receipts: list[dict[str, Any]] | None = None,
+    invoice_total: Any = None,
+    invoice_qty: Any = None,
+    amount_entered: Any = None,
+    po: Any = None,
+    invoice_number: Any = None,
+) -> dict[str, Any]:
+    """Scan paired lines. A matching receipt qty means this rule does not fire for that line."""
+    empty = qty_uom_disconnect_over_ppv()
+    inv_lines = [dict(line) for line in (invoice_lines or []) if isinstance(line, dict) and line]
+    po_rows = [dict(line) for line in (po_lines or []) if isinstance(line, dict) and line]
+    receipt_rows = [dict(line) for line in (receipts or []) if isinstance(line, dict) and line]
+    if not inv_lines and invoice_qty not in (None, ""):
+        inv_lines = [{"qty": invoice_qty, "part": ""}]
+    worst = empty
+    for index, inv in enumerate(inv_lines, start=1):
+        if is_fee_or_surcharge(_line_description(inv)) or inv.get("fee"):
+            continue
+        part = _line_part(inv)
+        inv_q = _line_qty_value(inv)
+        single_line = len(inv_lines) == 1
+
+        def _same_part(row: dict[str, Any]) -> bool:
+            other = _line_part(row)
+            if part and other:
+                return part == other
+            # A blank part is only safe when this bill has one merchandise line.
+            return single_line
+
+        po_matches = [row for row in po_rows if _same_part(row)]
+        po_row = po_matches[0] if len(po_matches) == 1 else None
+        rec_matches = [row for row in receipt_rows if _same_part(row)]
+        if inv_q is not None and any(_qty_close(inv_q, _line_qty_value(row)) for row in rec_matches):
+            continue
+        candidates = rec_matches or ([None] if po_row else [])
+        if not candidates:
+            continue
+        for rec in candidates:
+            decision = qty_uom_disconnect_over_ppv(
+                invoice_qty=inv_q,
+                receipt_qty=_line_qty_value(rec) if rec else None,
+                po_qty=_line_qty_value(po_row) if po_row else None,
+                invoice_uom=inv.get("uom") or inv.get("unit_of_measure"),
+                receipt_uom=(rec or {}).get("uom") or (rec or {}).get("unit"),
+                po_uom=(po_row or {}).get("uom") or (po_row or {}).get("unit"),
+                unit_price=_line_price_value(rec) or _line_price_value(po_row) or _line_price_value(inv),
+                invoice_extended=_line_extended(inv),
+                receipt_extended=_line_extended(rec) if rec else None,
+                invoice_total=invoice_total,
+                amount_entered=amount_entered,
+                line=inv.get("line") or index,
+                po=(rec or {}).get("po") or (po_row or {}).get("po") or po,
+                receipt=(rec or {}).get("id") or (rec or {}).get("receipt"),
+                invoice_number=invoice_number,
+                part=inv.get("part") or part,
+            )
+            if decision.get("hold") and (decision.get("gap") or 0) >= (worst.get("gap") or 0):
+                worst = decision
+    return worst
 
 
 # Kyle: always make sure totals match before finishing. Top-level AP rule.

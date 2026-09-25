@@ -770,17 +770,16 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         "expected": (
             "Every HOLD / Incomplete / Entered-with-issues row gets a stable "
             "Exception category slug and Exception owner at creation "
-            "(Stampli-style categorize-at-creation). Why embeds "
-            "`category=…; owner=…` plus vendor / invoice # / PO / next action. "
-            "Excel columns Exception category and Exception owner. Empty for "
-            "Success and true Skipped noise. Optional workbook summary counts "
-            "by category only — never invent Success/touchless rates. "
-            "Map existing gates only; do not invent new HOLD reasons. "
-            "Shawn McKibben oversees Purchasing: price_variance, missing_po "
-            "(PO not on live, missing/bad PO). Transfer AP is a destination "
-            "batch only — not the Exception owner. Misty McCoy is not a hard "
-            "default. Kyle bar: exception Why with owner; measure exception "
-            "rate by cause."
+            "(Stampli-style categorize-at-creation). Excel columns Exception "
+            "category and Exception owner. Empty for Success and true Skipped "
+            "noise. Optional workbook summary counts by category only — never "
+            "invent Success/touchless rates. Map existing gates only; do not "
+            "invent new HOLD reasons. Shawn McKibben oversees Purchasing: "
+            "price_variance, missing_po (PO not on live, missing/bad PO). "
+            "Transfer AP is a destination batch only — not the Exception owner. "
+            "Misty McCoy is not a hard default. Kyle bar: exception columns "
+            "with owner; measure exception rate by cause. Comments_1 and "
+            "run-sheet Notes are plain English (NOTE-59), not a category=/owner= prefix."
         ),
         "never_success": True,
     },
@@ -1012,6 +1011,46 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-58",
+        "slug": "qty-uom-over-ppv-transfer-shawn",
+        "gate": GATE_QTY,
+        "cases": (
+            "O'Neal 15455478 / KIMCO 10317 / PO 59059 receipt 23563 14400 IN vs 1200 IN",
+        ),
+        "expected": (
+            "When a quantity or unit-of-measure disconnect (receipt qty != "
+            "invoice qty != PO qty, or inches received vs invoiced) produces "
+            "a dollar gap at or over ppv_limit() (default $75), the bill is "
+            "HOLD quantity_variance. Move it to Transfer AP with the same "
+            "batch lookup used for missing_receipt. Write an @Shawn Comments_1 "
+            "note (mention id 104). Shawn McKibben is the owner who fixes "
+            "these, not buyer. Do not write the gap off as price variance. "
+            "Do not post the bill. Under the limit, quantity_variance stays "
+            "with the buyer and does not take this Transfer AP path."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-59",
+        "slug": "plain-english-hold-notes",
+        "gate": "exception-category",
+        "cases": (
+            "Comments_1 and run-sheet Notes for every HOLD reason",
+        ),
+        "expected": (
+            "Every Comments_1 note and every run-sheet Note is plain English: "
+            "complete actionable sentences naming what does not match, the "
+            "actual numbers (invoice total, amount entered, line, PO, receipt, "
+            "qty received vs invoiced vs ordered, gap), why it cannot be "
+            "entered as-is, what the owner must do, and what happens after. "
+            "No category=/owner= key/value shorthand and no HTML in sheet notes. "
+            "Keep the AP Clerk: prefix. Applies to missing_receipt, "
+            "quantity_variance, price_variance, missing_po, vendor_mismatch, "
+            "already_entered, pdf_capture, auto_pay, partial_match, and other."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1153,6 +1192,23 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "Notes records a PPV QC fix and no other QC column is added (NOTE-57)."
         ),
     },
+    {
+        "id": "qty-uom-over-ppv-transfer-shawn",
+        "check": (
+            "A quantity or unit-of-measure disconnect whose dollar gap is at "
+            "or over ppv_limit() ($75) is HOLD, moves to Transfer AP, and "
+            "gets an @Shawn (104) Comments_1 note. Shawn owns the fix, not "
+            "the buyer (NOTE-58). Do not post."
+        ),
+    },
+    {
+        "id": "plain-english-hold-notes",
+        "check": (
+            "Comments_1 notes and run-sheet Notes are plain-English sentences "
+            "with the AP Clerk: prefix. No category=/owner= shorthand and no "
+            "HTML in sheet notes (NOTE-59)."
+        ),
+    },
 )
 
 # Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
@@ -1202,7 +1258,27 @@ _EXCEPTION_PREFIX_RE = re.compile(
 
 
 def exception_prefix(category: str, owner: str) -> str:
+    """Legacy prefix. New sheet notes must not embed this. Kept so old Why text still classifies."""
     return f"category={category}; owner={owner}"
+
+
+def strip_exception_key_value(why: str | None) -> str:
+    """Remove category=/owner= shorthand from a sheet note."""
+    text = _EXCEPTION_PREFIX_RE.sub(" ", str(why or ""))
+    text = re.sub(r"\s{2,}", " ", text)
+    text = re.sub(r"^[\s.;]+", "", text.strip())
+    return text.strip()
+
+
+def _qty_uom_shawn_why(why_l: str) -> bool:
+    """Plain-English qty/UOM note that is over the PPV limit. Owner is Shawn, not buyer."""
+    if "ppv limit" not in why_l and "purchase price variance limit" not in why_l:
+        return False
+    return (
+        "quantity does not match" in why_l
+        or "unit of measure" in why_l
+        or "unit-of-measure" in why_l
+    )
 
 
 def receiving_owner_tag_applies(category: str | None) -> bool:
@@ -1339,6 +1415,9 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
         return None
 
     why_l = why_s.lower()
+    # NOTE-58: qty/UOM disconnect over the PPV limit is Shawn, not buyer.
+    if _qty_uom_shawn_why(why_l):
+        return "quantity_variance", "Shawn McKibben"
     # NOTE-55: open leftovers + qty/cost mismatch or already-billed must not
     # stay missing_receipt, even if a stale category= prefix says so.
     note55 = _note55_category_from_why(why_l)
@@ -1402,11 +1481,12 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
 
 
 def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
-    """Stamp Exception category/owner and embed `category=…; owner=…` on Why.
+    """Stamp Exception category/owner. Sheet Why stays plain English.
 
     Success / true Skipped noise leave both columns blank and Why unchanged.
-    Idempotent if Why already embeds the canonical prefix. Rewrites a stale
-    `missing_po` Misty McCoy / Transfer AP prefix to Shawn McKibben.
+    A stale `category=…; owner=…` prefix is stripped (NOTE-59). A stale
+    missing_po Misty McCoy prefix is not copied onto Why; the owner column
+    is Shawn McKibben.
     """
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
@@ -1418,15 +1498,7 @@ def apply_exception_category_owner(row: dict[str, Any]) -> dict[str, Any]:
     category, owner = classified
     row[COL_EXCEPTION_CATEGORY] = category
     row[COL_EXCEPTION_OWNER] = owner
-    prefix = exception_prefix(category, owner)
-    already = _EXCEPTION_PREFIX_RE.search(why)
-    if already:
-        old = already.group(0)
-        if old != prefix:
-            why = why[: already.start()] + prefix + why[already.end() :]
-        row["Why"] = why.strip()
-        return row
-    row["Why"] = f"{prefix}. {why}" if why else prefix
+    row["Why"] = strip_exception_key_value(why)
     return row
 
 
