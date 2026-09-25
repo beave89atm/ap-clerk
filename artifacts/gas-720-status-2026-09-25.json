@@ -1,0 +1,3282 @@
+{
+  "snapshot_at": "2026-09-25T15:08:22Z",
+  "read_only": true,
+  "kimco_writes": 0,
+  "outlook_writes": 0,
+  "batch": {
+    "id": 720,
+    "name": "API Agent - 9/17/26 Gas & Supply",
+    "owner": "API Agent",
+    "owner_id": 175,
+    "status": 0,
+    "unposted_count": 8,
+    "created_on": "2026-09-17T20:20:46.33",
+    "modified_on": "2026-09-23T23:55:51.07"
+  },
+  "transfer_ap": {
+    "id": 375,
+    "name": "TRANSFER AP",
+    "unposted_count_all_vendors": 65
+  },
+  "vendor": {
+    "kimco_vendor_id": 71,
+    "kimco_vendor_text": "1069-GAS AND SUPPLY",
+    "requested_name": "Gas and Supply North Texas, LLC"
+  },
+  "scope": {
+    "current_batch_720": "every AP invoice whose header AP_Invoice_Batch is 720 (APInvoiceDisplay count 8; all Gas)",
+    "known_9_17_ids": "10128-10137, 10165-10173, 10181",
+    "range_scan": "GET every KIMCO id 10128-10319. Gas bills inside 10128-10200 are exactly the known 9/17 ids. No other Gas bill in that range.",
+    "moved_siblings": "Eight Gas API bills with ids 10287-10290 and 10293-10297 are on TRANSFER AP 375. Their ids are interleaved with invoices still on batch 720 (10283-10286, 10291, 10292, 10296, 10298). KIMCO clears the batch link when a bill is posted and does not keep the prior batch after a move, so these eight are included as moved siblings of the open batch 720 headers.",
+    "non_gas_on_batch_720": 0
+  },
+  "range_scan": {
+    "ids_requested": "10128-10319",
+    "missing_ids": [
+      10315,
+      10316,
+      10317,
+      10318,
+      10319
+    ],
+    "gas_bill_ids_in_10128_10200": [
+      10128,
+      10129,
+      10130,
+      10131,
+      10132,
+      10133,
+      10134,
+      10135,
+      10136,
+      10137,
+      10165,
+      10166,
+      10167,
+      10168,
+      10169,
+      10170,
+      10171,
+      10172,
+      10173,
+      10181
+    ],
+    "gas_bill_ids_in_10128_10200_beyond_known": []
+  },
+  "counts_by_status": {
+    "posted": 18,
+    "open in TRANSFER AP 375": 10,
+    "open in batch 720": 8
+  },
+  "counts_complete": {
+    "complete": 36
+  },
+  "counts_verification": {
+    "verification matches invoice amount": 28,
+    "verification differs from invoice amount": 8
+  },
+  "counts_source_folder": {
+    "source in Inbox/9 - FORT WORTH ARCHIVE": 30,
+    "source in Inbox/9 - FORT WORTH ARCHIVE, plus same-day Inbox duplicate": 6
+  },
+  "bill_count": 36,
+  "bills": [
+    {
+      "kimco_bill_id": 10128,
+      "invoice_number": "0040435122",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 120.0,
+      "verification_amount": 120.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:20.75",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 5.0,
+          "unit_price": 24.0,
+          "qty_at_price": "5@24",
+          "extended_amount": 120.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 120.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-16_billing01_G1378_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-16",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-16T04:50:53Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdEAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10129,
+      "invoice_number": "0040434973",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 192.0,
+      "verification_amount": 192.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:22.263",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 24.0,
+          "qty_at_price": "8@24",
+          "extended_amount": 192.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 192.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-16_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-16",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-16T04:49:24Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdFAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10130,
+      "invoice_number": "0040431060",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 245.5,
+      "verification_amount": 245.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:23.29",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 6.0,
+          "unit_price": 28.0,
+          "qty_at_price": "6@28",
+          "extended_amount": 168.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 2.0,
+          "unit_price": 30.0,
+          "qty_at_price": "2@30",
+          "extended_amount": 60.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5342,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 228.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-15_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-15",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-15T04:37:22Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdGAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10131,
+      "invoice_number": "0040425657",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 216.0,
+      "verification_amount": 216.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:24.89",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 9.0,
+          "unit_price": 24.0,
+          "qty_at_price": "9@24",
+          "extended_amount": 216.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 216.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-10_billing01_G1378_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-10",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-10T04:40:48Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdHAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10132,
+      "invoice_number": "0040425612",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 240.0,
+      "verification_amount": 240.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:25.913",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 10.0,
+          "unit_price": 24.0,
+          "qty_at_price": "10@24",
+          "extended_amount": 240.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 240.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-10_billing01_A3050_c_0040425612_p5-5.pdf"
+        ],
+        "attached_pdf_date": "2026-09-10",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-10T04:38:50Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdKAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10133,
+      "invoice_number": "0040424382",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 335.0,
+      "verification_amount": 335.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:26.96",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 7.0,
+          "unit_price": 28.0,
+          "qty_at_price": "7@28",
+          "extended_amount": 196.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 30.0,
+          "qty_at_price": "3@30",
+          "extended_amount": 90.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        },
+        {
+          "qty": 1.0,
+          "unit_price": 31.5,
+          "qty_at_price": "1@31.5",
+          "extended_amount": 31.5,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "C25300 UN1956 COMPRESSED GAS, N.O.S."
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5343,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 317.5,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-10_billing01_A3050_c_0040424382_p1-3.pdf"
+        ],
+        "attached_pdf_date": "2026-09-10",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-10T04:38:50Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdKAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10134,
+      "invoice_number": "0040423658",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 173.5,
+      "verification_amount": 173.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:28.497",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24282,
+          "qty": 1.0,
+          "unit_price": 173.5,
+          "qty_at_price": "1@173.5",
+          "receipt_text": "PO58948-GAS AND SUPPLY - 2026/9/21",
+          "extended_amount": 173.5
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 173.5,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-10_billing01_A3050_c_0040423658_p3-4.pdf"
+        ],
+        "attached_pdf_date": "2026-09-10",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-10T04:38:50Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdKAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10135,
+      "invoice_number": "0040421569",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 331.5,
+      "verification_amount": 331.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:29.803",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 28.0,
+          "qty_at_price": "8@28",
+          "extended_amount": 224.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 30.0,
+          "qty_at_price": "3@30",
+          "extended_amount": 90.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5344,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 314.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-09_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-09",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-09T04:41:12Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdIAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10136,
+      "invoice_number": "0040438494",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 331.5,
+      "verification_amount": 331.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:31.307",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 28.0,
+          "qty_at_price": "8@28",
+          "extended_amount": 224.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 30.0,
+          "qty_at_price": "3@30",
+          "extended_amount": 90.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5345,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 314.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "gas_2026-09-18_billing01_A3050_c_0040438494_p2-4.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10137,
+      "invoice_number": "0040414821",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 293.0,
+      "verification_amount": 293.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:34.963",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24283,
+          "qty": 2.0,
+          "unit_price": 146.5,
+          "qty_at_price": "2@146.5",
+          "receipt_text": "PO58948-GAS AND SUPPLY - 2026/9/21",
+          "extended_amount": 293.0
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 293.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "@Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040414821 PO 58948 PDF $293.00. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do n\u2026",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_gas_2026-09-03_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-03",
+        "match_count": 2,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-03T04:50:29Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdJAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10165,
+      "invoice_number": "0040430010",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 14.0,
+      "verification_amount": 14.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:37.23",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24333,
+          "qty": 1.0,
+          "unit_price": 14.0,
+          "qty_at_price": "1@14",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 14.0
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 14.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 915,
+          "text": "HOLD missing_receipt on Gas and Supply 0040430010 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-12_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-12",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "AI HOLD"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-12T05:13:26Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdMAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10166,
+      "invoice_number": "0040424839",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 224.94,
+      "verification_amount": 224.94,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:39.253",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24334,
+          "qty": 3.0,
+          "unit_price": 11.3,
+          "qty_at_price": "3@11.3",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 33.9
+        },
+        {
+          "id": 24335,
+          "qty": 4.0,
+          "unit_price": 47.76,
+          "qty_at_price": "4@47.76",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 191.04
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 224.94,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 916,
+          "text": "HOLD missing_receipt on Gas and Supply 0040424839 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-10_billing01_A3050_c_0040424839_p4-5.pdf"
+        ],
+        "attached_pdf_date": "2026-09-10",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-10T04:38:50Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdKAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10167,
+      "invoice_number": "0040438057",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 36.12,
+      "verification_amount": 36.12,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:42.823",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24336,
+          "qty": 1.0,
+          "unit_price": 36.12,
+          "qty_at_price": "1@36.12",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 36.12
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 36.12,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 917,
+          "text": "HOLD missing_receipt on Gas and Supply 0040438057 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040438057_p1-2.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10168,
+      "invoice_number": "0040438056",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 207.53,
+      "verification_amount": 207.53,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:45.123",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24337,
+          "qty": 1.0,
+          "unit_price": 108.82,
+          "qty_at_price": "1@108.82",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 108.82
+        },
+        {
+          "id": 24338,
+          "qty": 1.0,
+          "unit_price": 98.71,
+          "qty_at_price": "1@98.71",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 98.71
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 207.53,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 918,
+          "text": "HOLD missing_receipt on Gas and Supply 0040438056 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040438056_p7-8.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10169,
+      "invoice_number": "0040438055",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 27.82,
+      "verification_amount": 27.82,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:48.003",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24339,
+          "qty": 2.0,
+          "unit_price": 13.91,
+          "qty_at_price": "2@13.91",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 27.82
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 27.82,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 919,
+          "text": "HOLD missing_receipt on Gas and Supply 0040438055 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040438055_p8-8.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10170,
+      "invoice_number": "0040438053",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 182.5,
+      "verification_amount": 182.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:49.973",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24340,
+          "qty": 1.0,
+          "unit_price": 182.5,
+          "qty_at_price": "1@182.5",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 182.5
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 182.5,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 920,
+          "text": "HOLD missing_receipt on Gas and Supply 0040438053 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040438053_p6-7.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10171,
+      "invoice_number": "0040417672",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 3856.77,
+      "verification_amount": 3856.77,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:03:52.193",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24341,
+          "qty": 100.0,
+          "unit_price": 3.88,
+          "qty_at_price": "100@3.88",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 388.0
+        },
+        {
+          "id": 24350,
+          "qty": 1.0,
+          "unit_price": 184.04,
+          "qty_at_price": "1@184.04",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 184.04
+        },
+        {
+          "id": 24351,
+          "qty": 1.0,
+          "unit_price": 180.18,
+          "qty_at_price": "1@180.18",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 180.18
+        },
+        {
+          "id": 24352,
+          "qty": 1.0,
+          "unit_price": 36.12,
+          "qty_at_price": "1@36.12",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 36.12
+        },
+        {
+          "id": 24353,
+          "qty": 3.0,
+          "unit_price": 18.83,
+          "qty_at_price": "3@18.83",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 56.49
+        },
+        {
+          "id": 24354,
+          "qty": 50.0,
+          "unit_price": 1.24,
+          "qty_at_price": "50@1.24",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 62.0
+        },
+        {
+          "id": 24355,
+          "qty": 2.0,
+          "unit_price": 78.37,
+          "qty_at_price": "2@78.37",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 156.74
+        },
+        {
+          "id": 24342,
+          "qty": 200.0,
+          "unit_price": 5.25,
+          "qty_at_price": "200@5.25",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 1050.0
+        },
+        {
+          "id": 24343,
+          "qty": 48.0,
+          "unit_price": 5.5,
+          "qty_at_price": "48@5.5",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 264.0
+        },
+        {
+          "id": 24344,
+          "qty": 60.0,
+          "unit_price": 9.63,
+          "qty_at_price": "60@9.63",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 577.8
+        },
+        {
+          "id": 24345,
+          "qty": 250.0,
+          "unit_price": 0.87,
+          "qty_at_price": "250@0.87",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 217.5
+        },
+        {
+          "id": 24346,
+          "qty": 250.0,
+          "unit_price": 0.97,
+          "qty_at_price": "250@0.97",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 242.5
+        },
+        {
+          "id": 24347,
+          "qty": 12.0,
+          "unit_price": 15.96,
+          "qty_at_price": "12@15.96",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 191.52
+        },
+        {
+          "id": 24348,
+          "qty": 48.0,
+          "unit_price": 4.68,
+          "qty_at_price": "48@4.68",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 224.64
+        },
+        {
+          "id": 24349,
+          "qty": 4.0,
+          "unit_price": 6.44,
+          "qty_at_price": "4@6.44",
+          "receipt_text": "PO59081-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 25.76
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": -0.52,
+      "ppv_charges": [
+        {
+          "id": 5397,
+          "name": "Purchase Price Variance",
+          "amount": -0.52
+        }
+      ],
+      "fee_charges": [],
+      "line_total": 3857.29,
+      "charge_total": -0.52,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 921,
+          "text": "HOLD missing_receipt on Gas and Supply 0040417672 PO 59081. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_gas_2026-09-04_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-04",
+        "match_count": 2,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "AI HOLD"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-04T04:36:58Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdNAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10172,
+      "invoice_number": "0040414962",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 7840.8,
+      "verification_amount": 7840.8,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": null,
+      "batch_id": null,
+      "in_transfer_ap_375": false,
+      "posted": "yes",
+      "posted_date": "2026-09-22T11:04:03.733",
+      "posted_by": "Kyle Cleaver",
+      "status": "posted",
+      "po": "PO59006-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24332,
+          "qty": 880.0,
+          "unit_price": 8.91,
+          "qty_at_price": "880@8.91",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/22",
+          "extended_amount": 7840.8
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 7840.8,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 922,
+          "text": "HOLD missing_receipt on Gas and Supply 0040414962 PO 59006. PO header/lines exist on live. Received_Quantity is 0. No GI leftovers to Select Receipts. Stay on batch 720. Receiving\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_gas_2026-09-03_billing01_A3050_c_0040414962_p2-2.pdf"
+        ],
+        "attached_pdf_date": "2026-09-03",
+        "match_count": 2,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-03T04:50:29Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdJAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10173,
+      "invoice_number": "0040438052",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 0.0,
+      "verification_amount": 5178.55,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 5178.55,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO59081-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 940,
+          "text": "@Shawn McKibben HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040438052_p5-6.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10181,
+      "invoice_number": "0040437952",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 241.46,
+      "verification_amount": 241.46,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO59006-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24596,
+          "qty": 3.0,
+          "unit_price": 80.486,
+          "qty_at_price": "3@80.486",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 241.46
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 241.46,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 1048,
+          "text": "@Shawn McKibben @Treyce Hodges Selected receipt 24596 (PO59006-02, qty 3 @ 80.486 = 241.46) onto invoice 0040437952. Invoice_Amount is 241.46 and matches the invoice page. Left re\u2026",
+          "creator": "Treyce Hodges"
+        },
+        {
+          "id": 1032,
+          "text": "@API Agent @Treyce Hodges @Kyle Cleaver As suspected, just had to add to the PO at this point. All received and ready to pay. -S",
+          "creator": "Shawn McKibben"
+        },
+        {
+          "id": 1031,
+          "text": "@API Agent @Kyle Cleaver For G&S, this is easy to clean up for the three PO\u2019s we tried out. I add to the PO what\u2019s been invoiced and received in. This one is ready. @Treyce Ho\u2026",
+          "creator": "Shawn McKibben"
+        },
+        {
+          "id": 941,
+          "text": "@Shawn McKibben HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping S\u2026",
+          "creator": "API Agent"
+        },
+        {
+          "id": 937,
+          "text": "Corrected: first-open leftover 24332 880@8.91 LINEDS30778 belongs to 0040414962 / 10172, not this invoice. PDF merch is DEWDW1969 3@80.49 ($241.46) \u2014 no matching leftover on PO 59\u2026",
+          "creator": "API Agent"
+        },
+        {
+          "id": 936,
+          "text": "@Shawn McKibben @Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT sel\u2026",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "@Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do n\u2026",
+      "inclusion": "known_9_17_run",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_gas_2026-09-18_billing01_A3050_c_0040437952_p4-5.pdf"
+        ],
+        "attached_pdf_date": "2026-09-18",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-18T04:46:36Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10283,
+      "invoice_number": "0040446744",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 1891.85,
+      "verification_amount": 1891.88,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 0.03,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 50.0,
+          "unit_price": 5.51,
+          "qty_at_price": "50@5.51",
+          "extended_amount": 275.5,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PFXPX52FN PROFAX 52FN TWECO STYLE GAS"
+        },
+        {
+          "qty": 2.0,
+          "unit_price": 201.75,
+          "qty_at_price": "2@201.75",
+          "extended_amount": 403.5,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "DEWDWE43114 DEWALT 4-1/2\" HIGH POWER DWE4313"
+        },
+        {
+          "qty": 6.0,
+          "unit_price": 7.1,
+          "qty_at_price": "6@7.1",
+          "extended_amount": 42.6,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "DEWDW4925B DEWALT 4X.020X5/8-11 WIRE WHEEL"
+        },
+        {
+          "qty": 100.0,
+          "unit_price": 5.63,
+          "qty_at_price": "100@5.63",
+          "extended_amount": 563.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "3-M60440227472 3M 051141- 27447 -8 CUBITRON II"
+        },
+        {
+          "qty": 100.0,
+          "unit_price": 5.11,
+          "qty_at_price": "100@5.11",
+          "extended_amount": 511.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "3-M60440229650 3M 4-1/2X7/8 60+ FIBRE DISC"
+        },
+        {
+          "qty": 1.0,
+          "unit_price": 11.35,
+          "qty_at_price": "1@11.35",
+          "extended_amount": 11.35,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "TIL1414XL TILLMAN TOP GRAIN/SPLIT COWHIDE"
+        },
+        {
+          "qty": 1.0,
+          "unit_price": 12.95,
+          "qty_at_price": "1@12.95",
+          "extended_amount": 12.95,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "TIL1424XL TILLMAN TOP GRAIN COWHIDE"
+        },
+        {
+          "qty": 2.0,
+          "unit_price": 19.67,
+          "qty_at_price": "2@19.67",
+          "extended_amount": 39.34,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "IRW502L3 IRWIN 502L3 10WR-ORIGINAL CURV"
+        },
+        {
+          "qty": 1.0,
+          "unit_price": 20.61,
+          "qty_at_price": "1@20.61",
+          "extended_amount": 20.61,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "EMP3990 RAFTER SQUARE 12\""
+        },
+        {
+          "qty": 2.0,
+          "unit_price": 6.0,
+          "qty_at_price": "2@6",
+          "extended_amount": 12.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "GNSWELDCAP-73/4 WELDERS CAP ASSORTED COLOR"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 1891.85,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_2026-09-23_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-23",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-23T04:55:09Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzdAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10284,
+      "invoice_number": "0040443847",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 29.28,
+      "verification_amount": 29.25,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": -0.03,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 12.0,
+          "unit_price": 1.23,
+          "qty_at_price": "12@1.23",
+          "extended_amount": 14.76,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PIP250-01-0900 PIP ZENON Z12 CLEAR LENS"
+        },
+        {
+          "qty": 12.0,
+          "unit_price": 1.21,
+          "qty_at_price": "12@1.21",
+          "extended_amount": 14.52,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PIP250-01-0001 PIP ZENON Z12 GRAY LENS"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 29.28,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_2026-09-22_billing01_A3050_c_0040443847_p1-2.pdf"
+        ],
+        "attached_pdf_date": "2026-09-22",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-22T04:58:41Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzeAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10285,
+      "invoice_number": "0040442936",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 904.48,
+      "verification_amount": 904.48,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 28.0,
+          "qty_at_price": "8@28",
+          "extended_amount": 224.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 30.0,
+          "qty_at_price": "3@30",
+          "extended_amount": 90.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 65.0,
+          "qty_at_price": "3@65",
+          "extended_amount": 195.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ACE4 ACETYLENE,DISSOLVED,FLAMMABLE"
+        },
+        {
+          "qty": 1.0,
+          "unit_price": 352.0,
+          "qty_at_price": "1@352",
+          "extended_amount": 352.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300B12 300B12 COMP. GAS N.O.S.2.2"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5498,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        },
+        {
+          "id": 5504,
+          "name": "F-Fees & Surcharges",
+          "amount": 25.98,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 861.0,
+      "charge_total": 43.48,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_2026-09-22_billing01_A3050_c_0040442936_p2-3.pdf"
+        ],
+        "attached_pdf_date": "2026-09-22",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-22T04:58:41Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzeAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10286,
+      "invoice_number": "0040441555",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 192.0,
+      "verification_amount": 192.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 100.0,
+          "unit_price": 1.92,
+          "qty_at_price": "100@1.92",
+          "extended_amount": 192.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "OTCL7250B04 OTC TIP FOR ROBOT"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 192.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "invoice number search; attached PDF date matches the only billing email",
+        "attached_pdf": [
+          "0_2026-09-19_billing01_A3050_c.pdf"
+        ],
+        "attached_pdf_date": "2026-09-19",
+        "match_count": 1,
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered in AI"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-19T05:11:50Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzfAAA=",
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": []
+      }
+    },
+    {
+      "kimco_bill_id": 10287,
+      "invoice_number": "0040392742",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 56.5,
+      "verification_amount": 230.0,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 173.5,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": 56.5,
+      "ppv_charges": [
+        {
+          "id": 5499,
+          "name": "Purchase Price Variance",
+          "amount": 56.5
+        }
+      ],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 56.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040392742_p1-2.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10288,
+      "invoice_number": "0040392580",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 0.0,
+      "verification_amount": 184.32,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 184.32,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040392580_p2-3.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10289,
+      "invoice_number": "0040392579",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 0.0,
+      "verification_amount": 204.87,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 204.87,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040392579_p3-4.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10290,
+      "invoice_number": "0040392743",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 51.5,
+      "verification_amount": 73.0,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 21.5,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": 51.5,
+      "ppv_charges": [
+        {
+          "id": 5500,
+          "name": "Purchase Price Variance",
+          "amount": 51.5
+        }
+      ],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 51.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040392743_p4-5.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10291,
+      "invoice_number": "0040394405",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 372.5,
+      "verification_amount": 372.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 10.0,
+          "unit_price": 31.5,
+          "qty_at_price": "10@31.5",
+          "extended_amount": 315.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "C25300 UN1956 COMPRESSED GAS, N.O.S."
+        },
+        {
+          "qty": 4.0,
+          "unit_price": 10.0,
+          "qty_at_price": "4@10",
+          "extended_amount": 40.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "OXY250 UN1072 OXYGEN. COMPRESSED GAS"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5501,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 355.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040394405_p5-7.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10292,
+      "invoice_number": "0040392829",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 951.5,
+      "verification_amount": 951.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 5.0,
+          "unit_price": 28.0,
+          "qty_at_price": "5@28",
+          "extended_amount": 140.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        },
+        {
+          "qty": 3.0,
+          "unit_price": 30.0,
+          "qty_at_price": "3@30",
+          "extended_amount": 90.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS"
+        },
+        {
+          "qty": 2.0,
+          "unit_price": 352.0,
+          "qty_at_price": "2@352",
+          "extended_amount": 704.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300B12 300B12 COMP. GAS N.O.S.2.2"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5502,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 934.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-09-01_billing01_A3050_c_0040392829_p7-8.pdf"
+        ],
+        "attached_pdf_date": "2026-09-01",
+        "match_count": 3,
+        "same_day_duplicates": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-09-01T10:08:02Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzgAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10293,
+      "invoice_number": "0040387191",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 0.0,
+      "verification_amount": 204.87,
+      "verification_matches_invoice_amount": false,
+      "verification_minus_invoice_amount": 204.87,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO58948-GAS AND SUPPLY",
+      "receipts_selected": [],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 0.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-28_billing01_A3050_c_0040387191_p1-2.pdf"
+        ],
+        "attached_pdf_date": "2026-08-28",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-28T04:52:37Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzhAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10294,
+      "invoice_number": "0040388258",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 867.72,
+      "verification_amount": 867.72,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO59006-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24602,
+          "qty": 2.0,
+          "unit_price": 109.3117,
+          "qty_at_price": "2@109.3117",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 218.62
+        },
+        {
+          "id": 24603,
+          "qty": 3.0,
+          "unit_price": 2.9531,
+          "qty_at_price": "3@2.9531",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 8.86
+        },
+        {
+          "id": 24604,
+          "qty": 200.0,
+          "unit_price": 0.22,
+          "qty_at_price": "200@0.22",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 44.0
+        },
+        {
+          "id": 24605,
+          "qty": 2.0,
+          "unit_price": 95.0,
+          "qty_at_price": "2@95",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 190.0
+        },
+        {
+          "id": 24606,
+          "qty": 1.0,
+          "unit_price": 249.0,
+          "qty_at_price": "1@249",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 249.0
+        },
+        {
+          "id": 24607,
+          "qty": 50.0,
+          "unit_price": 2.45,
+          "qty_at_price": "50@2.45",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 122.5
+        },
+        {
+          "id": 24608,
+          "qty": 1.0,
+          "unit_price": 34.74,
+          "qty_at_price": "1@34.74",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 34.74
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 867.72,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 1049,
+          "text": "@Shawn McKibben Selected receipts 24602, 24603, 24604, 24605, 24606, 24607, and 24608 (PO59006-07 through PO59006-13). Extended total 867.72. Invoice_Amount is 867.72 and matches\u2026",
+          "creator": "Treyce Hodges"
+        },
+        {
+          "id": 1036,
+          "text": "@API Agent @Treyce Hodges added and received. Ready to pay. -S",
+          "creator": "Shawn McKibben"
+        },
+        {
+          "id": 992,
+          "text": "@Shawn McKibben HOLD price_variance on Gas & Supply invoice 0040388258 PO 59006. |PPV| is $75 or more. Over-gate receipts were not selected. No email.",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-28_billing01_A3050_c_0040388258_p2-3.pdf"
+        ],
+        "attached_pdf_date": "2026-08-28",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-28T04:52:37Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzhAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10295,
+      "invoice_number": "0040387888",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 2998.96,
+      "verification_amount": 2998.96,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO59006-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24610,
+          "qty": 1000.0,
+          "unit_price": 1.71,
+          "qty_at_price": "1000@1.71",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 1710.0
+        },
+        {
+          "id": 24611,
+          "qty": 6.0,
+          "unit_price": 13.2493,
+          "qty_at_price": "6@13.2493",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 79.5
+        },
+        {
+          "id": 24612,
+          "qty": 12.0,
+          "unit_price": 20.23,
+          "qty_at_price": "12@20.23",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 242.76
+        },
+        {
+          "id": 24613,
+          "qty": 12.0,
+          "unit_price": 15.56,
+          "qty_at_price": "12@15.56",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 186.72
+        },
+        {
+          "id": 24614,
+          "qty": 70.0,
+          "unit_price": 8.67,
+          "qty_at_price": "70@8.67",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 606.9
+        },
+        {
+          "id": 24615,
+          "qty": 100.0,
+          "unit_price": 1.7308,
+          "qty_at_price": "100@1.7308",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 173.08
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 2998.96,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 1050,
+          "text": "@Shawn McKibben Selected receipts 24610, 24611, 24612, 24613, 24614, and 24615 (PO59006-14 through PO59006-19). Extended total 2998.96. Invoice_Amount is 2998.96 and matches invoi\u2026",
+          "creator": "Treyce Hodges"
+        },
+        {
+          "id": 1037,
+          "text": "@API Agent @Treyce Hodges Added and received. Ready to pay Noted there are some back orders for this PO so expect at least 1 more invoice. -S",
+          "creator": "Shawn McKibben"
+        },
+        {
+          "id": 993,
+          "text": "@Shawn McKibben HOLD price_variance on Gas & Supply invoice 0040387888 PO 59006. |PPV| is $75 or more. Over-gate receipts were not selected. No email.",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-28_billing01_A3050_c_0040387888_p3-3.pdf"
+        ],
+        "attached_pdf_date": "2026-08-28",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-28T04:52:37Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzhAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10296,
+      "invoice_number": "0040386187",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 192.0,
+      "verification_amount": 192.0,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 24.0,
+          "qty_at_price": "8@24",
+          "extended_amount": 192.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "PRO7.5C UN1075 LIQUEFIED PETROLEUM 2.1"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 192.0,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-27_billing01_A3050_c_0040386187_p1-2.pdf"
+        ],
+        "attached_pdf_date": "2026-08-27",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-27T04:57:06Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybziAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10297,
+      "invoice_number": "0040385309",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "3 PO",
+      "invoice_type_code": 3,
+      "invoice_amount": 294.28,
+      "verification_amount": 294.28,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "TRANSFER AP",
+      "batch_id": 375,
+      "in_transfer_ap_375": true,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in TRANSFER AP 375",
+      "po": "PO59006-GAS AND SUPPLY",
+      "receipts_selected": [
+        {
+          "id": 24599,
+          "qty": 2.0,
+          "unit_price": 89.286,
+          "qty_at_price": "2@89.286",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 178.57
+        },
+        {
+          "id": 24600,
+          "qty": 1.0,
+          "unit_price": 8.286,
+          "qty_at_price": "1@8.286",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 8.29
+        },
+        {
+          "id": 24601,
+          "qty": 2.0,
+          "unit_price": 53.71,
+          "qty_at_price": "2@53.71",
+          "receipt_text": "PO59006-GAS AND SUPPLY - 2026/9/24",
+          "extended_amount": 107.42
+        }
+      ],
+      "misc_lines": [],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [],
+      "line_total": 294.28,
+      "charge_total": 0.0,
+      "complete": true,
+      "comments_1": [
+        {
+          "id": 1051,
+          "text": "@Shawn McKibben Removed receipt 24332 (PO59006-01, qty 880 @ 8.91 = 7840.80) from invoice 0040385309. That receipt is not this bill. Selected receipts 24599, 24600, and 24601 (PO5\u2026",
+          "creator": "Treyce Hodges"
+        },
+        {
+          "id": 1034,
+          "text": "@API Agent @Treyce Hodges Added parts and received. Ready to pay. -S",
+          "creator": "Shawn McKibben"
+        },
+        {
+          "id": 994,
+          "text": "@Shawn McKibben HOLD price_variance on Gas & Supply invoice 0040385309 PO 59006. |PPV| is $75 or more. Over-gate receipts were not selected. No email.",
+          "creator": "API Agent"
+        }
+      ],
+      "header_comments": "API Agent",
+      "inclusion": "moved_gas_api_interleaved_with_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-27_billing01_A3050_c_0040385309_p2-3.pdf"
+        ],
+        "attached_pdf_date": "2026-08-27",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-27T04:57:06Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybziAAA="
+      }
+    },
+    {
+      "kimco_bill_id": 10298,
+      "invoice_number": "0040385063",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_is_gas_and_supply": true,
+      "invoice_type": "4 misc",
+      "invoice_type_code": 4,
+      "invoice_amount": 241.5,
+      "verification_amount": 241.5,
+      "verification_matches_invoice_amount": true,
+      "verification_minus_invoice_amount": 0.0,
+      "batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "batch_id": 720,
+      "in_transfer_ap_375": false,
+      "posted": "no",
+      "posted_date": null,
+      "posted_by": null,
+      "status": "open in batch 720",
+      "po": null,
+      "receipts_selected": [],
+      "misc_lines": [
+        {
+          "qty": 8.0,
+          "unit_price": 28.0,
+          "qty_at_price": "8@28",
+          "extended_amount": 224.0,
+          "misc_item": "Shop Supplies - G&S-.",
+          "misc_description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956"
+        }
+      ],
+      "ppv_amount": null,
+      "ppv_charges": [],
+      "fee_charges": [
+        {
+          "id": 5503,
+          "name": "F-Fees & Surcharges",
+          "amount": 17.5,
+          "lookup_id": 11
+        }
+      ],
+      "line_total": 224.0,
+      "charge_total": 17.5,
+      "complete": true,
+      "comments_1": [],
+      "header_comments": "API Agent",
+      "inclusion": "currently_in_batch_720",
+      "source_email": {
+        "found": true,
+        "matched_by": "billing@ statement whose received date equals the date in the KIMCO attached PDF name",
+        "attached_pdf": [
+          "0_2026-08-27_billing01_A3050_c_0040385063_p3-4.pdf"
+        ],
+        "attached_pdf_date": "2026-08-27",
+        "match_count": 3,
+        "same_day_duplicates": [],
+        "other_messages_mentioning_invoice": [
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX226AAA=",
+            "subject": "Past Due Notice for Account A3050",
+            "from": "gigi.pineda@gasandsupply.com",
+            "received": "2026-09-08T18:05:38Z",
+            "categories": [],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          },
+          {
+            "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGWDAAA=",
+            "subject": "Gas&Supply Invoice/Statement",
+            "from": "billing@gasandsupply.com",
+            "received": "2026-09-01T11:13:52Z",
+            "categories": [
+              "Entered in AI"
+            ],
+            "folder": "Inbox",
+            "folder_parent": null,
+            "in_inbox": true,
+            "in_fort_worth_archive": false,
+            "has_attachments": true
+          }
+        ],
+        "in_inbox": false,
+        "in_fort_worth_archive": true,
+        "in_inbox_or_fort_worth_archive": true,
+        "folder": "9 - FORT WORTH ARCHIVE",
+        "folder_parent": "Inbox",
+        "categories": [
+          "Entered with issues"
+        ],
+        "subject": "Gas&Supply Invoice/Statement",
+        "from": "billing@gasandsupply.com",
+        "received": "2026-08-27T04:57:06Z",
+        "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybziAAA="
+      }
+    }
+  ],
+  "complete_definition": "Invoice_Amount equals sum of line Extended_Amount plus additional-charge Amount, within $0.02"
+}
