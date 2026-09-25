@@ -26,6 +26,8 @@ from ap_clerk.ppv_qc import pre_finish_totals_check, scan_ids
 from ap_clerk.receiving_owners import lookup_receiving_owner, mention_span
 from ap_clerk.rules import (
     CURRENCY_USD_ID,
+    air_products_entry_decision,
+    air_products_success_comment,
     due_date_from_terms,
     extract_po_number,
     invoice_number_key,
@@ -98,7 +100,10 @@ BILLS: list[dict[str, Any]] = [
             {"name": "Hazmat Charge", "amount": 120.00, "fee": True},
             {"name": "Product Surcharge", "amount": 6.07, "fee": True},
         ],
-        "tax": 141.74,
+        "taxes": [
+            {"name": "State Tax", "amount": 107.38},
+            {"name": "City Tax", "amount": 34.36},
+        ],
         "no_po_on_pdf": True,
     },
     {
@@ -550,6 +555,25 @@ def receipt_extension(rows: list[dict[str, Any]]) -> float:
 def plan_bill(bill: dict[str, Any], po_lines: list[dict[str, Any]], receipts: list[dict[str, Any]]) -> dict[str, Any]:
     po = str(bill.get("po") or "")
     fee_total = round(sum(float(fee.get("amount") or 0) for fee in bill.get("fees") or []), 2)
+    air = air_products_entry_decision(str(bill.get("vendor") or ""), bill)
+    if air is not None:
+        return {
+            "action": "air_products_misc" if air["ready"] else "air_products_totals",
+            "missing_po": False,
+            "receipts": [],
+            "considered": [],
+            "open_rows": [],
+            "wo_checked": [],
+            "fee_total": fee_total,
+            "received_ext": 0.0,
+            "gap": None,
+            "qty_difference": False,
+            "match": None,
+            "charges": air["charges"],
+            "invoice_type": air["invoice_type"],
+            "post_bill": False,
+            "finish": air["finish"],
+        }
     po_rows = [row for row in po_lines if str(row.get("po") or "") == po]
     open_rows = [row for row in receipts if str(row.get("po") or "") == po]
     wo_rows = [row for row in open_rows if row.get("wo") or row.get("work_order_id")]
@@ -973,8 +997,10 @@ def enter(*, write: bool) -> dict[str, Any]:
             results.append(public_invoice(bill, status="HOLD", reason="PO id missing", kimco_id=None, batch=BATCH_NAME, note=note, ppv=0))
             print(f"NO-PO-ID {number}", flush=True)
             continue
-        invoice_type = 3 if po_id else 4
-        created_id, status, error = _create_for_bill(client, bill, batch_id, sample, invoice_type, po_id)
+        air_plan = plan["action"] in {"air_products_misc", "air_products_totals"}
+        invoice_type = 4 if air_plan else (3 if po_id else 4)
+        po_for_header = None if air_plan else po_id
+        created_id, status, error = _create_for_bill(client, bill, batch_id, sample, invoice_type, po_for_header)
         if created_id is None:
             note = f"AP Clerk: {bill['vendor']} invoice {number} header was not created (HTTP {status}). The bill is not posted."
             results.append(public_invoice(bill, status="HOLD", reason=f"header HTTP {status}", kimco_id=None, batch=BATCH_NAME, note=note, ppv=0))
@@ -983,6 +1009,50 @@ def enter(*, write: bool) -> dict[str, Any]:
         pdf_path = Path(bill["pdf_path"])
         pdf = pdf_path.read_bytes()
         attach = client.try_official_attach(created_id, name=f"{number}.pdf", content_type="application/pdf", size=len(pdf), content=pdf)
+        if plan["action"] == "air_products_misc":
+            shop_status = client.try_post_shop_supplies(created_id, plan.get("charges") or [])
+            record = client.get_item("ap_invoices", created_id)
+            values = record.get("values") or {}
+            charge_sum = 0.0
+            for charge in (record.get("lists") or {}).get("InvoiceAdditionalCharges") or []:
+                amount = money((charge.get("values") or {}).get("Amount"))
+                if amount is not None:
+                    charge_sum = round(charge_sum + amount, 2)
+            note = air_products_success_comment(
+                invoice_number=number,
+                charges=plan.get("charges") or [],
+                pdf_total=bill["total"],
+            )
+            comment = write_comment(client, created_id, note, mention=False)
+            success = (
+                shop_status == "posted"
+                and charge_sum == float(bill["total"])
+                and money(values.get("Invoice_Verification_Amount")) == float(bill["total"])
+                and values.get("Posted") in (None, "", False)
+                and int(values.get("Invoice_Type") or 0) == 4
+            )
+            results.append(
+                public_invoice(
+                    bill,
+                    status="Success" if success else "HOLD",
+                    reason="air_products_misc" if success else "shop supplies total",
+                    kimco_id=created_id,
+                    batch=BATCH_NAME,
+                    transfer_ap="no",
+                    receipts="",
+                    ppv=0.0,
+                    comments_1_id=comment.get("id"),
+                    note=note,
+                    email_moved="pending",
+                )
+            )
+            results[-1]["_attached"] = attach == "attached"
+            results[-1]["_message_id"] = bill.get("message_id")
+            print(
+                f"AIR-PRODUCTS {number} id={created_id} charges={charge_sum} posted={values.get('Posted')} comment={comment.get('id')}",
+                flush=True,
+            )
+            continue
         mention = plan["action"] in {"missing_receipt", "price_variance", "quantity_variance"}
         if plan["action"] != "select":
             note = build_note(bill, plan, status="HOLD", amount_entered=0, ppv=0)

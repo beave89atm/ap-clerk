@@ -741,6 +741,63 @@ def _usable_invoice_number(token: str | None) -> str | None:
     return value
 
 
+_AIR_PRODUCTS_SUMMARY_RE = re.compile(
+    r"^\s*(Product Price|Delivery Charge|Hazmat Charge|Product Surcharge|"
+    r"State Tax(?:\s+\d+(?:\.\d+)?%)?|City Tax(?:\s+\d+(?:\.\d+)?%)?)"
+    r"\s+([\d,]+\.\d{2})\s*$",
+    flags=re.I | re.M,
+)
+_AIR_PRODUCTS_PRODUCT_RE = re.compile(
+    r"(?m)^\d{4}\s+(\d{4,6})\s+[\d,]+\.\d+\s+FTS\s*\n([A-Za-z][A-Za-z0-9 ./-]+)\s*$"
+)
+_AIR_PRODUCTS_TAX_RE = re.compile(r"^(state tax|city tax)\b", flags=re.I)
+
+
+def looks_like_air_products(text: str | None = None, vendor: str | None = None) -> bool:
+    blob = f"{vendor or ''}\n{text or ''}"
+    return bool(re.search(r"air\s+products", blob, flags=re.I))
+
+
+def extract_air_products_bill(text: str) -> dict[str, Any]:
+    """Invoice-summary rows for an Air Products PDF.
+
+    Product, delivery, hazmat, surcharge, and each tax are separate lines.
+    Net value and the invoice total are not lines. The first summary wins
+    so the second page does not double the amounts.
+    """
+    product = _AIR_PRODUCTS_PRODUCT_RE.search(text or "")
+    part = product.group(1) if product else ""
+    product_name = re.sub(r"\s+", " ", product.group(2)).strip() if product else ""
+    charges: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for match in _AIR_PRODUCTS_SUMMARY_RE.finditer(text or ""):
+        label = re.sub(r"\s+", " ", match.group(1)).strip()
+        short = re.sub(r"\s+\d+(?:\.\d+)?%$", "", label, flags=re.I).strip()
+        key = short.lower()
+        if key in seen:
+            continue
+        amount = parse_money(match.group(2))
+        if amount is None:
+            continue
+        seen.add(key)
+        kind = "tax" if _AIR_PRODUCTS_TAX_RE.search(short) else "fee"
+        source = short
+        if key == "product price":
+            kind = "product"
+            source = product_name or "Product Price"
+        row: dict[str, Any] = {
+            "source": source,
+            "description": "shop supplies",
+            "name": source,
+            "amount": amount,
+            "kind": kind,
+        }
+        if kind == "product" and part:
+            row["part"] = part
+        charges.append(row)
+    return {"charges": charges, "part": part, "product_name": product_name}
+
+
 def extract_po_numbers(text: str) -> list[str]:
     if _PO_NONE.search(text or ""):
         return []
@@ -2363,6 +2420,40 @@ def parse_invoice_text(
                     existing["fee"] = True
             else:
                 fees.append(fee)
+    air_products_charges: list[dict[str, Any]] = []
+    if looks_like_air_products(pdf_text, vendor):
+        air_bill = extract_air_products_bill(pdf_text)
+        air_products_charges = list(air_bill.get("charges") or [])
+        if air_products_charges:
+            lines = []
+            fees = []
+            for row in air_products_charges:
+                if row.get("kind") == "product":
+                    lines.append(
+                        {
+                            "part": row.get("part") or "",
+                            "description": row.get("source") or "",
+                            "amount": row.get("amount"),
+                        }
+                    )
+                elif row.get("kind") == "tax":
+                    fees.append(
+                        {
+                            "name": row.get("source") or "Tax",
+                            "amount": row.get("amount"),
+                            "fee": True,
+                            "tax": True,
+                        }
+                    )
+                else:
+                    fees.append(
+                        {
+                            "name": row.get("source") or "Fee",
+                            "amount": row.get("amount"),
+                            "fee": True,
+                        }
+                    )
+            pos = []
     if "3p" in vendor_l or "rachel bailey" in blob_l or re.search(r"\b3p\s+industries\b", pdf_text or "", flags=re.I):
         three_p = extract_3p_lines(pdf_text)
         if three_p:
@@ -2418,6 +2509,12 @@ def parse_invoice_text(
             else []
         ),
     }
+    if air_products_charges:
+        parsed["air_products_misc"] = True
+        parsed["air_products_charges"] = air_products_charges
+        parsed["po"] = None
+        parsed["pos"] = []
+        parsed["multi_po"] = False
     action = str(note54_pack.get("action") or "passthrough")
     parsed["note54_action"] = action
     parsed["note54_page_classes"] = list(note54_pack.get("classes") or [])

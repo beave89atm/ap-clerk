@@ -58,6 +58,7 @@ from ap_clerk.gates import (
     GATE_ALREADY_ENTERED,
     GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
+    GATE_FINISH,
     GATE_PDF_LINK,
     GATE_PO,
     GATE_PREFLIGHT,
@@ -113,6 +114,9 @@ from ap_clerk.rules import (
     is_noise_reason,
     looks_like_account_statement,
     invoice_type_for,
+    air_products_charges_match,
+    air_products_shop_supplies_charges,
+    is_air_products_vendor,
     is_freight_vendor,
     is_rfq_not_kimco_po,
     kimco_datetime,
@@ -1061,7 +1065,19 @@ def _process_invoice(
         return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     freight_vendor = is_freight_vendor(vendor)
-    pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)]
+    air_products = is_air_products_vendor(vendor)
+    if air_products:
+        # Standing rule: Miscellaneous, no PO, never a missing_po HOLD.
+        po = None
+        po_display = ""
+        row["PO"] = ""
+        inv = dict(inv)
+        inv["po"] = None
+        inv["pos"] = []
+        inv["multi_po"] = False
+    pos = [] if air_products else [
+        str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)
+    ]
     if po and is_rfq_not_kimco_po(po):
         po = None
         po_display = ""
@@ -1076,7 +1092,10 @@ def _process_invoice(
     wo = next((str(line.get("wo")) for line in invoice_lines if line.get("wo")), None)
     po_info = None
     po_missing_note = ""
-    resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
+    if air_products:
+        resolved = {"info": None, "number": None, "how": "air-products-misc"}
+    else:
+        resolved = find_live_po(po_index, printed_po=str(po) if po else None, vendor=vendor, parts=parts, wo=wo)
     if resolved.get("info") and not multi_po:
         po_info = resolved["info"]
         po = resolved.get("number") or po
@@ -1207,7 +1226,7 @@ def _process_invoice(
     price["ppv_total"] = ppv_value
     if ppv_value:
         row["PPV"] = format_ppv(ppv_value)
-    if price["hold"] or preset_hold == "price does not match":
+    if not air_products and (price["hold"] or preset_hold == "price does not match"):
         issue_why = why_hold(GATE_PRICE, price["why"] or PRICE_DOES_NOT_MATCH)
         if PRICE_MISMATCH_PO_COMMENT not in issue_why:
             issue_why = f"{issue_why} {PRICE_MISMATCH_PO_COMMENT}"
@@ -1215,7 +1234,7 @@ def _process_invoice(
         issue_hold = (GATE_PRICE, issue_why)
     # Multi-PO: PO qty is "available", not a must-equal gate (142043 need 4 of 6).
     # Freight companies have no Select Receipts / PO qty gate (Priority 1).
-    if not multi_po and not freight_vendor and not transfer_ap:
+    if not multi_po and not freight_vendor and not transfer_ap and not air_products:
         qty_ok, qty_why = qty_gate(invoice_lines, po_lines)
         if not qty_ok:
             extra = qty_why
@@ -1386,7 +1405,9 @@ def _process_invoice(
     due = due_date_from_terms(invoice_day, lookup_text(terms))
     # Printed/findable PO must stay Type 3 (Purvis 32625214 / 58926). Never blank Type 4.
     # Multi-PO (3P 142041): receipt-type Type 3, header PO blank, Select Receipts per PO.
-    if multi_po:
+    if air_products:
+        invoice_type = invoice_type_for(None)
+    elif multi_po:
         invoice_type = INVOICE_TYPE_PO
     else:
         invoice_type = invoice_type_for(po if (po_info or po) else None)
@@ -1414,8 +1435,12 @@ def _process_invoice(
         if found_transfer:
             payload["AP_Invoice_Batch"] = {"id": found_transfer["id"]}
             row["Batch"] = f"{TRANSFER_AP_BATCH_NAME} ({found_transfer['id']})"
-    if po_info and not multi_po and not transfer_ap:
+    if po_info and not multi_po and not transfer_ap and not air_products:
         payload["Purchase_Order"] = {"id": po_info["id"]}
+    if air_products and payload.get("Posted") not in (None, "", False):
+        row["Result"] = RESULT_FAIL
+        row["Why"] = why_fail("Air Products standing rule forbids posting the bill.")
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     created_id, _body, status, error = client.create("ap_invoices", payload)
     if created_id is None:
         row["Result"] = RESULT_FAIL
@@ -1464,6 +1489,38 @@ def _process_invoice(
         receipts_selected = select_status == "selected"
     fees_posted = False
     fee_status = "none"
+    shop_status = "none"
+    if air_products:
+        shop_charges = air_products_shop_supplies_charges(inv)
+        if not air_products_charges_match(shop_charges, amount):
+            issue_hold = (
+                GATE_FINISH,
+                why_hold(
+                    GATE_FINISH,
+                    "Air Products shop supplies lines do not total the PDF invoice to the penny. "
+                    "This is not a missing_po HOLD. Do not post the bill.",
+                ),
+            )
+        else:
+            poster_shop = getattr(client, "try_post_shop_supplies", None)
+            if poster_shop:
+                try:
+                    shop_status = poster_shop(created_id, shop_charges)
+                except KimcoError:
+                    shop_status = "blocked-405"
+            else:
+                shop_status = "blocked-no-shop-supplies-api"
+            if shop_status != "posted":
+                issue_hold = (
+                    GATE_FINISH,
+                    why_hold(
+                        GATE_FINISH,
+                        f"Air Products shop supplies additional charges were not saved ({shop_status}). "
+                        "Do not post the bill.",
+                    ),
+                )
+        inv = dict(inv)
+        inv["fees"] = []
     parsed_fees = list(inv.get("fees") or [])
     if fees_required(parsed_fees):
         poster = getattr(client, "try_post_fees", None)
@@ -1484,7 +1541,7 @@ def _process_invoice(
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
     ppv_status = "none"
-    if price.get("ppv_total"):
+    if price.get("ppv_total") and not air_products:
         poster_ppv = getattr(client, "try_post_ppv", None)
         if poster_ppv:
             try:
@@ -1623,7 +1680,15 @@ def _process_invoice(
                     f"Fees {format_fees(parsed_fees)} were parsed but not posted "
                     f"({fee_status}); sheet column is not enough. "
                 )
-    if result == RESULT_SUCCESS:
+    if result == RESULT_SUCCESS and air_products:
+        row["Why"] = (
+            f"Finished bill (Invoice_Type {invoice_type} Miscellaneous). "
+            "Air Products shop supplies bill entered as miscellaneous per the standing rule. "
+            f"Additional Charges lines described shop supplies total the PDF ({amount}). "
+            f"Shop supplies status={shop_status}. The bill is not posted. "
+            f"Attach status={pdf_status}."
+        )
+    elif result == RESULT_SUCCESS:
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type}). {po_missing_note}{line_note}{receipt_note}"
             f"{ppv_note}{fee_note}"

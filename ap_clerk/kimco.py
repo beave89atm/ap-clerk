@@ -458,6 +458,28 @@ class KimcoClient:
             return self._blocked_405("Additional Charge Fees", invoice_id)
         return f"blocked-{put.status_code}"
 
+    def try_post_shop_supplies(
+        self,
+        invoice_id: int,
+        charges: list[dict[str, Any]] | None = None,
+    ) -> str:
+        """Post Air Products lines as Additional Charges described shop supplies.
+
+        Does not set Posted. Does not select receipts.
+        """
+        if invoice_id in (None, ""):
+            raise KimcoError("Shop supplies post requires an invoice record id")
+        payload = shop_supplies_charges_payload(list(charges or []), invoice_id=invoice_id)
+        if "Posted" in (payload.get("values") or {}):
+            raise KimcoError("Shop supplies post must not post the bill")
+        url = self._record_url("ap_invoices", invoice_id)
+        put = self.request("PUT", url, json=payload)
+        if put.status_code < 400:
+            return "posted"
+        if put.status_code == 405:
+            return self._blocked_405("Additional Charge shop supplies", invoice_id)
+        return f"blocked-{put.status_code}"
+
     def try_post_ppv(self, invoice_id: int, amount: float | None) -> str:
         """Post Additional Charge Purchase Price Variance on the invoice RECORD.
 
@@ -737,6 +759,72 @@ def _charge_kind_text(values: dict[str, Any]) -> str:
     if isinstance(kind, dict):
         kind = kind.get("text") or kind.get("id") or ""
     return str(kind or "")
+
+
+def shop_supplies_charges_payload(
+    charges: list[dict[str, Any]],
+    *,
+    invoice_id: int | str | None = None,
+    description: str = "shop supplies",
+) -> dict[str, Any]:
+    """Record PUT body for Air Products Additional Charges.
+
+    Each PDF line is one InvoiceAdditionalCharges child. Name is the
+    description "shop supplies". Quantity is 1 and Price/Amount are the
+    line amount. Additional_Charges uses the live F-Fees lookup; Name is
+    what the bill shows as the line description. No Receipt. Does not post.
+    """
+    from ap_clerk.rules import AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION
+
+    label = str(description or AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION)
+    items: list[dict[str, Any]] = []
+    for raw in charges or []:
+        if not isinstance(raw, dict):
+            continue
+        amount = money(raw.get("amount"))
+        if amount is None:
+            continue
+        items.append(
+            {
+                "state": "Added",
+                "values": {
+                    ADDITIONAL_CHARGE_FIELD: additional_charge_lookup(),
+                    "Name": label,
+                    "Quantity": 1.0,
+                    "Price": amount,
+                    "Amount": amount,
+                },
+            }
+        )
+    if not items:
+        raise KimcoError("Shop supplies post requires at least one line amount")
+    payload: dict[str, Any] = {"state": "Modified", "lists": {ADDITIONAL_CHARGE_LIST: items}}
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
+
+
+def replace_comment_payload(invoice_id: int | str, comment_id: int | str, text: str) -> dict[str, Any]:
+    """Overwrite one Comments_1 row in place. KIMCO will not delete comments."""
+    if invoice_id in (None, "") or comment_id in (None, ""):
+        raise KimcoError("Comment overwrite requires the invoice id and the comment id")
+    note = str(text or "").strip()
+    if not note.startswith("AP Clerk:"):
+        raise KimcoError("Comment overwrite must start with AP Clerk:")
+    html = note if note.startswith("<") else f"<p>{note}</p>"
+    return {
+        "state": "Modified",
+        "id": int(invoice_id),
+        "lists": {
+            "Comments_1": [
+                {
+                    "id": int(comment_id),
+                    "state": "Modified",
+                    "values": {"HtmlValue": html},
+                }
+            ]
+        },
+    }
 
 
 def fees_payload(

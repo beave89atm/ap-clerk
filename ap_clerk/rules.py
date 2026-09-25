@@ -84,6 +84,27 @@ CREATE_HEADER_ON_HOLD = {
 HOLD_ONLY_REASONS = NOISE_REASONS | BILL_HOLD_REASONS
 GAS_AND_SUPPLY_MISC_ITEM = "Shop Supplies - G&S"
 
+# Kyle 2026-09-25 standing rule: Air Products and Chemicals, Inc invoices are
+# always Miscellaneous (Invoice_Type 4). They have no PO. Never HOLD them as
+# missing_po and never send them to Transfer AP for a missing PO. Each PDF
+# line is an Additional Charges line described "shop supplies", including
+# freight, fees, and tax when the PDF lists those separately. The lines must
+# total the PDF invoice total to the penny. Finish as Success. Never post.
+AIR_PRODUCTS_VENDOR_ID = 13
+AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION = "shop supplies"
+AIR_PRODUCTS_VENDOR_RULE = {
+    "vendor_id": AIR_PRODUCTS_VENDOR_ID,
+    "names": ("air products", "air products and chemicals"),
+    "invoice_type": INVOICE_TYPE_NO_PO,
+    "never_missing_po": True,
+    "transfer_ap": False,
+    "select_receipts": False,
+    "additional_charge_description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+    "include_freight_fees_tax": True,
+    "finish": "Success",
+    "post": False,
+}
+
 
 def is_noise_reason(reason: str | None) -> bool:
     """True for bill-vs-noise skips (statement, CHECK STOP, POD, payment, dup, not-a-bill)."""
@@ -406,6 +427,170 @@ def vendor_expects_printed_po(name: str | None) -> bool:
     )
 
 
+def is_air_products_vendor(name: str | None = None, vendor_id: Any = None) -> bool:
+    """Air Products and Chemicals, Inc (live Vendor.id 13)."""
+    if vendor_id not in (None, ""):
+        try:
+            if int(vendor_id) == int(AIR_PRODUCTS_VENDOR_RULE["vendor_id"]):
+                return True
+        except (TypeError, ValueError):
+            pass
+    raw = re.sub(r"[^a-z0-9]+", " ", (name or "").lower()).strip()
+    if not raw:
+        return False
+    return any(token in raw for token in AIR_PRODUCTS_VENDOR_RULE["names"])
+
+
+def _air_products_amount(row: dict[str, Any]) -> float | None:
+    amount = money(row.get("amount"))
+    if amount is None:
+        amount = money(row.get("line_amount"))
+    return amount
+
+
+def _air_products_source(row: dict[str, Any], fallback: str) -> str:
+    source = str(row.get("source") or row.get("description") or row.get("name") or row.get("part") or fallback).strip()
+    return re.sub(r"\s+", " ", source) or fallback
+
+
+def air_products_shop_supplies_charges(bill: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """One Additional Charges row per PDF line, each described shop supplies.
+
+    Merchandise, freight, fees, and tax stay separate when the source lists
+    them separately. A single tax amount stays one line. Summary rows such as
+    net value are not charges.
+    """
+    data = bill or {}
+    description = str(AIR_PRODUCTS_VENDOR_RULE["additional_charge_description"])
+    preset = data.get("air_products_charges")
+    source_rows: list[tuple[str, float]] = []
+    if preset:
+        for row in preset:
+            if not isinstance(row, dict):
+                continue
+            amount = _air_products_amount(row)
+            if amount is None:
+                continue
+            source_rows.append((_air_products_source(row, "line"), amount))
+    else:
+        for row in data.get("lines") or []:
+            if not isinstance(row, dict) or row.get("fee"):
+                continue
+            amount = _air_products_amount(row)
+            if amount is None:
+                continue
+            source_rows.append((_air_products_source(row, "Product"), amount))
+        for row in data.get("fees") or []:
+            if not isinstance(row, dict):
+                continue
+            amount = _air_products_amount(row)
+            if amount is None:
+                continue
+            source_rows.append((_air_products_source(row, "Fee"), amount))
+        taxes = data.get("taxes")
+        if taxes is None and data.get("tax") not in (None, ""):
+            taxes = data.get("tax")
+        if isinstance(taxes, list):
+            for row in taxes:
+                if isinstance(row, dict):
+                    amount = _air_products_amount(row)
+                    if amount is None:
+                        continue
+                    source_rows.append((_air_products_source(row, "Tax"), amount))
+                else:
+                    amount = money(row)
+                    if amount is None:
+                        continue
+                    source_rows.append(("Tax", amount))
+        else:
+            amount = money(taxes)
+            if amount not in (None, 0, 0.0):
+                source_rows.append(("Tax", amount))
+    charges: list[dict[str, Any]] = []
+    for source, amount in source_rows:
+        charges.append(
+            {
+                "description": description,
+                "source": source,
+                "amount": amount,
+                "name": description,
+            }
+        )
+    return charges
+
+
+def air_products_charges_total(charges: list[dict[str, Any]] | None) -> float:
+    return round(sum(float(_air_products_amount(row) or 0) for row in (charges or []) if isinstance(row, dict)), 2)
+
+
+def air_products_charges_match(charges: list[dict[str, Any]] | None, pdf_total: Any) -> bool:
+    """True when shop-supplies lines equal the PDF total to the penny."""
+    total = money(pdf_total)
+    rows = [row for row in (charges or []) if isinstance(row, dict)]
+    if total is None or not rows:
+        return False
+    if any(str(row.get("description") or "") != AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION for row in rows):
+        return False
+    return air_products_charges_total(rows) == total
+
+
+def air_products_success_comment(
+    *,
+    invoice_number: str,
+    charges: list[dict[str, Any]],
+    pdf_total: Any,
+) -> str:
+    """Plain-English Comments_1 note. Starts with AP Clerk:."""
+    bits = []
+    for row in charges:
+        amount = _air_products_amount(row)
+        source = _air_products_source(row, "line")
+        bits.append(f"{source} ${amount:,.2f}" if amount is not None else source)
+    listed = "; ".join(bits)
+    total = money(pdf_total)
+    total_txt = f"${total:,.2f}" if total is not None else "the PDF total"
+    number = str(invoice_number or "").strip()
+    return (
+        "AP Clerk: This is an Air Products shop supplies bill entered as miscellaneous "
+        f"per the standing rule. Invoice {number}. Additional Charges lines, each described "
+        f"shop supplies: {listed}. Those lines total {total_txt}, which matches the PDF total. "
+        "The bill is not posted."
+    )
+
+
+def air_products_entry_decision(
+    vendor: str | None = None,
+    bill: dict[str, Any] | None = None,
+    *,
+    vendor_id: Any = None,
+) -> dict[str, Any] | None:
+    """How a misc/no-PO entry path must treat this vendor. None for everyone else.
+
+    Air Products is always Miscellaneous, never a missing_po HOLD, never posted.
+    """
+    data = dict(bill or {})
+    if not is_air_products_vendor(vendor or data.get("vendor"), vendor_id or data.get("vendor_id")):
+        return None
+    charges = air_products_shop_supplies_charges(data)
+    total = money(data.get("total") if data.get("total") not in (None, "") else data.get("amount"))
+    ready = air_products_charges_match(charges, total)
+    return {
+        "vendor_rule": "air_products_misc",
+        "invoice_type": int(AIR_PRODUCTS_VENDOR_RULE["invoice_type"]),
+        "missing_po_hold": False,
+        "transfer_ap": False,
+        "select_receipts": False,
+        "post_bill": False,
+        "description": AIR_PRODUCTS_SHOP_SUPPLIES_DESCRIPTION,
+        "charges": charges,
+        "pdf_total": total,
+        "charges_total": air_products_charges_total(charges),
+        "ready": ready,
+        "finish": "Success" if ready else "HOLD",
+        "hold_reason": "" if ready else "shop supplies lines do not total the PDF invoice",
+    }
+
+
 def should_transfer_ap_missing_po(
     *,
     vendor: str | None,
@@ -418,7 +603,10 @@ def should_transfer_ap_missing_po(
 
     Owner for contact is Shawn McKibben. Transfer AP is the destination
     batch only. Misty McCoy is not a hard default.
+    Air Products is never a missing-PO transfer.
     """
+    if is_air_products_vendor(vendor):
+        return False
     if freight or gas_misc or is_freight_vendor(vendor):
         return False
     if not vendor_expects_printed_po(vendor):
