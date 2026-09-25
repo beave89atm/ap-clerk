@@ -1,0 +1,211 @@
+{
+  "run": "3p-1007044-receiving-notes-deleted-2026-09-25",
+  "host": "https://live.kimcoerp.com",
+  "deleted_ids": [
+    1075,
+    1076,
+    1077,
+    1078
+  ],
+  "kept_comment_ids": {
+    "10306": [
+      1071,
+      1061
+    ],
+    "10308": [
+      1072,
+      1062
+    ],
+    "10312": [
+      1073,
+      1068
+    ],
+    "10314": [
+      1074,
+      1070
+    ]
+  },
+  "emails_sent": false,
+  "mentions_added": false,
+  "bills_changed": false,
+  "read_at": "2026-09-25T14:05:52Z",
+  "removed_text": {
+    "1075": "AP Clerk: Receiving check on part 1007044-1: receipt 23414 shows Quantity_Received 4 but Quantity_Remaining 3 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+    "1076": "AP Clerk: Receiving check on part 1007044-1: receipt 23543 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+    "1077": "AP Clerk: Receiving check on part 1007044-1: receipt 23528 shows Quantity_Received 1 but Quantity_Remaining 2 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23529 shows Quantity_Received 3 but Quantity_Remaining 0 on PO 58952. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23527 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58972. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23530 shows Quantity_Received 4 but Quantity_Remaining 2 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+    "1078": "AP Clerk: Receiving check on part 1007044-1: receipt 23917 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23920 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23921 shows Quantity_Received 1 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price."
+  },
+  "deletes": [
+    {
+      "bill_id": 10306,
+      "invoice": "142179",
+      "comment_id": 1075,
+      "matched": true,
+      "deleted": true,
+      "put_http": 200,
+      "note": "Removed on the prior call that included the exact HtmlValue. Readback below confirms it is gone."
+    },
+    {
+      "bill_id": 10308,
+      "invoice": "142188",
+      "comment_id": 1076,
+      "matched": true,
+      "deleted": true,
+      "put_http": 200,
+      "before_html": "AP Clerk: Receiving check on part 1007044-1: receipt 23543 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "before_comment_ids": [
+        1076,
+        1072,
+        1062
+      ],
+      "after_comment_ids": [
+        1072,
+        1062
+      ],
+      "other_notes_unchanged": true,
+      "bill_unchanged": true
+    },
+    {
+      "bill_id": 10312,
+      "invoice": "142216",
+      "comment_id": 1077,
+      "matched": true,
+      "deleted": true,
+      "put_http": 200,
+      "before_html": "AP Clerk: Receiving check on part 1007044-1: receipt 23528 shows Quantity_Received 1 but Quantity_Remaining 2 on PO 58925. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23529 shows Quantity_Received 3 but Quantity_Remaining 0 on PO 58952. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23527 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 58972. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23530 shows Quantity_Received 4 but Quantity_Remaining 2 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "before_comment_ids": [
+        1077,
+        1073,
+        1068
+      ],
+      "after_comment_ids": [
+        1073,
+        1068
+      ],
+      "other_notes_unchanged": true,
+      "bill_unchanged": true
+    },
+    {
+      "bill_id": 10314,
+      "invoice": "142280",
+      "comment_id": 1078,
+      "matched": true,
+      "deleted": true,
+      "put_http": 200,
+      "before_html": "AP Clerk: Receiving check on part 1007044-1: receipt 23917 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59002. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23920 shows Quantity_Received 2 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price. AP Clerk: Receiving check on part 1007044-1: receipt 23921 shows Quantity_Received 1 but Quantity_Remaining 0 on PO 59031. These should line up. Please verify the receiving record for this line when unreceiving/re-receiving at the corrected price.",
+      "before_comment_ids": [
+        1078,
+        1074,
+        1070
+      ],
+      "after_comment_ids": [
+        1074,
+        1070
+      ],
+      "other_notes_unchanged": true,
+      "bill_unchanged": true
+    }
+  ],
+  "readback": [
+    {
+      "bill_id": 10306,
+      "invoice": "142179",
+      "amount": 1465.8,
+      "verification": 1855.8,
+      "batch": 375,
+      "batch_text": "TRANSFER AP",
+      "status": 1,
+      "posted": null,
+      "comment_ids": [
+        1071,
+        1061
+      ],
+      "comments": [
+        {
+          "id": 1071,
+          "html": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 4, receipt 23414, PO price $361.46 vs invoice $97.50, gap $1,055.84. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward."
+        },
+        {
+          "id": 1061,
+          "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD price_variance on 3P 142179. qty 4 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($390.00) and receipt 23414 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 4.</p>"
+        }
+      ],
+      "receiving_notes_present": []
+    },
+    {
+      "bill_id": 10308,
+      "invoice": "142188",
+      "amount": 2358.27,
+      "verification": 2553.27,
+      "batch": 375,
+      "batch_text": "TRANSFER AP",
+      "status": 1,
+      "posted": null,
+      "comment_ids": [
+        1072,
+        1062
+      ],
+      "comments": [
+        {
+          "id": 1072,
+          "html": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 2, receipt 23543, PO price $361.46 vs invoice $97.50, gap $527.92. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward."
+        },
+        {
+          "id": 1062,
+          "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD price_variance on 3P 142188. qty 2 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($195.00) and receipt 23543 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 2.</p>"
+        }
+      ],
+      "receiving_notes_present": []
+    },
+    {
+      "bill_id": 10312,
+      "invoice": "142216",
+      "amount": 506.33,
+      "verification": 1481.33,
+      "batch": 375,
+      "batch_text": "TRANSFER AP",
+      "status": 1,
+      "posted": null,
+      "comment_ids": [
+        1073,
+        1068
+      ],
+      "comments": [
+        {
+          "id": 1073,
+          "html": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 58925 qty 1, receipt 23528, PO price $361.46 vs invoice $97.50, gap $263.96. PO 58952 qty 3, receipt 23529, PO price $361.46 vs invoice $97.50, gap $791.88. PO 58972 qty 2, receipt 23527, PO price $361.46 vs invoice $97.50, gap $527.92. PO 59002 qty 4, receipt 23530, PO price $361.46 vs invoice $97.50, gap $1,055.84. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward."
+        },
+        {
+          "id": 1068,
+          "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD price_variance on 3P 142216. Matching receipts selected: 23526, 23525. qty 1 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($97.50) and receipt 23528 is already at PO price $361.46 ($361.46). |PPV| $263.96 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 1. qty 3 of part 1007044-1 on PO 58952 is $97.50 on the invoice ($292.50) and receipt 23529 is already at PO price $361.46 ($1084.38). |PPV| $791.88 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58952 part 1007044-1 to $97.50, and re-receive qty 3. qty 2 of part 1007044-1 on PO 58972 is $97.50 on the invoice ($195.00) and receipt 23527 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58972 part 1007044-1 to $97.50, and re-receive qty 2. qty 4 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($390.00) and receipt 23530 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 4.</p>"
+        }
+      ],
+      "receiving_notes_present": []
+    },
+    {
+      "bill_id": 10314,
+      "invoice": "142280",
+      "amount": 1082.06,
+      "verification": 1631.56,
+      "batch": 375,
+      "batch_text": "TRANSFER AP",
+      "status": 1,
+      "posted": null,
+      "comment_ids": [
+        1074,
+        1070
+      ],
+      "comments": [
+        {
+          "id": 1074,
+          "html": "AP Clerk: Line not matching on cost: part 1007044-1 only. Quantities match receipts on every line; all other lines are matched and selected. PO 59002 qty 2, receipt 23917, PO price $361.46 vs invoice $97.50, gap $527.92. PO 59031 qty 3, receipt 23920 qty 2 + receipt 23921 qty 1, PO price $361.46 vs invoice $97.50, gap $791.88. Fix: unreceive, set PO price for 1007044-1 to $97.50 (or confirm correct price / unit of measure with 3P), re-receive same qty, then AP will select receipts and finish. Pattern: the same $263.96/ea gap on 1007044-1 appears on 4 invoices (142179, 142188, 142216, 142280), POs 58925, 58952, 58972, 59002, 59031, 21 pcs, $5,543.16 total. Please update the standard/PO price for 1007044-1 going forward."
+        },
+        {
+          "id": 1070,
+          "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD price_variance on 3P 142280. Matching receipts selected: 23918, 23919, 23913, 23914, 23922, 23915, 23916. qty 25 of part 33213-1 on PO 58972 is $22.30 on the invoice ($557.50) and receipt 23913 is at PO price $19.82 ($495.50). |PPV| $62.00 is under $75, so that receipt was selected at the PO extended cost and no unit-price PPV was stacked on it. qty 2 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($195.00) and receipt 23917 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 2. qty 3 of part 1007044-1 on PO 59031 is $97.50 on the invoice ($292.50). Receipt 23920 qty 2 is already at PO price $361.46 ($722.92) and receipt 23921 qty 1 is already at PO price $361.46 ($361.46). Combined PO extended $1084.38. |PPV| $791.88 is $75 or more, so those receipts were not selected and the unit price was not changed. Unreceive, set PO 59031 part 1007044-1 to $97.50, and re-receive qty 3.</p>"
+        }
+      ],
+      "receiving_notes_present": []
+    }
+  ]
+}
