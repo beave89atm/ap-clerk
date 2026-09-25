@@ -244,7 +244,8 @@ def test_note39_hold_gets_category_owner_success_blank():
     )
     assert hold[COL_EXCEPTION_CATEGORY] == "missing_receipt"
     assert hold[COL_EXCEPTION_OWNER] == "Ruben Perez"
-    assert "category=missing_receipt" in hold["Why"]
+    assert "category=" not in hold["Why"]
+    assert "no open receipt" in hold["Why"]
     missing_po = apply_exception_category_owner(
         {
             "Result": "HOLD",
@@ -489,7 +490,9 @@ def test_missing_po_owner_is_shawn_not_misty():
     assert row[COL_EXCEPTION_CATEGORY] == "missing_po"
     assert row[COL_EXCEPTION_OWNER] == PURCHASING_OWNER == "Shawn McKibben"
     assert "Misty" not in row["Why"]
-    assert "category=missing_po; owner=Shawn McKibben" in row["Why"]
+    assert "category=" not in row["Why"]
+    assert "owner=" not in row["Why"]
+    assert "59081" in row["Why"]
 
 
 def test_plus15_prefers_no_po_over_po_cited():

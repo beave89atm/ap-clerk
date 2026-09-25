@@ -89,7 +89,6 @@ from ap_clerk.quality_v12 import (
     assert_never_success,
     canonical_exception_owner,
     classify_exception,
-    exception_prefix,
     note55_open_receipt_hold,
     note_by_id,
     note_ids,
@@ -209,9 +208,11 @@ def test_v12_registry_covers_all_notes():
         "NOTE-55",
         "NOTE-56",
         "NOTE-57",
+        "NOTE-58",
+        "NOTE-59",
     )
-    assert len(TREYCE_NOTES_V12) == 47
-    assert len(TREYCE_FINISH_CHECKLIST) == 20
+    assert len(TREYCE_NOTES_V12) == 49
+    assert len(TREYCE_FINISH_CHECKLIST) == 22
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -263,6 +264,8 @@ def test_v12_registry_covers_all_notes():
         "open-receipts-forbid-missing-receipt",
         "penny-ppv-when-lines-miss-header",
         "ppv-qc-live-readback-before-finish",
+        "qty-uom-over-ppv-transfer-shawn",
+        "plain-english-hold-notes",
     }
 
 
@@ -698,6 +701,8 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "classify-before-extract-mixed-pdf",
         "open-receipts-not-missing-receipt",
         "ppv-qc-live-gap-zero",
+        "qty-uom-over-ppv-transfer-shawn",
+        "plain-english-hold-notes",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4589,10 +4594,14 @@ def _assert_exception_tagged(row, *, category: str, owner: str, note_id: str = "
     assert_never_success(row["Result"], note_id=note_id, detail=row.get("Why") or "")
     assert row[COL_EXCEPTION_CATEGORY] == category
     assert row[COL_EXCEPTION_OWNER] == owner
-    prefix = exception_prefix(category, owner)
-    assert prefix in (row.get("Why") or "")
+    why = row.get("Why") or ""
+    assert "category=" not in why
+    assert "owner=" not in why
     assert category in EXCEPTION_CATEGORY_OWNERS
-    assert EXCEPTION_CATEGORY_OWNERS[category] == owner
+    if category == "quantity_variance" and owner == "Shawn McKibben":
+        assert EXCEPTION_CATEGORY_OWNERS[category] == "buyer"
+    else:
+        assert EXCEPTION_CATEGORY_OWNERS[category] == owner
 
 
 def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
@@ -4750,7 +4759,7 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     _assert_exception_tagged(pdf_row, category="pdf_capture", owner="AP")
     assert GATE_PDF_LINK in pdf_row["Why"] or "pdf-behind-link" in pdf_row["Why"]
 
-    # Qty HOLD (NOTE-03 Capital) → buyer
+    # Qty HOLD (NOTE-03 Capital) dollar gap is over $75 → Shawn, not buyer (NOTE-58)
     capital = NOTES["NOTE-03"]
     qty_row, _ = _row(
         {
@@ -4776,8 +4785,9 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
         samples=[{"vendor_id": 45, "vendor_text": "Capital Machine", "invoice_id": 9, "po_text": ""}],
         receipts=[{"po": capital["po"], "slip": capital["invoice_number"], "part": "BLADE", "qty": capital["po_qty"], "id": 1}],
     )
-    _assert_exception_tagged(qty_row, category="quantity_variance", owner="buyer")
-    assert GATE_QTY in qty_row["Why"] or "qty" in qty_row["Why"].lower()
+    _assert_exception_tagged(qty_row, category="quantity_variance", owner="Shawn McKibben")
+    assert "quantity does not match" in qty_row["Why"].lower()
+    assert qty_row[COL_EXCEPTION_OWNER] != "buyer"
 
     # Success leaves Exception category/owner blank
     success_pdf = tmp_path / "TXFT499356.pdf"
@@ -4825,8 +4835,9 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
     )
     assert remapped[COL_EXCEPTION_CATEGORY] == "missing_po"
     assert remapped[COL_EXCEPTION_OWNER] == "Shawn McKibben"
-    assert remapped["Why"].startswith("category=missing_po; owner=Shawn McKibben")
-    assert remapped["Why"].count("category=") == 1
+    assert "category=" not in remapped["Why"]
+    assert "owner=" not in remapped["Why"]
+    assert "HOLD (po)" in remapped["Why"]
     assert "Misty McCoy" not in remapped["Why"]
     assert classify_exception(
         result=RESULT_HOLD, why="HOLD (auto-pay): Toyota Commercial Finance / auto-pay."
@@ -4843,7 +4854,10 @@ def test_never_repeat_note39_exception_category_owner(tmp_path: Path):
         {"Result": RESULT_HOLD, "Why": "HOLD (price-does-not-match): gap."}
     )
     assert stamped[COL_EXCEPTION_CATEGORY] == "price_variance"
-    assert stamped["Why"].startswith("category=price_variance; owner=Shawn McKibben")
+    assert stamped[COL_EXCEPTION_OWNER] == "Shawn McKibben"
+    assert "category=" not in stamped["Why"]
+    assert "owner=" not in stamped["Why"]
+    assert "price-does-not-match" in stamped["Why"]
 
 
 def test_never_repeat_note42_gas_misc_lines_k():
@@ -5124,6 +5138,8 @@ def test_never_repeat_note55_open_receipts_not_missing_receipt():
         }
     )
     assert stale[COL_EXCEPTION_CATEGORY] == "quantity_variance"
-    assert stale["Why"].startswith("category=quantity_variance;")
+    assert stale[COL_EXCEPTION_OWNER] == "buyer"
+    assert "category=" not in stale["Why"]
+    assert "qty mismatch invoice 10" in stale["Why"]
     assert_never_success(RESULT_HOLD, note_id="NOTE-55", detail=stale["Why"])
 

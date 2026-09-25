@@ -684,7 +684,8 @@ def test_legacy_wire_10116_leave_alone_stays_hold():
     assert row["Receipts"] == "none"
     assert row[COL_EXCEPTION_CATEGORY] == "price_variance"
     assert row[COL_EXCEPTION_OWNER] == EXCEPTION_CATEGORY_OWNERS["price_variance"]
-    assert "category=price_variance; owner=Shawn McKibben" in row["Why"]
+    assert "category=" not in row["Why"]
+    assert "owner=" not in row["Why"]
 
 
 def test_legacy_wire_no_receipt_why_names_this_invoice():

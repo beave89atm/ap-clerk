@@ -41,7 +41,7 @@ from ap_clerk.rules import TOTALS_MATCH_BEFORE_FINISH, money, ppv_qc_gap, totals
 
 LOGGER = logging.getLogger("ap_clerk.ppv_qc")
 
-PPV_QC_NOTE_PREFIX = "PPV QC"
+PPV_QC_NOTE_PREFIX = "AP Clerk: PPV QC"
 
 
 def line_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
