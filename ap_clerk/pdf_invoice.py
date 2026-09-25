@@ -15,6 +15,7 @@ from ap_clerk.rules import (
     PAST_DUE_LIST_RE,
     FEE_KEYWORDS,
     extract_po_number,
+    is_vending_po_reference,
     extract_subject_invoice_number,
     extract_subject_pos,
     is_fee_or_surcharge,
@@ -878,6 +879,9 @@ def extract_po_numbers(text: str) -> list[str]:
     for match in _PO_LABEL.finditer(text or ""):
         raw = match.group(1)
         if raw.upper() in {"NONE", "NET"} or raw.upper().startswith("TXFT"):
+            continue
+        around = (text or "")[max(0, match.start() - 24) : match.end() + 12]
+        if is_vending_po_reference(raw) or is_vending_po_reference(around):
             continue
         window = (text or "")[max(0, match.start() - 12) : match.start()]
         if re.search(r"\brfq\b", window, flags=re.I):

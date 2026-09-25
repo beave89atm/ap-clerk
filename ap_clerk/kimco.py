@@ -804,6 +804,34 @@ def shop_supplies_charges_payload(
     return payload
 
 
+def added_comment_payload(invoice_id: int | str, html: str) -> dict[str, Any]:
+    """Add one Comments_1 row. HtmlValue may already contain the Shawn mention span."""
+    if invoice_id in (None, ""):
+        raise KimcoError("Comment add requires an invoice id")
+    body = str(html or "").strip()
+    if not body:
+        raise KimcoError("Comment add requires HtmlValue")
+    if not body.startswith("<"):
+        body = f"<p>{body}</p>"
+    return {
+        "state": "Modified",
+        "id": int(invoice_id),
+        "lists": {
+            "Comments_1": [
+                {
+                    "state": "Added",
+                    "values": {
+                        "HtmlValue": body,
+                        "Entity": {"id": 203},
+                        "ObjectId": int(invoice_id),
+                        "FormId": 218,
+                    },
+                }
+            ]
+        },
+    }
+
+
 def replace_comment_payload(invoice_id: int | str, comment_id: int | str, text: str) -> dict[str, Any]:
     """Overwrite one Comments_1 row in place. KIMCO will not delete comments."""
     if invoice_id in (None, "") or comment_id in (None, ""):

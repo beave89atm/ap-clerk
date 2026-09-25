@@ -46,7 +46,7 @@ from ap_clerk.inbox import (
     pull_recent_bills,
     skip_rows_for_report,
 )
-from ap_clerk.kimco import KimcoClient, KimcoError, fees_with_amounts
+from ap_clerk.kimco import KimcoClient, KimcoError, added_comment_payload, fees_with_amounts
 from ap_clerk.quality_v12 import (
     COL_EXCEPTION_CATEGORY,
     COL_EXCEPTION_OWNER,
@@ -115,6 +115,9 @@ from ap_clerk.rules import (
     looks_like_account_statement,
     invoice_type_for,
     air_products_charges_match,
+    is_vending_po_reference,
+    missing_po_owner_note,
+    shawn_mention_html,
     standing_vendor_entry_decision,
     is_freight_vendor,
     is_rfq_not_kimco_po,
@@ -1069,7 +1072,7 @@ def _process_invoice(
     # limit) and needs_kyle_review (First Aid over the limit, UniFirst
     # uniforms) are miscellaneous, no PO, never a missing_po HOLD, never
     # Transfer AP. Exact KIMCO vendor id is applied again after vendor resolve.
-    misc_shop = standing is not None
+    misc_shop = standing is not None and standing.get("mode") in {"shop_supplies", "needs_kyle_review"}
     if misc_shop:
         po = None
         po_display = ""
@@ -1079,9 +1082,11 @@ def _process_invoice(
         inv["pos"] = []
         inv["multi_po"] = False
     pos = [] if misc_shop else [
-        str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)
+        str(p)
+        for p in (inv.get("pos") or ([po] if po else []))
+        if p and not is_rfq_not_kimco_po(p) and not is_vending_po_reference(p)
     ]
-    if po and is_rfq_not_kimco_po(po):
+    if po and (is_rfq_not_kimco_po(po) or is_vending_po_reference(po)):
         po = None
         po_display = ""
         row["PO"] = ""
@@ -1167,7 +1172,7 @@ def _process_invoice(
     if vendor_info.get("vendor_id") not in (None, ""):
         # API Vendor.id wins over the printed name. Vendor 341 is Tube Supply.
         standing = confirmed
-        misc_shop = standing is not None
+        misc_shop = standing is not None and standing.get("mode") in {"shop_supplies", "needs_kyle_review"}
         if misc_shop:
             po = None
             po_display = ""
@@ -1206,6 +1211,8 @@ def _process_invoice(
 
     transfer_ap = should_transfer_ap_missing_po(
         vendor=vendor,
+        vendor_id=vendor_info.get("vendor_id"),
+        invoice_number=number,
         printed_pos=pos,
         resolved=resolved if not multi_po else None,
         freight=freight_vendor,
@@ -1484,6 +1491,22 @@ def _process_invoice(
         {"id": created_id, "values": {"Invoice_Number": number, "Vendor": {"text": vendor}}},
     )
     pdf_status = _maybe_attach(client, created_id, number, pdf_dir, explicit_pdf=inv.get("pdf_path"))
+    if transfer_ap:
+        owner_note = missing_po_owner_note(
+            vendor=vendor,
+            invoice_number=number,
+            pdf_total=amount,
+            vendor_id=vendor_info.get("vendor_id"),
+            printed_reference=str(inv.get("printed_po_not_kimco") or ""),
+        )
+        writer = getattr(client, "update", None)
+        if writer:
+            try:
+                writer(created_id, added_comment_payload(created_id, shawn_mention_html(owner_note)))
+            except TypeError:
+                writer("ap_invoices", created_id, added_comment_payload(created_id, shawn_mention_html(owner_note)))
+            except KimcoError as exc:
+                LOGGER.info("Missing-PO Shawn comment was not saved on %s: %s", created_id, exc)
     receipts_selected = False
     select_status = ""
     receipt_ids = receipt_select_refs((receipt_result or {}).get("matched"))
@@ -1606,12 +1629,15 @@ def _process_invoice(
     )
     if issue_hold:
         row["Result"] = RESULT_HOLD
+        hold_why = issue_hold[1]
+        if not vendor_ok and _vendor_why:
+            hold_why = f"{_vendor_why} {hold_why}"
         misc_note = ""
         misc_item = misc_purchase_item_for(vendor)
         if misc_item and invoice_type == 4:
             misc_note = f" Misc purchase item {misc_item}."
         row["Why"] = (
-            f"{issue_hold[1]} {receipt_note}"
+            f"{hold_why} {receipt_note}"
             f"Header created (id {created_id}). Attach status={pdf_status}."
             f" Select Receipts={select_status or 'not-posted'}.{misc_note} "
             "Outlook Entered with issues (not Entered in AI)."
@@ -1719,14 +1745,17 @@ def _process_invoice(
                     f"({fee_status}); sheet column is not enough. "
                 )
     if result == RESULT_SUCCESS and standing and standing.get("mode") == "shop_supplies":
-        shop_label = (
-            "Air Products"
-            if standing.get("vendor_rule") == "air_products_misc"
-            else "UniFirst First Aid & Safety"
-        )
+        shop_label = {
+            "air_products_misc": "Air Products",
+            "unifirst_first_aid_misc": "UniFirst First Aid & Safety",
+            "msc_one_time_misc": "MSC Industrial Supply",
+        }.get(str(standing.get("vendor_rule") or ""), "Shop supplies")
+        extra = ""
+        if standing.get("vendor_rule") == "msc_one_time_misc":
+            extra = " Kyle approved this one invoice as miscellaneous. Future MSC invoices need a purchase order."
         row["Why"] = (
             f"Finished bill (Invoice_Type {invoice_type} Miscellaneous). "
-            f"{shop_label} shop supplies bill entered as miscellaneous per the standing rule. "
+            f"{shop_label} shop supplies bill entered as miscellaneous.{extra} "
             f"Additional Charges lines described shop supplies total the PDF ({amount}). "
             f"Shop supplies status={shop_status}. The bill is not posted. "
             f"Attach status={pdf_status}."
