@@ -1697,6 +1697,67 @@ def _receipt_aligns(
     return True, ""
 
 
+def _receipt_marked_billed(receipt: dict[str, Any] | None) -> bool:
+    """True when a leftover row is already billed on a matching line."""
+    if not isinstance(receipt, dict):
+        return False
+    if receipt.get("already_billed") or receipt.get("billed"):
+        return True
+    status = str(receipt.get("status") or "").lower()
+    return "already billed" in status or "already-billed" in status or status.strip() == "billed"
+
+
+def open_receipt_qty_hold_why(
+    invoice_qty: Any,
+    candidates: list[dict[str, Any]] | None,
+    *,
+    invoice_number: str | None = None,
+) -> str:
+    """NOTE-55: exact ask when open leftovers exist. Never 'missing receipt'."""
+    try:
+        inv_q = float(invoice_qty) if invoice_qty not in (None, "") else None
+    except (TypeError, ValueError):
+        inv_q = None
+    parts: list[str] = []
+    billed_hits = 0
+    for receipt in (candidates or [])[:4]:
+        if not isinstance(receipt, dict):
+            continue
+        qty = receipt.get("qty") if receipt.get("qty") is not None else receipt.get("quantity")
+        try:
+            rec_q = float(qty) if qty not in (None, "") else None
+        except (TypeError, ValueError):
+            rec_q = None
+        part = receipt.get("part") or receipt.get("item") or receipt.get("description") or "part"
+        po = str(receipt.get("po") or "") or "unknown"
+        if _receipt_marked_billed(receipt):
+            billed_hits += 1
+            rid = receipt.get("id")
+            number = invoice_number or "invoice"
+            rid_bit = f" vs receipt {rid}" if rid not in (None, "") else ""
+            parts.append(f"already billed on matching lines of {number}{rid_bit} part {part} on PO {po}")
+            continue
+        if inv_q is not None and rec_q is not None and inv_q != rec_q:
+            gap = inv_q - rec_q
+            if gap > 0:
+                parts.append(
+                    f"receive qty {gap:g} of part {part} on PO {po}; "
+                    f"qty mismatch invoice {inv_q:g} vs receipt {rec_q:g}"
+                )
+            else:
+                parts.append(
+                    f"qty mismatch invoice {inv_q:g} vs receipt {rec_q:g} of part {part} on PO {po}"
+                )
+    if not parts:
+        if billed_hits:
+            return "already billed on matching lines. Do not label missing_receipt."
+        return (
+            "qty mismatch; open receipts exist and do not match invoice qty/cost. "
+            "Do not label missing_receipt."
+        )
+    return " ".join(parts) + ". Do not label missing_receipt."
+
+
 def pick_receipts_by_qty_cost(
     candidates: list[dict[str, Any]],
     *,
@@ -1831,10 +1892,7 @@ def pick_receipts_by_qty_cost(
                 "how": "",
                 "why": why,
             }
-        why = (
-            f"no open receipt qty matches invoice qty {invoice_qty:g} "
-            "(will not take first-open / second-open-on-po)."
-        )
+        why = open_receipt_qty_hold_why(invoice_qty, candidates)
         return {
             "picked": [],
             "ambiguous": {"candidates": candidates, "why": why},
@@ -2495,8 +2553,8 @@ def match_receipts(
         if how and how not in unique_hows:
             unique_hows.append(how)
     candidate_note = ""
+    considered: list[dict[str, Any]] = []
     if unmatched:
-        considered: list[dict[str, Any]] = []
         seen_ids: set[Any] = set()
         for inv_line in unmatched:
             for receipt in unmatched_candidates.get(id(inv_line), []):
@@ -2520,12 +2578,27 @@ def match_receipts(
         else:
             candidate_note = " Receipt candidates considered: none on the listed PO(s)."
     if hold_no_receipts:
-        why = "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
-        if unmatched:
-            why += (
-                f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
-                "Select Receipts for each invoice line; do not stop after one."
+        if considered:
+            why = (
+                "HOLD: "
+                + open_receipt_qty_hold_why(
+                    qty_ev if qty_ev is not None else invoice_qty,
+                    considered,
+                    invoice_number=invoice_number,
+                )
             )
+            if unmatched:
+                why += (
+                    f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                    "Select Receipts for each invoice line; do not stop after one."
+                )
+        else:
+            why = "HOLD: no receipts after second pass (slip # / part / qty / PO line / open receipts on PO)."
+            if unmatched:
+                why += (
+                    f" Unmatched invoice line(s): {format_unmatched_lines(unmatched)}. "
+                    "Select Receipts for each invoice line; do not stop after one."
+                )
         why += candidate_note
     elif ambiguous and not matched:
         why = (
@@ -3012,6 +3085,7 @@ def looks_like_account_statement(
     text: str = "",
     filename: str = "",
     is_statement_doc: bool = False,
+    invoice_pages_only: bool = False,
 ) -> bool:
     """True for Account Statement / statement-of-account (not a vendor invoice).
 
@@ -3021,7 +3095,11 @@ def looks_like_account_statement(
     PDF-is-truth: an Invoice/INV/bill subject (like `Invoice from …`) is never
     a statement from preview/body tokens. Only an inspected statement PDF
     (`is_statement_doc`) can still skip that mail.
+
+    NOTE-54: a mixed PDF that kept invoice pages is not a statement skip.
     """
+    if invoice_pages_only:
+        return False
     if is_statement_doc:
         return True
     if subject_has_invoice_bill_hint(subject):
@@ -3273,7 +3351,11 @@ def should_create_header(inv: dict[str, Any]) -> tuple[bool, str]:
         text=str(inv.get("text") or inv.get("pdf_text") or ""),
         filename=str(inv.get("filename") or ""),
         is_statement_doc=bool(inv.get("is_statement_doc")),
-    ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
+        invoice_pages_only=bool(inv.get("note54_invoice_pages_only")),
+    ) or (
+        str(inv.get("hold_reason") or "").strip().lower() == "statement"
+        and not inv.get("note54_invoice_pages_only")
+    ):
         return False, "statement"
     kind = str(inv.get("attachment_class") or "").strip().lower()
     if (

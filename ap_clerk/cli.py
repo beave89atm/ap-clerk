@@ -872,7 +872,12 @@ def _process_invoice(
         text=str(inv.get("text") or inv.get("pdf_text") or ""),
         filename=str(inv.get("filename") or ""),
         is_statement_doc=bool(inv.get("is_statement_doc")),
-    ) or str(inv.get("hold_reason") or "").strip().lower() == "statement":
+        invoice_pages_only=bool(inv.get("note54_invoice_pages_only")),
+    ) or (
+        str(inv.get("hold_reason") or "").strip().lower() == "statement"
+        and not inv.get("note54_invoice_pages_only")
+        and not inv.get("note54_uncertain")
+    ):
         row["Result"] = RESULT_SKIPPED
         row["KIMCO id"] = ""
         subject = str(inv.get("subject") or "")

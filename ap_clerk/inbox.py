@@ -464,7 +464,12 @@ def pull_recent_bills(
                 text=str(parsed.get("text") or parsed.get("pdf_text") or ""),
                 subject=subject,
             ))
-            if kind in NON_INVOICE_ATTACHMENT_KINDS or parsed.get("is_purchase_order_doc") or parsed.get("is_receipt_scan_doc") or parsed.get("is_statement_doc"):
+            # NOTE-54: mixed invoice+statement stays a bill. Uncertain packs
+            # HOLD pdf_capture — do not drop them as statement noise.
+            if parsed.get("note54_uncertain") or parsed.get("note54_invoice_pages_only"):
+                kind = "invoice"
+                parsed["is_statement_doc"] = False
+            elif kind in NON_INVOICE_ATTACHMENT_KINDS or parsed.get("is_purchase_order_doc") or parsed.get("is_receipt_scan_doc") or parsed.get("is_statement_doc"):
                 ignored_non_invoice += 1
                 ignored_kinds.append(
                     "statement" if parsed.get("is_statement_doc") else (kind or "not_an_invoice")
@@ -487,9 +492,15 @@ def pull_recent_bills(
                     and not known_bill
                     and not wants_link
                 )
-                if empty_unusable:
+                if empty_unusable and not bill.get("note54_uncertain"):
                     continue
-                if not inv_no and not bill.get("amount") and not known_bill and not wants_link:
+                if (
+                    not bill.get("note54_uncertain")
+                    and not inv_no
+                    and not bill.get("amount")
+                    and not known_bill
+                    and not wants_link
+                ):
                     continue
                 if known_bill and not inv_no and bill.get("pdf_text_empty"):
                     printed = extract_subject_invoice_number(subject)

@@ -90,7 +90,10 @@ from ap_clerk.quality_v12 import (
     canonical_exception_owner,
     classify_exception,
     exception_prefix,
+    note55_open_receipt_hold,
+    note_by_id,
     note_ids,
+    receiving_owner_tag_applies,
 )
 from ap_clerk.rules import (
     GAS_AND_SUPPLY_MISC_ITEM,
@@ -197,9 +200,16 @@ def _row(inv, *, kimco=None, po_index=None, receipts=None, samples=None, graph=N
 
 
 def test_v12_registry_covers_all_notes():
-    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + ("NOTE-42", "NOTE-51", "NOTE-52", "NOTE-53")
-    assert len(TREYCE_NOTES_V12) == 43
-    assert len(TREYCE_FINISH_CHECKLIST) == 17
+    assert note_ids() == tuple(f"NOTE-{i:02d}" for i in range(1, 40)) + (
+        "NOTE-42",
+        "NOTE-51",
+        "NOTE-52",
+        "NOTE-53",
+        "NOTE-54",
+        "NOTE-55",
+    )
+    assert len(TREYCE_NOTES_V12) == 45
+    assert len(TREYCE_FINISH_CHECKLIST) == 19
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -247,6 +257,8 @@ def test_v12_registry_covers_all_notes():
         "outlook-success-promotes-entered-in-ai",
         "outlook-move-fort-worth-after-header-attach",
         "missing-receipt-hold-transfer-ap",
+        "invoice-statement-mixed-pdf-classify-before-extract",
+        "open-receipts-forbid-missing-receipt",
     }
 
 
@@ -677,6 +689,10 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "partial-select-receipts-never-fail-close",
         "combine-same-item-same-unit-receipts",
         "gas-misc-lines-k-shop-supplies",
+        "outlook-success-promotes-entered-in-ai",
+        "missing-receipt-hold-transfer-ap",
+        "classify-before-extract-mixed-pdf",
+        "open-receipts-not-missing-receipt",
     ]
     ok, why = treyce_finish_selfcheck(
         {
@@ -4838,4 +4854,268 @@ def test_never_repeat_note53_missing_receipt_transfer_ap():
     assert "Transfer AP" in n["expected"]
     assert "stay-on-current-batch" in n["expected"]
     assert_never_success(RESULT_HOLD, note_id="NOTE-53", detail="HOLD (receipt): no open receipt")
+
+
+def _write_text_pdf(path: Path, pages: list[str]) -> None:
+    """Minimal text PDF. Unit tests only — no live mailbox or KIMCO."""
+    from pypdf import PdfWriter
+    from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
+
+    writer = PdfWriter()
+    for text in pages:
+        page = writer.add_blank_page(width=612, height=792)
+        lines = text.splitlines() or [""]
+        commands = ["BT", "/F1 11 Tf", "72 740 Td", "14 TL"]
+        for index, line in enumerate(lines):
+            safe = line.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+            if index:
+                commands.append("T*")
+            commands.append(f"({safe}) Tj")
+        commands.append("ET")
+        stream = DecodedStreamObject()
+        stream.set_data("\n".join(commands).encode("latin-1", errors="replace"))
+        font = DictionaryObject(
+            {
+                NameObject("/Type"): NameObject("/Font"),
+                NameObject("/Subtype"): NameObject("/Type1"),
+                NameObject("/BaseFont"): NameObject("/Helvetica"),
+            }
+        )
+        page[NameObject("/Resources")] = DictionaryObject(
+            {NameObject("/Font"): DictionaryObject({NameObject("/F1"): font})}
+        )
+        page[NameObject("/Contents")] = stream
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as handle:
+        writer.write(handle)
+
+
+def test_never_repeat_note54_invoice_statement_mixed_pdf(tmp_path: Path):
+    """NOTE-54: Gas 0040406308-class pack — invoice pages only, never statement Success."""
+    from pypdf import PdfReader
+
+    from ap_clerk.graph import AI_SKIPPED_CATEGORY
+    from ap_clerk.pdf_invoice import (
+        PAGE_INVOICE,
+        PAGE_STATEMENT,
+        PAGE_UNCERTAIN,
+        classify_invoice_statement_pack,
+        classify_pdf_page,
+        parse_invoice_pdf,
+        split_pdf_pages,
+    )
+
+    n = note_by_id("NOTE-54")
+    assert n["slug"] == "invoice-statement-mixed-pdf-classify-before-extract"
+    assert n["never_success"] is True
+    assert "0040406308" in " ".join(n["cases"])
+
+    invoice_page = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\n"
+        "ORIGINAL INVOICE\n"
+        "Invoice Number: 0040406308\n"
+        "Invoice Date: 09/01/2026\n"
+        "Amount Due: 125.50\n"
+    )
+    statement_page = (
+        "ACCOUNT STATEMENT\n"
+        "Past Due Invoices\n"
+        "Invoice 0040390001 400.00\n"
+        "Invoice 0040406308 125.50\n"
+        "Statement Balance 525.50\n"
+        "Amount Due: 525.50\n"
+    )
+    assert classify_pdf_page(invoice_page) == PAGE_INVOICE
+    assert classify_pdf_page(statement_page) == PAGE_STATEMENT
+    pack = classify_invoice_statement_pack(split_pdf_pages(f"{invoice_page}\f{statement_page}"))
+    assert pack["action"] == "invoice_pages_only"
+    assert pack["invoice_pages"] == [1]
+    assert pack["statement_pages"] == [2]
+    assert 525.50 in pack["forbidden_amounts"]
+    assert 125.50 not in pack["forbidden_amounts"]
+
+    pdf_path = tmp_path / "0040406308.pdf"
+    _write_text_pdf(pdf_path, [invoice_page, statement_page])
+    parsed = parse_invoice_pdf(
+        pdf_path,
+        subject="Invoice 0040406308",
+        from_name="Gas and Supply North Texas, LLC",
+        from_address="billing@gasandsupply.com",
+    )
+    assert parsed.get("note54_invoice_pages_only") is True
+    assert parsed.get("is_statement_doc") is False
+    assert parsed.get("invoice_number") == "0040406308"
+    assert parsed.get("amount") == 125.50
+    assert parsed.get("amount") != 525.50
+    assert 525.50 in (parsed.get("note54_forbidden_amounts") or [])
+    assert "Ignored statement page" in str(parsed.get("note54_why") or "")
+    sliced = Path(str(parsed.get("pdf_path") or ""))
+    assert sliced.is_file()
+    assert sliced != pdf_path
+    slice_text = "\n".join((page.extract_text() or "") for page in PdfReader(str(sliced)).pages)
+    assert "0040406308" in slice_text
+    assert "Statement Balance" not in slice_text
+    assert "525.50" not in slice_text
+
+    blocked, blocked_why = treyce_finish_selfcheck(
+        {
+            "invoice_number": "0040406308",
+            "field_sources": {"invoice_number": "pdf", "amount": "pdf", "date": "pdf"},
+            "amount": 525.50,
+            "note54_forbidden_amounts": [525.50],
+            "require_pdf_number": True,
+            "pdf_path": str(sliced),
+            "pdf_on_disk": True,
+        }
+    )
+    assert blocked is False
+    assert "NOTE-54" in blocked_why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-54", detail=blocked_why)
+
+    uncertain_text = (
+        "GAS AND SUPPLY NORTH TEXAS, LLC\n"
+        "ACCOUNT STATEMENT\n"
+        "ORIGINAL INVOICE\n"
+        "Invoice Number: 0040406308\n"
+        "Amount Due: 125.50\n"
+        "Statement Balance: 900.00\n"
+    )
+    assert classify_pdf_page(uncertain_text) == PAGE_UNCERTAIN
+    uncertain = parse_invoice_text(
+        uncertain_text,
+        filename="0040406308.pdf",
+        from_name="Gas and Supply North Texas, LLC",
+        subject="Invoice 0040406308",
+    )
+    assert uncertain.get("note54_uncertain") is True
+    assert uncertain.get("amount") != 900.00
+    uncertain["vendor"] = "Gas and Supply North Texas, LLC"
+    uncertain["subject"] = "Invoice 0040406308"
+    hold_row, client = _row(uncertain)
+    assert hold_row["Result"] == RESULT_HOLD
+    assert hold_row["Result"] != RESULT_SUCCESS
+    assert hold_row[COL_EXCEPTION_CATEGORY] == "pdf_capture"
+    assert "NOTE-54" in hold_row["Why"]
+    assert "p1=uncertain" in hold_row["Why"]
+    assert not client.created
+    assert_never_success(hold_row["Result"], note_id="NOTE-54", detail=hold_row["Why"])
+
+    statement_only = tmp_path / "statement-only.pdf"
+    _write_text_pdf(statement_only, [statement_page])
+    skipped_parsed = parse_invoice_pdf(
+        statement_only,
+        subject="Account Statement",
+        from_name="Gas and Supply North Texas, LLC",
+    )
+    assert skipped_parsed.get("is_statement_doc") is True
+    assert skipped_parsed.get("note54_action") == "statement_only"
+    skip_row, skip_client = _row(
+        {
+            **skipped_parsed,
+            "vendor": "Gas and Supply North Texas, LLC",
+            "subject": "Account Statement",
+            "filename": statement_only.name,
+        }
+    )
+    assert skip_row["Result"] == RESULT_SKIPPED
+    assert skip_row["Result"] != RESULT_SUCCESS
+    assert AI_SKIPPED_CATEGORY in skip_row["Why"]
+    assert not skip_client.created
+    assert_never_success(skip_row["Result"], note_id="NOTE-54", detail=skip_row["Why"])
+
+
+def test_never_repeat_note55_open_receipts_not_missing_receipt():
+    """NOTE-55: open leftovers are quantity_variance or already_entered, never missing_receipt."""
+    from ap_clerk.receiving_owners import should_tag_missing_receipt
+    from ap_clerk.rules import open_receipt_qty_hold_why, pick_receipts_by_qty_cost
+    from ap_clerk.transfer_ap import should_transfer_ap_missing_receipt
+
+    n = note_by_id("NOTE-55")
+    assert n["slug"] == "open-receipts-forbid-missing-receipt"
+    assert n["never_success"] is True
+    assert "missing_receipt" in n["expected"]
+
+    open_receipts = [
+        {"id": 501, "po": "59034", "part": "BOLT-1", "qty": 4, "amount": 40.0},
+        {"id": 502, "po": "59034", "part": "BOLT-1", "qty": 6, "amount": 60.0},
+    ]
+    decision = note55_open_receipt_hold(
+        open_receipts=open_receipts[:1],
+        invoice_qty=10,
+        invoice_number="0040406308",
+        part="BOLT-1",
+        po="59034",
+    )
+    assert decision["category"] == "quantity_variance"
+    assert decision["category"] != "missing_receipt"
+    assert decision["tag_receiving_owner"] is False
+    assert "receive qty 6" in decision["why"]
+    assert "BOLT-1" in decision["why"]
+    assert "59034" in decision["why"]
+    assert "qty mismatch invoice 10" in decision["why"]
+    assert "missing receipt" not in decision["why"].lower() or "do not label missing_receipt" in decision["why"]
+    stamped = apply_exception_category_owner(
+        {"Result": RESULT_HOLD, "Why": decision["why"]}
+    )
+    assert stamped[COL_EXCEPTION_CATEGORY] == "quantity_variance"
+    assert stamped[COL_EXCEPTION_CATEGORY] != "missing_receipt"
+    assert not should_transfer_ap_missing_receipt(
+        result=RESULT_HOLD,
+        category="missing_receipt",
+        why=decision["why"],
+        issue_gate=GATE_RECEIPT,
+    )
+    assert receiving_owner_tag_applies("quantity_variance") is False
+    assert receiving_owner_tag_applies("missing_receipt") is True
+    assert should_tag_missing_receipt("Fastenal Company") is True
+
+    billed = note55_open_receipt_hold(
+        open_receipts=[{"id": 88, "po": "59034", "part": "BOLT-1", "qty": 10, "already_billed": True}],
+        invoice_qty=10,
+        invoice_number="INV-9",
+        already_billed=True,
+    )
+    assert billed["category"] == "already_entered"
+    assert billed["tag_receiving_owner"] is False
+    assert "already billed" in billed["why"]
+    assert "INV-9" in billed["why"]
+    billed_row = apply_exception_category_owner({"Result": RESULT_HOLD, "Why": billed["why"]})
+    assert billed_row[COL_EXCEPTION_CATEGORY] == "already_entered"
+    assert billed_row[COL_EXCEPTION_CATEGORY] != "missing_receipt"
+
+    missing = note55_open_receipt_hold(open_receipts=[], po="59034")
+    assert missing["category"] == "missing_receipt"
+    assert missing["tag_receiving_owner"] is True
+    assert "no open receipt" in missing["why"]
+    assert should_transfer_ap_missing_receipt(
+        result=RESULT_HOLD,
+        why=missing["why"],
+        issue_gate=GATE_RECEIPT,
+    )
+
+    picked = pick_receipts_by_qty_cost(open_receipts, invoice_qty=10, invoice_amount=100.0)
+    assert picked["picked"] == []
+    assert "qty mismatch invoice 10" in picked["why"]
+    assert "receive qty" in picked["why"]
+    assert "missing receipt" not in picked["why"].lower() or "do not label missing_receipt" in picked["why"]
+    assert classify_exception(result=RESULT_HOLD, why=f"HOLD (receipt): {picked['why']}") == (
+        "quantity_variance",
+        "buyer",
+    )
+    exact = open_receipt_qty_hold_why(10, open_receipts[:1])
+    assert exact.startswith("receive qty 6 of part BOLT-1 on PO 59034")
+
+    stale = apply_exception_category_owner(
+        {
+            "Result": RESULT_HOLD,
+            "Why": (
+                "category=missing_receipt; owner=Ruben Perez. "
+                "qty mismatch invoice 10 vs receipt 4 of part BOLT-1 on PO 59034. "
+                "Do not label missing_receipt."
+            ),
+        }
+    )
+    assert stale[COL_EXCEPTION_CATEGORY] == "quantity_variance"
+    assert stale["Why"].startswith("category=quantity_variance;")
+    assert_never_success(RESULT_HOLD, note_id="NOTE-55", detail=stale["Why"])
 

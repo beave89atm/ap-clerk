@@ -891,6 +891,52 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-54",
+        "slug": "invoice-statement-mixed-pdf-classify-before-extract",
+        "gate": GATE_PREFLIGHT,
+        "cases": ("Gas & Supply 0040406308-style invoice + statement pack",),
+        "9_24_bug": (
+            "A PDF that contains both an invoice and an account statement "
+            "was extracted as one payable. Statement balances could become "
+            "the invoice total, or the whole pack was skipped."
+        ),
+        "expected": (
+            "Classify each page before header create / amount parse / Success: "
+            "invoice, statement, or other. Invoice pages and statement pages "
+            "in one PDF: enter/attach/total invoice pages only (page-range PDF "
+            "when feasible; else full pack + Why naming ignored statement pages). "
+            "Never use statement balance/totals. Statement-only PDF stays "
+            "NOTE-24 Skipped + AI Skipped 2. Uncertain mixed pack → HOLD "
+            "pdf_capture / Entered with issues with Why naming page classes. "
+            "Never Success."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-55",
+        "slug": "open-receipts-forbid-missing-receipt",
+        "gate": GATE_RECEIPT,
+        "cases": (
+            "Open leftovers on the PO with qty/cost mismatch",
+            "Matching lines already billed",
+        ),
+        "9_24_bug": (
+            "HOLD was labeled missing_receipt when open receipts existed and "
+            "the real issue was qty mismatch or already-billed. That label "
+            "routes Transfer AP to the wrong owner."
+        ),
+        "expected": (
+            "When open/selectable leftovers exist but qty/cost does not match, "
+            "exception category is quantity_variance. When matching lines are "
+            "already billed, category is already_entered. Never missing_receipt "
+            "in those cases. Comments_1 / Why states the exact ask (receive qty "
+            "X of part Y on PO Z, or qty mismatch invoice N vs receipt M). "
+            "Receiving-owner @tag only for a true missing_receipt (no leftovers). "
+            "Never Success."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1003,6 +1049,24 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "still Transfer AP + @Shawn. Outlook categories unchanged."
         ),
     },
+    {
+        "id": "classify-before-extract-mixed-pdf",
+        "check": (
+            "Mixed invoice+statement PDF: classify pages before extract. "
+            "Payable total/lines/# come from invoice pages only. Statement "
+            "page totals never Success. Uncertain page boundaries HOLD "
+            "pdf_capture (NOTE-54)."
+        ),
+    },
+    {
+        "id": "open-receipts-not-missing-receipt",
+        "check": (
+            "Open/selectable leftovers with qty/cost mismatch or already-billed "
+            "lines are quantity_variance or already_entered, never "
+            "missing_receipt. Why names the exact qty ask. Receiving-owner "
+            "@tag only for true missing_receipt (NOTE-55)."
+        ),
+    },
 )
 
 # Monday 2026-09-14 2:00am America/Chicago live 10 — basics that must not
@@ -1055,6 +1119,115 @@ def exception_prefix(category: str, owner: str) -> str:
     return f"category={category}; owner={owner}"
 
 
+def receiving_owner_tag_applies(category: str | None) -> bool:
+    """NOTE-55: dock receiving-owner @tag only for a true missing_receipt."""
+    return (category or "").strip().lower() == "missing_receipt"
+
+
+def _note55_category_from_why(why_l: str) -> str | None:
+    """quantity_variance / already_entered when open leftovers are the real issue.
+
+    None when the Why is a true no-receipt HOLD (or unrelated).
+    """
+    if "already billed" in why_l or "already-billed" in why_l:
+        return "already_entered"
+    if "candidates considered: none" in why_l:
+        return None
+    open_leftovers = any(
+        needle in why_l
+        for needle in (
+            "no open receipt qty matches",
+            "qty mismatch invoice",
+            "qty mismatch;",
+            "open receipts exist",
+            "open/selectable",
+            "selectable leftover",
+            "receipt candidates considered: id",
+            "multiple open receipts",
+            "receive qty ",
+            "do not label missing_receipt",
+        )
+    )
+    if open_leftovers:
+        return "quantity_variance"
+    return None
+
+
+def note55_open_receipt_hold(
+    *,
+    open_receipts: list[dict[str, Any]] | None = None,
+    invoice_qty: Any = None,
+    invoice_number: str | None = None,
+    already_billed: bool = False,
+    part: str | None = None,
+    po: str | None = None,
+) -> dict[str, Any]:
+    """NOTE-55 category + exact Why. Open leftovers are never missing_receipt.
+
+    True missing_receipt (no selectable leftovers) still tags the receiving owner.
+    """
+    leftovers = [row for row in (open_receipts or []) if isinstance(row, dict)]
+    billed = already_billed or any(
+        row.get("already_billed") or row.get("billed") or "billed" == str(row.get("status") or "").strip().lower()
+        for row in leftovers
+    )
+    if leftovers and billed:
+        sample = leftovers[0]
+        part_s = part or sample.get("part") or sample.get("item") or "part"
+        po_s = po or sample.get("po") or "unknown"
+        rid = sample.get("id")
+        number = invoice_number or "invoice"
+        rid_bit = f" vs receipt {rid}" if rid not in (None, "") else ""
+        why = (
+            f"already billed on matching lines of {number}{rid_bit} "
+            f"part {part_s} on PO {po_s}. Do not label missing_receipt."
+        )
+        category = "already_entered"
+    elif leftovers:
+        sample = leftovers[0]
+        part_s = part or sample.get("part") or sample.get("item") or "part"
+        po_s = po or sample.get("po") or "unknown"
+        rec_qty = sample.get("qty") if sample.get("qty") is not None else sample.get("quantity")
+        try:
+            inv_q = float(invoice_qty) if invoice_qty not in (None, "") else None
+        except (TypeError, ValueError):
+            inv_q = None
+        try:
+            rec_q = float(rec_qty) if rec_qty not in (None, "") else None
+        except (TypeError, ValueError):
+            rec_q = None
+        if inv_q is not None and rec_q is not None and inv_q > rec_q:
+            gap = inv_q - rec_q
+            why = (
+                f"receive qty {gap:g} of part {part_s} on PO {po_s}; "
+                f"qty mismatch invoice {inv_q:g} vs receipt {rec_q:g}. "
+                "Do not label missing_receipt."
+            )
+        elif inv_q is not None and rec_q is not None:
+            why = (
+                f"qty mismatch invoice {inv_q:g} vs receipt {rec_q:g} "
+                f"of part {part_s} on PO {po_s}. Do not label missing_receipt."
+            )
+        else:
+            why = (
+                f"qty mismatch; open receipts exist for part {part_s} on PO {po_s}. "
+                "Do not label missing_receipt."
+            )
+        category = "quantity_variance"
+    else:
+        po_s = po or "unknown"
+        why = f"HOLD (receipt): no open receipt on PO {po_s}."
+        category = "missing_receipt"
+    owner = EXCEPTION_CATEGORY_OWNERS[category]
+    return {
+        "category": category,
+        "owner": owner,
+        "why": why,
+        "tag_receiving_owner": receiving_owner_tag_applies(category),
+        "note": "NOTE-55",
+    }
+
+
 def canonical_exception_owner(category: str, owner: str | None = None) -> str:
     """Shawn owns purchasing/PO issues. Misty McCoy is not a hard default."""
     mapped = EXCEPTION_CATEGORY_OWNERS[category]
@@ -1079,18 +1252,27 @@ def classify_exception(*, result: str | None, why: str | None) -> tuple[str, str
     if result_s == RESULT_SKIPPED or result_s in {"Noise"}:
         return None
 
+    why_l = why_s.lower()
+    # NOTE-55: open leftovers + qty/cost mismatch or already-billed must not
+    # stay missing_receipt, even if a stale category= prefix says so.
+    note55 = _note55_category_from_why(why_l)
     already = _EXCEPTION_PREFIX_RE.search(why_s)
-    if already:
+    if already and note55 is None:
         slug = already.group("category").strip().lower()
         owner = already.group("owner").strip()
         if slug in EXCEPTION_CATEGORY_OWNERS:
             return slug, canonical_exception_owner(slug, owner)
+    if note55 == "already_entered":
+        return "already_entered", EXCEPTION_CATEGORY_OWNERS["already_entered"]
+    if note55 == "quantity_variance":
+        return "quantity_variance", EXCEPTION_CATEGORY_OWNERS["quantity_variance"]
 
-    why_l = why_s.lower()
     if (
         GATE_ALREADY_ENTERED in why_l
         or "already-entered" in why_l
         or "already entered" in why_l
+        or "already billed" in why_l
+        or "already-billed" in why_l
     ):
         return "already_entered", EXCEPTION_CATEGORY_OWNERS["already_entered"]
     if GATE_AUTO_PAY in why_l or "auto pay" in why_l:

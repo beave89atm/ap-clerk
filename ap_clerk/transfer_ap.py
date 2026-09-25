@@ -67,13 +67,22 @@ def should_transfer_ap_missing_receipt(
 ) -> bool:
     """NOTE-53: HOLD missing_receipt → Transfer AP. Not over-PPV. Not Success."""
     cat = str(category or "").strip().lower()
-    if cat in {"price_variance", "missing_po", "partial_match", "quantity_variance"}:
+    classified = classify_exception(result=result or RESULT_HOLD, why=str(why or ""))
+    # NOTE-55: open-receipt qty / already-billed is not a missing_receipt move.
+    if classified and classified[0] in {"quantity_variance", "already_entered"}:
+        return False
+    if cat in {
+        "price_variance",
+        "missing_po",
+        "partial_match",
+        "quantity_variance",
+        "already_entered",
+    }:
         return False
     if issue_gate == GATE_PRICE:
         return False
     if cat == "missing_receipt":
         return True
-    classified = classify_exception(result=result or RESULT_HOLD, why=str(why or ""))
     if classified and classified[0] == "missing_receipt":
         return True
     if issue_gate == GATE_RECEIPT:
