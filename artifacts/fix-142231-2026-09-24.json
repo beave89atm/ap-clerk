@@ -1,0 +1,180 @@
+{
+  "run": "fix-142231-2026-09-24",
+  "host": "https://live.kimcoerp.com",
+  "invent": false,
+  "posted": false,
+  "emails_sent": false,
+  "vendor": "999-3P INDUSTRIES",
+  "vendor_id": 1,
+  "batch_id": 724,
+  "batch_name": "API Agent - 9/22/26 3P",
+  "kimco_id": 10186,
+  "invoice": "142231",
+  "pdf": {
+    "mailbox": "accountspayable@kannonmfg.com",
+    "folder": "9 - FORT WORTH ARCHIVE",
+    "from": "Rachel@3pindustries.com",
+    "received": "2026-09-09T15:15:59Z",
+    "subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+    "attachment": "09092026_001.pdf",
+    "pack_pages": 19,
+    "page_read": 1,
+    "invoice_date": "2026-08-04",
+    "due_date": "2026-10-03",
+    "po_on_pdf": "FREIGHT",
+    "line": "1 FREIGHT FOR INVOICE # 141918 @ 500.00 = 500.00",
+    "freight_for": "141918",
+    "total": 500.0,
+    "readable": true,
+    "ocr": "3P INDUSTRIES Invoice. Date 8/4/2026 Invoice # 142231. P.O. Number FREIGHT. Terms Net 60. Due Date 10/3/2026. Quantity 1. FREIGHT FOR INVOICE # 141918. Price Each 500.00. Amount 500.00. Total 500.00."
+  },
+  "before": {
+    "invoice_type": 4,
+    "invoice_date": "2026-08-04T00:00:00",
+    "due": "2026-10-03T00:00:00",
+    "invoice_amount": 5000.0,
+    "verification_amount": 1000.0,
+    "kimco_status": 1,
+    "posted": null,
+    "po": "",
+    "lines_count": 0,
+    "charges": [
+      {"id": 5407, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5408, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5409, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5410, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5411, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5412, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+      {"id": 5413, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 1000.0},
+      {"id": 5414, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 1000.0}
+    ],
+    "charge_count": 8,
+    "charge_total": 5000.0,
+    "comments_1": [],
+    "attachment": {
+      "id": 159394,
+      "name": "3p-142231-09092026_001.pdf",
+      "size": 2054558,
+      "pages": 19,
+      "note": "Whole 2026-09-09 pack, same byte size as the vendor PDF."
+    }
+  },
+  "charges_removed": [
+    {"id": 5407, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5408, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5409, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5410, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5411, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5412, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 500.0},
+    {"id": 5413, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 1000.0},
+    {"id": 5414, "code": "F-Fees & Surcharges", "lookup_id": 11, "amount": 1000.0}
+  ],
+  "charges_added": [
+    {
+      "id": 5512,
+      "code": "Freight External",
+      "live_text": "Freight External-Freight External",
+      "lookup_id": 1,
+      "gl": "6032100",
+      "gl_source": "Freight External lookup id 1 is the outside-freight code used on 10299-10303. Live charge GET returns the lookup, not a separate GL account field.",
+      "amount": 500.0,
+      "quantity": 1.0,
+      "price": 500.0
+    }
+  ],
+  "after": {
+    "invoice_type": 4,
+    "invoice_date": "2026-08-04T00:00:00",
+    "due": "2026-10-03T00:00:00",
+    "invoice_amount": 500.0,
+    "verification_amount": 500.0,
+    "kimco_status": 1,
+    "posted": null,
+    "po": "",
+    "lines_count": 0,
+    "select_receipts": false,
+    "charges": [
+      {
+        "id": 5512,
+        "code": "Freight External",
+        "live_text": "Freight External-Freight External",
+        "lookup_id": 1,
+        "gl": "6032100",
+        "amount": 500.0
+      }
+    ],
+    "gl_source": "Freight External lookup id 1, same code as KIMCO 10299-10303. Charge child GET has no GL account field.",
+    "amount_matches_pdf": true,
+    "verification_matches_pdf": true,
+    "attachment": {
+      "id": 159942,
+      "name": "142231.pdf",
+      "size": 175359,
+      "pages": 1,
+      "ocr_invoice": "142231",
+      "ocr_line": "1 FREIGHT FOR INVOICE # 141918 500.00 500.00",
+      "ocr_total": 500.0
+    },
+    "comments_1_id": 1060
+  },
+  "status": "Success",
+  "kimco_status": 1,
+  "posted_by_this_run": false,
+  "note": "AP Clerk: Corrected 142231 to freight-only per 3P rule. Removed 8 F-Fees charges ($5,000 total, which were other invoices' freight). Now one Freight External charge $500.00 for freight on invoice 141918. Invoice_Amount $500.00 matches PDF.",
+  "comments_1_html": "<p>AP Clerk: Corrected 142231 to freight-only per 3P rule. Removed 8 F-Fees charges ($5,000 total, which were other invoices' freight). Now one Freight External charge $500.00 for freight on invoice 141918. Invoice_Amount $500.00 matches PDF.</p>",
+  "duplicates": {
+    "read_only": true,
+    "ap_headers_scanned_by_invoice_number": 10037,
+    "three_p_headers_charge_scanned": 1086,
+    "found": [],
+    "canonical": [
+      {
+        "invoice": "142232",
+        "kimco_id": 10299,
+        "headers": 1,
+        "amount": 500.0,
+        "charges": [{"id": 5507, "lookup_id": 1, "code": "Freight External", "amount": 500.0}],
+        "posted": null,
+        "batch_id": 724
+      },
+      {
+        "invoice": "142233",
+        "kimco_id": 10300,
+        "headers": 1,
+        "amount": 500.0,
+        "charges": [{"id": 5508, "lookup_id": 1, "code": "Freight External", "amount": 500.0}],
+        "posted": null,
+        "batch_id": 724
+      },
+      {
+        "invoice": "142234",
+        "kimco_id": 10301,
+        "headers": 1,
+        "amount": 1000.0,
+        "charges": [{"id": 5509, "lookup_id": 1, "code": "Freight External", "amount": 1000.0}],
+        "posted": null,
+        "batch_id": 724
+      },
+      {
+        "invoice": "142235",
+        "kimco_id": 10302,
+        "headers": 1,
+        "amount": 500.0,
+        "charges": [{"id": 5510, "lookup_id": 1, "code": "Freight External", "amount": 500.0}],
+        "posted": null,
+        "batch_id": 724
+      },
+      {
+        "invoice": "142236",
+        "kimco_id": 10303,
+        "headers": 1,
+        "amount": 500.0,
+        "charges": [{"id": 5511, "lookup_id": 1, "code": "Freight External", "amount": 500.0}],
+        "posted": null,
+        "batch_id": 724
+      }
+    ],
+    "not_entered": ["142238", "142239", "142240", "142241"],
+    "note": "Each of 142232-142236 exists once, with one Freight External charge equal to that bill. 142238-142241 have no AP header. After this fix, 10186 no longer holds the eight F-Fees charges. No other header uses those invoice numbers. 142238-142241 were not entered."
+  }
+}
