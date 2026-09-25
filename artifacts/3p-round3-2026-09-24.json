@@ -1,0 +1,297 @@
+{
+  "run": "3p-round3-2026-09-24",
+  "host": "https://live.kimcoerp.com",
+  "vendor": "999-3P INDUSTRIES",
+  "vendor_id": 1,
+  "batch_id": 724,
+  "batch_name": "API Agent - 9/22/26 3P",
+  "posted": false,
+  "emails_sent": false,
+  "invent": false,
+  "packing_slip_gate": "suspended",
+  "login": "API Agent key. Bills are not posted. Treyce Hodges (id 33) posts.",
+  "untouched": [
+    {
+      "invoice": "142188",
+      "kimco_id": 10308
+    },
+    {
+      "invoice": "142231",
+      "kimco_id": 10186
+    }
+  ],
+  "selection": "Exactly 142240, 142241, 142281, 142216, and 142421. Freight-only bills are their own headers. 142240 does not touch KIMCO 10308.",
+  "invoices": [
+    {
+      "invoice": "142240",
+      "pdf_date": "2026-08-27",
+      "pdf_total": 500.0,
+      "type": "freight",
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "pos": [],
+      "kimco_id": 10309,
+      "status": "Success",
+      "exception": null,
+      "why": "AP Clerk: Freight-only 3P 142240 for invoice 142188. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "receipts": [],
+      "ppv": null,
+      "price_gap": null,
+      "transfer_ap": "no",
+      "charges": [
+        {
+          "code": "Freight External-Freight External",
+          "id": 5515,
+          "amount": 500.0,
+          "lookup_id": 1,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "AP Clerk: Freight-only 3P 142240 for invoice 142188. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "comments_1_id": 1065,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": false,
+      "email_subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 4,
+      "attachments": [
+        "142240.pdf"
+      ],
+      "freight_for": "142188"
+    },
+    {
+      "invoice": "142241",
+      "pdf_date": "2026-08-31",
+      "pdf_total": 500.0,
+      "type": "freight",
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "pos": [],
+      "kimco_id": 10310,
+      "status": "Success",
+      "exception": null,
+      "why": "AP Clerk: Freight-only 3P 142241 for invoice 142216. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "receipts": [],
+      "ppv": null,
+      "price_gap": null,
+      "transfer_ap": "no",
+      "charges": [
+        {
+          "code": "Freight External-Freight External",
+          "id": 5516,
+          "amount": 500.0,
+          "lookup_id": 1,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "AP Clerk: Freight-only 3P 142241 for invoice 142216. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "comments_1_id": 1066,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": false,
+      "email_subject": "INV # 142231, 142232, 142233, 142234, 142235, 142236, 142238, 142239, 142240, 142241",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 4,
+      "attachments": [
+        "142241.pdf"
+      ],
+      "freight_for": "142216"
+    },
+    {
+      "invoice": "142281",
+      "pdf_date": "2026-08-28",
+      "pdf_total": 500.0,
+      "type": "freight",
+      "po": null,
+      "po_on_pdf": "FREIGHT",
+      "pos": [],
+      "kimco_id": 10311,
+      "status": "Success",
+      "exception": null,
+      "why": "AP Clerk: Freight-only 3P 142281 for invoice 142280. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "receipts": [],
+      "ppv": null,
+      "price_gap": null,
+      "transfer_ap": "no",
+      "charges": [
+        {
+          "code": "Freight External-Freight External",
+          "id": 5517,
+          "amount": 500.0,
+          "lookup_id": 1,
+          "gl": "6032100"
+        }
+      ],
+      "invoice_amount_after": 500.0,
+      "verification_amount": 500.0,
+      "comments_1": "AP Clerk: Freight-only 3P 142281 for invoice 142280. Miscellaneous Invoice_Type 4, header PO blank, no lines. Freight External lookup id 1 GL 6032100 for this invoice's PDF total $500.00. Not posted.",
+      "comments_1_id": 1067,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": true,
+      "email_subject": "INV # 142281 ",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 4,
+      "attachments": [
+        "142281.pdf"
+      ],
+      "freight_for": "142280"
+    },
+    {
+      "invoice": "142216",
+      "pdf_date": "2026-08-31",
+      "pdf_total": 1481.33,
+      "type": "parts",
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "58925",
+        "58952",
+        "58972",
+        "59002",
+        "59031"
+      ],
+      "kimco_id": 10312,
+      "status": "HOLD",
+      "exception": "price_variance",
+      "why": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142216. Matching receipts selected: 23526, 23525. qty 1 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($97.50) and receipt 23528 is already at PO price $361.46 ($361.46). |PPV| $263.96 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 1. qty 3 of part 1007044-1 on PO 58952 is $97.50 on the invoice ($292.50) and receipt 23529 is already at PO price $361.46 ($1084.38). |PPV| $791.88 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58952 part 1007044-1 to $97.50, and re-receive qty 3. qty 2 of part 1007044-1 on PO 58972 is $97.50 on the invoice ($195.00) and receipt 23527 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58972 part 1007044-1 to $97.50, and re-receive qty 2. qty 4 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($390.00) and receipt 23530 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 4.",
+      "receipts": [
+        {
+          "id": 23526,
+          "qty": 5.0,
+          "price": 83.02,
+          "ext": 415.1,
+          "po": "PO58972-3P INDUSTRIES",
+          "po_line": "PO58972-07"
+        },
+        {
+          "id": 23525,
+          "qty": 1.0,
+          "price": 91.23,
+          "ext": 91.23,
+          "po": "PO59031-3P INDUSTRIES",
+          "po_line": "PO59031-12"
+        }
+      ],
+      "ppv": null,
+      "price_gap": 975.0,
+      "transfer_ap": "yes",
+      "charges": [],
+      "invoice_amount_after": 506.33,
+      "verification_amount": 1481.33,
+      "comments_1": "AP Clerk: @Shawn McKibben HOLD price_variance on 3P 142216. Matching receipts selected: 23526, 23525. qty 1 of part 1007044-1 on PO 58925 is $97.50 on the invoice ($97.50) and receipt 23528 is already at PO price $361.46 ($361.46). |PPV| $263.96 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58925 part 1007044-1 to $97.50, and re-receive qty 1. qty 3 of part 1007044-1 on PO 58952 is $97.50 on the invoice ($292.50) and receipt 23529 is already at PO price $361.46 ($1084.38). |PPV| $791.88 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58952 part 1007044-1 to $97.50, and re-receive qty 3. qty 2 of part 1007044-1 on PO 58972 is $97.50 on the invoice ($195.00) and receipt 23527 is already at PO price $361.46 ($722.92). |PPV| $527.92 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 58972 part 1007044-1 to $97.50, and re-receive qty 2. qty 4 of part 1007044-1 on PO 59002 is $97.50 on the invoice ($390.00) and receipt 23530 is already at PO price $361.46 ($1445.84). |PPV| $1055.84 is $75 or more, so that receipt was not selected and the unit price was not changed. Unreceive, set PO 59002 part 1007044-1 to $97.50, and re-receive qty 4.",
+      "comments_1_id": 1068,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": true,
+      "email_subject": "INV # 142216 / CPL # 76981, 76980, PO # 58925, 58952, 58972, 59002, 59031",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142216.pdf"
+      ],
+      "freight_for": null
+    },
+    {
+      "invoice": "142421",
+      "pdf_date": "2026-09-11",
+      "pdf_total": 1929.61,
+      "type": "parts",
+      "po": null,
+      "po_on_pdf": "SEE BELOW",
+      "pos": [
+        "59124",
+        "59107",
+        "59090",
+        "59031"
+      ],
+      "kimco_id": 10313,
+      "status": "Success",
+      "exception": null,
+      "why": "AP Clerk: Parts 3P 142421. Selected open receipts 24038, 24036, 24037, 24041, 24040, 24039. Invoice_Amount 1929.61 matches the PDF total 1929.61. No PPV. Header PO blank (PDF SEE BELOW). Not posted.",
+      "receipts": [
+        {
+          "id": 24038,
+          "qty": 5.0,
+          "price": 91.23,
+          "ext": 456.15,
+          "po": "PO59124-3P INDUSTRIES",
+          "po_line": "PO59124-01"
+        },
+        {
+          "id": 24036,
+          "qty": 2.0,
+          "price": 91.23,
+          "ext": 182.46,
+          "po": "PO59107-3P INDUSTRIES",
+          "po_line": "PO59107-01"
+        },
+        {
+          "id": 24037,
+          "qty": 10.0,
+          "price": 91.23,
+          "ext": 912.3,
+          "po": "PO59124-3P INDUSTRIES",
+          "po_line": "PO59124-01"
+        },
+        {
+          "id": 24041,
+          "qty": 14.0,
+          "price": 18.48,
+          "ext": 258.72,
+          "po": "PO59090-3P INDUSTRIES",
+          "po_line": "PO59090-01"
+        },
+        {
+          "id": 24040,
+          "qty": 1.0,
+          "price": 83.02,
+          "ext": 83.02,
+          "po": "PO59031-3P INDUSTRIES",
+          "po_line": "PO59031-11"
+        },
+        {
+          "id": 24039,
+          "qty": 2.0,
+          "price": 18.48,
+          "ext": 36.96,
+          "po": "PO59031-3P INDUSTRIES",
+          "po_line": "PO59031-01"
+        }
+      ],
+      "ppv": null,
+      "price_gap": null,
+      "transfer_ap": "no",
+      "charges": [],
+      "invoice_amount_after": 1929.61,
+      "verification_amount": 1929.61,
+      "comments_1": "AP Clerk: Parts 3P 142421. Selected open receipts 24038, 24036, 24037, 24041, 24040, 24039. Invoice_Amount 1929.61 matches the PDF total 1929.61. No PPV. Header PO blank (PDF SEE BELOW). Not posted.",
+      "comments_1_id": 1069,
+      "email_folder": "9 - FORT WORTH ARCHIVE",
+      "email_moved": "yes",
+      "email_moved_this_run": true,
+      "email_subject": "INV # 142421 / CPL # 77102, 77101, 77089, 77099, 77098, 77100 / PO # 59124, 59107, 59090, 59031",
+      "batch_id": 724,
+      "batch": "API Agent - 9/22/26 3P",
+      "posted": null,
+      "invoice_type": 3,
+      "attachments": [
+        "142421.pdf"
+      ],
+      "freight_for": null
+    }
+  ]
+}
