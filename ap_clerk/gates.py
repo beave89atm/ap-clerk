@@ -873,6 +873,19 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "Use quantity_variance or already_entered and name the exact qty ask. "
             "Never Success."
         )
+    if "ppv_live_gap" in check:
+        raw_gap = check.get("ppv_live_gap")
+        try:
+            live_gap = round(float(raw_gap), 2)
+        except (TypeError, ValueError):
+            live_gap = None
+        if live_gap != 0.0:
+            shown = "missing" if live_gap is None else f"{live_gap:.2f}"
+            failures.append(
+                f"PPV QC live readback gap is {shown}, not 0.00. "
+                "Post one signed Purchase Price Variance when |gap| < $75, "
+                "or HOLD price_variance when |gap| >= $75. Never Success."
+            )
     vendor_ok, vendor_why = vendor_confirmation_gate(
         parsed_vendor=check.get("parsed_vendor"),
         posted_name=check.get("posted_vendor"),

@@ -59,7 +59,9 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
         "Noise": PatternFill("solid", fgColor="D9D9D9"),
     }
     for row_idx, row in enumerate(stamped, start=2):
-        values = ["" if col == "Notes" else row.get(col, "") for col in COLUMNS]
+        # Notes stays blank unless this run posted a PPV QC charge.
+        note = row.get("Notes") if row.get("_ppv_qc_fixed") else ""
+        values = [note if col == "Notes" else row.get(col, "") for col in COLUMNS]
         for col, value in enumerate(values, start=1):
             cell = sheet.cell(row_idx, col, value)
             cell.alignment = Alignment(wrap_text=True, vertical="top")

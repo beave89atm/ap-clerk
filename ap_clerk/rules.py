@@ -738,6 +738,102 @@ def penny_ppv_for_header_gap(
     }
 
 
+def ppv_qc_gap(
+    *,
+    invoice_amount: Any = None,
+    verification_amount: Any = None,
+    line_amounts: list[Any] | None = None,
+    charge_amounts: list[Any] | None = None,
+    max_abs: float = PENNY_PPV_MAX_ABS,
+) -> dict[str, Any]:
+    """Mandatory PPV QC. Success only when the live gap is 0.00.
+
+    gap = invoice header total − (merchandise lines + every additional charge).
+    Merchandise lines are the bill's selected receipt lines and Type 4 misc
+    lines. Charges include fees, freight, and PPV.
+
+    The header total is Invoice_Verification_Amount when that field is set.
+    That is the PDF invoice total stored at header create, and it does not
+    move when a charge is added. Invoice_Amount is the rollup of lines +
+    charges, so Invoice_Amount − (lines + charges) stays 0.00 on the penny
+    bills this gate exists to catch (0040443847, 0040446744). When
+    verification is absent, the header total is Invoice_Amount.
+
+    Success requires both the header gap and the Invoice_Amount rollup gap
+    to be 0.00. |gap| < $75 posts one signed PPV for the exact header gap.
+    |gap| >= $75 is HOLD price_variance and does not post PPV. No merchandise
+    lines does not invent a full-invoice PPV.
+    """
+    lines = [money(amount) for amount in (line_amounts or [])]
+    line_values = [amount for amount in lines if amount is not None]
+    charge_values = [amount for amount in (money(amount) for amount in (charge_amounts or [])) if amount is not None]
+    verification = money(verification_amount)
+    invoice = money(invoice_amount)
+    header = verification if verification is not None else invoice
+    header_field = (
+        "Invoice_Verification_Amount" if verification is not None else "Invoice_Amount"
+    )
+    decision = penny_ppv_for_header_gap(
+        header_total=header,
+        line_amounts=line_values,
+        charge_amounts=charge_values,
+        max_abs=max_abs,
+    )
+    covered = round(float(decision["lines"]) + float(decision["charges"]), 2)
+    rollup_gap = None if invoice is None else round(invoice - covered, 2)
+    gap = decision.get("gap")
+    has_lines = bool(line_values)
+    enforced = header is not None
+    action = str(decision.get("action") or "skip")
+    ppv = float(decision.get("ppv") or 0.0)
+    category = ""
+    if not has_lines and action in {"ppv", "hold"}:
+        action = "no-lines"
+        ppv = 0.0
+    elif action == "hold":
+        category = "price_variance"
+        ppv = 0.0
+    elif action == "match" and rollup_gap not in (None, 0.0):
+        action = "rollup"
+        ppv = 0.0
+    if not enforced:
+        success_allowed = None
+    elif action == "match" and gap == 0.0 and rollup_gap in (None, 0.0):
+        success_allowed = True
+    else:
+        success_allowed = False
+    reason = str(decision.get("reason") or "")
+    if action == "no-lines":
+        reason = "No merchandise lines. Do not invent a full-invoice PPV."
+    elif action == "rollup":
+        reason = (
+            f"Invoice_Amount rollup gap {rollup_gap:.2f} is not 0.00. "
+            "Do not post another PPV against a header that already matches."
+        )
+    elif action == "hold":
+        reason = (
+            f"|gap| {abs(float(gap or 0)):.2f} is not under ${max_abs:.0f}. "
+            "HOLD price_variance. Do not post PPV."
+        )
+    return {
+        "action": action,
+        "ppv": ppv,
+        "gap": gap,
+        "rollup_gap": rollup_gap,
+        "lines": decision["lines"],
+        "charges": decision["charges"],
+        "header": header,
+        "header_field": header_field,
+        "invoice_amount": invoice,
+        "verification_amount": verification,
+        "enforced": enforced,
+        "has_lines": has_lines,
+        "success_allowed": success_allowed,
+        "exception_category": category,
+        "reason": reason,
+    }
+
+
 def evaluate_bill_price_variance(
     invoice_lines: list[dict[str, Any]] | None,
     po_lines: list[dict[str, Any]] | None,

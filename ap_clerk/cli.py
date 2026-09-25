@@ -52,6 +52,7 @@ from ap_clerk.quality_v12 import (
     COL_EXCEPTION_OWNER,
     apply_exception_category_owner,
 )
+from ap_clerk.ppv_qc import apply_batch_ppv_qc, stamp_ppv_qc_on_row
 from ap_clerk.report import write_report
 from ap_clerk.gates import (
     GATE_ALREADY_ENTERED,
@@ -151,12 +152,13 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Kannon AP Clerk (KIMCO prototype by default)")
     parser.add_argument(
         "command",
-        choices=["enter", "pull", "daily", "probe"],
+        choices=["enter", "pull", "daily", "probe", "ppv-qc"],
         help=(
             "enter: fixture or inbox invoices as header-only AP bills. "
             "pull: list unflagged AP mailbox messages (no category write). "
             "daily: weekday 5am America/Chicago FIFO (requires --live; hard-clamped to 10 emails). "
-            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail)."
+            "probe: Graph category + Mail.Send draft check on the AP mailbox (does not send mail). "
+            "ppv-qc: read-only live scan of --batch and/or --ids. Never posts PPV."
         ),
     )
     parser.add_argument("--fixture", default=str(ROOT / "fixtures" / "testrun-727-803.json"))
@@ -205,7 +207,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--inbox-from", default=None, help="Inbox window start YYYY-MM-DD (inclusive)")
     parser.add_argument("--inbox-to", default=None, help="Inbox window end YYYY-MM-DD (inclusive)")
-    parser.add_argument("--out", default=None, help="pull: write unflagged message queue JSON here")
+    parser.add_argument("--out", default=None, help="pull: write unflagged message queue JSON here. ppv-qc: write the scan JSON here.")
+    parser.add_argument("--batch", action="append", type=int, default=None, help="ppv-qc: AP batch id. Repeatable. Unposted bills only.")
+    parser.add_argument("--ids", default=None, help="ppv-qc: comma-separated KIMCO bill ids.")
     parser.add_argument(
         "--match-fixture",
         action="store_true",
@@ -220,6 +224,15 @@ def main(argv: list[str] | None = None) -> int:
         print(str(exc), flush=True)
         return 2
 
+    if args.command == "ppv-qc":
+        from ap_clerk.ppv_qc import _parse_ids, run_ppv_qc
+
+        return run_ppv_qc(
+            live=bool(args.live),
+            batch_ids=list(args.batch or []),
+            invoice_ids=_parse_ids(args.ids),
+            out_path=args.out,
+        )
     if args.command == "pull":
         return _run_pull(args)
     if args.command == "probe":
@@ -364,7 +377,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     rows.extend(inbox_skip_rows)
-    write_report(report_path, rows)
+    _emit_run_report(report_path, rows, client=client)
     print(f"Wrote {report_path}", flush=True)
     _print_summary(rows)
     return 0
@@ -796,6 +809,21 @@ def _discover_batch_owner(
     return None
 
 
+def _emit_run_report(path: Path, rows: list[dict[str, Any]], *, client: KimcoClient | None = None) -> Path:
+    """Batch PPV QC, then the spreadsheet. QC runs before any send."""
+    if client is not None:
+        findings = apply_batch_ppv_qc(client, rows)
+        if findings:
+            print(f"PPV QC flagged {len(findings)} bill(s) before the spreadsheet.", flush=True)
+            for item in findings:
+                print(
+                    f"  id {item.get('kimco_id')} invoice {item.get('invoice')} "
+                    f"gap {item.get('gap')} action {item.get('action')}",
+                    flush=True,
+                )
+    return write_report(path, rows)
+
+
 def _finish_row(
     row: dict[str, Any],
     inv: dict[str, Any],
@@ -803,7 +831,10 @@ def _finish_row(
     mailbox: str,
     *,
     flag_outlook: bool,
+    kimco_client: KimcoClient | None = None,
 ) -> dict[str, Any]:
+    if kimco_client is not None and row.get("KIMCO id") not in (None, ""):
+        stamp_ppv_qc_on_row(kimco_client, row)
     result = str(row.get("Result") or "")
     why = str(row.get("Why") or "").strip()
     note = str(inv.get("multi_invoice_note") or "").strip()
@@ -888,7 +919,7 @@ def _process_invoice(
                 f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
             )
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     attachment_kind = str(inv.get("attachment_class") or "").strip().lower()
     if (
@@ -912,7 +943,7 @@ def _process_invoice(
                 f"Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD)."
             )
         row["Why"] = why_skipped(GATE_BILL_VS_NOISE, detail)
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     if aqpc_invoice_too_old(
         vendor=vendor,
@@ -931,7 +962,7 @@ def _process_invoice(
         )
         row["Flag in Outlook"] = "No"
         row["Flag status"] = FLAG_NONE
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=False)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=False, kimco_client=client)
 
     existing_hits = _matching_existing_invoices(invoice_by_number, number, vendor)
     confirmed_hits: list[dict[str, Any]] = []
@@ -974,7 +1005,7 @@ def _process_invoice(
         )
         if pdf_file_present(inv):
             row["Attach status"] = "pdf-on-vm"
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     parse_ok, parse_why = preflight_parse_gate(inv)
     if not parse_ok:
@@ -982,7 +1013,7 @@ def _process_invoice(
         if pdf_file_present(inv):
             # 8/18 Nova: PDF was on disk; no-pdf-on-vm was false/misleading.
             row["Attach status"] = "pdf-on-vm"
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     create_ok, hold_reason = should_create_header(inv)
     if not create_ok:
@@ -992,7 +1023,7 @@ def _process_invoice(
                 GATE_BILL_VS_NOISE,
                 f"{hold_reason}. Do not create a header. Outlook {AI_SKIPPED_CATEGORY} (not AI HOLD).",
             )
-            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+            return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
         reason_l = str(hold_reason).lower()
         if reason_l in {"auto-pay", "auto pay"}:
             row["Why"] = why_hold(GATE_AUTO_PAY, "Toyota Commercial Finance / auto-pay. Do not enter in ERP.")
@@ -1010,11 +1041,11 @@ def _process_invoice(
                 GATE_PREFLIGHT if reason_l == "parse-error" else "bill-vs-noise",
                 f"{hold_reason}. Do not create a header.",
             )
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     if inv.get("gas_misc_ambiguous"):
         row["Why"] = why_hold(GATE_PREFLIGHT, why_preflight_this_invoice(inv, "gas_ambiguous"))
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     packed = list(inv.get("invoice_numbers_in_pdf") or [])
     if (
@@ -1028,7 +1059,7 @@ def _process_invoice(
             "Expand to one bill per invoice # before enter. "
             "Do not collapse to a single invoice / multi-PO Incomplete.",
         )
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     freight_vendor = is_freight_vendor(vendor)
     pos = [str(p) for p in (inv.get("pos") or ([po] if po else [])) if p and not is_rfq_not_kimco_po(p)]
@@ -1057,7 +1088,7 @@ def _process_invoice(
     ok_po, po_why, po_info = po_gate_decision(printed_pos=pos, multi_po=multi_po, resolved=resolved if not multi_po else None)
     if not ok_po:
         row["Why"] = po_why
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     if multi_po:
         po_info = None
         po_missing_note = po_why + " "
@@ -1086,7 +1117,7 @@ def _process_invoice(
                     f"PO {po} is {po_vendor_text}, not {vendor}, and no live PO matched vendor + part/WO. "
                     "Will not enter as Misc Type 4.",
                 )
-                return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+                return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     vendor_info = _resolve_vendor(
         client,
@@ -1105,7 +1136,7 @@ def _process_invoice(
             f"vendor missing on {client.target} for {vendor}{hint}. "
             "Will not invent a vendor/remit-to ID."
         )
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     if not vendor_info.get("invoice_id"):
         row["Result"] = RESULT_FAIL
@@ -1114,14 +1145,14 @@ def _process_invoice(
             f"({vendor_info.get('vendor_text') or vendor}) but no sample invoice "
             "for remit/terms. Not a vendor-missing fail."
         )
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     try:
         sample = client.get_item("ap_invoices", int(vendor_info["invoice_id"]))
     except KimcoError as exc:
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail(f"could not load vendor sample invoice: {exc}")
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     sample_values = sample.get("values") or {}
     remit = sample_values.get("Remit_To_Address")
@@ -1129,7 +1160,7 @@ def _process_invoice(
     if lookup_id(remit) is None or lookup_id(terms) is None:
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail("sample invoice missing remit or terms; will not invent them.")
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     transfer_ap = should_transfer_ap_missing_po(
         vendor=vendor,
@@ -1390,12 +1421,12 @@ def _process_invoice(
     if created_id is None:
         row["Result"] = RESULT_FAIL
         row["Why"] = why_fail(f"header create HTTP {status}: {error}")
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     if created_id in FORBIDDEN_INVOICE_IDS:
         row["Result"] = RESULT_FAIL
         row["KIMCO id"] = created_id
         row["Why"] = why_fail("create returned a forbidden existing invoice id; will not edit it.")
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
     _remember_invoice(
         invoice_by_number,
@@ -1505,7 +1536,7 @@ def _process_invoice(
                 f"{row['Why']} NOTE-53 missing_receipt → Transfer AP "
                 f"({moved.get('status')})."
             ).strip()
-        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+        return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
     result, finish_why = finish_gate(
         header_created=True,
         attach_status=pdf_status,
@@ -1602,7 +1633,7 @@ def _process_invoice(
             f"Attach status={pdf_status}."
         ).strip()
     LOGGER.info("Created invoice %s id=%s vendor=%s po=%s type=%s result=%s", number, created_id, vendor, po, invoice_type, result)
-    return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook)
+    return _finish_row(row, inv, graph_client, mailbox, flag_outlook=flag_outlook, kimco_client=client)
 
 
 def _sample_by_vendor_id(samples: list[dict[str, Any]], vendor_id: int | None) -> dict[str, Any] | None:
@@ -2240,7 +2271,7 @@ def _run_daily(args: argparse.Namespace) -> int:
         return 1
 
     rows.extend(skip_rows)
-    write_report(report_path, rows)
+    _emit_run_report(report_path, rows, client=client)
     save_cursor(
             cursor_from_run(invoices, skipped, as_of=as_of, batch=batch_label, previous=cursor),
             cursor_path,

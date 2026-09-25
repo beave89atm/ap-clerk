@@ -968,6 +968,40 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-57",
+        "slug": "ppv-qc-live-readback-before-success",
+        "gate": GATE_PRICE,
+        "cases": (
+            "Live gap +$0.01 and −$0.01 post one signed PPV",
+            "Live gap 0.00 may be Success",
+            "Live |gap| >= $75 HOLD price_variance",
+            "Gas 0040443847 / 10284 and 0040446744 / 10283",
+        ),
+        "9_25_bug": (
+            "Penny PPV was a one-off repair. Entry could still report Success "
+            "when Invoice_Verification_Amount did not equal merchandise lines "
+            "plus fees, freight, and PPV. Invoice_Amount had already rolled to "
+            "the line total, so the miss was invisible on that field."
+        ),
+        "expected": (
+            "After every bill is created or fixed, re-read it live. "
+            "gap = invoice header total − (selected receipt / misc lines + all "
+            "charges). Header total is Invoice_Verification_Amount when set "
+            "(it does not move when PPV posts); otherwise Invoice_Amount. "
+            "Also require Invoice_Amount − (lines + charges) = 0.00. "
+            "|gap| < $75 → one signed PPV for the exact gap, then re-read. "
+            "|gap| >= $75 → HOLD price_variance, do not post PPV. "
+            "No merchandise lines → do not invent a full-invoice PPV. "
+            "Success only when the live readback gap is 0.00. "
+            "Before a run spreadsheet is written or sent, re-read every bill "
+            "and fail Success when the gap is not 0.00. No new columns; Notes "
+            "gets text only when a PPV QC charge was posted. "
+            "Read-only scan: python -m ap_clerk.ppv_qc --live --batch 720 --ids 10284,10283. "
+            "Never post the bill. Do not move the batch from this gate."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1096,6 +1130,16 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "lines are quantity_variance or already_entered, never "
             "missing_receipt. Why names the exact qty ask. Receiving-owner "
             "@tag only for true missing_receipt (NOTE-55)."
+        ),
+    },
+    {
+        "id": "ppv-qc-live-gap-zero",
+        "check": (
+            "After create or fix, re-read the live bill. Success only when "
+            "header total − (merchandise lines + fees/freight/PPV) is 0.00. "
+            "|gap| < $75 posts one signed PPV. |gap| >= $75 is HOLD "
+            "price_variance. Notes records a PPV QC fix and no other QC column "
+            "is added (NOTE-57)."
         ),
     },
 )
