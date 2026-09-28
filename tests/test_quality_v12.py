@@ -210,9 +210,10 @@ def test_v12_registry_covers_all_notes():
         "NOTE-56",
         "NOTE-57",
         "NOTE-58",
+        "NOTE-59",
     )
-    assert len(TREYCE_NOTES_V12) == 48
-    assert len(TREYCE_FINISH_CHECKLIST) == 21
+    assert len(TREYCE_NOTES_V12) == 49
+    assert len(TREYCE_FINISH_CHECKLIST) == 22
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -265,6 +266,7 @@ def test_v12_registry_covers_all_notes():
         "penny-ppv-when-lines-miss-header",
         "ppv-qc-live-readback-before-finish",
         "state-sales-tax-gap-not-ppv",
+        "every-edit-ap-clerk-note-and-owner-mention",
     }
 
 
@@ -701,6 +703,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "classify-before-extract-mixed-pdf",
         "open-receipts-not-missing-receipt",
         "ppv-qc-live-gap-zero",
+        "ap-clerk-note-and-owner-mention",
     ]
     ok, why = treyce_finish_selfcheck(
         {

@@ -155,6 +155,7 @@ def main() -> None:
         invoice_total=PDF_TOTAL,
         receipt_amount=RECEIPT_AMOUNT,
         sales_tax=SALES_TAX,
+        explicit=True,
         other_charges=[row["amount"] for row in before["charges"] if row.get("amount") not in (None, SALES_TAX)],
         receipts_matched=True,
     )

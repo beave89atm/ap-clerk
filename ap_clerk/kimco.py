@@ -12,6 +12,7 @@ record PUT of `lists.APInvoiceLine` with `values.Receipt.id` (receipt LINE id).
 from __future__ import annotations
 
 import logging
+import re
 from typing import Any
 
 import requests
@@ -870,7 +871,8 @@ def replace_comment_payload(invoice_id: int | str, comment_id: int | str, text: 
     if invoice_id in (None, "") or comment_id in (None, ""):
         raise KimcoError("Comment overwrite requires the invoice id and the comment id")
     note = str(text or "").strip()
-    if not note.startswith("AP Clerk:"):
+    visible = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", note)).strip()
+    if not visible.startswith("AP Clerk:"):
         raise KimcoError("Comment overwrite must start with AP Clerk:")
     html = note if note.startswith("<") else f"<p>{note}</p>"
     return {

@@ -1552,10 +1552,12 @@ def _process_invoice(
             continue
         if isinstance(fee, dict):
             non_tax_fee_amounts.append(fee.get("amount"))
+    tax_explicit = tax_shown not in (None, 0, 0.0)
     tax_decision = state_sales_tax_gap_decision(
         invoice_total=amount,
         receipt_amount=matched_receipt_extension((receipt_result or {}).get("matched")),
         sales_tax=tax_shown,
+        explicit=tax_explicit,
         other_charges=non_tax_fee_amounts,
         receipts_matched=bool(receipts_selected) and not unmatched_for_tax,
         unmatched_count=len(unmatched_for_tax),
@@ -1699,6 +1701,7 @@ def _process_invoice(
         created_id,
         row,
         sales_tax=tax_shown if tax_decision.get("action") == "sales_tax" else None,
+        sales_tax_explicit=tax_decision.get("action") == "sales_tax",
         header_created=True,
         attach_status=pdf_status,
         po=po if po_info else None,

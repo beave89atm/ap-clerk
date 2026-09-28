@@ -809,9 +809,10 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
         )
     if check.get("sales_tax_posted_as_ppv"):
         failures.append(
-            "The only remaining gap after receipt matching is state sales tax shown on the vendor invoice, "
+            "The vendor invoice PDF shows a sales tax line and that amount is the only remaining gap, "
             "but it was coded as Purchase Price Variance. "
-            "Fix: add a sales tax additional charge, not PPV. Do not change the receipt selection. Do not post the bill."
+            "Fix: add that exact printed amount as a sales tax additional charge, not PPV. "
+            "Do not compute tax. Do not change the receipt selection. Do not post the bill."
         )
     ppv_over = check.get("ppv_over_rule")
     if ppv_over:
@@ -970,6 +971,7 @@ def selfcheck_payload(
         invoice_total=inv.get("amount") if inv.get("amount") not in (None, "") else inv.get("total"),
         receipt_amount=matched_receipt_extension((receipt_result or {}).get("matched")),
         sales_tax=tax_shown,
+        explicit=tax_shown not in (None, 0, 0.0),
         receipts_matched=bool((receipt_result or {}).get("matched")) and not unmatched_lines,
         unmatched_count=len(unmatched_lines),
     )

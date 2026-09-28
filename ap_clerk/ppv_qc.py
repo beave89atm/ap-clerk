@@ -83,7 +83,12 @@ def charge_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
     return amounts
 
 
-def ppv_qc_from_record(record: dict[str, Any] | None, *, sales_tax: Any = None) -> dict[str, Any]:
+def ppv_qc_from_record(
+    record: dict[str, Any] | None,
+    *,
+    sales_tax: Any = None,
+    sales_tax_explicit: bool = False,
+) -> dict[str, Any]:
     values = record.get("values") if isinstance(record, dict) and isinstance(record.get("values"), dict) else {}
     return ppv_qc_gap(
         invoice_amount=values.get("Invoice_Amount"),
@@ -91,6 +96,7 @@ def ppv_qc_from_record(record: dict[str, Any] | None, *, sales_tax: Any = None) 
         line_amounts=line_amounts_from_record(record),
         charge_amounts=charge_amounts_from_record(record),
         sales_tax=sales_tax,
+        sales_tax_explicit=sales_tax_explicit,
     )
 
 
@@ -126,17 +132,24 @@ def apply_post_entry_ppv_gate(
     invoice_id: int | str,
     *,
     sales_tax: Any = None,
+    sales_tax_explicit: bool = False,
 ) -> dict[str, Any]:
     """Re-read the live bill. Post one PPV when the gap is under $75.
 
-    A gap that equals state sales tax shown on the vendor invoice is not a
-    PPV. The caller adds that sales tax additional charge. This gate does
-    not post the bill, and it does not change the batch, receipts, or
-    verification. Success is allowed only when the readback gap is 0.00
-    and the Invoice_Amount rollup gap is 0.00.
+    A gap that equals an explicit PDF sales-tax line is not a PPV. The
+    caller adds that sales tax additional charge, using the printed amount.
+    A passed number that was not on the PDF is ignored, and the normal
+    PPV/HOLD rule applies. This gate does not post the bill, and it does
+    not change the batch, receipts, or verification. Success is allowed
+    only when the readback gap is 0.00 and the Invoice_Amount rollup gap
+    is 0.00.
     """
     record = client.get_item("ap_invoices", int(invoice_id))
-    before = ppv_qc_from_record(record, sales_tax=sales_tax)
+    before = ppv_qc_from_record(
+        record,
+        sales_tax=sales_tax,
+        sales_tax_explicit=sales_tax_explicit,
+    )
     status = "none"
     mutated = False
     if before.get("action") == "sales_tax":
@@ -177,18 +190,25 @@ def pre_finish_totals_check(
     invoice_id: int | str,
     *,
     sales_tax: Any = None,
+    sales_tax_explicit: bool = False,
 ) -> dict[str, Any]:
     """Live totals check that must pass before Finish.
 
     Header invoice total == PDF total == selected receipt lines + all charges,
     to the penny. |gap| < ppv_limit() posts one signed PPV first and re-reads.
-    A gap equal to state sales tax shown on the vendor invoice is not a PPV.
-    |gap| >= the limit is HOLD and does not post. ok is True only when that
-    readback matches, or the read has no header total to enforce. A failed
-    read is not ok, so Finish is blocked.
+    A gap equal to an explicit PDF sales-tax line is not a PPV. A gap with
+    no explicit tax line follows the normal PPV/HOLD rule. |gap| >= the
+    limit is HOLD and does not post. ok is True only when that readback
+    matches, or the read has no header total to enforce. A failed read is
+    not ok, so Finish is blocked.
     """
     try:
-        outcome = apply_post_entry_ppv_gate(client, invoice_id, sales_tax=sales_tax)
+        outcome = apply_post_entry_ppv_gate(
+            client,
+            invoice_id,
+            sales_tax=sales_tax,
+            sales_tax_explicit=sales_tax_explicit,
+        )
     except (KimcoError, AttributeError, TypeError, ValueError):
         return {
             "ok": False,
@@ -235,15 +255,22 @@ def finish_after_totals_check(
     row: dict[str, Any],
     *,
     sales_tax: Any = None,
+    sales_tax_explicit: bool = False,
     **gate_kwargs: Any,
 ) -> tuple[str, str]:
     """Run the pre-Finish totals check, then Finish.
 
     finish_gate returns HOLD, never Success, when the pre-check fails.
-    sales_tax is the state sales tax shown on the vendor invoice. A gap
-    equal to that amount is not posted as PPV.
+    sales_tax is the amount printed on an explicit PDF sales-tax line.
+    Pass sales_tax_explicit only when that line is on the PDF. A gap equal
+    to that printed amount is not posted as PPV.
     """
-    pre = pre_finish_totals_check(client, invoice_id, sales_tax=sales_tax)
+    pre = pre_finish_totals_check(
+        client,
+        invoice_id,
+        sales_tax=sales_tax,
+        sales_tax_explicit=sales_tax_explicit,
+    )
     remember_pre_finish_fix(row, pre)
     return finish_gate(**gate_kwargs, pre_finish=pre)
 
