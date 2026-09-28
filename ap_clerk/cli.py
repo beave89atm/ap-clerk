@@ -107,6 +107,7 @@ from ap_clerk.rules import (
     evaluate_bill_price_variance,
     filter_matches_outside_ppv_gate,
     extract_po_number,
+    fee_is_state_sales_tax,
     flag_in_outlook_for,
     format_fees,
     format_ppv,
@@ -134,6 +135,7 @@ from ap_clerk.rules import (
     extract_subject_invoice_number,
     invoice_qty_evidence,
     match_receipts,
+    matched_receipt_extension,
     merchandise_qty,
     misc_purchase_item_for,
     money,
@@ -142,6 +144,8 @@ from ap_clerk.rules import (
     po_vendor_name_from_text,
     po_vendor_partial_match,
     posted_vendor_fields,
+    state_sales_tax_amount_shown,
+    state_sales_tax_gap_decision,
     should_transfer_ap_missing_po,
     should_create_header,
     vendor_match_score,
@@ -1539,6 +1543,26 @@ def _process_invoice(
     fees_posted = False
     fee_status = "none"
     shop_status = "none"
+    sales_tax_status = "none"
+    tax_shown = state_sales_tax_amount_shown(inv)
+    unmatched_for_tax = list((receipt_result or {}).get("unmatched_lines") or [])
+    non_tax_fee_amounts = []
+    for fee in list(inv.get("fees") or []):
+        if isinstance(fee, dict) and fee_is_state_sales_tax(fee):
+            continue
+        if isinstance(fee, dict):
+            non_tax_fee_amounts.append(fee.get("amount"))
+    tax_decision = state_sales_tax_gap_decision(
+        invoice_total=amount,
+        receipt_amount=matched_receipt_extension((receipt_result or {}).get("matched")),
+        sales_tax=tax_shown,
+        other_charges=non_tax_fee_amounts,
+        receipts_matched=bool(receipts_selected) and not unmatched_for_tax,
+        unmatched_count=len(unmatched_for_tax),
+    )
+    if tax_decision.get("action") == "sales_tax" and not misc_shop:
+        price["ppv_total"] = 0.0
+        row["PPV"] = "none"
     if standing and standing.get("mode") == "needs_kyle_review":
         review_note = str(standing.get("note") or "").strip()
         issue_hold = (
@@ -1583,6 +1607,8 @@ def _process_invoice(
         inv = dict(inv)
         inv["fees"] = []
     parsed_fees = list(inv.get("fees") or [])
+    if tax_decision.get("action") == "sales_tax" and not misc_shop:
+        parsed_fees = [fee for fee in parsed_fees if not (isinstance(fee, dict) and fee_is_state_sales_tax(fee))]
     if fees_required(parsed_fees):
         poster = getattr(client, "try_post_fees", None)
         if poster:
@@ -1602,6 +1628,17 @@ def _process_invoice(
             fee_status = "blocked-no-fee-api"
         fees_posted = fee_status == "posted"
     ppv_status = "none"
+    if tax_decision.get("action") == "sales_tax" and not misc_shop:
+        poster_tax = getattr(client, "try_post_sales_tax", None)
+        if poster_tax:
+            try:
+                sales_tax_status = poster_tax(created_id, tax_decision["amount"])
+            except KimcoError:
+                sales_tax_status = "blocked-405"
+        else:
+            sales_tax_status = "blocked-no-sales-tax-api"
+        price["ppv_total"] = 0.0
+        row["PPV"] = "none"
     if price.get("ppv_total") and not misc_shop:
         poster_ppv = getattr(client, "try_post_ppv", None)
         if poster_ppv:
@@ -1661,6 +1698,7 @@ def _process_invoice(
         client,
         created_id,
         row,
+        sales_tax=tax_shown if tax_decision.get("action") == "sales_tax" else None,
         header_created=True,
         attach_status=pdf_status,
         po=po if po_info else None,
@@ -1744,6 +1782,16 @@ def _process_invoice(
                     f"Fees {format_fees(parsed_fees)} were parsed but not posted "
                     f"({fee_status}); sheet column is not enough. "
                 )
+    if sales_tax_status == "posted":
+        fee_note += (
+            f"Posted Additional Charge Sales tax {float(tax_decision['amount']):.2f} "
+            "(state sales tax on the vendor invoice; not PPV). "
+        )
+    elif sales_tax_status not in {"", "none"}:
+        fee_note += (
+            f"State sales tax {float(tax_decision.get('amount') or 0):.2f} was not saved "
+            f"({sales_tax_status}). It was not posted as Purchase Price Variance. "
+        )
     if result == RESULT_SUCCESS and standing and standing.get("mode") == "shop_supplies":
         shop_label = {
             "air_products_misc": "Air Products",

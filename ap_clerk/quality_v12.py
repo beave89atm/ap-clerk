@@ -1012,6 +1012,25 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-58",
+        "slug": "state-sales-tax-gap-not-ppv",
+        "gate": GATE_PRICE,
+        "cases": (
+            "A1 Image 67067 / KIMCO 10367 receipt 24712 1 @ 508.67, PDF 550.64, Texas sales tax 41.97",
+        ),
+        "expected": (
+            "When receipt matching is finished and the only remaining gap equals "
+            "state sales tax shown on the vendor invoice, add that amount as a "
+            "sales tax additional charge. Live Additional_Charges has no sales-tax "
+            "code, so the line is F-Fees & Surcharges (lookup id 11) with Name "
+            "'Sales tax'. Never Purchase Price Variance (lookup id 13). Do not "
+            "change the receipt selection. Do not post the bill. Success only "
+            "after the live bill amount equals the invoice total to the penny. "
+            "A1 67067: 508.67 + 41.97 = 550.64."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1034,6 +1053,16 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "fees-not-ppv",
         "check": "Supply/fee/surcharge amounts are Additional Charge Fees and surcharges, never PPV.",
+    },
+    {
+        "id": "state-sales-tax-not-ppv",
+        "check": (
+            "When the only remaining gap after receipt matching is state sales "
+            "tax shown on the vendor invoice, add a sales tax additional charge "
+            "(Name 'Sales tax' on F-Fees when no sales-tax charge type exists). "
+            "Never Purchase Price Variance. Do not change the receipt selection. "
+            "Do not post the bill."
+        ),
     },
     {
         "id": "fees-posted-on-bill",

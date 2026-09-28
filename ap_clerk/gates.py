@@ -23,6 +23,9 @@ from ap_clerk.rules import (
     qty_discrepancy,
     format_unmatched_lines,
     format_unmatched_pos,
+    matched_receipt_extension,
+    state_sales_tax_amount_shown,
+    state_sales_tax_gap_decision,
     vendor_match_score,
     vendors_strictly_match,
 )
@@ -804,6 +807,12 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "A supply/fee/surcharge was coded as PPV (Techni-Tool $46.20). "
             "Fix: Additional Charge Fees and surcharges, never PPV."
         )
+    if check.get("sales_tax_posted_as_ppv"):
+        failures.append(
+            "The only remaining gap after receipt matching is state sales tax shown on the vendor invoice, "
+            "but it was coded as Purchase Price Variance. "
+            "Fix: add a sales tax additional charge, not PPV. Do not change the receipt selection. Do not post the bill."
+        )
     ppv_over = check.get("ppv_over_rule")
     if ppv_over:
         failures.append(
@@ -955,6 +964,21 @@ def selfcheck_payload(
             if inv.get("qty") not in (None, "") or inv.get("lines"):
                 qty_only = True
     parsed_fees = list(inv.get("fees") or [])
+    unmatched_lines = list((receipt_result or {}).get("unmatched_lines") or [])
+    tax_shown = state_sales_tax_amount_shown(inv)
+    tax_decision = state_sales_tax_gap_decision(
+        invoice_total=inv.get("amount") if inv.get("amount") not in (None, "") else inv.get("total"),
+        receipt_amount=matched_receipt_extension((receipt_result or {}).get("matched")),
+        sales_tax=tax_shown,
+        receipts_matched=bool((receipt_result or {}).get("matched")) and not unmatched_lines,
+        unmatched_count=len(unmatched_lines),
+    )
+    ppv_total = money((price or {}).get("ppv_total"))
+    sales_tax_as_ppv = bool(
+        tax_decision.get("action") == "sales_tax"
+        and ppv_total not in (None, 0, 0.0)
+        and abs(float(ppv_total) - float(tax_decision.get("amount") or 0)) < 0.001
+    )
     return {
         "invoice_number": inv.get("invoice_number"),
         "field_sources": inv.get("field_sources") or {},
@@ -966,6 +990,7 @@ def selfcheck_payload(
         "qty_hold": qty_hold,
         "price_hold": bool((price or {}).get("hold")),
         "fees_posted_as_ppv": fees_as_ppv,
+        "sales_tax_posted_as_ppv": sales_tax_as_ppv,
         "ppv_over_rule": ppv_over,
         "receipt_qty_only_match": qty_only,
         "receipt_qty_mismatch": receipt_qty_mismatch,

@@ -1486,6 +1486,182 @@ def totals_match_to_the_penny(decision: dict[str, Any]) -> bool:
     return invoice == verification == covered and decision.get("gap") in (0, 0.0)
 
 
+SALES_TAX_CHARGE_DESCRIPTION = "Sales tax"
+
+_STATE_SALES_TAX_LABEL = re.compile(
+    r"\b(?:texas\s+|tx\s+)?(?:state\s+)?sales\s+tax\b|\bstate\s+tax\b",
+    flags=re.I,
+)
+_NON_STATE_TAX_LABEL = re.compile(
+    r"\b(?:city|county|local|excise|use)\s+tax\b",
+    flags=re.I,
+)
+_STATE_SALES_TAX_AMOUNT = re.compile(
+    r"(?:texas\s+|tx\s+)?(?:state\s+)?sales\s+tax(?:\s*\([^)]*\))?\s*[:\-]?\s*\$?\s*([\d,]+\.\d{2})"
+    r"|\$\s*([\d,]+\.\d{2})\s*(?:texas\s+|tx\s+)?(?:state\s+)?sales\s+tax\b"
+    r"|\bstate\s+tax(?:\s+\d+(?:\.\d+)?\s*%)?\s+\$?\s*([\d,]+\.\d{2})",
+    flags=re.I,
+)
+
+
+def is_state_sales_tax_label(label: str | None) -> bool:
+    """True for state sales tax on a vendor invoice. City or use tax is not this."""
+    text = re.sub(r"\s+", " ", str(label or "")).strip()
+    if not text:
+        return False
+    if _NON_STATE_TAX_LABEL.search(text) and not re.search(r"\bsales\s+tax\b", text, flags=re.I):
+        return False
+    return _STATE_SALES_TAX_LABEL.search(text) is not None
+
+
+def fee_is_state_sales_tax(fee: dict[str, Any] | None) -> bool:
+    if not isinstance(fee, dict):
+        return False
+    if fee.get("state_sales_tax") is True:
+        return True
+    label = str(fee.get("name") or fee.get("description") or fee.get("source") or "")
+    return is_state_sales_tax_label(label)
+
+
+def parse_state_sales_tax_from_text(text: str | None) -> float | None:
+    """First state sales tax amount printed on invoice text. Does not invent a rate."""
+    match = _STATE_SALES_TAX_AMOUNT.search(text or "")
+    if not match:
+        return None
+    raw = next((group for group in match.groups() if group), None)
+    return money(str(raw).replace(",", "")) if raw else None
+
+
+def state_sales_tax_amount_shown(bill: dict[str, Any] | None) -> float | None:
+    """State sales tax printed on the vendor invoice. None when the invoice does not show one."""
+    data = bill or {}
+    if data.get("sales_tax") not in (None, ""):
+        return money(data.get("sales_tax"))
+    if data.get("tax") not in (None, "") and not isinstance(data.get("tax"), (list, dict)):
+        return money(data.get("tax"))
+    total = 0.0
+    found = False
+    rows: list[Any] = []
+    rows.extend(data.get("fees") or [])
+    rows.extend(data.get("lines") or [])
+    taxes = data.get("taxes")
+    if isinstance(taxes, list):
+        rows.extend(taxes)
+    for row in rows:
+        if not isinstance(row, dict) or not fee_is_state_sales_tax(row):
+            continue
+        amount = money(row.get("amount") if row.get("amount") is not None else row.get("line_amount"))
+        if amount in (None, 0, 0.0):
+            continue
+        found = True
+        total = round(total + amount, 2)
+    if found:
+        return total
+    return parse_state_sales_tax_from_text(str(data.get("pdf_text") or data.get("text") or ""))
+
+
+def matched_receipt_extension(matched: list[dict[str, Any]] | None) -> float | None:
+    """Extended cost of receipts already matched to merchandise lines."""
+    total = 0.0
+    found = False
+    for hit in matched or []:
+        if not isinstance(hit, dict):
+            continue
+        rec = hit.get("receipt") if isinstance(hit.get("receipt"), dict) else {}
+        select_qty = money(hit.get("select_qty"))
+        unit = money(rec.get("unit_price") if rec.get("unit_price") is not None else rec.get("unit_cost"))
+        if select_qty is not None and unit is not None:
+            one = round(select_qty * unit, 2)
+        else:
+            one = receipt_cost(rec if rec else hit)
+        if one is None:
+            continue
+        total = round(total + one, 2)
+        found = True
+    return total if found else None
+
+
+def state_sales_tax_gap_decision(
+    *,
+    invoice_total: Any,
+    receipt_amount: Any,
+    sales_tax: Any = None,
+    other_charges: list[Any] | None = None,
+    receipts_matched: bool = False,
+    unmatched_count: int = 0,
+) -> dict[str, Any]:
+    """When the only remaining gap is state sales tax, book that charge, not PPV.
+
+    Kyle 2026-09-28, A1 Image invoice 67067 / bill 10367: receipt 24712 is
+    1 @ 508.67 and the PDF total is 550.64. The $41.97 gap is Texas state
+    sales tax (8.25%). Add it as a sales tax additional charge. Do not post
+    Purchase Price Variance. Do not change the receipt selection. Do not
+    post the bill.
+    """
+    tax = money(sales_tax)
+    header = money(invoice_total)
+    receipts = money(receipt_amount)
+    others = round(sum(money(amount) or 0.0 for amount in (other_charges or [])), 2)
+    decision: dict[str, Any] = {
+        "action": "skip",
+        "ppv": 0.0,
+        "amount": 0.0,
+        "description": SALES_TAX_CHARGE_DESCRIPTION,
+        "charge_as": "additional_charge",
+        "post_bill": False,
+        "gap": None,
+        "receipts": receipts if receipts is not None else 0.0,
+        "other_charges": others,
+        "sales_tax": tax,
+        "reason": "",
+    }
+    if not receipts_matched or int(unmatched_count or 0) > 0:
+        decision["reason"] = (
+            "Receipt matching is not finished. Do not treat state sales tax as the only remaining gap."
+        )
+        return decision
+    if tax in (None, 0, 0.0):
+        decision["reason"] = "No state sales tax is shown on the vendor invoice."
+        return decision
+    if header is None or receipts is None:
+        decision["reason"] = "Invoice total or matched receipt amount is missing."
+        return decision
+    gap = round(header - receipts - others, 2)
+    decision["gap"] = gap
+    if gap == 0:
+        decision["action"] = "match"
+        decision["reason"] = "Receipts and charges already equal the invoice total."
+        return decision
+    if gap != tax:
+        decision["reason"] = (
+            f"Remaining gap {gap:.2f} is not the state sales tax {tax:.2f} shown on the invoice. "
+            "Do not book that tax as if it were the only gap."
+        )
+        return decision
+    decision["action"] = "sales_tax"
+    decision["amount"] = tax
+    decision["ppv"] = 0.0
+    decision["reason"] = (
+        f"The only remaining gap after receipt matching is state sales tax {tax:.2f} "
+        "shown on the vendor invoice. Add it as a sales tax additional charge, not Purchase Price Variance."
+    )
+    return decision
+
+
+def state_sales_tax_comment(*, sales_tax: Any, invoice_total: Any, approver: str = "Kyle") -> str:
+    """Plain-English Comments_1 note. Starts with AP Clerk:."""
+    tax = money(sales_tax)
+    total = money(invoice_total)
+    tax_txt = f"${tax:,.2f}" if tax is not None else "the sales tax"
+    total_txt = f"${total:,.2f}" if total is not None else "the invoice total"
+    who = str(approver or "Kyle").strip() or "Kyle"
+    return (
+        f"AP Clerk: Sales tax of {tax_txt} was added per {who}. "
+        f"The bill now matches the invoice at {total_txt}. "
+        "It was added as an additional charge, not as a price variance. The bill is not posted."
+    )
+
+
 def penny_ppv_for_header_gap(
     *,
     header_total: Any,
@@ -1559,6 +1735,7 @@ def ppv_qc_gap(
     line_amounts: list[Any] | None = None,
     charge_amounts: list[Any] | None = None,
     max_abs: float | None = None,
+    sales_tax: Any = None,
 ) -> dict[str, Any]:
     """Mandatory PPV QC. Success only when the live gap is 0.00.
 
@@ -1630,6 +1807,16 @@ def ppv_qc_gap(
         reason = (
             f"|gap| {abs(float(gap or 0)):.2f} is not under ${max_abs:.0f}. "
             "HOLD price_variance. Do not post PPV."
+        )
+    shown_tax = money(sales_tax)
+    if action == "ppv" and shown_tax not in (None, 0, 0.0) and gap == shown_tax and has_lines:
+        action = "sales_tax"
+        ppv = 0.0
+        success_allowed = False
+        reason = (
+            "The only remaining gap after receipt matching is state sales tax "
+            f"{shown_tax:.2f} shown on the vendor invoice. "
+            "Add it as a sales tax additional charge, not Purchase Price Variance."
         )
     return {
         "action": action,

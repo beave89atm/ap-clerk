@@ -209,9 +209,10 @@ def test_v12_registry_covers_all_notes():
         "NOTE-55",
         "NOTE-56",
         "NOTE-57",
+        "NOTE-58",
     )
-    assert len(TREYCE_NOTES_V12) == 47
-    assert len(TREYCE_FINISH_CHECKLIST) == 20
+    assert len(TREYCE_NOTES_V12) == 48
+    assert len(TREYCE_FINISH_CHECKLIST) == 21
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -263,6 +264,7 @@ def test_v12_registry_covers_all_notes():
         "open-receipts-forbid-missing-receipt",
         "penny-ppv-when-lines-miss-header",
         "ppv-qc-live-readback-before-finish",
+        "state-sales-tax-gap-not-ppv",
     }
 
 
@@ -683,6 +685,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "receipt-match-by-description",
         "qty-matches",
         "fees-not-ppv",
+        "state-sales-tax-not-ppv",
         "fees-posted-on-bill",
         "ppv-within-rule",
         "pdf-attached",
