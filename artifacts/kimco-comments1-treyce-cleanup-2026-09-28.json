@@ -1,0 +1,106 @@
+{
+  "author": "API Agent",
+  "author_id": 175,
+  "probes": [
+    {
+      "id": 1043,
+      "status": "already_absent"
+    },
+    {
+      "id": 1044,
+      "status": "already_absent"
+    },
+    {
+      "id": 1045,
+      "status": "already_absent"
+    },
+    {
+      "id": 1046,
+      "status": "already_absent"
+    }
+  ],
+  "notes": [
+    {
+      "bill_id": 10181,
+      "invoice": "0040437952",
+      "pdf_invoice": "0040437952",
+      "misattributed_comment_id": 1048,
+      "new_comment_id": 1181,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "matches",
+      "live_amount": 241.46,
+      "live_verification": 241.46
+    },
+    {
+      "bill_id": 10294,
+      "invoice": "0040388258",
+      "pdf_invoice": "0040388258",
+      "misattributed_comment_id": 1049,
+      "new_comment_id": 1182,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "matches",
+      "live_amount": 867.72,
+      "live_verification": 867.72
+    },
+    {
+      "bill_id": 10295,
+      "invoice": "0040387888",
+      "pdf_invoice": "0040387888",
+      "misattributed_comment_id": 1050,
+      "new_comment_id": 1183,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "matches",
+      "live_amount": 2998.96,
+      "live_verification": 2998.96
+    },
+    {
+      "bill_id": 10297,
+      "invoice": "0040385309",
+      "pdf_invoice": "0040385309",
+      "misattributed_comment_id": 1051,
+      "new_comment_id": 1184,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "matches",
+      "live_amount": 294.28,
+      "live_verification": 294.28
+    },
+    {
+      "bill_id": 10146,
+      "invoice": "72013304",
+      "pdf_invoice": "72013304",
+      "misattributed_comment_id": 1052,
+      "new_comment_id": 1185,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "matches",
+      "live_amount": 443.49,
+      "live_verification": 443.49
+    },
+    {
+      "bill_id": 10143,
+      "invoice": "58221",
+      "pdf_invoice": "72068812",
+      "misattributed_comment_id": 1053,
+      "new_comment_id": 1186,
+      "new_comment_creator_id": 175,
+      "status": "added",
+      "verification": "The live bill amount is 0.00 and the invoice verification amount is 336.49, a gap of 336.49.",
+      "live_amount": 0.0,
+      "live_verification": 336.49
+    }
+  ],
+  "left_alone": [
+    {
+      "bill_id": 10143,
+      "invoice": "58221",
+      "comment_id": 1105,
+      "reason": "Authored by Treyce Hodges on 2026-09-25, text asks Shawn which parts to reject. Not the 9/24 poller wording. Left alone."
+    }
+  ],
+  "amounts_unchanged": true,
+  "posted_unchanged": true
+}

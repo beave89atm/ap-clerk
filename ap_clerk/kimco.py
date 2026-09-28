@@ -11,6 +11,8 @@ record PUT of `lists.APInvoiceLine` with `values.Receipt.id` (receipt LINE id).
 
 from __future__ import annotations
 
+import base64
+import json
 import logging
 import re
 from typing import Any
@@ -96,12 +98,113 @@ class KimcoError(RuntimeError):
     pass
 
 
+# Live Comments_1 written on 2026-09-24 through the form login
+# (KIMCO_LIVE_USERNAME) were authored as Treyce Hodges, user 33.
+# API-key comments are API Agent: live user 175, prototype user 173.
+# Never write Comments_1 as user 33. Never post a probe/test note on live.
+TREYCE_COMMENT_AUTHOR_ID = 33
+TREYCE_COMMENT_AUTHOR_NAME = "Treyce Hodges"
+API_AGENT_COMMENT_AUTHOR_NAME = "API Agent"
+API_AGENT_COMMENT_AUTHOR_IDS = {
+    "live": 175,
+    "prototype": 173,
+}
+_AUTHOR_ID_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+_AUTHOR_NAME_CLAIM = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+_PROBE_COMMENT_TEXTS = frozenset({"probe", "test"})
+
+
+def comment_author_from_access_token(token: str) -> dict[str, Any]:
+    """User id and name the bearer token will author as. Never logs the token."""
+    parts = str(token or "").split(".")
+    if len(parts) < 2 or not parts[1]:
+        raise KimcoError("Comments_1 author could not be resolved from the access token")
+    try:
+        padded = parts[1] + "=" * (-len(parts[1]) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")))
+    except (ValueError, json.JSONDecodeError, UnicodeError) as exc:
+        raise KimcoError("Comments_1 author could not be resolved from the access token") from exc
+    if not isinstance(payload, dict):
+        raise KimcoError("Comments_1 author could not be resolved from the access token")
+    name = str(payload.get(_AUTHOR_NAME_CLAIM) or "").strip()
+    try:
+        author_id = int(payload.get(_AUTHOR_ID_CLAIM))
+    except (TypeError, ValueError) as exc:
+        raise KimcoError("Comments_1 author could not be resolved from the access token") from exc
+    return {"id": author_id, "name": name}
+
+
+def visible_comment_text(html: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", str(html or ""))).strip()
+
+
+def is_probe_or_test_comment(html: str) -> bool:
+    """True when the visible Comments_1 text is only the word probe or test."""
+    text = visible_comment_text(html).casefold().strip(" .!")
+    return text in _PROBE_COMMENT_TEXTS
+
+
+def comments_1_children(payload: Any) -> list[dict[str, Any]]:
+    """Comments_1 rows on a record PUT, including a values-wrapped retry body."""
+    if not isinstance(payload, dict):
+        return []
+    rows: list[dict[str, Any]] = []
+    lists = payload.get("lists")
+    if isinstance(lists, dict) and isinstance(lists.get("Comments_1"), list):
+        rows.extend(row for row in lists["Comments_1"] if isinstance(row, dict))
+    values = payload.get("values")
+    if isinstance(values, dict):
+        rows.extend(comments_1_children(values))
+    return rows
+
+
+def assert_comments_1_author(author: dict[str, Any], *, target: str) -> None:
+    """Abort unless this write will be authored as API Agent, never user 33."""
+    try:
+        author_id = int(author.get("id"))
+    except (TypeError, ValueError) as exc:
+        raise KimcoError("Comments_1 author could not be resolved") from exc
+    name = str(author.get("name") or "").strip()
+    if author_id == TREYCE_COMMENT_AUTHOR_ID or name == TREYCE_COMMENT_AUTHOR_NAME:
+        raise KimcoError(
+            "Refusing Comments_1: the comment author resolves to Treyce Hodges (33). "
+            "Comments_1 must be written as API Agent."
+        )
+    expected = API_AGENT_COMMENT_AUTHOR_IDS.get(target)
+    if name != API_AGENT_COMMENT_AUTHOR_NAME or author_id != expected:
+        raise KimcoError("Refusing Comments_1: the comment author is not the API Agent login.")
+
+
+def assert_comments_1_text(rows: list[dict[str, Any]], *, target: str) -> None:
+    """Live bills reject a Comments_1 note whose text is only probe or test."""
+    if target != "live":
+        return
+    for row in rows:
+        values = row.get("values") if isinstance(row.get("values"), dict) else {}
+        html = str(values.get("HtmlValue") or values.get("Value") or "")
+        if not html and str(row.get("state") or "") == "Removed":
+            continue
+        if is_probe_or_test_comment(html):
+            raise KimcoError("Refusing probe/test Comments_1 on a live bill.")
+
+
+def guard_comments_1_write(payload: Any, *, token: str, target: str) -> None:
+    """Fail closed before any Comments_1 write whose author is not API Agent."""
+    rows = comments_1_children(payload)
+    if not rows:
+        return
+    author = comment_author_from_access_token(token)
+    assert_comments_1_author(author, target=target)
+    assert_comments_1_text(rows, target=target)
+
+
 class KimcoClient:
     def __init__(self, base_url: str, token: str, timeout: int = 90, *, target: str = "prototype"):
         self.target = target if target in {"prototype", "live"} else "prototype"
         self.services = services_for(self.target)
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
+        self.access_token = token
         if self.target == "live":
             if LIVE_HOST not in (self.base_url or "").lower():
                 raise KimcoError("Live target requires live.kimcoerp.com")
@@ -204,6 +307,8 @@ class KimcoClient:
                     "Refusing list-endpoint attach; attachments use "
                     "/api/v2/{serviceId}/{id}/attachments"
                 )
+        if method_upper in {"POST", "PUT", "PATCH"}:
+            guard_comments_1_write(kwargs.get("json"), token=self.access_token, target=self.target)
         response = self.session.request(method, url, timeout=self.timeout, **kwargs)
         return response
 
