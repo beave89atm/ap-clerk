@@ -168,6 +168,12 @@ TREYCE_MENTION_HTML = (
     '<span data-mention-id="33" data-mention-name="Treyce Hodges" '
     'data-mention-email="" class="prosemirror-mention-node">@Treyce Hodges</span>'
 )
+# Bill 10367 comment 1187 mentions @Kyle Cleaver with this id. Do not invent another.
+KYLE_CLEAVER_MENTION_ID = 26
+KYLE_CLEAVER_MENTION_HTML = (
+    '<span data-mention-id="26" data-mention-name="Kyle Cleaver" '
+    'data-mention-email="" class="prosemirror-mention-node">@Kyle Cleaver</span>'
+)
 # AQPC receiving owner. Live Comments_1 scan did not find a data-mention-id.
 # Do not invent one. A real span is emitted only after an id is known.
 RUBEN_PEREZ = "Ruben Perez"
@@ -1617,10 +1623,12 @@ TOTALS_MATCH_BEFORE_FINISH = (
 
 
 def totals_match_to_the_penny(decision: dict[str, Any]) -> bool:
-    """True when the header, the PDF total, and lines + charges are the same cent.
+    """True when the PDF total equals lines + charges + Taxes-tab tax, to the penny.
 
-    Header is Invoice_Amount. PDF total is Invoice_Verification_Amount.
-    Covered is selected receipt / misc lines plus every additional charge.
+    Header Invoice_Amount is the pre-tax rollup (lines + additional charges).
+    PDF total is Invoice_Verification_Amount. A Taxes-tab amount is not part
+    of Invoice_Amount; Invoice_Net_Amount is Invoice_Amount plus that tax.
+    With no tax, Invoice_Amount, the PDF total, and lines + charges are equal.
     """
     if decision.get("success_allowed") is not True:
         return False
@@ -1629,6 +1637,13 @@ def totals_match_to_the_penny(decision: dict[str, Any]) -> bool:
     if invoice is None or verification is None:
         return False
     covered = round(float(decision.get("lines") or 0) + float(decision.get("charges") or 0), 2)
+    taxes = round(float(decision.get("taxes") or 0), 2)
+    if taxes:
+        return (
+            invoice == covered
+            and verification == round(covered + taxes, 2)
+            and decision.get("gap") in (0, 0.0)
+        )
     return invoice == verification == covered and decision.get("gap") in (0, 0.0)
 
 
@@ -1751,17 +1766,17 @@ def state_sales_tax_gap_decision(
     receipts_matched: bool = False,
     unmatched_count: int = 0,
 ) -> dict[str, Any]:
-    """Book a sales tax charge only from an explicit PDF sales-tax line.
+    """Book sales tax only from an explicit PDF sales-tax line.
 
-    Kyle 2026-09-28, tightened the same day: not every vendor charges sales
-    tax. Add the additional charge only when the vendor invoice PDF shows a
-    sales tax line, and use exactly that printed amount. Never compute a
-    rate and never infer tax from the gap. A1 Image invoice 67067 / bill
-    10367 is the case that does show the line: receipt 24712 is 1 @ 508.67,
-    the PDF prints sales tax 41.97, and the PDF total is 550.64. Do not
-    post Purchase Price Variance. Do not change the receipt selection. Do
-    not post the bill. A gap with no explicit tax line follows normal
-    PPV/HOLD rules.
+    Kyle 2026-09-28, corrected the same day after Treyce: the amount goes
+    on the Taxes tab with Tax Code Sales Tax. It is not an additional
+    charge and not Purchase Price Variance. Add it only when the vendor
+    invoice PDF shows a sales tax line, and use exactly that printed
+    amount. Never compute a rate and never infer tax from the gap. A1
+    Image invoice 67067 / bill 10367 is the case that does show the line:
+    receipt 24712 is 1 @ 508.67, the PDF prints sales tax 41.97, and the
+    PDF total is 550.64. Do not change the receipt selection. Do not post
+    the bill. A gap with no explicit tax line follows normal PPV/HOLD rules.
     """
     tax = money(sales_tax) if explicit else None
     header = money(invoice_total)
@@ -1771,8 +1786,8 @@ def state_sales_tax_gap_decision(
         "action": "skip",
         "ppv": 0.0,
         "amount": 0.0,
-        "description": SALES_TAX_CHARGE_DESCRIPTION,
-        "charge_as": "additional_charge",
+        "description": "Sales Tax",
+        "charge_as": "taxes_tab",
         "post_bill": False,
         "explicit": bool(explicit) and tax not in (None, 0, 0.0),
         "gap": None,
@@ -1814,8 +1829,8 @@ def state_sales_tax_gap_decision(
     decision["ppv"] = 0.0
     decision["reason"] = (
         f"The vendor invoice PDF shows a sales tax line of {tax:.2f}, and that is the only "
-        "remaining gap after receipt matching. Add that exact amount as a sales tax additional "
-        "charge, not Purchase Price Variance."
+        "remaining gap after receipt matching. Add that exact amount on the Taxes tab "
+        "with Tax Code Sales Tax, not as an additional charge and not as Purchase Price Variance."
     )
     return decision
 
@@ -1838,12 +1853,18 @@ def state_sales_tax_comment(
     total_txt = f"${total:,.2f}" if total is not None else "the invoice total"
     who = str(approver or "Kyle").strip() or "Kyle"
     plain = (
-        f"AP Clerk: Sales tax of {tax_txt} was added per {who}. "
-        f"The bill now matches the invoice at {total_txt}. "
-        "It was added as an additional charge, not as a price variance. The bill is not posted."
+        f"AP Clerk: Sales tax of {tax_txt} was entered on the Taxes tab as Sales Tax per {who}. "
+        f"The bill matches the invoice at {total_txt}. "
+        "It is not an additional charge and not a price variance. The bill is not posted."
     )
     if is_transfer_ap_batch(batch_id, batch_name):
-        return ap_clerk_edit_note(plain, batch_id=batch_id, batch_name=batch_name)
+        noted = (
+            f"<p>AP Clerk: {TREYCE_MENTION_HTML} {KYLE_CLEAVER_MENTION_HTML} "
+            f"Sales tax of {tax_txt} was entered on the Taxes tab as Sales Tax per {who}. "
+            f"The bill matches the invoice at {total_txt}. "
+            "It is not an additional charge and not a price variance. The bill is not posted.</p>"
+        )
+        return ap_clerk_edit_note(noted, batch_id=batch_id, batch_name=batch_name)
     return plain
 
 
@@ -1922,6 +1943,7 @@ def ppv_qc_gap(
     max_abs: float | None = None,
     sales_tax: Any = None,
     sales_tax_explicit: bool = False,
+    tax_amounts: list[Any] | None = None,
 ) -> dict[str, Any]:
     """Mandatory PPV QC. Success only when the live gap is 0.00.
 
@@ -2008,7 +2030,48 @@ def ppv_qc_gap(
         reason = (
             "The vendor invoice PDF shows a sales tax line of "
             f"{shown_tax:.2f}, and that is the only remaining gap. "
-            "Add that exact amount as a sales tax additional charge, not Purchase Price Variance."
+            "Add that exact amount on the Taxes tab with Tax Code Sales Tax, "
+            "not as an additional charge and not as Purchase Price Variance."
+        )
+    tax_values = [amount for amount in (money(amount) for amount in (tax_amounts or [])) if amount is not None]
+    taxes = round(sum(tax_values), 2)
+    if (
+        shown_tax not in (None, 0, 0.0)
+        and taxes == shown_tax
+        and gap == shown_tax
+        and has_lines
+    ):
+        gap = 0.0
+        ppv = 0.0
+        category = ""
+        if rollup_gap not in (None, 0.0):
+            action = "rollup"
+            success_allowed = False
+            reason = (
+                f"Invoice_Amount rollup gap {float(rollup_gap):.2f} is not 0.00. "
+                "Taxes-tab sales tax is not part of Invoice_Amount."
+            )
+        else:
+            action = "match"
+            success_allowed = True if enforced else None
+            reason = (
+                "Sales tax is on the Taxes tab and the payable total matches the invoice. "
+                "Invoice_Amount stays the pre-tax rollup."
+            )
+    elif (
+        shown_tax not in (None, 0, 0.0)
+        and taxes != shown_tax
+        and gap == 0
+        and any(amount == shown_tax for amount in charge_values)
+        and has_lines
+    ):
+        action = "sales_tax"
+        ppv = 0.0
+        success_allowed = False
+        reason = (
+            "The printed sales tax is in Additional Charges. "
+            "Move it to the Taxes tab with Tax Code Sales Tax. "
+            "Do not book it as Purchase Price Variance."
         )
     return {
         "action": action,
@@ -2017,6 +2080,7 @@ def ppv_qc_gap(
         "rollup_gap": rollup_gap,
         "lines": decision["lines"],
         "charges": decision["charges"],
+        "taxes": taxes,
         "header": header,
         "header_field": header_field,
         "invoice_amount": invoice,

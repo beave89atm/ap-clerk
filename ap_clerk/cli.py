@@ -1787,8 +1787,8 @@ def _process_invoice(
                 )
     if sales_tax_status == "posted":
         fee_note += (
-            f"Posted Additional Charge Sales tax {float(tax_decision['amount']):.2f} "
-            "(state sales tax on the vendor invoice; not PPV). "
+            f"Posted Taxes tab Sales Tax {float(tax_decision['amount']):.2f} "
+            "(explicit sales tax on the vendor invoice; not an additional charge; not PPV). "
         )
     elif sales_tax_status not in {"", "none"}:
         fee_note += (

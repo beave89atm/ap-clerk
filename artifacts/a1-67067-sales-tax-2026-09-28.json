@@ -3,28 +3,30 @@
   "invoice": "67067",
   "vendor": "A1 Image Office Systems",
   "amount_before": 508.67,
-  "amount_after": 550.64,
+  "amount_after": 508.67,
+  "net": 550.64,
+  "balance": 550.64,
   "verification": 550.64,
   "pdf_total": 550.64,
   "sales_tax": 41.97,
-  "charge_status": "posted",
-  "charge": {
-    "id": 5584,
-    "lookup_id": 11,
-    "lookup_text": "F-Fees & Surcharges",
-    "name": "Sales tax",
-    "amount": 41.97,
-    "qty": 1.0,
-    "price": 41.97
+  "charge_status": "already-removed",
+  "removed_charge": null,
+  "tax_status": "already",
+  "tax_row": {
+    "id": 225,
+    "code_id": 2,
+    "code": "Sales Tax",
+    "manual": true,
+    "taxable": 508.67,
+    "rate": 0.0825,
+    "amount": 41.97
   },
-  "comment_id": 1139,
-  "comment_status": "posted",
-  "comment": "AP Clerk: Sales tax of $41.97 was added per Kyle. The bill now matches the invoice at $550.64. It was added as an additional charge, not as a price variance. The bill is not posted.",
+  "comment_id": 1188,
+  "comment_status": "already",
   "status": "Success",
-  "kimco_status": 1,
   "posted": null,
-  "batch_id": 375,
-  "batch": "TRANSFER AP",
+  "batch_id": 737,
+  "batch": "9/28/26 - TW",
   "receipt": [
     {
       "id": 21153,
@@ -34,5 +36,5 @@
       "ext": 508.67
     }
   ],
-  "rule": "The only remaining gap after receipt matching is state sales tax 41.97 shown on the vendor invoice. Add it as a sales tax additional charge, not Purchase Price Variance."
+  "rule": "Explicit PDF sales tax goes on the Taxes tab as Sales Tax, never Additional Charges or PPV."
 }

@@ -1,33 +1,37 @@
-"""NOTE-58: an explicit PDF sales-tax line is an additional charge, not PPV.
+"""NOTE-58: an explicit PDF sales-tax line goes on the Taxes tab, not PPV.
 
 A1 Image invoice 67067 / KIMCO 10367: the PDF prints Sales Tax 41.97.
 Receipt 24712 is 1 @ 508.67. The PDF total is 550.64. A vendor invoice
-with no sales-tax line does not get a computed tax charge.
+with no sales-tax line does not get a computed tax row.
 """
 
 from __future__ import annotations
 
 from ap_clerk.gates import selfcheck_payload, treyce_finish_selfcheck
 from ap_clerk.kimco import (
-    FEE_CHARGE_LOOKUP_ID,
+    AP_INVOICE_TAX_LIST,
     PPV_CHARGE_LOOKUP_ID,
+    SALES_TAX_CODE,
+    SALES_TAX_CODE_LOOKUP_ID,
     ppv_payload,
-    sales_tax_charge_payload,
+    sales_tax_line_payload,
+    sales_tax_rate_decimal,
 )
 from ap_clerk.rules import (
-    SALES_TAX_CHARGE_DESCRIPTION,
+    KYLE_CLEAVER_MENTION_ID,
     TREYCE_MENTION_ID,
     is_state_sales_tax_label,
     ppv_qc_gap,
     state_sales_tax_amount_shown,
     state_sales_tax_comment,
     state_sales_tax_gap_decision,
+    totals_match_to_the_penny,
 )
 
 A1_PDF = "Sales Tax 41.97\nInvoice total 550.64"
 
 
-def test_explicit_pdf_sales_tax_line_is_a_charge_not_ppv():
+def test_explicit_pdf_sales_tax_line_is_a_taxes_tab_row_not_ppv():
     shown = state_sales_tax_amount_shown({"text": A1_PDF, "tax": 1.00, "sales_tax": 9.99})
     assert shown == 41.97
     assert round(508.67 + 41.97, 2) == 550.64
@@ -42,22 +46,35 @@ def test_explicit_pdf_sales_tax_line_is_a_charge_not_ppv():
     assert decision["explicit"] is True
     assert decision["ppv"] == 0.0
     assert decision["amount"] == 41.97
-    assert decision["description"] == "Sales tax"
-    assert decision["charge_as"] == "additional_charge"
+    assert decision["description"] == "Sales Tax"
+    assert decision["charge_as"] == "taxes_tab"
     assert decision["post_bill"] is False
     assert "Purchase Price Variance" in decision["reason"]
+    assert "Taxes tab" in decision["reason"]
+    assert "additional charge" in decision["reason"]
 
-    payload = sales_tax_charge_payload(decision["amount"], invoice_id=10367)
-    child = payload["lists"]["InvoiceAdditionalCharges"][0]
+    assert sales_tax_rate_decimal(41.97, 508.67, 8.25) == 0.0825
+    assert round(508.67 * 0.0825, 2) == 41.97
+    payload = sales_tax_line_payload(
+        decision["amount"],
+        invoice_id=10367,
+        taxable_amount=508.67,
+        rate_percent=8.25,
+    )
+    assert AP_INVOICE_TAX_LIST == "APInvoiceTaxCodes"
+    assert "InvoiceAdditionalCharges" not in payload["lists"]
+    child = payload["lists"]["APInvoiceTaxCodes"][0]
     assert child["state"] == "Added"
     values = child["values"]
-    assert values["Additional_Charges"]["id"] == FEE_CHARGE_LOOKUP_ID
-    assert values["Additional_Charges"]["id"] != PPV_CHARGE_LOOKUP_ID
-    assert values["Name"] == SALES_TAX_CHARGE_DESCRIPTION == "Sales tax"
-    assert values["Quantity"] == 1.0
-    assert values["Price"] == 41.97
-    assert values["Amount"] == 41.97
+    assert values["Tax_Code"]["id"] == SALES_TAX_CODE_LOOKUP_ID == 2
+    assert values["Tax_Code"]["text"] == SALES_TAX_CODE == "Sales Tax"
+    assert values["Tax_Code"]["id"] != PPV_CHARGE_LOOKUP_ID
+    assert values["Manual_Calculation"] is True
+    assert values["Taxable_Amount"] == 508.67
+    assert values["Tax_Rate"] == 0.0825
+    assert values["Tax_Amount"] == 41.97
     assert "Posted" not in payload
+    assert "Name" not in values
     assert payload["id"] == 10367
 
     ppv = ppv_payload(41.97, invoice_id=10367)
@@ -77,6 +94,21 @@ def test_explicit_pdf_sales_tax_line_is_a_charge_not_ppv():
     assert qc["success_allowed"] is False
 
     closed = ppv_qc_gap(
+        invoice_amount=508.67,
+        verification_amount=550.64,
+        line_amounts=[508.67],
+        charge_amounts=[],
+        sales_tax=41.97,
+        sales_tax_explicit=True,
+        tax_amounts=[41.97],
+    )
+    assert closed["action"] == "match"
+    assert closed["gap"] == 0.0
+    assert closed["taxes"] == 41.97
+    assert closed["success_allowed"] is True
+    assert totals_match_to_the_penny(closed) is True
+
+    misplaced = ppv_qc_gap(
         invoice_amount=550.64,
         verification_amount=550.64,
         line_amounts=[508.67],
@@ -84,9 +116,9 @@ def test_explicit_pdf_sales_tax_line_is_a_charge_not_ppv():
         sales_tax=41.97,
         sales_tax_explicit=True,
     )
-    assert closed["action"] == "match"
-    assert closed["gap"] == 0.0
-    assert closed["success_allowed"] is True
+    assert misplaced["action"] == "sales_tax"
+    assert misplaced["ppv"] == 0.0
+    assert misplaced["success_allowed"] is False
 
 
 def test_no_explicit_tax_line_follows_ppv_or_hold():
@@ -220,11 +252,16 @@ def test_transfer_ap_sales_tax_note_tags_treyce_and_selfcheck_rejects_ppv():
     assert "AP Clerk:" in note
     assert note.index("AP Clerk:") < note.index("data-mention-id")
     assert "per Kyle" in note
+    assert "Taxes tab" in note
+    assert "Sales Tax" in note
+    assert "additional charge" in note
     assert "550.64" in note
     assert "41.97" in note
     assert "not posted" in note
     assert f'data-mention-id="{TREYCE_MENTION_ID}"' in note
     assert 'data-mention-name="Treyce Hodges"' in note
+    assert f'data-mention-id="{KYLE_CLEAVER_MENTION_ID}"' in note
+    assert 'data-mention-name="Kyle Cleaver"' in note
     assert "prosemirror-mention-node" in note
 
     pdf = {"text": A1_PDF, "pdf_text": A1_PDF}
