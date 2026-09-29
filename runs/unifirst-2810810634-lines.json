@@ -1,0 +1,1496 @@
+[
+  {
+    "description": "Mike Frias",
+    "qty": null,
+    "rate": null,
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "Angel Garcia",
+    "qty": null,
+    "rate": null,
+    "amount": "8.32",
+    "tax": "0.70",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 13,
+    "rate": "0.2200",
+    "amount": "2.86",
+    "tax": "0.24",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 13,
+    "rate": "0.4200",
+    "amount": "5.46",
+    "tax": "0.46",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "SALOME HIQUERA",
+    "qty": null,
+    "rate": null,
+    "amount": "10.28",
+    "tax": "0.88",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "NICHOLAS FELIX",
+    "qty": null,
+    "rate": null,
+    "amount": "12.04",
+    "tax": "1.01",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1850",
+    "qty": 11,
+    "rate": "0.4750",
+    "amount": "5.23",
+    "tax": "0.44",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 54002",
+    "qty": 2,
+    "rate": "0.8750",
+    "amount": "1.75",
+    "tax": "0.15",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "MICHAEL GRUBB",
+    "qty": null,
+    "rate": null,
+    "amount": "10.29",
+    "tax": "0.86",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850",
+    "qty": 11,
+    "rate": "0.4750",
+    "amount": "5.23",
+    "tax": "0.44",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JAIME ARREGUIN",
+    "qty": null,
+    "rate": null,
+    "amount": "9.32",
+    "tax": "0.79",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 5,
+    "rate": "0.2200",
+    "amount": "1.10",
+    "tax": "0.09",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 2,
+    "rate": "0.2200",
+    "amount": "0.44",
+    "tax": "0.04",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 6,
+    "rate": "0.2200",
+    "amount": "1.32",
+    "tax": "0.11",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "ANDREW GARCIA",
+    "qty": null,
+    "rate": null,
+    "amount": "13.19",
+    "tax": "1.11",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 5,
+    "rate": "0.2200",
+    "amount": "1.10",
+    "tax": "0.09",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 5,
+    "rate": "0.3800",
+    "amount": "1.90",
+    "tax": "0.16",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 6,
+    "rate": "0.2200",
+    "amount": "1.32",
+    "tax": "0.11",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850",
+    "qty": 6,
+    "rate": "0.4750",
+    "amount": "2.85",
+    "tax": "0.24",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "CESAR AVILA",
+    "qty": null,
+    "rate": null,
+    "amount": "20.76",
+    "tax": "1.73",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 13,
+    "rate": "0.2200",
+    "amount": "2.86",
+    "tax": "0.24",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "HEAVY STARCH PANTS",
+    "qty": 11,
+    "rate": "1.5000",
+    "amount": "16.50",
+    "tax": "1.36",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "RAMIRO OLIVERA",
+    "qty": null,
+    "rate": null,
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JUAN GARCIA",
+    "qty": null,
+    "rate": null,
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "Maximo Salinas",
+    "qty": null,
+    "rate": null,
+    "amount": "10.64",
+    "tax": "0.89",
+    "page": 1,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 1,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "DENIM APRONS",
+    "qty": null,
+    "rate": null,
+    "amount": "4.80",
+    "tax": "0.39",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "APRONS-DENIM & MACHINIST-UNI",
+    "qty": 8,
+    "rate": "0.6000",
+    "amount": "4.80",
+    "tax": "0.39",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "ALEX DELGADO",
+    "qty": null,
+    "rate": null,
+    "amount": "11.96",
+    "tax": "1.01",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 13,
+    "rate": "0.2200",
+    "amount": "2.86",
+    "tax": "0.24",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-COT COWBOY CUT ORIG FIT-W",
+    "qty": 11,
+    "rate": "0.7000",
+    "amount": "7.70",
+    "tax": "0.64",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "MARK BROWN",
+    "qty": null,
+    "rate": null,
+    "amount": "10.20",
+    "tax": "0.85",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-WELDER DENIM 100% CTN/SN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Daniel Cardenas",
+    "qty": null,
+    "rate": null,
+    "amount": "7.52",
+    "tax": "0.64",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 7,
+    "rate": "0.2200",
+    "amount": "1.54",
+    "tax": "0.14",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 13,
+    "rate": "0.4600",
+    "amount": "5.98",
+    "tax": "0.50",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Dorian Quinto",
+    "qty": null,
+    "rate": null,
+    "amount": "10.51",
+    "tax": "0.87",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-WELDER DENIM 100% CTN/SN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS SZ Prem Charge 44034",
+    "qty": 11,
+    "rate": "0.5750",
+    "amount": "6.33",
+    "tax": "0.53",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "NOESING N",
+    "qty": null,
+    "rate": null,
+    "amount": "11.01",
+    "tax": "0.92",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1950",
+    "qty": 6,
+    "rate": "0.4750",
+    "amount": "2.85",
+    "tax": "0.24",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850",
+    "qty": 5,
+    "rate": "0.4750",
+    "amount": "2.38",
+    "tax": "0.20",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT SZ Prem Charge 44028",
+    "qty": 11,
+    "rate": "0.5250",
+    "amount": "5.78",
+    "tax": "0.48",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Charlie Brin",
+    "qty": null,
+    "rate": null,
+    "amount": "10.92",
+    "tax": "0.91",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 13,
+    "rate": "0.3800",
+    "amount": "4.94",
+    "tax": "0.41",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 13,
+    "rate": "0.4600",
+    "amount": "5.98",
+    "tax": "0.50",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Jose Rodriguez",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Andres Games",
+    "qty": null,
+    "rate": null,
+    "amount": "13.24",
+    "tax": "1.11",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 13,
+    "rate": "0.3800",
+    "amount": "4.94",
+    "tax": "0.41",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 15,
+    "rate": "0.4600",
+    "amount": "6.90",
+    "tax": "0.57",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "RUBEN PEREZ",
+    "qty": null,
+    "rate": null,
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JOSE SANTIAGO",
+    "qty": null,
+    "rate": null,
+    "amount": "10.64",
+    "tax": "0.89",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "Brooks Gormora",
+    "qty": null,
+    "rate": null,
+    "amount": "7.48",
+    "tax": "0.62",
+    "page": 2,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 2,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100% COTTON DENIM",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JUAN AGUILAR",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Dexter Goodman",
+    "qty": null,
+    "rate": null,
+    "amount": "4.94",
+    "tax": "0.41",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 13,
+    "rate": "0.3800",
+    "amount": "4.94",
+    "tax": "0.41",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Jose Jimenez",
+    "qty": null,
+    "rate": null,
+    "amount": "12.70",
+    "tax": "1.07",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 13,
+    "rate": "0.3800",
+    "amount": "4.94",
+    "tax": "0.41",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 1,
+    "rate": "0.3800",
+    "amount": "0.38",
+    "tax": "0.03",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 13,
+    "rate": "0.4600",
+    "amount": "5.98",
+    "tax": "0.50",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Eduardo Lovel",
+    "qty": null,
+    "rate": null,
+    "amount": "10.64",
+    "tax": "0.89",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Carlos Gaytan",
+    "qty": null,
+    "rate": null,
+    "amount": "8.88",
+    "tax": "0.75",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 5,
+    "rate": "0.2200",
+    "amount": "1.10",
+    "tax": "0.09",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 6,
+    "rate": "0.2200",
+    "amount": "1.32",
+    "tax": "0.11",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100% COTTON DENIM",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Chris Vieux",
+    "qty": null,
+    "rate": null,
+    "amount": "0.88",
+    "tax": "0.06",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 1,
+    "rate": "0.2200",
+    "amount": "0.22",
+    "tax": "0.01",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 3,
+    "rate": "0.2200",
+    "amount": "0.66",
+    "tax": "0.05",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Dominique Belcher",
+    "qty": null,
+    "rate": null,
+    "amount": "9.84",
+    "tax": "0.82",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT SZ Prem Charge 19501",
+    "qty": 11,
+    "rate": "0.2750",
+    "amount": "3.03",
+    "tax": "0.25",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100% COTTON DENIM",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 58002",
+    "qty": 2,
+    "rate": "0.8750",
+    "amount": "1.75",
+    "tax": "0.15",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Jesus Flores",
+    "qty": null,
+    "rate": null,
+    "amount": "11.44",
+    "tax": "0.97",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1850",
+    "qty": 6,
+    "rate": "0.4750",
+    "amount": "2.85",
+    "tax": "0.24",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT SZ Prem Charge 19501",
+    "qty": 5,
+    "rate": "0.2750",
+    "amount": "1.38",
+    "tax": "0.12",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 13,
+    "rate": "0.4200",
+    "amount": "5.46",
+    "tax": "0.46",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 54003",
+    "qty": 2,
+    "rate": "0.8750",
+    "amount": "1.75",
+    "tax": "0.15",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Francisco Almazan",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.78",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-65/35 WORKSHIRT",
+    "qty": 6,
+    "rate": "0.2200",
+    "amount": "1.32",
+    "tax": "0.11",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 5,
+    "rate": "0.3800",
+    "amount": "1.90",
+    "tax": "0.16",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Aprons Aprons",
+    "qty": null,
+    "rate": null,
+    "amount": "12.00",
+    "tax": "0.99",
+    "page": 3,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "APRONS-DENIM & MACHINIST-UNI",
+    "qty": 20,
+    "rate": "0.6000",
+    "amount": "12.00",
+    "tax": "0.99",
+    "page": 3,
+    "row_kind": "item"
+  },
+  {
+    "description": "Manuel Ceniceros",
+    "qty": null,
+    "rate": null,
+    "amount": "8.44",
+    "tax": "0.71",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Isaias Ceniceros",
+    "qty": null,
+    "rate": null,
+    "amount": "8.44",
+    "tax": "0.71",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.13",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Jaime Monsivais",
+    "qty": null,
+    "rate": null,
+    "amount": "8.44",
+    "tax": "0.70",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "PNT-65/35 W/CARGO PKT",
+    "qty": 11,
+    "rate": "0.4200",
+    "amount": "4.62",
+    "tax": "0.38",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JKT-65/35 HIP LINED W/SLASH PK",
+    "qty": 2,
+    "rate": "0.7000",
+    "amount": "1.40",
+    "tax": "0.12",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Kenyon Krejci",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100% COTTON DENIM",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Edgar Escandon",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Ernesto Duarte",
+    "qty": null,
+    "rate": null,
+    "amount": "7.48",
+    "tax": "0.62",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "SSSHT-65/35 WORKSHIRT",
+    "qty": 11,
+    "rate": "0.2200",
+    "amount": "2.42",
+    "tax": "0.20",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Harold Rodriguez",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "Gilberto Gomez",
+    "qty": null,
+    "rate": null,
+    "amount": "9.24",
+    "tax": "0.76",
+    "page": 4,
+    "row_kind": "employee_subtotal"
+  },
+  {
+    "description": "LSSHT-DENIM 100%CTN/SNAP(24BUN",
+    "qty": 11,
+    "rate": "0.3800",
+    "amount": "4.18",
+    "tax": "0.34",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "JEAN-100%COT.RELAX FIT UNIFIRS",
+    "qty": 11,
+    "rate": "0.4600",
+    "amount": "5.06",
+    "tax": "0.42",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "7200 DISPN(EA)HVY DUTY SOAP 20",
+    "qty": 1,
+    "rate": "0.2500",
+    "amount": "0.25",
+    "tax": "0.02",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "2 PLY JUMBO TT (EACH) ROLL #50",
+    "qty": 6,
+    "rate": "10.7600",
+    "amount": "64.56",
+    "tax": "5.32",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "TRI-FOLD TOWEL DISPENSER",
+    "qty": 4,
+    "rate": "0.5000",
+    "amount": "2.00",
+    "tax": "0.17",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "DISP-CENTER PULL HAND TOWEL-PR",
+    "qty": 2,
+    "rate": "0.5000",
+    "amount": "1.00",
+    "tax": "0.08",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "MAT-3X5 GREAT IMP 2.0",
+    "qty": 1,
+    "rate": "3.0000",
+    "amount": "3.00",
+    "tax": "0.25",
+    "page": 4,
+    "row_kind": "item"
+  },
+  {
+    "description": "MAT-4X6 GREAT IMP 2.0",
+    "qty": 1,
+    "rate": "4.5000",
+    "amount": "4.50",
+    "tax": "0.37",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "MAT-3X10 GREAT IMP 2.0",
+    "qty": 5,
+    "rate": "6.0000",
+    "amount": "30.00",
+    "tax": "2.48",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "WIPERS BAGGED",
+    "qty": 50,
+    "rate": "0.1000",
+    "amount": "5.00",
+    "tax": "0.41",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "WIPERS BAGGED - Automatic Replacement",
+    "qty": null,
+    "rate": "0.6000",
+    "amount": "1.80",
+    "tax": "0.15",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "WET MOP LARGE WITH RED BAND 24",
+    "qty": 3,
+    "rate": "1.7500",
+    "amount": "5.25",
+    "tax": "0.44",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "UNIFIRST DISPN-HANDS FREE",
+    "qty": 3,
+    "rate": "0.2500",
+    "amount": "0.75",
+    "tax": "0.06",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "TOILET SEAT COVER DISPENSER",
+    "qty": 2,
+    "rate": "0.1000",
+    "amount": "0.20",
+    "tax": "0.01",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "3X5 SAFETY MAT ENGLISH-6 IMAGE",
+    "qty": 2,
+    "rate": "3.5000",
+    "amount": "7.00",
+    "tax": "0.58",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "DEFE Charge Fixed",
+    "qty": null,
+    "rate": "10.0000",
+    "amount": "10.00",
+    "tax": "0.84",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Energy Surcharge",
+    "qty": null,
+    "rate": "3.0000",
+    "amount": "3.00",
+    "tax": "0.25",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Garment Maintenance Protection (GMP)",
+    "qty": 863,
+    "rate": null,
+    "amount": "89.85",
+    "tax": "6.87",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Garment Setup Protection (GSP)",
+    "qty": 863,
+    "rate": null,
+    "amount": "34.52",
+    "tax": "2.91",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Garment Loss Protection (GLP)",
+    "qty": 863,
+    "rate": null,
+    "amount": "85.06",
+    "tax": "7.16",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Garment Emblem Protection (GEP)",
+    "qty": 458,
+    "rate": null,
+    "amount": "27.48",
+    "tax": "2.18",
+    "page": 5,
+    "row_kind": "item"
+  },
+  {
+    "description": "Material Maintenance Protection (MMP)",
+    "qty": 12,
+    "rate": null,
+    "amount": "22.56",
+    "tax": "1.85",
+    "page": 5,
+    "row_kind": "item"
+  }
+]

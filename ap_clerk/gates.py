@@ -811,7 +811,8 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
         failures.append(
             "The vendor invoice PDF shows a sales tax line and that amount is the only remaining gap, "
             "but it was coded as Purchase Price Variance. "
-            "Fix: add that exact printed amount as a sales tax additional charge, not PPV. "
+            "Fix: add that exact printed amount on the Taxes tab with Tax Code Sales Tax, not PPV "
+            "and not an additional charge. "
             "Do not compute tax. Do not change the receipt selection. Do not post the bill."
         )
     ppv_over = check.get("ppv_over_rule")

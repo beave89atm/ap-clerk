@@ -33,6 +33,7 @@ from ap_clerk.gates import (
 )
 from ap_clerk.kimco import (
     ADDITIONAL_CHARGE_LISTS,
+    AP_INVOICE_TAX_LIST,
     KimcoClient,
     KimcoError,
     invoice_lines_from_record,
@@ -83,6 +84,24 @@ def charge_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
     return amounts
 
 
+def tax_amounts_from_record(record: dict[str, Any] | None) -> list[float]:
+    """Taxes-tab amounts. They are not additional charges and not part of Invoice_Amount."""
+    if not isinstance(record, dict):
+        return []
+    lists = record.get("lists") if isinstance(record.get("lists"), dict) else {}
+    amounts: list[float] = []
+    for item in lists.get(AP_INVOICE_TAX_LIST) or []:
+        if not isinstance(item, dict):
+            continue
+        child = item.get("values") if isinstance(item.get("values"), dict) else item
+        if not isinstance(child, dict):
+            continue
+        amount = money(child.get("Tax_Amount"))
+        if amount not in (None, 0, 0.0):
+            amounts.append(amount)
+    return amounts
+
+
 def ppv_qc_from_record(
     record: dict[str, Any] | None,
     *,
@@ -97,6 +116,7 @@ def ppv_qc_from_record(
         charge_amounts=charge_amounts_from_record(record),
         sales_tax=sales_tax,
         sales_tax_explicit=sales_tax_explicit,
+        tax_amounts=tax_amounts_from_record(record),
     )
 
 
@@ -137,7 +157,7 @@ def apply_post_entry_ppv_gate(
     """Re-read the live bill. Post one PPV when the gap is under $75.
 
     A gap that equals an explicit PDF sales-tax line is not a PPV. The
-    caller adds that sales tax additional charge, using the printed amount.
+    caller adds that amount on the Taxes tab with Tax Code Sales Tax.
     A passed number that was not on the PDF is ignored, and the normal
     PPV/HOLD rule applies. This gate does not post the bill, and it does
     not change the batch, receipts, or verification. Success is allowed

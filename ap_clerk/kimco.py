@@ -21,7 +21,6 @@ import requests
 
 from ap_clerk.auth import LIVE_HOST
 from ap_clerk.rules import (
-    SALES_TAX_CHARGE_DESCRIPTION,
     is_fee_or_surcharge,
     is_freight_vendor,
     money,
@@ -46,6 +45,12 @@ FREIGHT_EXTERNAL_CHARGE_LOOKUP_ID = 1
 PPV_CHARGE_TYPE = "Purchase Price Variance"
 PPV_CHARGE_CODE = "Purchase Price Variance"
 PPV_CHARGE_LOOKUP_ID = 13
+# Taxes tab child list. Live GET of bill 10367 on 2026-09-28.
+# Tax_Code id 1 is "Franchise Tax - Texas". Id 2 is "Sales Tax".
+# Tax_Rate is a decimal: 8.25% is 0.0825. The row amount is Taxable_Amount * Tax_Rate.
+AP_INVOICE_TAX_LIST = "APInvoiceTaxCodes"
+SALES_TAX_CODE = "Sales Tax"
+SALES_TAX_CODE_LOOKUP_ID = 2
 ADDITIONAL_CHARGE_LIST = "InvoiceAdditionalCharges"
 ADDITIONAL_CHARGE_FIELD = "Additional_Charges"
 ADDITIONAL_CHARGE_LISTS = (
@@ -591,20 +596,47 @@ class KimcoClient:
             return self._blocked_405("Additional Charge shop supplies", invoice_id)
         return f"blocked-{put.status_code}"
 
-    def try_post_sales_tax(self, invoice_id: int, amount: float | None, *, description: str | None = None) -> str:
-        """Post state sales tax as an Additional Charge. Does not post the bill or PPV."""
+    def try_post_sales_tax(
+        self,
+        invoice_id: int,
+        amount: float | None,
+        *,
+        taxable_amount: float | None = None,
+        rate_percent: float | None = None,
+        description: str | None = None,
+    ) -> str:
+        """Post explicit PDF sales tax on the Taxes tab. Does not post the bill or PPV.
+
+        `description` is ignored. Sales tax is not an additional-charge name.
+        """
+        del description
         if invoice_id in (None, ""):
-            raise KimcoError("Sales tax charge requires an invoice record id")
+            raise KimcoError("Sales tax line requires an invoice record id")
         value = money(amount)
         if value is None or value == 0:
             return "none"
-        payload = sales_tax_charge_payload(value, invoice_id=invoice_id, description=description)
+        base = money(taxable_amount)
+        if base is None:
+            record = self.get_item("ap_invoices", int(invoice_id))
+            header = record.get("values") if isinstance(record.get("values"), dict) else {}
+            base = money(header.get("Invoice_Amount"))
+        try:
+            payload = sales_tax_line_payload(
+                value,
+                invoice_id=invoice_id,
+                taxable_amount=base,
+                rate_percent=rate_percent,
+            )
+        except KimcoError:
+            return "blocked-tax-rate"
+        if payload["lists"][AP_INVOICE_TAX_LIST][0]["values"].get("Tax_Code", {}).get("id") != SALES_TAX_CODE_LOOKUP_ID:
+            raise KimcoError("Sales tax line must use the Sales Tax code")
         url = self._record_url("ap_invoices", invoice_id)
         put = self.request("PUT", url, json=payload)
         if put.status_code < 400:
             return "posted"
         if put.status_code == 405:
-            return self._blocked_405("Additional Charge sales tax", invoice_id)
+            return self._blocked_405("Taxes tab sales tax", invoice_id)
         return f"blocked-{put.status_code}"
 
     def try_post_ppv(self, invoice_id: int, amount: float | None) -> str:
@@ -874,16 +906,82 @@ def additional_charge_lookup(*, freight_external: bool = False, ppv: bool = Fals
     return {"id": FEE_CHARGE_LOOKUP_ID, "text": FEE_CHARGE_CODE}
 
 
-def sales_tax_charge_lookup() -> dict[str, Any]:
-    """Additional_Charges lookup for state sales tax.
+def sales_tax_rate_decimal(
+    amount: float,
+    taxable: float | None,
+    rate_percent: float | None = None,
+) -> float | None:
+    """Decimal Tax_Rate that stores exactly `amount`.
 
-    Live GET 2026-09-28 found no Additional_Charges code named sales tax.
-    Used codes were Freight External (1), M-Vendor Freight (2), F-Customer
-    Freight (3), M-Customer Freight (4), F-Material Surcharge (5), F-Fees &
-    Surcharges (11), F-Vendor Lot Charge (12), and Purchase Price Variance
-    (13). The line is the fee lookup. Name is 'Sales tax'. Never PPV.
+    KIMCO sets Tax_Amount to Taxable_Amount times Tax_Rate. 8.25% is 0.0825.
+    Sending 8.25 multiplies the taxable amount by 8.25. A rate that does not
+    round back to the printed cent is rejected.
     """
-    return additional_charge_lookup()
+    value = money(amount)
+    base = money(taxable)
+    if value is None or base in (None, 0, 0.0):
+        return None
+    candidates: list[float] = []
+    if rate_percent is not None:
+        candidates.append(round(float(rate_percent) / 100.0, 6))
+    ratio = value / base
+    for places in (4, 5, 6):
+        candidates.append(round(ratio, places))
+    seen: set[float] = set()
+    for decimal in candidates:
+        if decimal in seen or not decimal:
+            continue
+        seen.add(decimal)
+        if round(base * decimal, 2) == value:
+            return decimal
+    return None
+
+
+def sales_tax_line_payload(
+    amount: float,
+    *,
+    invoice_id: int | str | None = None,
+    taxable_amount: float | None = None,
+    rate_percent: float | None = None,
+) -> dict[str, Any]:
+    """Record PUT body for one Taxes-tab row. Does not post the bill.
+
+    Tax_Code is Sales Tax (live lookup id 2 on APInvoiceTaxCodes). The
+    printed amount is Tax_Amount. Never InvoiceAdditionalCharges and never
+    Purchase Price Variance.
+    """
+    value = money(amount)
+    if value is None or value == 0:
+        raise KimcoError("Sales tax line requires a non-zero amount")
+    base = money(taxable_amount)
+    rate = sales_tax_rate_decimal(value, base, rate_percent)
+    if base is None or rate is None:
+        raise KimcoError(
+            "Sales tax line needs a taxable amount and a rate that yield the printed tax"
+        )
+    payload: dict[str, Any] = {
+        "state": "Modified",
+        "lists": {
+            AP_INVOICE_TAX_LIST: [
+                {
+                    "state": "Added",
+                    "values": {
+                        "Tax_Code": {"id": SALES_TAX_CODE_LOOKUP_ID, "text": SALES_TAX_CODE},
+                        "Manual_Calculation": True,
+                        "Taxable_Amount": base,
+                        "Tax_Rate": rate,
+                        "Tax_Amount": value,
+                    },
+                }
+            ]
+        },
+    }
+    child = payload["lists"][AP_INVOICE_TAX_LIST][0]["values"]
+    if child["Tax_Code"]["id"] == PPV_CHARGE_LOOKUP_ID or "Posted" in child or "Posted" in payload:
+        raise KimcoError("Sales tax line must not post the bill or use Purchase Price Variance")
+    if invoice_id not in (None, ""):
+        payload["id"] = int(invoice_id)
+    return payload
 
 
 def _charge_kind_text(values: dict[str, Any]) -> str:
@@ -1109,41 +1207,21 @@ def sales_tax_charge_payload(
     *,
     invoice_id: int | str | None = None,
     description: str | None = None,
+    taxable_amount: float | None = None,
+    rate_percent: float | None = None,
 ) -> dict[str, Any]:
-    """Record PUT body for a state sales tax additional charge. Does not post the bill.
+    """Taxes-tab sales tax row. The name is historical. This is not a charge.
 
-    Uses the fee lookup when no sales-tax charge type exists, with Name
-    'Sales tax'. Purchase Price Variance (lookup id 13) is not this line.
+    `description` is ignored. Passing only an amount is not enough: KIMCO
+    stores Tax_Amount as taxable times the decimal rate.
     """
-    value = money(amount)
-    if value is None or value == 0:
-        raise KimcoError("Sales tax charge requires a non-zero amount")
-    label = str(description or SALES_TAX_CHARGE_DESCRIPTION).strip() or SALES_TAX_CHARGE_DESCRIPTION
-    payload: dict[str, Any] = {
-        "state": "Modified",
-        "lists": {
-            ADDITIONAL_CHARGE_LIST: [
-                {
-                    "state": "Added",
-                    "values": {
-                        ADDITIONAL_CHARGE_FIELD: sales_tax_charge_lookup(),
-                        "Name": label,
-                        "Quantity": 1.0,
-                        "Price": value,
-                        "Amount": value,
-                    },
-                }
-            ]
-        },
-    }
-    if "Posted" in payload.get("values", {}) or payload["lists"][ADDITIONAL_CHARGE_LIST][0]["values"].get("Posted"):
-        raise KimcoError("Sales tax charge must not post the bill")
-    lookup = payload["lists"][ADDITIONAL_CHARGE_LIST][0]["values"][ADDITIONAL_CHARGE_FIELD]
-    if lookup.get("id") == PPV_CHARGE_LOOKUP_ID:
-        raise KimcoError("Sales tax charge must not use Purchase Price Variance")
-    if invoice_id not in (None, ""):
-        payload["id"] = int(invoice_id)
-    return payload
+    del description
+    return sales_tax_line_payload(
+        amount,
+        invoice_id=invoice_id,
+        taxable_amount=taxable_amount,
+        rate_percent=rate_percent,
+    )
 
 
 def ppv_payload(amount: float, *, invoice_id: int | str | None = None) -> dict[str, Any]:
