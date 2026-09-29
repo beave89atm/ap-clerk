@@ -1,0 +1,494 @@
+                                                                                 Invoice #:          2810810634             Amount Due:           USD 829.53
+
+                                                       invoice                   Customer #:
+                                                                                 Bill To #:
+                                                                                 Invoice Date:
+                                                                                                     1193268
+                                                                                                     1193268
+                                                                                                     09/11/2026
+                                                                                                                            Payment Terms:
+                                                                                                                            Route #:
+                                                                                                                            Purchase Order:
+                                                                                                                                                  N6440
+                                                                                                                                                        Net30
+
+
+
+
+Service Location:      2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                         Page 1 of 6
+
+             KANNON MANUFACTURING                                                Total Current Charges:                     USD 829.53
+SHIP TO
+
+
+
+
+             5129 VESTA FARLEY                                                   Current Charges Due:                       10/11/2026
+
+                                                                                 Pay by Mail:             UNIFIRST CORPORATION
+             FORT WORTH, TX 76119                                                                         PO BOX 650481
+                                                                                                          DALLAS, TX 75265-0481
+             KANNON MANUFACTURING
+             5129 VESTA FARLEY                                                   Contact UniFirst:        For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                          Phone: 800-794-2706
+                                                                                                          Email: Customerservice@unifirst.com
+             FORT WORTH, TX 76119                                                                         Chat: unifirst.com/contact/current-customers/
+
+
+    LKR/
+                QTY.         ITEM                     DESCRIPTION OF SERVICE                     RATE              AMOUNT                  TAX             TOTAL
+    DEPT.
+      0001    Mike Frias                                                                                                 2.42              0.20                  2.62
+                 11      010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  2.42              0.20                  2.62
+      0002    Angel Garcia                                                                                               8.32              0.70                  9.02
+                 13      010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  2.86              0.24                  3.10
+                 13      10AI05       PNT-65/35 W/CARGO PKT                                      0.4200                  5.46              0.46                  5.92
+      0003    SALOME HIQUERA                                                                                            10.28              0.88                 11.16
+                 11      010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  2.42              0.20                  2.62
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                             0.4600                  5.06              0.42                  5.48
+                 2       152705       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+                 2       152731       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0004    NICHOLAS FELIX                                                                                            12.04              1.01                 13.05
+                 11      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1850         0.4750                  5.23              0.44                  5.67
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                             0.4600                  5.06              0.42                  5.48
+                 2       152705       JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 54002        0.8750                  1.75              0.15                  1.90
+      0006    MICHAEL GRUBB                                                                                             10.29              0.86                 11.15
+                 11      027A05       SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850         0.4750                  5.23              0.44                  5.67
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                             0.4600                  5.06              0.42                  5.48
+      0007    JAIME ARREGUIN                                                                                             9.32              0.79                 10.11
+                 5       010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  1.10              0.09                  1.19
+                 2       010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  0.44              0.04                  0.48
+                 6       020231       SSSHT-65/35 WORKSHIRT                                      0.2200                  1.32              0.11                  1.43
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                             0.4600                  5.06              0.42                  5.48
+                 2       152731       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0008    ANDREW GARCIA                                                                                             13.19              1.11                 14.30
+                 5       010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  1.10              0.09                  1.19
+                 5       017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                             0.3800                  1.90              0.16                  2.06
+                 6       020231       SSSHT-65/35 WORKSHIRT                                      0.2200                  1.32              0.11                  1.43
+                 6       027A05       SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850         0.4750                  2.85              0.24                  3.09
+                 11      10AI05       PNT-65/35 W/CARGO PKT                                      0.4200                  4.62              0.38                  5.00
+                 2       152731       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0009    CESAR AVILA                                                                                               20.76              1.73                 22.49
+                 13      010231       LSSHT-65/35 WORKSHIRT                                      0.2200                  2.86              0.24                  3.10
+                 11      111805       HEAVY STARCH PANTS                                         1.5000                 16.50              1.36                 17.86
+                 2       152731       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0010    RAMIRO OLIVERA                                                                                             1.40              0.13                  1.53
+                 2       152705       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0011    JUAN GARCIA                                                                                                1.40              0.13                  1.53
+                 2       152705       JKT-65/35 HIP LINED W/SLASH PK                             0.7000                  1.40              0.13                  1.53
+      0013    Maximo Salinas                                                                                            10.64              0.89                 11.53
+                 11      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                             0.3800                  4.18              0.34                  4.52
+                                                                                  Invoice #:          2810810634             Amount Due:           USD 829.53
+
+                                                       invoice                    Customer #:
+                                                                                  Bill To #:
+                                                                                  Invoice Date:
+                                                                                                      1193268
+                                                                                                      1193268
+                                                                                                      09/11/2026
+                                                                                                                             Payment Terms:
+                                                                                                                             Route #:
+                                                                                                                             Purchase Order:
+                                                                                                                                                   N6440
+                                                                                                                                                         Net30
+
+
+
+
+Service Location:      2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                          Page 2 of 6
+
+             KANNON MANUFACTURING                                                 Total Current Charges:                     USD 829.53
+SHIP TO
+
+
+
+
+             5129 VESTA FARLEY                                                    Current Charges Due:                       10/11/2026
+
+                                                                                  Pay by Mail:             UNIFIRST CORPORATION
+             FORT WORTH, TX 76119                                                                          PO BOX 650481
+                                                                                                           DALLAS, TX 75265-0481
+             KANNON MANUFACTURING
+             5129 VESTA FARLEY                                                    Contact UniFirst:        For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                           Phone: 800-794-2706
+                                                                                                           Email: Customerservice@unifirst.com
+             FORT WORTH, TX 76119                                                                          Chat: unifirst.com/contact/current-customers/
+
+
+    LKR/
+                QTY.         ITEM                     DESCRIPTION OF SERVICE                      RATE              AMOUNT                  TAX             TOTAL
+    DEPT.
+                 11       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  5.06              0.42                  5.48
+                 2        152705      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0014    DENIM APRONS                                                                                                4.80              0.39                  5.19
+                 8        60AA05      APRONS-DENIM & MACHINIST-UNI                                0.6000                  4.80              0.39                  5.19
+      0015    ALEX DELGADO                                                                                               11.96              1.01                 12.97
+                 13       010231      LSSHT-65/35 WORKSHIRT                                       0.2200                  2.86              0.24                  3.10
+                 11       111805      JEAN-COT COWBOY CUT ORIG FIT-W                              0.7000                  7.70              0.64                  8.34
+                 2        152731      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0016    MARK BROWN                                                                                                 10.20              0.85                 11.05
+                 11       027A05      SSSHT-WELDER DENIM 100% CTN/SN                              0.3800                  4.18              0.34                  4.52
+                 11       10AI05      PNT-65/35 W/CARGO PKT                                       0.4200                  4.62              0.38                  5.00
+                 2        152705      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0017    Daniel Cardenas                                                                                             7.52              0.64                  8.16
+                 7        010231      LSSHT-65/35 WORKSHIRT                                       0.2200                  1.54              0.14                  1.68
+                 13       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  5.98              0.50                  6.48
+      0018    Dorian Quinto                                                                                              10.51              0.87                 11.38
+                 11       027A05      SSSHT-WELDER DENIM 100% CTN/SN                              0.3800                  4.18              0.34                  4.52
+                 11       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS SZ Prem Charge 44034         0.5750                  6.33              0.53                  6.86
+      0019    NOESING N                                                                                                  11.01              0.92                 11.93
+                 6        017805      LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1950          0.4750                  2.85              0.24                  3.09
+                 5        027A05      SSSHT-WELDER DENIM 100% CTN/SN SZ Prem Charge 1850          0.4750                  2.38              0.20                  2.58
+                 11       10AI05      PNT-65/35 W/CARGO PKT SZ Prem Charge 44028                  0.5250                  5.78              0.48                  6.26
+      0020    Charlie Brin                                                                                               10.92              0.91                 11.83
+                 13       017805      LSSHT-DENIM 100%CTN/SNAP(24BUN                              0.3800                  4.94              0.41                  5.35
+                 13       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  5.98              0.50                  6.48
+      0021    Jose Rodriguez                                                                                              9.24              0.76                 10.00
+                 11       017805      LSSHT-DENIM 100%CTN/SNAP(24BUN                              0.3800                  4.18              0.34                  4.52
+                 11       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  5.06              0.42                  5.48
+      0022    Andres Games                                                                                               13.24              1.11                 14.35
+                 13       017805      LSSHT-DENIM 100%CTN/SNAP(24BUN                              0.3800                  4.94              0.41                  5.35
+                 15       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  6.90              0.57                  7.47
+                 2        152731      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0023    RUBEN PEREZ                                                                                                 1.40              0.13                  1.53
+                 2        152731      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0024    JOSE SANTIAGO                                                                                              10.64              0.89                 11.53
+                 11       017805      LSSHT-DENIM 100%CTN/SNAP(24BUN                              0.3800                  4.18              0.34                  4.52
+                 11       10HD69      JEAN-100%COT.RELAX FIT UNIFIRS                              0.4600                  5.06              0.42                  5.48
+                 2        152705      JKT-65/35 HIP LINED W/SLASH PK                              0.7000                  1.40              0.13                  1.53
+      0025    Brooks Gormora                                                                                              7.48              0.62                  8.10
+                 11       010231      LSSHT-65/35 WORKSHIRT                                       0.2200                  2.42              0.20                  2.62
+                                                                                   Invoice #:          2810810634             Amount Due:           USD 829.53
+
+                                                       invoice                     Customer #:
+                                                                                   Bill To #:
+                                                                                   Invoice Date:
+                                                                                                       1193268
+                                                                                                       1193268
+                                                                                                       09/11/2026
+                                                                                                                              Payment Terms:
+                                                                                                                              Route #:
+                                                                                                                              Purchase Order:
+                                                                                                                                                    N6440
+                                                                                                                                                          Net30
+
+
+
+
+Service Location:      2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                           Page 3 of 6
+
+             KANNON MANUFACTURING                                                  Total Current Charges:                     USD 829.53
+SHIP TO
+
+
+
+
+             5129 VESTA FARLEY                                                     Current Charges Due:                       10/11/2026
+
+                                                                                   Pay by Mail:             UNIFIRST CORPORATION
+             FORT WORTH, TX 76119                                                                           PO BOX 650481
+                                                                                                            DALLAS, TX 75265-0481
+             KANNON MANUFACTURING
+             5129 VESTA FARLEY                                                     Contact UniFirst:        For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                            Phone: 800-794-2706
+                                                                                                            Email: Customerservice@unifirst.com
+             FORT WORTH, TX 76119                                                                           Chat: unifirst.com/contact/current-customers/
+
+
+    LKR/
+                QTY.         ITEM                     DESCRIPTION OF SERVICE                       RATE              AMOUNT                  TAX             TOTAL
+    DEPT.
+                 11      109105       JEAN-100% COTTON DENIM                                       0.4600                  5.06              0.42                  5.48
+      0026    JUAN AGUILAR                                                                                                 9.24              0.76                 10.00
+                 11      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  4.18              0.34                  4.52
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                               0.4600                  5.06              0.42                  5.48
+      0028    Dexter Goodman                                                                                               4.94              0.41                  5.35
+                 13      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  4.94              0.41                  5.35
+      0029    Jose Jimenez                                                                                                12.70              1.07                 13.77
+                 13      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  4.94              0.41                  5.35
+                  1      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  0.38              0.03                  0.41
+                 13      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                               0.4600                  5.98              0.50                  6.48
+                  2      152705       JKT-65/35 HIP LINED W/SLASH PK                               0.7000                  1.40              0.13                  1.53
+                  1      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN - Loss charge                 0.0000                  0.00              0.00                  0.00
+      0030    Eduardo Lovel                                                                                               10.64              0.89                 11.53
+                 11      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  4.18              0.34                  4.52
+                 11      10HD69       JEAN-100%COT.RELAX FIT UNIFIRS                               0.4600                  5.06              0.42                  5.48
+                  2      152705       JKT-65/35 HIP LINED W/SLASH PK                               0.7000                  1.40              0.13                  1.53
+      0031    Carlos Gaytan                                                                                                8.88              0.75                  9.63
+                  5      010231       LSSHT-65/35 WORKSHIRT                                        0.2200                  1.10              0.09                  1.19
+                  6      020231       SSSHT-65/35 WORKSHIRT                                        0.2200                  1.32              0.11                  1.43
+                 11      109105       JEAN-100% COTTON DENIM                                       0.4600                  5.06              0.42                  5.48
+                  2      152705       JKT-65/35 HIP LINED W/SLASH PK                               0.7000                  1.40              0.13                  1.53
+      0032    Chris Vieux                                                                                                  0.88              0.06                  0.94
+                  1      010231       LSSHT-65/35 WORKSHIRT                                        0.2200                  0.22              0.01                  0.23
+                  3      020231       SSSHT-65/35 WORKSHIRT                                        0.2200                  0.66              0.05                  0.71
+      0033    Dominique Belcher                                                                                            9.84              0.82                 10.66
+                 11      020231       SSSHT-65/35 WORKSHIRT SZ Prem Charge 19501                   0.2750                  3.03              0.25                  3.28
+                 11      109105       JEAN-100% COTTON DENIM                                       0.4600                  5.06              0.42                  5.48
+                  2      152731       JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 58002          0.8750                  1.75              0.15                  1.90
+      0034    Jesus Flores                                                                                                11.44              0.97                 12.41
+                  6      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN SZ Prem Charge 1850           0.4750                  2.85              0.24                  3.09
+                  5      020231       SSSHT-65/35 WORKSHIRT SZ Prem Charge 19501                   0.2750                  1.38              0.12                  1.50
+                 13      10AI05       PNT-65/35 W/CARGO PKT                                        0.4200                  5.46              0.46                  5.92
+                  2      152731       JKT-65/35 HIP LINED W/SLASH PK SZ Prem Charge 54003          0.8750                  1.75              0.15                  1.90
+      0035    Francisco Almazan                                                                                            9.24              0.78                 10.02
+                  6      010231       LSSHT-65/35 WORKSHIRT                                        0.2200                  1.32              0.11                  1.43
+                  5      017805       LSSHT-DENIM 100%CTN/SNAP(24BUN                               0.3800                  1.90              0.16                  2.06
+                 11      10AI05       PNT-65/35 W/CARGO PKT                                        0.4200                  4.62              0.38                  5.00
+                  2      152731       JKT-65/35 HIP LINED W/SLASH PK                               0.7000                  1.40              0.13                  1.53
+      0036    Aprons Aprons                                                                                               12.00              0.99                 12.99
+                 20      60AA05       APRONS-DENIM & MACHINIST-UNI                                 0.6000                 12.00              0.99                 12.99
+                                                                                Invoice #:          2810810634              Amount Due:           USD 829.53
+
+                                                        invoice                 Customer #:
+                                                                                Bill To #:
+                                                                                Invoice Date:
+                                                                                                    1193268
+                                                                                                    1193268
+                                                                                                    09/11/2026
+                                                                                                                            Payment Terms:
+                                                                                                                            Route #:
+                                                                                                                            Purchase Order:
+                                                                                                                                                  N6440
+                                                                                                                                                        Net30
+
+
+
+
+Service Location:       2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                        Page 4 of 6
+
+             KANNON MANUFACTURING                                               Total Current Charges:                      USD 829.53
+SHIP TO
+
+
+
+
+             5129 VESTA FARLEY                                                  Current Charges Due:                        10/11/2026
+
+                                                                                Pay by Mail:              UNIFIRST CORPORATION
+             FORT WORTH, TX 76119                                                                         PO BOX 650481
+                                                                                                          DALLAS, TX 75265-0481
+             KANNON MANUFACTURING
+             5129 VESTA FARLEY                                                  Contact UniFirst:         For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                          Phone: 800-794-2706
+                                                                                                          Email: Customerservice@unifirst.com
+             FORT WORTH, TX 76119                                                                         Chat: unifirst.com/contact/current-customers/
+
+
+    LKR/
+                QTY.          ITEM                     DESCRIPTION OF SERVICE                    RATE              AMOUNT                  TAX             TOTAL
+    DEPT.
+      0037    Manuel Ceniceros                                                                                           8.44              0.71                  9.15
+                  11     020231        SSSHT-65/35 WORKSHIRT                                     0.2200                  2.42              0.20                  2.62
+                  11     10AI05        PNT-65/35 W/CARGO PKT                                     0.4200                  4.62              0.38                  5.00
+                  2      152731        JKT-65/35 HIP LINED W/SLASH PK                            0.7000                  1.40              0.13                  1.53
+      0038    Isaias Ceniceros                                                                                           8.44              0.71                  9.15
+                  11     020231        SSSHT-65/35 WORKSHIRT                                     0.2200                  2.42              0.20                  2.62
+                  11     10AI05        PNT-65/35 W/CARGO PKT                                     0.4200                  4.62              0.38                  5.00
+                  2      152731        JKT-65/35 HIP LINED W/SLASH PK                            0.7000                  1.40              0.13                  1.53
+      0039    Jaime Monsivais                                                                                            8.44              0.70                  9.14
+                  11     020231        SSSHT-65/35 WORKSHIRT                                     0.2200                  2.42              0.20                  2.62
+                  11     10AI05        PNT-65/35 W/CARGO PKT                                     0.4200                  4.62              0.38                  5.00
+                  2      152731        JKT-65/35 HIP LINED W/SLASH PK                            0.7000                  1.40              0.12                  1.52
+      0040    Kenyon Krejci                                                                                              9.24              0.76                 10.00
+                  11     017805        LSSHT-DENIM 100%CTN/SNAP(24BUN                            0.3800                  4.18              0.34                  4.52
+                  11     109105        JEAN-100% COTTON DENIM                                    0.4600                  5.06              0.42                  5.48
+      0041    Edgar Escandon                                                                                             9.24              0.76                 10.00
+                  11     017805        LSSHT-DENIM 100%CTN/SNAP(24BUN                            0.3800                  4.18              0.34                  4.52
+                  11     10HD69        JEAN-100%COT.RELAX FIT UNIFIRS                            0.4600                  5.06              0.42                  5.48
+      0042    Ernesto Duarte                                                                                             7.48              0.62                  8.10
+                  11     020231        SSSHT-65/35 WORKSHIRT                                     0.2200                  2.42              0.20                  2.62
+                  11     10HD69        JEAN-100%COT.RELAX FIT UNIFIRS                            0.4600                  5.06              0.42                  5.48
+      0043    Harold Rodriguez                                                                                           9.24              0.76                 10.00
+                  11     017805        LSSHT-DENIM 100%CTN/SNAP(24BUN                            0.3800                  4.18              0.34                  4.52
+                  11     10HD69        JEAN-100%COT.RELAX FIT UNIFIRS                            0.4600                  5.06              0.42                  5.48
+      0044    Gilberto Gomez                                                                                             9.24              0.76                 10.00
+                  11     017805        LSSHT-DENIM 100%CTN/SNAP(24BUN                            0.3800                  4.18              0.34                  4.52
+                  11     10HD69        JEAN-100%COT.RELAX FIT UNIFIRS                            0.4600                  5.06              0.42                  5.48
+
+                    1      192100      7200 DISPN(EA)HVY DUTY SOAP 20                            0.2500                  0.25              0.02                  0.27
+                           1939FQ      7272 SUPRMAX HVY DTY HND CL 20                           28.0000                  0.00              0.00                  0.00
+                           1939FQ      7272 SUPRMAX HVY DTY HND CL 20                            0.0000                  0.00              0.00                  0.00
+                           622507      2 PLY JUMBO TT (EACH) ROLL #50                            0.0000                  0.00              0.00                  0.00
+                    6      622507      2 PLY JUMBO TT (EACH) ROLL #50                           10.7600                 64.56              5.32                 69.88
+                           624907      2PLY CTR PULL(EACH)ROLL #204                             11.6000                  0.00              0.00                  0.00
+                           624907      2PLY CTR PULL(EACH)ROLL #204                              0.0000                  0.00              0.00                  0.00
+                    4      625707      TRI-FOLD TOWEL DISPENSER                                  0.5000                  2.00              0.17                  2.17
+                           625H07      FLD TWL PRM 150SH(EA-PK)(16PK/                            0.0000                  0.00              0.00                  0.00
+                           625H07      FLD TWL PRM 150SH(EA-PK)(16PK/                            3.0000                  0.00              0.00                  0.00
+                    2      626807      DISP-CENTER PULL HAND TOWEL-PR                            0.5000                  1.00              0.08                  1.08
+                    1      76GA03      MAT-3X5 GREAT IMP 2.0                                     3.0000                  3.00              0.25                  3.25
+                                                                                             Invoice #:          2810810634              Amount Due:           USD 829.53
+
+                                                              invoice                        Customer #:
+                                                                                             Bill To #:
+                                                                                             Invoice Date:
+                                                                                                                 1193268
+                                                                                                                 1193268
+                                                                                                                 09/11/2026
+                                                                                                                                         Payment Terms:
+                                                                                                                                         Route #:
+                                                                                                                                         Purchase Order:
+                                                                                                                                                               N6440
+                                                                                                                                                                     Net30
+
+
+
+
+Service Location:             2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                                 Page 5 of 6
+
+                   KANNON MANUFACTURING                                                      Total Current Charges:                      USD 829.53
+SHIP TO
+
+
+
+
+                   5129 VESTA FARLEY                                                         Current Charges Due:                        10/11/2026
+
+                                                                                             Pay by Mail:              UNIFIRST CORPORATION
+                   FORT WORTH, TX 76119                                                                                PO BOX 650481
+                                                                                                                       DALLAS, TX 75265-0481
+                   KANNON MANUFACTURING
+                   5129 VESTA FARLEY                                                         Contact UniFirst:         For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                                       Phone: 800-794-2706
+                                                                                                                       Email: Customerservice@unifirst.com
+                   FORT WORTH, TX 76119                                                                                Chat: unifirst.com/contact/current-customers/
+
+
+    LKR/
+                       QTY.         ITEM                     DESCRIPTION OF SERVICE                           RATE              AMOUNT                  TAX               TOTAL
+    DEPT.
+                        1        76GB03      MAT-4X6 GREAT IMP 2.0                                            4.5000                  4.50              0.37                  4.87
+                        5        76GC03      MAT-3X10 GREAT IMP 2.0                                           6.0000                 30.00              2.48                 32.48
+                        50       802310      WIPERS BAGGED                                                    0.1000                  5.00              0.41                  5.41
+                                 802310      WIPERS BAGGED - Automatic Replacement                            0.6000                  1.80              0.15                  1.95
+                          3      811602      WET MOP LARGE WITH RED BAND 24                                   1.7500                  5.25              0.44                  5.69
+                                 88UA00      UNIFIRST LOTION SOAP-1000ML                                      0.0000                  0.00              0.00                  0.00
+                                 88UA00      UNIFIRST LOTION SOAP-1000ML                                     13.0000                  0.00              0.00                  0.00
+                          3      88UE07      UNIFIRST DISPN-HANDS FREE                                        0.2500                  0.75              0.06                  0.81
+                                 88UH00      UNIFIRST FOAM SOAP 1000ML                                        0.0000                  0.00              0.00                  0.00
+                                 88UH00      UNIFIRST FOAM SOAP 1000ML                                       13.5000                  0.00              0.00                  0.00
+                                 88UK00      U1ST HVYDTY CHERRY HND SCRB(EA                                  15.0000                  0.00              0.00                  0.00
+                                 88UK00      U1ST HVYDTY CHERRY HND SCRB(EA                                   0.0000                  0.00              0.00                  0.00
+                          2      99F207      TOILET SEAT COVER DISPENSER                                      0.1000                  0.20              0.01                  0.21
+                                 99JF27      GLV-(EA)PF ORANG NITR XLG 100/                                  23.6700                  0.00              0.00                  0.00
+                                 99JF27      GLV-(EA)PF ORANG NITR XLG 100/                                   0.0000                  0.00              0.00                  0.00
+                                 99T007      TOILET SEAT COVERS(EACH)250/PA                                   4.9000                  0.00              0.00                  0.00
+                          1      99T007      TOILET SEAT COVERS(EACH)250/PA                                   0.0000                  0.00              0.00                  0.00
+                          2      UM2844      3X5 SAFETY MAT ENGLISH-6 IMAGE                                   3.5000                  7.00              0.58                  7.58
+                                 EEFX        DEFE Charge Fixed                                               10.0000                 10.00              0.84                 10.84
+                                 ENER        Energy Surcharge                                                 3.0000                  3.00              0.25                  3.25
+                       863                   Garment Maintenance Protection (GMP)                                                    89.85              6.87                 96.72
+                       863                   Garment Setup Protection (GSP)                                                          34.52              2.91                 37.43
+                       863                   Garment Loss Protection (GLP)                                                           85.06              7.16                 92.22
+                       458                   Garment Emblem Protection (GEP)                                                         27.48              2.18                 29.66
+                       12                    Material Maintenance Protection (MMP)                                                   22.56              1.85                 24.41
+
+
+
+                                             Invoice Total                                                                         766.32             63.21               829.53
+
+                                             Total Amount Due By                     10/11/2026                                                                           829.53
+
+          Invoice #:          2810810634                                                                                               Signature Date: 09/11/2026
+
+
+
+
+          AUTHORIZED SIGNATURE
+
+          Name on File:       CHRIS V                                                                                          Total Current Charges: USD        829.53
+                                                                                   Invoice #:               2810810634                  Amount Due:           USD 829.53
+
+                                                        invoice                    Customer #:
+                                                                                   Bill To #:
+                                                                                   Invoice Date:
+                                                                                                            1193268
+                                                                                                            1193268
+                                                                                                            09/11/2026
+                                                                                                                                        Payment Terms:
+                                                                                                                                        Route #:
+                                                                                                                                        Purchase Order:
+                                                                                                                                                              N6440
+                                                                                                                                                                    Net30
+
+
+
+
+Service Location:      2900 N. BEACH STREET, HALTOM CITY, TX 76111                                                                                                     Page 6 of 6
+
+               KANNON MANUFACTURING                                                Total Current Charges:                               USD 829.53
+SHIP TO
+
+
+
+
+               5129 VESTA FARLEY                                                   Current Charges Due:                                 10/11/2026
+
+                                                                                   Pay by Mail:                   UNIFIRST CORPORATION
+               FORT WORTH, TX 76119                                                                               PO BOX 650481
+                                                                                                                  DALLAS, TX 75265-0481
+               KANNON MANUFACTURING
+               5129 VESTA FARLEY                                                   Contact UniFirst:              For Customer Service contact us by:
+BILL TO
+
+
+
+
+                                                                                                                  Phone: 800-794-2706
+                                                                                                                  Email: Customerservice@unifirst.com
+               FORT WORTH, TX 76119                                                                               Chat: unifirst.com/contact/current-customers/
+
+
+
+
+  Please detach and return
+  remit slip with payment.
+                                                         remit slip              Invoice #:
+                                                                                 Customer #:
+                                                                                                        2810810634
+                                                                                                        1193268
+                                                                                                                                      Amount Due:
+                                                                                                                                      Payment Terms:
+                                                                                                                                                              USD 829.53
+                                                                                                                                                              Net30
+     Current     Over 30     Over 60     Over 90      Total                      Bill To #:             1193268                       Route #:                N6440
+    4,960.28     3,009.14      0.00       0.00       7,969.42                    Invoice Date:          09/11/2026                    Purchase Order:
+  Payment Options:
+
+                                                                                 Total Current Charges:                                 USD 829.53
+  Pay by Mail:        UNIFIRST CORPORATION                                       Current Charges Due:                                   10/11/2026
+                      PO BOX 650481
+                      DALLAS, TX 75265-0481
+                                                                                 Amount Enclosed:                                       USD
+                                                                                 Make check payable to Unifirst Corporation. Please include invoice number.
+
+
+                                                            THANK YOU. We appreciate your business.
+                       SERVICE HEREIN RENDERED IS PURSUANT TO A WRITTEN CONTRACT WITH UNIFIRST CORPORATION OR UNIFIRST HOLDINGS, INC.
+
