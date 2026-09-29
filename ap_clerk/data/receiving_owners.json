@@ -1,0 +1,1387 @@
+{
+  "source": "runs/AP-vendor-receiving-owners-2026-09-22.xlsx",
+  "kyle_locked": "2026-09-22",
+  "note": "NOTE-50",
+  "rules": [
+    "On missing_receipt: Comments_1 @tag Receiving owner from this sheet.",
+    "Blank Receiving owner = does not need dock receive; do not @tag.",
+    "Multi-owner cell text is intentional.",
+    "Modern Heat Treat Anthony? = Anthony, flag uncertainty until Kyle confirms."
+  ],
+  "mention_ids": {
+    "shawn": {
+      "id": 104,
+      "name": "Shawn McKibben",
+      "source": "Kyle + live Comments_1 data-mention-id on AP 10009"
+    },
+    "ruben": {
+      "id": null,
+      "name": "Ruben Perez",
+      "source": "not found on live Comments_1 scan; do not invent"
+    },
+    "anthony": {
+      "id": null,
+      "name": "Anthony",
+      "source": "not found on live Comments_1 scan; last name unknown; do not invent"
+    },
+    "monica": {
+      "id": null,
+      "name": "Monica",
+      "source": "not found on live Comments_1 scan; last name unknown; do not invent"
+    }
+  },
+  "also_seen_mention_ids_not_receiving_owners": {
+    "treyce": {
+      "id": 33,
+      "name": "Treyce Hodges"
+    },
+    "kyle": {
+      "id": 26,
+      "name": "Kyle Cleaver"
+    },
+    "misty": {
+      "id": 31,
+      "name": "Misty McCoy"
+    }
+  },
+  "vendors": [
+    {
+      "vendor": "3P",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "28",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "A.M. Castle & Co.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "A1 Image Office Systems",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "ABY Benefits LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Air Products and Chemicals, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Alarm Billing",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Ally Auto",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Alternative Parts Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Amada America",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Amazon",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "21",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Monica",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "monica"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "American Bearing Company",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "American Quality Powder Coating",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "71",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Arrow Personnel",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Arrow Plating",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Monica/Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "monica",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Austin Hardware & Supply Inc.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Automated Finishing Technology",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "AVEX Installations LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Beshert Steel Processing",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Capital Machine Technologies, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Central Expanded Metal",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "City of Fort Worth",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Coherent Corp.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Colonial Life",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Crosslink Powder Coating",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "29",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Culligan Quench",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Curbell Plastics",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Earle M. Jorgensen Co",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "24",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "eFax",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "ENGIE Resources LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Engineered Components",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Monica/Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "monica",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Exotic Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Fabcorp",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Fastenal Company",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "26",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Monica",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "monica"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Freepoint Energy Solutions",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "39",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Gexpro Services",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Globe Life",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Graybar",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Green Valley Compressor LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Greentree Packaging & Lumber",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "GRM Information Management Services",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Guerrero Plating Technology, LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Hagens Fasteners",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Monica",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "monica"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Hapeco, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Houston Plating",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Hudson Energy",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Insight Controller Services",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "IPFS",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Joseph T. Ryerson & Son, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "JP Steel",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony for raw material, shawn for purchased parts",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "K-T Galvanizing",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "KIMCO",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Kloeckner Metals Corporation",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Lavanture Products",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Monica/Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "monica",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "LD Industrial Solutions, LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Leeco Steel, LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "47",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Marmon/Keystone",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony for raw material, shawn for purchased parts",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "McMaster-Carr Supply Company",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "39",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Monica/Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "monica",
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "McNichols",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "McQueary Industries",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Ruben",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "ruben"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "MEAU",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Metal Supermarkets",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Metro Sprocket And Gear Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Modern Heat Treat Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony?",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": true,
+      "notes": "Sheet marked owner with ? \u2014 treat as Anthony until Kyle confirms."
+    },
+    {
+      "vendor": "Morgan Steel",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "MSC Industrial Supply",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Monica",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "monica"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "National Bolt and Ind Supply Co Inc.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "National Specialty Alloys, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Nova Alloys",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "NTEX Electric Inc.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "NTTA",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "33",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Online Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Orthman Conveying Systems",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "PCT Support",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Phoenix Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Pittsburgh Steel",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Polymer Products",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Precision Fabrication Services",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Premium Alloys",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Primo Brands",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn/Anthony (this is water for the laser)",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn",
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": "Primo Brands water for the laser \u2014 sheet note kept."
+    },
+    {
+      "vendor": "Priority 1",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Production Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Purvis Industries",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "River City Steel",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "RMP Industrial Supply Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Rolled Alloys Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Safety-Kleen",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Service Experts",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Shoppa's Material Handling",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Spectrum Business",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "SpectrumVoIP",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Steel Inspectors of Texas, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Stella Source, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Techni-Tool",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Tejas Transportation",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Telecom Products Inc.",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Toyota Commercial Finance",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Trace Metal Industries, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Tricor Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Tube Supply",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "UniFirst Corporation",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "UniFirst First Aid & Safety",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Venturi Supply",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Versalift National Parts Distribution Center",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Shawn",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Waste Connections Lone Star, Inc",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Weckbrodt",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": "0 (July-only in scan)",
+      "sample_from_subject": null,
+      "receiving_owner_raw": "",
+      "needs_dock_receive": false,
+      "owner_keys": [],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Willbanks Metals",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony for raw material, shawn for purchased parts",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony",
+        "shawn"
+      ],
+      "uncertain": false,
+      "notes": ""
+    },
+    {
+      "vendor": "Xcaliber Industrial LLC",
+      "aliases_seen": "",
+      "approx_invoice_count_aug1": null,
+      "sample_from_subject": null,
+      "receiving_owner_raw": "Anthony",
+      "needs_dock_receive": true,
+      "owner_keys": [
+        "anthony"
+      ],
+      "uncertain": false,
+      "notes": ""
+    }
+  ]
+}

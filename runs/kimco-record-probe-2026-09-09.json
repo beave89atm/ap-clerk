@@ -1,0 +1,39 @@
+{
+  "kind": "live-record-endpoint-probe",
+  "as_of": "2026-09-09",
+  "host": "https://live.kimcoerp.com",
+  "ap_invoice_guid": "bcca4094b6ec4564942b19f5d7bb255c",
+  "invoice_id": 9931,
+  "invoice_number": "701684",
+  "vendor": "Orthman Conveying Systems",
+  "po": "58636",
+  "source": "paused dry-run Incomplete header on batch 701",
+  "mailbox": "accountspayable@kannonmfg.com",
+  "daily_30_ran": false,
+  "mail_send": false,
+  "kimco_ui_opened": false,
+  "void_or_delete": false,
+  "select_receipts_posted": false,
+  "select_receipts_reason": "no documented record POST body; attach was enough",
+  "calls": {
+    "authenticate": 200,
+    "GET_record": 200,
+    "GET_attachments_before": 200,
+    "OPTIONS_record": 405,
+    "OPTIONS_Allow": "DELETE, GET, PUT",
+    "PUT_record_same_Comments": 200,
+    "POST_attach_notify": 200,
+    "PUT_blob_upload_without_x_ms_blob_type": 400,
+    "PUT_blob_upload_with_x_ms_blob_type": 201,
+    "POST_attach_complete": 200,
+    "GET_attachments_after": 200
+  },
+  "attachments_before": 1,
+  "attachments_after": 2,
+  "still_405_on_record_GET_PUT_attach": false,
+  "finish_gate_api_only": {
+    "header_update": true,
+    "pdf_attach": true,
+    "select_receipts": false
+  }
+}

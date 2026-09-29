@@ -1,0 +1,180 @@
+{
+  "proof": "gas-shawn-missing-receipt-2026-09-22",
+  "invent": false,
+  "mail_send": false,
+  "transfer_ap": false,
+  "select": false,
+  "kyle_override": "ping Shawn on Gas missing_receipt HOLDs",
+  "mention_id": 104,
+  "batch": 720,
+  "sheet_before": [
+    {
+      "Invoice #": "0040438052",
+      "KIMCO id": 10173,
+      "Result": "HOLD",
+      "PO": "59081",
+      "Amount": 5178.55,
+      "Exception category": "missing_receipt"
+    },
+    {
+      "Invoice #": "0040437952",
+      "KIMCO id": 10181,
+      "Result": "HOLD",
+      "PO": "59006",
+      "Amount": 241.46,
+      "Exception category": "missing_receipt"
+    }
+  ],
+  "dry_run": false,
+  "checked_at": "2026-09-22T18:57:27.700197+00:00",
+  "results": [
+    {
+      "kimco_id": 10173,
+      "invoice": "0040438052",
+      "po": "59081",
+      "before": {
+        "kimco_id": 10173,
+        "invoice": "0040438052",
+        "amount": 0.0,
+        "verification": 5178.55,
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 940,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent "
+          }
+        ]
+      },
+      "mail_send": false,
+      "transfer_ap": false,
+      "select": false,
+      "status": "already-on-tab",
+      "comments_1": [
+        {
+          "id": 940,
+          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent "
+        }
+      ],
+      "after": {
+        "kimco_id": 10173,
+        "invoice": "0040438052",
+        "amount": 0.0,
+        "verification": 5178.55,
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 940,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent "
+          }
+        ]
+      }
+    },
+    {
+      "kimco_id": 10181,
+      "invoice": "0040437952",
+      "po": "59006",
+      "before": {
+        "kimco_id": 10181,
+        "invoice": "0040437952",
+        "amount": 0.0,
+        "verification": 241.46,
+        "type": 3,
+        "po": "PO59006-GAS AND SUPPLY",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 937,
+            "html": "Corrected: first-open leftover 24332 880@8.91 LINEDS30778 belongs to 0040414962 / 10172, not this invoice. PDF merch is DEWDW1969 3@80.49 ($241.46) \u2014 no matching leftover on PO 59006. Receipts deselected. Returned to batch 720. HOLD missing_receipt. Gas receiving owner blank \u2014 no @tag. Prior Transfer AP + @Shawn was the false over-PPV path after the wrong leftover was selected. Do not invent Succe"
+          },
+          {
+            "id": 936,
+            "html": "<span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\">@Shawn McKibben</span> @Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI."
+          }
+        ]
+      },
+      "mail_send": false,
+      "transfer_ap": false,
+      "select": false,
+      "restore_720": {
+        "status": "moved",
+        "put": 200,
+        "error": ""
+      },
+      "after_restore": {
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply"
+      },
+      "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas & Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. No email.</p>",
+      "put": {
+        "status": "persisted",
+        "put": 200,
+        "error": "",
+        "tab_rows": 3,
+        "mention_id": null,
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10181,
+        "invoice": "0040437952",
+        "amount": 0.0,
+        "verification": 241.46,
+        "type": 3,
+        "po": "PO59006-GAS AND SUPPLY",
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 941,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent -"
+          },
+          {
+            "id": 937,
+            "html": "Corrected: first-open leftover 24332 880@8.91 LINEDS30778 belongs to 0040414962 / 10172, not this invoice. PDF merch is DEWDW1969 3@80.49 ($241.46) \u2014 no matching leftover on PO 59006. Receipts deselected. Returned to batch 720. HOLD missing_receipt. Gas receiving owner blank \u2014 no @tag. Prior Transfer AP + @Shawn was the false over-PPV path after the wrong leftover was selected. Do not invent Succe"
+          },
+          {
+            "id": 936,
+            "html": "<span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\">@Shawn McKibben</span> @Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI."
+          }
+        ]
+      },
+      "comments_1": [
+        {
+          "id": 941,
+          "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent -"
+        }
+      ],
+      "batch_still_720": true,
+      "status": "added"
+    }
+  ],
+  "sheet_after": [
+    {
+      "Invoice #": "0040438052",
+      "KIMCO id": 10173,
+      "Result": "HOLD",
+      "PO": "59081",
+      "Amount": 5178.55,
+      "Exception category": "missing_receipt"
+    },
+    {
+      "Invoice #": "0040437952",
+      "KIMCO id": 10181,
+      "Result": "HOLD",
+      "PO": "59006",
+      "Amount": 241.46,
+      "Exception category": "missing_receipt"
+    }
+  ],
+  "sheet": "/workspace/runs/AP-run-2026-09-17-gas-supply.xlsx"
+}

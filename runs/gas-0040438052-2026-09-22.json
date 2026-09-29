@@ -1,0 +1,370 @@
+{
+  "proof": "gas-0040438052-2026-09-22",
+  "invent": false,
+  "mail_send": false,
+  "note51": true,
+  "note47_ppv_max": 75.0,
+  "batch": "API Agent - 9/17/26 Gas & Supply",
+  "batch_id": 720,
+  "target": "0040438052",
+  "target_kimco_id": null,
+  "target_already_entered": false,
+  "parents": [
+    {
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+      "received": "2026-09-18T04:46:36Z",
+      "subject": "Gas&Supply Invoice/Statement",
+      "from": {
+        "name": "billing@gasandsupply.com",
+        "address": "billing@gasandsupply.com"
+      },
+      "categories": [
+        "Entered with issues"
+      ],
+      "invoice_count": 7,
+      "invoices": [
+        {
+          "invoice_number": "0040438057",
+          "date": "2026-09-17",
+          "po": "59081",
+          "amount": 36.12,
+          "pages": [
+            1,
+            2
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438057_p1-2.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "PFXPXTW1425R",
+              "qty": 1.0,
+              "unit_price": 36.12,
+              "amount": 36.12
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": 10167,
+          "sheet": {
+            "Invoice #": "0040438057",
+            "KIMCO id": 10167,
+            "Result": "Success",
+            "PO": "59081",
+            "Amount": 36.12,
+            "Exception category": ""
+          }
+        },
+        {
+          "invoice_number": "0040438494",
+          "date": "2026-09-17",
+          "po": null,
+          "amount": 331.5,
+          "pages": [
+            2,
+            4
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438494_p2-4.pdf",
+          "pdf_split": true,
+          "fees": [
+            {
+              "name": "$SUR485005 1 0 FUEL SURCHARGE EA 17.50 17.50 N",
+              "amount": 17.5
+            }
+          ],
+          "lines": [
+            {
+              "part": "AR90CD300",
+              "qty": 8.0,
+              "unit_price": 28.0,
+              "amount": 224.0
+            },
+            {
+              "part": "ARG300",
+              "qty": 3.0,
+              "unit_price": 30.0,
+              "amount": 90.0
+            }
+          ],
+          "type4_candidate": true,
+          "kimco_id": 10136,
+          "sheet": {
+            "Invoice #": "0040438494",
+            "KIMCO id": 10136,
+            "Result": "Success",
+            "PO": "",
+            "Amount": 331.5,
+            "Exception category": ""
+          }
+        },
+        {
+          "invoice_number": "0040437952",
+          "date": "2026-09-17",
+          "po": "59006",
+          "amount": 241.46,
+          "pages": [
+            4,
+            5
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040437952_p4-5.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "DEWDW1969",
+              "qty": 3.0,
+              "unit_price": 80.49,
+              "amount": 241.46
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": null,
+          "sheet": null
+        },
+        {
+          "invoice_number": "0040438052",
+          "date": "2026-09-17",
+          "po": "59081",
+          "amount": 5178.55,
+          "pages": [
+            5,
+            6
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438052_p5-6.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "LINEDS01162",
+              "qty": 500.0,
+              "unit_price": 10.36,
+              "amount": 5178.55
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": null,
+          "sheet": null
+        },
+        {
+          "invoice_number": "0040438053",
+          "date": "2026-09-17",
+          "po": "59081",
+          "amount": 182.5,
+          "pages": [
+            6,
+            7
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438053_p6-7.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "ELCWW10204F-DP",
+              "qty": 1.0,
+              "unit_price": 182.5,
+              "amount": 182.5
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": 10170,
+          "sheet": {
+            "Invoice #": "0040438053",
+            "KIMCO id": 10170,
+            "Result": "Success",
+            "PO": "59081",
+            "Amount": 182.5,
+            "Exception category": ""
+          }
+        },
+        {
+          "invoice_number": "0040438056",
+          "date": "2026-09-17",
+          "po": "59081",
+          "amount": 207.53,
+          "pages": [
+            7,
+            8
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438056_p7-8.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "MIL269767",
+              "qty": 1.0,
+              "unit_price": 108.82,
+              "amount": 108.82
+            },
+            {
+              "part": "MIL269771",
+              "qty": 1.0,
+              "unit_price": 98.71,
+              "amount": 98.71
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": 10168,
+          "sheet": {
+            "Invoice #": "0040438056",
+            "KIMCO id": 10168,
+            "Result": "Success",
+            "PO": "59081",
+            "Amount": 207.53,
+            "Exception category": ""
+          }
+        },
+        {
+          "invoice_number": "0040438055",
+          "date": "2026-09-17",
+          "po": "59081",
+          "amount": 27.82,
+          "pages": [
+            8,
+            8
+          ],
+          "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438055_p8-8.pdf",
+          "pdf_split": true,
+          "fees": [],
+          "lines": [
+            {
+              "part": "PRTJ7324H",
+              "qty": 2.0,
+              "unit_price": 13.91,
+              "amount": 27.82
+            }
+          ],
+          "type4_candidate": false,
+          "kimco_id": 10169,
+          "sheet": {
+            "Invoice #": "0040438055",
+            "KIMCO id": 10169,
+            "Result": "Success",
+            "PO": "59081",
+            "Amount": 27.82,
+            "Exception category": ""
+          }
+        }
+      ]
+    }
+  ],
+  "dry_run": false,
+  "checked_at": "2026-09-22T17:07:26.377611+00:00",
+  "target_bill": {
+    "invoice_number": "0040438052",
+    "date": "2026-09-17",
+    "po": "59081",
+    "amount": 5178.55,
+    "pages": [
+      5,
+      6
+    ],
+    "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040438052_p5-6.pdf",
+    "pdf_split": true,
+    "fees": [],
+    "lines": [
+      {
+        "part": "LINEDS01162",
+        "qty": 500.0,
+        "unit_price": 10.36,
+        "amount": 5178.55
+      }
+    ],
+    "type4_candidate": false
+  },
+  "siblings": [
+    {
+      "invoice": "0040438057",
+      "kimco_id": 10167,
+      "sheet": {
+        "Invoice #": "0040438057",
+        "KIMCO id": 10167,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 36.12,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438494",
+      "kimco_id": 10136,
+      "sheet": {
+        "Invoice #": "0040438494",
+        "KIMCO id": 10136,
+        "Result": "Success",
+        "PO": "",
+        "Amount": 331.5,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040437952",
+      "kimco_id": null,
+      "sheet": null
+    },
+    {
+      "invoice": "0040438052",
+      "kimco_id": null,
+      "sheet": null
+    },
+    {
+      "invoice": "0040438053",
+      "kimco_id": 10170,
+      "sheet": {
+        "Invoice #": "0040438053",
+        "KIMCO id": 10170,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 182.5,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438056",
+      "kimco_id": 10168,
+      "sheet": {
+        "Invoice #": "0040438056",
+        "KIMCO id": 10168,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 207.53,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438055",
+      "kimco_id": 10169,
+      "sheet": {
+        "Invoice #": "0040438055",
+        "KIMCO id": 10169,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 27.82,
+        "Exception category": ""
+      }
+    }
+  ],
+  "entered": [
+    {
+      "invoice": "0040438052",
+      "kimco_id": 10173,
+      "result": "HOLD",
+      "po": "59081",
+      "amount": 5178.55,
+      "why": "category=missing_receipt; owner=none (Gas receiving owner blank). HOLD (receipt): no open receipt leftover on PO 59081 for Gas and Supply invoice #0040438052. PDF merch=LINEDS01162 500.0@10.36; selected=none. Do not first-open guess. Do not",
+      "exception_category": "missing_receipt",
+      "exception_owner": "",
+      "batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "outlook": "entered-with-issues"
+    }
+  ],
+  "outlook": {
+    "target": "Entered with issues",
+    "status": "entered-with-issues",
+    "mailbox": "accountspayable@kannonmfg.com",
+    "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+    "mail_send": false,
+    "flag": "entered-with-issues"
+  },
+  "transfer_ap": null,
+  "comments_1": null,
+  "sheet": "/workspace/runs/AP-run-2026-09-17-gas-supply.xlsx"
+}

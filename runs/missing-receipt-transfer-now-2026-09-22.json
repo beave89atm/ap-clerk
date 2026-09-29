@@ -1,0 +1,472 @@
+{
+  "proof": "missing-receipt-transfer-now-2026-09-22",
+  "note": 53,
+  "invent": false,
+  "mail_send": false,
+  "select": false,
+  "dry_run": false,
+  "checked_at": "2026-09-22T19:40:16.688794+00:00",
+  "targets": [
+    10160,
+    10163,
+    10175,
+    10178,
+    10173,
+    10181
+  ],
+  "results": [
+    {
+      "kimco_id": 10160,
+      "invoice": "15469453",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10160,
+        "invoice": "15469453",
+        "amount": 0.0,
+        "verification": 23151.42,
+        "type": 3,
+        "po": "PO59156-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10160,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10160,
+        "invoice": "15469453",
+        "amount": 0.0,
+        "verification": 23151.42,
+        "type": 3,
+        "po": "PO59156-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 938,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 894,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15469453 PO 59156 PDF $23151.42. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10163,
+      "invoice": "15464707",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10163,
+        "invoice": "15464707",
+        "amount": 0.0,
+        "verification": 649.53,
+        "type": 3,
+        "po": "PO58912-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10163,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10163,
+        "invoice": "15464707",
+        "amount": 0.0,
+        "verification": 649.53,
+        "type": 3,
+        "po": "PO58912-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 939,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          },
+          {
+            "id": 897,
+            "html": "<p>Ruben Perez HOLD (receipt) on O'Neal Steel 15464707 PO 58912 PDF $649.53. Open leftover merch is not received or does not match PDF lines. Header stays on the current API Agent O'Neal batch \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP can Select Receipts. Comments_1 mention-id for Ruben Perez is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10175,
+      "invoice": "15460995",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10175,
+        "invoice": "15460995",
+        "amount": 0.0,
+        "verification": 6954.21,
+        "type": 3,
+        "po": "PO59085-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10175,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10175,
+        "invoice": "15460995",
+        "amount": 0.0,
+        "verification": 6954.21,
+        "type": 3,
+        "po": "PO59085-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 929,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15460995 PO 59085 PDF $6954.21. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10178,
+      "invoice": "15476365",
+      "vendor": "O'Neal",
+      "before_batch": 722,
+      "before_batch_name": "API Agent - 9/21/26 O'Neal",
+      "before": {
+        "kimco_id": 10178,
+        "invoice": "15476365",
+        "amount": 0.0,
+        "verification": 1115.68,
+        "type": 3,
+        "po": "PO59070-ONEAL STEEL, LLC.",
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10178,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10178,
+        "invoice": "15476365",
+        "amount": 0.0,
+        "verification": 1115.68,
+        "type": 3,
+        "po": "PO59070-ONEAL STEEL, LLC.",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 930,
+            "html": "<p>Anthony HOLD (receipt) on O'Neal Steel 15476365 PO 59070 PDF $1115.68. Open leftover merch is not received or does not match PDF lines. Header stays on API Agent - 9/21/26 O'Neal (722) \u2014 do not Transfer AP. O'Neal receiving owner is Anthony (Kyle sheet). Mention-id for Anthony is not proven (invent=false). No email.</p>"
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10173,
+      "invoice": "0040438052",
+      "vendor": "Gas",
+      "before_batch": 720,
+      "before_batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "before": {
+        "kimco_id": 10173,
+        "invoice": "0040438052",
+        "amount": 0.0,
+        "verification": 5178.55,
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 940,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP "
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10173,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 940,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP "
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10173,
+        "invoice": "0040438052",
+        "amount": 0.0,
+        "verification": 5178.55,
+        "type": 3,
+        "po": "PO59081-GAS AND SUPPLY",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 940,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040438052 PO 59081 PDF $5178.55. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP "
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    },
+    {
+      "kimco_id": 10181,
+      "invoice": "0040437952",
+      "vendor": "Gas",
+      "before_batch": 720,
+      "before_batch_name": "API Agent - 9/17/26 Gas & Supply",
+      "before": {
+        "kimco_id": 10181,
+        "invoice": "0040437952",
+        "amount": 0.0,
+        "verification": 241.46,
+        "type": 3,
+        "po": "PO59006-GAS AND SUPPLY",
+        "batch_id": 720,
+        "batch": "API Agent - 9/17/26 Gas & Supply",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 941,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP c"
+          },
+          {
+            "id": 937,
+            "html": "Corrected: first-open leftover 24332 880@8.91 LINEDS30778 belongs to 0040414962 / 10172, not this invoice. PDF merch is DEWDW1969 3@80.49 ($241.46) \u2014 no matching leftover on PO 59006. Receipts deselected. Returned to batch 720. HOLD missing_receipt. Gas receiving owner blank \u2014 no @tag. Prior Transfer AP + @Shawn was the false over-PPV path after the wrong leftover was selected. Do not invent Success."
+          },
+          {
+            "id": 936,
+            "html": "<span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\">@Shawn McKibben</span> @Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI."
+          }
+        ]
+      },
+      "eligible": true,
+      "reason": "missing_receipt-no-receipts",
+      "mail_send": false,
+      "select": false,
+      "invent": false,
+      "move": {
+        "status": "moved",
+        "batch_id": 375,
+        "batch_name": "TRANSFER AP",
+        "http": 200,
+        "error": "",
+        "invent": false,
+        "kimco_id": 10181,
+        "comment_written": false
+      },
+      "comments": {
+        "status": "already-on-tab",
+        "comments_1": [
+          {
+            "id": 941,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP c"
+          }
+        ],
+        "invent": false
+      },
+      "after": {
+        "kimco_id": 10181,
+        "invoice": "0040437952",
+        "amount": 0.0,
+        "verification": 241.46,
+        "type": 3,
+        "po": "PO59006-GAS AND SUPPLY",
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "receipt_n": 0,
+        "comments": [
+          {
+            "id": 941,
+            "html": "<p><span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> HOLD (receipt) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Open leftover merch is not received or does not match PDF lines. Kyle 2026-09-22 override: ping Shawn (Gas receiving owner was blank). Header stays on API Agent - 9/17/26 Gas &amp; Supply (720) \u2014 do not Transfer AP. Receiving / purchasing: receive the PO so AP c"
+          },
+          {
+            "id": 937,
+            "html": "Corrected: first-open leftover 24332 880@8.91 LINEDS30778 belongs to 0040414962 / 10172, not this invoice. PDF merch is DEWDW1969 3@80.49 ($241.46) \u2014 no matching leftover on PO 59006. Receipts deselected. Returned to batch 720. HOLD missing_receipt. Gas receiving owner blank \u2014 no @tag. Prior Transfer AP + @Shawn was the false over-PPV path after the wrong leftover was selected. Do not invent Success."
+          },
+          {
+            "id": 936,
+            "html": "<span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\">@Shawn McKibben</span> @Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI."
+          }
+        ]
+      },
+      "after_batch": 375,
+      "status": "moved"
+    }
+  ],
+  "moved_count": 6,
+  "already_count": 0,
+  "skipped_count": 0,
+  "oneal_sheet": "/workspace/runs/AP-run-2026-09-21-oneal.xlsx",
+  "gas_sheet": "/workspace/runs/AP-run-2026-09-17-gas-supply.xlsx"
+}

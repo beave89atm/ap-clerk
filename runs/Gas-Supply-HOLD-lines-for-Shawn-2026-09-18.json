@@ -1,0 +1,284 @@
+{
+  "invent": false,
+  "mail_send": false,
+  "kimco_writes": false,
+  "columns": [
+    "INV#",
+    "line item",
+    "PO#"
+  ],
+  "row_count": 26,
+  "invoices": [
+    "0040430010",
+    "0040424839",
+    "0040423658",
+    "0040438057",
+    "0040438056",
+    "0040438055",
+    "0040438053",
+    "0040417672",
+    "0040414962",
+    "0040414821"
+  ],
+  "parsed": [
+    {
+      "invoice_number": "0040430010",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-12_billing01_A3050_c.pdf",
+      "pdf_amount": 14.0,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "MLW49-56-7240 MILWAUKEE 7/16 IN. QUICK CHANGE qty 1 @ 14.00"
+      ]
+    },
+    {
+      "invoice_number": "0040424839",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-10_billing01_A3050_c.pdf",
+      "pdf_amount": 224.94,
+      "merch_count": 2,
+      "blocker": null,
+      "line_items": [
+        "GHS4000A GRIFFIN HEAT SHIELD 4000A TIG qty 3 @ 11.30",
+        "STY57-533A STANLEY 42 OZ COMPO-CAST qty 4 @ 47.76"
+      ]
+    },
+    {
+      "invoice_number": "0040423658",
+      "po": "58948",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-10_billing01_A3050_c.pdf",
+      "pdf_amount": 173.5,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "DEWDCW210B DEWALT 20V MAX XR 5\" CORDLESS qty 1 @ 173.50"
+      ]
+    },
+    {
+      "invoice_number": "0040438057",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-18_billing01_A3050_c.pdf",
+      "pdf_amount": 36.12,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE qty 1 @ 36.12"
+      ]
+    },
+    {
+      "invoice_number": "0040438056",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-18_billing01_A3050_c.pdf",
+      "pdf_amount": 207.53,
+      "merch_count": 2,
+      "blocker": null,
+      "line_items": [
+        "MIL269767 MILLER 269767 26\u20196\" WATER HOSE, qty 1 @ 108.82",
+        "MIL269771 MILLER 269771 25\u20199\" GAS HOSE, qty 1 @ 98.71"
+      ]
+    },
+    {
+      "invoice_number": "0040438055",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-18_billing01_A3050_c.pdf",
+      "pdf_amount": 27.82,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "PRTJ7324H PROTO 1/2\" DRIVE 6 PT 3/4\" qty 2 @ 13.91"
+      ]
+    },
+    {
+      "invoice_number": "0040438053",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-18_billing01_A3050_c.pdf",
+      "pdf_amount": 182.5,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "ELCWW10204F-DP WIRE WIZZARD ACCU-TRAK HAT qty 1 @ 182.50"
+      ]
+    },
+    {
+      "invoice_number": "0040417672",
+      "po": "59081",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-04_billing01_A3050_c.pdf",
+      "pdf_amount": 3856.77,
+      "merch_count": 15,
+      "blocker": null,
+      "line_items": [
+        "CGW42304 CAMEL 4-1/2X7/8 60GR qty 100 @ 3.88",
+        "3-M60440227472 3M 051141- 27447 -8 CUBITRON II qty 200 @ 5.25",
+        "WSP1801S0020 ALLIANCE WHALESPRAY ANTI-SPATTER qty 48 @ 5.50",
+        "PFXPX23T37 PROFAX 23T37 NOZZLE qty 60 @ 9.63",
+        "PFXPX14H35 TWECO STYLE 14H35 .035 HEAVY qty 250 @ 0.87",
+        "PFXPX14H45 PROFAX 14H45 CONTACT TIP qty 250 @ 0.97",
+        "TIL48M PREMIUM TOP GRAIN GOATSKIN SPLIT qty 12 @ 15.96",
+        "PIP34-874/XL MAXIFLEX ULTIMATE CUT A1 GLOVE qty 48 @ 4.68",
+        "MKL96007 MARKAL 96007 SILVER-STREAK ROUND qty 4 @ 6.44",
+        "MIL269765 MILLER 269765 25\u2019 POWER CABLE, qty 1 @ 184.04",
+        "MIL301253 WELDCRAFT TORCH BODY W-375 qty 1 @ 180.18",
+        "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE qty 1 @ 36.12",
+        "STY54-024 STANLEY BALL PEIN HAMMER 24OZ qty 3 @ 18.83",
+        "ANC30SS ANCHOR 30SS STAINLESS TOOTH qty 50 @ 1.24",
+        "VIC0323-0252 VICTOR 8-MFA HEATING NOZZLE, qty 2 @ 78.37"
+      ]
+    },
+    {
+      "invoice_number": "0040414962",
+      "po": "59006",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-03_billing01_A3050_c.pdf",
+      "pdf_amount": 7840.8,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "LINEDS30778 LINCOLN SUPERARC LA-100 035X44 qty 880 @ 8.91"
+      ]
+    },
+    {
+      "invoice_number": "0040414821",
+      "po": "58948",
+      "pdf_path": "/workspace/runs/inbox-pdfs/gas_2026-09-03_billing01_A3050_c.pdf",
+      "pdf_amount": 293.0,
+      "merch_count": 1,
+      "blocker": null,
+      "line_items": [
+        "EVENVA-20R-250-UF-35QD NOVA 20 FLEX-NECK TIG TORCH qty 2 @ 146.50"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "INV#": "0040430010",
+      "line item": "MLW49-56-7240 MILWAUKEE 7/16 IN. QUICK CHANGE qty 1 @ 14.00",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040424839",
+      "line item": "GHS4000A GRIFFIN HEAT SHIELD 4000A TIG qty 3 @ 11.30",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040424839",
+      "line item": "STY57-533A STANLEY 42 OZ COMPO-CAST qty 4 @ 47.76",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040423658",
+      "line item": "DEWDCW210B DEWALT 20V MAX XR 5\" CORDLESS qty 1 @ 173.50",
+      "PO#": "58948"
+    },
+    {
+      "INV#": "0040438057",
+      "line item": "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE qty 1 @ 36.12",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040438056",
+      "line item": "MIL269767 MILLER 269767 26\u20196\" WATER HOSE, qty 1 @ 108.82",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040438056",
+      "line item": "MIL269771 MILLER 269771 25\u20199\" GAS HOSE, qty 1 @ 98.71",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040438055",
+      "line item": "PRTJ7324H PROTO 1/2\" DRIVE 6 PT 3/4\" qty 2 @ 13.91",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040438053",
+      "line item": "ELCWW10204F-DP WIRE WIZZARD ACCU-TRAK HAT qty 1 @ 182.50",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "CGW42304 CAMEL 4-1/2X7/8 60GR qty 100 @ 3.88",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "3-M60440227472 3M 051141- 27447 -8 CUBITRON II qty 200 @ 5.25",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "WSP1801S0020 ALLIANCE WHALESPRAY ANTI-SPATTER qty 48 @ 5.50",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "PFXPX23T37 PROFAX 23T37 NOZZLE qty 60 @ 9.63",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "PFXPX14H35 TWECO STYLE 14H35 .035 HEAVY qty 250 @ 0.87",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "PFXPX14H45 PROFAX 14H45 CONTACT TIP qty 250 @ 0.97",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "TIL48M PREMIUM TOP GRAIN GOATSKIN SPLIT qty 12 @ 15.96",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "PIP34-874/XL MAXIFLEX ULTIMATE CUT A1 GLOVE qty 48 @ 4.68",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "MKL96007 MARKAL 96007 SILVER-STREAK ROUND qty 4 @ 6.44",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "MIL269765 MILLER 269765 25\u2019 POWER CABLE, qty 1 @ 184.04",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "MIL301253 WELDCRAFT TORCH BODY W-375 qty 1 @ 180.18",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE qty 1 @ 36.12",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "STY54-024 STANLEY BALL PEIN HAMMER 24OZ qty 3 @ 18.83",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "ANC30SS ANCHOR 30SS STAINLESS TOOTH qty 50 @ 1.24",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040417672",
+      "line item": "VIC0323-0252 VICTOR 8-MFA HEATING NOZZLE, qty 2 @ 78.37",
+      "PO#": "59081"
+    },
+    {
+      "INV#": "0040414962",
+      "line item": "LINEDS30778 LINCOLN SUPERARC LA-100 035X44 qty 880 @ 8.91",
+      "PO#": "59006"
+    },
+    {
+      "INV#": "0040414821",
+      "line item": "EVENVA-20R-250-UF-35QD NOVA 20 FLEX-NECK TIG TORCH qty 2 @ 146.50",
+      "PO#": "58948"
+    }
+  ],
+  "xlsx": "/workspace/runs/Gas-Supply-HOLD-lines-for-Shawn-2026-09-18.xlsx"
+}

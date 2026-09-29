@@ -1,0 +1,135 @@
+{
+  "proof": "aqpc-guest-one-invoice-next",
+  "invent": false,
+  "mail_send": false,
+  "storage_state": false,
+  "intuit_login": false,
+  "skipped_already_entered": {
+    "10917": {
+      "kimco_id": 10003,
+      "batch": "9_15_26-KC",
+      "why": "do not touch"
+    },
+    "10918": {
+      "kimco_id": 10002,
+      "po": "58951",
+      "amount": 240.0,
+      "receipts": [
+        23187
+      ],
+      "batch": "9_15_26-KC"
+    },
+    "10920": {
+      "kimco_id": 10005,
+      "po": "58943",
+      "amount": 280.0,
+      "receipts": [
+        23197,
+        23198
+      ],
+      "batch": "9_15_26-KC"
+    },
+    "10921": {
+      "kimco_id": 10004,
+      "po": "58940",
+      "amount": 1650.0,
+      "receipts": [
+        23199,
+        23200,
+        23201,
+        23202,
+        23203
+      ],
+      "batch": "9_15_26-KC"
+    }
+  },
+  "chosen_invoice": "11002",
+  "chosen_because": "9/15 pdf-behind-link HOLDs 10918/10920/10921 already entered like 10003; next unflagged AQPC payment-request is 11002",
+  "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11002",
+  "graph_message_id_present": true,
+  "pdf_bytes": 23482,
+  "download_method": "browser",
+  "guest_click": "Intuit links.notification.intuit.com click (not sale/viewed pixel)",
+  "batch_name": "API Agent - 9/15/26",
+  "batch_id": 711,
+  "batch_status": 1,
+  "batch_note": "711 is today's API Agent batch but Status 1 (Unposted_Count 0). Creating a second API Agent - 9/15/26 returned 400. Reopen PUT Status 0 returned 405. Header 10007 was accepted on 711.",
+  "rows": [
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "11002",
+      "date": "2026-09-14",
+      "PO": "59172",
+      "Amount": 300.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Invoice # 11002 from PDF. PO 59172 set. Select Receipts posted receipt 24104 qty 100 @ 3.00 (AMT-5003558 End Plate Recoat White RAL 9016; PDF qty 100 / $300, not line-number 1). Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser downloaded the Intuit View-details click (not sale/viewed pixel); no Intuit login / no storage-state (23482 bytes). First pass false qty HOLD used line number 1 as qty; live GET matches PDF. Treyce would not rework. Flag status=entered-in-ai.",
+      "KIMCO id": 10007,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag in Outlook": "Yes",
+      "Flag status": "entered-in-ai",
+      "Notes": ""
+    }
+  ],
+  "kimco_get_10007": {
+    "id": 10007,
+    "invoice_number": "11002",
+    "vendor_id": 22,
+    "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+    "po": "PO59172-AMERICAN QUALITY POWDERCOATING",
+    "invoice_type": 3,
+    "invoice_amount": 300.0,
+    "verification": 300.0,
+    "invoice_date": "2026-09-14T00:00:00",
+    "posted": null,
+    "void": false,
+    "batch_id": 711,
+    "batch_text": "API Agent - 9/15/26",
+    "receipt_lines": [
+      {
+        "qty": 100.0,
+        "unit": 3.0,
+        "receipt": 24104,
+        "po_line": "PO59172-01"
+      }
+    ],
+    "fee_count": 0,
+    "attachments": [
+      "2026-09-15_invoice-11002.pdf"
+    ]
+  },
+  "parsed_after_fix": {
+    "invoice_number": "11002",
+    "date": "2026-09-14",
+    "po": "59172",
+    "amount": 300.0,
+    "lines": [
+      {
+        "part": "AMT-5003558",
+        "qty": 100.0,
+        "amount": 300.0,
+        "unit_price": 3.0,
+        "po_line": 1,
+        "wo": null,
+        "label": "AMT-5003558 End Plate Recoat White RAL 9016(PO90008)",
+        "description": "End Plate Recoat White RAL 9016(PO90008)"
+      }
+    ],
+    "fees": []
+  },
+  "receipts_selected": [
+    {
+      "id": 24104,
+      "qty": 100.0,
+      "unit": 3.0,
+      "po_line": "PO59172-01"
+    }
+  ],
+  "outlook_after": [
+    "Entered in AI"
+  ],
+  "treyce_emailed": false,
+  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-next.xlsx"
+}

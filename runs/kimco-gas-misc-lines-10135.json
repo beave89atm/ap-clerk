@@ -1,0 +1,168 @@
+{
+  "before": {
+    "id": 10135,
+    "invoice_number": "0040421569",
+    "vendor": {
+      "id": 71,
+      "text": "1069-GAS AND SUPPLY",
+      "isAbstract": false
+    },
+    "invoice_type": 4,
+    "invoice_amount": 17.5,
+    "verification": 331.5,
+    "batch": {
+      "id": 720,
+      "text": "API Agent - 9/17/26 Gas & Supply",
+      "isAbstract": false
+    },
+    "po": null,
+    "lines_count": 0,
+    "posted": null
+  },
+  "lookup": {
+    "misc_item": {
+      "id": 31,
+      "text": "Shop Supplies - G&S-."
+    },
+    "gl_account": {
+      "id": 200,
+      "text": "5081100 - Shop Supplies - G&S"
+    }
+  },
+  "pdf_lines": [
+    {
+      "part": "AR90CD300",
+      "qty": 8.0,
+      "amount": 224.0,
+      "unit_price": 28.0,
+      "po_line": null,
+      "wo": null,
+      "label": "300 COMP.GAS N.O.S. 2.2 UN1956",
+      "description": "300 COMP.GAS N.O.S. 2.2 UN1956",
+      "qty_uom": "cyl"
+    },
+    {
+      "part": "ARG300",
+      "qty": 3.0,
+      "amount": 90.0,
+      "unit_price": 30.0,
+      "po_line": null,
+      "wo": null,
+      "label": "300 SZ ARGON UN1006 HAZARDOUS",
+      "description": "300 SZ ARGON UN1006 HAZARDOUS",
+      "qty_uom": "cyl"
+    }
+  ],
+  "payload": {
+    "id": 10135,
+    "state": "Modified",
+    "lists": {
+      "APInvoiceLine": [
+        {
+          "state": "Added",
+          "values": {
+            "MFG_Miscellaneous_Item": {
+              "id": 31
+            },
+            "Misc_Description": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+            "Quantity": 8.0,
+            "Unit_Price": 28.0,
+            "Invoice_Number": {
+              "id": 10135
+            },
+            "Vendor": {
+              "id": 71
+            },
+            "Purchase_GL_Account": {
+              "id": 200
+            }
+          }
+        },
+        {
+          "state": "Added",
+          "values": {
+            "MFG_Miscellaneous_Item": {
+              "id": 31
+            },
+            "Misc_Description": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+            "Quantity": 3.0,
+            "Unit_Price": 30.0,
+            "Invoice_Number": {
+              "id": 10135
+            },
+            "Vendor": {
+              "id": 71
+            },
+            "Purchase_GL_Account": {
+              "id": 200
+            }
+          }
+        }
+      ]
+    }
+  },
+  "after_header": {
+    "id": 10135,
+    "invoice_number": "0040421569",
+    "vendor": {
+      "id": 71,
+      "text": "1069-GAS AND SUPPLY",
+      "isAbstract": false
+    },
+    "invoice_type": 4,
+    "invoice_amount": 331.5,
+    "verification": 331.5,
+    "batch": {
+      "id": 720,
+      "text": "API Agent - 9/17/26 Gas & Supply",
+      "isAbstract": false
+    },
+    "po": null,
+    "lines_count": 2,
+    "posted": null
+  },
+  "after_lines": [
+    {
+      "id": 20694,
+      "desc": "AR90CD300 300 COMP.GAS N.O.S. 2.2 UN1956",
+      "qty": 8.0,
+      "unit": 28.0,
+      "ext": 224.0,
+      "misc": {
+        "id": 31,
+        "text": "Shop Supplies - G&S-.",
+        "isAbstract": false
+      },
+      "gl": null,
+      "receipt": null
+    },
+    {
+      "id": 20695,
+      "desc": "ARG300 300 SZ ARGON UN1006 HAZARDOUS",
+      "qty": 3.0,
+      "unit": 30.0,
+      "ext": 90.0,
+      "misc": {
+        "id": 31,
+        "text": "Shop Supplies - G&S-.",
+        "isAbstract": false
+      },
+      "gl": null,
+      "receipt": null
+    }
+  ],
+  "after_fees": [
+    {
+      "lookup": {
+        "id": 11,
+        "text": "F-Fees & Surcharges",
+        "isAbstract": false
+      },
+      "amount": 17.5,
+      "name": "F-Fees & Surcharges"
+    }
+  ],
+  "touched_other_invoices": false,
+  "mail_send": false,
+  "validate_invoice": false
+}

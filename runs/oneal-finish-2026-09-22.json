@@ -1,0 +1,774 @@
+{
+  "proof": "oneal-finish-2026-09-22",
+  "invent": false,
+  "mail_send": false,
+  "note51": true,
+  "ppv_max": 75.0,
+  "packing_slip": "receiving@ not reachable on this AP-only Graph client",
+  "inventory": [
+    {
+      "kimco_id": 10079,
+      "invoice": "15447737",
+      "amount": 1683.01,
+      "verification": 1683.01,
+      "type": 3,
+      "po": "58979",
+      "po_text": "PO58979-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "receipt_n": 4,
+      "charge_n": 1,
+      "attachments": [
+        "O'Neal Steel Invoice 8212026.pdf",
+        "22940088 POD.pdf"
+      ],
+      "comments_n": 6,
+      "before_result": "Success",
+      "sheet": {
+        "Result": null,
+        "Exception category": null,
+        "Exception owner": null
+      }
+    },
+    {
+      "kimco_id": 10160,
+      "invoice": "15469453",
+      "amount": 0.0,
+      "verification": 23151.42,
+      "type": 3,
+      "po": "59156",
+      "po_text": "PO59156-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 0,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-15_O_Neal_Steel_Invoice_9142026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD missing_receipt",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Ruben Perez"
+      }
+    },
+    {
+      "kimco_id": 10161,
+      "invoice": "15457895",
+      "amount": 687.36,
+      "verification": 687.26,
+      "type": 3,
+      "po": "59068",
+      "po_text": "PO59068-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "receipt_n": 1,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD rounding",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "price_variance",
+        "Exception owner": "Shawn McKibben"
+      }
+    },
+    {
+      "kimco_id": 10162,
+      "invoice": "15457907",
+      "amount": 0.0,
+      "verification": 14543.16,
+      "type": 3,
+      "po": "59070",
+      "po_text": "PO59070-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "receipt_n": 0,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD price_variance",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "price_variance",
+        "Exception owner": "Shawn McKibben"
+      }
+    },
+    {
+      "kimco_id": 10163,
+      "invoice": "15464707",
+      "amount": 0.0,
+      "verification": 649.53,
+      "type": 3,
+      "po": "58912",
+      "po_text": "PO58912-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 0,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD missing_receipt",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Ruben Perez"
+      }
+    },
+    {
+      "kimco_id": 10164,
+      "invoice": "15464854",
+      "amount": 471.42,
+      "verification": 471.42,
+      "type": 3,
+      "po": "59085",
+      "po_text": "PO59085-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-10_O_Neal_Steel_Invoice_992026.pdf"
+      ],
+      "comments_n": 0,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    },
+    {
+      "kimco_id": 10174,
+      "invoice": "15460544",
+      "amount": 64.51,
+      "verification": 64.5,
+      "type": 3,
+      "po": "58920",
+      "po_text": "PO58920-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "comments_n": 0,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    },
+    {
+      "kimco_id": 10175,
+      "invoice": "15460995",
+      "amount": 0.0,
+      "verification": 6954.21,
+      "type": 3,
+      "po": "59085",
+      "po_text": "PO59085-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 0,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD missing_receipt",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Anthony"
+      }
+    },
+    {
+      "kimco_id": 10176,
+      "invoice": "15461007",
+      "amount": 67.38,
+      "verification": 67.38,
+      "type": 3,
+      "po": "59086",
+      "po_text": "PO59086-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 3,
+      "attachments": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    },
+    {
+      "kimco_id": 10177,
+      "invoice": "15461157",
+      "amount": 1978.91,
+      "verification": 1978.91,
+      "type": 3,
+      "po": "59092",
+      "po_text": "PO59092-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-04_O_Neal_Steel_Invoice_932026.pdf"
+      ],
+      "comments_n": 0,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    },
+    {
+      "kimco_id": 10178,
+      "invoice": "15476365",
+      "amount": 0.0,
+      "verification": 1115.68,
+      "type": 3,
+      "po": "59070",
+      "po_text": "PO59070-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 0,
+      "charge_n": 0,
+      "attachments": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "comments_n": 1,
+      "before_result": "HOLD missing_receipt",
+      "sheet": {
+        "Result": "HOLD",
+        "Exception category": "missing_receipt",
+        "Exception owner": "Anthony"
+      }
+    },
+    {
+      "kimco_id": 10179,
+      "invoice": "15476879",
+      "amount": 245.28,
+      "verification": 245.28,
+      "type": 3,
+      "po": "59236",
+      "po_text": "PO59236-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 1,
+      "attachments": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "comments_n": 2,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    },
+    {
+      "kimco_id": 10180,
+      "invoice": "15477248",
+      "amount": 152.88,
+      "verification": 152.88,
+      "type": 3,
+      "po": "59246",
+      "po_text": "PO59246-ONEAL STEEL, LLC.",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "vendor_id": 137,
+      "batch_id": 722,
+      "batch": "API Agent - 9/21/26 O'Neal",
+      "receipt_n": 1,
+      "charge_n": 1,
+      "attachments": [
+        "2026-09-22_O_Neal_Steel_Invoice_9212026.pdf"
+      ],
+      "comments_n": 2,
+      "before_result": "Success",
+      "sheet": {
+        "Result": "Success",
+        "Exception category": "",
+        "Exception owner": ""
+      }
+    }
+  ],
+  "remaining_unprocessed": [],
+  "leftover_mailbox": [
+    {
+      "invoice_number": "15429965",
+      "po": "58848",
+      "date": "2026-07-31",
+      "amount": 638.88,
+      "received": "2026-08-06T04:20:43Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "why": "too-old (before 2026-08-01); not entered"
+    }
+  ],
+  "dry_run": false,
+  "checked_at": "2026-09-22T18:28:42.922995+00:00",
+  "touched": [
+    {
+      "invoice": "15447737",
+      "kimco_id": 10079,
+      "before": "Success",
+      "before_batch": "TRANSFER AP",
+      "po": "58979",
+      "open_on_po": [
+        {
+          "id": 23244,
+          "part": "PO58979-03",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23245,
+          "part": "PO58979-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23246,
+          "part": "PO58979-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24233,
+          "part": "PO58979-04",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "move": {
+        "status": "moved",
+        "put": 200,
+        "error": ""
+      },
+      "after": "Success",
+      "after_snap": {
+        "kimco_id": 10079,
+        "invoice": "15447737",
+        "amount": 1683.01,
+        "verification": 1683.01,
+        "type": 3,
+        "po": "58979",
+        "po_text": "PO58979-ONEAL STEEL, LLC.",
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "vendor_id": 137,
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 4,
+        "charge_n": 1,
+        "attachments": [
+          "O'Neal Steel Invoice 8212026.pdf",
+          "22940088 POD.pdf"
+        ],
+        "comments_n": 6
+      }
+    },
+    {
+      "invoice": "15469453",
+      "kimco_id": 10160,
+      "before": "HOLD missing_receipt",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "po": "59156",
+      "open_on_po": [
+        {
+          "id": 24025,
+          "part": "PO59156-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24026,
+          "part": "PO59156-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24027,
+          "part": "PO59156-03",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24028,
+          "part": "PO59156-04",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24029,
+          "part": "PO59156-05",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24052,
+          "part": "PO59156-06",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 24053,
+          "part": "PO59156-06",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "after": "HOLD missing_receipt",
+      "anthony": "added",
+      "finish": {
+        "select": "held-unfinished",
+        "wanted": [],
+        "ppv": 0.0
+      }
+    },
+    {
+      "invoice": "15457895",
+      "kimco_id": 10161,
+      "before": "HOLD rounding",
+      "before_batch": "TRANSFER AP",
+      "po": "59068",
+      "open_on_po": [
+        {
+          "id": 23639,
+          "part": "PO59068-01",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "ppv_post": "posted",
+      "move": {
+        "status": "moved",
+        "put": 200,
+        "error": ""
+      },
+      "after": "Success",
+      "after_snap": {
+        "kimco_id": 10161,
+        "invoice": "15457895",
+        "amount": 687.26,
+        "verification": 687.26,
+        "type": 3,
+        "po": "59068",
+        "po_text": "PO59068-ONEAL STEEL, LLC.",
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "vendor_id": 137,
+        "batch_id": 722,
+        "batch": "API Agent - 9/21/26 O'Neal",
+        "receipt_n": 1,
+        "charge_n": 1,
+        "attachments": [
+          "2026-09-02_O_Neal_Steel_Invoice_912026.pdf"
+        ],
+        "comments_n": 1
+      }
+    },
+    {
+      "invoice": "15457907",
+      "kimco_id": 10162,
+      "before": "HOLD price_variance",
+      "before_batch": "TRANSFER AP",
+      "po": "59070",
+      "open_on_po": [
+        {
+          "id": 23581,
+          "part": "PO59070-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23582,
+          "part": "PO59070-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23583,
+          "part": "PO59070-03",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23584,
+          "part": "PO59070-04",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "after": "HOLD price_variance",
+      "left_for": "Treyce/Shawn",
+      "finish": {
+        "select": "ppv-lock-select-zero",
+        "wanted": [],
+        "ppv": 0.0
+      }
+    },
+    {
+      "invoice": "15464707",
+      "kimco_id": 10163,
+      "before": "HOLD missing_receipt",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "po": "58912",
+      "open_on_po": [
+        {
+          "id": 23096,
+          "part": "PO58912-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23874,
+          "part": "PO58912-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23875,
+          "part": "PO58912-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23923,
+          "part": "PO58912-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23983,
+          "part": "PO58912-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23985,
+          "part": "PO58912-01",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "after": "HOLD missing_receipt",
+      "anthony": "added",
+      "finish": {
+        "select": "held-unfinished",
+        "wanted": [],
+        "ppv": 0.0
+      }
+    },
+    {
+      "invoice": "15464854",
+      "kimco_id": 10164,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "59085"
+    },
+    {
+      "invoice": "15460544",
+      "kimco_id": 10174,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "58920"
+    },
+    {
+      "invoice": "15460995",
+      "kimco_id": 10175,
+      "before": "HOLD missing_receipt",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "po": "59085",
+      "open_on_po": [
+        {
+          "id": 23932,
+          "part": "PO59085-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23933,
+          "part": "PO59085-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23934,
+          "part": "PO59085-02",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "after": "HOLD missing_receipt",
+      "anthony": "already-on-tab",
+      "finish": {
+        "select": "held-unfinished",
+        "wanted": [],
+        "ppv": 0.0
+      }
+    },
+    {
+      "invoice": "15461007",
+      "kimco_id": 10176,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "59086"
+    },
+    {
+      "invoice": "15461157",
+      "kimco_id": 10177,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "59092"
+    },
+    {
+      "invoice": "15476365",
+      "kimco_id": 10178,
+      "before": "HOLD missing_receipt",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "po": "59070",
+      "open_on_po": [
+        {
+          "id": 23581,
+          "part": "PO59070-01",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23582,
+          "part": "PO59070-02",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23583,
+          "part": "PO59070-03",
+          "qty": null,
+          "unit": null
+        },
+        {
+          "id": 23584,
+          "part": "PO59070-04",
+          "qty": null,
+          "unit": null
+        }
+      ],
+      "after": "HOLD missing_receipt",
+      "anthony": "already-on-tab",
+      "finish": {
+        "select": "held-unfinished",
+        "wanted": [],
+        "ppv": 0.0
+      }
+    },
+    {
+      "invoice": "15476879",
+      "kimco_id": 10179,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "59236"
+    },
+    {
+      "invoice": "15477248",
+      "kimco_id": 10180,
+      "before": "Success",
+      "after": "Success",
+      "before_batch": "API Agent - 9/21/26 O'Neal",
+      "action": "leave-success",
+      "po": "59246"
+    }
+  ],
+  "entered_new": [],
+  "outlook": {
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQ1AAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOZ_uDcAAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX234AAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYLAAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    },
+    "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=": {
+      "target": "Entered with issues",
+      "status": "entered-with-issues",
+      "mailbox": "accountspayable@kannonmfg.com",
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGW4AAA=",
+      "mail_send": false,
+      "flag": "entered-with-issues"
+    }
+  },
+  "sheet": "/workspace/runs/AP-run-2026-09-21-oneal.xlsx"
+}

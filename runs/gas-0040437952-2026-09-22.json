@@ -1,0 +1,208 @@
+{
+  "proof": "gas-0040437952-2026-09-22",
+  "invent": false,
+  "mail_send": false,
+  "note51": true,
+  "note47_ppv_max": 75.0,
+  "batch": "API Agent - 9/17/26 Gas & Supply",
+  "batch_id": 720,
+  "target": "0040437952",
+  "expected_po": "59006",
+  "expected_amount": 241.46,
+  "target_kimco_id": null,
+  "target_already_entered": false,
+  "parent_categories_before": [
+    "Entered with issues"
+  ],
+  "dry_run": false,
+  "checked_at": "2026-09-22T18:01:10.715460+00:00",
+  "target_bill": {
+    "invoice_number": "0040437952",
+    "date": "2026-09-17",
+    "po": "59006",
+    "amount": 241.46,
+    "pages": [
+      4,
+      5
+    ],
+    "pdf_path": "/workspace/runs/inbox-pdfs/0_gas_2026-09-18_billing01_A3050_c_0040437952_p4-5.pdf",
+    "pdf_split": true,
+    "fees": [],
+    "lines": [
+      {
+        "part": "DEWDW1969",
+        "qty": 3.0,
+        "unit_price": 80.49,
+        "amount": 241.46
+      }
+    ],
+    "type4_candidate": false
+  },
+  "siblings": [
+    {
+      "invoice": "0040438057",
+      "kimco_id": 10167,
+      "sheet": {
+        "Invoice #": "0040438057",
+        "KIMCO id": 10167,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 36.12,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438494",
+      "kimco_id": 10136,
+      "sheet": {
+        "Invoice #": "0040438494",
+        "KIMCO id": 10136,
+        "Result": "Success",
+        "PO": "",
+        "Amount": 331.5,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040437952",
+      "kimco_id": null,
+      "sheet": null
+    },
+    {
+      "invoice": "0040438052",
+      "kimco_id": 10173,
+      "sheet": {
+        "Invoice #": "0040438052",
+        "KIMCO id": 10173,
+        "Result": "HOLD",
+        "PO": "59081",
+        "Amount": 5178.55,
+        "Exception category": "missing_receipt"
+      }
+    },
+    {
+      "invoice": "0040438053",
+      "kimco_id": 10170,
+      "sheet": {
+        "Invoice #": "0040438053",
+        "KIMCO id": 10170,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 182.5,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438056",
+      "kimco_id": 10168,
+      "sheet": {
+        "Invoice #": "0040438056",
+        "KIMCO id": 10168,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 207.53,
+        "Exception category": ""
+      }
+    },
+    {
+      "invoice": "0040438055",
+      "kimco_id": 10169,
+      "sheet": {
+        "Invoice #": "0040438055",
+        "KIMCO id": 10169,
+        "Result": "Success",
+        "PO": "59081",
+        "Amount": 27.82,
+        "Exception category": ""
+      }
+    }
+  ],
+  "po_59006_leftovers": [
+    {
+      "id": 24332,
+      "part": "PO59006-01",
+      "qty": null,
+      "unit_price": null,
+      "po": "59006"
+    }
+  ],
+  "entered": [
+    {
+      "invoice": "0040437952",
+      "kimco_id": 10181,
+      "result": "HOLD",
+      "po": "59006",
+      "amount": 241.46,
+      "why": "category=missing_receipt; owner=none (Gas receiving owner blank). HOLD (receipt): PDF merch=DEWDW1969 3.0@80.49; leftover 24332 880@8.91 is 10172. First-open deselected. Stay 720. No @tag.",
+      "exception_category": "missing_receipt",
+      "exception_owner": "",
+      "batch": "API Agent - 9/17/26 Gas & Supply (720)",
+      "outlook": "entered-with-issues",
+      "fees": "none",
+      "ppv": "none",
+      "receipts": "none"
+    }
+  ],
+  "outlook": {
+    "target": "Entered with issues",
+    "status": "entered-with-issues",
+    "mailbox": "accountspayable@kannonmfg.com",
+    "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOe0SdLAAA=",
+    "mail_send": false,
+    "flag": "entered-with-issues"
+  },
+  "sibling_results": [
+    "Success",
+    "Success",
+    "HOLD",
+    "HOLD",
+    "Success",
+    "Success",
+    "Success"
+  ],
+  "transfer_ap": {
+    "status": "moved",
+    "kimco_id": 10181,
+    "batch_id": 375,
+    "batch_name": "TRANSFER AP",
+    "comment": "@Shawn McKibben HOLD (price-does-not-match) on Gas and Supply 0040437952 PO 59006 PDF $241.46. Leftover vs invoice line is over the PPV gate. Receipts were NOT selected so purchasing can unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI.",
+    "put": 200,
+    "error": "",
+    "mention_notify": {
+      "worked": false,
+      "comments_persisted": true,
+      "mention_value_keys": [],
+      "probes": [
+        {
+          "suffix": "comments",
+          "http": 404
+        },
+        {
+          "suffix": "mentions",
+          "http": 404
+        },
+        {
+          "suffix": "notifications",
+          "http": 404
+        }
+      ],
+      "report": "Comments persisted @Shawn McKibben. No mention/notify field on the record. Dedicated GET comments/mentions/notifications \u2192 [{'suffix': 'comments', 'http': 404}, {'suffix': 'mentions', 'http': 404}, {'suffix': 'notifications', 'http': 404}]. @mention notify not confirmed \u2014 cannot claim a user alert fired."
+    },
+    "invent": false
+  },
+  "comments_1": {
+    "status": "put",
+    "put": 200,
+    "error": "",
+    "invent": false
+  },
+  "sheet": "/workspace/runs/AP-run-2026-09-17-gas-supply.xlsx",
+  "first_open_correction": {
+    "deselected": "24332",
+    "returned_to_batch": 720,
+    "result": "HOLD missing_receipt",
+    "amount": 0.0,
+    "verification": 241.46,
+    "no_tag": true
+  }
+}

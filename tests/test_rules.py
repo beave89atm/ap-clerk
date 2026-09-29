@@ -1,0 +1,604 @@
+from datetime import date
+
+from ap_clerk.rules import (
+    INVOICE_TYPE_NO_PO,
+    INVOICE_TYPE_PO,
+    PRICE_DOES_NOT_MATCH,
+    SHAWN_MCKIBBEN,
+    batch_name_for,
+    classify_mail,
+    comments_for,
+    decide_ppv,
+    due_date_from_terms,
+    evaluate_bill_price_variance,
+    extract_po_number,
+    flag_in_outlook_for,
+    format_fees,
+    format_ppv,
+    invoice_type_for,
+    is_fee_or_surcharge,
+    known_vendor_id,
+    leftover_extended_is_stale,
+    leftovers_are_identical,
+    match_receipts,
+    pick_receipts_by_qty_cost,
+    names_match,
+    printed_invoice_number,
+    receipt_select_refs,
+    should_create_header,
+    usable_open_leftovers,
+    vendor_match_score,
+)
+
+
+def test_batch_name_no_leading_zeros():
+    assert batch_name_for(date(2026, 8, 27)) == "API Agent - 8/27/26"
+    assert batch_name_for(date(2026, 8, 4)) == "API Agent - 8/4/26"
+
+
+def test_half_percent_terms_are_net_30():
+    assert due_date_from_terms(date(2026, 8, 3), "F-0.5/10,N30-0.5% 10, Net 30") == date(2026, 9, 2)
+    assert due_date_from_terms(date(2026, 7, 13), "1/2% 10 - Net 30") == date(2026, 8, 12)
+    assert due_date_from_terms(date(2026, 7, 10), "F-N60-Net 60") == date(2026, 9, 8)
+
+
+def test_vendor_name_matching():
+    assert names_match("O'Neal Steel - Dallas (GP)", "1135-ONEAL STEEL, LLC.")
+    assert names_match("Earle M. Jorgensen Co", "EMJ Earl M. Jorgensen Company")
+    assert names_match("Fastenal Company", "FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601")
+    assert names_match("Crosslink Powder Coating of TX, LLC", "1276-Crosslink Powder Coating")
+    assert names_match("Capital Machine Technologies, Inc", "CAPITAL MACHINE TECHNOLOGIES")
+    # Generic industrial/supply overlap is not a match (8/18 MSC 70762501 ≠ RMP).
+    assert not names_match("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY")
+    assert not names_match("MSC Industrial Supply", "1320-RMP INDUSTRIAL SUPPLY")
+    assert vendor_match_score("MSC Industrial Supply", "RMP INDUSTRIAL SUPPLY") == 0
+
+
+def test_fees_are_not_ppv():
+    assert is_fee_or_surcharge("SUPPLY FEE / Shop supplies")
+    assert is_fee_or_surcharge("Packaging/Shop Supplies Recovery")
+    assert is_fee_or_surcharge("Shipping & Handling")
+    assert is_fee_or_surcharge("FUEL SURCHARGE")
+    assert format_fees([{"name": "Shipping", "amount": 42.17}]) == "Shipping 42.17"
+    assert format_fees([]) == "none"
+    assert format_fees([{"name": "SHIP DATE 18-AUG-2026", "amount": None}]) == "none"
+    assert is_fee_or_surcharge("Shipping & Handling")
+    assert not is_fee_or_surcharge("SHIP DATE 18-AUG-2026")
+    assert not is_fee_or_surcharge("PREPAID")
+
+
+def test_3p_vendor_alias_is_live_id():
+    assert known_vendor_id("3P") == 1
+    assert known_vendor_id("3P Industries") == 1
+
+
+def test_extract_po_number():
+    assert extract_po_number("PO58351-TELECOM PRODUCTS") == "58351"
+    assert extract_po_number("PO58634-CAPITAL MACHINE TECHNOLOGIES") == "58634"
+    assert extract_po_number("PO58768-GEXPRO SERVICES") == "58768"
+
+
+def test_no_po_real_bills_still_get_a_header():
+    bill = {"vendor": "ENGIE Resources LLC", "po": None, "action": "create"}
+    assert should_create_header(bill) == (True, "")
+    assert should_create_header({**bill, "action": "hold", "hold_reason": "no-PO"}) == (True, "")
+    assert invoice_type_for(None) == INVOICE_TYPE_NO_PO
+    assert invoice_type_for("") == INVOICE_TYPE_NO_PO
+    assert invoice_type_for("58808") == INVOICE_TYPE_PO
+
+
+def test_hold_remains_for_check_stop_and_not_a_bill():
+    assert should_create_header({"check_stop": True, "hold_reason": "CHECK STOP"}) == (False, "CHECK STOP")
+    assert should_create_header({"action": "hold", "hold_reason": "statement"})[0] is False
+    assert should_create_header({"action": "hold", "hold_reason": "POD"})[0] is False
+    assert should_create_header({"action": "hold", "hold_reason": "not-a-bill"})[0] is False
+
+
+def test_unifirst_vendors_do_not_collapse():
+    corp = "1187-UNIFIRST CORPORATION"
+    first_aid = "1207-UNIFIRST FIRST AID & SAFETY"
+    assert names_match("UniFirst Corporation", corp)
+    assert names_match("UniFirst First Aid & Safety", first_aid)
+    assert vendor_match_score("UniFirst Corporation", corp) > vendor_match_score(
+        "UniFirst Corporation", first_aid
+    )
+    assert vendor_match_score("UniFirst First Aid & Safety", first_aid) > vendor_match_score(
+        "UniFirst First Aid & Safety", corp
+    )
+
+
+def test_classify_mail_skips_not_a_bill():
+    assert classify_mail(subject="Monthly Account Statement") == "statement"
+    assert classify_mail(
+        subject="NOTICE OF REQUEST FOR REINSTATEMENT",
+        attachment_names=["08-13-26 IPFS AccountStatus.pdf"],
+    ) == "statement"
+    assert classify_mail(subject="POD for shipment 123", attachment_names=["pod-123.pdf"]) == "pod"
+    assert classify_mail(subject="Payment confirmation - thank you") == "payment"
+    assert classify_mail(subject="CHECK STOP notice — bank") == "check_stop"
+    # Gas & Supply subject CHECK STOP is not a blanket skip (Misc invoices possible).
+    assert classify_mail(subject="CHECK STOP Gas and Supply") == "invoice"
+    assert classify_mail(subject="Melody Channell invoices") == "invoice"
+    assert classify_mail(subject="Toyota Commercial Finance auto-pay") == "auto-pay"
+    assert classify_mail(subject="Invoice 16960", attachment_names=["Invoice - 16960.pdf"]) == "invoice"
+    assert classify_mail(subject="American Quality Powder Coating job 4412") == "invoice"
+    assert classify_mail(subject="AQPC invoice 4412.pdf", attachment_names=["AQPC-4412.pdf"]) == "invoice"
+    assert classify_mail(subject="New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917") == "invoice"
+    assert classify_mail(subject="INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844") == "invoice"
+    assert classify_mail(subject="INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844", preview="Rachel Bailey") == "invoice"
+    assert classify_mail(subject="Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.") == "invoice"
+    assert classify_mail(subject="Internal only — do not process") == "internal"
+    # Known vendor + PDF must not override a statement subject (Leeco 1058256.pdf).
+    assert (
+        classify_mail(
+            subject="Leeco Account Statement",
+            attachment_names=["1058256.pdf"],
+            from_name="credit@leecosteel.com",
+        )
+        == "statement"
+    )
+    assert classify_mail(
+        subject="Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc",
+        from_name="Lia Byroads",
+    ) == "not-a-bill"
+    # PDF body / preview: statement-of-account is noise even for a known vendor.
+    assert (
+        classify_mail(
+            subject="Documents ready",
+            from_name="Leeco Steel, LLC",
+            preview="Statement of Account\nInvoices due 617228 / 619920",
+            attachment_names=["1058256.pdf"],
+        )
+        == "statement"
+    )
+    # Word "Invoices" must not turn a past-due list into a bill (Julie Hencke).
+    assert classify_mail(subject="Past Due Invoices", from_name="Julie Hencke") == "statement"
+    # Invoice-from subject is a bill even when the preview says account statement.
+    assert (
+        classify_mail(
+            subject="Invoice from Greentree Packaging & Lumber",
+            preview="View your account statement online. Invoice attached.",
+            attachment_names=["document.pdf"],
+            from_name="Greentree Packaging & Lumber",
+        )
+        == "invoice"
+    )
+
+
+def test_flag_in_outlook_yes_for_success_incomplete_hold_and_fail():
+    assert flag_in_outlook_for("Success") == "Yes"
+    assert flag_in_outlook_for("Incomplete") == "Yes"
+    assert flag_in_outlook_for("HOLD") == "Yes"
+    assert flag_in_outlook_for("Fail") == "Yes"
+    assert flag_in_outlook_for("Skipped") == "Yes"
+    assert flag_in_outlook_for("Noise") == "Yes"
+    assert comments_for("live") == "API Agent"
+    assert "prototype" in comments_for("prototype").lower()
+
+
+def test_kyle_ppv_rule_2026_08_28():
+    """Kyle: |var| <= 10% of invoice total AND bill PPV <= $100. Signed PPV."""
+    emj = decide_ppv(invoice_line_amount=752.10, po_line_amount=770.16, invoice_total=752.10)
+    assert emj["action"] == "ppv"
+    assert emj["ppv"] == -18.06
+    assert emj["hold"] is False
+
+    oneal = decide_ppv(invoice_line_amount=100.00, po_line_amount=100.10, invoice_total=100.00)
+    assert oneal["action"] == "ppv"
+    assert oneal["ppv"] == -0.10
+
+    over_abs = decide_ppv(invoice_line_amount=1880.00, po_line_amount=2000.00, invoice_total=2000.00)
+    assert over_abs["hold"] is True
+    assert over_abs["ppv"] == 0.0
+    assert PRICE_DOES_NOT_MATCH in over_abs["reason"]
+    assert SHAWN_MCKIBBEN in over_abs["reason"]
+    assert "Do not alter receipt unit price in GI" in over_abs["reason"]
+
+    over_pct = decide_ppv(invoice_line_amount=350.00, po_line_amount=400.00, invoice_total=400.00)
+    assert over_pct["hold"] is True
+    assert PRICE_DOES_NOT_MATCH in over_pct["reason"]
+
+    zero_po = decide_ppv(
+        invoice_line_amount=100.00,
+        po_line_amount=0.0,
+        invoice_total=100.00,
+        po_unit_price=0.0,
+    )
+    assert zero_po["hold"] is True
+    assert "Not PPV" in zero_po["reason"]
+    assert PRICE_DOES_NOT_MATCH in zero_po["reason"]
+
+    fee = decide_ppv(
+        invoice_line_amount=26.25,
+        po_line_amount=0.0,
+        invoice_total=200.00,
+        label="Shipping & Handling",
+    )
+    assert fee["action"] == "fee"
+    assert fee["hold"] is False
+    assert fee["ppv"] == 0.0
+    assert format_ppv(-18.06) == "-18.06"
+    assert format_ppv(0) == "none"
+
+
+def test_ppv_bill_cap_and_fees_stay_out():
+    bill = evaluate_bill_price_variance(
+        [
+            {"part": "STEEL", "amount": 752.10},
+            {"label": "Shop supplies", "amount": 12.00, "fee": True},
+        ],
+        [{"part": "STEEL", "amount": 770.16, "unit_price": 770.16}],
+        invoice_total=752.10,
+    )
+    assert bill["hold"] is False
+    assert bill["ppv_total"] == -18.06
+    assert any(item.get("action") == "fee" for item in bill["items"])
+
+
+def test_vendor_aliases_nsa_and_coherent():
+    assert known_vendor_id("National Specialty Alloys") == 1386
+    assert known_vendor_id("National Specialty Alloys, Inc") == 1386
+    assert known_vendor_id("Coherent Corp.") == 1410
+    assert known_vendor_id("Coherent") == 1410
+    assert known_vendor_id("Priority 1") == 145
+    assert known_vendor_id("MSC Industrial Supply") == 128
+    assert known_vendor_id("RMP Industrial Supply") == 322
+    assert known_vendor_id("Metal Supermarkets") == 121
+    assert known_vendor_id("Marmon/Keystone") == 115
+    assert known_vendor_id("Amada America") == 18
+    assert known_vendor_id("Exotic Metals") == 346
+    assert known_vendor_id("Fastenal Company") is None
+
+
+def test_printed_invoice_number_modern_heat_prefix():
+    assert printed_invoice_number("220804", vendor="Modern Heat Treat Inc", text="Invoice Number: 8-220804") == "8-220804"
+    assert printed_invoice_number("220804", vendor="Modern Heat Treat Inc", text="") == "8-220804"
+    assert printed_invoice_number("TXFT499356", vendor="Fastenal Company", text="TXFT499356") == "TXFT499356"
+    assert printed_invoice_number("17602", vendor="Telecom Products Inc.", text="Invoice 17602") == "17602"
+
+
+def test_select_receipts_matches_part_and_po_line_not_first_qty():
+    result = match_receipts(
+        invoice_number="8-220804",
+        invoice_lines=[
+            {"part": "625-5200-002", "qty": 1},
+            {"part": "400-5200-001", "qty": 1},
+        ],
+        receipts=[
+            {"part": "AAA-1111-000", "qty": 1, "po_line": 1, "slip": "R1"},
+            {"part": "BBB-2222-000", "qty": 1, "po_line": 2, "slip": "R2"},
+            {"part": "CCC-3333-000", "qty": 1, "po_line": 3, "slip": "R3"},
+            {"part": "625-5200-002", "qty": 1, "po_line": 6, "slip": "R6"},
+            {"part": "400-5200-001", "qty": 1, "po_line": 7, "slip": "R7"},
+        ],
+    )
+    assert result["hold_no_receipts"] is False
+    picked_lines = {str(hit["receipt"]["po_line"]) for hit in result["matched"]}
+    picked_parts = {hit["receipt"]["part"] for hit in result["matched"]}
+    assert picked_lines == {"6", "7"}
+    assert picked_parts == {"625-5200-002", "400-5200-001"}
+
+
+def test_fastenal_slip_equals_invoice_number_is_findable():
+    result = match_receipts(
+        invoice_number="TXFT499356",
+        invoice_lines=[],
+        receipts=[
+            {"slip": "OTHERSLIP", "qty": 6, "part": "WRONG", "po_line": 1},
+            {"slip": "TXFT499356", "qty": 6, "part": "FAST-42", "po_line": 4, "po": "58700"},
+        ],
+        po_number="58700",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["slip"] == "TXFT499356"
+
+
+def test_qty_only_is_not_a_receipt_match():
+    result = match_receipts(
+        invoice_number="NO-SLIP",
+        invoice_lines=[{"qty": 6, "part": "NEED-THIS"}],
+        receipts=[{"slip": "R9", "qty": 6, "part": "DIFFERENT", "po_line": 1}],
+    )
+    assert result["hold_no_receipts"] is True
+    assert result["matched"] == []
+
+
+def test_3p_part_on_po_matches_without_cpl_or_invoice_total_qty():
+    """Invoice-total qty/cost must not block per-line part+PO matches."""
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766"},
+            {"part": "1020592-1", "qty": 6, "amount": 133.02, "po": "58767"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58766", "part": "1007044-1 SUBFRAME WELDMENT", "qty": 1, "amount": 97.50, "slip": "NOT-CPL"},
+            {"id": 2, "po": "58767", "description": "1020592-1 LOWER PLATFORM", "qty": 6, "amount": 133.02, "slip": "ALSO-NOT-CPL"},
+        ],
+        po_numbers=["58766", "58767"],
+        invoice_qty=99,
+        invoice_amount=2393.28,
+        slip_numbers=[],
+    )
+    assert result["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {1, 2}
+    assert not result["unmatched_lines"]
+
+
+def test_two_cent_rounding_is_not_invented_ppv():
+    from ap_clerk.rules import decide_ppv
+
+    exact = decide_ppv(invoice_line_amount=133.02, po_line_amount=133.02, invoice_total=2393.28)
+    assert exact["action"] == "match"
+    assert exact["ppv"] == 0.0
+    rounded = decide_ppv(invoice_line_amount=97.50, po_line_amount=97.52, invoice_total=2393.28)
+    assert rounded["action"] == "match"
+    assert rounded["ppv"] == 0.0
+
+
+def test_receipt_qty_cover_selects_invoice_qty():
+    result = match_receipts(
+        invoice_number="142043",
+        invoice_lines=[{"part": "21678-1", "qty": 4, "amount": 364.92, "po": "58862"}],
+        receipts=[{"id": 9, "po": "58862", "part": "21678-1", "qty": 6, "amount": 547.38}],
+        po_numbers=["58862"],
+        slip_numbers=[],
+    )
+    assert result["matched"][0]["receipt"]["id"] == 9
+    assert result["matched"][0]["select_qty"] == 4
+
+
+def test_price_mismatch_does_not_skip_part_qty_po_match():
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[{"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766"}],
+        receipts=[{"id": 1, "po": "58766", "part": "1007044-1", "qty": 1, "amount": 80.00}],
+        po_numbers=["58766"],
+        slip_numbers=[],
+    )
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["id"] == 1
+
+
+def test_partial_select_does_not_hold_no_receipts_when_some_lines_match():
+    result = match_receipts(
+        invoice_number="142041",
+        invoice_lines=[
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "po": "58766", "label": "1007044-1 SUBFRAME"},
+            {"part": "35145-1", "qty": 36, "amount": 955.80, "po": "58844", "label": "35145-1 JIB ARM"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58766", "part": "1007044-1", "qty": 1, "amount": 97.50},
+        ],
+        po_numbers=["58766", "58844"],
+        slip_numbers=["76659"],
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert result["matched"][0]["receipt"]["id"] == 1
+    assert result["unmatched_lines"]
+    assert "35145-1" in (result["why"] or "") or "JIB" in (result["why"] or "")
+    assert "candidates considered" in result["why"].lower()
+
+
+def test_no_po_vendor_name_matching():
+    assert names_match("Hudson Energy Services, LLC", "1086-HUDSON ENERGY-24312")
+    assert names_match("Shoppa's Material Handling, Ltd", "1157-SHOPPA'S MATERIAL HANDLING")
+    assert names_match("GRM Information Management Services of Dallas, LLC", "1076-GRM INFORMATION MANAGEMENT SERVICES")
+    assert names_match("Gas and Supply North Texas, LLC", "1069-GAS AND SUPPLY")
+    assert names_match("Priority1", "1143-PRIORITY 1")
+    assert names_match("Luxor Staffing, Inc.", "1110-LUXOR STAFFING, INC.")
+    assert names_match("NTEX Electric Inc.", "1132-NTEX ELECTRIC")
+
+
+def test_known_vendor_ids_from_live_get():
+    assert known_vendor_id("Capital Machine Technologies, Inc") == 45
+    assert known_vendor_id("Willbanks Metals") == 202
+    assert known_vendor_id("Clear Kut Engraving") == 345
+    assert known_vendor_id("UniFirst First Aid & Safety") == 209
+    assert known_vendor_id("UniFirst First Aid") == 209
+    assert known_vendor_id("Eastern Metal Supply of Texas") == 64
+    assert known_vendor_id("Shoppa's Material Handling") == 159
+    assert known_vendor_id("Telecom Products Inc.") == 183
+    assert known_vendor_id("NTEX Electric Inc.") == 134
+    assert known_vendor_id("Kloeckner Metals Corporation") == 106
+    assert known_vendor_id("Morgan Steel") == 304
+    assert known_vendor_id("American Bearing Company") == 20
+    assert known_vendor_id("Crosslink Powder Coating") == 278
+    assert known_vendor_id("Joseph T. Ryerson & Son, Inc") == 152
+    assert known_vendor_id("GRM Information Management Services") == 78
+    assert known_vendor_id("Alternative Parts Inc") == 215
+    assert known_vendor_id("DoNotReply@altparts.com") == 215
+    assert known_vendor_id("Tube Supply") == 341
+    assert known_vendor_id("Lavanture Products") == 295
+    assert known_vendor_id("McQueary Industries") == 119
+    assert known_vendor_id("Hudson Energy") == 88
+    assert known_vendor_id("Leeco Steel, LLC") == 109
+    assert known_vendor_id("NoreplyMV / Leeco") == 109
+    assert known_vendor_id("Austin Hardware & Supply Inc.") == 34
+    assert known_vendor_id("autoinvoices@austinhardware.com") == 34
+    assert known_vendor_id("A1 Image, Inc.") == 8
+    assert known_vendor_id("a1imageinc@gmail.com") == 8
+    assert known_vendor_id("Maynard Nexsen PC") == 116
+    assert known_vendor_id("Gexpro Services") == 73
+    assert known_vendor_id("Legacy Wire Products") == 292
+    assert known_vendor_id("Beshert Steel Processing") == 37
+    assert known_vendor_id("UniFirst Corporation") == 189
+    assert known_vendor_id("Precision Fabrication Services, LLC") == 144
+    assert known_vendor_id("Versalift National Parts Distribution Center") == 178
+    assert known_vendor_id("ARNotifications@versalift.com") == 178
+    assert known_vendor_id("Automated Finishing Technology") == 331
+    assert known_vendor_id("AFT Corp") == 331
+    assert known_vendor_id("Polymer Products") == 358
+    assert known_vendor_id("HAPECO, INC") == 384
+    assert known_vendor_id("McMaster-Carr Supply Company") == 117
+    assert known_vendor_id("Air Products and Chemicals, Inc") == 13
+    assert known_vendor_id("Earle M. Jorgensen Co") == 208
+    assert known_vendor_id("O'Neal Steel - Dallas (GP)") == 137
+    assert known_vendor_id("ONEAL STEEL, LLC.") == 137
+    assert known_vendor_id("PCT Support") == 140
+    assert known_vendor_id("Xcaliber Industrial LLC") == 339
+    assert known_vendor_id("emily.keith@morgansteel.net") == 304
+    assert known_vendor_id("Orthman Conveying Systems") == 434
+    assert known_vendor_id("Cecilia Hulsey / Orthman") == 434
+    from ap_clerk.rules import KNOWN_VENDOR_SAMPLE_INVOICES
+    assert KNOWN_VENDOR_SAMPLE_INVOICES[434] == 9496
+
+
+def test_receipt_name_matches_even_when_invoice_line_was_synthesized():
+    result = match_receipts(
+        invoice_number="9306966730",
+        invoice_lines=[{"qty": 6, "part": "1", "po_line": 1}],
+        receipts=[
+            {"name": "PO58789-RYERSON, JOSEPH T. & SON - 2026/8/12", "slip": "", "part": "PO58789-01", "qty": None},
+        ],
+        po_number="58789",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+
+
+def test_receipt_name_carries_po_for_select_receipts():
+    result = match_receipts(
+        invoice_number="69233267",
+        invoice_lines=[],
+        receipts=[
+            {"name": "PO58808-MCMASTER-CARR - 2026/7/31", "slip": "", "part": "PO58808-02", "qty": 1},
+        ],
+        po_number="58808",
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+
+
+def test_empty_lines_picks_invoice_qty_not_first_open_receipt():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert result["found"] is True
+    assert result["matched"][0]["receipt"]["id"] == 35
+    assert "second-open-on-po" not in (result["matched"][0].get("pass") or "") or result["matched"][0]["receipt"]["qty"] == 35
+
+
+def test_differing_open_receipts_without_evidence_are_ambiguous():
+    result = match_receipts(
+        invoice_number="TXFT4100079",
+        invoice_lines=[],
+        receipts=[
+            {"id": 36, "po": "58692", "qty": 36, "amount": 1115.64},
+            {"id": 35, "po": "58692", "qty": 35, "amount": 1084.65},
+        ],
+        po_number="58692",
+    )
+    assert result["found"] is False
+    assert result["ambiguous"]
+    assert result["hold_no_receipts"] is False
+    pick = pick_receipts_by_qty_cost(
+        [
+            {"id": 36, "qty": 36, "amount": 1115.64},
+            {"id": 35, "qty": 35, "amount": 1084.65},
+        ],
+        invoice_qty=35,
+        invoice_amount=1084.65,
+    )
+    assert pick["picked"][0]["id"] == 35
+
+
+def test_legacy_line_qty_po_selects_despite_extra_open_receipts():
+    """PS-INV103980: line qty+PO matches even when other PO receipts are open."""
+    from ap_clerk.rules import extract_subject_invoice_number
+
+    assert extract_subject_invoice_number("Sales Invoice PS-INV103979") == "PS-INV103979"
+    result = match_receipts(
+        invoice_number="PS-INV103980",
+        invoice_lines=[
+            {"part": "KANNON-A-20001-001", "qty": 12, "amount": 1020.0, "po": "58802"},
+            {"part": "KANNON-A-20002-001", "qty": 8, "amount": 760.0, "po": "58802"},
+        ],
+        receipts=[
+            {"id": 1, "po": "58802", "part": "PO58802-01", "qty": 12, "amount": 1020.0},
+            {"id": 2, "po": "58802", "part": "PO58802-02", "qty": 8, "amount": 760.0},
+            {"id": 9, "po": "58802", "part": "PO58802-09", "qty": 10, "amount": 500.0},
+        ],
+        po_number="58802",
+        invoice_amount=2664.72,
+    )
+    assert result["found"] is True
+    assert result["hold_no_receipts"] is False
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {1, 2}
+    assert "uniquely align" not in (result["why"] or "").lower()
+    assert not result["unmatched_lines"]
+
+
+def test_legacy_inch_dimension_is_not_invoice_qty():
+    result = match_receipts(
+        invoice_number="PS-INV103979",
+        invoice_lines=[
+            {"part": "KANNON-A-12345-001", "qty": 24, "amount": 984.0, "po": "58807"},
+            {"part": "KANNON-A-12345-002", "qty": 1, "amount": 41.0, "po": "58807"},
+            {"part": "KANNON-A-05480-002", "qty": 77, "amount": None, "description": 'BIFOLD GATE-77"(2"TUBE)', "po": "58807"},
+        ],
+        receipts=[
+            {"id": 24, "po": "58807", "part": "PO58807-01", "qty": 24, "amount": 984.0},
+            {"id": 1, "po": "58807", "part": "PO58807-03", "qty": 1, "amount": 41.0},
+        ],
+        po_number="58807",
+        invoice_qty=77,
+        invoice_amount=1271.75,
+    )
+    assert {hit["receipt"]["id"] for hit in result["matched"]} == {24, 1}
+    assert result["hold_no_receipts"] is False
+    assert "qty 77" not in (result["why"] or "")
+
+
+def test_shawn_reprice_drops_stale_and_negative_leftovers():
+    """PO 59008: old 23678 amount still $0.75×qty; unreceive 24204; new 24207 @ $1.50."""
+    stale = {"id": 23678, "qty": 299.0, "unit_price": 1.5, "amount": 224.25}
+    unreceive = {"id": 24204, "qty": -299.0, "unit_price": 1.5, "amount": -224.25}
+    fresh = {"id": 24207, "qty": 299.0, "unit_price": 1.5, "amount": 448.5}
+    assert leftover_extended_is_stale(stale) is True
+    assert leftover_extended_is_stale(fresh) is False
+    assert leftovers_are_identical([fresh, {"id": 24209, "qty": 299.0, "unit_price": 1.5, "amount": 448.5}])
+    usable = usable_open_leftovers([stale, unreceive, fresh])
+    assert [r["id"] for r in usable] == [24207]
+
+
+def test_match_10126_after_shawn_reprice_selects_new_leftovers():
+    """Two identical 299@$1.50 lines each take one identical leftover. Not first-open."""
+    lines = [
+        {"qty": 299.0, "unit_price": 1.5, "amount": 448.5, "label": "MD23-1780"},
+        {"qty": 199.0, "unit_price": 1.5, "amount": 298.5, "label": "MD04-2301"},
+        {"qty": 299.0, "unit_price": 1.5, "amount": 448.5, "label": "MD23-1779"},
+    ]
+    receipts = [
+        {"id": 23678, "po": "59008", "part": "PO59008-01", "qty": 299.0, "unit_price": 1.5, "amount": 224.25},
+        {"id": 23679, "po": "59008", "part": "PO59008-02", "qty": 199.0, "unit_price": 1.5, "amount": 149.25},
+        {"id": 23680, "po": "59008", "part": "PO59008-03", "qty": 299.0, "unit_price": 1.5, "amount": 224.25},
+        {"id": 24204, "po": "59008", "part": "PO59008-01", "qty": -299.0, "unit_price": 1.5, "amount": -224.25},
+        {"id": 24205, "po": "59008", "part": "PO59008-02", "qty": -199.0, "unit_price": 1.5, "amount": -149.25},
+        {"id": 24206, "po": "59008", "part": "PO59008-03", "qty": -299.0, "unit_price": 1.5, "amount": -224.25},
+        {"id": 24207, "po": "59008", "part": "PO59008-01", "qty": 299.0, "unit_price": 1.5, "amount": 448.5},
+        {"id": 24208, "po": "59008", "part": "PO59008-02", "qty": 199.0, "unit_price": 1.5, "amount": 298.5},
+        {"id": 24209, "po": "59008", "part": "PO59008-03", "qty": 299.0, "unit_price": 1.5, "amount": 448.5},
+    ]
+    result = match_receipts(
+        invoice_number="PS-INV104010",
+        invoice_lines=lines,
+        receipts=usable_open_leftovers(receipts),
+        po_number="59008",
+        invoice_amount=1195.5,
+    )
+    ids = {hit["receipt"]["id"] for hit in result["matched"]}
+    assert ids == {24207, 24208, 24209}
+    assert receipt_select_refs(result["matched"])
+    assert result.get("hold_no_receipts") is False
+    assert not result.get("unmatched")

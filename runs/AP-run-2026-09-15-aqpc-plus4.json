@@ -1,0 +1,241 @@
+{
+  "proof": "aqpc-guest-plus4",
+  "invent": false,
+  "mail_send": false,
+  "storage_state": false,
+  "intuit_login": false,
+  "success_count": 2,
+  "attempted": 4,
+  "skipped_already_entered": {
+    "10917": {
+      "kimco_id": 10003,
+      "why": "do not recreate"
+    },
+    "10918": {
+      "kimco_id": 10002,
+      "why": "do not recreate"
+    },
+    "10920": {
+      "kimco_id": 10005,
+      "why": "do not recreate"
+    },
+    "10921": {
+      "kimco_id": 10004,
+      "why": "do not recreate"
+    },
+    "11002": {
+      "kimco_id": 10007,
+      "why": "do not recreate"
+    }
+  },
+  "chosen": [
+    "10999",
+    "11003",
+    "11004",
+    "11005"
+  ],
+  "chosen_because": "Next unflagged AQPC payment-requests after 11002 are 11003/11004/11005; Graph has no 11006+. Fourth is 10999 (newest remaining unflagged AQPC not on KIMCO). 11004 had two emails; used the later receivedDateTime. Did not walk unrelated vendors.",
+  "batch_name": "API Agent - 9/15/26",
+  "batch_id": 711,
+  "batch_status": 0,
+  "rows": [
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "10999",
+      "date": "2026-09-11",
+      "PO": "59160",
+      "Amount": 120.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Invoice # 10999 from PDF. PO 59160 set. Select Receipts posted receipt 23978 qty 12 @ 10.00 (AMT-55700014 Gate Equalizer P.C. Black; PDF qty 12 / $120). Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser downloaded the Intuit View-details click (not sale/viewed pixel); no Intuit login / no storage-state (23936 bytes). First pass false finish HOLD: named-po selected 23978 but left the line unmatched. Live GET matches PDF. Treyce would not rework. Flag status=entered-in-ai.",
+      "KIMCO id": 10008,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag in Outlook": "Yes",
+      "Flag status": "entered-in-ai",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "11003",
+      "date": "2026-09-14",
+      "PO": "59083",
+      "Amount": 10.0,
+      "Result": "HOLD",
+      "Why": "HOLD (price-does-not-match): PDF invoice 11003 is qty 2 @ $5.00 = $10.00. Receipt 24103 / PO59083-01 is qty 2 @ $0.777 = $1.55 (84.4% of invoice total). Do not post PPV. @Shawn McKibben: purchasing must unreceive, change the PO price, and re-receive. Do not alter receipt unit price in GI. Header 10009 + PDF attached + receipt selected (KIMCO Invoice_Amount is now 1.55 from the receipt). Treyce would still rework the price. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "KIMCO id": 10009,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag in Outlook": "Yes",
+      "Flag status": "entered-with-issues",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "11004",
+      "date": "2026-09-15",
+      "PO": "59165",
+      "Amount": 2600.0,
+      "Result": "HOLD",
+      "Why": "HOLD (qty-does-not-match): Invoice 11004 / PO 59165 PDF total $2,600. Line 4 Panel Decal invoice qty 15 vs PO59165-04 qty 5; line 5 Gear cover invoice qty 5 vs PO59165-05 qty 15 (both $10 unit; qtys look swapped). HOLD so a buyer can comment/tag. Partial Select Receipts posted for the four matching lines: 24106 qty 5 @ 445, 24107 qty 5 @ 5, 24108 qty 5 @ 5, 24111 qty 5 @ 25 ($2,400). Leftover $200 unmatched. Header 10010 + PDF attached. Do not invent Success. Outlook Entered with issues. Flag status=entered-with-issues.",
+      "KIMCO id": 10010,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag in Outlook": "Yes",
+      "Flag status": "entered-with-issues",
+      "Notes": ""
+    },
+    {
+      "Vendor": "American Quality Powder Coating",
+      "Invoice #": "11005",
+      "date": "2026-09-15",
+      "PO": "59118",
+      "Amount": 150.0,
+      "Result": "Success",
+      "Why": "Finished bill (Invoice_Type 3). Invoice # 11005 from PDF. PO 59118 set. Select Receipts posted receipt 24105 qty 5 @ 30.00 (AMT-5003522-001 Man basket Weldment; PDF qty 5 / $150). Vendor 22 AMERICAN QUALITY POWDERCOATING matches parsed. No fees. Attach status=attached. Guest browser downloaded the Intuit View-details click (not sale/viewed pixel); no Intuit login / no storage-state (23803 bytes). First pass false finish HOLD: named-po selected 24105 but left the line unmatched. Live GET matches PDF. Treyce would not rework. Flag status=entered-in-ai.",
+      "KIMCO id": 10011,
+      "Batch": "API Agent - 9/15/26 (711)",
+      "Fees and surcharges": "none",
+      "PPV": "none",
+      "Attach status": "attached",
+      "Flag in Outlook": "Yes",
+      "Flag status": "entered-in-ai",
+      "Notes": ""
+    }
+  ],
+  "kimco_gets": {
+    "10008": {
+      "id": 10008,
+      "invoice_number": "10999",
+      "vendor_id": 22,
+      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59160-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 120.0,
+      "receipt_lines": [
+        {
+          "qty": 12.0,
+          "unit": 10.0,
+          "receipt": 23978,
+          "po_line": "PO59160-01"
+        }
+      ],
+      "fee_count": 0,
+      "attachments": [
+        "2026-09-14_invoice-10999.pdf"
+      ],
+      "batch_id": 711
+    },
+    "10009": {
+      "id": 10009,
+      "invoice_number": "11003",
+      "vendor_id": 22,
+      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59083-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 1.55,
+      "pdf_amount": 10.0,
+      "receipt_lines": [
+        {
+          "qty": 2.0,
+          "unit": 0.777,
+          "receipt": 24103,
+          "po_line": "PO59083-01"
+        }
+      ],
+      "fee_count": 0,
+      "attachments": [
+        "2026-09-15_invoice-11003.pdf"
+      ],
+      "batch_id": 711
+    },
+    "10010": {
+      "id": 10010,
+      "invoice_number": "11004",
+      "vendor_id": 22,
+      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59165-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 2400.0,
+      "pdf_amount": 2600.0,
+      "receipt_lines": [
+        {
+          "qty": 5.0,
+          "unit": 445.0,
+          "receipt": 24106,
+          "po_line": "PO59165-01"
+        },
+        {
+          "qty": 5.0,
+          "unit": 5.0,
+          "receipt": 24107,
+          "po_line": "PO59165-02"
+        },
+        {
+          "qty": 5.0,
+          "unit": 5.0,
+          "receipt": 24108,
+          "po_line": "PO59165-03"
+        },
+        {
+          "qty": 5.0,
+          "unit": 25.0,
+          "receipt": 24111,
+          "po_line": "PO59165-06"
+        }
+      ],
+      "unmatched": [
+        "Panel Decal invoice qty 15 vs PO59165-04 qty 5",
+        "Gear cover invoice qty 5 vs PO59165-05 qty 15"
+      ],
+      "fee_count": 0,
+      "attachments": [
+        "2026-09-15_invoice-11004.pdf"
+      ],
+      "batch_id": 711
+    },
+    "10011": {
+      "id": 10011,
+      "invoice_number": "11005",
+      "vendor_id": 22,
+      "vendor_text": "1020-AMERICAN QUALITY POWDERCOATING",
+      "po": "PO59118-AMERICAN QUALITY POWDERCOATING",
+      "invoice_type": 3,
+      "invoice_amount": 150.0,
+      "receipt_lines": [
+        {
+          "qty": 5.0,
+          "unit": 30.0,
+          "receipt": 24105,
+          "po_line": "PO59118-01"
+        }
+      ],
+      "fee_count": 0,
+      "attachments": [
+        "2026-09-15_invoice-11005.pdf"
+      ],
+      "batch_id": 711
+    }
+  },
+  "outlook_after": {
+    "10999": [
+      "Entered in AI"
+    ],
+    "11003": [
+      "Entered with issues"
+    ],
+    "11004": [
+      "Entered with issues"
+    ],
+    "11005": [
+      "Entered in AI"
+    ]
+  },
+  "treyce_emailed": false,
+  "report": "/workspace/runs/AP-run-2026-09-15-aqpc-plus4.xlsx"
+}

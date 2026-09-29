@@ -1,0 +1,20 @@
+{
+  "mailbox": "accountspayable@kannonmfg.com",
+  "other_mailboxes_used": [],
+  "kimco_writes": false,
+  "send_mail_invoked": false,
+  "mail_sent_to_anyone": false,
+  "ai_hold_category": "category-denied",
+  "probe": {
+    "mailbox": "accountspayable@kannonmfg.com",
+    "mail_send_role": true,
+    "mail_readwrite_role": true,
+    "mailbox_settings_role": false,
+    "draft_status": "email-draft-ok",
+    "draft_http": 201,
+    "draft_deleted_http": 204,
+    "send_mail_invoked": false,
+    "other_mailboxes_used": []
+  },
+  "notes": "Draft created on the AP mailbox and deleted. sendMail was not called. Daily still emails Treyce only after a real --live enter."
+}

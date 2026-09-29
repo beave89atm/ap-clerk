@@ -1,0 +1,354 @@
+{
+  "quality": "V1.2",
+  "source": "Treyce 2026-09-10 notes on the 8/16 dry-10 sheet",
+  "notes": {
+    "NOTE-01": {
+      "insight_pdf_text": "Insight Controller Services\nInvoice Number: 1809\nInvoice Date: 08/16/2026\nAmount Due: $412.00\n",
+      "insight_filename": "insight-unknown.pdf",
+      "msc_pdf_text": "MSC INDUSTRIAL SUPPLY CO.\nInvoice Number 5157357\nCustomer Number 191471\nYour PO 58842\nInvoice Date 08/16/2026\nAmount Due $88.40\n",
+      "msc_filename": "191471.pdf",
+      "msc_subject": "Rob Brown invoice 191471"
+    },
+    "NOTE-02": {
+      "techni_pdf_text": "Techni-Tool\nInvoice Number: S1387370.001\nInvoice Date: 08/16/2026\nShop supplies / misc surcharge 46.20\nAmount Due: $246.20\n",
+      "bare_number": "S1387370",
+      "suffix_number": "S1387370.001",
+      "fee_amount": 46.2
+    },
+    "NOTE-03": {
+      "invoice_number": "26764",
+      "vendor": "Capital Machine Technologies, Inc",
+      "po": "58634",
+      "invoice_qty": 2.5,
+      "po_qty": 2.0,
+      "fee_amount": 25.0
+    },
+    "NOTE-04": {
+      "purvis_pdf_text": "Purvis Industries\nInvoice 32625214\nInvoice Date 08/16/2026\nCustomer PO 58926\nAmount Due $150.00\n",
+      "invoice_number": "32625214",
+      "po": "58926"
+    },
+    "NOTE-05": {
+      "invoice_description": "PIPE A500 B BARE 1 SCH 40",
+      "po_line_3": "P-1.00 SCH 40-A500",
+      "wrong_line_1": "ANGLE 2X2X1/4 A36",
+      "rounding": 0.03
+    },
+    "NOTE-06": {
+      "invoice_number": "S813859432",
+      "vendor": "Earle M. Jorgensen Co",
+      "amount": 1164.32,
+      "po_amount": 965.0
+    },
+    "NOTE-07": {
+      "vendor": "Toyota Commercial Finance",
+      "subject": "Toyota Commercial Finance auto-pay 3320056"
+    },
+    "NOTE-08": {
+      "from_name": "Melody Channell",
+      "subject": "Invoices for this week",
+      "attachment_names": ["MC-inv-1.pdf", "MC-inv-2.pdf", "MC-inv-3.pdf", "MC-inv-4.pdf"]
+    },
+    "NOTE-09": {
+      "body": "Please download your invoice: https://links.notification.intuit.com/ls/click?upn=aqpc-4412",
+      "vendor": "American Quality Powder Coating",
+      "link_host": "links.notification.intuit.com"
+    },
+    "NOTE-10": {
+      "misc_pdf_text": "Gas and Supply North Texas, LLC\nORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/16/26 A3050 0040367887\nAmount Due: 88.00\n",
+      "notice_pdf_text": "CHECK STOP\nDo not process this payment.\nGas and Supply North Texas",
+      "multi_pdf_text": "Gas and Supply\nInvoice Date 08/16/2026\nInvoice 0040367881 Amount Due 10.00\nInvoice 0040367882 Amount Due 10.00\nInvoice 0040367883 Amount Due 10.00\nInvoice 0040367884 Amount Due 10.00\nInvoice 0040367885 Amount Due 10.00\nTotal 50.00\n",
+      "misc_item": "Shop Supplies - G&S"
+    },
+    "NOTE-11": {
+      "vendor": "Nova Alloys",
+      "invoice_number": "258145",
+      "amount": 25.0,
+      "date": "2026-08-18",
+      "subject": "NOVA ALLOYS, INC. - Invoice 258145",
+      "from_name": "Erica Barrett",
+      "filename": "2026-08-18_Invoice00258145.PDF",
+      "pdf_text": "NOVA ALLOYS, INC.\nInvoice 258145\nInvoice Date 08/18/2026\nAmount Due $25.00\n",
+      "buggy_vendor": "Erica Barrett",
+      "buggy_number_source": "subject"
+    },
+    "NOTE-12": {
+      "vendor": "MSC Industrial Supply",
+      "invoice_number": "70762501",
+      "kimco_id": 9967,
+      "posted_vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "posted_lookup_id": 1320,
+      "msc_alias_id": 128,
+      "rmp_alias_id": 322,
+      "date": "2026-08-18",
+      "buggy_result": "Success"
+    },
+    "NOTE-13": {
+      "vendor": "Crosslink Powder Coating",
+      "fee_label": "Packaging/Shop Supplies; Recovery",
+      "buggy_number_source": "filename",
+      "date": "2026-08-18",
+      "bills": [
+        {
+          "invoice_number": "27943",
+          "po": "58888",
+          "subject": "Invoice #27943 for 58888 (#8221) from Crosslink Powder Coating",
+          "filename": "invoice-27943.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27943\nInvoice Date 08/18/2026\nCustomer PO 58888\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $412.00\n"
+        },
+        {
+          "invoice_number": "27944",
+          "po": "58909",
+          "subject": "Invoice #27944 for 58909 (#8222) from Crosslink Powder Coating",
+          "filename": "invoice-27944.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27944\nInvoice Date 08/18/2026\nCustomer PO 58909\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $388.00\n"
+        },
+        {
+          "invoice_number": "27946",
+          "po": "58741",
+          "subject": "Invoice #27946 for 58741 (#8223) from Crosslink Powder Coating",
+          "filename": "invoice-27946.pdf",
+          "pdf_text": "Crosslink Powder Coating of TX, LLC\nInvoice #27946\nInvoice Date 08/18/2026\nCustomer PO 58741\nPackaging/Shop Supplies; Recovery 12.50\nAmount Due $255.00\n"
+        }
+      ]
+    },
+    "NOTE-14": {
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT4100079",
+      "po": "58692",
+      "kimco_id": 9968,
+      "amount": 1148.63,
+      "invoice_qty": 35,
+      "wrong_receipt_qty": 36,
+      "merchandise": 1084.65,
+      "fee_name": "Shipping & Handling",
+      "fee_amount": 63.98,
+      "date": "2026-08-18"
+    },
+    "NOTE-15": {
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_number": "Z250725432",
+      "po": "58913",
+      "kimco_id": 9969,
+      "amount": 896.86,
+      "date": "2026-08-18",
+      "pdf_text": "EARLE M. JORGENSEN COMPANY\nINVOICE NUMBER Z250725432\nINVOICE DATE 18-AUG-2026\nCUSTOMER PO 58913\nSHIP DATE 18-AUG-2026\nPREPAID\n1  HR FLT 1/4 X 4 A36  20.167  FT  12.45  251.08\n2  HR FLT 3/8 X 6 A36  40.000  FT  16.1445  645.78\nINVOICE TOTAL $ 896.86\n",
+      "line1_desc": "HR FLT 1/4 X 4 A36",
+      "line2_desc": "HR FLT 3/8 X 6 A36",
+      "line1_qty": 20.167,
+      "line2_qty": 40.0,
+      "line1_amount": 251.08,
+      "line2_amount": 645.78,
+      "po_line1_amount": 249.00
+    },
+    "NOTE-16": {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "invoice_number": "0040370068",
+      "filename": "billing01_A3050_c.pdf",
+      "kimco_id": 9970,
+      "amount_before_tax": 322.00,
+      "amount_after_tax": 348.57,
+      "invoice_count": 6,
+      "pdf_text": "GAS AND SUPPLY NORTH TEXAS, LLC\nORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370068\nCUSTOMER PO 58920\nMerchandise 300.00\nSubtotal 322.00\nTax 26.57\nAmount Due: 348.57\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370069\nAmount Due: 88.00\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370070\nAmount Due: 41.20\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370071\nCUSTOMER PO 58921\nAmount Due: 19.45\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370072\nAmount Due: 12.00\n\fORIGINAL INVOICE\nINVOICE DATE ACCOUNT NUMBER INVOICE NUMBER\n08/18/26 A3050 0040370073\nAmount Due: 7.50\n"
+    },
+    "NOTE-17": {
+      "vendor": "Insight Controller Services",
+      "invoice_number": "1809",
+      "kimco_id": 9948,
+      "amount": 412.00,
+      "date": "2026-08-16",
+      "pdf_text": "Insight Controller Services\nInvoice Number: 1809\nInvoice Date: 08/16/2026\nAmount Due: $412.00\n"
+    },
+    "NOTE-18": {
+      "category": "AI Skipped 2",
+      "result": "Skipped"
+    },
+    "NOTE-19": {
+      "vendor": "3P",
+      "from_name": "Rachel Bailey",
+      "subject": "INV # 142041 / CPL # 76659,… / PO # 58766, 58767, 58844",
+      "invoice_number": "142041",
+      "pos": ["58766", "58767", "58844"],
+      "amount": 250.00,
+      "date": "2026-08-18",
+      "sibling_subjects": [
+        "INV # 142042 / CPL # 76660 / PO # 58766, 58767, 58844",
+        "INV # 142043 / CPL # 76661 / PO # 58766, 58767, 58844",
+        "INV # 142044 / CPL # 76662 / PO # 58766, 58767, 58844"
+      ]
+    },
+    "NOTE-20": {
+      "vendor": "Eastern Metal Supply of Texas",
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "invoice_number": "818600",
+      "subject_818601": "Invoice : 818601 from EASTERN METAL SUPPLY of TEXAS, INC."
+    },
+    "NOTE-21": {
+      "vendor": "American Quality Powder Coating",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10917",
+      "invoice_number": "10917",
+      "subject_10918": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 10918",
+      "body": "Please download your invoice: https://pay.aqpowder.com/invoices/10917",
+      "link_host": "pay.aqpowder.com",
+      "intuit_host": "links.notification.intuit.com",
+      "intuit_body_10917": "AMERICAN QUALITY POWDER COATING invoice 10917: https://links.notification.intuit.com/ls/click?upn=invoice-10917",
+      "intuit_body_10918": "AMERICAN QUALITY POWDER COATING invoice 10918: https://links.notification.intuit.com/ls/click?upn=invoice-10918"
+    },
+    "NOTE-22": {
+      "vendor": "Eastern Metal Supply of Texas",
+      "subject": "Invoice : 818600 from EASTERN METAL SUPPLY of TEXAS, INC.",
+      "msc_from": "MSC Industrial Supply",
+      "msc_subject": "Invoice 70762501 from MSC Industrial Supply",
+      "msc_pdf": "Invoice-70762501.pdf",
+      "msc_link_body": "Download your invoice: https://www.mscdirect.com/invoices/70762501.pdf",
+      "fastenal_from": "Fastenal Company"
+    },
+    "NOTE-23": {
+      "vendor": "3P",
+      "amount_adds_cleanly": true,
+      "invented_ppv_forbidden": 0.02,
+      "bills": {
+        "142041": {
+          "kimco_id": 9988,
+          "pos": ["58766", "58767", "58844"],
+          "amount": 2393.28,
+          "subject": "INV # 142041 / CPL # 76659, 76664, 76663, 76661, 76660, 76662 / PO # 58766, 58767, 58844",
+          "lines": [
+            {"part": "1007044-1", "qty": 1, "amount": 97.50, "unit_price": 97.50, "po": "58766", "label": "1 1007044-1 / SUBFRAME WELDMENT 97.50 97.50", "note": "receipt exists; PO price wrong"},
+            {"part": "1020592-1", "qty": 6, "amount": 133.02, "unit_price": 22.17, "po": "58767", "label": "6 1020592-1 - LOWER PLATFORM 22.17 133.02", "note": "receipts correct; MUST pull"},
+            {"part": "29340-1", "qty": 9, "amount": 338.40, "unit_price": 37.60, "po": "58844", "label": "9 29340-1 LOWER ROTATOR WELDMENT 37.60 338.40", "note": "receipts; PO price wrong"},
+            {"part": "21913-1", "qty": 47, "amount": 868.56, "unit_price": 18.48, "po": "58844", "label": "47 21913-1 UPPER SUPPORT WELDMENT 18.48 868.56", "note": "available; MUST pull"},
+            {"part": "35145-1", "qty": 36, "amount": 955.80, "unit_price": 26.55, "po": "58844", "label": "36 35145-1 JIB ARM WELDMENT 26.55 955.80", "note": "available; MUST pull"}
+          ]
+        },
+        "142042": {
+          "kimco_id": 9989,
+          "pos": ["58862", "58844"],
+          "amount": 530.96,
+          "subject": "INV # 142042 / CPL # 76740, 76741 / PO # 58862, 58844",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58862", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "receipts match; MUST pull"},
+            {"part": "1008270-1", "qty": 2, "amount": 166.04, "unit_price": 83.02, "po": "58844", "label": "2 1008270-1 / KNUCKLE WELDMENT 83.02 166.04", "note": "receipts; price mismatch"}
+          ]
+        },
+        "142043": {
+          "kimco_id": 9990,
+          "pos": ["58862", "58887"],
+          "amount": 821.07,
+          "subject": "INV # 142043 / CPL # 76753, 76755 / PO # 58862, 58887",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58862", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "PO receipt qty 6; select qty 4"},
+            {"part": "21678-1", "qty": 5, "amount": 456.15, "unit_price": 91.23, "po": "58887", "label": "5 21678-1 KNUCKLE WELDMENT 91.23 456.15", "note": "no available receipts"}
+          ]
+        },
+        "142044": {
+          "kimco_id": 9991,
+          "pos": ["58887", "58844"],
+          "amount": 823.74,
+          "subject": "INV # 142044 / CPL # 76757, 76756, 76758 / PO # 58887, 58844",
+          "lines": [
+            {"part": "21678-1", "qty": 4, "amount": 364.92, "unit_price": 91.23, "po": "58887", "label": "4 21678-1 KNUCKLE WELDMENT 91.23 364.92", "note": "MUST pull"},
+            {"part": "1020586-1", "qty": 6, "amount": 239.82, "unit_price": 39.97, "po": "58887", "label": "6 1020586-1 ROTATOR BRACKET (BATCHWELD) 39.97 239.82", "note": "MUST pull"},
+            {"part": "29340-1", "qty": 3, "amount": 112.80, "unit_price": 37.60, "po": "58844", "label": "3 29340-1 LOWER ROTATOR WELDMENT 37.60 112.80", "note": "qty+price do not match"},
+            {"part": "35145-1", "qty": 4, "amount": 106.20, "unit_price": 26.55, "po": "58844", "label": "4 35145-1 JIB ARM WELDMENT 26.55 106.20", "note": "MUST pull"}
+          ]
+        }
+      }
+    },
+    "NOTE-24": {
+      "vendor": "Leeco Steel, LLC",
+      "from_name": "Leeco Steel, LLC",
+      "from_address": "credit@leecosteel.com",
+      "subject": "Leeco Account Statement",
+      "filename": "1058256.pdf",
+      "received": "2026-08-19T00:00:48Z",
+      "leftover_kimco_id": 9985,
+      "do_not_void": true,
+      "invoices_listed": ["617228", "617448", "619920", "619921"],
+      "pos_listed": ["58419", "58503", "57891", "58798"],
+      "pdf_text": "Account Statement 8/18/2026\nInvoice PO Date AMT\n617228 58419 7/7/2026 $9,997.24\n617448 58503 7/14/2026 $1,200.00\n619920 57891 8/4/2026 $900.00\n619921 58798 8/5/2026 $1,100.00\nCurrent $6,290.00\n",
+      "statement_of_account_text": "Statement of Account\nInvoices due\n617228 58419\n619920 57891\n",
+      "julie": {
+        "vendor": "Julie Hencke",
+        "from_name": "Julie Hencke",
+        "subject": "Past Due Invoices",
+        "received": "2026-08-18T19:12:39Z",
+        "pdf_text": "Past Due Invoices\nInvoice Date Amount\n617228 7/7/2026 9997.24\nPlease remit the invoices listed below.\n"
+      }
+    },
+    "NOTE-25": {
+      "vendor": "Legacy Wire Products",
+      "from_name": "Legacy Wire Products",
+      "from_address": "ar@legacywire.com",
+      "do_not_void": true,
+      "leftover_kimco_ids": [9995, 9996],
+      "packing_slip_114745": {
+        "filename": "2026-08-19_Receipt_2026-08-19_114745.pdf",
+        "subject": "Sales Invoice PS-INV103979",
+        "pdf_text": "PACKING SLIP\nLegacy Wire Products\nShip To: Kannon Manufacturing\nCustomer PO: 58807\nQty 24 HARDWARE\nQty 1 LATCH\nReceived by: Kyle Cleaver\nCustomer Signature\nCarrier Signature\nSigned delivery receipt\nDate: 08/19/2026\n"
+      },
+      "receipt_scan_names": [
+        "2026-08-19_Receipt_2026-08-19_103979.pdf",
+        "2026-08-19_Receipt_2026-08-19_114744_dragged_.pdf",
+        "2026-08-19_Receipt_2026-08-19_120911.pdf",
+        "2026-08-19_Receipt_2026-08-19_121051.pdf"
+      ],
+      "ps_inv103979": {
+        "invoice_number": "PS-INV103979",
+        "kimco_id": 9995,
+        "po": "58807",
+        "amount": 1271.75,
+        "freight": 246.75,
+        "filename": "Sales Invoice PS-INV103979.pdf",
+        "subject": "Sales Invoice PS-INV103979",
+        "pdf_text": "Legacy Wire Products\nSALES INVOICE\nInvoice No.\nPS-INV103979\nInvoice Date\n08/19/2026\nExternal Document No.\n58807\nKANNON-A-12345-001\nGATE HARDWARE\n24 Each 41.00 984.00\nKANNON-A-12345-002\nLATCH\n1 Each 41.00 41.00\nKANNON-A-05480-002\nBIFOLD GATE-77\"(2\"TUBE)\n0 Each 0.00 0.00\nFreight Charge - Wholesale - In\nState\n1\n246.75\n246.75\nTotal $ Incl. Tax\n1,271.75\n",
+        "lines": [
+          {"part": "KANNON-A-12345-001", "qty": 24, "amount": 984.0, "unit_price": 41.0},
+          {"part": "KANNON-A-12345-002", "qty": 1, "amount": 41.0, "unit_price": 41.0}
+        ],
+        "receipts": [
+          {"id": 23746, "po": "58807", "part": "PO58807-01", "qty": 24, "amount": 984.0, "unit_price": 41.0},
+          {"id": 23747, "po": "58807", "part": "PO58807-03", "qty": 1, "amount": 41.0, "unit_price": 41.0},
+          {"id": 23750, "po": "58807", "part": "PO58807-05", "qty": 10, "amount": 400.0, "unit_price": 40.0}
+        ]
+      },
+      "ps_inv103980": {
+        "invoice_number": "PS-INV103980",
+        "kimco_id": 9996,
+        "po": "58802",
+        "amount": 2664.72,
+        "freight": 200.0,
+        "filename": "Sales Invoice PS-INV103980.pdf",
+        "subject": "Sales Invoice PS-INV103980",
+        "pdf_text": "Legacy Wire Products\nSALES INVOICE\nInvoice No.\nPS-INV103980\nInvoice Date\n08/19/2026\nExternal Document No.\n58802\nKANNON-A-20001-001\nPANEL A\n12 Each 85.00 1020.00\nKANNON-A-20002-001\nPANEL B\n8 Each 95.00 760.00\nKANNON-A-20003-001\nBRACKET\n6 Each 82.00 492.00\nKANNON-A-20004-001\nCLIP\n4 Each 48.18 192.72\nFreight Charge - Wholesale - In\nState\n1\n200.00\n200.00\nTotal $ Incl. Tax\n2,664.72\n",
+        "lines": [
+          {"part": "KANNON-A-20001-001", "qty": 12, "amount": 1020.0, "unit_price": 85.0},
+          {"part": "KANNON-A-20002-001", "qty": 8, "amount": 760.0, "unit_price": 95.0},
+          {"part": "KANNON-A-20003-001", "qty": 6, "amount": 492.0, "unit_price": 82.0},
+          {"part": "KANNON-A-20004-001", "qty": 4, "amount": 192.72, "unit_price": 48.18}
+        ],
+        "receipts": [
+          {"id": 24001, "po": "58802", "part": "PO58802-01", "qty": 12, "amount": 1020.0, "unit_price": 85.0},
+          {"id": 24002, "po": "58802", "part": "PO58802-02", "qty": 8, "amount": 760.0, "unit_price": 95.0},
+          {"id": 24003, "po": "58802", "part": "PO58802-03", "qty": 6, "amount": 492.0, "unit_price": 82.0},
+          {"id": 24004, "po": "58802", "part": "PO58802-04", "qty": 4, "amount": 192.72, "unit_price": 48.18},
+          {"id": 24099, "po": "58802", "part": "PO58802-09", "qty": 10, "amount": 500.0, "unit_price": 50.0}
+        ]
+      }
+    },
+    "NOTE-26": {
+      "vendor": "Greentree Packaging & Lumber",
+      "from_name": "Greentree Packaging & Lumber",
+      "subject": "Invoice from Greentree Packaging & Lumber",
+      "received": "2026-08-19T20:12:03Z",
+      "filename": "document.pdf",
+      "preview": "View your account statement online. Invoice attached.",
+      "pdf_text": "Greentree Packaging & Lumber\nINVOICE\nInvoice Number: 78421\nInvoice Date: 08/19/2026\nBill To: Kannon Manufacturing\nAmount Due: $412.00\nView your account statement online.\n",
+      "invoice_number": "78421",
+      "amount": 412.0,
+      "sheet_why_2026_09_15": "Skipped (bill-vs-noise): statement. Subject: Invoice from Greentree Packaging & Lumber.",
+      "do_not_invent_success": true,
+      "do_not_void": true
+    }
+  }
+}

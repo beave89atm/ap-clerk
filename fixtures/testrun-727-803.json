@@ -1,0 +1,317 @@
+{
+  "name": "testrun-727-803",
+  "window": {
+    "from": "2026-07-27",
+    "to": "2026-08-03"
+  },
+  "notes": "KEEP invoices only. Statements, PODs, payment letters, and dups already excluded. Prototype-only.",
+  "invoices": [
+    {
+      "vendor": "Telecom Products Inc.",
+      "invoice_number": "16960",
+      "date": "2026-07-27",
+      "po": "58351",
+      "amount": 10431.36,
+      "fees": [],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "McMaster-Carr Supply Company",
+      "invoice_number": "69233267",
+      "date": "2026-07-29",
+      "po": "58808",
+      "amount": 489.14,
+      "fees": [{ "name": "Shipping", "amount": 42.17 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "McMaster-Carr Supply Company",
+      "invoice_number": "69313216",
+      "date": "2026-07-30",
+      "po": "58826",
+      "amount": 467.22,
+      "fees": [{ "name": "Shipping", "amount": 38.83 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Purvis Industries Ft Worth",
+      "invoice_number": "32605959",
+      "date": "2026-07-30",
+      "po": "58556",
+      "amount": 480.05,
+      "fees": [{ "name": "Total Freight In", "amount": 27.12 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Capital Machine Technologies, Inc",
+      "invoice_number": "26167",
+      "date": "2026-07-30",
+      "po": "58634",
+      "amount": 403.0,
+      "fees": [{ "name": "Freight (UPS)", "amount": 34.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Capital Machine Technologies, Inc",
+      "invoice_number": "26258",
+      "date": "2026-07-31",
+      "po": "58634",
+      "amount": 940.0,
+      "fees": [{ "name": "SUPPLY FEE / Shop supplies", "amount": 25.0 }],
+      "action": "create_if_po",
+      "notes": "Shop supplies are Fees and surcharges, NOT PPV."
+    },
+    {
+      "vendor": "Willbanks Metals Inc",
+      "invoice_number": "209661",
+      "date": "2026-07-30",
+      "po": "58504",
+      "amount": 1828.08,
+      "fees": [],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Willbanks Metals Inc",
+      "invoice_number": "209664",
+      "date": "2026-07-30",
+      "po": "58383",
+      "amount": 3347.97,
+      "fees": [],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Morgan Steel LLC",
+      "invoice_number": "128269",
+      "date": "2026-07-30",
+      "po": "58718",
+      "amount": 13404.84,
+      "fees": [],
+      "action": "create_if_po",
+      "notes": "Vendor name inferred."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice_number": "15423965",
+      "date": "2026-07-30",
+      "po": "58799",
+      "amount": 2278.11,
+      "fees": [{ "name": "Freight", "amount": 0.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice_number": "15427085",
+      "date": "2026-08-03",
+      "po": "58831",
+      "amount": 5580.96,
+      "fees": [{ "name": "Freight", "amount": 0.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT499739",
+      "date": "2026-07-30",
+      "po": "58749",
+      "amount": 2620.08,
+      "fees": [{ "name": "Shipping & Handling", "amount": 124.83 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Fastenal Company",
+      "invoice_number": "TXFT499769",
+      "date": "2026-07-31",
+      "po": "58764",
+      "amount": 424.88,
+      "fees": [{ "name": "Shipping & Handling", "amount": 122.69 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice_number": "PS-INV103935",
+      "date": "2026-07-31",
+      "po": "58821",
+      "amount": 2545.0,
+      "fees": [{ "name": "Freight Charge", "amount": 700.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice_number": "PS-INV103936",
+      "date": "2026-07-31",
+      "po": "58717",
+      "amount": 2140.0,
+      "fees": [{ "name": "Freight Charge", "amount": 500.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice_number": "PS-INV103937",
+      "date": "2026-07-31",
+      "po": "58742",
+      "amount": 856.0,
+      "fees": [{ "name": "Freight Charge", "amount": 200.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Eastern Metal Supply of Texas, LLC",
+      "invoice_number": "816292",
+      "date": "2026-07-31",
+      "po": "58814",
+      "amount": 1681.31,
+      "fees": [{ "name": "SHIPPING & HANDLING SURCHARGE", "amount": 60.0 }],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Earle M. Jorgensen Co",
+      "invoice_number": "S812773432",
+      "date": "2026-08-03",
+      "po": "58810",
+      "amount": 393.62,
+      "fees": [],
+      "action": "create_if_po"
+    },
+    {
+      "vendor": "Crosslink Powder Coating of TX, LLC",
+      "invoice_number": "27756",
+      "date": "2026-08-03",
+      "po": "58723",
+      "amount": 1252.18,
+      "fees": [{ "name": "Packaging/Shop Supplies Recovery", "amount": 12.4 }],
+      "action": "create_if_po",
+      "notes": "Packaging/shop supplies recovery is Fees and surcharges, NOT PPV."
+    },
+    {
+      "vendor": "ENGIE Resources LLC",
+      "invoice_number": "11367279",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 416.1,
+      "fees": [
+        { "name": "Incremental System Admin Fee", "amount": 0.2 },
+        { "name": "Market Securitization", "amount": 1.44 },
+        { "name": "Settlement", "amount": 1.64 },
+        { "name": "Taxes/Fees", "amount": 8.79 }
+      ],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "Hudson Energy Services, LLC",
+      "invoice_number": "2608001907",
+      "date": "2026-08-03",
+      "po": null,
+      "amount": 2391.09,
+      "fees": [{ "name": "ERCOT/market/TDSP pass-throughs", "amount": null }],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "UniFirst First Aid & Safety",
+      "invoice_number": "42203000308",
+      "date": "2026-07-29",
+      "po": null,
+      "amount": 744.5,
+      "fees": [],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "Shoppa's Material Handling, Ltd",
+      "invoice_number": "PSI-001216291",
+      "date": "2026-07-30",
+      "po": null,
+      "amount": 814.73,
+      "fees": [],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "UniFirst Corporation",
+      "invoice_number": "2810786878",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 997.34,
+      "fees": [
+        { "name": "Energy Surcharge", "amount": 3.0 },
+        { "name": "garment protection fees", "amount": null }
+      ],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Energy surcharge and garment fees are Fees and surcharges, not PPV."
+    },
+    {
+      "vendor": "GRM Information Management Services of Dallas, LLC",
+      "invoice_number": "00012913",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 189.78,
+      "fees": [
+        { "name": "Account Maintenance", "amount": 22.68 },
+        { "name": "Check Processing", "amount": 25.0 }
+      ],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Account maintenance and check processing are Fees and surcharges, not PPV."
+    },
+    {
+      "vendor": "NTEX Electric Inc.",
+      "invoice_number": "17-2557",
+      "date": "2026-08-01",
+      "po": null,
+      "amount": 1694.48,
+      "fees": [],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "Waste Connections Lone Star, Inc",
+      "invoice_number": "3485086V190",
+      "date": "2026-08-01",
+      "po": null,
+      "amount": 357.8,
+      "fees": [],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "Luxor Staffing, Inc.",
+      "invoice_number": "361804",
+      "date": "2026-07-30",
+      "po": null,
+      "amount": 840.0,
+      "fees": [],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank."
+    },
+    {
+      "vendor": "Priority1",
+      "invoice_number": "17840758",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 485.7,
+      "fees": [{ "name": "Freight Charge", "amount": 485.7 }],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Freight is Fees and surcharges, not PPV."
+    },
+    {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "invoice_number": "0040325801",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 418.93,
+      "fees": [{ "name": "FUEL SURCHARGE", "amount": 17.5 }],
+      "action": "hold",
+      "hold_reason": "CHECK STOP",
+      "check_stop": true,
+      "notes": "PO is CHECK STOP. HOLD. Do not create a header."
+    },
+    {
+      "vendor": "Gas and Supply North Texas, LLC",
+      "invoice_number": "0040333419",
+      "date": "2026-07-31",
+      "po": null,
+      "amount": 1463.98,
+      "fees": [{ "name": "rental + fuel surcharge", "amount": null }],
+      "action": "create",
+      "notes": "No-PO real vendor bill: create header, leave Purchase Order blank. Rental and fuel surcharge are Fees and surcharges, not PPV."
+    }
+  ]
+}
