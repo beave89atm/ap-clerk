@@ -1,0 +1,87 @@
+{
+  "treyce_mention_id": 33,
+  "poller_comments_had_treyce_mention": [
+    {
+      "comment_id": 1134,
+      "bill_id": 10322,
+      "invoice": "TXFT4100503",
+      "had_treyce_mention": false
+    },
+    {
+      "comment_id": 1135,
+      "bill_id": 10376,
+      "invoice": "1473030",
+      "had_treyce_mention": false
+    },
+    {
+      "comment_id": 1136,
+      "bill_id": 10367,
+      "invoice": "67067",
+      "had_treyce_mention": false
+    },
+    {
+      "comment_id": 1137,
+      "bill_id": 10317,
+      "invoice": "15455478",
+      "had_treyce_mention": false
+    },
+    {
+      "comment_id": 1138,
+      "bill_id": 10323,
+      "invoice": "TXFT4100537",
+      "had_treyce_mention": false
+    }
+  ],
+  "comment_1139_status": "blocked-400",
+  "comment_1139_has_treyce_mention": false,
+  "comment_1139_id": 1139,
+  "tagged_sales_tax_comment_ids": [
+    1140
+  ],
+  "new_comment_ids": [
+    {
+      "poller_comment_id": 1134,
+      "bill_id": 10322,
+      "comment_id": 1141,
+      "status": "added"
+    },
+    {
+      "poller_comment_id": 1135,
+      "bill_id": 10376,
+      "comment_id": 1142,
+      "status": "added"
+    },
+    {
+      "poller_comment_id": 1136,
+      "bill_id": 10367,
+      "comment_id": 1140,
+      "status": "already"
+    },
+    {
+      "poller_comment_id": 1137,
+      "bill_id": 10317,
+      "comment_id": 1143,
+      "status": "added"
+    },
+    {
+      "poller_comment_id": 1138,
+      "bill_id": 10323,
+      "comment_id": 1144,
+      "status": "added"
+    }
+  ],
+  "posted": {
+    "10317": null,
+    "10322": null,
+    "10323": null,
+    "10367": null,
+    "10376": null
+  },
+  "amounts_unchanged": {
+    "10317": true,
+    "10322": true,
+    "10323": true,
+    "10367": true,
+    "10376": true
+  }
+}

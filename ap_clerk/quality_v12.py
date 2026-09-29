@@ -11,6 +11,7 @@ from typing import Any
 from ap_clerk.gates import (
     GATE_AUTO_PAY,
     GATE_BILL_VS_NOISE,
+    GATE_FINISH,
     GATE_PDF_LINK,
     GATE_PO,
     GATE_PREFLIGHT,
@@ -1012,6 +1013,49 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-58",
+        "slug": "state-sales-tax-gap-not-ppv",
+        "gate": GATE_PRICE,
+        "cases": (
+            "A1 Image 67067 / KIMCO 10367 receipt 24712 1 @ 508.67, PDF 550.64, Texas sales tax 41.97",
+        ),
+        "expected": (
+            "Not every vendor charges sales tax. Add a sales tax additional "
+            "charge only when the vendor invoice PDF explicitly shows a sales "
+            "tax line, and use exactly that printed amount. Never compute a "
+            "rate and never infer tax from the gap or from a stored tax field. "
+            "A gap with no explicit tax line follows the normal PPV/HOLD rules. "
+            "Live Additional_Charges has no sales-tax code, so the line is "
+            "F-Fees & Surcharges (lookup id 11) with Name 'Sales tax'. Never "
+            "Purchase Price Variance (lookup id 13). Do not change the receipt "
+            "selection. Do not post the bill. Success only after the live bill "
+            "amount equals the invoice total to the penny. A1 67067 prints "
+            "sales tax 41.97; 508.67 + 41.97 = 550.64."
+        ),
+        "never_success": True,
+    },
+    {
+        "id": "NOTE-59",
+        "slug": "every-edit-ap-clerk-note-and-owner-mention",
+        "gate": GATE_FINISH,
+        "cases": (
+            "Transfer AP batch 375 tags Treyce Hodges mention id 33",
+            "PO or receiving tags Shawn McKibben mention id 104",
+            "AQPC receiving tags Ruben Perez with no invented mention id",
+        ),
+        "expected": (
+            "Every KIMCO edit leaves a plain-English Comments_1 note that "
+            "starts with 'AP Clerk:' and says what changed. The note tags the "
+            "owner with a real mention span (class prosemirror-mention-node, "
+            "data-mention-id). Bills in Transfer AP (batch 375) tag Treyce "
+            "Hodges, mention id 33, because he owns that batch. PO or receiving "
+            "actions tag Shawn McKibben, mention id 104. AQPC receiving tags "
+            "Ruben Perez. His live mention id is not on file, so the note names "
+            "him and does not invent a data-mention-id. Do not post the bill."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1034,6 +1078,17 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
     {
         "id": "fees-not-ppv",
         "check": "Supply/fee/surcharge amounts are Additional Charge Fees and surcharges, never PPV.",
+    },
+    {
+        "id": "state-sales-tax-not-ppv",
+        "check": (
+            "Add a sales tax additional charge only when the vendor invoice PDF "
+            "explicitly shows a sales tax line, using exactly that printed amount "
+            "(Name 'Sales tax' on F-Fees when no sales-tax charge type exists). "
+            "Never compute or infer tax. A gap with no explicit tax line follows "
+            "normal PPV/HOLD rules. Never Purchase Price Variance for an explicit "
+            "sales-tax line. Do not change the receipt selection. Do not post the bill."
+        ),
     },
     {
         "id": "fees-posted-on-bill",
@@ -1151,6 +1206,16 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "blocked when that pre-check fails. Run the same check again after "
             "Finish on the live readback. Success only when that gap is 0.00. "
             "Notes records a PPV QC fix and no other QC column is added (NOTE-57)."
+        ),
+    },
+    {
+        "id": "ap-clerk-note-and-owner-mention",
+        "check": (
+            "Every KIMCO edit leaves a Comments_1 note starting with 'AP Clerk:' "
+            "that says what changed, and tags the owner with a real mention span "
+            "(data-mention-id). Transfer AP batch 375 tags Treyce Hodges (33). "
+            "PO or receiving actions tag Shawn McKibben (104). AQPC receiving tags "
+            "Ruben Perez and does not invent a mention id (NOTE-59)."
         ),
     },
 )
