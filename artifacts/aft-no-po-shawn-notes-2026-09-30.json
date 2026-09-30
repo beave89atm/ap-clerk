@@ -1,0 +1,60 @@
+{
+  "author_id": 175,
+  "wrote": false,
+  "bills": [
+    {
+      "bill_id": 10398,
+      "invoice": "52004",
+      "action": "skipped",
+      "reason": "Shawn mention id 104 is already on the bill",
+      "problems": [],
+      "invoice_amount": 0.0,
+      "verification": 190.3,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "vendor_id": 385,
+      "vendor": "1383-AFT Industries",
+      "po": "",
+      "line_count": 0,
+      "comment_ids": [1260],
+      "added_comment_ids": [],
+      "comments": [
+        {
+          "id": 1260,
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "shawn_mentioned": true,
+          "kyle_mentioned": false
+        }
+      ]
+    },
+    {
+      "bill_id": 10399,
+      "invoice": "52005",
+      "action": "skipped",
+      "reason": "Shawn mention id 104 is already on the bill",
+      "problems": [],
+      "invoice_amount": 0.0,
+      "verification": 363.0,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "vendor_id": 385,
+      "vendor": "1383-AFT Industries",
+      "po": "",
+      "line_count": 0,
+      "comment_ids": [1261],
+      "added_comment_ids": [],
+      "comments": [
+        {
+          "id": 1261,
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "shawn_mentioned": true,
+          "kyle_mentioned": false
+        }
+      ]
+    }
+  ]
+}
