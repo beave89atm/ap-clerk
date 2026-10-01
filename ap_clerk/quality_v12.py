@@ -1055,6 +1055,35 @@ TREYCE_NOTES_V12: tuple[dict[str, Any], ...] = (
         ),
         "never_success": True,
     },
+    {
+        "id": "NOTE-60",
+        "slug": "aft-industries-eachs-not-automated-finishing",
+        "gate": GATE_QTY,
+        "cases": (
+            "AFT Industries 1383 invoice 52004 / bill 10398 receipt 25155 49 @ 3.8837 = 190.30",
+            "AFT Industries invoice 52005 / bill 10399 pieces vs pounds",
+            "Automated Finishing Technology vendor 1329 is not AFT Industries",
+        ),
+        "expected": (
+            "AFT Industries (vendor 1383) buys and receives in eachs. "
+            "A printed pound weight is not the commercial quantity. "
+            "Unit price is invoice line dollars divided by each qty. "
+            "Select when each qty and the extension match to the penny "
+            "(52004 receipt 25155: 49 @ 3.8837 = 190.30), including when the "
+            "PDF also prints a weight. Do not Select by matching that weight "
+            "to the receipt quantity. Dollars alone never Select when quantity "
+            "is still pieces versus pounds (52005): HOLD UOM/qty, tag Shawn "
+            "McKibben mention id 104, keep Transfer AP unposted. "
+            "Customer P.O. No. is the header field only when that PO belongs "
+            "to vendor 1383. Automated Finishing Technology (vendor 1329, API "
+            "Vendor.id 331) is vendor_mismatch: do not link and do not Select. "
+            "After an eachs Select, tag Treyce Hodges mention id 33. "
+            "Do not post the bill. Never Success. A Work_Order rejection on "
+            "the correct AFT Industries receipt stays HOLD because Select "
+            "Receipts has no existing path that omits Work_Order."
+        ),
+        "never_success": True,
+    },
 )
 
 TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
@@ -1215,6 +1244,17 @@ TREYCE_FINISH_CHECKLIST: tuple[dict[str, str], ...] = (
             "(data-mention-id). Transfer AP batch 375 tags Treyce Hodges (33). "
             "PO or receiving actions tag Shawn McKibben (104). AQPC receiving tags "
             "Ruben Perez and does not invent a mention id (NOTE-59)."
+        ),
+    },
+    {
+        "id": "aft-industries-eachs-not-automated-finishing",
+        "check": (
+            "AFT Industries (1383) Select uses receipt each qty and extension "
+            "to the penny. Printed pounds are not that quantity. Dollars alone "
+            "do not Select a pieces-vs-pounds gap (HOLD UOM/qty, tag Shawn 104, "
+            "Transfer AP unposted). Do not link or Select an Automated Finishing "
+            "Technology (1329) PO. After an eachs Select, tag Treyce (33). "
+            "Never Success (NOTE-60)."
         ),
     },
 )
