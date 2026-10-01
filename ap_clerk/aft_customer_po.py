@@ -117,6 +117,35 @@ def _column_value(
     return best_text
 
 
+def customer_po_from_layout(text: str, *, invoice_number: str | None = None) -> str | None:
+    """Customer P.O. No. from pdftotext -layout. Other columns on that row are ignored."""
+    lines = str(text or "").splitlines()
+    found: list[str] = []
+    label_re = re.compile(r"CUSTOMER\s+P\.?\s*O\.?\s*NO\.?", re.I)
+    for index, line in enumerate(lines):
+        match = label_re.search(line)
+        if not match:
+            continue
+        same = re.match(r"[\s:]*(\d{5,6})\b", line[match.end() :])
+        if same:
+            found.append(same.group(1))
+            continue
+        for follower in lines[index + 1 : index + 4]:
+            if not follower.strip():
+                continue
+            for number in re.finditer(r"\d{5,6}", follower):
+                if number.start() < match.start() - 2 or number.start() > match.end() + 2:
+                    continue
+                found.append(number.group())
+            break
+    unique = list(dict.fromkeys(found))
+    if len(unique) != 1:
+        return None
+    if invoice_number and unique[0] == str(invoice_number).strip():
+        return None
+    return unique[0]
+
+
 def customer_po_from_words(
     words: list[dict[str, Any]],
     *,

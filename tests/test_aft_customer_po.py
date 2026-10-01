@@ -3,11 +3,18 @@
 from ap_clerk.aft_customer_po import (
     assign_receipts,
     build_treyce_note,
+    customer_po_from_layout,
     customer_po_from_words,
     merchandise_lines,
     payable_amount,
     receipt_matches_line,
 )
+
+_AFT_HEADER = """
+ CUSTOMER'S SHIPPER            CUSTOMER P.O. NO.            B/O FROM       DATE ENTERED          SALES ORDER NO.       CERT NO.
+
+                               {po}                                       9/4/2026              {sales}                 {cert}
+"""
 
 
 def _word(text: str, x: float, y: float) -> dict:
@@ -39,6 +46,23 @@ def test_customer_po_same_line_ignores_a_far_number():
         _word("59106", 420, 640),
     ]
     assert customer_po_from_words(words, invoice_number="52004") == "59097"
+
+
+def test_layout_customer_po_ignores_sales_order_and_cert():
+    invoice_52005 = _AFT_HEADER.format(po="59106", sales="56902", cert="59030")
+    invoice_52004 = _AFT_HEADER.format(po="59097", sales="56847", cert="59029")
+    assert customer_po_from_layout(invoice_52005, invoice_number="52005") == "59106"
+    assert customer_po_from_layout(invoice_52004, invoice_number="52004") == "59097"
+
+
+def test_priced_pound_line_does_not_match_each_receipt():
+    """52005 is 660 lb at 0.55 = 363.00. A 30-each receipt at 1.50 is not that line."""
+    line = {"qty": 660, "unit_price": 0.55, "ext": 363.00}
+    each_receipt = {"id": 24118, "qty": 30, "unit_price": 1.50, "ext": 45.00}
+    pound_receipt = {"id": 99, "qty": 660, "unit_price": 0.55, "ext": 363.00}
+    assert not receipt_matches_line(line, each_receipt)
+    assert assign_receipts([line], [each_receipt]) == []
+    assert assign_receipts([line], [pound_receipt]) == [pound_receipt]
 
 
 def test_customer_po_rejects_the_invoice_number():

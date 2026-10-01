@@ -1,0 +1,146 @@
+{
+  "login_user_id": 175,
+  "login_user_name": "API Agent",
+  "batch_before": {
+    "id": 375,
+    "name": "TRANSFER AP",
+    "status": 0
+  },
+  "batch_after": {
+    "id": 375,
+    "name": "TRANSFER AP",
+    "status": 0
+  },
+  "batch_closed": false,
+  "bills": [
+    {
+      "bill_id": 10399,
+      "invoice": "52005",
+      "expected_amount": 363.0,
+      "before": {
+        "invoice": "52005",
+        "vendor_id": 385,
+        "vendor": "1383-AFT Industries",
+        "po_id": null,
+        "po": "",
+        "amount": 0.0,
+        "net": 0.0,
+        "balance": 0.0,
+        "verification": 363.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_type": 4,
+        "posted": null,
+        "lines": [],
+        "comment_ids": [
+          1329,
+          1293,
+          1261
+        ],
+        "shawn_on_bill": true
+      },
+      "pdfs": [
+        "030-Invoice_52005.pdf"
+      ],
+      "attachment_count": 1,
+      "wrote": true,
+      "po_source": "stated-customer-po-no",
+      "customer_po": "59106",
+      "po_header": {
+        "id": 7108,
+        "text": "PO59106-AUTOMATED FINISHING TECHNOLOGY",
+        "vendor_text": ""
+      },
+      "invoice_lines": [],
+      "open_receipts": [
+        {
+          "id": 24118,
+          "qty": 30.0,
+          "unit_price": 1.5,
+          "ext": 45.0,
+          "po": "PO59106-AUTOMATED FINISHING TECHNOLOGY PO59106-01 PO59106-AUTOMATED FINISHING TECHNOLOGY - 2026/9/16"
+        },
+        {
+          "id": 24119,
+          "qty": 90.0,
+          "unit_price": 2.0,
+          "ext": 180.0,
+          "po": "PO59106-AUTOMATED FINISHING TECHNOLOGY PO59106-02 PO59106-AUTOMATED FINISHING TECHNOLOGY - 2026/9/16"
+        }
+      ],
+      "select_status": "not-selected",
+      "status": "done",
+      "link_status": "linked",
+      "po_linked": true,
+      "po_text": "PO59106-AUTOMATED FINISHING TECHNOLOGY",
+      "receipts_selected": false,
+      "selected_receipt_ids": [],
+      "payable": 363.0,
+      "payable_field": "Invoice_Verification_Amount",
+      "comment_id": 1330,
+      "comment_status": "added",
+      "comment_author_login": 175,
+      "after": {
+        "invoice": "52005",
+        "vendor_id": 385,
+        "vendor": "1383-AFT Industries",
+        "po_id": 7108,
+        "po": "PO59106-AUTOMATED FINISHING TECHNOLOGY",
+        "amount": 0.0,
+        "net": 0.0,
+        "balance": 0.0,
+        "verification": 363.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_type": 3,
+        "posted": null,
+        "lines": [],
+        "comment_ids": [
+          1330,
+          1329,
+          1293,
+          1261
+        ],
+        "shawn_on_bill": true
+      }
+    },
+    {
+      "bill_id": 10398,
+      "invoice": "52004",
+      "expected_amount": 190.3,
+      "before": {
+        "invoice": "52004",
+        "vendor_id": 385,
+        "vendor": "1383-AFT Industries",
+        "po_id": null,
+        "po": "",
+        "amount": 0.0,
+        "net": 0.0,
+        "balance": 0.0,
+        "verification": 190.3,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_type": 3,
+        "posted": false,
+        "lines": [],
+        "comment_ids": [
+          1328,
+          1292,
+          1260
+        ],
+        "shawn_on_bill": true
+      },
+      "pdfs": [
+        "029-Invoice_52004.pdf"
+      ],
+      "attachment_count": 1,
+      "wrote": false,
+      "po_source": "missing",
+      "status": "stopped",
+      "customer_po": null,
+      "problems": [
+        "Customer P.O. No. was not on the attached PDF"
+      ]
+    }
+  ]
+}
