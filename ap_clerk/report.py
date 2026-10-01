@@ -74,7 +74,8 @@ def write_report(path: Path, rows: list[dict[str, Any]]) -> Path:
     for idx, width in enumerate(widths, start=1):
         sheet.column_dimensions[get_column_letter(idx)].width = width
     sheet.auto_filter.ref = f"A1:{get_column_letter(len(COLUMNS))}{max(1, len(rows) + 1)}"
-    sheet.freeze_panes = "A2"
+    # Vendor is column A, Invoice # is column B. Freeze at C2 keeps both visible.
+    sheet.freeze_panes = "C2"
     sheet.row_dimensions[1].height = 22
     limit = ppv_limit()
     sheet.oddHeader.left.text = f"PPV limit ${limit:.2f}"
