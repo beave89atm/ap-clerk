@@ -211,9 +211,10 @@ def test_v12_registry_covers_all_notes():
         "NOTE-57",
         "NOTE-58",
         "NOTE-59",
+        "NOTE-60",
     )
-    assert len(TREYCE_NOTES_V12) == 49
-    assert len(TREYCE_FINISH_CHECKLIST) == 22
+    assert len(TREYCE_NOTES_V12) == 50
+    assert len(TREYCE_FINISH_CHECKLIST) == 23
     assert len(MONDAY_LIVE10_BASICS) == 10
     assert {item["note"] for item in MONDAY_LIVE10_BASICS} <= set(note_ids())
     slugs = {note["slug"] for note in TREYCE_NOTES_V12}
@@ -267,6 +268,7 @@ def test_v12_registry_covers_all_notes():
         "ppv-qc-live-readback-before-finish",
         "state-sales-tax-gap-not-ppv",
         "every-edit-ap-clerk-note-and-owner-mention",
+        "aft-industries-eachs-not-automated-finishing",
     }
 
 
@@ -704,6 +706,7 @@ def test_v12_treyce_finish_selfcheck_blocks_fake_success():
         "open-receipts-not-missing-receipt",
         "ppv-qc-live-gap-zero",
         "ap-clerk-note-and-owner-mention",
+        "aft-industries-eachs-not-automated-finishing",
     ]
     ok, why = treyce_finish_selfcheck(
         {

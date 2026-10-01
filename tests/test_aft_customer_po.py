@@ -5,10 +5,17 @@ from ap_clerk.aft_customer_po import (
     build_treyce_note,
     customer_po_from_layout,
     customer_po_from_words,
+    decide_aft_industries,
+    eachs_unit_price,
+    is_aft_industries_vendor,
+    is_automated_finishing_vendor,
     merchandise_lines,
     payable_amount,
     receipt_matches_line,
+    select_without_work_order_available,
 )
+from ap_clerk.gates import treyce_finish_selfcheck
+from ap_clerk.quality_v12 import RESULT_HOLD, assert_never_success
 
 _AFT_HEADER = """
  CUSTOMER'S SHIPPER            CUSTOMER P.O. NO.            B/O FROM       DATE ENTERED          SALES ORDER NO.       CERT NO.
@@ -144,6 +151,185 @@ def test_note_tags_treyce_and_does_not_mention_shawn():
     )
     assert "receipt 44 qty 2 at 95.15" in selected
     assert "Receipts were selected" in selected
+
+
+def _aft_bill():
+    return {"bill_vendor_id": 1383, "bill_vendor_name": "1383-AFT Industries"}
+
+
+def _aft_po():
+    return {"po_vendor_id": 1383, "po_vendor_name": "1383-AFT Industries"}
+
+
+def test_never_repeat_note60_aft_eachs_match_selects_when_dollars_and_each_qty_match():
+    """52004: receipt 25155 is 49 each @ $3.8837 = $190.30. 346 lb is weight, not qty."""
+    line = {
+        "qty": 346,
+        "each_qty": 49,
+        "unit_price": 0.55,
+        "ext": 190.30,
+        "description": "346 lb",
+        "uom": "lb",
+        "shawn_confirmed_eachs": True,
+    }
+    each_receipt = {"id": 25155, "qty": 49, "unit_price": 3.8837, "ext": 190.30, "uom": "EA"}
+    pound_qty_receipt = {"id": 24117, "qty": 346, "unit_price": 0.55, "ext": 190.30, "uom": "lb"}
+    assert eachs_unit_price(190.30, 49) == 3.8837
+    assert receipt_matches_line(line, each_receipt)
+    assert not receipt_matches_line(line, pound_qty_receipt)
+    assert assign_receipts([line], [pound_qty_receipt, each_receipt]) == [each_receipt]
+    ea_only = {**line, "shawn_confirmed_eachs": False}
+    assert receipt_matches_line(ea_only, each_receipt)
+    decision = decide_aft_industries(
+        invoice="52004",
+        po="59097",
+        lines=[line],
+        receipts=[each_receipt],
+        payable=190.30,
+        **_aft_bill(),
+        **_aft_po(),
+    )
+    assert decision["receipts_selected"] is True
+    assert decision["selected"] == [each_receipt]
+    assert decision["link"] is True
+    assert decision["posted"] is False
+    assert decision["batch"] == "Transfer AP"
+    assert decision["result"] == RESULT_HOLD
+    assert_never_success(decision["result"], note_id="NOTE-60", detail=decision["why"])
+    assert 'data-mention-id="33"' in decision["note"]
+    assert "receipt 25155 qty 49 at 3.8837" in decision["note"]
+    assert "not posted" in decision["note"]
+    assert "Success" not in decision["note"]
+    assert select_without_work_order_available() is False
+    blocked = decide_aft_industries(
+        invoice="52004",
+        po="59097",
+        lines=[line],
+        receipts=[{**each_receipt, "work_order_rejected": True}],
+        payable=190.30,
+        **_aft_bill(),
+        **_aft_po(),
+    )
+    assert blocked["receipts_selected"] is False
+    assert blocked["selected"] == []
+    assert blocked["posted"] is False
+    assert blocked["result"] == RESULT_HOLD
+    assert "Work_Order" in blocked["why"]
+    assert "Success" not in blocked["why"]
+    assert_never_success(blocked["result"], note_id="NOTE-60", detail=blocked["why"])
+
+
+def test_never_repeat_note60_aft_dollars_match_pieces_vs_lb_no_select():
+    """52005: dollars can match after Shawn Done and still be pieces vs pounds."""
+    line = {
+        "qty": 660,
+        "unit_price": 0.55,
+        "ext": 363.00,
+        "description": "660 lb",
+        "uom": "lb",
+    }
+    receipt = {
+        "id": 24118,
+        "qty": 30,
+        "unit_price": 12.10,
+        "ext": 363.00,
+        "uom": "pcs",
+        "shawn_done": True,
+    }
+    assert not receipt_matches_line(line, receipt)
+    assert assign_receipts([line], [receipt]) == []
+    decision = decide_aft_industries(
+        invoice="52005",
+        po="59106",
+        lines=[line],
+        receipts=[receipt],
+        payable=363.00,
+        **_aft_bill(),
+        **_aft_po(),
+    )
+    assert decision["receipts_selected"] is False
+    assert decision["selected"] == []
+    assert decision["link"] is False
+    assert decision["posted"] is False
+    assert decision["batch"] == "Transfer AP"
+    assert decision["result"] == RESULT_HOLD
+    assert decision["category"] == "quantity_variance"
+    assert "UOM/qty" in decision["why"]
+    assert "pieces" in decision["why"]
+    assert 'data-mention-id="104"' in decision["note"]
+    assert "Transfer AP" in decision["note"]
+    assert "not posted" in decision["note"]
+    assert "Success" not in decision["note"]
+    assert "Success" not in decision["why"]
+    assert_never_success(decision["result"], note_id="NOTE-60", detail=decision["why"])
+    blocked_finish, finish_why = treyce_finish_selfcheck(
+        {"note60_uom_qty_hold": True, "require_pdf_number": False}
+    )
+    assert blocked_finish is False
+    assert_never_success(RESULT_HOLD, note_id="NOTE-60", detail=finish_why)
+
+
+def test_never_repeat_note60_aft_industries_not_automated_finishing_po():
+    """Vendor 1383 never takes vendor 1329's PO, even when each qty and dollars match."""
+    assert is_aft_industries_vendor(1383, "1383-AFT Industries")
+    assert not is_automated_finishing_vendor(1383, "1383-AFT Industries")
+    assert is_automated_finishing_vendor(1329, "Automated Finishing Technology")
+    assert is_automated_finishing_vendor(331, "PO59097-AUTOMATED FINISHING TECHNOLOGY")
+    assert not is_aft_industries_vendor(1329, "Automated Finishing Technology")
+    assert not is_aft_industries_vendor(None, "PO59106-AUTOMATED FINISHING TECHNOLOGY")
+    line = {
+        "qty": 346,
+        "each_qty": 49,
+        "unit_price": 0.55,
+        "ext": 190.30,
+        "description": "346 lb",
+        "uom": "lb",
+        "shawn_confirmed_eachs": True,
+    }
+    receipt = {"id": 25155, "qty": 49, "unit_price": 3.8837, "ext": 190.30, "uom": "EA"}
+    assert receipt_matches_line(line, receipt)
+    decision = decide_aft_industries(
+        invoice="52004",
+        po="59097",
+        lines=[line],
+        receipts=[receipt],
+        payable=190.30,
+        bill_vendor_id=1383,
+        bill_vendor_name="1383-AFT Industries",
+        po_vendor_id=1329,
+        po_vendor_name="PO59097-AUTOMATED FINISHING TECHNOLOGY",
+    )
+    assert decision["vendor_mismatch"] is True
+    assert decision["category"] == "vendor_mismatch"
+    assert decision["link"] is False
+    assert decision["receipts_selected"] is False
+    assert decision["selected"] == []
+    assert decision["posted"] is False
+    assert decision["result"] == RESULT_HOLD
+    assert "1329" in decision["why"]
+    assert "1383" in decision["why"]
+    assert "Success" not in decision["why"]
+    assert "not posted" in decision["note"]
+    assert_never_success(decision["result"], note_id="NOTE-60", detail=decision["why"])
+    by_name = decide_aft_industries(
+        invoice="52005",
+        po="59106",
+        lines=[line],
+        receipts=[receipt],
+        payable=363.00,
+        bill_vendor_id=1383,
+        bill_vendor_name="AFT Industries",
+        po_vendor_name="PO59106-AUTOMATED FINISHING TECHNOLOGY",
+    )
+    assert by_name["vendor_mismatch"] is True
+    assert by_name["link"] is False
+    assert by_name["selected"] == []
+    blocked_finish, finish_why = treyce_finish_selfcheck(
+        {"note60_automated_finishing_po": True, "require_pdf_number": False}
+    )
+    assert blocked_finish is False
+    assert "1329" in finish_why
+    assert_never_success(RESULT_HOLD, note_id="NOTE-60", detail=finish_why)
 
 
 def test_payable_skips_a_zero_rollup_for_the_header_total():

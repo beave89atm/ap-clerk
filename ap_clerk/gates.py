@@ -902,6 +902,17 @@ def treyce_finish_selfcheck(check: dict[str, Any]) -> tuple[bool, str]:
             "Use quantity_variance or already_entered and name the exact qty ask. "
             "Never Success."
         )
+    if check.get("note60_uom_qty_hold"):
+        failures.append(
+            "NOTE-60 AFT Industries dollars match but quantity is still pieces versus pounds. "
+            "Do not Select Receipts. HOLD UOM/qty and tag Shawn McKibben. "
+            "Keep Transfer AP unposted. Never Success."
+        )
+    if check.get("note60_automated_finishing_po"):
+        failures.append(
+            "NOTE-60 AFT Industries (1383) must not link to an Automated Finishing Technology (1329) PO. "
+            "vendor_mismatch. Do not Select. Never Success."
+        )
     if "ppv_live_gap" in check:
         raw_gap = check.get("ppv_live_gap")
         try:
