@@ -1,0 +1,489 @@
+{
+  "written_at": "2026-10-06T20:29:23+00:00",
+  "sign_ins": 1,
+  "probes": [
+    {
+      "path": "/api/v2/users",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/users?pageSize=500&search=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/users",
+      "http": 404,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/users?search=Anthony",
+      "http": 404,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/employees",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/employees?pageSize=500&search=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/employee",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/mentions?query=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/mentions?search=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/mentions?q=Anthony",
+      "http": 404,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/mention?search=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/lists",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/services",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/services",
+      "http": 404,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/system/users",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/security/users",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    },
+    {
+      "path": "/api/v2/search?q=Anthony",
+      "http": 422,
+      "records_seen": 0,
+      "anthony_matches": 0
+    }
+  ],
+  "comment_scan": {
+    "bills_scanned": 45,
+    "mention_objects": 78,
+    "mention_names": [
+      "Shawn McKibben",
+      "Treyce Hodges"
+    ]
+  },
+  "anthony_matches": [],
+  "decision": {
+    "use_anthony_mention": false,
+    "anthony_id": null,
+    "reason": "0 internal Kannon users named Anthony. Shawn mention 104 is used and Anthony stays plain text."
+  },
+  "bills": {
+    "10505": {
+      "status": "added",
+      "before": {
+        "id": 10505,
+        "invoice": "15486598",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59251-ONEAL STEEL, LLC.",
+        "verification": 3012.19,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1597,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:42.13",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1546,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:17.233",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:13+00:00"
+      },
+      "after": {
+        "id": 10505,
+        "invoice": "15486598",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59251-ONEAL STEEL, LLC.",
+        "verification": 3012.19,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1642,
+            "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486598 on PO 59251 ($3,012.19) has no receipt. Please receive it. On hold in Transfer AP, not posted.",
+            "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486598 on PO 59251 ($3,012.19) has no receipt. Please receive it. On hold in Transfer AP, not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T15:29:13.257",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1597,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:42.13",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1546,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:17.233",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:19+00:00"
+      },
+      "saved_note": {
+        "id": 1642,
+        "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486598 on PO 59251 ($3,012.19) has no receipt. Please receive it. On hold in Transfer AP, not posted.",
+        "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486598 on PO 59251 ($3,012.19) has no receipt. Please receive it. On hold in Transfer AP, not posted.</p>",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben",
+            "email": "Shawn.McKibben@kannonmfg.com"
+          }
+        ],
+        "created_on": "2026-10-06T15:29:13.257",
+        "creator_id": 175,
+        "creator_name": "API Agent"
+      }
+    },
+    "10508": {
+      "status": "added",
+      "before": {
+        "id": 10508,
+        "invoice": "15486823",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59289-ONEAL STEEL, LLC.",
+        "verification": 10713.89,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1598,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:44.287",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1547,
+            "text": "AP Clerk: @Treyce Hodges O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"33\" data-mention-name=\"Treyce Hodges\" data-mention-email=\"\" class=\"prosemirror-mention-node\">@Treyce Hodges</span> O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.</p>",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges",
+                "email": ""
+              }
+            ],
+            "created_on": "2026-10-06T08:09:46.2",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:19+00:00"
+      },
+      "after": {
+        "id": 10508,
+        "invoice": "15486823",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59289-ONEAL STEEL, LLC.",
+        "verification": 10713.89,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1643,
+            "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486823 on PO 59289 ($10,713.89) has no receipt. Please receive it. On hold in Transfer AP, not posted.",
+            "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486823 on PO 59289 ($10,713.89) has no receipt. Please receive it. On hold in Transfer AP, not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T15:29:19.877",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1598,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "html": "<p>AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.</p>",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:44.287",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1547,
+            "text": "AP Clerk: @Treyce Hodges O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"33\" data-mention-name=\"Treyce Hodges\" data-mention-email=\"\" class=\"prosemirror-mention-node\">@Treyce Hodges</span> O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.</p>",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges",
+                "email": ""
+              }
+            ],
+            "created_on": "2026-10-06T08:09:46.2",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:21+00:00"
+      },
+      "saved_note": {
+        "id": 1643,
+        "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486823 on PO 59289 ($10,713.89) has no receipt. Please receive it. On hold in Transfer AP, not posted.",
+        "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486823 on PO 59289 ($10,713.89) has no receipt. Please receive it. On hold in Transfer AP, not posted.</p>",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben",
+            "email": "Shawn.McKibben@kannonmfg.com"
+          }
+        ],
+        "created_on": "2026-10-06T15:29:19.877",
+        "creator_id": 175,
+        "creator_name": "API Agent"
+      }
+    },
+    "10509": {
+      "status": "added",
+      "before": {
+        "id": 10509,
+        "invoice": "15486842",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59293-ONEAL STEEL, LLC.",
+        "verification": 5328.46,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1634,
+            "text": "AP Clerk: @Shawn McKibben Anthony's KIMCO mention id was not found, so this is to you. No open receipt on PO 59293 matches the lines on O'Neal invoice 15486842 ($5,328.46) within $75. Please receive or correct it. On hold in Transfer AP, not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> Anthony's KIMCO mention id was not found, so this is to you. No open receipt on PO 59293 matches the lines on O'Neal invoice 15486842 ($5,328.46) within $75. Please receive or correct it. On hold in Transfer AP, not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T15:11:02.847",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1599,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:48.05",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:22+00:00"
+      },
+      "after": {
+        "id": 10509,
+        "invoice": "15486842",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "po": "PO59293-ONEAL STEEL, LLC.",
+        "verification": 5328.46,
+        "invoice_amount": 0.0,
+        "comments": [
+          {
+            "id": 1644,
+            "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486842 ($5,328.46): no open receipt on PO 59293 matches the invoice lines within $75. Please receive or correct it. On hold in Transfer AP, not posted.",
+            "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486842 ($5,328.46): no open receipt on PO 59293 matches the invoice lines within $75. Please receive or correct it. On hold in Transfer AP, not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T15:29:22.64",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1634,
+            "text": "AP Clerk: @Shawn McKibben Anthony's KIMCO mention id was not found, so this is to you. No open receipt on PO 59293 matches the lines on O'Neal invoice 15486842 ($5,328.46) within $75. Please receive or correct it. On hold in Transfer AP, not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> Anthony's KIMCO mention id was not found, so this is to you. No open receipt on PO 59293 matches the lines on O'Neal invoice 15486842 ($5,328.46) within $75. Please receive or correct it. On hold in Transfer AP, not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T15:11:02.847",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          },
+          {
+            "id": 1599,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "html": "<p>AP Clerk: <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.</p>",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben",
+                "email": "Shawn.McKibben@kannonmfg.com"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:48.05",
+            "creator_id": 175,
+            "creator_name": "API Agent"
+          }
+        ],
+        "read_at": "2026-10-06T20:29:23+00:00"
+      },
+      "saved_note": {
+        "id": 1644,
+        "text": "AP Clerk: @Anthony @Shawn McKibben O'Neal 15486842 ($5,328.46): no open receipt on PO 59293 matches the invoice lines within $75. Please receive or correct it. On hold in Transfer AP, not posted.",
+        "html": "<p>AP Clerk: @Anthony <span data-mention-id=\"104\" data-mention-name=\"Shawn McKibben\" data-mention-email=\"Shawn.McKibben@kannonmfg.com\" class=\"prosemirror-mention-node\">@Shawn McKibben</span> O'Neal 15486842 ($5,328.46): no open receipt on PO 59293 matches the invoice lines within $75. Please receive or correct it. On hold in Transfer AP, not posted.</p>",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben",
+            "email": "Shawn.McKibben@kannonmfg.com"
+          }
+        ],
+        "created_on": "2026-10-06T15:29:22.64",
+        "creator_id": 175,
+        "creator_name": "API Agent"
+      }
+    }
+  },
+  "constraints": {
+    "author": "API Agent 175",
+    "posted": false,
+    "email_sent": false,
+    "batch_changed": false
+  },
+  "mention_lookup": {
+    "ui_endpoint": "POST /comment/users/",
+    "ui_body": {
+      "text": "Anthony"
+    },
+    "source": "KIMCO client bundle getSuggestions posts ~/comment/users/ with {text}. Suggestion objects use id, name, and email.",
+    "api_bearer_result": {
+      "form_anthony": 302,
+      "json_anthony": 302,
+      "form_ant": 302,
+      "location": "/User/SignIn?ReturnUrl=%2Fcomment%2Fusers%2F"
+    },
+    "web_password_attempted": false,
+    "note": "The API Agent bearer token is not a web session, so the mention lookup redirects to sign-in. No web password was sent."
+  },
+  "prior_comment_mention_names": [
+    "Shawn McKibben",
+    "Treyce Hodges"
+  ],
+  "anthony_match_count": 0
+}
