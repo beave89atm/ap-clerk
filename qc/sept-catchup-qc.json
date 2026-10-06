@@ -1,0 +1,2143 @@
+{
+  "sign_ins": 1,
+  "explanations": {
+    "xcaliber_10492": "Xcaliber WB4337861639 (10492) printed 300 bearings at $3.60, tax $0, total $1,080, PO 59278, dated 09/27/2026. Verification is $1,080. Receipt 24859 is still selected for that same $1,080, and a Fees charge of $1,080 was saved on top of it, so Invoice_Amount is $2,160. The fee is not freight or tax. The bill was moved to Transfer AP 375 because the gap was over $75. The note says receipts were not selected; the live GET shows receipt 24859 is still selected. Nothing was posted.",
+    "gas_no_lines": "Gas and Supply 10478, 10479, and 10495 are on batch 747 with a verification amount and no merchandise lines. 10478 is 100 robot tips at $1.92 = $192, tax $0, and Invoice_Amount is $0. 10479 is two AR90CD300 cylinders at $28 ($56), two ARG300 cylinders at $30 ($60), and a $22.50 fuel surcharge, subtotal $138.50, tax $0. Only the $22.50 fuel fee was saved, so Invoice_Amount is $22.50. 10495 is 12 cans at $5.50 = $66, tax $0, and Invoice_Amount is $0. The finish rule will not invent a full-invoice PPV when there are no merchandise lines, so these stayed Hold. They also stayed on 747 because a header with no PO looks up a batch named exactly 'Transfer AP'. The live batch is named 'TRANSFER AP', so that lookup missed id 375. The later Transfer AP move is case-insensitive, which is why other holds did reach 375.",
+    "price_qty_stayed_on_747": "A price or qty hold is created on batch 747. It moves to Transfer AP only when the live header gap is $75 or more and the hold is a price gap, or when the hold is a missing receipt. Capital 10471, Ryerson 10481, O'Neal 10506, and O'Neal 10507 selected a receipt whose extended amount already matches the PDF total, so the live gap was under $75 and they stayed on 747. The pre-entry PO comparison had called 10471, 10481, 10506, and 10507 a price mismatch. O'Neal 10506 also matches the printed qty of 26, so that bill passes QC. Qty holds such as Willbanks 10493 and EMJ 10503 selected Quantity_Received that does not match the printed qty. That is not a missing-receipt hold, so they were not moved. Gas, AQPC, and the other no-line headers were not a price-gap move either. O'Neal 10509 is a qty mismatch with open receipts and no lines saved, so it stayed on 747. O'Neal 10508 is the missing-receipt hold, and that one did move to 375.",
+    "xcaliber_10492_live": "Live GET 10492 verification 1080.0 Invoice_Amount 2160.0 batch 375 lines [{'item': 'TBB00001 - BEARING BALL 1-ROW', 'qty': 300.0, 'unit_price': 3.6, 'extended': 1080.0, 'receipt_id': 24859}] charges [{'name': 'F-Fees & Surcharges', 'amount': 1080.0}]."
+  },
+  "bills": [
+    {
+      "live": {
+        "bill_id": 10465,
+        "vendor": "1086-HUDSON ENERGY-24312",
+        "invoice_number": "2609000773",
+        "invoice_date": "2026-09-01",
+        "po": "",
+        "verification": 2448.46,
+        "invoice_amount": 3302.09,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 2387.25
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 900.88
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 0.42
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 12.12
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 1.42
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-01_300067525_2609000773_20260901.pdf",
+        "vendor": "Hudson Energy",
+        "invoice_number": "2609000773",
+        "date": "2026-09-01",
+        "po": null,
+        "amount": 2448.46,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "ERCOT Ancillary Service Cost Debit",
+            "amount": 2387.25
+          },
+          {
+            "name": "TDSP Delivery Charges.........................................",
+            "amount": 900.88
+          },
+          {
+            "name": "Market Securitization Debt Fin. (Default)................",
+            "amount": 0.42
+          },
+          {
+            "name": "Market Securitization Debt Fin. (Uplift)...................",
+            "amount": 12.12
+          },
+          {
+            "name": "Third Party Charge: Increase in ERCOT Admin Fee",
+            "amount": 1.42
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF amount due $2,448.46 matches verification. Printed charges include energy $1,300.03, TDSP $900.88, securitization $0.42 and $12.12, ERCOT admin $1.42, and taxes $11.03 + $137.90 + $11.03 + $22.06. KIMCO has no merchandise lines and no Taxes tab. Fees are $2,387.25 (the PDF payment/adjustment total, saved as a positive fee), $900.88, $0.42, $12.12, and $1.42, so Invoice_Amount is $3,302.09.",
+      "parsed_fees": [
+        {
+          "name": "ERCOT Ancillary Service Cost Debit",
+          "amount": 2387.25
+        },
+        {
+          "name": "TDSP Delivery Charges.........................................",
+          "amount": 900.88
+        },
+        {
+          "name": "Market Securitization Debt Fin. (Default)................",
+          "amount": 0.42
+        },
+        {
+          "name": "Market Securitization Debt Fin. (Uplift)...................",
+          "amount": 12.12
+        },
+        {
+          "name": "Third Party Charge: Increase in ERCOT Admin Fee",
+          "amount": 1.42
+        }
+      ],
+      "checked_total": 2448.46,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10466,
+        "vendor": "1182-TRACE METAL INDUSTRIES, INC",
+        "invoice_number": "237704",
+        "invoice_date": "2026-09-01",
+        "po": "PO59009-TRACE METAL INDUSTRIES, INC",
+        "verification": 165.2,
+        "invoice_amount": 165.2,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "PL-1.00 X 10.25 OD X 5.88 ID-A36-RING",
+            "qty": 4.0,
+            "unit_price": 41.3,
+            "extended": 165.2,
+            "receipt_id": 23703
+          }
+        ],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-01_Inv_237704_from_TRACE_METAL_INDUSTRIES__INC_4520990_13844.pdf",
+        "vendor": "Invoices from Trace Metal Industries, Inc",
+        "invoice_number": "237704",
+        "date": "2026-09-01",
+        "po": "59009",
+        "amount": 165.2,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [],
+      "checked_total": 165.2,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10468,
+        "vendor": "1381-TRICOR METALS",
+        "invoice_number": "000444279/1/202659035",
+        "invoice_date": "2026-08-27",
+        "po": "",
+        "verification": 3552.19,
+        "invoice_amount": 212.19,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 212.19
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-02_Invoice_00044427.pdf",
+        "vendor": "Invoice Tricor Industrial, Inc",
+        "invoice_number": "000444279/1/202659035",
+        "date": "2026-08-27",
+        "po": null,
+        "amount": 3552.19,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "FREIGHT",
+            "amount": 212.19
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 2 bars at $360 = $720, 3 bars at $360 = $1,080, and 2 bars at $770 = $1,540. Subtotal $3,340, freight $212.19, tax $0, total $3,552.19. Verification matches. KIMCO has no merchandise lines and only the $212.19 freight fee, so Invoice_Amount is $212.19.",
+      "parsed_fees": [
+        {
+          "name": "FREIGHT",
+          "amount": 212.19
+        }
+      ],
+      "checked_total": 3552.19,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10469,
+        "vendor": "1110-LUXOR STAFFING, INC.",
+        "invoice_number": "2221",
+        "invoice_date": "2026-08-30",
+        "po": "",
+        "verification": 3587.5,
+        "invoice_amount": 3587.5,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "Contract Labor-.",
+            "qty": 1.0,
+            "unit_price": 3587.5,
+            "extended": 3587.5,
+            "receipt_id": null
+          }
+        ],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-03_KANNON.pdf",
+        "vendor": "Luxor Staffing, Inc.",
+        "invoice_number": "2221",
+        "date": "2026-08-30",
+        "po": null,
+        "amount": 3587.5,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [],
+      "checked_total": 3587.5,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10470,
+        "vendor": "1150-RYERSON, JOSEPH T. & SON",
+        "invoice_number": "9307057099",
+        "invoice_date": "2026-09-04",
+        "po": "PO59064-RYERSON, JOSEPH T. & SON",
+        "verification": 703.31,
+        "invoice_amount": 703.31,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "RB-4.00-4130-NQT - 4\" DIA 4130 NQT",
+            "qty": 108.0,
+            "unit_price": 6.4815,
+            "extended": 700.0,
+            "receipt_id": 23822
+          }
+        ],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 3.46
+          },
+          {
+            "name": "Purchase Price Variance",
+            "amount": 0.01
+          },
+          {
+            "name": "Purchase Price Variance",
+            "amount": -0.16
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-05_PO_59064_Inv_9307057099.pdf",
+        "vendor": "Joseph T. Ryerson & Son, Inc",
+        "invoice_number": "9307057099",
+        "date": "2026-09-04",
+        "po": "59064",
+        "amount": 703.31,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "Fuel Surcharge 3.46 USD",
+            "amount": 3.46
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [
+        {
+          "name": "Fuel Surcharge 3.46 USD",
+          "amount": 3.46
+        }
+      ],
+      "checked_total": 703.31,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10471,
+        "vendor": "1043-CAPITAL MACHINE TECHNOLOGIES",
+        "invoice_number": "PS-INV103317",
+        "invoice_date": "2026-09-10",
+        "po": "PO58989-CAPITAL MACHINE TECHNOLOGIES",
+        "verification": 610.0,
+        "invoice_amount": 610.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": null,
+            "qty": 1.0,
+            "unit_price": 298.71,
+            "extended": 298.71,
+            "receipt_id": 25235
+          }
+        ],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 165.0
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 25.0
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 165.0
+          },
+          {
+            "name": "Purchase Price Variance",
+            "amount": -43.71
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-11_Sales_Invoice_PS-INV103317.pdf",
+        "vendor": "Capital Machine Technologies, Inc",
+        "invoice_number": "PS-INV103317",
+        "date": "2026-09-10",
+        "po": "58989",
+        "amount": 610.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 2.0,
+            "unit_price": 210.0,
+            "amount": 420.0,
+            "description": "Voltage Package Tracking No. Machine Model No. Serial No. 425012  10014 No. Desc"
+          }
+        ],
+        "fees": [
+          {
+            "name": "SUPPLIES BRFX",
+            "amount": 165.0
+          },
+          {
+            "name": "Shop Supplies BrFx 1 EACH 25.00",
+            "amount": 25.0
+          },
+          {
+            "name": "Freight Charge",
+            "amount": 165.0,
+            "fee": true
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is labor qty 2 at $210 = $420, shop supplies qty 1 at $25, and travel qty 1 at $165. Total $610, no tax, PO 58989. Verification and Invoice_Amount are $610. KIMCO receipt 25235 is qty 1 at $298.71, plus fees of $165, $25, and a second $165, and a PPV of -$43.71. The qty and the extra $165 fee do not match the PDF.",
+      "parsed_fees": [
+        {
+          "name": "SUPPLIES BRFX",
+          "amount": 165.0
+        },
+        {
+          "name": "Shop Supplies BrFx 1 EACH 25.00",
+          "amount": 25.0
+        },
+        {
+          "name": "Freight Charge",
+          "amount": 165.0,
+          "fee": true
+        }
+      ],
+      "checked_total": 610.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10475,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15409416",
+        "invoice_date": "2026-09-17",
+        "po": "",
+        "verification": 42818.73,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-17_14748440.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15455556",
+        "date": "2026-09-17",
+        "po": null,
+        "amount": 42818.73,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "The attached PDF is a 2026-09-17 payment-status letter totaling $42,818.73. It is not invoice 15409416. Verification is that letter total. There are no lines, and Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 42818.73,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10476,
+        "vendor": "1327-AM CASTLE & CO",
+        "invoice_number": "43293871",
+        "invoice_date": "2026-06-16",
+        "po": "PO58407-AM CASTLE & CO",
+        "verification": 645.0,
+        "invoice_amount": 6.46,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 3.23
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 3.23
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-23_32279-20260617.pdf",
+        "vendor": "RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC",
+        "invoice_number": "43293871",
+        "date": "2026-06-16",
+        "po": "58407",
+        "amount": 645.0,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "Your acceptance of delivery of any part of the goods covered by this document wi",
+            "amount": 3.23
+          },
+          {
+            "name": "promptly returned to Castle, unused and unopened. Your acceptance of delivery of",
+            "amount": 3.23
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 3 pieces at $215 = $645, tax $0, PO 58407, invoice total $645. Verification matches. There are no merchandise lines. Two $3.23 fees (the early-pay discount, entered twice) make Invoice_Amount $6.46.",
+      "parsed_fees": [
+        {
+          "name": "Your acceptance of delivery of any part of the goods covered by this document wi",
+          "amount": 3.23
+        },
+        {
+          "name": "promptly returned to Castle, unused and unopened. Your acceptance of delivery of",
+          "amount": 3.23
+        }
+      ],
+      "checked_total": 645.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10477,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15478871",
+        "invoice_date": "2026-09-23",
+        "po": "",
+        "verification": 42079.26,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-23_14748440.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15406239",
+        "date": "2026-09-23",
+        "po": null,
+        "amount": 42079.26,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "The attached PDF is a 2026-09-23 pending-orders letter totaling $42,079.26. It is not invoice 15478871. There are no lines, and Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 42079.26,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10478,
+        "vendor": "1069-GAS AND SUPPLY",
+        "invoice_number": "0040455879",
+        "invoice_date": "2026-09-28",
+        "po": "",
+        "verification": 192.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_billing01_A3050_c_0040455879_p1-2.pdf",
+        "vendor": "Gas and Supply North Texas, LLC",
+        "invoice_number": "0040455879",
+        "date": "2026-09-28",
+        "po": null,
+        "amount": 192.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 100.0,
+            "unit_price": 1.92,
+            "amount": 192.0,
+            "description": "OTC TIP FOR ROBOT"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 0040455879 dated 09/28/26 is OTCL7250B04 qty 100 at $1.92 = $192.00, tax $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 747.",
+      "parsed_fees": [],
+      "checked_total": 192.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10479,
+        "vendor": "1069-GAS AND SUPPLY",
+        "invoice_number": "0040455916",
+        "invoice_date": "2026-09-28",
+        "po": "",
+        "verification": 138.5,
+        "invoice_amount": 22.5,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 22.5
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_billing01_A3050_c_0040455916_p2-3.pdf",
+        "vendor": "Gas and Supply North Texas, LLC",
+        "invoice_number": "0040455916",
+        "date": "2026-09-28",
+        "po": null,
+        "amount": 138.5,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 2.0,
+            "unit_price": 28.0,
+            "amount": 56.0,
+            "description": "300 COMP.GAS N.O.S. 2.2 UN1956"
+          },
+          {
+            "qty": 2.0,
+            "unit_price": 30.0,
+            "amount": 60.0,
+            "description": "300 SZ ARGON UN1006 HAZARDOUS"
+          }
+        ],
+        "fees": [
+          {
+            "name": "$SUR485005 1 0 FUEL SURCHARGE EA 22.50 22.50 N",
+            "amount": 22.5
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 2 AR90CD300 cylinders at $28 = $56, 2 ARG300 cylinders at $30 = $60, and a fuel surcharge of $22.50. Subtotal $138.50, tax $0. Verification matches. KIMCO saved only the $22.50 fuel fee. The $116 of merchandise is missing, so Invoice_Amount is $22.50.",
+      "parsed_fees": [
+        {
+          "name": "$SUR485005 1 0 FUEL SURCHARGE EA 22.50 22.50 N",
+          "amount": 22.5
+        }
+      ],
+      "checked_total": 138.5,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10480,
+        "vendor": "1069-GAS AND SUPPLY",
+        "invoice_number": "0040455615",
+        "invoice_date": "2026-09-28",
+        "po": "PO59081-GAS AND SUPPLY",
+        "verification": 213.93,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_billing01_A3050_c_0040455615_p3-4.pdf",
+        "vendor": "Gas and Supply North Texas, LLC",
+        "invoice_number": "0040455615",
+        "date": "2026-09-28",
+        "po": "59081",
+        "amount": 213.93,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 1.0,
+            "unit_price": 213.93,
+            "amount": 213.93,
+            "description": "20 PC HOLE DOZER BI-METAL"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 0040455615, PO 59081, is MLW49-22-4170 qty 1 at $213.93, tax $0. Verification matches. There are no lines, so Invoice_Amount is $0. The second page of the file is a different invoice, 0040455291.",
+      "parsed_fees": [],
+      "checked_total": 213.93,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10481,
+        "vendor": "1150-RYERSON, JOSEPH T. & SON",
+        "invoice_number": "9307115285",
+        "invoice_date": "2026-09-28",
+        "po": "PO59176-RYERSON, JOSEPH T. & SON",
+        "verification": 721.55,
+        "invoice_amount": 721.55,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "RT-3.50 X 1.75 X 0.875-4140-VGS 5.510.4.7",
+            "qty": 84.0,
+            "unit_price": 8.5714,
+            "extended": 720.0,
+            "receipt_id": 24866
+          }
+        ],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 1.55
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_PO_59176_Inv_9307115285.pdf",
+        "vendor": "Joseph T. Ryerson & Son, Inc",
+        "invoice_number": "9307115285",
+        "date": "2026-09-28",
+        "po": "59176",
+        "amount": 721.55,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 10.0,
+            "unit_price": null,
+            "amount": 0.87,
+            "description": "000010 Alloy Tube RD 4140 QT"
+          }
+        ],
+        "fees": [
+          {
+            "name": "Fuel Surcharge 1.55 USD",
+            "amount": 1.55
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 12 pieces at $60 = $720 plus fuel $1.55, tax $0, total $721.55, PO 59176. KIMCO receipt 24866 is qty 84 at $8.5714 = $720 plus the $1.55 fuel fee. The totals match. The qty does not: 12 pieces versus 84.",
+      "parsed_fees": [
+        {
+          "name": "Fuel Surcharge 1.55 USD",
+          "amount": 1.55
+        }
+      ],
+      "checked_total": 721.55,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10482,
+        "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+        "invoice_number": "PSI-001239218",
+        "invoice_date": "2026-09-24",
+        "po": "",
+        "verification": 608.58,
+        "invoice_amount": 633.58,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 608.58
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 25.0
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_C109050__PSI-001239218__.pdf",
+        "vendor": "Shoppa's Material Handling",
+        "invoice_number": "PSI-001239218",
+        "date": "2026-09-24",
+        "po": null,
+        "amount": 608.58,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "Shoppa\u2019s Material Handling, Ltd",
+            "amount": 608.58
+          },
+          {
+            "name": "Parts returned over 30 days \u2013 special handling subject to vendor\u2019s return policy",
+            "amount": 25.0
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is materials $132.20 + labor $430.00 + sales tax $46.38 = $608.58. Verification matches. KIMCO has no merchandise lines and no Taxes tab. A $608.58 fee plus an extra $25 fee (the parts-return policy note) make Invoice_Amount $633.58.",
+      "parsed_fees": [
+        {
+          "name": "Shoppa\u2019s Material Handling, Ltd",
+          "amount": 608.58
+        },
+        {
+          "name": "Parts returned over 30 days \u2013 special handling subject to vendor\u2019s return policy",
+          "amount": 25.0
+        }
+      ],
+      "checked_total": 608.58,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10483,
+        "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+        "invoice_number": "PSI-001240544",
+        "invoice_date": "2026-06-25",
+        "po": "",
+        "verification": 806.97,
+        "invoice_amount": 831.97,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 806.97
+          },
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 25.0
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_C109050__PSI-001240544__.pdf",
+        "vendor": "Shoppa's Material Handling",
+        "invoice_number": "PSI-001240544",
+        "date": "2026-06-25",
+        "po": null,
+        "amount": 806.97,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "Shoppa\u2019s Material Handling, Ltd",
+            "amount": 806.97
+          },
+          {
+            "name": "Parts returned over 30 days \u2013 special handling subject to vendor\u2019s return policy",
+            "amount": 25.0
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is materials $207.97 + labor $537.50 + sales tax $61.50 = $806.97. Verification matches. KIMCO has no merchandise lines and no Taxes tab. A $806.97 fee plus an extra $25 fee make Invoice_Amount $831.97.",
+      "parsed_fees": [
+        {
+          "name": "Shoppa\u2019s Material Handling, Ltd",
+          "amount": 806.97
+        },
+        {
+          "name": "Parts returned over 30 days \u2013 special handling subject to vendor\u2019s return policy",
+          "amount": 25.0
+        }
+      ],
+      "checked_total": 806.97,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10484,
+        "vendor": "1181-TPI",
+        "invoice_number": "18528",
+        "invoice_date": "2026-09-22",
+        "po": "PO58897-TPI",
+        "verification": 1086.6,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice_-_18528.pdf",
+        "vendor": "Telecom Products Inc.",
+        "invoice_number": "",
+        "date": "2026-09-22",
+        "po": "58897",
+        "amount": 1086.6,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 10 fenders at $108.66 = $1,086.60, PO 58897, dated 22-Sep-26. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 1086.6,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10485,
+        "vendor": "1181-TPI",
+        "invoice_number": "18529",
+        "invoice_date": "2026-09-22",
+        "po": "PO58803-TPI",
+        "verification": 6519.6,
+        "invoice_amount": 6519.6,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "A-04421-000 - Fender, Drive Over",
+            "qty": 60.0,
+            "unit_price": 108.66,
+            "extended": 6519.6,
+            "receipt_id": 24470
+          }
+        ],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice_-_18529.pdf",
+        "vendor": "Telecom Products Inc.",
+        "invoice_number": "",
+        "date": "2026-09-22",
+        "po": "58803",
+        "amount": 6519.6,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [],
+      "checked_total": 6519.6,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10486,
+        "vendor": "1181-TPI",
+        "invoice_number": "18530",
+        "invoice_date": "2026-09-22",
+        "po": "PO58931-TPI",
+        "verification": 3259.8,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice_-_18530.pdf",
+        "vendor": "Telecom Products Inc.",
+        "invoice_number": "",
+        "date": "2026-09-22",
+        "po": "58931",
+        "amount": 3259.8,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 30 fenders at $108.66 = $3,259.80, PO 58931, dated 22-Sep-26. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 3259.8,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10487,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11044",
+        "invoice_date": "2026-09-29",
+        "po": "PO59171-AMERICAN QUALITY POWDERCOATING",
+        "verification": 520.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_invoice-11044.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11044",
+        "date": "2026-09-29",
+        "po": "59171",
+        "amount": 520.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 1.0,
+            "unit_price": 445.0,
+            "amount": 445.0,
+            "description": "5'x4'x4' Rotating Basket Primed and P.C. Blue RAL 5002(PO89476)"
+          },
+          {
+            "qty": 1.0,
+            "unit_price": 5.0,
+            "amount": 5.0,
+            "description": "8\"x8\"x3/8\" Z Bracket P.C. Black(PO89476)"
+          },
+          {
+            "qty": 1.0,
+            "unit_price": 5.0,
+            "amount": 5.0,
+            "description": "8\"x8\"x3/8\" Z Bracket P.C. Black(PO89476)"
+          },
+          {
+            "qty": 3.0,
+            "unit_price": 10.0,
+            "amount": 30.0,
+            "description": "24\"x24\" Panel Decal Primed and P.C. Blue RAL 5002(PO89476)"
+          },
+          {
+            "qty": 1.0,
+            "unit_price": 10.0,
+            "amount": 10.0,
+            "description": "Gear cover Primed and PC Blue RAL 5002(PO89476)"
+          },
+          {
+            "qty": 1.0,
+            "unit_price": 25.0,
+            "amount": 25.0,
+            "description": "Crank Swivel Weldment Primed and P.C Blue RAL 5002(PO89476)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 11044, PO 59171, dated 09/29/2026, is 1 at $445, two lines at $5, 3 at $10, 1 at $10, and 1 at $25, total $520. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 520.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10488,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11043",
+        "invoice_date": "2026-09-29",
+        "po": "PO59263-AMERICAN QUALITY POWDERCOATING",
+        "verification": 150.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_invoice-11043.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11043",
+        "date": "2026-09-29",
+        "po": "59263",
+        "amount": 150.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 5.0,
+            "unit_price": 30.0,
+            "amount": 150.0,
+            "description": "24\"x8\"x6\" Man basket Weldment Primed and P.C. Blue RAL 022(SO34831)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 5 at $30 = $150, PO 59263, dated 09/29/2026. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 150.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10489,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11042",
+        "invoice_date": "2026-09-29",
+        "po": "PO59276-AMERICAN QUALITY POWDERCOATING",
+        "verification": 2600.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_invoice-11042.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11042",
+        "date": "2026-09-29",
+        "po": "59276",
+        "amount": 2600.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 5.0,
+            "unit_price": 445.0,
+            "amount": 2225.0,
+            "description": "5'x4'x4' Rotating Basket Primed and P.C. Blue RAL 5002(SO34645)"
+          },
+          {
+            "qty": 5.0,
+            "unit_price": 5.0,
+            "amount": 25.0,
+            "description": "8\"x8\"x3/8\" Z Bracket P.C. Black(SO34645)"
+          },
+          {
+            "qty": 5.0,
+            "unit_price": 5.0,
+            "amount": 25.0,
+            "description": "8\"x8\"x3/8\" Z Bracket P.C. Black(SO34645)"
+          },
+          {
+            "qty": 15.0,
+            "unit_price": 10.0,
+            "amount": 150.0,
+            "description": "24\"x24\" Panel Decal Primed and P.C. Blue RAL 5002(SO34645)"
+          },
+          {
+            "qty": 5.0,
+            "unit_price": 10.0,
+            "amount": 50.0,
+            "description": "Gear cover Primed and PC Blue RAL 5002(SO34645)"
+          },
+          {
+            "qty": 5.0,
+            "unit_price": 25.0,
+            "amount": 125.0,
+            "description": "Crank Swivel Weldment Primed and P.C. Blue RAL 5002(SO34645)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 11042, PO 59276, is 5 at $445, 5 at $5, 5 at $5, 15 at $10, 5 at $10, and 5 at $25, total $2,600. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 2600.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10490,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11041",
+        "invoice_date": "2026-09-28",
+        "po": "PO59274-AMERICAN QUALITY POWDERCOATING",
+        "verification": 250.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_invoice-11041.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11041",
+        "date": "2026-09-28",
+        "po": "59274",
+        "amount": 250.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 250.0,
+            "unit_price": 1.0,
+            "amount": 250.0,
+            "description": "2\"x2\" Spacer PC Black"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 250 spacers at $1 = $250, PO 59274, dated 09/28/2026. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 250.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10491,
+        "vendor": "1181-TPI",
+        "invoice_number": "18564",
+        "invoice_date": "2026-09-24",
+        "po": "PO58931-TPI",
+        "verification": 434.64,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice_-_18564.pdf",
+        "vendor": "Telecom Products Inc.",
+        "invoice_number": "",
+        "date": "2026-09-24",
+        "po": "58931",
+        "amount": 434.64,
+        "tax": null,
+        "lines": [],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 4 fenders at $108.66 = $434.64, PO 58931, dated 24-Sep-26. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 434.64,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10492,
+        "vendor": "1337-XCALIBER",
+        "invoice_number": "WB4337861639",
+        "invoice_date": "2026-09-27",
+        "po": "PO59278-XCALIBER",
+        "verification": 1080.0,
+        "invoice_amount": 2160.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [
+          {
+            "item": "TBB00001 - BEARING BALL 1-ROW",
+            "qty": 300.0,
+            "unit_price": 3.6,
+            "extended": 1080.0,
+            "receipt_id": 24859
+          }
+        ],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 1080.0
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice_WB4337861639_from_Xcaliber_Industrial_LLC.pdf",
+        "vendor": "Xcaliber Industrial LLC",
+        "invoice_number": "WB4337861639",
+        "date": "2026-09-27",
+        "po": "59278",
+        "amount": 1080.0,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "09/28/2026 DELIVERY 59278",
+            "amount": 1080.0
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 300 bearings at $3.60 = $1,080.00, tax $0, PO 59278, dated 09/27/2026, total $1,080. Verification matches. Receipt 24859 is still selected (300 at $3.60 = $1,080) and a Fees charge of $1,080 was also saved, so Invoice_Amount is $2,160. Batch 375. Not posted.",
+      "parsed_fees": [
+        {
+          "name": "09/28/2026 DELIVERY 59278",
+          "amount": 1080.0
+        }
+      ],
+      "checked_total": 1080.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10493,
+        "vendor": "1200-WILLBANKS METALS",
+        "invoice_number": "216055",
+        "invoice_date": "2026-09-29",
+        "po": "PO59254-WILLBANKS METALS",
+        "verification": 381.72,
+        "invoice_amount": 381.72,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "RCT-5.00 X 2.50 x 0.25-A500",
+            "qty": 288.0,
+            "unit_price": 1.3254,
+            "extended": 381.72,
+            "receipt_id": 25161
+          }
+        ],
+        "charges": [
+          {
+            "name": "Purchase Price Variance",
+            "amount": -1.32
+          },
+          {
+            "name": "Purchase Price Variance",
+            "amount": 1.32
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-29_Invoice-216055.pdf",
+        "vendor": "Willbanks Metals",
+        "invoice_number": "216055",
+        "date": "2026-09-29",
+        "po": "59254",
+        "amount": 381.72,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 1.0,
+            "unit_price": null,
+            "amount": 381.72,
+            "description": "1-1 1 PCS 272.66LBS Price AmountRectangle Tube A500 GR.B"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 1 piece, 272.66 lb, amount $381.72, PO 59254, dated 9/29/2026, total $381.72. KIMCO receipt 25161 is qty 288 at $1.3254 with offsetting PPVs of -$1.32 and +$1.32. The total matches. The qty does not: 1 versus 288.",
+      "parsed_fees": [],
+      "checked_total": 381.72,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10494,
+        "vendor": "1206-EMJ Earl M. Jorgensen Company",
+        "invoice_number": "T609053432",
+        "invoice_date": "2026-09-29",
+        "po": "",
+        "verification": 487.14,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_Invoices.pdf",
+        "vendor": "Earle M. Jorgensen Co",
+        "invoice_number": "T609053432",
+        "date": "2026-09-29",
+        "po": null,
+        "amount": 487.14,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 23.12,
+            "unit_price": null,
+            "amount": 23.12,
+            "description": "1 TUBE 23.12"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice T609053432 is 1 tube, 23.12 at $21.07 = $487.14, PO 59273, tax blank, total $487.14. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375. The second page is a different invoice, T609084432.",
+      "parsed_fees": [],
+      "checked_total": 487.14,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10495,
+        "vendor": "1069-GAS AND SUPPLY",
+        "invoice_number": "0040459813",
+        "invoice_date": "2026-09-29",
+        "po": "",
+        "verification": 66.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_billing01_A3050_c.pdf",
+        "vendor": "Gas and Supply North Texas, LLC",
+        "invoice_number": "0040459813",
+        "date": "2026-09-29",
+        "po": null,
+        "amount": 66.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 12.0,
+            "unit_price": 5.5,
+            "amount": 66.0,
+            "description": "ALLIANCE WHALESPRAY ANTI-SPATTER"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 0040459813 dated 09/29/26 is WSP1801S0020 qty 12 at $5.50 = $66.00, tax $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 747.",
+      "parsed_fees": [],
+      "checked_total": 66.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10496,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11052",
+        "invoice_date": "2026-09-30",
+        "po": "PO59315-AMERICAN QUALITY POWDERCOATING",
+        "verification": 150.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_invoice-11052.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11052",
+        "date": "2026-09-30",
+        "po": "59315",
+        "amount": 150.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 15.0,
+            "unit_price": 10.0,
+            "amount": 150.0,
+            "description": "Aftertreatment Bracket PC Lave Black(SO34840)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 15 at $10 = $150, PO 59315, dated 09/30/2026. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 150.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10497,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11051",
+        "invoice_date": "2026-09-30",
+        "po": "PO59312-AMERICAN QUALITY POWDERCOATING",
+        "verification": 250.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_invoice-11051.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11051",
+        "date": "2026-09-30",
+        "po": "59312",
+        "amount": 250.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 5.0,
+            "unit_price": 50.0,
+            "amount": 250.0,
+            "description": "Ext Pulley Weld Primed and PC White RAL 9016(SO34831)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 5 at $50 = $250, PO 59312, dated 09/30/2026. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 250.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10498,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11050",
+        "invoice_date": "2026-09-30",
+        "po": "PO59314-AMERICAN QUALITY POWDERCOATING",
+        "verification": 500.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_invoice-11050.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11050",
+        "date": "2026-09-30",
+        "po": "59314",
+        "amount": 500.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 10.0,
+            "unit_price": 50.0,
+            "amount": 500.0,
+            "description": "Ext Pulley Weld Primed and PC White RAL 9016(SO34826)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 10 at $50 = $500, PO 59314, dated 09/30/2026. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 500.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10499,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11049",
+        "invoice_date": "2026-09-30",
+        "po": "PO59281-AMERICAN QUALITY POWDERCOATING",
+        "verification": 300.0,
+        "invoice_amount": 300.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "F-Fees & Surcharges",
+            "amount": 300.0
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_invoice-11049.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11049",
+        "date": "2026-09-30",
+        "po": "59281",
+        "amount": 300.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 12.0,
+            "unit_price": 25.0,
+            "amount": 300.0,
+            "description": "24\"x3\"x3\" Gate Equalizer With Misc. parts P.C. Black(SO34899)"
+          }
+        ],
+        "fees": [
+          {
+            "name": "1. AMT-55700014 24\"x3\"x3\" Gate Equalizer With Misc. parts",
+            "amount": 300.0
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PDF is 12 at $25 = $300, PO 59281, dated 09/30/2026, total $300. Verification and Invoice_Amount are $300. KIMCO saved a $300 fee and no merchandise line for qty 12 at $25.",
+      "parsed_fees": [
+        {
+          "name": "1. AMT-55700014 24\"x3\"x3\" Gate Equalizer With Misc. parts",
+          "amount": 300.0
+        }
+      ],
+      "checked_total": 300.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10500,
+        "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+        "invoice_number": "11047",
+        "invoice_date": "2026-09-30",
+        "po": "PO59298-AMERICAN QUALITY POWDERCOATING",
+        "verification": 590.0,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_invoice-11047.pdf",
+        "vendor": "American Quality Powder Coating",
+        "invoice_number": "11047",
+        "date": "2026-09-30",
+        "po": "59298",
+        "amount": 590.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 18.0,
+            "unit_price": 10.0,
+            "amount": 180.0,
+            "description": "Support Front Engine PC Lava Black(SO34803)"
+          },
+          {
+            "qty": 18.0,
+            "unit_price": 10.0,
+            "amount": 180.0,
+            "description": "Support Front Engine PC Lava Black(SO34803)"
+          },
+          {
+            "qty": 10.0,
+            "unit_price": 18.0,
+            "amount": 180.0,
+            "description": "15\"x14\"x15\" Extended Sheave Bracket Primed(SO34909)"
+          },
+          {
+            "qty": 1.0,
+            "unit_price": 50.0,
+            "amount": 50.0,
+            "description": "48:x30\"x10\" Coupler PC Black(SO34633)"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 11047, PO 59298, is 18 at $10, 18 at $10, 10 at $18, and 1 at $50, total $590. Verification matches. There are no lines, so Invoice_Amount is $0.",
+      "parsed_fees": [],
+      "checked_total": 590.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10501,
+        "vendor": "1200-WILLBANKS METALS",
+        "invoice_number": "216127",
+        "invoice_date": "2026-09-30",
+        "po": "PO59277-WILLBANKS METALS",
+        "verification": 5760.0,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-09-30_Invoice-216127.pdf",
+        "vendor": "Willbanks Metals",
+        "invoice_number": "216127",
+        "date": "2026-09-30",
+        "po": "59277",
+        "amount": 5760.0,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 288.0,
+            "description": "1-1 20 PCS 3,600LBS Price AmountFloor Plate A786"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 20 pieces, 3,600 lb, amount $5,760, PO 59277, dated 9/30/2026. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 5760.0,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10502,
+        "vendor": "1143-PRIORITY 1",
+        "invoice_number": "18440283",
+        "invoice_date": "2026-09-25",
+        "po": "",
+        "verification": 219.09,
+        "invoice_amount": 219.09,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [
+          {
+            "name": "Freight External-Freight External",
+            "amount": 219.09
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_Priority1Invoice18440283.pdf",
+        "vendor": "Priority 1",
+        "invoice_number": "18440283",
+        "date": "2026-09-25",
+        "po": null,
+        "amount": 219.09,
+        "tax": null,
+        "lines": [],
+        "fees": [
+          {
+            "name": "Freight Charge USD$219.09",
+            "amount": 219.09
+          }
+        ],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [
+        {
+          "name": "Freight Charge USD$219.09",
+          "amount": 219.09
+        }
+      ],
+      "checked_total": 219.09,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10503,
+        "vendor": "1206-EMJ Earl M. Jorgensen Company",
+        "invoice_number": "S816901432",
+        "invoice_date": "2026-09-30",
+        "po": "PO59323-EMJ Earl M. Jorgensen Company",
+        "verification": 166.98,
+        "invoice_amount": 166.98,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "FB-1.00 X 2.00-A36 - 1.0\" X 2.0\" A36 HR",
+            "qty": 240.0,
+            "unit_price": 0.6857,
+            "extended": 164.57,
+            "receipt_id": 25160
+          }
+        ],
+        "charges": [
+          {
+            "name": "Purchase Price Variance",
+            "amount": 2.41
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_Invoices.pdf",
+        "vendor": "Earle M. Jorgensen Co",
+        "invoice_number": "S816901432",
+        "date": "2026-09-30",
+        "po": "59323",
+        "amount": 166.98,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 1.0,
+            "unit_price": null,
+            "amount": null,
+            "description": "HR BAR ASTM A36"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF is 1 bar, 138 at $1.21 = $166.98, PO 59323, tax blank, total $166.98. KIMCO receipt 25160 is qty 240 at $0.6857 plus a PPV of $2.41. The total matches. The qty does not: 138 versus 240.",
+      "parsed_fees": [],
+      "checked_total": 166.98,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10504,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486572",
+        "invoice_date": "2026-09-21",
+        "po": "PO59200-ONEAL STEEL, LLC.",
+        "verification": 326.12,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 15486572, PO 59200, is lines of $107.12 and $219.00, total $326.12, freight $0, tax $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 326.12,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10505,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486598",
+        "invoice_date": "2026-09-21",
+        "po": "PO59251-ONEAL STEEL, LLC.",
+        "verification": 3012.19,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 15486598, PO 59251, is 10 pieces, line total $3,012.19, freight $0, tax $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 3012.19,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10506,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486600",
+        "invoice_date": "2026-09-21",
+        "po": "PO59253-ONEAL STEEL, LLC.",
+        "verification": 16386.88,
+        "invoice_amount": 16386.88,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "PL-0.375 X 60 X 120-A36",
+            "qty": 26.0,
+            "unit_price": 630.2646,
+            "extended": 16386.88,
+            "receipt_id": 25261
+          }
+        ],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PASS",
+      "parsed_fees": [],
+      "checked_total": 16386.88,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10507,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486770",
+        "invoice_date": "2026-09-21",
+        "po": "PO59279-ONEAL STEEL, LLC.",
+        "verification": 502.32,
+        "invoice_amount": 502.32,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [
+          {
+            "item": "P-1.50 SCH 40-A500 - Pipe 1-1/2\" SCH 40",
+            "qty": 1008.0,
+            "unit_price": 0.4984,
+            "extended": 502.39,
+            "receipt_id": 25186
+          }
+        ],
+        "charges": [
+          {
+            "name": "Purchase Price Variance",
+            "amount": -0.07
+          }
+        ],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 15486770, PO 59279, is 4 pieces of 1-1/2 SCH 40, extended $502.32, freight $0, tax $0. KIMCO receipt 25186 is qty 1008 at $0.4984 plus a PPV of -$0.07. The total matches. The qty does not: 4 versus 1008.",
+      "parsed_fees": [],
+      "checked_total": 502.32,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10508,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486823",
+        "invoice_date": "2026-09-21",
+        "po": "PO59289-ONEAL STEEL, LLC.",
+        "verification": 10713.89,
+        "invoice_amount": 0.0,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 15486823, PO 59289, is line totals $4,847.12 + $4,101.93 + $1,764.84 = $10,713.89, freight $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 375.",
+      "parsed_fees": [],
+      "checked_total": 10713.89,
+      "pdf_compare": "page read"
+    },
+    {
+      "live": {
+        "bill_id": 10509,
+        "vendor": "1135-ONEAL STEEL, LLC.",
+        "invoice_number": "15486842",
+        "invoice_date": "2026-09-21",
+        "po": "PO59293-ONEAL STEEL, LLC.",
+        "verification": 5328.46,
+        "invoice_amount": 0.0,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "posted": null,
+        "lines": [],
+        "charges": [],
+        "taxes": []
+      },
+      "pdf": {
+        "path": "/workspace/runs/sept-catchup-pdfs/2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+        "vendor": "O'Neal Steel - Dallas (GP)",
+        "invoice_number": "15486572",
+        "date": "2026-09-21",
+        "po": "59200",
+        "amount": 326.12,
+        "tax": null,
+        "lines": [
+          {
+            "qty": 20.0,
+            "unit_price": null,
+            "amount": 111.8,
+            "description": "FTSQTB HREW A500 B 2-1/2    X3/16W   X20 20.0010.9500 219.00$PC1.0002.000 111.80"
+          },
+          {
+            "qty": 159.33,
+            "unit_price": null,
+            "amount": 15932.8,
+            "description": "CWPLATE A36 3/8          X60    X8 159.33102.8500 16,386.88$PC26.0001.000 15,932"
+          },
+          {
+            "qty": 84.0,
+            "unit_price": null,
+            "amount": 228.48,
+            "description": "FTPIPE A500 B        BARE 1-1/2     SCH 40   X21 84.005.9800 502.32$PC4.0001.000"
+          },
+          {
+            "qty": 38.3,
+            "unit_price": null,
+            "amount": 3830.0,
+            "description": "CWPLATE A36 3/16         X60    X10 38.30107.1000 4,101.93$PC10.0005.000 3,830.0"
+          }
+        ],
+        "fees": [],
+        "text_empty": true
+      },
+      "result": "PDF invoice 15486842, PO 59293, is lines of $117.93, $4,015.00, $687.53, and $508.00, total $5,328.46, freight $0. Verification matches. There are no lines, so Invoice_Amount is $0. Batch 747.",
+      "parsed_fees": [],
+      "checked_total": 5328.46,
+      "pdf_compare": "page read"
+    }
+  ],
+  "pass": 6,
+  "fail": 35,
+  "checked": "Each result was re-read from the PDF page for that invoice number. Multi-invoice packs are not compared to the first page."
+}
