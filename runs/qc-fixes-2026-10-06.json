@@ -1,0 +1,2812 @@
+{
+  "final": true,
+  "written_at": "2026-10-06T20:12:26+00:00",
+  "sign_ins": 1,
+  "constraints": {
+    "author": "API Agent 175",
+    "posted": false,
+    "batch_closed": false,
+    "email_sent": false
+  },
+  "sliced_pdfs": {
+    "10478": {
+      "path": "runs/qc-fixes-attachments/10478-0040455879.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "0040455879"
+            ]
+          }
+        ],
+        "invoices": [
+          "0040455879"
+        ],
+        "text_ok": true
+      }
+    },
+    "10479": {
+      "path": "runs/qc-fixes-attachments/10479-0040455916.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "0040455916"
+            ]
+          }
+        ],
+        "invoices": [
+          "0040455916"
+        ],
+        "text_ok": true
+      }
+    },
+    "10480": {
+      "path": "runs/qc-fixes-attachments/10480-0040455615.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "0040455615"
+            ]
+          }
+        ],
+        "invoices": [
+          "0040455615"
+        ],
+        "text_ok": true
+      }
+    },
+    "10494": {
+      "path": "runs/qc-fixes-attachments/10494-T609053432.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "T609053432"
+            ]
+          }
+        ],
+        "invoices": [
+          "T609053432"
+        ],
+        "text_ok": true
+      }
+    },
+    "10504": {
+      "path": "runs/qc-fixes-attachments/10504-15486572.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486572"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486572"
+        ],
+        "text_ok": true
+      }
+    },
+    "10505": {
+      "path": "runs/qc-fixes-attachments/10505-15486598.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486598"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486598"
+        ],
+        "text_ok": true
+      }
+    },
+    "10506": {
+      "path": "runs/qc-fixes-attachments/10506-15486600.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486600"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486600"
+        ],
+        "text_ok": true
+      }
+    },
+    "10507": {
+      "path": "runs/qc-fixes-attachments/10507-15486770.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486770"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486770"
+        ],
+        "text_ok": true
+      }
+    },
+    "10508": {
+      "path": "runs/qc-fixes-attachments/10508-15486823.pdf",
+      "check": {
+        "page_count": 1,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486823"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486823"
+        ],
+        "text_ok": true
+      }
+    },
+    "10509": {
+      "path": "runs/qc-fixes-attachments/10509-15486842.pdf",
+      "check": {
+        "page_count": 2,
+        "pages": [
+          {
+            "page": 1,
+            "invoices": [
+              "15486842"
+            ]
+          },
+          {
+            "page": 2,
+            "invoices": [
+              "15486842"
+            ]
+          }
+        ],
+        "invoices": [
+          "15486842"
+        ],
+        "text_ok": true
+      }
+    }
+  },
+  "bills": {
+    "10494": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10494,
+        "invoice": "T609053432",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 0.0,
+        "verification": 487.14,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1611,
+            "text": "AP Clerk: @Shawn McKibben EMJ invoice T609053432 is page 1 only: 23.12 feet of 2.500 OD x .219 wall DOM tubing, $487.14, PO 59273. Receipt 24880 is quantity 276 at $1.76, $484.63. Receipt 24879 is 1-1/4 x .083 tubing at $267.84 and belongs to the other invoice in the same PDF, so it was not selected. The quantity does not match, so nothing was selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:37.183",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:37.183",
+            "modifier_id": 175
+          },
+          {
+            "id": 1587,
+            "text": "AP Clerk: @Shawn McKibben invoice T609053432 on PO 59273, 59242 does not match the open receipts. Invoice qty 1 amount 23.12 1 TUBE 23.12. Open receipt 24879 qty 288.0 $267.84; receipt 24880 qty 276.0 $484.63. The PDF total is $487.14. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:02.117",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:02.117",
+            "modifier_id": 175
+          },
+          {
+            "id": 1542,
+            "text": "AP Clerk: @Shawn McKibben Earle M. Jorgensen Co invoice T609053432 cannot be finished. The price gap is $487.14, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:06:33.473",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:06:33.473",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162171,
+            "name": "2026-09-30_Invoices.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "T609053432"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "T609084432"
+                ]
+              }
+            ],
+            "invoices": [
+              "T609053432",
+              "T609084432"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:08:55+00:00"
+      },
+      "after": {
+        "id": 10494,
+        "invoice": "T609053432",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 487.14,
+        "verification": 487.14,
+        "net": 487.14,
+        "lines": [
+          {
+            "id": 21706,
+            "qty": 276.0,
+            "unit_price": 1.7559,
+            "extended": 484.63,
+            "receipt_id": 24880,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5710,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 2.51
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          24880
+        ],
+        "lines_plus_charges": 487.14,
+        "lines_charges_tax": 487.14,
+        "pdf_total": 487.14,
+        "comments": [
+          {
+            "id": 1629,
+            "text": "AP Clerk: @Shawn McKibben please disregard my earlier note on T609053432. 23.12 ft is the 276 in on receipt 24880; selected with a $2.51 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              },
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T15:09:11.393",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:09:11.393",
+            "modifier_id": 175
+          },
+          {
+            "id": 1611,
+            "text": "AP Clerk: @Shawn McKibben EMJ invoice T609053432 is page 1 only: 23.12 feet of 2.500 OD x .219 wall DOM tubing, $487.14, PO 59273. Receipt 24880 is quantity 276 at $1.76, $484.63. Receipt 24879 is 1-1/4 x .083 tubing at $267.84 and belongs to the other invoice in the same PDF, so it was not selected. The quantity does not match, so nothing was selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:37.183",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:37.183",
+            "modifier_id": 175
+          },
+          {
+            "id": 1587,
+            "text": "AP Clerk: @Shawn McKibben invoice T609053432 on PO 59273, 59242 does not match the open receipts. Invoice qty 1 amount 23.12 1 TUBE 23.12. Open receipt 24879 qty 288.0 $267.84; receipt 24880 qty 276.0 $484.63. The PDF total is $487.14. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:02.117",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:02.117",
+            "modifier_id": 175
+          },
+          {
+            "id": 1542,
+            "text": "AP Clerk: @Shawn McKibben Earle M. Jorgensen Co invoice T609053432 cannot be finished. The price gap is $487.14, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:06:33.473",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:06:33.473",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162298,
+            "name": "10494-T609053432.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "T609053432"
+                ]
+              }
+            ],
+            "invoices": [
+              "T609053432"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:17+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 487.14,
+          "lines_plus_charges": 487.14,
+          "verification": 487.14,
+          "invoice_amount": 487.14,
+          "match": true
+        }
+      },
+      "pdf_total": 487.14,
+      "reread_at": "2026-10-06T20:12:55+00:00"
+    },
+    "10493": {
+      "status": "ok",
+      "before": {
+        "id": 10493,
+        "invoice": "216055",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 381.72,
+        "verification": 381.72,
+        "net": 381.72,
+        "lines": [
+          {
+            "id": 21664,
+            "qty": 288.0,
+            "unit_price": 1.3254,
+            "extended": 381.72,
+            "receipt_id": 25161,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5702,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": -1.32
+          },
+          {
+            "id": 5703,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 1.32
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25161
+        ],
+        "lines_plus_charges": 381.72,
+        "lines_charges_tax": 381.72,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1586,
+            "text": "AP Clerk: @Shawn McKibben invoice 216055 quantity does not match the receipt. Invoice qty 1 versus receipt qty 288.0. The dollars equal $381.72, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batch 747, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:18:56.53",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:18:56.53",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162170,
+            "name": "2026-09-29_Invoice-216055.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "216055"
+                ]
+              }
+            ],
+            "invoices": [
+              "216055"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:18+00:00"
+      },
+      "after": {
+        "id": 10493,
+        "invoice": "216055",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 381.72,
+        "verification": 381.72,
+        "net": 381.72,
+        "lines": [
+          {
+            "id": 21664,
+            "qty": 288.0,
+            "unit_price": 1.3254,
+            "extended": 381.72,
+            "receipt_id": 25161,
+            "description": ""
+          }
+        ],
+        "charges": [],
+        "taxes": [],
+        "receipts": [
+          25161
+        ],
+        "lines_plus_charges": 381.72,
+        "lines_charges_tax": 381.72,
+        "pdf_total": 381.72,
+        "comments": [
+          {
+            "id": 1630,
+            "text": "AP Clerk: @Shawn McKibben please disregard my earlier note on 216055. The invoice 1 piece / 272.66 lb matches receipt 25161 in inches; dollars match with a $0 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              },
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T15:09:21.413",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:09:21.413",
+            "modifier_id": 175
+          },
+          {
+            "id": 1586,
+            "text": "AP Clerk: @Shawn McKibben invoice 216055 quantity does not match the receipt. Invoice qty 1 versus receipt qty 288.0. The dollars equal $381.72, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batch 747, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:18:56.53",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:18:56.53",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162170,
+            "name": "2026-09-29_Invoice-216055.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "216055"
+                ]
+              }
+            ],
+            "invoices": [
+              "216055"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:24+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 381.72,
+          "lines_plus_charges": 381.72,
+          "verification": 381.72,
+          "invoice_amount": 381.72,
+          "match": true
+        }
+      },
+      "pdf_total": 381.72,
+      "reread_at": "2026-10-06T20:12:56+00:00"
+    },
+    "10503": {
+      "status": "ok",
+      "before": {
+        "id": 10503,
+        "invoice": "S816901432",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 166.98,
+        "verification": 166.98,
+        "net": 166.98,
+        "lines": [
+          {
+            "id": 21665,
+            "qty": 240.0,
+            "unit_price": 0.6857,
+            "extended": 164.57,
+            "receipt_id": 25160,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5706,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 2.41
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25160
+        ],
+        "lines_plus_charges": 166.98,
+        "lines_charges_tax": 166.98,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1612,
+            "text": "AP Clerk: @Shawn McKibben EMJ invoice S816901432 is 1 bar, 138 pounds at $1.21 per pound, $166.98, PO 59323. Receipt 25160 is quantity 240 at $0.6857, $164.57, plus $2.41 purchase price variance. The dollars match. Please confirm the unit. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:38.563",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:38.563",
+            "modifier_id": 175
+          },
+          {
+            "id": 1595,
+            "text": "AP Clerk: @Shawn McKibben invoice S816901432 quantity does not match the receipt. Invoice qty 1.0 versus receipt qty 240.0. The dollars equal $166.98, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batch 747, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:36.813",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:36.813",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162180,
+            "name": "2026-10-01_Invoices.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "S816901432"
+                ]
+              }
+            ],
+            "invoices": [
+              "S816901432"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:25+00:00"
+      },
+      "after": {
+        "id": 10503,
+        "invoice": "S816901432",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 166.98,
+        "verification": 166.98,
+        "net": 166.98,
+        "lines": [
+          {
+            "id": 21665,
+            "qty": 240.0,
+            "unit_price": 0.6857,
+            "extended": 164.57,
+            "receipt_id": 25160,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5706,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 2.41
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25160
+        ],
+        "lines_plus_charges": 166.98,
+        "lines_charges_tax": 166.98,
+        "pdf_total": 166.98,
+        "comments": [
+          {
+            "id": 1631,
+            "text": "AP Clerk: @Shawn McKibben please disregard my earlier note on S816901432. The invoice 138 lb matches receipt 25160 in inches; dollars match with a $2.41 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              },
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T15:09:26.537",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:09:26.537",
+            "modifier_id": 175
+          },
+          {
+            "id": 1612,
+            "text": "AP Clerk: @Shawn McKibben EMJ invoice S816901432 is 1 bar, 138 pounds at $1.21 per pound, $166.98, PO 59323. Receipt 25160 is quantity 240 at $0.6857, $164.57, plus $2.41 purchase price variance. The dollars match. Please confirm the unit. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:38.563",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:38.563",
+            "modifier_id": 175
+          },
+          {
+            "id": 1595,
+            "text": "AP Clerk: @Shawn McKibben invoice S816901432 quantity does not match the receipt. Invoice qty 1.0 versus receipt qty 240.0. The dollars equal $166.98, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batch 747, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:36.813",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:36.813",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162180,
+            "name": "2026-10-01_Invoices.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "S816901432"
+                ]
+              }
+            ],
+            "invoices": [
+              "S816901432"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:33+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 166.98,
+          "lines_plus_charges": 166.98,
+          "verification": 166.98,
+          "invoice_amount": 166.98,
+          "match": true
+        }
+      },
+      "pdf_total": 166.98,
+      "reread_at": "2026-10-06T20:12:59+00:00"
+    },
+    "10478": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10478,
+        "invoice": "0040455879",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 192.0,
+        "verification": 192.0,
+        "net": 192.0,
+        "lines": [
+          {
+            "id": 21668,
+            "qty": 100.0,
+            "unit_price": 1.92,
+            "extended": 192.0,
+            "receipt_id": null,
+            "description": ""
+          }
+        ],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 192.0,
+        "lines_charges_tax": 192.0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1573,
+            "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455879 as Shop Supplies - G&S. The bill matches the PDF total $192.00 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:41.447",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:41.447",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162155,
+            "name": "2026-09-29_billing01_A3050_c_0040455879_p1-2.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455879"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "0040455916"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455879",
+              "0040455916"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:09:34+00:00"
+      },
+      "after": {
+        "id": 10478,
+        "invoice": "0040455879",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 192.0,
+        "verification": 192.0,
+        "net": 192.0,
+        "lines": [
+          {
+            "id": 21668,
+            "qty": 100.0,
+            "unit_price": 1.92,
+            "extended": 192.0,
+            "receipt_id": null,
+            "description": ""
+          }
+        ],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 192.0,
+        "lines_charges_tax": 192.0,
+        "pdf_total": 192.0,
+        "comments": [
+          {
+            "id": 1573,
+            "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455879 as Shop Supplies - G&S. The bill matches the PDF total $192.00 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:41.447",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:41.447",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162299,
+            "name": "10478-0040455879.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455879"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455879"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:41+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 192.0,
+          "lines_plus_charges": 192.0,
+          "verification": 192.0,
+          "invoice_amount": 192.0,
+          "match": true
+        }
+      },
+      "reread_at": "2026-10-06T20:13:05+00:00",
+      "pdf_total": 192.0
+    },
+    "10479": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10479,
+        "invoice": "0040455916",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 138.5,
+        "verification": 138.5,
+        "net": 138.5,
+        "lines": [
+          {
+            "id": 21669,
+            "qty": 2.0,
+            "unit_price": 28.0,
+            "extended": 56.0,
+            "receipt_id": null,
+            "description": ""
+          },
+          {
+            "id": 21670,
+            "qty": 2.0,
+            "unit_price": 30.0,
+            "extended": 60.0,
+            "receipt_id": null,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5695,
+            "kind_id": 11,
+            "kind": "F-Fees & Surcharges",
+            "amount": 22.5
+          }
+        ],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 138.5,
+        "lines_charges_tax": 138.5,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1574,
+            "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455916 as Shop Supplies - G&S. The bill matches the PDF total $138.50 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:48.4",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:48.4",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162156,
+            "name": "2026-09-29_billing01_A3050_c_0040455916_p2-3.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455916"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "0040455615"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455916",
+              "0040455615"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:09:42+00:00"
+      },
+      "after": {
+        "id": 10479,
+        "invoice": "0040455916",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 138.5,
+        "verification": 138.5,
+        "net": 138.5,
+        "lines": [
+          {
+            "id": 21669,
+            "qty": 2.0,
+            "unit_price": 28.0,
+            "extended": 56.0,
+            "receipt_id": null,
+            "description": ""
+          },
+          {
+            "id": 21670,
+            "qty": 2.0,
+            "unit_price": 30.0,
+            "extended": 60.0,
+            "receipt_id": null,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5695,
+            "kind_id": 11,
+            "kind": "F-Fees & Surcharges",
+            "amount": 22.5
+          }
+        ],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 138.5,
+        "lines_charges_tax": 138.5,
+        "pdf_total": 138.5,
+        "comments": [
+          {
+            "id": 1574,
+            "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455916 as Shop Supplies - G&S. The bill matches the PDF total $138.50 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:48.4",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:48.4",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162300,
+            "name": "10479-0040455916.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455916"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455916"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:50+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 138.5,
+          "lines_plus_charges": 138.5,
+          "verification": 138.5,
+          "invoice_amount": 138.5,
+          "match": true
+        }
+      },
+      "reread_at": "2026-10-06T20:13:06+00:00",
+      "pdf_total": 138.5
+    },
+    "10504": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10504,
+        "invoice": "15486572",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 326.12,
+        "verification": 326.12,
+        "net": 326.12,
+        "lines": [
+          {
+            "id": 21700,
+            "qty": 1440.0,
+            "unit_price": 0.0729,
+            "extended": 104.98,
+            "receipt_id": 25184,
+            "description": ""
+          },
+          {
+            "id": 21701,
+            "qty": 240.0,
+            "unit_price": 0.9125,
+            "extended": 219.0,
+            "receipt_id": 25185,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5708,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 2.14
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25184,
+          25185
+        ],
+        "lines_plus_charges": 326.12,
+        "lines_charges_tax": 326.12,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1609,
+            "text": "AP Clerk: @Treyce Hodges selected receipts 25184 and 25185 on O'Neal invoice 15486572. The 3/8 inch 1018 round is $104.98 against the invoice's $107.12, and the 2-1/2 inch square tube is $219.00. The $2.14 difference is purchase price variance. The bill matches $326.12 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:33.113",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:33.113",
+            "modifier_id": 175
+          },
+          {
+            "id": 1596,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486572 on PO 59200 does not match the open receipts. Invoice qty 1 amount 111.8 FTSQTB HREW A500 B 2-1/2 X3/16W X20. Open receipt 25184 qty 1440.0 $104.98; receipt 25185 qty 240.0 $219.0. The PDF total is $326.12. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:39.803",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:39.803",
+            "modifier_id": 175
+          },
+          {
+            "id": 1545,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486572 cannot be finished. The price gap is $326.12, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:05.5",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:05.5",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162181,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:09:51+00:00"
+      },
+      "after": {
+        "id": 10504,
+        "invoice": "15486572",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 326.12,
+        "verification": 326.12,
+        "net": 326.12,
+        "lines": [
+          {
+            "id": 21700,
+            "qty": 1440.0,
+            "unit_price": 0.0729,
+            "extended": 104.98,
+            "receipt_id": 25184,
+            "description": ""
+          },
+          {
+            "id": 21701,
+            "qty": 240.0,
+            "unit_price": 0.9125,
+            "extended": 219.0,
+            "receipt_id": 25185,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5708,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": 2.14
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25184,
+          25185
+        ],
+        "lines_plus_charges": 326.12,
+        "lines_charges_tax": 326.12,
+        "pdf_total": 326.12,
+        "comments": [
+          {
+            "id": 1609,
+            "text": "AP Clerk: @Treyce Hodges selected receipts 25184 and 25185 on O'Neal invoice 15486572. The 3/8 inch 1018 round is $104.98 against the invoice's $107.12, and the 2-1/2 inch square tube is $219.00. The $2.14 difference is purchase price variance. The bill matches $326.12 and is not posted.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T12:30:33.113",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:30:33.113",
+            "modifier_id": 175
+          },
+          {
+            "id": 1596,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486572 on PO 59200 does not match the open receipts. Invoice qty 1 amount 111.8 FTSQTB HREW A500 B 2-1/2 X3/16W X20. Open receipt 25184 qty 1440.0 $104.98; receipt 25185 qty 240.0 $219.0. The PDF total is $326.12. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:39.803",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:39.803",
+            "modifier_id": 175
+          },
+          {
+            "id": 1545,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486572 cannot be finished. The price gap is $326.12, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:05.5",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:05.5",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162301,
+            "name": "10504-15486572.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:09:59+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 326.12,
+          "lines_plus_charges": 326.12,
+          "verification": 326.12,
+          "invoice_amount": 326.12,
+          "match": true
+        }
+      },
+      "reread_at": "2026-10-06T20:13:07+00:00",
+      "pdf_total": 326.12
+    },
+    "10505": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10505,
+        "invoice": "15486598",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 3012.19,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1597,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:42.13",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:42.13",
+            "modifier_id": 175
+          },
+          {
+            "id": 1546,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:17.233",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:17.233",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162182,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:00+00:00"
+      },
+      "after": {
+        "id": 10505,
+        "invoice": "15486598",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 3012.19,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": 3012.19,
+        "comments": [
+          {
+            "id": 1597,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:42.13",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:42.13",
+            "modifier_id": 175
+          },
+          {
+            "id": 1546,
+            "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15486598 cannot be finished. The price gap is $3,012.19, which is $75 or more. Receipts were not selected. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:17.233",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:17.233",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162302,
+            "name": "10505-15486598.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486598"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486598"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:10:11+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 3012.19,
+          "lines_plus_charges": 0,
+          "verification": 3012.19,
+          "invoice_amount": 0.0,
+          "match": false
+        }
+      },
+      "reread_at": "2026-10-06T20:13:08+00:00",
+      "pdf_total": 3012.19
+    },
+    "10506": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10506,
+        "invoice": "15486600",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 16386.88,
+        "verification": 16386.88,
+        "net": 16386.88,
+        "lines": [
+          {
+            "id": 21666,
+            "qty": 26.0,
+            "unit_price": 630.2646,
+            "extended": 16386.88,
+            "receipt_id": 25261,
+            "description": ""
+          }
+        ],
+        "charges": [],
+        "taxes": [],
+        "receipts": [
+          25261
+        ],
+        "lines_plus_charges": 16386.88,
+        "lines_charges_tax": 16386.88,
+        "pdf_total": null,
+        "comments": [],
+        "attachments": [
+          {
+            "id": 162183,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:12+00:00"
+      },
+      "after": {
+        "id": 10506,
+        "invoice": "15486600",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 16386.88,
+        "verification": 16386.88,
+        "net": 16386.88,
+        "lines": [
+          {
+            "id": 21666,
+            "qty": 26.0,
+            "unit_price": 630.2646,
+            "extended": 16386.88,
+            "receipt_id": 25261,
+            "description": ""
+          }
+        ],
+        "charges": [],
+        "taxes": [],
+        "receipts": [
+          25261
+        ],
+        "lines_plus_charges": 16386.88,
+        "lines_charges_tax": 16386.88,
+        "pdf_total": 16386.88,
+        "comments": [],
+        "attachments": [
+          {
+            "id": 162303,
+            "name": "10506-15486600.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486600"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486600"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:10:18+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 16386.88,
+          "lines_plus_charges": 16386.88,
+          "verification": 16386.88,
+          "invoice_amount": 16386.88,
+          "match": true
+        }
+      },
+      "reread_at": "2026-10-06T20:13:08+00:00",
+      "pdf_total": 16386.88
+    },
+    "10507": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10507,
+        "invoice": "15486770",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 502.32,
+        "verification": 502.32,
+        "net": 502.32,
+        "lines": [
+          {
+            "id": 21667,
+            "qty": 1008.0,
+            "unit_price": 0.4984,
+            "extended": 502.39,
+            "receipt_id": 25186,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5707,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": -0.07
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25186
+        ],
+        "lines_plus_charges": 502.32,
+        "lines_charges_tax": 502.32,
+        "pdf_total": null,
+        "comments": [],
+        "attachments": [
+          {
+            "id": 162184,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:19+00:00"
+      },
+      "after": {
+        "id": 10507,
+        "invoice": "15486770",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 502.32,
+        "verification": 502.32,
+        "net": 502.32,
+        "lines": [
+          {
+            "id": 21667,
+            "qty": 1008.0,
+            "unit_price": 0.4984,
+            "extended": 502.39,
+            "receipt_id": 25186,
+            "description": ""
+          }
+        ],
+        "charges": [
+          {
+            "id": 5707,
+            "kind_id": 13,
+            "kind": "Purchase Price Variance",
+            "amount": -0.07
+          }
+        ],
+        "taxes": [],
+        "receipts": [
+          25186
+        ],
+        "lines_plus_charges": 502.32,
+        "lines_charges_tax": 502.32,
+        "pdf_total": 502.32,
+        "comments": [],
+        "attachments": [
+          {
+            "id": 162304,
+            "name": "10507-15486770.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486770"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486770"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:10:27+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 502.32,
+          "lines_plus_charges": 502.32,
+          "verification": 502.32,
+          "invoice_amount": 502.32,
+          "match": true
+        }
+      },
+      "reread_at": "2026-10-06T20:13:09+00:00",
+      "pdf_total": 502.32
+    },
+    "10508": {
+      "status": "ok",
+      "attach": "replaced",
+      "before": {
+        "id": 10508,
+        "invoice": "15486823",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 10713.89,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1598,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:44.287",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:44.287",
+            "modifier_id": 175
+          },
+          {
+            "id": 1547,
+            "text": "AP Clerk: @Treyce Hodges O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:46.2",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:46.2",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162185,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:28+00:00"
+      },
+      "after": {
+        "id": 10508,
+        "invoice": "15486823",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 10713.89,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": 10713.89,
+        "comments": [
+          {
+            "id": 1598,
+            "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted.",
+            "mentions": [],
+            "created_on": "2026-10-06T12:19:44.287",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:44.287",
+            "modifier_id": 175
+          },
+          {
+            "id": 1547,
+            "text": "AP Clerk: @Treyce Hodges O'Neal Steel - Dallas (GP) invoice 15486823 has no matching receipt. The PDF total is $10,713.89. The bill is on hold in Transfer AP and is not posted. Owner: Anthony.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              }
+            ],
+            "created_on": "2026-10-06T08:09:46.2",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:09:46.2",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162305,
+            "name": "10508-15486823.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486823"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486823"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:10:34+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 10713.89,
+          "lines_plus_charges": 0,
+          "verification": 10713.89,
+          "invoice_amount": 0.0,
+          "match": false
+        }
+      },
+      "reread_at": "2026-10-06T20:13:10+00:00",
+      "pdf_total": 10713.89
+    },
+    "10480": {
+      "status": "ok",
+      "attach": "replaced",
+      "move": "moved",
+      "before": {
+        "id": 10480,
+        "invoice": "0040455615",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 0.0,
+        "verification": 213.93,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1575,
+            "text": "AP Clerk: @Shawn McKibben invoice 0040455615 on PO 59081 does not match the open receipts. Invoice qty 1.0 amount 213.93 20 PC HOLE DOZER BI-METAL. Open receipt 24333 qty 1.0 $14.0; receipt 24334 qty 3.0 $33.9; receipt 24335 qty 4.0 $191.04; receipt 24336 qty 1.0 $36.12; receipt 24337 qty 1.0 $108.82; receipt 24338 qty 1.0 $98.71; receipt 24339 qty 2.0 $27.82; receipt 24340 qty 1.0 $182.5. The PDF total is $213.93. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:51.737",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:51.737",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162157,
+            "name": "2026-09-29_billing01_A3050_c_0040455615_p3-4.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455615"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "0040455291"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455615",
+              "0040455291"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:35+00:00"
+      },
+      "after": {
+        "id": 10480,
+        "invoice": "0040455615",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 213.93,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": 213.93,
+        "comments": [
+          {
+            "id": 1633,
+            "text": "AP Clerk: @Shawn McKibben correction to my earlier note: this isn't a price mismatch. The $213.93 MLW49-22-4170 hole saw kit is not on PO 59081 at all (all 23 lines are other items, fully received). Please add or receive it on a PO, or tell AP how to code it. On hold in Transfer AP, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T15:10:43.72",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:10:43.72",
+            "modifier_id": 175
+          },
+          {
+            "id": 1575,
+            "text": "AP Clerk: @Shawn McKibben invoice 0040455615 on PO 59081 does not match the open receipts. Invoice qty 1.0 amount 213.93 20 PC HOLE DOZER BI-METAL. Open receipt 24333 qty 1.0 $14.0; receipt 24334 qty 3.0 $33.9; receipt 24335 qty 4.0 $191.04; receipt 24336 qty 1.0 $36.12; receipt 24337 qty 1.0 $108.82; receipt 24338 qty 1.0 $98.71; receipt 24339 qty 2.0 $27.82; receipt 24340 qty 1.0 $182.5. The PDF total is $213.93. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:17:51.737",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:17:51.737",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162306,
+            "name": "10480-0040455615.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "0040455615"
+                ]
+              }
+            ],
+            "invoices": [
+              "0040455615"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:10:52+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 213.93,
+          "lines_plus_charges": 0,
+          "verification": 213.93,
+          "invoice_amount": 0.0,
+          "match": false
+        }
+      },
+      "pdf_total": 213.93,
+      "reread_at": "2026-10-06T20:13:01+00:00"
+    },
+    "10509": {
+      "status": "ok",
+      "attach": "replaced",
+      "move": "moved",
+      "anthony_mention_id": null,
+      "tagged": "Shawn McKibben 104 because Anthony has no proven mention id",
+      "before": {
+        "id": 10509,
+        "invoice": "15486842",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 0.0,
+        "verification": 5328.46,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1599,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:48.05",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:48.05",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162186,
+            "name": "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486572"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486598"
+                ]
+              },
+              {
+                "page": 3,
+                "invoices": [
+                  "15486600"
+                ]
+              },
+              {
+                "page": 4,
+                "invoices": [
+                  "15486770"
+                ]
+              },
+              {
+                "page": 5,
+                "invoices": [
+                  "15486823"
+                ]
+              },
+              {
+                "page": 6,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 7,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 8,
+                "invoices": [
+                  "15487245"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486572",
+              "15486598",
+              "15486600",
+              "15486770",
+              "15486823",
+              "15486842",
+              "15487245"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:10:55+00:00"
+      },
+      "after": {
+        "id": 10509,
+        "invoice": "15486842",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 5328.46,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": 5328.46,
+        "comments": [
+          {
+            "id": 1634,
+            "text": "AP Clerk: @Shawn McKibben Anthony's KIMCO mention id was not found, so this is to you. No open receipt on PO 59293 matches the lines on O'Neal invoice 15486842 ($5,328.46) within $75. Please receive or correct it. On hold in Transfer AP, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T15:11:02.847",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:11:02.847",
+            "modifier_id": 175
+          },
+          {
+            "id": 1599,
+            "text": "AP Clerk: @Shawn McKibben invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81.53; receipt 25211 qty 960.0 $222.82. The PDF total is $5,328.46. Receipts were not selected. The bill is on hold on batch 747 and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T12:19:48.05",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T12:19:48.05",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162307,
+            "name": "10509-15486842.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15486842"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15486842"
+                ]
+              }
+            ],
+            "invoices": [
+              "15486842"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:11:08+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 5328.46,
+          "lines_plus_charges": 0,
+          "verification": 5328.46,
+          "invoice_amount": 0.0,
+          "match": false
+        }
+      },
+      "pdf_total": 5328.46,
+      "reread_at": "2026-10-06T20:13:04+00:00"
+    },
+    "10468": {
+      "status": "ok",
+      "move": "moved",
+      "before": {
+        "id": 10468,
+        "invoice": "000444279/1/202659035",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 212.19,
+        "verification": 3552.19,
+        "net": 212.19,
+        "lines": [],
+        "charges": [
+          {
+            "id": 5684,
+            "kind_id": 11,
+            "kind": "F-Fees & Surcharges",
+            "amount": 212.19
+          }
+        ],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 212.19,
+        "lines_charges_tax": 212.19,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1529,
+            "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. Invoice Tricor Industrial, Inc invoice 000444279/1/202659035 needs a purchase order. The PDF total is $3,552.19. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:01:02.627",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:01:02.627",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162147,
+            "name": "2026-09-02_Invoice_00044427.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "000444279/1/202659035"
+                ]
+              }
+            ],
+            "invoices": [
+              "000444279/1/202659035"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:12:15+00:00"
+      },
+      "after": {
+        "id": 10468,
+        "invoice": "000444279/1/202659035",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 212.19,
+        "verification": 3552.19,
+        "net": 212.19,
+        "lines": [],
+        "charges": [
+          {
+            "id": 5684,
+            "kind_id": 11,
+            "kind": "F-Fees & Surcharges",
+            "amount": 212.19
+          }
+        ],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 212.19,
+        "lines_charges_tax": 212.19,
+        "pdf_total": 3552.19,
+        "comments": [
+          {
+            "id": 1636,
+            "text": "AP Clerk: @Shawn McKibben Tricor invoice 000444279/1/202659035 ($3,552.19) has no matching PO; only the $212.19 freight is entered. Please create or point AP at the PO. On hold in Transfer AP, not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T15:12:16.83",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:12:16.83",
+            "modifier_id": 175
+          },
+          {
+            "id": 1529,
+            "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. Invoice Tricor Industrial, Inc invoice 000444279/1/202659035 needs a purchase order. The PDF total is $3,552.19. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:01:02.627",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:01:02.627",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162147,
+            "name": "2026-09-02_Invoice_00044427.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "000444279/1/202659035"
+                ]
+              }
+            ],
+            "invoices": [
+              "000444279/1/202659035"
+            ],
+            "own_only": true
+          }
+        ],
+        "read_at": "2026-10-06T20:12:26+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": 3552.19,
+          "lines_plus_charges": 212.19,
+          "verification": 3552.19,
+          "invoice_amount": 212.19,
+          "match": false
+        }
+      },
+      "pdf_total": 3552.19,
+      "entered_amount": 212.19,
+      "entered_charge": {
+        "id": 5684,
+        "kind_id": 11,
+        "kind": "F-Fees & Surcharges",
+        "amount": 212.19
+      },
+      "confirmation": "No merchandise lines. Verification is $3,552.19. The only entered amount is one $212.19 charge.",
+      "reread_at": "2026-10-06T20:13:02+00:00"
+    },
+    "10477": {
+      "status": "ok",
+      "move": "moved",
+      "before": {
+        "id": 10477,
+        "invoice": "15478871",
+        "posted": null,
+        "void": false,
+        "batch_id": 747,
+        "batch": "API Agent - 10/6/26 Sept",
+        "invoice_amount": 0.0,
+        "verification": 42079.26,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1534,
+            "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15478871 needs a purchase order. The PDF total is $42,079.26. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:02:53.647",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:02:53.647",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162154,
+            "name": "2026-09-23_14748440.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15406239",
+                  "15408130",
+                  "15407157",
+                  "15409416",
+                  "15409280",
+                  "15411914",
+                  "15412969",
+                  "15415288",
+                  "15416408",
+                  "15415889"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15478871",
+                  "15439230"
+                ]
+              }
+            ],
+            "invoices": [
+              "15406239",
+              "15408130",
+              "15407157",
+              "15409416",
+              "15409280",
+              "15411914",
+              "15412969",
+              "15415288",
+              "15416408",
+              "15415889",
+              "15478871",
+              "15439230"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:11:11+00:00"
+      },
+      "after": {
+        "id": 10477,
+        "invoice": "15478871",
+        "posted": null,
+        "void": false,
+        "batch_id": 375,
+        "batch": "TRANSFER AP",
+        "invoice_amount": 0.0,
+        "verification": 42079.26,
+        "net": 0.0,
+        "lines": [],
+        "charges": [],
+        "taxes": [],
+        "receipts": [],
+        "lines_plus_charges": 0,
+        "lines_charges_tax": 0,
+        "pdf_total": null,
+        "comments": [
+          {
+            "id": 1635,
+            "text": "AP Clerk: @Treyce Hodges this was my mistake. This O'Neal document is a pending-orders letter, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+            "mentions": [
+              {
+                "id": 33,
+                "name": "Treyce Hodges"
+              },
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T15:11:12.63",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T15:11:12.63",
+            "modifier_id": 175
+          },
+          {
+            "id": 1534,
+            "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15478871 needs a purchase order. The PDF total is $42,079.26. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+            "mentions": [
+              {
+                "id": 104,
+                "name": "Shawn McKibben"
+              }
+            ],
+            "created_on": "2026-10-06T08:02:53.647",
+            "creator_id": 175,
+            "creator_name": "API Agent",
+            "modified_on": "2026-10-06T08:02:53.647",
+            "modifier_id": 175
+          }
+        ],
+        "attachments": [
+          {
+            "id": 162154,
+            "name": "2026-09-23_14748440.pdf",
+            "pages": [
+              {
+                "page": 1,
+                "invoices": [
+                  "15406239",
+                  "15408130",
+                  "15407157",
+                  "15409416",
+                  "15409280",
+                  "15411914",
+                  "15412969",
+                  "15415288",
+                  "15416408",
+                  "15415889"
+                ]
+              },
+              {
+                "page": 2,
+                "invoices": [
+                  "15478871",
+                  "15439230"
+                ]
+              }
+            ],
+            "invoices": [
+              "15406239",
+              "15408130",
+              "15407157",
+              "15409416",
+              "15409280",
+              "15411914",
+              "15412969",
+              "15415288",
+              "15416408",
+              "15415889",
+              "15478871",
+              "15439230"
+            ],
+            "own_only": false
+          }
+        ],
+        "read_at": "2026-10-06T20:11:18+00:00",
+        "totals_vs_pdf": {
+          "pdf_total": null,
+          "document": "pending-orders letter",
+          "lines_plus_charges": 0,
+          "verification": 42079.26,
+          "invoice_amount": 0.0
+        }
+      },
+      "reread_at": "2026-10-06T20:12:53+00:00",
+      "pdf_total": null
+    }
+  },
+  "reread_at": "2026-10-06T20:13:10+00:00",
+  "reread_sign_ins": 1,
+  "reread_diffs": []
+}
