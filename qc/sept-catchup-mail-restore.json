@@ -1,0 +1,207 @@
+{
+  "planned_move_messages": 232,
+  "planned_category_only": 1,
+  "restored": 233,
+  "failed": [],
+  "still_in_archive": [],
+  "spot_check": [
+    {
+      "vendor": "Legacy Wire Products",
+      "invoice": "PS-INV104046",
+      "bill_id": 10280,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOeCmQpAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "PS-INV104046",
+      "live_vendor": "1290-Legacy Wire Products"
+    },
+    {
+      "vendor": "Crosslink Powder Coating",
+      "invoice": "27642",
+      "bill_id": 9678,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHX0AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "27642",
+      "live_vendor": "1276-Crosslink Powder Coating"
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15447737",
+      "bill_id": 10079,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX24SAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15447737",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15447737",
+      "bill_id": 10079,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RF6AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15447737",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15403449",
+      "bill_id": 9442,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23yAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15403449",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15407157",
+      "bill_id": 9492,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RF6AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15407157",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15398891",
+      "bill_id": 9372,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23zAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15398891",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15400210",
+      "bill_id": 9389,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RF6AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15400210",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15415288",
+      "bill_id": 9594,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOfmEbfAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15415288",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15403449",
+      "bill_id": 9442,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOe0RF6AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15403449",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "3P",
+      "invoice": "142188",
+      "bill_id": 10308,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybzlAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "142188",
+      "live_vendor": "999-3P INDUSTRIES"
+    },
+    {
+      "vendor": "3P",
+      "invoice": "142216",
+      "bill_id": 10312,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADXcyWbp23lSoY0i7GBv6N_AAOfybznAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "142216",
+      "live_vendor": "999-3P INDUSTRIES"
+    },
+    {
+      "vendor": "Premium Alloys",
+      "invoice": "23173",
+      "bill_id": 10226,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AACDH-y1AADYQg2wXX_9SqOyqyAymhzKAAKTTHW_AAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "23173",
+      "live_vendor": "1335-PREMIUM ALLOYS"
+    },
+    {
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "invoice": "15400210",
+      "bill_id": 9389,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOVX23zAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "15400210",
+      "live_vendor": "1135-ONEAL STEEL, LLC."
+    },
+    {
+      "vendor": "Green Valley Compressor LLC",
+      "invoice": "2158",
+      "bill_id": 10244,
+      "graph_message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOQsGYvAAA=",
+      "ok": true,
+      "detail": "Bill exists for this vendor and invoice number.",
+      "live_invoice": "2158",
+      "live_vendor": "1403-Green Valley Compressor LLC"
+    }
+  ],
+  "sign_ins": 1,
+  "archive_recheck": "The four leftover messages were read back in the Inbox with category AI Needs Review. A second listing of 9 - FORT WORTH ARCHIVE at their received times returned no messages.",
+  "leftover_restored": [
+    {
+      "id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEDeAAA=",
+      "subject": "RE: [EXTERNAL] RE: Your Invoice from Service Experts",
+      "parent": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "AI Needs Review"
+      ],
+      "in_inbox": true,
+      "in_archive": false,
+      "receivedDateTime": "2026-09-10T16:41:48Z"
+    },
+    {
+      "id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEDfAAA=",
+      "subject": "KANNON MFG INV 120778",
+      "parent": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "AI Needs Review"
+      ],
+      "in_inbox": true,
+      "in_archive": false,
+      "receivedDateTime": "2026-09-10T16:41:48Z"
+    },
+    {
+      "id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEDgAAA=",
+      "subject": "Invoice for Your Order 59324",
+      "parent": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "AI Needs Review"
+      ],
+      "in_inbox": true,
+      "in_archive": false,
+      "receivedDateTime": "2026-09-30T06:50:32Z"
+    },
+    {
+      "id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEDhAAA=",
+      "subject": "Invoice for Your Order 59324",
+      "parent": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgAuAAAAAAAggjN_BHG4TI2Iz-JKRqfaAQDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAAA=",
+      "categories": [
+        "AI Needs Review"
+      ],
+      "in_inbox": true,
+      "in_archive": false,
+      "receivedDateTime": "2026-09-30T06:50:32Z"
+    }
+  ]
+}
