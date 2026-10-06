@@ -190,7 +190,7 @@ class Mail:
             response = self.client.request(method, url, **kwargs)
             if response.status_code == 401:
                 raise SystemExit("Graph HTTP 401; stopping without another sign-in")
-            if response.status_code in (429, 503) and attempt < 5:
+            if response.status_code in (429, 503, 504) and attempt < 5:
                 time.sleep(delay)
                 delay = min(delay * 2, 30)
                 continue
@@ -398,19 +398,24 @@ def prechecked_message(mail: Mail, folders: dict[str, dict], row: dict) -> tuple
 
 
 def find_n070(mail: Mail, folders: dict[str, dict], paths: dict[str, str]) -> tuple[dict | None, str]:
-    fort_worth = paths["Inbox/9 - FORT WORTH ARCHIVE"]
+    # Graph datetime `eq` returned no rows for this second. A one-second range does.
     try:
-        matches = mail.get_all(
-            f"{mail.base}/mailFolders/{quote(fort_worth, safe='')}/messages",
+        found = mail.get_all(
+            f"{mail.base}/messages",
             {
-                "$select": SELECT,
-                "$filter": f"receivedDateTime eq {N070_RECEIVED}",
+                "$select": SELECT + ",receivedDateTime",
+                "$filter": "receivedDateTime ge 2026-09-05T06:21:34Z and receivedDateTime lt 2026-09-05T06:21:35Z",
                 "$top": 50,
             },
             fatal=False,
         )
     except RuntimeError as exc:
         return None, f"FAILED lookup {exc}"
+    matches = [
+        item for item in found
+        if folder_path(folders, item.get("parentFolderId") or "") == "Inbox/9 - FORT WORTH ARCHIVE"
+        and (item.get("receivedDateTime") or "").startswith("2026-09-05T06:21:34")
+    ]
     credit = [item for item in matches if (item.get("subject") or "") == N070_CREDIT]
     credit_ids = {item.get("id") for item in credit}
     mail.invoice_snapshots = []
@@ -576,18 +581,15 @@ def verify(mail: Mail, results: list[dict]) -> list[dict]:
 
 
 def find_n070_readonly(mail: Mail, paths: dict[str, str]) -> tuple[dict | None, str]:
-    fort_worth = paths.get("Inbox/9 - FORT WORTH ARCHIVE")
-    inbox = paths.get("Inbox")
-    found = []
-    for folder_id in (inbox, fort_worth):
-        if not folder_id:
-            continue
-        found.extend(
-            mail.get_all(
-                f"{mail.base}/mailFolders/{quote(folder_id, safe='')}/messages",
-                {"$select": SELECT, "$filter": f"receivedDateTime eq {N070_RECEIVED}", "$top": 50},
-            )
-        )
+    del paths
+    found = mail.get_all(
+        f"{mail.base}/messages",
+        {
+            "$select": SELECT + ",receivedDateTime",
+            "$filter": "receivedDateTime ge 2026-09-05T06:21:34Z and receivedDateTime lt 2026-09-05T06:21:35Z",
+            "$top": 50,
+        },
+    )
     credit = [item for item in found if (item.get("subject") or "") == N070_CREDIT]
     if len(credit) == 1:
         return credit[0], ""
