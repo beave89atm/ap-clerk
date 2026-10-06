@@ -1,0 +1,36 @@
+message received,subject,invoice #,vendor,amount,KIMCO bill id or NONE,posted
+2026-09-29T04:48:59Z,Gas&Supply Invoice/Statement,0040455879,"Gas and Supply North Texas, LLC",192.00,10478,no
+2026-09-29T04:48:59Z,Gas&Supply Invoice/Statement,0040455916,"Gas and Supply North Texas, LLC",138.50,10479,no
+2026-09-29T04:48:59Z,Gas&Supply Invoice/Statement,0040455615,"Gas and Supply North Texas, LLC",213.93,10480,no
+2026-09-29T04:48:59Z,Gas&Supply Invoice/Statement,0040455291,"Gas and Supply North Texas, LLC",1403.79,NONE,no
+2026-09-29T06:40:31Z,PO 59176 Inv# 9307115285,9307115285,"Joseph T. Ryerson & Son, Inc",721.55,10481,no
+2026-09-29T13:51:08Z,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,PSI-001239218,Shoppa's Material Handling,608.58,10482,no
+2026-09-29T14:00:10Z,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,PSI-001240544,Shoppa's Material Handling,806.97,10483,no
+2026-09-29T16:26:45Z,Invoice - 18528,18528,Telecom Products Inc.,1086.60,10484,no
+2026-09-29T16:27:28Z,Invoice - 18529,18529,Telecom Products Inc.,6519.60,10485,no
+2026-09-29T16:30:00Z,Invoice - 18530,18530,Telecom Products Inc.,3259.80,10486,no
+2026-09-29T19:12:15Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11044,11044,American Quality Powder Coating,520.00,10487,no
+2026-09-29T19:38:06Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11043,11043,American Quality Powder Coating,150.00,10488,no
+2026-09-29T19:38:22Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11042,11042,American Quality Powder Coating,2600.00,10489,no
+2026-09-29T19:38:36Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11041,11041,American Quality Powder Coating,250.00,10490,no
+2026-09-29T20:10:49Z,Invoice - 18564,18564,Telecom Products Inc.,434.64,10491,no
+2026-09-29T21:56:20Z,Invoice WB4337861639 from Xcaliber Industrial LLC,WB4337861639,Xcaliber Industrial LLC,1080.00,10492,no
+2026-09-29T23:20:26Z,Invoice-216055,216055,Willbanks Metals,381.72,10493,no
+2026-09-30T03:11:51Z,EARLE M. JORGENSEN COMPANY - Invoices for 09/29/26,T609053432,Earle M. Jorgensen Company,487.14,10494,no
+2026-09-30T03:11:51Z,EARLE M. JORGENSEN COMPANY - Invoices for 09/29/26,T609084432,Earle M. Jorgensen Company,372.00,NONE,no
+2026-09-30T04:43:35Z,Gas&Supply Invoice/Statement,0040459813,"Gas and Supply North Texas, LLC",66.00,10495,no
+2026-09-30T19:13:11Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11052,11052,American Quality Powder Coating,150.00,10496,no
+2026-09-30T19:13:31Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11051,11051,American Quality Powder Coating,250.00,10497,no
+2026-09-30T19:13:49Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11050,11050,American Quality Powder Coating,500.00,10498,no
+2026-09-30T19:14:12Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11049,11049,American Quality Powder Coating,300.00,10499,no
+2026-09-30T19:14:32Z,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11047,11047,American Quality Powder Coating,590.00,10500,no
+2026-09-30T23:21:09Z,Invoice-216127,216127,Willbanks Metals,5760.00,10501,no
+2026-10-01T00:37:25Z,KANNON MANUFACTURING-(230230-P1) Priority1 Invoice 18440283,18440283,Priority 1,219.09,10502,no
+2026-10-01T03:12:01Z,EARLE M. JORGENSEN COMPANY - Invoices for 09/30/26,S816901432,Earle M. Jorgensen Company,166.98,10503,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486572,O'Neal Steel - Dallas (GP),326.12,10504,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486598,O'Neal Steel - Dallas (GP),3012.19,10505,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486600,O'Neal Steel - Dallas (GP),16386.88,10506,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486770,O'Neal Steel - Dallas (GP),502.32,10507,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486823,O'Neal Steel - Dallas (GP),10713.89,10508,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15486842,O'Neal Steel - Dallas (GP),5328.46,10509,no
+2026-10-01T04:29:10Z, O'Neal Steel Invoice For Account # 14748440 ,15487245,O'Neal Steel - Dallas (GP),81.52,NONE,no
