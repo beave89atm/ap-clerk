@@ -539,7 +539,19 @@ class KimcoClient:
         lines = []
         for rid, qty in refs:
             receipt = self.get_item("receipts", int(rid))
-            lines.append(receipt_line_values_from_records(invoice, receipt, quantity=qty))
+            line = receipt_line_values_from_records(invoice, receipt, quantity=qty)
+            # Outside-processing receipts (AQPC powder coat) have no Part_Number.
+            # The finished-good part is on the PO line. KIMCO rejects the add
+            # with "The Part field is required" until Part_ID is sent.
+            if line.get("Part_ID") in (None, "", {}):
+                pol = line.get("Purchase_Order_Line")
+                pol_id = pol.get("id") if isinstance(pol, dict) else None
+                if pol_id not in (None, ""):
+                    purchase = self.get_item("purchase_lines", int(pol_id))
+                    part_id = part_id_from_purchase_line(purchase)
+                    if part_id not in (None, ""):
+                        line["Part_ID"] = {"id": part_id}
+            lines.append(line)
         status = self.add_invoice_lines(invoice_id, lines)
         if status == "added":
             return "selected"
@@ -1357,6 +1369,20 @@ def select_receipts_payload(lines_or_ids: list[Any], *, invoice_id: int | str | 
     if invoice_id not in (None, ""):
         payload["id"] = int(invoice_id)
     return payload
+
+
+def part_id_from_purchase_line(record: dict[str, Any] | None) -> Any:
+    """Part id on a PO line when the receipt itself has no Part_Number.
+
+    Live AQPC receipt 24918 stores the finished good on the purchase line as
+    Work_Order_Number_$_Part_Number. Select Receipts needs that as Part_ID.
+    """
+    values = _unwrap_record(record)
+    for key in ("Work_Order_Number_$_Part_Number", "Part_Number"):
+        part = values.get(key)
+        if isinstance(part, dict) and part.get("id") not in (None, ""):
+            return part["id"]
+    return None
 
 
 def receipt_line_values_from_records(
