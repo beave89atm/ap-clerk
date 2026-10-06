@@ -6,7 +6,7 @@ Output: runs/email-undo-2026-10-06/dryrun.csv, summary.md, folders.json
 Never prints or writes secrets or message bodies.
 """
 from __future__ import annotations
-import collections, csv, json, re, sys
+import collections, csv, json, os, re, sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from urllib.parse import quote
@@ -49,6 +49,16 @@ def vtoks(s) -> set[str]:
     s = re.sub(r"^\d+\s*-\s*", "", str(s or "").lower())
     stop = {"inc", "llc", "co", "corp", "corporation", "company", "the", "of", "ltd", "lp", "texas", "and", "gp"}
     return {t for t in re.findall(r"[a-z0-9]{3,}", s) if t not in stop}
+
+
+def redact(value: str) -> str:
+    """Drop configured usernames from outputs. Never print the values."""
+    out = value or ""
+    for name in ("KIMCO_LIVE_USERNAME", "KIMCO_PROTOTYPE_USERNAME", "OUTLOOK_AP_USERNAME"):
+        secret = os.environ.get(name) or ""
+        if secret and secret in out:
+            out = out.replace(secret, "[redacted]")
+    return out
 
 
 def parse(ts: str | None):
@@ -215,13 +225,17 @@ def main() -> None:
             "pre_run_folder": p["pre_run_folder"], "pre_run_folder_live_name": resolved.get(p["pre_run_folder_id"], {}).get("path", ""),
             "planned_destination": p["planned_destination"], "planned_move": p["planned_move"],
             "status": st, "match_basis": basis, "candidates": len(c),
-            "live_subject": (c[0].get("subject", "") if len(c) == 1 else ""),
-            "live_from": (((c[0].get("from") or {}).get("emailAddress") or {}).get("address", "") if len(c) == 1 else ""),
+            "live_subject": ((c[0].get("subject") or "") if len(c) == 1 else ""),
+            "live_from": redact((((c[0].get("from") or {}).get("emailAddress") or {}).get("address") or "") if len(c) == 1 else ""),
             "current_folder": cur_folder, "current_categories": cur_cats,
             "categories_to_clear": ";".join(x for x in cur_cats.split(";") if x in REMOVABLE),
             "last_modified_utc": lm, "person_touched": touched, "internet_message_id": imid, "current_id": cur_id,
             "notes": " | ".join(note),
         })
+    for r in out_rows:
+        for key, value in list(r.items()):
+            if isinstance(value, str):
+                r[key] = redact(value)
     with open(OUT / "dryrun.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(out_rows[0])); w.writeheader(); w.writerows(out_rows)
 
@@ -236,9 +250,14 @@ def main() -> None:
     lines += ["", "## Pre-run folder ids resolved live", ""]
     lines += [f"- `...{k[-20:]}` -> {v}" for k, v in resolved.items()]
     lines += ["", "## Non-OK rows", "", "| Row | Status | Received CT | Sender | Live subject | Current folder | Categories | Destination | Notes |", "|---|---|---|---|---|---|---|---|---|"]
+    def md(v) -> str:
+        return str(v or "").replace("|", "/").replace("\n", " ")
+
     for r in out_rows:
         if r["status"] not in ("OK_TO_MOVE", "CATEGORY_ONLY"):
-            lines.append(f"| {r['row_id']} | {r['status']} | {r['received_ct']} | {r['sender_recorded']} | {r['live_subject'][:70]} | {r['current_folder']} | {r['current_categories']} | {r['planned_destination']} | {r['notes'][:300]} |")
+            lines.append(
+                f"| {md(r['row_id'])} | {md(r['status'])} | {md(r['received_ct'])} | {md(r['sender_recorded'])} | {md(r['live_subject'])[:70]} | {md(r['current_folder'])} | {md(r['current_categories'])} | {md(r['planned_destination'])} | {md(r['notes'])[:300]} |"
+            )
     lines += ["", "No message was moved, re-categorized, flagged, deleted, sent or replied to. KIMCO was not accessed."]
     (OUT / "summary.md").write_text("\n".join(lines) + "\n")
     print(json.dumps({"rows": len(out_rows), "status": S}, default=str))
