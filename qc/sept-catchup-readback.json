@@ -1,0 +1,1098 @@
+{
+  "batch_name": "API Agent - 10/6/26 Sept",
+  "batch_id": 747,
+  "sign_ins": 2,
+  "bills": [
+    {
+      "kimco_id": 10465,
+      "invoice_number": "2609000773",
+      "vendor": {
+        "id": 88,
+        "text": "1086-HUDSON ENERGY-24312"
+      },
+      "header_invoice_amount": 3302.09,
+      "header_verification_amount": 2448.46,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 2387.25,
+          "amount": 2387.25
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 900.88,
+          "amount": 900.88
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 0.42,
+          "amount": 0.42
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 12.12,
+          "amount": 12.12
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 1.42,
+          "amount": 1.42
+        }
+      ]
+    },
+    {
+      "kimco_id": 10466,
+      "invoice_number": "237704",
+      "vendor": {
+        "id": 184,
+        "text": "1182-TRACE METAL INDUSTRIES, INC"
+      },
+      "header_invoice_amount": 165.2,
+      "header_verification_amount": 165.2,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 21036,
+            "text": "PL-1.00 X 10.25 OD X 5.88 ID-A36-RING"
+          },
+          "qty": 4.0,
+          "unit_price": 41.3,
+          "extended": 165.2,
+          "receipt_id": {
+            "id": 23703,
+            "text": "PO59009-TRACE METAL INDUSTRIES, INC - 2026/9/3"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10468,
+      "invoice_number": "000444279/1/202659035",
+      "vendor": {
+        "id": 383,
+        "text": "1381-TRICOR METALS"
+      },
+      "header_invoice_amount": 212.19,
+      "header_verification_amount": 3552.19,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 212.19,
+          "amount": 212.19
+        }
+      ]
+    },
+    {
+      "kimco_id": 10469,
+      "invoice_number": "2221",
+      "vendor": {
+        "id": 112,
+        "text": "1110-LUXOR STAFFING, INC."
+      },
+      "header_invoice_amount": 3587.5,
+      "header_verification_amount": 3587.5,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 47,
+            "text": "Contract Labor-."
+          },
+          "qty": 1.0,
+          "unit_price": 3587.5,
+          "extended": 3587.5,
+          "receipt_id": null,
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10470,
+      "invoice_number": "9307057099",
+      "vendor": {
+        "id": 152,
+        "text": "1150-RYERSON, JOSEPH T. & SON"
+      },
+      "header_invoice_amount": 703.31,
+      "header_verification_amount": 703.31,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 20097,
+            "text": "RB-4.00-4130-NQT - 4\" DIA 4130 NQT"
+          },
+          "qty": 108.0,
+          "unit_price": 6.4815,
+          "extended": 700.0,
+          "receipt_id": {
+            "id": 23822,
+            "text": "PO59064-RYERSON, JOSEPH T. & SON - 2026/9/8"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 3.46,
+          "amount": 3.46
+        },
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": 0.01,
+          "amount": 0.01
+        },
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": -0.16,
+          "amount": -0.16
+        }
+      ]
+    },
+    {
+      "kimco_id": 10471,
+      "invoice_number": "PS-INV103317",
+      "vendor": {
+        "id": 45,
+        "text": "1043-CAPITAL MACHINE TECHNOLOGIES"
+      },
+      "header_invoice_amount": 610.0,
+      "header_verification_amount": 610.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": null,
+          "qty": 1.0,
+          "unit_price": 298.71,
+          "extended": 298.71,
+          "receipt_id": {
+            "id": 25235,
+            "text": "PO58989-CAPITAL MACHINE TECHNOLOGIES - 2026/10/2"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 165.0,
+          "amount": 165.0
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 25.0,
+          "amount": 25.0
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 165.0,
+          "amount": 165.0
+        },
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": -43.71,
+          "amount": -43.71
+        }
+      ]
+    },
+    {
+      "kimco_id": 10475,
+      "invoice_number": "15409416",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 42818.73,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10476,
+      "invoice_number": "43293871",
+      "vendor": {
+        "id": 329,
+        "text": "1327-AM CASTLE & CO"
+      },
+      "header_invoice_amount": 6.46,
+      "header_verification_amount": 645.0,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 3.23,
+          "amount": 3.23
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 3.23,
+          "amount": 3.23
+        }
+      ]
+    },
+    {
+      "kimco_id": 10477,
+      "invoice_number": "15478871",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 42079.26,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10478,
+      "invoice_number": "0040455879",
+      "vendor": {
+        "id": 71,
+        "text": "1069-GAS AND SUPPLY"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 192.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10479,
+      "invoice_number": "0040455916",
+      "vendor": {
+        "id": 71,
+        "text": "1069-GAS AND SUPPLY"
+      },
+      "header_invoice_amount": 22.5,
+      "header_verification_amount": 138.5,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 22.5,
+          "amount": 22.5
+        }
+      ]
+    },
+    {
+      "kimco_id": 10480,
+      "invoice_number": "0040455615",
+      "vendor": {
+        "id": 71,
+        "text": "1069-GAS AND SUPPLY"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 213.93,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10481,
+      "invoice_number": "9307115285",
+      "vendor": {
+        "id": 152,
+        "text": "1150-RYERSON, JOSEPH T. & SON"
+      },
+      "header_invoice_amount": 721.55,
+      "header_verification_amount": 721.55,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 1307,
+            "text": "RT-3.50 X 1.75 X 0.875-4140-VGS 5.510.4.7"
+          },
+          "qty": 84.0,
+          "unit_price": 8.5714,
+          "extended": 720.0,
+          "receipt_id": {
+            "id": 24866,
+            "text": "PO59176-RYERSON, JOSEPH T. & SON - 2026/9/29"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 1.55,
+          "amount": 1.55
+        }
+      ]
+    },
+    {
+      "kimco_id": 10482,
+      "invoice_number": "PSI-001239218",
+      "vendor": {
+        "id": 159,
+        "text": "1157-SHOPPA'S MATERIAL HANDLING"
+      },
+      "header_invoice_amount": 633.58,
+      "header_verification_amount": 608.58,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 608.58,
+          "amount": 608.58
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 25.0,
+          "amount": 25.0
+        }
+      ]
+    },
+    {
+      "kimco_id": 10483,
+      "invoice_number": "PSI-001240544",
+      "vendor": {
+        "id": 159,
+        "text": "1157-SHOPPA'S MATERIAL HANDLING"
+      },
+      "header_invoice_amount": 831.97,
+      "header_verification_amount": 806.97,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 806.97,
+          "amount": 806.97
+        },
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 25.0,
+          "amount": 25.0
+        }
+      ]
+    },
+    {
+      "kimco_id": 10484,
+      "invoice_number": "18528",
+      "vendor": {
+        "id": 183,
+        "text": "1181-TPI"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 1086.6,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10485,
+      "invoice_number": "18529",
+      "vendor": {
+        "id": 183,
+        "text": "1181-TPI"
+      },
+      "header_invoice_amount": 6519.6,
+      "header_verification_amount": 6519.6,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 20632,
+            "text": "A-04421-000 - Fender, Drive Over"
+          },
+          "qty": 60.0,
+          "unit_price": 108.66,
+          "extended": 6519.6,
+          "receipt_id": {
+            "id": 24470,
+            "text": "PO58803-TPI - 2026/9/23"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10486,
+      "invoice_number": "18530",
+      "vendor": {
+        "id": 183,
+        "text": "1181-TPI"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 3259.8,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10487,
+      "invoice_number": "11044",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 520.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10488,
+      "invoice_number": "11043",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 150.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10489,
+      "invoice_number": "11042",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 2600.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10490,
+      "invoice_number": "11041",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 250.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10491,
+      "invoice_number": "18564",
+      "vendor": {
+        "id": 183,
+        "text": "1181-TPI"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 434.64,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10492,
+      "invoice_number": "WB4337861639",
+      "vendor": {
+        "id": 339,
+        "text": "1337-XCALIBER"
+      },
+      "header_invoice_amount": 2160.0,
+      "header_verification_amount": 1080.0,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 19852,
+            "text": "TBB00001 - BEARING BALL 1-ROW"
+          },
+          "qty": 300.0,
+          "unit_price": 3.6,
+          "extended": 1080.0,
+          "receipt_id": {
+            "id": 24859,
+            "text": "PO59278-XCALIBER - 2026/9/29"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 1080.0,
+          "amount": 1080.0
+        }
+      ]
+    },
+    {
+      "kimco_id": 10493,
+      "invoice_number": "216055",
+      "vendor": {
+        "id": 202,
+        "text": "1200-WILLBANKS METALS"
+      },
+      "header_invoice_amount": 381.72,
+      "header_verification_amount": 381.72,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 20820,
+            "text": "RCT-5.00 X 2.50 x 0.25-A500"
+          },
+          "qty": 288.0,
+          "unit_price": 1.3254,
+          "extended": 381.72,
+          "receipt_id": {
+            "id": 25161,
+            "text": "PO59254-WILLBANKS METALS - 2026/10/1"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": -1.32,
+          "amount": -1.32
+        },
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": 1.32,
+          "amount": 1.32
+        }
+      ]
+    },
+    {
+      "kimco_id": 10494,
+      "invoice_number": "T609053432",
+      "vendor": {
+        "id": 208,
+        "text": "1206-EMJ Earl M. Jorgensen Company"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 487.14,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10495,
+      "invoice_number": "0040459813",
+      "vendor": {
+        "id": 71,
+        "text": "1069-GAS AND SUPPLY"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 66.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10496,
+      "invoice_number": "11052",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 150.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10497,
+      "invoice_number": "11051",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 250.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10498,
+      "invoice_number": "11050",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 500.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10499,
+      "invoice_number": "11049",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 300.0,
+      "header_verification_amount": 300.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "qty": 1.0,
+          "price": 300.0,
+          "amount": 300.0
+        }
+      ]
+    },
+    {
+      "kimco_id": 10500,
+      "invoice_number": "11047",
+      "vendor": {
+        "id": 22,
+        "text": "1020-AMERICAN QUALITY POWDERCOATING"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 590.0,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10501,
+      "invoice_number": "216127",
+      "vendor": {
+        "id": 202,
+        "text": "1200-WILLBANKS METALS"
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 5760.0,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10502,
+      "invoice_number": "18440283",
+      "vendor": {
+        "id": 145,
+        "text": "1143-PRIORITY 1"
+      },
+      "header_invoice_amount": 219.09,
+      "header_verification_amount": 219.09,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "Freight External",
+          "qty": 1.0,
+          "price": 219.09,
+          "amount": 219.09
+        }
+      ]
+    },
+    {
+      "kimco_id": 10503,
+      "invoice_number": "S816901432",
+      "vendor": {
+        "id": 208,
+        "text": "1206-EMJ Earl M. Jorgensen Company"
+      },
+      "header_invoice_amount": 166.98,
+      "header_verification_amount": 166.98,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 134,
+            "text": "FB-1.00 X 2.00-A36 - 1.0\" X 2.0\" A36 HR"
+          },
+          "qty": 240.0,
+          "unit_price": 0.6857,
+          "extended": 164.57,
+          "receipt_id": {
+            "id": 25160,
+            "text": "PO59323-EMJ Earl M. Jorgensen Company - 2026/10/1"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": 2.41,
+          "amount": 2.41
+        }
+      ]
+    },
+    {
+      "kimco_id": 10504,
+      "invoice_number": "15486572",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 326.12,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10505,
+      "invoice_number": "15486598",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 3012.19,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10506,
+      "invoice_number": "15486600",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 16386.88,
+      "header_verification_amount": 16386.88,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 10125,
+            "text": "PL-0.375 X 60 X 120-A36"
+          },
+          "qty": 26.0,
+          "unit_price": 630.2646,
+          "extended": 16386.88,
+          "receipt_id": {
+            "id": 25261,
+            "text": "PO59253-ONEAL STEEL, LLC. - 2026/10/5"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10507,
+      "invoice_number": "15486770",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 502.32,
+      "header_verification_amount": 502.32,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [
+        {
+          "item": {
+            "id": 11538,
+            "text": "P-1.50 SCH 40-A500 - Pipe 1-1/2\" SCH 40"
+          },
+          "qty": 1008.0,
+          "unit_price": 0.4984,
+          "extended": 502.39,
+          "receipt_id": {
+            "id": 25186,
+            "text": "PO59279-ONEAL STEEL, LLC. - 2026/10/1"
+          },
+          "ppv": null,
+          "gl": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "name": "Purchase Price Variance",
+          "qty": 1.0,
+          "price": -0.07,
+          "amount": -0.07
+        }
+      ]
+    },
+    {
+      "kimco_id": 10508,
+      "invoice_number": "15486823",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 10713.89,
+      "batch": {
+        "id": 375,
+        "text": "TRANSFER AP"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    },
+    {
+      "kimco_id": 10509,
+      "invoice_number": "15486842",
+      "vendor": {
+        "id": 137,
+        "text": "1135-ONEAL STEEL, LLC."
+      },
+      "header_invoice_amount": 0.0,
+      "header_verification_amount": 5328.46,
+      "batch": {
+        "id": 747,
+        "text": "API Agent - 10/6/26 Sept"
+      },
+      "posted": null,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": []
+    }
+  ]
+}
