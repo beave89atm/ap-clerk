@@ -1,5 +1,5 @@
 {
-  "read_only": true,
+  "read_only": false,
   "bills_checked": 48,
   "conclusion": "Bill 10475 is the entered record for invoice number 15409416. Its PDF is a 2026-09-17 payment-status letter, not an invoice. Bill 10477 is the other O'Neal letter and is also a non-invoice. No other existing bill in 10465-10512 is a statement or other non-invoice.",
   "classification_notes": [
@@ -7,15 +7,16 @@
     "10469 Luxor Staffing 2221 is a labor timesheet invoice (Contract Labor $3,587.50), not a statement.",
     "10467, 10473, and 10474 returned HTTP 404 and do not exist.",
     "No other bill in 10465-10512 is a statement or other non-invoice.",
-    "Both letter notes were authored by API Agent user 175, mention only Shawn McKibben (id 104), and say the bill was moved to Transfer AP. Both bills are still on batch 747."
+    "Both original letter notes were authored by API Agent user 175 and mention only Shawn McKibben (id 104). At the time of the read-only check both bills were still on batch 747.",
+    "After the read-only check, bill 10475 was noted and then moved to TRANSFER AP batch 375. Bill 10477 was not changed."
   ],
   "invoice_15409416": {
     "id": 10475,
     "invoice": "15409416",
     "vendor": "1135-ONEAL STEEL, LLC.",
     "batch": {
-      "id": 747,
-      "text": "API Agent - 10/6/26 Sept"
+      "id": 375,
+      "text": "TRANSFER AP"
     },
     "type": 4,
     "posted": null,
@@ -88,7 +89,43 @@
     ],
     "document_class": "statement",
     "text_excerpt": "September 17, 2026\nKANNON MANUFACTURING INC\n5129 VESTA FARLEY RD\nFORT WORTH, TX 76119\nRegarding Account #:  14748440\nDear ACCOUNTS PAYABLE ,\nPlease provide payment status on the below listed invoices.  If payment has been\nmade, please provide details such a check#, amount, date sent.  If there are\nproblems on them that need to be addressed, please let me know so I can attend to it\nimmediately.\nInvoice No. Purchase\nOrder Number\nBalance Due Inv Date Due Date DBT\n15455556 15447737\n58979\n$-1,312.08 08/28/2026 08/28/2026     20\n15398467 58594 $774.00 07/06/2026 09/04/2026     13\n15398891 58051 $365.77 07/07/2026 09/05/2026     12\n15399796 58600 $1,105.78 07/07/2026 09/05/2026     12\n15400210 58284 $3,026.56 07/08/2026 09/06/2026     11\n15401860 58610 $804.19 07/09/2026 09/07/2026     10\n15402415 58618 $8,756.14 07/09/2026 09/07/2026     10\n15402927 58421 $2,772.90 07/10/2026 09/08/2026      9\n15403449 58641 $380.36 07/10/2026 09/08/2026      9\n\n15464367 15439109\n58912\n$-638.88 09/08/2026 09/08/2026      9\n15406239 58653 $7,901.12 07/14/2026 09/12/2026      5\n15407157 58499 $6,785.00 07/15/2026 09/13/2026      4\n15408130 58676 $9,699.02 07/15/2026 09/13/2026      4\n15409280 58648 $2,318.",
-    "document_basis": "2026-09-17 O'Neal letter for account 14748440. Heading is 'Dear ACCOUNTS PAYABLE, Please provide payment status on the below listed invoices.' 15409416 is one balance-due row on the open-invoice list, not this document's own invoice. Verification $42,818.73 is the letter total. No lines, charges, or taxes were entered."
+    "document_basis": "2026-09-17 O'Neal letter for account 14748440. Heading is 'Dear ACCOUNTS PAYABLE, Please provide payment status on the below listed invoices.' 15409416 is one balance-due row on the open-invoice list, not this document's own invoice. Verification $42,818.73 is the letter total. No lines, charges, or taxes were entered.",
+    "comments_after_approval": [
+      {
+        "id": 1623,
+        "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+        "mentions": [
+          {
+            "id": 33,
+            "name": "Treyce Hodges"
+          },
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "created_on": "2026-10-06T14:46:32.713",
+        "creator_id": 175,
+        "creator_name": "API Agent",
+        "modified_on": "2026-10-06T14:46:32.713",
+        "modifier_id": 175
+      },
+      {
+        "id": 1532,
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "created_on": "2026-10-06T08:02:33.923",
+        "creator_id": 175,
+        "creator_name": "API Agent",
+        "modified_on": "2026-10-06T08:02:33.923",
+        "modifier_id": 175
+      }
+    ]
   },
   "other_oneal_letter_bill": {
     "id": 10477,
@@ -183,7 +220,7 @@
       "invoice": "15409416",
       "vendor": "1135-ONEAL STEEL, LLC.",
       "document_class": "statement",
-      "batch": "API Agent - 10/6/26 Sept",
+      "batch": "TRANSFER AP",
       "why": "Payment-status letter, not a vendor invoice."
     },
     {
@@ -291,7 +328,7 @@
       "invoice": "15409416",
       "vendor": "1135-ONEAL STEEL, LLC.",
       "document_class": "statement",
-      "batch_id": 747,
+      "batch_id": 375,
       "posted": null,
       "missing": false
     },
@@ -628,5 +665,146 @@
       "posted": null,
       "missing": false
     }
-  ]
+  ],
+  "kyle_approval": {
+    "bill_id": 10475,
+    "only_this_bill": true,
+    "note_saved_before_move": true,
+    "note_wording": "Kyle's follow-up replaced the earlier sentence before any write. The saved note says this was AP Clerk's mistake.",
+    "note_text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+    "note_status": "added",
+    "move_status": "moved",
+    "transfer_batch": {
+      "id": 375,
+      "name": "TRANSFER AP"
+    },
+    "before": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:32+00:00"
+    },
+    "after_note": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1623,
+          "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+          "mentions": [
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            },
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T14:46:32.713",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T14:46:32.713",
+          "modifier_id": 175
+        },
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:33+00:00"
+    },
+    "after": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1623,
+          "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+          "mentions": [
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            },
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T14:46:32.713",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T14:46:32.713",
+          "modifier_id": 175
+        },
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:39+00:00"
+    }
+  }
 }
