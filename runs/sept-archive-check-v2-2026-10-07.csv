@@ -1,0 +1,229 @@
+message received time,sender,subject,current folder,current categories,bills,per-bill attachment present y/n,hold note present y/n,any un-entered invoice,proposed action
+2026-07-31T05:11:01Z,southcredit@amcastle.com,A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279,Inbox,Investigating,10476:43293871,10476=y,10476=y,,MOVE (Entered in AI)
+2026-09-01T15:50:19Z,no-reply1@hudsonenergy.net,Your Hudson Energy eBill - Period (07/31/2026 - 08/31/2026 ) Due on 09/17/2026 300067525,Inbox/9 - FORT WORTH ARCHIVE,,10465:2609000773,10465=y,10465=y,,RETAG (Entered in AI only)
+2026-09-01T19:06:59Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10968,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10016:10968,10016=y,10016=n,,OK
+2026-09-01T19:07:16Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10967,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10017:10967,10017=y,10017=n,,OK
+2026-09-01T19:44:27Z,accounting@tracemetalindustries.com,"Invoices from TRACE METAL INDUSTRIES, INC",Inbox/9 - FORT WORTH ARCHIVE,,10466:237704,10466=y,10466=n,,RETAG (Entered in AI only)
+2026-09-02T06:52:01Z,invoice.reply@mcmaster.com,Invoice for Your Order 59089,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10155:71183051,10155=y,10155=n,,OK
+2026-09-02T15:36:29Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10969,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10015:10969,10015=y,10015=n,,OK
+2026-09-02T16:25:04Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125122) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10110:125122,10110=y,10110=n,,OK
+2026-09-02T18:53:07Z,kstarkey@tricormetals.com,Invoice 00044427,Inbox/3 - RECEIPT INVOICE ISSUES,,10468:000444279/1/202659035,10468=y,10468=y,,MOVE (Entered in AI)
+2026-09-02T19:07:54Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104009,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10127:PS-INV104009,10127=y,10127=n,,OK
+2026-09-02T19:54:16Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104010,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10126:PS-INV104010,10126=y,10126=n,,OK
+2026-09-02T20:37:00Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104011,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10125:PS-INV104011,10125=y,10125=n,,OK
+2026-09-03T04:50:29Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10172:0040414962,10172=y,10172=y,,RETAG (Entered in AI only)
+2026-09-03T06:50:45Z,invoice.reply@mcmaster.com,Invoice for Your Order 59103,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10153:71254641,10153=y,10153=n,,OK
+2026-09-03T06:50:45Z,invoice.reply@mcmaster.com,Invoice for Your Order 59103,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10154:71236251,10154=y,10154=y,,RETAG (Entered in AI only)
+2026-09-03T17:46:56Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104012,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10124:PS-INV104012,10124=y,10124=n,,OK
+2026-09-03T17:54:28Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104013,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10123:PS-INV104013,10123=y,10123=n,,OK
+2026-09-03T18:56:08Z,JTorres@LuxorStaffing.com,"Luxor Staffing Invoice-Kannon Manufacturing, Inc",Inbox/9 - FORT WORTH ARCHIVE,,10469:2221,10469=y,10469=n,,RETAG (Entered in AI only)
+2026-09-04T04:36:58Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,AI HOLD,10171:0040417672,10171=y,10171=y,,RETAG (Entered in AI only)
+2026-09-04T14:30:29Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28114 for 59052 (#8451) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10103:28114,10103=y,10103=n,,OK
+2026-09-04T14:30:43Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28113 for 59038 (#8432) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10102:28113,10102=y,10102=n,,OK
+2026-09-04T14:36:40Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28102 for 58902 (#8242) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10105:28102,10105=y,10105=n,,OK
+2026-09-04T14:37:39Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28100 for 59022-01 (#8421) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10104:28100,10104=y,10104=n,,OK
+2026-09-04T23:02:47Z,invoices@fastenal-invoices.com,Fastenal Invoice Notice,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10320:TXFT4100349; 10321:TXFT4100376,10320=y; 10321=y,10320=n; 10321=n,,OK
+2026-09-04T23:20:57Z,estevan.uribe@willbanksmetals.com,Invoice-213645,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10355:213645,10355=y,10355=n,,OK
+2026-09-05T01:23:18Z,apdirect@airproducts.com,Air Products Invoice 0436333415 (US10),Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10356:436333415,10356=y,10356=n,,OK
+2026-09-05T06:12:58Z,ARFirstaidinquiry@unifirst.com,Customer #FAS-024795 Invoice #IN000037249,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10357:IN000037249,10357=y,10357=n,,OK
+2026-09-05T06:21:34Z,invoice.reply@mcmaster.com,Invoice for Your Order 59125,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10152:71401129,10152=y,10152=y,,OK
+2026-09-05T06:29:32Z,donotreplyinvoice@ryerson.com,PO 59064 Inv# 9307057099,Inbox,,10470:9307057099,10470=y,10470=n,,MOVE (Entered in AI)
+2026-09-08T16:49:17Z,quickbooks@notification.intuit.com,Invoice from Greentree Packaging & Lumber,Inbox,,10358:112589,10358=y,10358=n,,MOVE (Entered in AI)
+2026-09-08T19:05:05Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104015,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10115:PS-INV104015,10115=y,10115=n,,OK
+2026-09-08T21:29:37Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104017,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10116:PS-INV104017,10116=y,10116=n,,OK
+2026-09-08T21:39:27Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104018,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10114:PS-INV104018,10114=y,10114=n,,OK
+2026-09-08T21:55:03Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104019,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10113:PS-INV104019,10113=y,10113=n,,OK
+2026-09-09T03:08:11Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/08/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10325:S815368432,10325=y,10325=n,,OK
+2026-09-09T04:21:57Z,vsanders@onealsteel.com,O'Neal Steel Invoice For Account # 14748440,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10318:15464074,10318=y,10318=n,,OK
+2026-09-09T04:41:12Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10135:0040421569,10135=y,10135=n,,OK
+2026-09-09T13:15:12Z,DoNotReply@altparts.com,Attached is the Invoice for Kannon Mfg dated 9/8/2026.,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10359:0098626-IN,10359=y,10359=n,,OK
+2026-09-09T15:04:38Z,Accounting@TPITexas.com,Invoice - 17912,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10360:17912,10360=y,10360=n,,OK
+2026-09-09T15:39:21Z,Accounting@TPITexas.com,Invoice - 17916,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10361:17916,10361=y,10361=n,,OK
+2026-09-09T17:02:58Z,Emily.Keith@morgansteel.net,Invoice 129425,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10362:129425,10362=y,10362=y,,RETAG (Entered in AI only)
+2026-09-09T18:12:56Z,donotreply@invoices.mscdirect.com,"MSC Invoice 77062711, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1570 (DXED#2026252134305413F7D1)",Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10363:77062711,10363=y,10363=n,,OK
+2026-09-09T18:40:58Z,accounting2@sss-steel.com,Ref 01178303 from TUBE SUPPLY,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10364:01178303,10364=y,10364=n,,OK
+2026-09-09T19:28:55Z,Giovanny@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104020,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10112:PS-INV104020,10112=y,10112=n,,OK
+2026-09-09T20:32:05Z,a1imageinc@gmail.com,"Invoice 67067 from A-1 IMAGE, INC.",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10367:67067,10367=y,10367=y,,RETAG (Entered in AI only)
+2026-09-10T03:11:34Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/09/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10326:T607621432,10326=y,10326=n,,OK
+2026-09-10T04:38:50Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10132:0040425612; 10133:0040424382; 10134:0040423658; 10166:0040424839,10132=y; 10133=y; 10134=y; 10166=y,10132=n; 10133=n; 10134=n; 10166=y,,RETAG (Entered in AI only)
+2026-09-10T12:11:48Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10984,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10014:10984,10014=y,10014=n,,OK
+2026-09-10T18:47:15Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44211,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10370:JVT SI-44211,10370=y,10370=y,,RETAG (Entered in AI only)
+2026-09-10T18:47:19Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44212,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10371:JVT SI-44212,10371=y,10371=y,,RETAG (Entered in AI only)
+2026-09-10T18:47:28Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44213,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10372:JVT SI-44213,10372=y,10372=y,,RETAG (Entered in AI only)
+2026-09-10T18:47:28Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44214,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10373:JVT SI-44214,10373=y,10373=n,,OK
+2026-09-11T03:13:27Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/10/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10327:S815562432,10327=y,10327=n,,OK
+2026-09-11T07:47:50Z,invoice.reply@mcmaster.com,Invoice for Your Order 59120,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10151:71668723,10151=y,10151=n,,OK
+2026-09-11T07:47:50Z,invoice.reply@mcmaster.com,Invoice for Your Order 59161,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10138:71647463,10138=y,10138=n,,OK
+2026-09-11T07:47:51Z,invoice.reply@mcmaster.com,Invoice for Your Order 59159,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10150:71642803,10150=y,10150=n,,OK
+2026-09-11T12:48:51Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28166 for 59087 (#8497) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10101:28166,10101=y,10101=n,,OK
+2026-09-11T15:45:01Z,Emily.Keith@morgansteel.net,Invoice 129501,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10374:129501,10374=y,10374=y,,RETAG (Entered in AI only)
+2026-09-11T15:46:11Z,Emily.Keith@morgansteel.net,Invoice 129511,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10375:129511,10375=y,10375=y,,RETAG (Entered in AI only)
+2026-09-11T18:39:08Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10991,Inbox,Entered with issues,10013:10991,10013=y,10013=n,,MOVE (Entered in AI)
+2026-09-11T19:11:40Z,ar@capitalmachine.com,Capital Machine - Sales Invoice PS-INV103317 - KANNON MANUFACTURING - AMTECH,Inbox,,10471:PS-INV103317,10471=y,10471=n,,MOVE (Entered in AI)
+2026-09-11T19:36:12Z,quickbooks@notification.intuit.com,New payment request from Green Valley Compressor LLC - invoice 2216,Inbox,,10382:2216,10382=y,10382=y,,MOVE (Entered in AI)
+2026-09-11T20:50:10Z,quickbooks@notification.intuit.com,Invoice WB4337861607 from Xcaliber Industrial LLC,Inbox,,10472:WB4337861607,10472=y,10472=n,,KEEP (HOLD 10472 has no AP Clerk issue note)
+2026-09-11T23:02:07Z,jhencke@rmpis.com,"RMP Industrial Supply Inc - Invoice# 1473030, 1473031",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10376:1473030; 10378:1473031,10376=y; 10378=y,10376=y; 10378=y,,RETAG (Entered in AI only)
+2026-09-12T00:18:39Z,UniFirstInvoices@UniFirst.com,Invoice Number 2810810634 from UniFirst,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10379:2810810634,10379=y,10379=n,,RETAG (Entered in AI only)
+2026-09-12T01:34:29Z,apdirect@airproducts.com,Air Products Invoice 0436437181 (US10),Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10380:436437181,10380=y,10380=n,,OK
+2026-09-12T04:23:41Z,vsanders@onealsteel.com,O'Neal Steel Invoice For Account # 14748440,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10319:15467969,10319=y,10319=n,,OK
+2026-09-12T05:13:26Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,AI HOLD,10165:0040430010,10165=y,10165=y,,RETAG (Entered in AI only)
+2026-09-12T06:31:26Z,invoice.reply@mcmaster.com,Invoice for Your Order 59120,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10149:71740547,10149=y,10149=n,,OK
+2026-09-12T06:31:28Z,invoice.reply@mcmaster.com,Invoice for Your Order 59159,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10148:71743140,10148=y,10148=y,,RETAG (Entered in AI only)
+2026-09-14T12:26:36Z,donotreply@invoices.mscdirect.com,"MSC Invoice 78482801, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1572 (DXED#2026257081908300C83A)",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10383:78482801,10383=y,10383=y,,RETAG (Entered in AI only)
+2026-09-14T13:10:27Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10999,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10008:10999,10008=y,10008=n,,OK
+2026-09-14T13:10:53Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 10998,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10012:10998,10012=y,10012=n,,OK
+2026-09-14T16:30:32Z,cpa@mcqind.com,Invoice 09-30449 from McQueary Industries,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10384:09-30449,10384=y,10384=y,,RETAG (Entered in AI only)
+2026-09-15T01:29:20Z,apdirect@airproducts.com,Air Products Invoice 0436448543 (US10),Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10385:436448543,10385=y,10385=n,,OK
+2026-09-15T03:07:28Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/14/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10328:T607753432; 10329:T607834432,10328=y; 10329=y,10328=n; 10329=n,,OK
+2026-09-15T04:25:55Z,vsanders@onealsteel.com,O'Neal Steel Invoice For Account # 14748440,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10160:15469453,10160=y,10160=y,,RETAG (Entered in AI only)
+2026-09-15T04:37:22Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10130:0040431060,10130=y,10130=n,,OK
+2026-09-15T07:13:07Z,Noreplymv@leecosteel.com,Leeco Steel Invoice 623592,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10386:623592,10386=y,10386=n,,OK
+2026-09-15T07:14:53Z,invoice.reply@mcmaster.com,Invoice for Your Order 59191,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10147:71839575,10147=y,10147=n,,RETAG (Entered in AI only)
+2026-09-15T08:43:14Z,no-reply@recur360.com,Kannon Manufacturing Inc. - Fort Worth - Invoice # LS-8578 - Due 9/25/2026,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10387:LS-8578,10387=y,10387=y,,RETAG (Entered in AI only)
+2026-09-15T14:02:46Z,RBrown@hagensfasteners.com,PO# 59057 (Invoice 5158738),Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10390:5158738,10390=y,10390=y,,RETAG (Entered in AI only)
+2026-09-15T18:09:41Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11005,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10011:11005,10011=y,10011=n,,OK
+2026-09-15T18:10:17Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10010:11004,10010=y,10010=n,,OK
+2026-09-15T18:10:45Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11003,Inbox,Entered with issues,10009:11003,10009=y,10009=n,,MOVE (Entered in AI)
+2026-09-15T18:11:01Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11002,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10007:11002,10007=y,10007=n,,OK
+2026-09-15T23:01:59Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1473284,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10394:1473284,10394=y,10394=y,,RETAG (Entered in AI only)
+2026-09-16T03:14:22Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/15/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10330:T607927432,10330=y,10330=n,,OK
+2026-09-16T04:49:24Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10129:0040434973,10129=y,10129=n,,OK
+2026-09-16T17:56:53Z,donotreply@invoices.mscdirect.com,"MSC Invoice 79166301, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1571 (DXED#20262591352078005D9A)",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10396:79166301,10396=y,10396=y,,RETAG (Entered in AI only)
+2026-09-16T20:15:05Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125314) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10109:125314,10109=y,10109=n,,OK
+2026-09-16T20:15:13Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125316) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10108:125316,10108=y,10108=n,,OK
+2026-09-16T20:15:30Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125315) Transmission for KANNON MFG,Inbox,Entered with issues,10107:125315,10107=y,10107=n,,MOVE (Entered in AI)
+2026-09-16T22:16:42Z,accounting@aft-corp.com,"Automated Finishing Technology, seq#206 Invoice Number: 52004 Dated: 9/16/2026",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10398:52004,10398=y,10398=y,,RETAG (Entered in AI only)
+2026-09-16T22:16:43Z,accounting@aft-corp.com,"Automated Finishing Technology, seq#207 Invoice Number: 52005 Dated: 9/16/2026",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10399:52005,10399=y,10399=y,,RETAG (Entered in AI only)
+2026-09-16T23:01:53Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1473396,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10395:1473396,10395=y,10395=y,,RETAG (Entered in AI only)
+2026-09-17T03:07:58Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/16/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10331:S815764432,10331=y,10331=n,,OK
+2026-09-17T05:34:07Z,edocuments@rolledalloys.com,Rolled Alloys Inc: Invoice(s) for Purchase Order 58980,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10391:6874850,10391=y,10391=n,,OK
+2026-09-17T06:50:24Z,invoice.reply@mcmaster.com,Invoice for Your Order 58221,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10146:72013304,10146=y,10146=y,,RETAG (Entered in AI only)
+2026-09-17T06:50:25Z,invoice.reply@mcmaster.com,Invoice for Your Order 59219,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10145:72012111,10145=y,10145=n,,RETAG (Entered in AI only)
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,10475:15409416,10475=y,10475=y,,KEEP (statement or letter 10475 (statement))
+2026-09-17T20:37:21Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28251 for 59137 (#8550) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10351:28251,10351=y,10351=y,,RETAG (Entered in AI only)
+2026-09-17T21:29:14Z,cemshipping@centralexpandedmetal.com,Invoice #76178,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10393:76178,10393=y,10393=y,,RETAG (Entered in AI only)
+2026-09-18T03:09:55Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/17/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10332:S815465432,10332=y,10332=n,,OK
+2026-09-18T04:46:36Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10136:0040438494; 10167:0040438057; 10168:0040438056; 10169:0040438055; 10170:0040438053; 10173:0040438052,10136=y; 10167=y; 10168=y; 10169=y; 10170=y; 10173=y,10136=n; 10167=y; 10168=y; 10169=y; 10170=y; 10173=y,,RETAG (Entered in AI only)
+2026-09-18T06:34:38Z,donotreplyinvoice@ryerson.com,PO 59139 Inv# 9307088587,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10410:9307088587,10410=y,10410=y,,RETAG (Entered in AI only)
+2026-09-18T06:43:52Z,invoice.reply@mcmaster.com,Invoice for Your Order 59235,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10144:72087570,10144=y,10144=n,,RETAG (Entered in AI only)
+2026-09-18T06:43:57Z,invoice.reply@mcmaster.com,Invoice for Your Order 59224,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10142:72094446,10142=y,10142=y,,RETAG (Entered in AI only)
+2026-09-18T14:18:45Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125362) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10340:125362,10340=y,10340=n,,OK
+2026-09-18T14:18:47Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125363) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10341:125363,10341=y,10341=n,,OK
+2026-09-18T14:18:51Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125364) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10342:125364,10342=y,10342=n,,OK
+2026-09-18T14:18:53Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125365) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10343:125365,10343=y,10343=n,,OK
+2026-09-18T14:19:07Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125366) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10344:125366,10344=y,10344=n,,OK
+2026-09-18T14:19:16Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125367) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10345:125367,10345=y,10345=n,,OK
+2026-09-18T16:12:46Z,ar.americanbearing@yahoo.com,1 New Invoice from American Bearing Co.,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10403:297087,10403=y,10403=y,,RETAG (Entered in AI only)
+2026-09-18T16:50:34Z,ar@capitalmachine.com,"Capital Machine Technologies, LLC - Sales Invoice PS-INV103508 - KANNON MANUFACTURING - AMTECH",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10404:PS-INV103508,10404=y,10404=y,,RETAG (Entered in AI only)
+2026-09-18T20:04:34Z,AR@venturisupply.com,Invoice 93675277 for Packing List 2161291,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10415:93675277,10415=y,10415=n,,OK
+2026-09-18T21:40:51Z,accounting2@sss-steel.com,Ref 01179059 from TUBE SUPPLY,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10405:01179059,10405=y,10405=n,,OK
+2026-09-18T23:10:09Z,shoppas@billtrust.com,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10418:PSI-001235797,10418=y,10418=n,,RETAG (Entered in AI only)
+2026-09-18T23:10:10Z,shoppas@billtrust.com,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10417:PSI-001235793,10417=y,10417=n,,RETAG (Entered in AI only)
+2026-09-19T00:18:02Z,UniFirstInvoices@UniFirst.com,Invoice Number 2810814758 from UniFirst,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10419:2810814758,10419=y,10419=n,,RETAG (Entered in AI only)
+2026-09-19T01:23:37Z,apdirect@airproducts.com,Air Products Invoice 0436495428 (US10),Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10420:436495428,10420=y,10420=y,,OK
+2026-09-19T03:06:37Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/18/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10333:S816035432,10333=y,10333=n,,OK
+2026-09-19T05:11:50Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10286:0040441555,10286=y,10286=n,,OK
+2026-09-19T06:32:17Z,donotreplyinvoice@ryerson.com,PO 59184 Inv# 9307092378,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10406:9307092378,10406=y,10406=y,,RETAG (Entered in AI only)
+2026-09-19T14:08:33Z,ar@capitalmachine.com,"Capital Machine Technologies, LLC - Sales Invoice PS-INV103602",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10407:PS-INV103602,10407=y,10407=y,,RETAG (Entered in AI only)
+2026-09-19T23:03:57Z,invoices@fastenal-invoices.com,Fastenal Invoice Notice,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10322:TXFT4100503; 10323:TXFT4100537,10322=y; 10323=y,10322=y; 10323=y,,RETAG (Entered in AI only)
+2026-09-21T14:39:00Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104043,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10282:PS-INV104043,10282=y,10282=n,,OK
+2026-09-21T14:42:02Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11013,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10266:11013,10266=y,10266=n,,OK
+2026-09-21T14:43:02Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11012,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10265:11012,10265=y,10265=n,,OK
+2026-09-21T16:23:15Z,ar.americanbearing@yahoo.com,1 New Invoice from American Bearing Co.,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10408:297135,10408=y,10408=n,,OK
+2026-09-21T16:28:47Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104045,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10281:PS-INV104045,10281=y,10281=n,,OK
+2026-09-21T17:38:40Z,noreply@phoenixmetals.com,Invoice #9124298,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10409:9124298,10409=y,10409=y,,RETAG (Entered in AI only)
+2026-09-21T18:49:54Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28273 for 59117 (#8532) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10352:28273,10352=y,10352=y,,RETAG (Entered in AI only)
+2026-09-21T18:59:20Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104046,Inbox,,10280:PS-INV104046,10280=y,10280=y,,MOVE (Entered in AI)
+2026-09-21T19:30:10Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11021,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10264:11021,10264=y,10264=y,,RETAG (Entered in AI only)
+2026-09-21T19:30:32Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11020,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10263:11020,10263=y,10263=y,,RETAG (Entered in AI only)
+2026-09-21T19:55:51Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104047,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10279:PS-INV104047,10279=y,10279=y,,RETAG (Entered in AI only)
+2026-09-21T19:59:09Z,Accounting@TPITexas.com,Invoice - 18224,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10412:18224,10412=y,10412=n,,OK
+2026-09-21T20:02:12Z,Accounting@TPITexas.com,Invoice - 18225,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10413:18225,10413=y,10413=n,,OK
+2026-09-21T20:10:20Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104048,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10278:PS-INV104048,10278=y,10278=y,,RETAG (Entered in AI only)
+2026-09-21T20:57:04Z,Rachel@3pindustries.com,"INV # 142421 / CPL # 77102, 77101, 77089, 77099, 77098, 77100 / PO # 59124, 59107, 59090, 59031",Inbox/9 - FORT WORTH ARCHIVE,,10313:142421,10313=y,10313=n,,RETAG (Entered in AI only)
+2026-09-22T03:08:42Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/21/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10334:B154229432; 10335:S816212432,10334=y; 10335=y,10334=n; 10335=n,,OK
+2026-09-22T04:58:41Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10284:0040443847; 10285:0040442936,10284=y; 10285=y,10284=n; 10285=n,,OK
+2026-09-22T06:36:04Z,donotreplyinvoice@ryerson.com,PO 59112 Inv# 9307096238,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10416:9307096238,10416=y,10416=n,,OK
+2026-09-22T12:27:50Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104049,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10277:PS-INV104049,10277=y,10277=y,,RETAG (Entered in AI only)
+2026-09-22T12:47:06Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104050,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10276:PS-INV104050,10276=y,10276=y,,RETAG (Entered in AI only)
+2026-09-22T13:58:43Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104051,Inbox,,10275:PS-INV104051,10275=y,10275=y,,MOVE (Entered in AI)
+2026-09-22T14:17:26Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104052,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10274:PS-INV104052,10274=y,10274=y,,RETAG (Entered in AI only)
+2026-09-22T14:43:32Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104053,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10273:PS-INV104053,10273=y,10273=y,,RETAG (Entered in AI only)
+2026-09-22T15:41:09Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104054,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10272:PS-INV104054,10272=y,10272=y,,RETAG (Entered in AI only)
+2026-09-22T19:31:42Z,donotreply@invoices.mscdirect.com,"MSC Invoice 80905881, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1573 (DXED#20262651521446832640)",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10421:80905881,10421=y,10421=y,,RETAG (Entered in AI only)
+2026-09-23T03:11:53Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/22/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10336:T608354432; 10337:T608428432,10336=y; 10337=y,10336=n; 10337=n,,OK
+2026-09-23T04:55:09Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10283:0040446744,10283=y,10283=n,,OK
+2026-09-23T11:18:46Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104062,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10271:PS-INV104062,10271=y,10271=y,,RETAG (Entered in AI only)
+2026-09-23T11:39:12Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104063,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10270:PS-INV104063,10270=y,10270=y,,RETAG (Entered in AI only)
+2026-09-23T11:48:51Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104064,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10269:PS-INV104064,10269=y,10269=y,,RETAG (Entered in AI only)
+2026-09-23T11:59:55Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104065,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10268:PS-INV104065,10268=y,10268=y,,RETAG (Entered in AI only)
+2026-09-23T12:06:40Z,lorena@legacywireproducts.com,Legacy Wire Products - Sales Invoice PS-INV104066,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10267:PS-INV104066,10267=y,10267=y,,RETAG (Entered in AI only)
+2026-09-23T13:37:02Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28307 for 59186 (#8626) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10353:28307,10353=y,10353=y,,RETAG (Entered in AI only)
+2026-09-23T13:37:24Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28308 for 59203 (#8641) from Crosslink Powder Coating,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10354:28308,10354=y,10354=y,,RETAG (Entered in AI only)
+2026-09-23T14:18:46Z,michelle@ktgalvanizing.com,Kannon inv 120955 Supersedes inv 120949,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10422:120955,10422=y,10422=y,,RETAG (Entered in AI only)
+2026-09-23T15:27:32Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125436) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10346:125436,10346=y,10346=n,,OK
+2026-09-23T15:27:39Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125437) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10347:125437,10347=y,10347=n,,OK
+2026-09-23T18:31:03Z,Emily.Keith@morgansteel.net,Invoice 129827,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10423:129827,10423=y,10423=y,,RETAG (Entered in AI only)
+2026-09-23T18:31:05Z,Emily.Keith@morgansteel.net,Invoice 129828,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10424:129828,10424=y,10424=y,,RETAG (Entered in AI only)
+2026-09-23T19:58:58Z,production.metals@sbcglobal.net,Invoice,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10425:97406,10425=y,10425=n,,OK
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,10477:15478871,10477=y,10477=y,,KEEP (statement or letter 10477 (letter))
+2026-09-23T22:23:33Z,accounting@aft-corp.com,"Automated Finishing Technology, seq#208 Invoice Number: 52292 Dated: 9/23/2026",Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10427:52292,10427=y,10427=n,,OK
+2026-09-24T03:51:23Z,autotask@kloecknermetals.com,Invoice 15207183 from KLOECKNER METALS (Beth Watkins) for customer 1004928,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10428:15207183,10428=y,10428=n,,OK
+2026-09-24T04:59:18Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10429:0040449524; 10430:0040448084,10429=y; 10430=y,10429=n; 10430=n,,RETAG (Entered in AI only)
+2026-09-24T06:35:20Z,donotreplyinvoice@ryerson.com,PO 59146 Inv# 9307103750,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10432:9307103750,10432=y,10432=n,,OK
+2026-09-24T16:31:43Z,JTorres@LuxorStaffing.com,"Luxor Staffing Invoice-Kannon Manufacturing, Inc",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10433:367008,10433=y,10433=y,,RETAG (Entered in AI only)
+2026-09-24T17:40:56Z,donotreply@invoices.mscdirect.com,"MSC Invoice 81976171, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1574 (DXED#2026267130848480B8DC)",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10434:81976171,10434=y,10434=n,,RETAG (Entered in AI only)
+2026-09-24T18:18:09Z,VenusAccounting@ktgalvanizing.com,KANNON MFG INV 120990,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10435:120990,10435=y,10435=n,,OK
+2026-09-24T22:40:01Z,quickbooks@notification.intuit.com,Your Invoice from PCT Support - 23115,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10436:23115,10436=y,10436=y,,RETAG (Entered in AI only)
+2026-09-25T03:09:32Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/24/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10338:S816419432; 10339:S816504432,10338=y; 10339=y,10338=n; 10339=n,,OK
+2026-09-25T06:41:43Z,invoice.reply@mcmaster.com,Invoice for Your Order 59265,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10441:72502162,10441=y,10441=n,,OK
+2026-09-25T16:22:30Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44544,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10444:JVT SI-44544,10444=y,10444=y,,RETAG (Entered in AI only)
+2026-09-25T16:22:32Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44545,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10445:JVT SI-44545,10445=y,10445=n,,OK
+2026-09-25T16:22:39Z,Maria.Paz@BeshertSteel.com,Invoice-JVT SI-44546,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10446:JVT SI-44546,10446=y,10446=n,,OK
+2026-09-25T16:43:28Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125499) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10348:125499,10348=y,10348=y,,RETAG (Entered in AI only)
+2026-09-25T16:43:31Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125500) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10349:125500,10349=y,10349=y,,RETAG (Entered in AI only)
+2026-09-25T16:43:34Z,krista.woodruff@jpsteel.us,JP Steel Invoice# (125501) Transmission for KANNON MFG,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10350:125501,10350=y,10350=y,,RETAG (Entered in AI only)
+2026-09-25T18:26:08Z,donotreply@invoices.mscdirect.com,"MSC Invoice 82328681, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1574 (DXED#2026268141953943376C)",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10452:82328681,10452=y,10452=n,,RETAG (Entered in AI only)
+2026-09-25T21:20:24Z,quickbooks@notification.intuit.com,Your Invoice from PCT Support - 23125,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10454:23125,10454=y,10454=n,,OK
+2026-09-25T23:01:54Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1474130,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10453:1474130,10453=y,10453=n,,RETAG (Entered in AI only)
+2026-09-25T23:20:13Z,estevan.uribe@willbanksmetals.com,Invoice-215661,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10447:215661,10447=y,10447=n,,OK
+2026-09-25T23:20:13Z,estevan.uribe@willbanksmetals.com,Invoice-215662,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10448:215662,10448=y,10448=n,,OK
+2026-09-26T00:17:59Z,UniFirstInvoices@UniFirst.com,Invoice Number 2810818189 from UniFirst,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10457:2810818189,10457=y,10457=n,,RETAG (Entered in AI only)
+2026-09-26T03:07:11Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/25/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10449:T608658432,10449=y,10449=n,,OK
+2026-09-26T08:20:44Z,invoice.reply@mcmaster.com,Invoice for Your Order 59287,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10450:72561882,10450=y,10450=n,,OK
+2026-09-26T22:23:24Z,invoices@fastenal-invoices.com,Fastenal Invoice Notice,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10451:TXFT4100596,10451=y,10451=n,,OK
+2026-09-27T01:58:32Z,ar@capitalmachine.com,"Capital Machine Technologies, LLC - Sales Invoice PS-INV103813 - AMTECH/KANNON MANUFACTURING",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10458:PS-INV103813,10458=y,10458=n,,RETAG (Entered in AI only)
+2026-09-27T02:00:11Z,ar@capitalmachine.com,"Capital Machine Technologies, LLC - Sales Invoice PS-INV103814 - AMTECH/KANNON MANUFACTURING",Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10459:PS-INV103814,10459=y,10459=n,,RETAG (Entered in AI only)
+2026-09-28T20:18:24Z,Theresa.Thornton@exalloys.com,Exotic Metals & Alloys | Invoice Submission |Thank You for Your Business,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10460:960315,10460=y,10460=n,,OK
+2026-09-28T23:01:49Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1474266,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10461:1474266,10461=y,10461=n,,RETAG (Entered in AI only)
+2026-09-29T01:37:15Z,apdirect@airproducts.com,Air Products Invoice 0436566988 (US10),Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10462:436566988,10462=y,10462=n,,OK
+2026-09-29T03:06:53Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/28/26,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10463:T608738432,10463=y,10463=n,,OK
+2026-09-29T04:48:59Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10478:0040455879; 10479:0040455916; 10480:0040455615; 10510:0040455291,10478=y; 10479=y; 10480=y; 10510=y,10478=n; 10479=n; 10480=y; 10510=n,,RETAG (Entered in AI only)
+2026-09-29T06:40:31Z,donotreplyinvoice@ryerson.com,PO 59176 Inv# 9307115285,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10481:9307115285,10481=y,10481=n,,OK
+2026-09-29T13:51:08Z,shoppas@billtrust.com,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10482:PSI-001239218,10482=y,10482=y,,RETAG (Entered in AI only)
+2026-09-29T14:00:10Z,shoppas@billtrust.com,Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10483:PSI-001240544,10483=y,10483=y,,RETAG (Entered in AI only)
+2026-09-29T16:26:45Z,Accounting@TPITexas.com,Invoice - 18528,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10484:18528,10484=y,10484=y,,OK
+2026-09-29T16:27:28Z,Accounting@TPITexas.com,Invoice - 18529,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10485:18529,10485=y,10485=n,,OK
+2026-09-29T16:30:00Z,Accounting@TPITexas.com,Invoice - 18530,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10486:18530,10486=y,10486=y,,OK
+2026-09-29T19:12:15Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11044,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10487:11044,10487=y,10487=y,,OK
+2026-09-29T19:38:06Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11043,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10488:11043,10488=y,10488=y,,OK
+2026-09-29T19:38:22Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11042,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10489:11042,10489=y,10489=y,,OK
+2026-09-29T19:38:36Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11041,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10490:11041,10490=y,10490=y,,OK
+2026-09-29T20:10:49Z,Accounting@TPITexas.com,Invoice - 18564,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10491:18564,10491=y,10491=y,,OK
+2026-09-29T21:56:20Z,quickbooks@notification.intuit.com,Invoice WB4337861639 from Xcaliber Industrial LLC,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10492:WB4337861639,10492=y,10492=y,,OK
+2026-09-29T23:20:26Z,estevan.uribe@willbanksmetals.com,Invoice-216055,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10493:216055,10493=y,10493=y,,RETAG (Entered in AI only)
+2026-09-30T03:11:51Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/29/26,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10494:T609053432; 10511:T609084432,10494=y; 10511=y,10494=y; 10511=y,,RETAG (Entered in AI only)
+2026-09-30T04:43:35Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10495:0040459813,10495=y,10495=n,,OK
+2026-09-30T19:13:11Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11052,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10496:11052,10496=y,10496=y,,OK
+2026-09-30T19:13:31Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11051,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10497:11051,10497=y,10497=y,,OK
+2026-09-30T19:13:49Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11050,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10498:11050,10498=y,10498=y,,OK
+2026-09-30T19:14:12Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11049,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10499:11049,10499=y,10499=y,,OK
+2026-09-30T19:14:32Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11047,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10500:11047,10500=y,10500=y,,OK
+2026-09-30T23:21:09Z,estevan.uribe@willbanksmetals.com,Invoice-216127,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10501:216127,10501=y,10501=y,,RETAG (Entered in AI only)
+2026-10-01T00:37:25Z,noreply@priority1.com,KANNON MANUFACTURING-(230230-P1) Priority1 Invoice 18440283,Inbox/9 - FORT WORTH ARCHIVE,Entered in AI,10502:18440283,10502=y,10502=n,,OK
+2026-10-01T02:07:51Z,TXCREDIT@EASTERNMETAL.COM,MONTHLY STATEMENT,Inbox,,10368:821669; 10369:821670,10368=y; 10369=y,10368=n; 10369=y,,MOVE (Entered in AI)
+2026-10-01T03:12:01Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/30/26,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10503:S816901432,10503=y,10503=y,,RETAG (Entered in AI only)
+2026-10-01T04:29:10Z,vsanders@onealsteel.com,O'Neal Steel Invoice For Account # 14748440,Inbox/9 - FORT WORTH ARCHIVE,Entered with issues,10504:15486572; 10505:15486598; 10506:15486600; 10507:15486770; 10508:15486823; 10509:15486842; 10512:15487245,10504=y; 10505=y; 10506=y; 10507=y; 10508=y; 10509=y; 10512=y,10504=y; 10505=y; 10506=n; 10507=n; 10508=y; 10509=y; 10512=y,,RETAG (Entered in AI only)
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,10128:0040435122; 10131:0040425657; 10431:0040449478,10128=y; 10131=y; 10431=y,10128=n; 10131=n; 10431=n,"0040477446, 0000018220, 0040344711, 0040406308, 0040412279, 0040482402","KEEP (un-entered invoice 0040477446, 0000018220, 0040344711, 0040406308, 0040412279, 0040482402)"
+2026-10-01T12:05:24Z,fortworth@Metalsupermarkets.com,Statement of Account,Inbox,,10381:1091811; 10392:1091888; 10414:1092061,10381=y; 10392=y; 10414=y,10381=n; 10392=n; 10414=n,,MOVE (Entered in AI)
+2026-10-01T18:17:43Z,accounting@tracemetalindustries.com,"Statement from TRACE METAL INDUSTRIES, INC..",Inbox,,10455:238293; 10456:238294,10455=y; 10456=y,10455=n; 10456=n,,MOVE (Entered in AI)
