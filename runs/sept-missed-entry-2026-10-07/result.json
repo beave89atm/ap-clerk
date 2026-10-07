@@ -1,0 +1,703 @@
+{
+  "batch_id": 749,
+  "batch": "API Agent - 10/7/26 Sept missed",
+  "bills": [
+    {
+      "vendor": "MSC Industrial Supply",
+      "invoice": "78129701",
+      "amount": 1857.28,
+      "bill_id": 10513,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "VENDING/1571 is not a KIMCO purchase order. Machining tools are item 53 and abrasive discs and pads are item 31.",
+      "note_id": 1708,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 1857.28,
+      "attachments": [
+        "bill_78129701.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "MSC Industrial Supply",
+      "invoice": "82970031",
+      "amount": 70.68,
+      "bill_id": 10514,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "VENDING/1575 is not a KIMCO purchase order. Both lines are machining tools, item 53.",
+      "note_id": 1709,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 70.68,
+      "attachments": [
+        "bill_82970031.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Capital Machine Technologies",
+      "invoice": "PS-INV103344",
+      "amount": 610.0,
+      "bill_id": 10515,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "External document 59088 is not used as a receipt match. Labor, shop supplies, and travel are item 46 Equipment Repair & Maint.",
+      "note_id": 1710,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 610.0,
+      "attachments": [
+        "bill_PS-INV103344.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Xcaliber Industrial",
+      "invoice": "WB4337861620",
+      "amount": 419.76,
+      "bill_id": 10516,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Receipt 24120 is 24 valves at $15.8933, $381.44. Freight $38.32 is Freight External, not a price variance.",
+      "note_id": 1711,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "po",
+      "covered": 419.76,
+      "attachments": [
+        "bill_WB4337861620.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Techni-Tool",
+      "invoice": "S1395419.001",
+      "amount": 1639.1,
+      "bill_id": 10517,
+      "result": "HOLD",
+      "batch": "A / TRANSFER AP",
+      "reason": "PO 59299 line 1 is 1 drum of Q-CUT 216 at $1,581.53 and has no receipt. Shipping and handling $57.57 is a fee, not a price variance. Nothing was selected.",
+      "note_id": 1712,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "missing",
+      "covered": 0,
+      "attachments": [
+        "bill_S1395419.001.pdf"
+      ],
+      "batch_id": 375,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Techni-Tool",
+      "invoice": "S1395419.002",
+      "amount": 135.58,
+      "bill_id": 10518,
+      "result": "HOLD",
+      "batch": "A / TRANSFER AP",
+      "reason": "PO 59299 line 2 is the Mixx lockout at $108.00 and has no receipt. Shipping and handling $27.58 is a fee, not a price variance. Nothing was selected.",
+      "note_id": 1713,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "missing",
+      "covered": 0,
+      "attachments": [
+        "bill_S1395419.002.pdf"
+      ],
+      "batch_id": 375,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Alternative Parts Inc",
+      "invoice": "0099474-IN",
+      "amount": 807.34,
+      "bill_id": 10519,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "The invoice prints PO 59302, 20 S1.0 FE nozzles at $39.00. Receipt 25061 matches $780.00. Freight $27.34 is Freight External. PO 59295 is an A1 Image contract and was not used.",
+      "note_id": 1714,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "po",
+      "covered": 807.34,
+      "attachments": [
+        "bill_0099474-IN.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "RMP Industrial Supply",
+      "invoice": "1474316",
+      "amount": 228.82,
+      "bill_id": 10520,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "The invoice PO is verbal. PO 59273 is an EMJ tube purchase, so its receipt was not selected. The live center is machining tools item 53. Freight $15.27 is Freight External.",
+      "note_id": 1715,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 228.82,
+      "attachments": [
+        "bill_1474316.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "RMP Industrial Supply",
+      "invoice": "1474409",
+      "amount": 119.03,
+      "bill_id": 10521,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "The invoice PO is verbal. PO 59298 is an AQPC purchase, so its receipts were not selected. The inserts are machining tools item 53. Freight $14.61 is Freight External.",
+      "note_id": 1716,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 119.03,
+      "attachments": [
+        "bill_1474409.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "resumed": true,
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "P&B Testing",
+      "invoice": "389070",
+      "amount": 340.0,
+      "bill_id": 10522,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Receipt 24939 is 21 at $15.00, $315.00. The invoice quotes the same 21 pieces at $340.00. The $25.00 gap is under $75 and is purchase price variance.",
+      "note_id": 1717,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "po",
+      "covered": 340.0,
+      "attachments": [
+        "bill_389070.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "selected",
+      "line_status": "",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Amada America",
+      "invoice": "IN0000183743",
+      "amount": 1399.24,
+      "bill_id": 10523,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Receipt 25320 is the aspheric lens repair at $1,372.80. Freight $26.44 is Freight External.",
+      "note_id": 1718,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "po",
+      "covered": 1399.24,
+      "attachments": [
+        "bill_IN0000183743.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "selected",
+      "line_status": "",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Crosslink Powder Coating",
+      "invoice": "28377",
+      "amount": 1245.81,
+      "bill_id": 10524,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Receipts 25174 and 25175 are 6 at $193.94, $1,163.64. The coating line is 6 at $205.58, $1,233.48. The $69.84 gap is under $75 and is purchase price variance. Packaging $12.33 is a fee, not a price variance. The printed total is $1,245.81.",
+      "note_id": 1719,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "po",
+      "covered": 1245.81,
+      "attachments": [
+        "bill_28377.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "selected",
+      "line_status": "",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Lee Spring Company",
+      "invoice": "1390049",
+      "amount": 660.5,
+      "bill_id": 10525,
+      "result": "HOLD",
+      "batch": "A / TRANSFER AP",
+      "reason": "PO 59332 is 50 extension springs at $13.21 and has no receipt. The unit is each on both the invoice and the purchase order. Nothing was selected.",
+      "note_id": 1720,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "missing",
+      "covered": 0,
+      "attachments": [
+        "bill_1390049.pdf"
+      ],
+      "batch_id": 375,
+      "posted": null,
+      "select_status": "",
+      "line_status": "",
+      "charge_status": "",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Fabcorp",
+      "invoice": "470223",
+      "amount": 2280.0,
+      "bill_id": "",
+      "result": "HOLD",
+      "batch": "A",
+      "reason": "The scan total is $2,280.00. PO 59060 is a Source Metals purchase order, and Fabcorp has no KIMCO vendor id, so no bill was created.",
+      "note_id": "",
+      "email_moved": "n",
+      "email_ready": false,
+      "wave": "A",
+      "kind": "novendor"
+    },
+    {
+      "vendor": "Fabcorp",
+      "invoice": "470471",
+      "amount": 330.0,
+      "bill_id": "",
+      "result": "HOLD",
+      "batch": "A",
+      "reason": "The scan total is $330.00. PO 59216 is a Source Metals purchase order, and Fabcorp has no KIMCO vendor id, so no bill was created.",
+      "note_id": "",
+      "email_moved": "n",
+      "email_ready": false,
+      "wave": "A",
+      "kind": "novendor"
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040462826",
+      "amount": 704.0,
+      "bill_id": 10526,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Customer PO GAS is not a KIMCO purchase order. Shop supplies item 31. No sales tax.",
+      "note_id": 1721,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 704.0,
+      "attachments": [
+        "bill_0040462826.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040460840",
+      "amount": 296.76,
+      "bill_id": 10527,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Customer PO NEED PO is not a KIMCO purchase order. Shop supplies item 31. No sales tax.",
+      "note_id": 1722,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 296.76,
+      "attachments": [
+        "bill_0040460840.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040461079",
+      "amount": 385.15,
+      "bill_id": 10528,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Customer PO SHOP is not a KIMCO purchase order. Shop supplies item 31. No sales tax.",
+      "note_id": 1723,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 385.15,
+      "attachments": [
+        "bill_0040461079.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040461906",
+      "amount": 220.5,
+      "bill_id": 10529,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Customer PO CHECK STOP is not a KIMCO purchase order. Shop supplies item 31, including the fuel surcharge. No sales tax.",
+      "note_id": 1724,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 220.5,
+      "attachments": [
+        "bill_0040461906.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040461132",
+      "amount": 170.85,
+      "bill_id": 10530,
+      "result": "PASS",
+      "batch": "A",
+      "reason": "Customer PO SHOP is not a KIMCO purchase order. Shop supplies item 31. No sales tax.",
+      "note_id": 1725,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "A",
+      "kind": "misc",
+      "covered": 170.85,
+      "attachments": [
+        "bill_0040461132.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040472242",
+      "amount": 1563.16,
+      "bill_id": 10531,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Cylinder rental invoice pages, not the statement. Shop supplies item 31. No sales tax.",
+      "note_id": 1726,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 1563.16,
+      "attachments": [
+        "bill_0040472242.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040401083",
+      "amount": 1463.17,
+      "bill_id": 10532,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Cylinder rental invoice pages dated 8/31/26, not the statement. Shop supplies item 31. No sales tax.",
+      "note_id": 1727,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 1463.17,
+      "attachments": [
+        "bill_0040401083.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040406308",
+      "amount": 130.1,
+      "bill_id": 10533,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Cylinder rental invoice page dated 8/31/26, not the statement. Shop supplies item 31. No sales tax.",
+      "note_id": 1728,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 130.1,
+      "attachments": [
+        "bill_0040406308.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "Gas and Supply",
+      "invoice": "0040477446",
+      "amount": 131.35,
+      "bill_id": 10534,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Cylinder rental invoice page, not the statement line. Shop supplies item 31. No sales tax. The 10/1 G1378 statement email was not moved.",
+      "note_id": 1729,
+      "email_moved": "n",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 131.35,
+      "attachments": [
+        "bill_0040477446.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached"
+    },
+    {
+      "vendor": "Vineyard Advisors & CPAs",
+      "invoice": "4940",
+      "amount": 3506.25,
+      "bill_id": 10535,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Coded like Vineyard Kindle CPA bill 8771: Legal & Professional item 18. No purchase order. Due on the invoice is 9/30/26.",
+      "note_id": 1730,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 3506.25,
+      "attachments": [
+        "bill_4940.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "GRM Information Management",
+      "invoice": "00013160",
+      "amount": 196.84,
+      "bill_id": 10536,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Coded like GRM bill 10243: Facility Maint. & Storage item 44. No purchase order.",
+      "note_id": 1731,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 196.84,
+      "attachments": [
+        "bill_00013160.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    },
+    {
+      "vendor": "ABY Benefits",
+      "invoice": "154258",
+      "amount": 45.0,
+      "bill_id": 10537,
+      "result": "PASS",
+      "batch": "B",
+      "reason": "Coded like ABY bill 10194: Employee Benefits item 30. This invoice is $45.00. The customer balance of $90.00 was not entered.",
+      "note_id": 1732,
+      "email_moved": "y",
+      "email_ready": true,
+      "wave": "B",
+      "kind": "misc",
+      "covered": 45.0,
+      "attachments": [
+        "bill_154258.pdf"
+      ],
+      "batch_id": 749,
+      "posted": null,
+      "select_status": "",
+      "line_status": "added",
+      "charge_status": "posted",
+      "attach_status": "attached",
+      "email_verified_folder": "Inbox/9 - FORT WORTH ARCHIVE",
+      "email_verified_categories": [
+        "Entered in AI"
+      ]
+    }
+  ]
+}
