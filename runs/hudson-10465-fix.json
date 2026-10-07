@@ -1,0 +1,281 @@
+{
+  "before": {
+    "id": 10465,
+    "invoice": "2609000773",
+    "vendor": {
+      "id": 88,
+      "text": "1086-HUDSON ENERGY-24312"
+    },
+    "po": null,
+    "type": 4,
+    "batch": {
+      "id": 747,
+      "text": "API Agent - 10/6/26 Sept"
+    },
+    "posted": null,
+    "void": false,
+    "invoice_amount": 3302.09,
+    "verification": 2448.46,
+    "net": 3302.09,
+    "lines": [],
+    "charges": [
+      {
+        "id": 5678,
+        "name": "F-Fees & Surcharges",
+        "kind": {
+          "id": 11,
+          "text": "F-Fees & Surcharges"
+        },
+        "qty": 1.0,
+        "price": 2387.25,
+        "amount": 2387.25
+      },
+      {
+        "id": 5679,
+        "name": "F-Fees & Surcharges",
+        "kind": {
+          "id": 11,
+          "text": "F-Fees & Surcharges"
+        },
+        "qty": 1.0,
+        "price": 900.88,
+        "amount": 900.88
+      },
+      {
+        "id": 5680,
+        "name": "F-Fees & Surcharges",
+        "kind": {
+          "id": 11,
+          "text": "F-Fees & Surcharges"
+        },
+        "qty": 1.0,
+        "price": 0.42,
+        "amount": 0.42
+      },
+      {
+        "id": 5681,
+        "name": "F-Fees & Surcharges",
+        "kind": {
+          "id": 11,
+          "text": "F-Fees & Surcharges"
+        },
+        "qty": 1.0,
+        "price": 12.12,
+        "amount": 12.12
+      },
+      {
+        "id": 5682,
+        "name": "F-Fees & Surcharges",
+        "kind": {
+          "id": 11,
+          "text": "F-Fees & Surcharges"
+        },
+        "qty": 1.0,
+        "price": 1.42,
+        "amount": 1.42
+      }
+    ],
+    "taxes": [],
+    "comments": [
+      {
+        "id": 1527,
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. Hudson Energy invoice 2609000773 needs a purchase order. The PDF total is $2,448.46. Please create the purchase order or point AP at the purchase order so this bill can"
+      }
+    ],
+    "attachment_count": 1
+  },
+  "after": {
+    "id": 10465,
+    "invoice": "2609000773",
+    "vendor": {
+      "id": 88,
+      "text": "1086-HUDSON ENERGY-24312"
+    },
+    "po": null,
+    "type": 4,
+    "batch": {
+      "id": 747,
+      "text": "API Agent - 10/6/26 Sept"
+    },
+    "posted": null,
+    "void": false,
+    "invoice_amount": 2448.46,
+    "verification": 2448.46,
+    "net": 2448.46,
+    "lines": [
+      {
+        "id": 21704,
+        "item": {
+          "id": 2,
+          "text": "Maintenance/Service-."
+        },
+        "desc": "August Electric Bill",
+        "qty": 1.0,
+        "unit_price": 2448.46,
+        "extended": 2448.46,
+        "receipt": null,
+        "gl": null
+      }
+    ],
+    "charges": [],
+    "taxes": [],
+    "comments": [
+      {
+        "id": 1620,
+        "text": "AP Clerk: @Treyce Hodges per Kyle, Hudson Energy 2609000773 is miscellaneous, no PO. Coded to Maintenance/Service like posted bill 9284. Total matches PDF $2448.46. Not posted."
+      },
+      {
+        "id": 1527,
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. Hudson Energy invoice 2609000773 needs a purchase order. The PDF total is $2,448.46. Please create the purchase order or point AP at the purchase order so this bill can"
+      }
+    ],
+    "attachment_count": 1
+  },
+  "prior_bills_used": [
+    {
+      "id": 9284,
+      "invoice": "2607003479",
+      "vendor": {
+        "id": 88,
+        "text": "1086-HUDSON ENERGY-24312"
+      },
+      "po": null,
+      "type": 4,
+      "batch": null,
+      "posted": true,
+      "void": false,
+      "invoice_amount": 245.62,
+      "verification": 245.62,
+      "net": 245.62,
+      "lines": [
+        {
+          "id": 18986,
+          "item": {
+            "id": 2,
+            "text": "Maintenance/Service-."
+          },
+          "desc": "Electric Bill",
+          "qty": 1.0,
+          "unit_price": 245.62,
+          "extended": 245.62,
+          "receipt": null,
+          "gl": {
+            "id": 75,
+            "text": "6445100 - Facility Maint. & Storage"
+          }
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "comments": [],
+      "attachment_count": 1
+    },
+    {
+      "id": 9285,
+      "invoice": "2607002499",
+      "vendor": {
+        "id": 88,
+        "text": "1086-HUDSON ENERGY-24312"
+      },
+      "po": null,
+      "type": 4,
+      "batch": null,
+      "posted": true,
+      "void": false,
+      "invoice_amount": 1345.24,
+      "verification": 1345.24,
+      "net": 1345.24,
+      "lines": [
+        {
+          "id": 18987,
+          "item": {
+            "id": 2,
+            "text": "Maintenance/Service-."
+          },
+          "desc": "June Electric VF Unit B",
+          "qty": 1.0,
+          "unit_price": 1345.24,
+          "extended": 1345.24,
+          "receipt": null,
+          "gl": {
+            "id": 75,
+            "text": "6445100 - Facility Maint. & Storage"
+          }
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "comments": [],
+      "attachment_count": 1
+    },
+    {
+      "id": 9286,
+      "invoice": "2607003478",
+      "vendor": {
+        "id": 88,
+        "text": "1086-HUDSON ENERGY-24312"
+      },
+      "po": null,
+      "type": 4,
+      "batch": null,
+      "posted": true,
+      "void": false,
+      "invoice_amount": 2207.59,
+      "verification": 2207.59,
+      "net": 2207.59,
+      "lines": [
+        {
+          "id": 18988,
+          "item": {
+            "id": 2,
+            "text": "Maintenance/Service-."
+          },
+          "desc": "June Electric Bill VF Main",
+          "qty": 1.0,
+          "unit_price": 2207.59,
+          "extended": 2207.59,
+          "receipt": null,
+          "gl": {
+            "id": 75,
+            "text": "6445100 - Facility Maint. & Storage"
+          }
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "comments": [],
+      "attachment_count": 1
+    }
+  ],
+  "pdf_total": 2448.46,
+  "invoice_pdf": "runs/hudson-10465-2609000773.pdf",
+  "pdf_amount_due": 2448.46,
+  "pdf_current_charges": 2444.62,
+  "pdf_ercot_adjustment": 3.84,
+  "attachment": {
+    "id": 162145,
+    "filename": "2026-09-01_300067525_2609000773_20260901.pdf",
+    "page_count": 2,
+    "invoice_numbers": [
+      "2609000773",
+      "2609000773"
+    ],
+    "action": "kept; both pages are invoice 2609000773"
+  },
+  "pattern": {
+    "misc_item": {
+      "id": 2,
+      "text": "Maintenance/Service-."
+    },
+    "gl_on_posted_bills": {
+      "id": 75,
+      "text": "6445100 - Facility Maint. & Storage"
+    },
+    "description": "August Electric Bill",
+    "tax_handling": "Posted Hudson bills put the full invoice total on one misc line and leave the Taxes tab empty.",
+    "gl_sent": {"id": 75, "text": "6445100 - Facility Maint. & Storage"},
+    "gl_readback": null,
+    "pattern_bill": 9284
+  },
+  "note": "AP Clerk: @Treyce Hodges per Kyle, Hudson Energy 2609000773 is miscellaneous, no PO. Coded to Maintenance/Service like posted bill 9284. Total matches PDF $2448.46. Not posted."
+}

@@ -1,0 +1,1724 @@
+{
+  "bills": [
+    {
+      "bill_id": 10478,
+      "vendor": "1069-GAS AND SUPPLY",
+      "invoice": "0040455879",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 192.0,
+      "invoice_amount": 192.0,
+      "verification": 192.0,
+      "lines_charges_tax": 192.0,
+      "receipts": [],
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "qty": 100.0,
+          "price": 1.92,
+          "extended": 192.0,
+          "receipt": null
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_billing01_A3050_c_0040455879_p1-2.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1573,
+          "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455879 as Shop Supplies - G&amp;S. The bill matches the PDF total $192.00 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10478_0040455879.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10479,
+      "vendor": "1069-GAS AND SUPPLY",
+      "invoice": "0040455916",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 138.5,
+      "invoice_amount": 138.5,
+      "verification": 138.5,
+      "lines_charges_tax": 138.5,
+      "receipts": [],
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "qty": 2.0,
+          "price": 28.0,
+          "extended": 56.0,
+          "receipt": null
+        },
+        {
+          "item": "Shop Supplies - G&S-.",
+          "qty": 2.0,
+          "price": 30.0,
+          "extended": 60.0,
+          "receipt": null
+        }
+      ],
+      "charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "amount": 22.5
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_billing01_A3050_c_0040455916_p2-3.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1574,
+          "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040455916 as Shop Supplies - G&amp;S. The bill matches the PDF total $138.50 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10479_0040455916.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10480,
+      "vendor": "1069-GAS AND SUPPLY",
+      "invoice": "0040455615",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 213.93,
+      "invoice_amount": 0.0,
+      "verification": 213.93,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_billing01_A3050_c_0040455615_p3-4.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1575,
+          "text": "AP Clerk: @Shawn McKibben invoice 0040455615 on PO 59081 does not match the open receipts. Invoice qty 1.0 amount 213.93 20 PC HOLE DOZER BI-METAL. Open receipt 24333 qty 1.0 $14.0; receipt 24334 qty 3.0 $33.9; receipt 24335 qty 4.0 $191.04"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "PO 59081 open receipts do not include the $213.93 hole-saw kit. Nothing was selected.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10480_0040455615.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10481,
+      "vendor": "1150-RYERSON, JOSEPH T. & SON",
+      "invoice": "9307115285",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 721.55,
+      "invoice_amount": 721.55,
+      "verification": 721.55,
+      "lines_charges_tax": 721.55,
+      "receipts": [
+        24866
+      ],
+      "lines": [
+        {
+          "item": "RT-3.50 X 1.75 X 0.875-4140-VGS 5.510.4.7",
+          "qty": 84.0,
+          "price": 8.5714,
+          "extended": 720.0,
+          "receipt": 24866
+        }
+      ],
+      "charges": [
+        {
+          "name": "F-Fees & Surcharges",
+          "amount": 1.55
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_PO_59176_Inv_9307115285.pdf"
+      ],
+      "notes_added": [],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10481_9307115285.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10482,
+      "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+      "invoice": "PSI-001239218",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "pdf_total": 608.58,
+      "invoice_amount": 562.2,
+      "verification": 608.58,
+      "lines_charges_tax": 608.58,
+      "receipts": [],
+      "lines": [
+        {
+          "item": "Equipment Repair & Maint.-.",
+          "qty": 1.0,
+          "price": 132.2,
+          "extended": 132.2,
+          "receipt": null
+        },
+        {
+          "item": "Equipment Repair & Maint.-.",
+          "qty": 1.0,
+          "price": 430.0,
+          "extended": 430.0,
+          "receipt": null
+        }
+      ],
+      "charges": [],
+      "taxes": [
+        {
+          "code": "Sales Tax",
+          "amount": 46.38
+        }
+      ],
+      "attachments": [
+        "2026-09-29_C109050__PSI-001239218__.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1576,
+          "text": "AP Clerk: @Shawn McKibben Shoppa invoice PSI-001239218 has no purchase order. Removed the fee lines that were not charges, including the $25 return-policy sentence. Entered materials and labor as Equipment Repair &amp; Maint. and sales tax "
+        }
+      ],
+      "result": "HOLD",
+      "reason": "No purchase order. Merchandise and sales tax are entered. Confirm the no-PO coding.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10482_PSI-001239218.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10483,
+      "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+      "invoice": "PSI-001240544",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "pdf_total": 806.97,
+      "invoice_amount": 745.47,
+      "verification": 806.97,
+      "lines_charges_tax": 806.97,
+      "receipts": [],
+      "lines": [
+        {
+          "item": "Equipment Repair & Maint.-.",
+          "qty": 1.0,
+          "price": 207.97,
+          "extended": 207.97,
+          "receipt": null
+        },
+        {
+          "item": "Equipment Repair & Maint.-.",
+          "qty": 1.0,
+          "price": 537.5,
+          "extended": 537.5,
+          "receipt": null
+        }
+      ],
+      "charges": [],
+      "taxes": [
+        {
+          "code": "Sales Tax",
+          "amount": 61.5
+        }
+      ],
+      "attachments": [
+        "2026-09-29_C109050__PSI-001240544__.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1577,
+          "text": "AP Clerk: @Shawn McKibben Shoppa invoice PSI-001240544 has no purchase order. Removed the fee lines that were not charges, including the $25 return-policy sentence. Entered materials and labor as Equipment Repair &amp; Maint. and sales tax "
+        }
+      ],
+      "result": "HOLD",
+      "reason": "No purchase order. Merchandise and sales tax are entered. Confirm the no-PO coding.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10483_PSI-001240544.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10484,
+      "vendor": "1181-TPI",
+      "invoice": "18528",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 1086.6,
+      "invoice_amount": 1086.6,
+      "verification": 1086.6,
+      "lines_charges_tax": 1086.6,
+      "receipts": [
+        24467
+      ],
+      "lines": [
+        {
+          "item": "A-04421-000 - Fender, Drive Over",
+          "qty": 10.0,
+          "price": 108.66,
+          "extended": 1086.6,
+          "receipt": 24467
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice_-_18528.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1578,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24467 for invoice 18528. The bill matches the PDF total $1,086.60 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10484_18528.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10485,
+      "vendor": "1181-TPI",
+      "invoice": "18529",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 6519.6,
+      "invoice_amount": 6519.6,
+      "verification": 6519.6,
+      "lines_charges_tax": 6519.6,
+      "receipts": [
+        24470
+      ],
+      "lines": [
+        {
+          "item": "A-04421-000 - Fender, Drive Over",
+          "qty": 60.0,
+          "price": 108.66,
+          "extended": 6519.6,
+          "receipt": 24470
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice_-_18529.pdf"
+      ],
+      "notes_added": [],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10485_18529.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10486,
+      "vendor": "1181-TPI",
+      "invoice": "18530",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 3259.8,
+      "invoice_amount": 3259.8,
+      "verification": 3259.8,
+      "lines_charges_tax": 3259.8,
+      "receipts": [
+        24471
+      ],
+      "lines": [
+        {
+          "item": "A-04421-000 - Fender, Drive Over",
+          "qty": 30.0,
+          "price": 108.66,
+          "extended": 3259.8,
+          "receipt": 24471
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice_-_18530.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1579,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24471 for invoice 18530. The bill matches the PDF total $3,259.80 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10486_18530.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10487,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11044",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 520.0,
+      "invoice_amount": 520.0,
+      "verification": 520.0,
+      "lines_charges_tax": 520.0,
+      "receipts": [
+        24912,
+        24913,
+        24914,
+        24915,
+        24916,
+        24917
+      ],
+      "lines": [
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 1.0,
+          "price": 445.0,
+          "extended": 445.0,
+          "receipt": 24912
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 1.0,
+          "price": 5.0,
+          "extended": 5.0,
+          "receipt": 24913
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 1.0,
+          "price": 5.0,
+          "extended": 5.0,
+          "receipt": 24914
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 3.0,
+          "price": 10.0,
+          "extended": 30.0,
+          "receipt": 24915
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 1.0,
+          "price": 10.0,
+          "extended": 10.0,
+          "receipt": 24916
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 1.0,
+          "price": 25.0,
+          "extended": 25.0,
+          "receipt": 24917
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_invoice-11044.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1606,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24912, 24913, 24914, 24915, 24916, 24917 for invoice 11044. Each receipt matches an invoice line, including the repeated amounts. The bill matches the PDF total $520.00 and is not posted."
+        },
+        {
+          "id": 1580,
+          "text": "AP Clerk: @Shawn McKibben invoice 11044 on PO 59171 does not match the open receipts. Invoice qty 1.0 amount 445.0 5'x4'x4' Rotating Basket Primed and P.C.; qty 1.0 amount 5.0 8\"x8\"x3/8\" Z Bracket P.C. Black(PO89476); qty 1.0 amount 5.0 8\"x"
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10487_11044.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10488,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11043",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 150.0,
+      "invoice_amount": 150.0,
+      "verification": 150.0,
+      "lines_charges_tax": 150.0,
+      "receipts": [
+        24918
+      ],
+      "lines": [
+        {
+          "item": "5003522-001 - Manbasket Bracket Weldment",
+          "qty": 5.0,
+          "price": 30.0,
+          "extended": 150.0,
+          "receipt": 24918
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_invoice-11043.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1600,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24918 for invoice 11043. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $150.00 and is not posted."
+        },
+        {
+          "id": 1581,
+          "text": "AP Clerk: @Shawn McKibben invoice 11043 matches receipt(s) 24918 but Select Receipts was not saved (blocked-400). The bill is on hold and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10488_11043.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10489,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11042",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 2600.0,
+      "invoice_amount": 2600.0,
+      "verification": 2600.0,
+      "lines_charges_tax": 2600.0,
+      "receipts": [
+        24919,
+        24920,
+        24921,
+        24922,
+        24923,
+        24924
+      ],
+      "lines": [
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 5.0,
+          "price": 445.0,
+          "extended": 2225.0,
+          "receipt": 24919
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 5.0,
+          "price": 5.0,
+          "extended": 25.0,
+          "receipt": 24920
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 5.0,
+          "price": 5.0,
+          "extended": 25.0,
+          "receipt": 24921
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 15.0,
+          "price": 10.0,
+          "extended": 150.0,
+          "receipt": 24922
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 5.0,
+          "price": 10.0,
+          "extended": 50.0,
+          "receipt": 24923
+        },
+        {
+          "item": "6001232-004 - QARMB Basket Assembly Steel BEFORE SHIPPING PLEAS",
+          "qty": 5.0,
+          "price": 25.0,
+          "extended": 125.0,
+          "receipt": 24924
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_invoice-11042.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1607,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24919, 24920, 24921, 24922, 24923, 24924 for invoice 11042. Each receipt matches an invoice line, including the repeated amounts. The bill matches the PDF total $2,600.00 and is not posted."
+        },
+        {
+          "id": 1582,
+          "text": "AP Clerk: @Shawn McKibben invoice 11042 on PO 59276 does not match the open receipts. Invoice qty 5.0 amount 2225.0 5'x4'x4' Rotating Basket Primed and P.C.; qty 5.0 amount 25.0 8\"x8\"x3/8\" Z Bracket P.C. Black(SO34645); qty 5.0 amount 25.0 "
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10489_11042.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10490,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11041",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 250.0,
+      "invoice_amount": 250.0,
+      "verification": 250.0,
+      "lines_charges_tax": 250.0,
+      "receipts": [
+        24925
+      ],
+      "lines": [
+        {
+          "item": "MD04-1661",
+          "qty": 250.0,
+          "price": 1.0,
+          "extended": 250.0,
+          "receipt": 24925
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_invoice-11041.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1601,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 24925 for invoice 11041. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $250.00 and is not posted."
+        },
+        {
+          "id": 1583,
+          "text": "AP Clerk: @Shawn McKibben invoice 11041 matches receipt(s) 24925 but Select Receipts was not saved (blocked-400). The bill is on hold and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10490_11041.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10491,
+      "vendor": "1181-TPI",
+      "invoice": "18564",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 434.64,
+      "invoice_amount": 434.64,
+      "verification": 434.64,
+      "lines_charges_tax": 434.64,
+      "receipts": [
+        24982
+      ],
+      "lines": [
+        {
+          "item": "A-04421-000 - Fender, Drive Over",
+          "qty": 4.0,
+          "price": 108.66,
+          "extended": 434.64,
+          "receipt": 24982
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice_-_18564.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1613,
+          "text": "AP Clerk: @Treyce Hodges selected quantity 4 from receipt 24982 on Telecom invoice 18564. The invoice is 4 drive-over fenders at $108.66, $434.64. Receipt 24471 is the 30 already on invoice 18530. The bill matches $434.64 and is not posted."
+        },
+        {
+          "id": 1584,
+          "text": "AP Clerk: @Shawn McKibben invoice 18564 on PO 58931 does not match the open receipts. Invoice qty 4.0 amount 434.64 FENDER, DRIVE OVER. Open receipt 24471 qty 30.0 $3259.8; receipt 24982 qty 66.0 $7171.56. The PDF total is $434.64. Receipts"
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10491_18564.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10492,
+      "vendor": "1337-XCALIBER",
+      "invoice": "WB4337861639",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 1080.0,
+      "invoice_amount": 1080.0,
+      "verification": 1080.0,
+      "lines_charges_tax": 1080.0,
+      "receipts": [
+        24859
+      ],
+      "lines": [
+        {
+          "item": "TBB00001 - BEARING BALL 1-ROW",
+          "qty": 300.0,
+          "price": 3.6,
+          "extended": 1080.0,
+          "receipt": 24859
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice_WB4337861639_from_Xcaliber_Industrial_LLC.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1585,
+          "text": "AP Clerk: @Treyce Hodges removed the extra $1,080 fee on Xcaliber invoice WB4337861639. Receipt 24859 stays (300 at $3.60). The bill matches $1,080.00 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10492_WB4337861639.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10493,
+      "vendor": "1200-WILLBANKS METALS",
+      "invoice": "216055",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 381.72,
+      "invoice_amount": 381.72,
+      "verification": 381.72,
+      "lines_charges_tax": 381.72,
+      "receipts": [
+        25161
+      ],
+      "lines": [
+        {
+          "item": "RCT-5.00 X 2.50 x 0.25-A500",
+          "qty": 288.0,
+          "price": 1.3254,
+          "extended": 381.72,
+          "receipt": 25161
+        }
+      ],
+      "charges": [
+        {
+          "name": "Purchase Price Variance",
+          "amount": -1.32
+        },
+        {
+          "name": "Purchase Price Variance",
+          "amount": 1.32
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-09-29_Invoice-216055.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1586,
+          "text": "AP Clerk: @Shawn McKibben invoice 216055 quantity does not match the receipt. Invoice qty 1 versus receipt qty 288.0. The dollars equal $381.72, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batch 747,"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "Dollars match $381.72. Invoice is 1 piece / 272.66 lb and receipt 25161 is quantity 288. Confirm the unit.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10493_216055.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10494,
+      "vendor": "1206-EMJ Earl M. Jorgensen Company",
+      "invoice": "T609053432",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 487.14,
+      "invoice_amount": 0.0,
+      "verification": 487.14,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_Invoices.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1611,
+          "text": "AP Clerk: @Shawn McKibben EMJ invoice T609053432 is page 1 only: 23.12 feet of 2.500 OD x .219 wall DOM tubing, $487.14, PO 59273. Receipt 24880 is quantity 276 at $1.76, $484.63. Receipt 24879 is 1-1/4 x .083 tubing at $267.84 and belongs "
+        },
+        {
+          "id": 1587,
+          "text": "AP Clerk: @Shawn McKibben invoice T609053432 on PO 59273, 59242 does not match the open receipts. Invoice qty 1 amount 23.12 1 TUBE 23.12. Open receipt 24879 qty 288.0 $267.84; receipt 24880 qty 276.0 $484.63. The PDF total is $487.14. Rece"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "Invoice is 23.12 ft at $487.14. Receipt 24880 is quantity 276 at $484.63. Do not select receipt 24879.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10494_T609053432.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10495,
+      "vendor": "1069-GAS AND SUPPLY",
+      "invoice": "0040459813",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 66.0,
+      "invoice_amount": 66.0,
+      "verification": 66.0,
+      "lines_charges_tax": 66.0,
+      "receipts": [],
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "qty": 12.0,
+          "price": 5.5,
+          "extended": 66.0,
+          "receipt": null
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_billing01_A3050_c.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1588,
+          "text": "AP Clerk: @Treyce Hodges entered the merchandise on invoice 0040459813 as Shop Supplies - G&amp;S. The bill matches the PDF total $66.00 and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10495_0040459813.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10496,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11052",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 150.0,
+      "invoice_amount": 150.0,
+      "verification": 150.0,
+      "lines_charges_tax": 150.0,
+      "receipts": [
+        25172
+      ],
+      "lines": [
+        {
+          "item": "A060P934 - BRACKET,AFTERTREATMENT",
+          "qty": 15.0,
+          "price": 10.0,
+          "extended": 150.0,
+          "receipt": 25172
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_invoice-11052.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1602,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 25172 for invoice 11052. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $150.00 and is not posted."
+        },
+        {
+          "id": 1589,
+          "text": "AP Clerk: @Shawn McKibben invoice 11052 matches receipt(s) 25172 but Select Receipts was not saved (blocked-400). The bill is on hold and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10496_11052.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10497,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11051",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 250.0,
+      "invoice_amount": 250.0,
+      "verification": 250.0,
+      "lines_charges_tax": 250.0,
+      "receipts": [
+        25171
+      ],
+      "lines": [
+        {
+          "item": "5003557-001 - EXT PULLY WELD",
+          "qty": 5.0,
+          "price": 50.0,
+          "extended": 250.0,
+          "receipt": 25171
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_invoice-11051.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1603,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 25171 for invoice 11051. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $250.00 and is not posted."
+        },
+        {
+          "id": 1590,
+          "text": "AP Clerk: @Shawn McKibben invoice 11051 matches receipt(s) 25171 but Select Receipts was not saved (blocked-400). The bill is on hold and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10497_11051.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10498,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11050",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 500.0,
+      "invoice_amount": 500.0,
+      "verification": 500.0,
+      "lines_charges_tax": 500.0,
+      "receipts": [
+        25170
+      ],
+      "lines": [
+        {
+          "item": "5003557-001 - EXT PULLY WELD",
+          "qty": 10.0,
+          "price": 50.0,
+          "extended": 500.0,
+          "receipt": 25170
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_invoice-11050.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1604,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 25170 for invoice 11050. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $500.00 and is not posted."
+        },
+        {
+          "id": 1591,
+          "text": "AP Clerk: @Shawn McKibben invoice 11050 matches receipt(s) 25170 but Select Receipts was not saved (blocked-400). The bill is on hold and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10498_11050.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10499,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11049",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 300.0,
+      "invoice_amount": 300.0,
+      "verification": 300.0,
+      "lines_charges_tax": 300.0,
+      "receipts": [
+        25169
+      ],
+      "lines": [
+        {
+          "item": "55700027 - SLIDING GATE PIN ASM",
+          "qty": 12.0,
+          "price": 25.0,
+          "extended": 300.0,
+          "receipt": 25169
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_invoice-11049.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1605,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 25169 for invoice 11049. The part came from the purchase-order work order because the receipt has no part of its own. The bill matches the PDF total $300.00 and is not posted."
+        },
+        {
+          "id": 1592,
+          "text": "AP Clerk: @Ruben Perez AQPC invoice 11049 needs receipt 25169 selected. The $300 fee was removed because it is the merchandise. The bill is on hold in Transfer AP and is not posted."
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10499_11049.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10500,
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "invoice": "11047",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 590.0,
+      "invoice_amount": 590.0,
+      "verification": 590.0,
+      "lines_charges_tax": 590.0,
+      "receipts": [
+        25165,
+        25166,
+        25167,
+        25168
+      ],
+      "lines": [
+        {
+          "item": "A074A683 - SUPPORT FRONT ENGINE",
+          "qty": 18.0,
+          "price": 10.0,
+          "extended": 180.0,
+          "receipt": 25165
+        },
+        {
+          "item": "A074A682 - SUPPORT FRONT ENGINE",
+          "qty": 18.0,
+          "price": 10.0,
+          "extended": 180.0,
+          "receipt": 25166
+        },
+        {
+          "item": "5001914.003 - EXTEND SHEAVE BRACKET",
+          "qty": 10.0,
+          "price": 18.0,
+          "extended": 180.0,
+          "receipt": 25167
+        },
+        {
+          "item": "80341994 - COUPLER ASM, 16, TANK, 102W 4-3/16\" TALL, POWDER, HD",
+          "qty": 1.0,
+          "price": 50.0,
+          "extended": 50.0,
+          "receipt": 25168
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_invoice-11047.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1608,
+          "text": "AP Clerk: @Treyce Hodges selected receipt(s) 25165, 25166, 25167, 25168 for invoice 11047. Each receipt matches an invoice line, including the repeated amounts. The bill matches the PDF total $590.00 and is not posted."
+        },
+        {
+          "id": 1593,
+          "text": "AP Clerk: @Shawn McKibben invoice 11047 on PO 59298 does not match the open receipts. Invoice qty 18.0 amount 180.0 Support Front Engine PC Lava Black(SO348; qty 18.0 amount 180.0 Support Front Engine PC Lava Black(SO348; qty 10.0 amount 18"
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10500_11047.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10501,
+      "vendor": "1200-WILLBANKS METALS",
+      "invoice": "216127",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "pdf_total": 5760.0,
+      "invoice_amount": 0.0,
+      "verification": 5760.0,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-09-30_Invoice-216127.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1610,
+          "text": "AP Clerk: @Shawn McKibben Willbanks invoice 216127 is 20 pieces of 14 gauge floor plate at $288.00 each, $5,760.00, on PO 59277. Receipt 24996 was reversed by receipt 25187. The open receipt 25188 is 20 at $182.25, $3,645.00. The gap is $2,"
+        },
+        {
+          "id": 1594,
+          "text": "AP Clerk: @Shawn McKibben invoice 216127 on PO 59277 does not match the open receipts. Invoice qty 1 amount 288.0 1-1 20 PCS 3,600LBS Price AmountFloor Pl. Open receipt 24996 qty 20.0 $3645.0; receipt 25187 qty -20.0 $-3645.0; receipt 25188"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "20 pieces at $288 equals $5,760. Open receipt 25188 is 20 at $182.25, $3,645. Gap $2,115. Unreceive and correct the PO price.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10501_216127.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10502,
+      "vendor": "1143-PRIORITY 1",
+      "invoice": "18440283",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 219.09,
+      "invoice_amount": 219.09,
+      "verification": 219.09,
+      "lines_charges_tax": 219.09,
+      "receipts": [],
+      "lines": [],
+      "charges": [
+        {
+          "name": "Freight External",
+          "amount": 219.09
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_Priority1Invoice18440283.pdf"
+      ],
+      "notes_added": [],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10502_18440283.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10503,
+      "vendor": "1206-EMJ Earl M. Jorgensen Company",
+      "invoice": "S816901432",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 166.98,
+      "invoice_amount": 166.98,
+      "verification": 166.98,
+      "lines_charges_tax": 166.98,
+      "receipts": [
+        25160
+      ],
+      "lines": [
+        {
+          "item": "FB-1.00 X 2.00-A36 - 1.0\" X 2.0\" A36 HR",
+          "qty": 240.0,
+          "price": 0.6857,
+          "extended": 164.57,
+          "receipt": 25160
+        }
+      ],
+      "charges": [
+        {
+          "name": "Purchase Price Variance",
+          "amount": 2.41
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_Invoices.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1612,
+          "text": "AP Clerk: @Shawn McKibben EMJ invoice S816901432 is 1 bar, 138 pounds at $1.21 per pound, $166.98, PO 59323. Receipt 25160 is quantity 240 at $0.6857, $164.57, plus $2.41 purchase price variance. The dollars match. Please confirm the unit. "
+        },
+        {
+          "id": 1595,
+          "text": "AP Clerk: @Shawn McKibben invoice S816901432 quantity does not match the receipt. Invoice qty 1.0 versus receipt qty 240.0. The dollars equal $166.98, so the receipt stays selected. Please confirm the unit. The bill is on hold, left on batc"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "Dollars match $166.98 with $2.41 purchase price variance. Invoice is 138 lb and receipt 25160 is quantity 240. Confirm the unit.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10503_S816901432.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10504,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486572",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 326.12,
+      "invoice_amount": 326.12,
+      "verification": 326.12,
+      "lines_charges_tax": 326.12,
+      "receipts": [
+        25184,
+        25185
+      ],
+      "lines": [
+        {
+          "item": "RB-0.375-1018-CF - Round bar 3/8\" 1018 CF",
+          "qty": 1440.0,
+          "price": 0.0729,
+          "extended": 104.98,
+          "receipt": 25184
+        },
+        {
+          "item": "ST-2.50 X 0.188-A500 - Square Tube 2 1/2\" x 3/16\" A500",
+          "qty": 240.0,
+          "price": 0.9125,
+          "extended": 219.0,
+          "receipt": 25185
+        }
+      ],
+      "charges": [
+        {
+          "name": "Purchase Price Variance",
+          "amount": 2.14
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1609,
+          "text": "AP Clerk: @Treyce Hodges selected receipts 25184 and 25185 on O'Neal invoice 15486572. The 3/8 inch 1018 round is $104.98 against the invoice's $107.12, and the 2-1/2 inch square tube is $219.00. The $2.14 difference is purchase price varia"
+        },
+        {
+          "id": 1596,
+          "text": "AP Clerk: @Shawn McKibben invoice 15486572 on PO 59200 does not match the open receipts. Invoice qty 1 amount 111.8 FTSQTB HREW A500 B 2-1/2 X3/16W X20. Open receipt 25184 qty 1440.0 $104.98; receipt 25185 qty 240.0 $219.0. The PDF total is"
+        }
+      ],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10504_15486572.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10505,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486598",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "pdf_total": 3012.19,
+      "invoice_amount": 0.0,
+      "verification": 3012.19,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1597,
+          "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486598 on PO 59251 has no matching receipt. The PDF total is $3,012.19. Please receive it. The bill is on hold in Transfer AP and is not posted."
+        }
+      ],
+      "result": "HOLD",
+      "reason": "PO 59251 has no receipt for the $3,012.19 sheet. Receive it.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10505_15486598.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10506,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486600",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 16386.88,
+      "invoice_amount": 16386.88,
+      "verification": 16386.88,
+      "lines_charges_tax": 16386.88,
+      "receipts": [
+        25261
+      ],
+      "lines": [
+        {
+          "item": "PL-0.375 X 60 X 120-A36",
+          "qty": 26.0,
+          "price": 630.2646,
+          "extended": 16386.88,
+          "receipt": 25261
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10506_15486600.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10507,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486770",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 502.32,
+      "invoice_amount": 502.32,
+      "verification": 502.32,
+      "lines_charges_tax": 502.32,
+      "receipts": [
+        25186
+      ],
+      "lines": [
+        {
+          "item": "P-1.50 SCH 40-A500 - Pipe 1-1/2\" SCH 40",
+          "qty": 1008.0,
+          "price": 0.4984,
+          "extended": 502.39,
+          "receipt": 25186
+        }
+      ],
+      "charges": [
+        {
+          "name": "Purchase Price Variance",
+          "amount": -0.07
+        }
+      ],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [],
+      "result": "PASS",
+      "reason": "Live total matches the PDF. The bill is unposted on batch 747.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10507_15486770.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10508,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486823",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "pdf_total": 10713.89,
+      "invoice_amount": 0.0,
+      "verification": 10713.89,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1598,
+          "text": "AP Clerk: @Anthony O'Neal Steel - Dallas (GP) invoice 15486823 on PO 59289 has no matching receipt. The PDF total is $10,713.89. Please receive it. The bill is on hold in Transfer AP and is not posted."
+        }
+      ],
+      "result": "HOLD",
+      "reason": "PO 59289 has no receipt for the $10,713.89 plate and sheet. Receive it.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10508_15486823.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    },
+    {
+      "bill_id": 10509,
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "invoice": "15486842",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "pdf_total": 5328.46,
+      "invoice_amount": 0.0,
+      "verification": 5328.46,
+      "lines_charges_tax": 0,
+      "receipts": [],
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "attachments": [
+        "2026-10-01_O_Neal_Steel_Invoice_9302026.pdf"
+      ],
+      "notes_added": [
+        {
+          "id": 1599,
+          "text": "AP Clerk: @Shawn McKibben invoice 15486842 on PO 59293 does not match the open receipts. Invoice lines. Open receipt 25179 qty 2400.0 $164.64; receipt 25180 qty 2400.0 $104.64; receipt 25181 qty 17520.0 $7633.46; receipt 25182 qty 240.0 $81"
+        }
+      ],
+      "result": "HOLD",
+      "reason": "PO 59293 open receipts do not match the invoice lines ($5,328.46). Do not guess a receipt.",
+      "posted": null,
+      "pdf_file": "qc/invoices-sept25-30/10509_15486842.pdf",
+      "packing_slip": "No receiving@ scan from 2026-09-25 through 2026-10-06 matched this vendor and PO or invoice. None attached."
+    }
+  ],
+  "proposed_email_moves": [
+    {
+      "bill_id": 10478,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEBrAAA=",
+      "received": "2026-09-29T04:48:59Z",
+      "subject": "Gas&Supply Invoice/Statement",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10479,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEBrAAA=",
+      "received": "2026-09-29T04:48:59Z",
+      "subject": "Gas&Supply Invoice/Statement",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10480,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEBrAAA=",
+      "received": "2026-09-29T04:48:59Z",
+      "subject": "Gas&Supply Invoice/Statement",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10481,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEFsAAA=",
+      "received": "2026-09-29T06:40:31Z",
+      "subject": "PO 59176 Inv# 9307115285",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10482,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEFuAAA=",
+      "received": "2026-09-29T13:51:08Z",
+      "subject": "Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10483,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEFvAAA=",
+      "received": "2026-09-29T14:00:10Z",
+      "subject": "Acct No. C109050: Your Invoice From Shoppas Material Handling is Attached",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10484,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF1AAA=",
+      "received": "2026-09-29T16:26:45Z",
+      "subject": "Invoice - 18528",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10485,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF2AAA=",
+      "received": "2026-09-29T16:27:28Z",
+      "subject": "Invoice - 18529",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10486,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF3AAA=",
+      "received": "2026-09-29T16:30:00Z",
+      "subject": "Invoice - 18530",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10487,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF5AAA=",
+      "received": "2026-09-29T19:12:15Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11044",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10488,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF6AAA=",
+      "received": "2026-09-29T19:38:06Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11043",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10489,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF7AAA=",
+      "received": "2026-09-29T19:38:22Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11042",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10490,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF8AAA=",
+      "received": "2026-09-29T19:38:36Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11041",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10491,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF9AAA=",
+      "received": "2026-09-29T20:10:49Z",
+      "subject": "Invoice - 18564",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10492,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEF-AAA=",
+      "received": "2026-09-29T21:56:20Z",
+      "subject": "Invoice WB4337861639 from Xcaliber Industrial LLC",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10493,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGAAAA=",
+      "received": "2026-09-29T23:20:26Z",
+      "subject": "Invoice-216055",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10494,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGCAAA=",
+      "received": "2026-09-30T03:11:51Z",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/29/26",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10495,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGDAAA=",
+      "received": "2026-09-30T04:43:35Z",
+      "subject": "Gas&Supply Invoice/Statement",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10496,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGKAAA=",
+      "received": "2026-09-30T19:13:11Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11052",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10497,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGLAAA=",
+      "received": "2026-09-30T19:13:31Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11051",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10498,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGMAAA=",
+      "received": "2026-09-30T19:13:49Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11050",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10499,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGNAAA=",
+      "received": "2026-09-30T19:14:12Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11049",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10500,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGOAAA=",
+      "received": "2026-09-30T19:14:32Z",
+      "subject": "New payment request from AMERICAN QUALITY POWDER COATING - invoice 11047",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10501,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGRAAA=",
+      "received": "2026-09-30T23:21:09Z",
+      "subject": "Invoice-216127",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10502,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGUAAA=",
+      "received": "2026-10-01T00:37:25Z",
+      "subject": "KANNON MANUFACTURING-(230230-P1) Priority1 Invoice 18440283",
+      "proposed_category": "Entered in AI",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10503,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEGWAAA=",
+      "received": "2026-10-01T03:12:01Z",
+      "subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/30/26",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10504,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10505,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10506,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10507,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10508,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    },
+    {
+      "bill_id": 10509,
+      "message_id": "AAMkAGQyODM5ZWI1LTQ0NDAtNDZiOS1hYTIzLTdjOGM3NDRlNjQ4MgBGAAAAAAAggjN_BHG4TI2Iz-JKRqfaBwDXcyWbp23lSoY0i7GBv6N_AAAAAAEMAADXcyWbp23lSoY0i7GBv6N_AAOoEEB6AAA=",
+      "received": "2026-10-01T04:29:10Z",
+      "subject": " O'Neal Steel Invoice For Account # 14748440 ",
+      "proposed_category": "Entered with issues",
+      "proposed_folder": "9 - FORT WORTH ARCHIVE",
+      "mail_changed": false
+    }
+  ],
+  "manual_fixes": [
+    {
+      "bill_id": 10480,
+      "fix": "PO 59081 open receipts do not include the $213.93 hole-saw kit. Nothing was selected."
+    },
+    {
+      "bill_id": 10482,
+      "fix": "No purchase order. Merchandise and sales tax are entered. Confirm the no-PO coding."
+    },
+    {
+      "bill_id": 10483,
+      "fix": "No purchase order. Merchandise and sales tax are entered. Confirm the no-PO coding."
+    },
+    {
+      "bill_id": 10493,
+      "fix": "Dollars match $381.72. Invoice is 1 piece / 272.66 lb and receipt 25161 is quantity 288. Confirm the unit."
+    },
+    {
+      "bill_id": 10494,
+      "fix": "Invoice is 23.12 ft at $487.14. Receipt 24880 is quantity 276 at $484.63. Do not select receipt 24879."
+    },
+    {
+      "bill_id": 10501,
+      "fix": "20 pieces at $288 equals $5,760. Open receipt 25188 is 20 at $182.25, $3,645. Gap $2,115. Unreceive and correct the PO price."
+    },
+    {
+      "bill_id": 10503,
+      "fix": "Dollars match $166.98 with $2.41 purchase price variance. Invoice is 138 lb and receipt 25160 is quantity 240. Confirm the unit."
+    },
+    {
+      "bill_id": 10505,
+      "fix": "PO 59251 has no receipt for the $3,012.19 sheet. Receive it."
+    },
+    {
+      "bill_id": 10508,
+      "fix": "PO 59289 has no receipt for the $10,713.89 plate and sheet. Receive it."
+    },
+    {
+      "bill_id": 10509,
+      "fix": "PO 59293 open receipts do not match the invoice lines ($5,328.46). Do not guess a receipt."
+    }
+  ],
+  "api_refused_lines": [],
+  "packing_slips_attached": [],
+  "counts": {
+    "PASS": 22,
+    "HOLD": 10,
+    "FAIL": 0
+  }
+}

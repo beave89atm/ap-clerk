@@ -1,0 +1,810 @@
+{
+  "read_only": false,
+  "bills_checked": 48,
+  "conclusion": "Bill 10475 is the entered record for invoice number 15409416. Its PDF is a 2026-09-17 payment-status letter, not an invoice. Bill 10477 is the other O'Neal letter and is also a non-invoice. No other existing bill in 10465-10512 is a statement or other non-invoice.",
+  "classification_notes": [
+    "document_class is the heading review. classify_pdf_page alone marked both letters as invoice because they have an Invoice No. column, and marked AQPC, Ryerson, Capital, Trace Metal, and the O'Neal invoice packet as other.",
+    "10469 Luxor Staffing 2221 is a labor timesheet invoice (Contract Labor $3,587.50), not a statement.",
+    "10467, 10473, and 10474 returned HTTP 404 and do not exist.",
+    "No other bill in 10465-10512 is a statement or other non-invoice.",
+    "Both original letter notes were authored by API Agent user 175 and mention only Shawn McKibben (id 104). At the time of the read-only check both bills were still on batch 747.",
+    "After the read-only check, bill 10475 was noted and then moved to TRANSFER AP batch 375. Bill 10477 was not changed."
+  ],
+  "invoice_15409416": {
+    "id": 10475,
+    "invoice": "15409416",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "batch": {
+      "id": 375,
+      "text": "TRANSFER AP"
+    },
+    "type": 4,
+    "posted": null,
+    "po": null,
+    "invoice_amount": 0.0,
+    "verification": 42818.73,
+    "net": 0.0,
+    "lines": [],
+    "charges": [],
+    "taxes": [],
+    "comments": [
+      {
+        "id": 1532,
+        "author": {
+          "id": 175,
+          "name": "API Agent",
+          "field": "CreatorId"
+        },
+        "author_fields": {
+          "CreatedOn": "2026-10-06T08:02:33.923",
+          "CreatorId": {
+            "id": 175,
+            "text": "API Agent"
+          },
+          "ModifiedOn": "2026-10-06T08:02:33.923",
+          "ModifierId": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "note_claims_transfer_ap": true,
+        "live_batch_is_transfer_ap": false
+      }
+    ],
+    "attachments": [
+      {
+        "id": 162152,
+        "filename": "2026-09-17_14748440.pdf",
+        "page_count": 2,
+        "pages": [
+          {
+            "page": 1,
+            "invoice_numbers": [],
+            "reviewed_class": "payment-status-letter",
+            "classifier_class": "invoice"
+          },
+          {
+            "page": 2,
+            "invoice_numbers": [
+              "15464367",
+              "15439109",
+              "15406239",
+              "15407157",
+              "15408130",
+              "15409280",
+              "15409416"
+            ],
+            "reviewed_class": "open-invoice-list",
+            "classifier_class": "other"
+          }
+        ]
+      }
+    ],
+    "document_class": "statement",
+    "text_excerpt": "September 17, 2026\nKANNON MANUFACTURING INC\n5129 VESTA FARLEY RD\nFORT WORTH, TX 76119\nRegarding Account #:  14748440\nDear ACCOUNTS PAYABLE ,\nPlease provide payment status on the below listed invoices.  If payment has been\nmade, please provide details such a check#, amount, date sent.  If there are\nproblems on them that need to be addressed, please let me know so I can attend to it\nimmediately.\nInvoice No. Purchase\nOrder Number\nBalance Due Inv Date Due Date DBT\n15455556 15447737\n58979\n$-1,312.08 08/28/2026 08/28/2026     20\n15398467 58594 $774.00 07/06/2026 09/04/2026     13\n15398891 58051 $365.77 07/07/2026 09/05/2026     12\n15399796 58600 $1,105.78 07/07/2026 09/05/2026     12\n15400210 58284 $3,026.56 07/08/2026 09/06/2026     11\n15401860 58610 $804.19 07/09/2026 09/07/2026     10\n15402415 58618 $8,756.14 07/09/2026 09/07/2026     10\n15402927 58421 $2,772.90 07/10/2026 09/08/2026      9\n15403449 58641 $380.36 07/10/2026 09/08/2026      9\n\n15464367 15439109\n58912\n$-638.88 09/08/2026 09/08/2026      9\n15406239 58653 $7,901.12 07/14/2026 09/12/2026      5\n15407157 58499 $6,785.00 07/15/2026 09/13/2026      4\n15408130 58676 $9,699.02 07/15/2026 09/13/2026      4\n15409280 58648 $2,318.",
+    "document_basis": "2026-09-17 O'Neal letter for account 14748440. Heading is 'Dear ACCOUNTS PAYABLE, Please provide payment status on the below listed invoices.' 15409416 is one balance-due row on the open-invoice list, not this document's own invoice. Verification $42,818.73 is the letter total. No lines, charges, or taxes were entered.",
+    "comments_after_approval": [
+      {
+        "id": 1623,
+        "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+        "mentions": [
+          {
+            "id": 33,
+            "name": "Treyce Hodges"
+          },
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "created_on": "2026-10-06T14:46:32.713",
+        "creator_id": 175,
+        "creator_name": "API Agent",
+        "modified_on": "2026-10-06T14:46:32.713",
+        "modifier_id": 175
+      },
+      {
+        "id": 1532,
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "created_on": "2026-10-06T08:02:33.923",
+        "creator_id": 175,
+        "creator_name": "API Agent",
+        "modified_on": "2026-10-06T08:02:33.923",
+        "modifier_id": 175
+      }
+    ]
+  },
+  "other_oneal_letter_bill": {
+    "id": 10477,
+    "invoice": "15478871",
+    "vendor": "1135-ONEAL STEEL, LLC.",
+    "batch": {
+      "id": 747,
+      "text": "API Agent - 10/6/26 Sept"
+    },
+    "type": 4,
+    "posted": null,
+    "po": null,
+    "invoice_amount": 0.0,
+    "verification": 42079.26,
+    "net": 0.0,
+    "lines": [],
+    "charges": [],
+    "taxes": [],
+    "comments": [
+      {
+        "id": 1534,
+        "author": {
+          "id": 175,
+          "name": "API Agent",
+          "field": "CreatorId"
+        },
+        "author_fields": {
+          "CreatedOn": "2026-10-06T08:02:53.647",
+          "CreatorId": {
+            "id": 175,
+            "text": "API Agent"
+          },
+          "ModifiedOn": "2026-10-06T08:02:53.647",
+          "ModifierId": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15478871 needs a purchase order. The PDF total is $42,079.26. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+        "mentions": [
+          {
+            "id": 104,
+            "name": "Shawn McKibben"
+          }
+        ],
+        "note_claims_transfer_ap": true,
+        "live_batch_is_transfer_ap": false
+      }
+    ],
+    "attachments": [
+      {
+        "id": 162154,
+        "filename": "2026-09-23_14748440.pdf",
+        "page_count": 2,
+        "pages": [
+          {
+            "page": 1,
+            "invoice_numbers": [
+              "15406239",
+              "15408130",
+              "15407157",
+              "15409416",
+              "15409280",
+              "15411914",
+              "15412969",
+              "15415288",
+              "15416408",
+              "15415889"
+            ],
+            "reviewed_class": "pending-orders-letter",
+            "classifier_class": "invoice"
+          },
+          {
+            "page": 2,
+            "invoice_numbers": [
+              "15478871",
+              "15439230"
+            ],
+            "reviewed_class": "open-invoice-list",
+            "classifier_class": "other"
+          }
+        ]
+      }
+    ],
+    "document_class": "letter",
+    "text_excerpt": "September 23, 2026\nKANNON MANUFACTURING INC\n5129 VESTA FARLEY RD\nFORT WORTH, TX 76119\nRegarding Account #:  14748440\nATTENTION: ACCOUNTING DEPARTMENT - PENDING ORDERS\nOrder # PO # Request Date Order Value\n22961598 59200 09/21/2026 $323.94\n22962893 59251 09/22/2026 $3,012.19\n22962970 59253 09/22/2026 $16,386.88\nWe would like to take this opportunity to thank you for choosing O'Neal Steel LLC.  As a\nvalued customer we do want to work with you in releasing the order(s) pending.  If you\ncould please provide payment status of the below invoices. \nFor your convenience all open invoice, credit memos and proof of deliveries can be found on\nour PRONTO\u00ae customer portal.  If you would like access to this site, please advise and we\nwill have you set up.\nInvoice No. Purchase Order\nNumber\nBalance Due Inv Date Due Date DBT\n15406239 - 001 58653 $7,901.12 07/14/2026 09/12/2026     11\n15408130 - 001 58676 $9,699.02 07/15/2026 09/13/2026     10\n15407157 - 001 58499 $6,785.00 07/15/2026 09/13/2026     10\n15409416 - 001 58688 $79.94 07/16/2026 09/14/2026      9\n15409280 - 001 58648 $2,318.91 07/16/2026 09/14/2026      9\n15411914 - 001 58705 $6,288.75 07/20/2026 09/18/2026      5\n15412969 - 001 58584 $7",
+    "document_basis": "2026-09-23 O'Neal letter for account 14748440. Heading is 'ATTENTION: ACCOUNTING DEPARTMENT - PENDING ORDERS' and it asks for payment status of the invoices listed below. Stored invoice number 15478871 is a row on that list, not a vendor invoice. The same list includes 15409416 at a $79.94 balance. Verification $42,079.26 is the letter total. No lines, charges, or taxes were entered."
+  },
+  "non_invoices_10465_10512": [
+    {
+      "id": 10475,
+      "invoice": "15409416",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "statement",
+      "batch": "TRANSFER AP",
+      "why": "Payment-status letter, not a vendor invoice."
+    },
+    {
+      "id": 10477,
+      "invoice": "15478871",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "letter",
+      "batch": "API Agent - 10/6/26 Sept",
+      "why": "Pending-orders and payment-status letter, not a vendor invoice."
+    }
+  ],
+  "bills": [
+    {
+      "id": 10465,
+      "invoice": "2609000773",
+      "vendor": "1086-HUDSON ENERGY-24312",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10466,
+      "invoice": "237704",
+      "vendor": "1182-TRACE METAL INDUSTRIES, INC",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10467,
+      "invoice": null,
+      "vendor": null,
+      "document_class": "missing",
+      "batch_id": null,
+      "posted": null,
+      "missing": true
+    },
+    {
+      "id": 10468,
+      "invoice": "000444279/1/202659035",
+      "vendor": "1381-TRICOR METALS",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10469,
+      "invoice": "2221",
+      "vendor": "1110-LUXOR STAFFING, INC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10470,
+      "invoice": "9307057099",
+      "vendor": "1150-RYERSON, JOSEPH T. & SON",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10471,
+      "invoice": "PS-INV103317",
+      "vendor": "1043-CAPITAL MACHINE TECHNOLOGIES",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10472,
+      "invoice": "WB4337861607",
+      "vendor": "1337-XCALIBER",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10473,
+      "invoice": null,
+      "vendor": null,
+      "document_class": "missing",
+      "batch_id": null,
+      "posted": null,
+      "missing": true
+    },
+    {
+      "id": 10474,
+      "invoice": null,
+      "vendor": null,
+      "document_class": "missing",
+      "batch_id": null,
+      "posted": null,
+      "missing": true
+    },
+    {
+      "id": 10475,
+      "invoice": "15409416",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "statement",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10476,
+      "invoice": "43293871",
+      "vendor": "1327-AM CASTLE & CO",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10477,
+      "invoice": "15478871",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "letter",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10478,
+      "invoice": "0040455879",
+      "vendor": "1069-GAS AND SUPPLY",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10479,
+      "invoice": "0040455916",
+      "vendor": "1069-GAS AND SUPPLY",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10480,
+      "invoice": "0040455615",
+      "vendor": "1069-GAS AND SUPPLY",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10481,
+      "invoice": "9307115285",
+      "vendor": "1150-RYERSON, JOSEPH T. & SON",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10482,
+      "invoice": "PSI-001239218",
+      "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10483,
+      "invoice": "PSI-001240544",
+      "vendor": "1157-SHOPPA'S MATERIAL HANDLING",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10484,
+      "invoice": "18528",
+      "vendor": "1181-TPI",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10485,
+      "invoice": "18529",
+      "vendor": "1181-TPI",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10486,
+      "invoice": "18530",
+      "vendor": "1181-TPI",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10487,
+      "invoice": "11044",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10488,
+      "invoice": "11043",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10489,
+      "invoice": "11042",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10490,
+      "invoice": "11041",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10491,
+      "invoice": "18564",
+      "vendor": "1181-TPI",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10492,
+      "invoice": "WB4337861639",
+      "vendor": "1337-XCALIBER",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10493,
+      "invoice": "216055",
+      "vendor": "1200-WILLBANKS METALS",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10494,
+      "invoice": "T609053432",
+      "vendor": "1206-EMJ Earl M. Jorgensen Company",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10495,
+      "invoice": "0040459813",
+      "vendor": "1069-GAS AND SUPPLY",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10496,
+      "invoice": "11052",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10497,
+      "invoice": "11051",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10498,
+      "invoice": "11050",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10499,
+      "invoice": "11049",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10500,
+      "invoice": "11047",
+      "vendor": "1020-AMERICAN QUALITY POWDERCOATING",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10501,
+      "invoice": "216127",
+      "vendor": "1200-WILLBANKS METALS",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10502,
+      "invoice": "18440283",
+      "vendor": "1143-PRIORITY 1",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10503,
+      "invoice": "S816901432",
+      "vendor": "1206-EMJ Earl M. Jorgensen Company",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10504,
+      "invoice": "15486572",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10505,
+      "invoice": "15486598",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10506,
+      "invoice": "15486600",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10507,
+      "invoice": "15486770",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10508,
+      "invoice": "15486823",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10509,
+      "invoice": "15486842",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10510,
+      "invoice": "0040455291",
+      "vendor": "1069-GAS AND SUPPLY",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10511,
+      "invoice": "T609084432",
+      "vendor": "1206-EMJ Earl M. Jorgensen Company",
+      "document_class": "invoice",
+      "batch_id": 375,
+      "posted": null,
+      "missing": false
+    },
+    {
+      "id": 10512,
+      "invoice": "15487245",
+      "vendor": "1135-ONEAL STEEL, LLC.",
+      "document_class": "invoice",
+      "batch_id": 747,
+      "posted": null,
+      "missing": false
+    }
+  ],
+  "kyle_approval": {
+    "bill_id": 10475,
+    "only_this_bill": true,
+    "note_saved_before_move": true,
+    "note_wording": "Kyle's follow-up replaced the earlier sentence before any write. The saved note says this was AP Clerk's mistake.",
+    "note_text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+    "note_status": "added",
+    "move_status": "moved",
+    "transfer_batch": {
+      "id": 375,
+      "name": "TRANSFER AP"
+    },
+    "before": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:32+00:00"
+    },
+    "after_note": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1623,
+          "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+          "mentions": [
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            },
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T14:46:32.713",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T14:46:32.713",
+          "modifier_id": 175
+        },
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:33+00:00"
+    },
+    "after": {
+      "id": 10475,
+      "invoice": "15409416",
+      "posted": null,
+      "void": false,
+      "type": 4,
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "lines": 0,
+      "charges": 0,
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1623,
+          "text": "AP Clerk: @Treyce Hodges this was my mistake. O'Neal 15409416 is a statement, not an invoice, and I entered it as a bill in error. Please delete this bill. @Shawn McKibben please disregard my earlier note on this one; no receiving action needed.",
+          "mentions": [
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            },
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T14:46:32.713",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T14:46:32.713",
+          "modifier_id": 175
+        },
+        {
+          "id": 1532,
+          "text": "AP Clerk: @Shawn McKibben is the owner for this missing purchase order. O'Neal Steel - Dallas (GP) invoice 15409416 needs a purchase order. The PDF total is $42,818.73. Please create the purchase order or point AP at the purchase order so this bill can be matched. The bill is on hold, moved to Transfer AP, and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T08:02:33.923",
+          "creator_id": 175,
+          "creator_name": "API Agent",
+          "modified_on": "2026-10-06T08:02:33.923",
+          "modifier_id": 175
+        }
+      ],
+      "read_at": "2026-10-06T19:46:39+00:00"
+    }
+  }
+}

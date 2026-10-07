@@ -1,0 +1,324 @@
+{
+  "bills": [
+    {
+      "bill_id": 10510,
+      "invoice": "0040455291",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "posted": null,
+      "void": false,
+      "Invoice_Amount": 1296.8,
+      "verification": 1403.79,
+      "net": 1403.79,
+      "lines": [
+        {
+          "id": 21703,
+          "item": "Shop Supplies - G&S-.",
+          "description": "OTCU724E02 OTC #8 NOZZLE",
+          "qty": 20.0,
+          "unit_price": 64.84,
+          "extended": 1296.8,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "receipts": [],
+      "charges": [],
+      "taxes": [
+        {
+          "id": 248,
+          "code": "Sales Tax",
+          "amount": 106.99,
+          "taxable": 1296.8,
+          "rate": 0.0825
+        }
+      ],
+      "notes": [
+        {
+          "id": 1614,
+          "text": "AP Clerk: @Treyce Hodges entered Gas and Supply invoice 0040455291 as Shop Supplies - G&amp;S, 20 OTC #8 nozzles at $64.84 ($1,296.80). Sales tax $106.99 is on the Taxes tab. Customer PO SHOP is not a KIMCO purchase order. The bill matches the PDF total $1,403.79 and is not posted."
+        }
+      ],
+      "lines_charges_tax": 1403.79,
+      "attachments": [
+        "bill_0040455291.pdf"
+      ],
+      "pdf_total": 1403.79,
+      "result": "PASS",
+      "reason": "Merchandise is item 31 and sales tax is on the Taxes tab. The live total matches $1,403.79.",
+      "note": "AP Clerk: @Treyce Hodges entered Gas and Supply invoice 0040455291 as Shop Supplies - G&amp;S, 20 OTC #8 nozzles at $64.84 ($1,296.80). Sales tax $106.99 is on the Taxes tab. Customer PO SHOP is not a KIMCO purchase order. The bill matches the PDF total $1,403.79 and is not posted.",
+      "vendor": "Gas and Supply North Texas, LLC"
+    },
+    {
+      "bill_id": 10511,
+      "invoice": "T609084432",
+      "batch_id": 375,
+      "batch": "TRANSFER AP",
+      "posted": null,
+      "void": false,
+      "Invoice_Amount": 0.0,
+      "verification": 372.0,
+      "net": 0.0,
+      "lines": [],
+      "receipts": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1615,
+          "text": "AP Clerk: @Shawn McKibben Earle M. Jorgensen Company invoice T609084432 on PO 59242 cannot be matched. The invoice is 24 ft of 1.250 OD x .083 wall 6061 tubing at $15.50/ft, $372.00. Receipt 24879 is quantity 288.0 at $0.93, extended $267.84. The gap is $104.16, which is $75 or more. The receipt was not selected. The bill is on hold in Transfer AP and is not posted."
+        }
+      ],
+      "lines_charges_tax": 0,
+      "attachments": [
+        "bill_T609084432.pdf"
+      ],
+      "pdf_total": 372.0,
+      "result": "HOLD",
+      "reason": "Price gap $104.16 against receipt 24879. Receipt not selected.",
+      "note": "AP Clerk: @Shawn McKibben Earle M. Jorgensen Company invoice T609084432 on PO 59242 cannot be matched. The invoice is 24 ft of 1.250 OD x .083 wall 6061 tubing at $15.50/ft, $372.00. Receipt 24879 is quantity 288.0 at $0.93, extended $267.84. The gap is $104.16, which is $75 or more. The receipt was not selected. The bill is on hold in Transfer AP and is not posted.",
+      "vendor": "Earle M. Jorgensen Company",
+      "open_receipts_considered": [
+        {
+          "id": 24879,
+          "name": "PO59242-EMJ Earl M. Jorgensen Company - 2026/9/29",
+          "qty": 288.0,
+          "unit": 0.93,
+          "ext": 267.84,
+          "part": "RT-1.25 x 0.083-6061 - Round Tube, 1-1/4\" x .083\" Wall 6061",
+          "desc": "Round Tube, 1-1/4\" x .083\" Wall 6061",
+          "po_line": "PO59242-01",
+          "po_line_id": 17877,
+          "invoiced": null
+        }
+      ],
+      "decision": "price"
+    },
+    {
+      "bill_id": 10512,
+      "invoice": "15487245",
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "posted": null,
+      "void": false,
+      "Invoice_Amount": 81.52,
+      "verification": 81.52,
+      "net": 81.52,
+      "lines": [
+        {
+          "id": 21705,
+          "qty": 240.0,
+          "unit_price": 0.3397,
+          "extended": 81.53,
+          "receipt_id": 25182
+        }
+      ],
+      "receipts": [
+        25182
+      ],
+      "charges": [
+        {
+          "id": 5709,
+          "kind_id": 13,
+          "kind": "Purchase Price Variance",
+          "amount": -0.01
+        }
+      ],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1626,
+          "text": "AP Clerk: @Shawn McKibben please disregard my earlier note on 15487245. 1 piece is the 240 in bar on receipt 25182; I selected it with a $0.01 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            },
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            }
+          ]
+        },
+        {
+          "id": 1616,
+          "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15487245 on PO 59293 (the PDF customer PO reads 559293, which is not a KIMCO purchase order) does not match the open receipt. The invoice is 1 piece of 3/4 inch 1018 cold-finished round, extended $81.52. The PDF customer PO reads 559293. Receipt 25182 is quantity 240.0 at $0.34, extended $81.53. The quantity does not match, so the receipt was not selected. The PDF total is $81.52. The bill is on hold on batch 747 and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ]
+        }
+      ],
+      "lines_charges_tax": 81.52,
+      "attachments": [
+        "bill_15487245.pdf"
+      ],
+      "pdf_total": 81.52,
+      "result": "PASS",
+      "reason": "1 piece is the 240 in bar on receipt 25182. PPV -$0.01 makes the total $81.52.",
+      "note": "AP Clerk: @Shawn McKibben please disregard my earlier note on 15487245. 1 piece is the 240 in bar on receipt 25182; I selected it with a $0.01 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+      "vendor": "O'Neal Steel - Dallas (GP)",
+      "open_receipts_considered": [
+        {
+          "id": 25182,
+          "name": "PO59293-ONEAL STEEL, LLC. - 2026/10/1",
+          "qty": 240.0,
+          "unit": 0.3397,
+          "ext": 81.53,
+          "part": "RB-0.75-1018-CF - Round Bar, 3/4\" 1018 CF",
+          "desc": "Round Bar, 3/4\" 1018 CF",
+          "po_line": "PO59293-05",
+          "po_line_id": 18087,
+          "invoiced": null
+        }
+      ],
+      "decision": "ppv",
+      "prior_hold": {
+        "result": "HOLD",
+        "reason": "Invoice quantity does not match the open receipt. Receipt not selected.",
+        "note": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15487245 on PO 59293 (the PDF customer PO reads 559293, which is not a KIMCO purchase order) does not match the open receipt. The invoice is 1 piece of 3/4 inch 1018 cold-finished round, extended $81.52. The PDF customer PO reads 559293. Receipt 25182 is quantity 240.0 at $0.34, extended $81.53. The quantity does not match, so the receipt was not selected. The PDF total is $81.52. The bill is on hold on batch 747 and is not posted.",
+        "lines": [],
+        "charges": [],
+        "lines_charges_tax": 0,
+        "decision": "qty"
+      }
+    }
+  ],
+  "mail_changed": false,
+  "posted": false,
+  "batch_closed": false,
+  "oneal_10512_ppv": {
+    "before": {
+      "id": 10512,
+      "invoice": "15487245",
+      "posted": null,
+      "void": false,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "invoice_amount": 0.0,
+      "verification": 81.52,
+      "net": 0.0,
+      "lines": [],
+      "charges": [],
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1616,
+          "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15487245 on PO 59293 (the PDF customer PO reads 559293, which is not a KIMCO purchase order) does not match the open receipt. The invoice is 1 piece of 3/4 inch 1018 cold-finished round, extended $81.52. The PDF customer PO reads 559293. Receipt 25182 is quantity 240.0 at $0.34, extended $81.53. The quantity does not match, so the receipt was not selected. The PDF total is $81.52. The bill is on hold on batch 747 and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T13:46:25.367",
+          "creator_id": 175,
+          "creator_name": "API Agent"
+        }
+      ],
+      "lines_plus_charges": 0
+    },
+    "after_select": {
+      "id": 10512,
+      "invoice": "15487245",
+      "posted": null,
+      "void": false,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "invoice_amount": 81.53,
+      "verification": 81.52,
+      "net": 81.53,
+      "lines": [
+        {
+          "id": 21705,
+          "qty": 240.0,
+          "unit_price": 0.3397,
+          "extended": 81.53,
+          "receipt_id": 25182
+        }
+      ],
+      "charges": [],
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1616,
+          "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15487245 on PO 59293 (the PDF customer PO reads 559293, which is not a KIMCO purchase order) does not match the open receipt. The invoice is 1 piece of 3/4 inch 1018 cold-finished round, extended $81.52. The PDF customer PO reads 559293. Receipt 25182 is quantity 240.0 at $0.34, extended $81.53. The quantity does not match, so the receipt was not selected. The PDF total is $81.52. The bill is on hold on batch 747 and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T13:46:25.367",
+          "creator_id": 175,
+          "creator_name": "API Agent"
+        }
+      ],
+      "lines_plus_charges": 81.53
+    },
+    "after": {
+      "id": 10512,
+      "invoice": "15487245",
+      "posted": null,
+      "void": false,
+      "batch_id": 747,
+      "batch": "API Agent - 10/6/26 Sept",
+      "invoice_amount": 81.52,
+      "verification": 81.52,
+      "net": 81.52,
+      "lines": [
+        {
+          "id": 21705,
+          "qty": 240.0,
+          "unit_price": 0.3397,
+          "extended": 81.53,
+          "receipt_id": 25182
+        }
+      ],
+      "charges": [
+        {
+          "id": 5709,
+          "kind_id": 13,
+          "kind": "Purchase Price Variance",
+          "amount": -0.01
+        }
+      ],
+      "taxes": 0,
+      "comments": [
+        {
+          "id": 1626,
+          "text": "AP Clerk: @Shawn McKibben please disregard my earlier note on 15487245. 1 piece is the 240 in bar on receipt 25182; I selected it with a $0.01 PPV. No action needed. @Treyce Hodges ready to process, not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            },
+            {
+              "id": 33,
+              "name": "Treyce Hodges"
+            }
+          ],
+          "created_on": "2026-10-06T14:50:37.587",
+          "creator_id": 175,
+          "creator_name": "API Agent"
+        },
+        {
+          "id": 1616,
+          "text": "AP Clerk: @Shawn McKibben O'Neal Steel - Dallas (GP) invoice 15487245 on PO 59293 (the PDF customer PO reads 559293, which is not a KIMCO purchase order) does not match the open receipt. The invoice is 1 piece of 3/4 inch 1018 cold-finished round, extended $81.52. The PDF customer PO reads 559293. Receipt 25182 is quantity 240.0 at $0.34, extended $81.53. The quantity does not match, so the receipt was not selected. The PDF total is $81.52. The bill is on hold on batch 747 and is not posted.",
+          "mentions": [
+            {
+              "id": 104,
+              "name": "Shawn McKibben"
+            }
+          ],
+          "created_on": "2026-10-06T13:46:25.367",
+          "creator_id": 175,
+          "creator_name": "API Agent"
+        }
+      ],
+      "lines_plus_charges": 81.52
+    }
+  }
+}

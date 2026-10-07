@@ -27,6 +27,7 @@ from ap_clerk.kimco import (
     invoice_lines_from_record,
     ppv_payload,
     receipt_ids_from_invoice_lines,
+    part_id_from_purchase_line,
     receipt_line_values_from_records,
     select_receipts_payload,
     deselect_receipts_payload,
@@ -156,6 +157,48 @@ def test_select_receipts_puts_record_lists_apinvoiceline() -> None:
     assert child["values"]["Purchase_Order_Line"] == {"id": 17666}
     assert child["values"]["Part_ID"] == {"id": 20560}
     assert child["values"]["Quantity"] == 24.0
+
+
+def test_select_receipts_uses_work_order_part_when_receipt_has_none() -> None:
+    client = _live_client()
+    invoice = {"id": INVOICE_ID, "values": {"Vendor": {"id": 22}, "Purchase_Order": {"id": 7265}}}
+    receipt = {
+        "id": 24918,
+        "values": {
+            "PO_Item_Number": {"id": 17952},
+            "PO_Number": {"id": 7265},
+            "Quantity_Received": 5.0,
+            "PO_Item_Number_$_Unit_Price": 30.0,
+            "Work_Order_Issue": {"id": 16039},
+        },
+    }
+    purchase = {
+        "id": 17952,
+        "values": {"Work_Order_Number_$_Part_Number": {"id": 13420, "text": "5003522-001"}},
+    }
+
+    captured: dict = {}
+
+    def kimco_request(method, url, **kwargs):
+        if method == "GET" and url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}"):
+            return FakeResp(200, invoice)
+        if method == "GET" and url.endswith(f"/{LIVE_SERVICES['receipts']}/24918"):
+            return FakeResp(200, receipt)
+        if method == "GET" and url.endswith(f"/{LIVE_SERVICES['purchase_lines']}/17952"):
+            return FakeResp(200, purchase)
+        if method == "PUT" and url.endswith(f"/{LIVE_GUID}/{INVOICE_ID}"):
+            captured["json"] = kwargs.get("json")
+            return FakeResp(200, {"ok": True})
+        raise AssertionError(f"unexpected {method} {url}")
+
+    with patch.object(client.session, "request", side_effect=kimco_request):
+        status = client.try_select_receipts(INVOICE_ID, [24918])
+    assert status == "selected"
+    assert part_id_from_purchase_line(purchase) == 13420
+    child = captured["json"]["lists"]["APInvoiceLine"][0]["values"]
+    assert child["Part_ID"] == {"id": 13420}
+    assert child["Work_Order"] == {"id": 16039}
+    assert child["Receipt"] == {"id": 24918}
 
 
 def test_fees_payload_is_additional_charge_fees_and_surcharges() -> None:

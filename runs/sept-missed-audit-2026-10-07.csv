@@ -1,0 +1,553 @@
+received time,sender,subject,folder,categories,doc type,invoice #,invoice date,amount,PO,KIMCO bill id or MISSING,notes
+2026-09-01T07:26:38Z,accountspayable@kannonmfg.com,AP run 2026-09-01,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-01T07:36:14Z,accountspayable@kannonmfg.com,AP run 2026-09-01,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-01T07:38:45Z,accountspayable@kannonmfg.com,AP run 2026-09-01,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-01T11:13:52Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,Entered in AI,invoice,0040401083,2026-08-31,1463.17,,MISSING,source pdf
+2026-09-01T11:36:46Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,Entered in AI,statement,,,,,,statement; not checked (Treyce)
+2026-09-01T11:42:01Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,Entered in AI,invoice,0040406308,2026-08-31,130.10,,MISSING,source pdf
+2026-09-01T20:47:25Z,gigi.pineda@gasandsupply.com,Copies of invoices A3050,Inbox,Entered in AI,invoice,0040104313,2026-04-20,82.90,,10058,Gas product invoice; bill 10058  date  amount  unposted batch ; source pdf
+2026-09-01T20:47:25Z,gigi.pineda@gasandsupply.com,Copies of invoices A3050,Inbox,Entered in AI,invoice,0040105030,2026-04-20,511.30,,10059,Gas product invoice; bill 10059  date  amount  unposted batch ; source pdf
+2026-09-01T20:48:52Z,gigi.pineda@gasandsupply.com,Re: Past Due Notice for Account G1378,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-02T07:20:36Z,accountspayable@kannonmfg.com,AP run 2026-09-02,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-02T07:41:01Z,accountspayable@kannonmfg.com,AP run 2026-09-02,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-02T07:45:18Z,accountspayable@kannonmfg.com,AP run 2026-09-02,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-03T02:25:01Z,DoNotReply@ipfs.com,NOTICE OF PAYMENT DUE for KANNON MANUFACTURING INC - TXH-F22041 - HIGGINBOTHAM - FORT WORTH - 9/2/2026 - Imperial PFS® Forms/Letters.,Inbox,"Problems/Issues, Investigating",other,,,,,,no invoice number
+2026-09-04T07:27:47Z,accountspayable@kannonmfg.com,AP run 2026-09-04,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-04T07:34:41Z,accountspayable@kannonmfg.com,AP run 2026-09-04,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-04T21:26:07Z,donotreply@invoices.mscdirect.com,MSC Past Due Notification (DXED#202624717232246358DC),Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-04T22:46:39Z,quickbooks@notification.intuit.com,"Invoice - Reminder: Your payment to Steel Inspectors of Texas, Inc. is due",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-05T06:21:34Z,invoice.reply@mcmaster.com,Credit from Your Order 58889,Inbox,,packing slip,,,,,,no invoice number
+2026-09-05T06:49:38Z,quickbooks@notification.intuit.com,"Invoice - Reminder: Your payment to Steel Inspectors of Texas, Inc. is due",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-05T06:50:00Z,quickbooks@notification.intuit.com,"Invoice - Reminder: Your payment to Steel Inspectors of Texas, Inc. is due",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-05T08:51:56Z,quickbooks@notification.intuit.com,"Invoice - Reminder: Your payment to Steel Inspectors of Texas, Inc. is due",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-05T11:14:06Z,quickbooks@notification.intuit.com,Finish your payment to Green Valley Compressor LLC,Inbox,,invoice,2158,2026-09-02,405.94,,10244,bill 10244  date  amount  unposted batch ; source pdf
+2026-09-05T11:14:06Z,quickbooks@notification.intuit.com,Finish your payment to Green Valley Compressor LLC,Inbox,,invoice,2158,2026-09-02,405.94,,10244,bill 10244  date  amount  unposted batch ; source pdf
+2026-09-05T12:03:55Z,mansfieldtx@alarm-billing.com,Mansfield False Alarm Reduction Program,Inbox,,other,,,,,,no invoice number
+2026-09-05T12:08:31Z,ARNotifications@versalift.com,"C06512 KANNON MANUFACTURING INC: Second Reminder - $8,029.22 due Ref:0003082671",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-05T12:14:25Z,ARNotifications@versalift.com,C06512 KANNON MANUFACTURING INC: Statement Ref:0003082102,Inbox,,invoice,,,,,,
+2026-09-05T14:40:39Z,BACKGROUND@MEAU.COM,Mitsubishi Electric Account Statement,Inbox,,credit memo,,,,,,no invoice number
+2026-09-05T17:08:13Z,MyAccount@spectrumemails.com,Your Spectrum Business Statement is Ready,Inbox/AutoPay Archive,AI Skipped 2,statement,,,,,,statement; not checked (Treyce)
+2026-09-06T13:39:10Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-06T13:39:11Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-06T17:28:21Z,email@alert.ally.com,Reminder: 9/8/2026 is your scheduled payment date,Inbox,,other,,,,,,no invoice number
+2026-09-06T23:04:25Z,quickbooks@notification.intuit.com,Invoice 1814 from Insight Controller Services,Inbox,,invoice,1814,2026-08-31,3777.78,,9932,bill 9932  date  amount  unposted batch ; source pdf
+2026-09-07T07:28:42Z,accountspayable@kannonmfg.com,AP run 2026-09-07,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-07T12:58:04Z,no-reply@business.amazon.com,Set delivery preferences that fit your business hours,Inbox,,other,,,,,,no invoice number
+2026-09-07T16:45:07Z,info@capitalmachine.com,Is Your Machine a Fit for Our Preventative Maintenance Program?,Inbox,,other,,,,,,no invoice number
+2026-09-08T07:38:02Z,accountspayable@kannonmfg.com,AP run 2026-09-08,Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-08T12:02:16Z,asylvester@curbell.com,271319-Curbell Plastics Notice of Past Due Balance,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-08T14:04:00Z,connect@info.coloniallife.com,Simplify your payments,Inbox,,other,,,,,,no invoice number
+2026-09-08T14:48:13Z,Beth.Watkins@kloeckner.com,Invoice Details - Kannon Manufacturing Inc,Inbox,,invoice,,,,,,
+2026-09-08T15:10:49Z,outlook-ap-user,Fw: Energy Invoice - KANNON MANUFACTURING LLC (Invoice #: 0204730),Inbox,,invoice,0204730,2026-09-01,2559.67,,10118,bill 10118  date  amount  unposted batch ; source pdf
+2026-09-08T15:11:31Z,outlook-ap-user,Re: Energy Invoice - KANNON MANUFACTURING LLC (Invoice #: 0204730),Inbox,,invoice,0204730,2026-09-02,,,10118,no PDF attachment; bill 10118  date  amount  unposted batch ; source body
+2026-09-08T15:24:38Z,quickbooks@notification.intuit.com,Invoice SH:27756 Re:,Inbox,,invoice,27756,2026-08-03,1252.18,58723,9756,bill 9756  date  amount  unposted batch ; source pdf
+2026-09-08T15:25:13Z,quickbooks@notification.intuit.com,Invoice SH:27755 Re:,Inbox,,invoice,27755,2026-08-03,1107.57,58701,9758,bill 9758  date  amount  unposted batch ; source pdf
+2026-09-08T15:25:21Z,Info@spectrum-business.spectrum.com,RE: Your September upgrade,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-08T15:25:21Z,Info@spectrum-business.spectrum.com,RE: Your September upgrade,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-08T15:30:08Z,quickbooks@notification.intuit.com,"Statement from Crosslink Powder Coating of TX, LLC",Inbox,,invoice,,,,,,
+2026-09-08T16:03:43Z,CustomerRelations@freepointsolutions.com,RE: Energy Invoice - KANNON MANUFACTURING LLC (Invoice #: 0204730),Inbox,,invoice,0204730,2026-09-08,,,10118,no PDF attachment; bill 10118  date  amount  unposted batch ; source body
+2026-09-08T16:15:07Z,CLopez@higginbotham.net,RE: ***IMPORTANT*** 09/09/2026 IPFS Notice of Cancellation for non-payment of Installment #5 due 08/17/2026,Inbox,,other,,,,,,no invoice number
+2026-09-08T16:17:02Z,Shawn.McKibben@kannonmfg.com,Fw: QU KANNON MANUFACTURING INC (019586) -- #G72390 -- PO#: SHAWN QUOTE PO 59095,Inbox,,invoice,,,,,,
+2026-09-08T16:25:38Z,Kelcie.Alvard@priority1.com,KANNON MANUFACTURING 230230-P1,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-08T17:00:26Z,cgersten@easternmetal.com,RE: 019586 KANNON MANUFACTURING INC,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-08T17:49:05Z,insights@unifirst.com,Limited time: Save 20% on mats & mops,Inbox,,other,,,,,,no invoice number
+2026-09-08T18:04:10Z,MyAccount@spectrumemails.com,Your Payment Is Scheduled Soon,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-08T18:05:38Z,gigi.pineda@gasandsupply.com,Past Due Notice for Account A3050,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-08T18:06:09Z,gigi.pineda@gasandsupply.com,Past Due Notice for Account G1378,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-08T18:06:27Z,gigi.pineda@gasandsupply.com,Past Due Notice for Account F5147,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-08T19:36:38Z,misty.mccoy@kannonmfg.com,FW: Ryerson | Payment Due,Inbox,,other,,,,,,no invoice number
+2026-09-08T22:18:11Z,quickbooks@notification.intuit.com,Reminder: Invoice 1814 from Insight Controller Services,Inbox,,invoice,1814,2026-08-31,3777.78,,9932,bill 9932  date  amount  unposted batch ; source pdf
+2026-09-08T22:18:13Z,quickbooks@notification.intuit.com,Finish your payment to Insight Controller Services,Inbox,,invoice,,,,,,
+2026-09-09T00:46:39Z,marthab@sss-steel.com,Auto-Email of A/R Statement,Inbox,,other,,,,,,no invoice number
+2026-09-09T01:39:25Z,accountspayable@kannonmfg.com,AP dry run 10 — quality V1.1 (API finish),Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-09T01:41:46Z,accountspayable@kannonmfg.com,AP dry run 10 — quality V1.1 (API finish),Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-09T02:09:51Z,accountspayable@kannonmfg.com,AP dry run 10 — quality V1.1 (API finish),Sent Items,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-09T03:34:46Z,vsanders@onealsteel.com,O'Neal Steel Credit Invoice For Account # 14748440,Inbox,Entered in AI,credit memo,15439109,2026-09-08,,15439109,9912,bill 9912  date  amount  unposted batch ; source pdf
+2026-09-09T03:34:46Z,vsanders@onealsteel.com,O'Neal Steel Credit Invoice For Account # 14748440,Inbox,Entered in AI,credit memo,15464367,2026-09-08,,,9975,bill 9975  date  amount  unposted batch ; source pdf
+2026-09-09T03:52:11Z,yourinvoice@billing2.primobrands.com,Your attached invoice is ready,Inbox,,other,,,,,,no invoice number
+2026-09-09T13:37:08Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T13:37:08Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T13:37:09Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T15:17:11Z,accounting@tracemetalindustries.com,"Statement from TRACE METAL INDUSTRIES, INC..",Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-09T15:25:09Z,accountspayable@kannonmfg.com,RE: Ryerson | Payment Due,Inbox,,other,,,,,,no invoice number
+2026-09-09T15:27:06Z,Frank.Franklin@ryerson.com,RE: Ryerson | Payment Due,Inbox,,other,,,,,,no invoice number
+2026-09-09T15:34:38Z,Info@spectrum-business.spectrum.com,A smarter way to stay connected in FORT WORTH,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-09T15:34:43Z,Info@spectrum-business.spectrum.com,A smarter way to stay connected in FORT WORTH,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-09T16:04:45Z,lbyroads@Curbell.com,Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-09T16:26:03Z,noreply@payonline.tech,"Stella Source, Inc. has sent you an invoice",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-09T16:26:07Z,noreply@payonline.tech,"Stella Source, Inc. has sent you an invoice",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-09T16:26:10Z,noreply@payonline.tech,"Stella Source, Inc. has sent you an invoice",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-09T16:26:46Z,accountspayable@kannonmfg.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T16:29:43Z,outlook-ap-user,Re: Invoice 17-2527 from NTEX Electric Inc.,Inbox,Investigating,invoice,,,,,,no PDF attachment
+2026-09-09T16:46:35Z,metrosprocket@yahoo.com,Re: Statement from METRO SPROCKET AND GEAR INC,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-09T16:49:30Z,mchannell@precisionfabsvs.com,"19466, 19467, 19468",Inbox,,packing slip,,,,,,no invoice number
+2026-09-09T16:52:44Z,accountspayable@kannonmfg.com,RE: Invoice 25641 - KANNON MANUFACTURING - AMTECH - DUE UPON RECEIPT-PAST DUE,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T17:01:05Z,outlook-ap-user,Re: Invoice 25641 - KANNON MANUFACTURING - AMTECH - DUE UPON RECEIPT-PAST DUE,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T17:15:03Z,jhencke@rmpis.com,Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T17:24:01Z,kimco-user,RE: Curbell Plastics Inquiry - Acct #271319 Kannon Manufacturing Inc,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-09T17:59:38Z,accountspayable@kannonmfg.com,AP dry run 10 — from 2026-08-16,Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-09T18:09:53Z,info@email.safety-kleen.com,Claim your $225 fall discount on transmission fluids today!,Inbox,,other,,,,,,no invoice number
+2026-09-09T18:50:31Z,benjamin.jones@stellasource.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T19:37:32Z,notifications@corrigo.com,Your Work Order with A-1 IMAGE INC. is completed,Inbox,,other,,,,,,no invoice number
+2026-09-09T19:56:50Z,Shawn.McKibben@kannonmfg.com,Fw: PAST DUE INVOICES,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-09T20:01:59Z,onealsteelmarketing@onealsteel.com,O'Neal Steel Market Informer September 2026,Inbox,,other,,,,,,no invoice number
+2026-09-09T20:10:37Z,accountspayable@kannonmfg.com,AP dry run 10 — from 2026-08-18,Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15390604,2026-09-09,19920.75,,9186,bill 9186  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15395841,2026-06-25,19920.75,,9310,bill 9310  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15396202,2026-09-09,19920.75,,9971,bill 9971  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398467,2026-06-25,19920.75,,9356,bill 9356  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398891,2026-06-25,19920.75,,9372,bill 9372  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15399796,2026-06-25,19920.75,,9972,bill 9972  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15400210,2026-06-25,19920.75,,9389,bill 9389  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15401860,2026-06-25,19920.75,,9423,bill 9423  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15402415,2026-06-25,19920.75,,9973,bill 9973  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15439109,2026-06-25,19920.75,,9912,bill 9912  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15447737,2026-09-09,19920.75,,10079,bill 10079  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15455556,2026-09-09,19920.75,,9974,bill 9974  date  amount  unposted batch ; source pdf
+2026-09-09T21:04:14Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15464367,2026-06-25,19920.75,,9975,bill 9975  date  amount  unposted batch ; source pdf
+2026-09-09T21:26:44Z,Shawn.McKibben@kannonmfg.com,Fw: ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,,,,,,
+2026-09-10T00:01:17Z,NOREPLY@EASTERNMETAL.COM,"Invoice : 821391 from EASTERN METAL SUPPLY of TEXAS, INC.",Inbox,,credit memo,819009,2026-09-09,,58915,9997,bill 9997  date  amount  unposted batch ; source pdf
+2026-09-10T00:01:17Z,NOREPLY@EASTERNMETAL.COM,"Invoice : 821391 from EASTERN METAL SUPPLY of TEXAS, INC.",Inbox,,invoice,821391,2026-09-09,,,9998,bill 9998  date  amount  unposted batch ; source pdf
+2026-09-10T01:58:47Z,quickbooks@notification.intuit.com,"Reminder: Invoice SH:27755 from Crosslink Powder Coating of TX, LLC",Inbox,,invoice,27755,2026-08-03,1107.57,58701,9758,bill 9758  date  amount  unposted batch ; source pdf
+2026-09-10T01:58:55Z,quickbooks@notification.intuit.com,"Reminder: Invoice SH:27756 from Crosslink Powder Coating of TX, LLC",Inbox,,invoice,27756,2026-08-03,1252.18,58723,9756,bill 9756  date  amount  unposted batch ; source pdf
+2026-09-10T09:12:03Z,246@serviceexperts.com,Your Statement from Service Experts Dallas,Inbox,,invoice,,,,,,
+2026-09-10T11:33:19Z,chris.vieux@kannonmfg.com,RE: Your Invoice from Service Experts,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-10T13:46:02Z,mason.manginelli@serviceexperts.com,Re: [EXTERNAL] RE: Your Invoice from Service Experts,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-10T15:01:23Z,office@a1image.ccsend.com,HEADS UP!,Inbox,,other,,,,,,no invoice number
+2026-09-10T15:07:10Z,no-reply@business.amazon.com,Try Business Prime today,Inbox,,other,,,,,,no invoice number
+2026-09-10T15:24:42Z,Info@spectrum-business.spectrum.com,RE: Your September upgrade,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-10T15:24:45Z,Info@spectrum-business.spectrum.com,RE: Your September upgrade,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-10T16:41:48Z,VenusAccounting@ktgalvanizing.com,KANNON MFG INV 120778,Inbox,,other,,,,,,no invoice number
+2026-09-10T16:41:48Z,chris.vieux@kannonmfg.com,RE: [EXTERNAL] RE: Your Invoice from Service Experts,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-10T17:08:24Z,richard@lavanture.ccsend.com,LaVanture Open House 2026,Inbox,,other,,,,,,no invoice number
+2026-09-10T17:10:27Z,crdingley@altparts.com,NOW AVAILABLE: 2006 AMADA FO3015NT (4KW),Inbox,,other,,,,,,no invoice number
+2026-09-10T17:32:54Z,accountspayable@kannonmfg.com,RE: Auto-Email of A/R Statement,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-10T17:50:11Z,info@syspro.com,"Traild AP for Syspro: less than two weeks to go, 22 September",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-10T18:08:14Z,jim.saxon@morgansteel.net,RE: Check 184833,Inbox,,other,,,,,,no invoice number
+2026-09-10T18:14:00Z,Shawn.McKibben@kannonmfg.com,Fw: Check 184833,Inbox,,other,,,,,,no invoice number
+2026-09-10T18:52:30Z,sales@resellcnc.com,Now Available - Okuma Multus-B300-W Twin-Spindle Turn-Mill,Inbox,,other,,,,,,no invoice number
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15390604,2026-09-10,19920.75,,9186,bill 9186  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15395841,2026-06-25,19920.75,,9310,bill 9310  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15396202,2026-09-10,19920.75,,9971,bill 9971  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398467,2026-06-25,19920.75,,9356,bill 9356  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398891,2026-06-25,19920.75,,9372,bill 9372  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15399796,2026-06-25,19920.75,,9972,bill 9972  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15400210,2026-06-25,19920.75,,9389,bill 9389  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15401860,2026-06-25,19920.75,,9423,bill 9423  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15402415,2026-06-25,19920.75,,9973,bill 9973  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15439109,2026-06-25,19920.75,,9912,bill 9912  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15447737,2026-09-10,19920.75,,10079,bill 10079  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15455556,2026-09-10,19920.75,,9974,bill 9974  date  amount  unposted batch ; source pdf
+2026-09-10T18:58:55Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15464367,2026-06-25,19920.75,,9975,bill 9975  date  amount  unposted batch ; source pdf
+2026-09-10T19:07:53Z,Shawn.McKibben@kannonmfg.com,Fw: ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,other,,,,,,no invoice number
+2026-09-10T19:38:36Z,JTorres@LuxorStaffing.com,"Luxor Staffing Invoice-Kannon Manufacturing, Inc",Inbox,,other,,,,,,no invoice number
+2026-09-10T20:53:18Z,antsanch@fastenal.com,Fastenal Past due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-11T02:35:01Z,noreply@amada.com,Amada America Inc - Customer Statement,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-11T11:34:36Z,Info@spectrum-business.spectrum.com,A year of Mobile service on us,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-11T11:34:36Z,Info@spectrum-business.spectrum.com,A year of Mobile service on us,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-11T13:29:09Z,Shawn.McKibben@kannonmfg.com,Fw: ORDER PENDING PAYMENT STATUS,Inbox,,credit memo,,,,,,no invoice number
+2026-09-11T13:53:58Z,Theresa.Thornton@exalloys.com,Exotic Metals & Alloys | Invoice Submission |Thank You for Your Business,Inbox,,invoice,,,,,,
+2026-09-11T13:59:01Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15390604,2026-09-11,19920.75,,9186,bill 9186  date  amount  unposted batch ; source pdf
+2026-09-11T13:59:01Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15395841,2026-09-11,19920.75,,9310,bill 9310  date  amount  unposted batch ; source pdf
+2026-09-11T13:59:01Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15396202,2026-09-11,19920.75,,9971,bill 9971  date  amount  unposted batch ; source pdf
+2026-09-11T14:04:11Z,noreply@payonline.tech,Payment Confirmation for Invoice Number: INV-0001509,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-11T14:17:23Z,noreply@payonline.tech,Payment Confirmation for Invoice Number: INV-0001508,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-11T14:19:36Z,accountspayable@kannonmfg.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-11T14:27:53Z,benjamin.jones@stellasource.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-11T15:54:50Z,billing@stellasource.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-11T16:04:00Z,donotreply@invoices.mscdirect.com,"MSC Invoice 78129701, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1571 (DXED#2026254114949717FE29)",Inbox,,invoice,78129701,2026-09-10,1857.28,VENDING/1571,MISSING,invoice date 2026-09-10; due 2026-10-10; source pdf
+2026-09-11T18:37:18Z,email@alert.ally.com,Your Ally billing statement is available,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-11T19:08:36Z,mhenry@emjmetals.com,Statement of Account,Inbox,,other,,,,,,no invoice number
+2026-09-11T19:12:10Z,ar@capitalmachine.com,Capital Machine - Sales Invoice PS-INV103344 - KANNON MANUFACTURING - AMTECH,Inbox,,invoice,PS-INV103344,2026-09-10,610.00,59088,MISSING,external document 59088; source pdf
+2026-09-11T19:27:52Z,quickbooks@notification.intuit.com,Statement from Xcaliber Industrial LLC,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-11T20:50:10Z,quickbooks@notification.intuit.com,Invoice WB4337861607 from Xcaliber Industrial LLC,Inbox,,invoice,WB4337861607,2026-09-09,985.00,,10472,bill 10472  date  amount  unposted batch ; source pdf
+2026-09-11T20:59:31Z,quickbooks@notification.intuit.com,Invoice WB4337861620 from Xcaliber Industrial LLC,Inbox,,invoice,WB4337861620,2026-09-11,419.76,59126,MISSING,source pdf
+2026-09-11T21:06:02Z,Accounting@TPITexas.com,Past Due Statement Reminder - KANNON - 08/31/2026,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-12T00:20:00Z,acs.chicago@aon.com,Certificate(s) of Insurance from Aon,Inbox,,other,,,,,,no invoice number
+2026-09-12T06:23:28Z,mkinv37@marmonkeystone.com,Statement from Marmon/Keystone,Inbox,,other,,,,,,no invoice number
+2026-09-12T06:31:34Z,invoice.reply@mcmaster.com,Credit from Your Order 59159,Inbox,,packing slip,,,,,,no invoice number
+2026-09-12T12:06:58Z,ARNotifications@versalift.com,"C06512 KANNON MANUFACTURING INC: Invoice(s) Coming Due - $2,600.00 due Ref:0003090294",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-12T16:32:44Z,primobrands@express.medallia.com,Please share your feedback about your delivery - 2 Minutes!,Inbox,,other,,,,,,no invoice number
+2026-09-12T17:20:37Z,AR@venturisupply.com,Invoice 93669897 for Packing List 2154079,Inbox,,invoice,1557568,2026-09-12,122.94,59127,MISSING,PDF prints 1557568 under INVOICE; subject and ORDER NUMBER say 93669897; source pdf
+2026-09-12T17:20:37Z,AR@venturisupply.com,Invoice 93669897 for Packing List 2154079,Inbox,,invoice,93669897,2026-09-12,122.94,59127,MISSING,subject says Invoice 93669897; PDF prints 1557568 under INVOICE and 93669897 beside ORDER NUMBER; source pdf
+2026-09-13T18:03:38Z,MyAccount@spectrumemails.com,Your Payment Is Scheduled Soon,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-14T12:36:29Z,Info@spectrum-business.spectrum.com,Ready when business calls,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-14T12:36:29Z,Info@spectrum-business.spectrum.com,Ready when business calls,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-14T13:28:10Z,accountspayable@kannonmfg.com,AP dry run 10 — 2026-09-14 afternoon,Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-14T13:42:55Z,southcredit@amcastle.com,Original Invoice(s) For: KANNON MFG INC-FT WORTH Account#: 32279,Inbox,,invoice,43315835,2026-09-11,515.11,,10184,bill 10184  date  amount  unposted batch ; source pdf
+2026-09-14T13:59:23Z,jim.saxon@morgansteel.net,RE: Check 184833,Inbox,,other,,,,,,no invoice number
+2026-09-14T13:59:25Z,benjamin.jones@stellasource.com,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-14T14:20:20Z,ksteffenhagen@Curbell.com,Curbell Plastics- Acct 271319 Kannon Manufacturing Inc,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-14T14:38:10Z,kimco-user,RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-14T14:47:32Z,noreply@payonline.tech,"Stella Source, Inc. has sent you an Invoice: INV-0001507b",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-14T14:49:34Z,benjamin.jones@stellasource.com,RE: [EXTERNAL]RE: Kannon Manufacturing - Past Due Invoices,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-14T15:52:09Z,vistaprint@mail.vistaprint.com,Up to 40% off top products 👉 shop now!,Inbox,,other,,,,,,no invoice number
+2026-09-14T16:38:00Z,noreply@payonline.tech,Payment Confirmation for Invoice Number: INV-0001507b,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-14T16:59:44Z,info@capitalmachine.com,Let’s Talk Through Your Maintenance Plan,Inbox,,other,,,,,,no invoice number
+2026-09-14T18:00:36Z,noreply@engieresources.com,Notice - Engie Payment was successfully charged,Inbox,,other,,,,,,no invoice number
+2026-09-14T20:10:30Z,Leigh.Mull@phoenixmetals.com,past due - account on hold - KANMAN,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-14T21:20:52Z,no-reply@business.amazon.com,"Price drops for you: Kannon, save on recently viewed items",Inbox,,other,,,,,,no invoice number
+2026-09-14T22:56:43Z,Shawn.McKibben@kannonmfg.com,Fw: [EXTERNAL] Fw: Kannon Mfg Purchase Order # 58959,Inbox,,invoice,9055991,2026-07-20,,,9547,bill 9547  date  amount  unposted batch ; source pdf
+2026-09-15T03:59:40Z,DoNotReply@ColonialLife.com,Your invoice will be available soon,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-15T07:13:31Z,Noreplymv@leecosteel.com,Leeco Steel MTR 623592,Inbox,,other,,,,,,no invoice number
+2026-09-15T07:21:10Z,accountspayable@kannonmfg.com,AP run 2026-09-15,Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-15T10:06:23Z,billing@spectrumvoip.com,SpectrumVoIP Invoice 951277,Inbox/AutoPay Archive,AI Skipped 2,invoice,951277,2026-09-01,93.13,,MISSING,invoice date 2026-09-01; due 2026-10-01; total $93.13; source pdf
+2026-09-15T12:01:50Z,asylvester@curbell.com,271319-Curbell Plastics Notice of Past Due Balance,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-15T12:25:53Z,no-reply@business.amazon.com,Your team still doesn't have a shared payment method,Inbox,,other,,,,,,no invoice number
+2026-09-15T12:55:25Z,collections@shoppas.com,Shoppas - Invoice(s) are Past Due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-15T13:23:32Z,creditmemos@phoenixmetals.com,Fw: Arlington Credit #9129944 for Customer KANMAN,Inbox,,credit memo,,,,,,no invoice number
+2026-09-15T13:31:48Z,Beth.Watkins@kloeckner.com,Invoice Details - Kannon Manufacturing Inc,Inbox,,invoice,,,,,,
+2026-09-15T15:25:11Z,Info@spectrum-business.spectrum.com,Get more from the service you rely on,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-15T15:25:17Z,Info@spectrum-business.spectrum.com,Get more from the service you rely on,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-15T15:27:53Z,crdingley@altparts.com,Time-Sensitive: 2015 LCG3015NT (3.5KW) & 2006 AMADA FO3015NT (4KW),Junk Email,,other,,,,,,no invoice number
+2026-09-15T17:48:28Z,sales@resellcnc.com,"Available Now - (23) Okuma Mills, Lathes And Much More.",Inbox,,other,,,,,,no invoice number
+2026-09-15T18:10:01Z,quickbooks@notification.intuit.com,New payment request from AMERICAN QUALITY POWDER COATING - invoice 11004,Inbox,Entered in AI,invoice,11004,,2600.00,,10010,no PDF attachment; bill 10010  date  amount  unposted batch ; source subject
+2026-09-15T19:39:00Z,sales@resellcnc.com,"Available Now - (13) DMG Mori Mills, Lathes And Much More.",Inbox,,other,,,,,,no invoice number
+2026-09-16T00:00:50Z,credit@leecosteel.com,Leeco Account Statement,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-16T04:53:53Z,info@email.safety-kleen.com,Better Shifts Start with $225 off Transmission Fluids!,Inbox,,other,,,,,,no invoice number
+2026-09-16T07:15:39Z,accountspayable@kannonmfg.com,AP run 2026-09-16,Sent Items,,invoice,,,,,,attachments were not PDFs
+2026-09-16T13:40:08Z,noreply@mail.authorize.net,"Transaction Receipt from Quench USA, Inc. for $2667.01 (USD)",Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-16T13:53:27Z,invoice@culliganquench.com,Culligan Quench - Invoice: INV11518041 due on 10/16/2026 for D503183,Inbox/AutoPay Archive,AI Skipped 2,invoice,INV11518041,2026-09-16,2667.01,,MISSING,"inv amt $2,667.01 already paid; total due $0.00; source pdf"
+2026-09-16T14:46:18Z,misty.mccoy@kannonmfg.com,FW: 1000913 KANNON MFG INC.,Inbox,AI Skipped 2,invoice,,,,,,
+2026-09-16T15:35:45Z,Kara.Lanford@tubesupply.com,Request for Payment Status 9.16.2026 Kannon Manufacturing,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-16T16:07:34Z,sales@resellcnc.com,"(63) Late Model Multi-Axis Mills, Lathes and More!",Inbox,,other,,,,,,no invoice number
+2026-09-16T16:36:16Z,primobrands@express.medallia.com,Please share your feedback about your delivery - 2 Minutes,Inbox,,other,,,,,,no invoice number
+2026-09-16T17:16:16Z,emarketing@metalsupermarkets.com,Only 2 Weeks Left To Enter!,Inbox,,other,,,,,,no invoice number
+2026-09-16T17:47:35Z,noreply@phoenixmetals.com,PHOENIX METALS,Inbox,AI Skipped 2,statement,,,,,,statement; not checked (Treyce)
+2026-09-16T18:04:32Z,no-reply@authorization.efax.com,Reset your password (code),Inbox,,other,,,,,,no invoice number
+2026-09-16T18:16:12Z,jon@insightcontroller.com,Re: Your eFax® invoice,Inbox,,invoice,000000580470,2026-08-21,,,MISSING,no PDF attachment; source body
+2026-09-16T19:02:03Z,support@alarm-billing.com,New CryWolf False Alarm Case #02600565 Created,Inbox,,other,,,,,,no invoice number
+2026-09-16T19:03:54Z,no-reply@business.amazon.com,Prime Big Deal Days is coming,Inbox,,other,,,,,,no invoice number
+2026-09-16T20:31:52Z,gigi.pineda@gasandsupply.com,"CHK#18570 iao $15,719.29",Inbox,,other,,,,,,no invoice number
+2026-09-16T20:36:37Z,member@surveymonkeyuser.com,Your Voice Matters,Inbox,,other,,,,,,no invoice number
+2026-09-16T21:08:23Z,billingdal@grmdocument.com,An update from GRM Information Management - 13010065,Inbox,,other,,,,,,no invoice number
+2026-09-16T21:27:21Z,Shawn.McKibben@kannonmfg.com,Re: Follow Up: Please Pay for Your PO 58206,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-17T13:01:21Z,ticf_cs_sm@billtrust.com,TICF: Invoice No. 3395995: Your Invoice From Toyota Commercial Finance is Attached,Inbox/AutoPay Archive,AI Skipped 2,invoice,3395995,2026-09-16,1885.65,,MISSING,55483 is not the PO; contract 50612580-333237; source pdf
+2026-09-17T13:34:22Z,jbettcher@Curbell.com,Curbell Account # 271319 Kannon Manufacturing Inc - Account Status,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-17T13:45:52Z,Rosana@fabcorp.com,INVOICE 470223 PO 59060,Inbox,,invoice,470223,2026-09-16,,59060,MISSING,scanned invoice; no total printed on the saved pages; source subject
+2026-09-17T16:31:19Z,gigi.pineda@gasandsupply.com,[A3050] - KANNON MANUFACTURING INC,Inbox,,other,,,,,,no invoice number
+2026-09-17T16:42:38Z,gigi.pineda@gasandsupply.com,Fwd: Gas&Supply Invoice/Statement,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-17T16:45:25Z,info@capitalmachine.com,A Simple Way to Stay Ahead of Machine Downtime,Inbox,,other,,,,,,no invoice number
+2026-09-17T17:50:25Z,notifications@corrigo.com,Your Work Order with A-1 IMAGE INC. is en route,Inbox,,other,,,,,,no invoice number
+2026-09-17T18:16:17Z,JTorres@LuxorStaffing.com,"Luxor Staffing Invoice-Kannon Manufacturing, Inc",Inbox,,other,,,,,,no invoice number
+2026-09-17T18:48:21Z,notifications@corrigo.com,Your Work Order with A-1 IMAGE INC. is completed,Inbox,,other,,,,,,no invoice number
+2026-09-17T18:50:10Z,CustomerRelations@freepointsolutions.com,Freepoint Solutions - Kannon Manufacturing LLC - Portal Login,Inbox,,other,,,,,,no invoice number
+2026-09-17T19:24:10Z,noreply@workwisecompliance.com,Reminder - Quick Survey = Chance to Win! Your Opinion Matters!,Inbox,,other,,,,,,no invoice number
+2026-09-17T19:50:56Z,notifications@corrigo.com,Your Work Order with A-1 IMAGE INC. is completed,Inbox,,other,,,,,,no invoice number
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15398467,2026-09-17,,,9356,bill 9356  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15398891,2026-09-17,,,9372,bill 9372  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15399796,2026-09-17,,,9972,bill 9972  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15400210,2026-09-17,,,9389,bill 9389  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15401860,2026-08-28,,,9423,bill 9423  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15402415,2026-08-28,,,9973,bill 9973  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15402927,2026-08-28,,,9441,bill 9441  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15403449,2026-08-28,,,9442,bill 9442  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15447737,2026-09-17,,,10079,bill 10079  date  amount  unposted batch ; source pdf
+2026-09-17T20:32:41Z,mwatkins@onealsteel.com,Payment status requested - 14748440,Inbox,,invoice,15455556,2026-09-17,,,9974,bill 9974  date  amount  unposted batch ; source pdf
+2026-09-17T21:13:31Z,quickbooks@notification.intuit.com,Reminder: Invoice 111138 from Greentree Packaging & Lumber,Inbox,,invoice,111138,2026-07-28,2265.00,58746,9745,bill 9745  date  amount  unposted batch ; source pdf
+2026-09-17T21:14:07Z,quickbooks@notification.intuit.com,Reminder: Invoice 111914 from Greentree Packaging & Lumber,Inbox,,invoice,111914,2026-08-18,1738.00,58908,10006,bill 10006  date  amount  unposted batch ; source pdf
+2026-09-17T21:45:14Z,antsanch@fastenal.com,Fw: Fastenal Past due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-17T21:54:34Z,natalie.chavez@gasandsupply.com,Re: Over 100+ days--A3050,Inbox,,other,,,,,,no invoice number
+2026-09-18T06:43:43Z,invoice.reply@mcmaster.com,Credit from Your Order 58221,Inbox,,packing slip,,,,,,no invoice number
+2026-09-18T12:21:47Z,ardept@Austinhardware.com,Past Due Invoice(s) - 17566 - Kannon Manufacturing Inc,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-18T13:05:46Z,collections@shoppas.com,Shoppas - Invoice(s) are Due,Inbox,,invoice,PSI-001220272,2026-08-10,,,9892,attachments were not PDFs; bill 9892  date  amount  unposted batch ; source body
+2026-09-18T13:05:46Z,collections@shoppas.com,Shoppas - Invoice(s) are Due,Inbox,,invoice,PSI-001220273,2026-08-10,,,9893,attachments were not PDFs; bill 9893  date  amount  unposted batch ; source body
+2026-09-18T13:05:46Z,collections@shoppas.com,Shoppas - Invoice(s) are Due,Inbox,,invoice,PSI-001220274,2026-08-10,,,9891,attachments were not PDFs; bill 9891  date  amount  unposted batch ; source body
+2026-09-18T13:12:17Z,no-reply@business.amazon.com,Your exclusive Prime Big Deal Days offer,Inbox,,other,,,,,,no invoice number
+2026-09-18T14:13:46Z,crdingley@altparts.com,Time-Sensitive: 2015 LCG3015NT (3.5KW) & 2006 AMADA FO3015NT (4KW),Inbox,,other,,,,,,no invoice number
+2026-09-18T14:19:01Z,DRheinheimer@lavanture.com,SV1426672 - Past Due Invoice,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-18T14:52:57Z,Shawn.McKibben@kannonmfg.com,CK# 18642,Inbox,,other,,,,,,no invoice number
+2026-09-18T16:20:08Z,quickbooks@notification.intuit.com,Invoice SH:27319 Re:,Inbox,,invoice,27319,2026-06-25,195.88,58326,9193,bill 9193  date  amount  unposted batch ; source pdf
+2026-09-18T16:33:44Z,Info@spectrum-business.spectrum.com,Keep your FORT WORTH business within reach,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-18T16:40:01Z,Info@spectrum-business.spectrum.com,Keep your FORT WORTH business within reach,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-18T16:56:40Z,quickbooks@notification.intuit.com,Invoice 1820 from Insight Controller Services,Inbox,,invoice,1820,2026-09-15,3777.78,,10183,bill 10183  date  amount  unposted batch ; source pdf
+2026-09-18T17:06:52Z,michelle@ktgalvanizing.com,Kannon Lost Check Issue,Inbox,,other,,,,,,no invoice number
+2026-09-18T17:47:07Z,sales@resellcnc.com,Twin Turret Twin Spindle 2022 Okuma LT2000EX-2T2MY Lathe,Inbox,,other,,,,,,no invoice number
+2026-09-18T17:49:26Z,dusty@empireholdingstx.com,Rent Statement,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-18T18:30:36Z,rhonda@kannonmfg.com,Fw: Overdue Balance Notice_1001050098,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-18T21:03:30Z,Accounting@TPITexas.com,Past Due Statement Reminder - KANNON - 8/31/2026 12:00:00 AM,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-19T10:32:39Z,noreply@fortworthtexas.gov,City of Fort Worth Bill Payment Due date 09/22/2026,Inbox,,other,,,,,,no invoice number
+2026-09-19T12:06:16Z,ARNotifications@versalift.com,C06512 KANNON MANUFACTURING INC: First Reminder - $187.50 due Ref:0003103397,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-19T14:05:11Z,sales@resellcnc.com,2022 DMG Mori NLX2500SY/700 C/Y-Axis Lathe w/Sub-Spindle,Inbox,,other,,,,,,no invoice number
+2026-09-20T18:58:29Z,quickbooks@notification.intuit.com,Finish your payment to Insight Controller Services,Inbox,,invoice,,,,,,
+2026-09-21T00:20:30Z,help@mail.efax.com,Your eFax® invoice,Inbox,,invoice,000000647109,2026-09-21,,,MISSING,no PDF attachment; source body
+2026-09-21T12:29:30Z,Info@spectrum-business.spectrum.com,How FORT WORTH businesses stay connected on-the-go{else}}How businesses stay connected on-the-go,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-21T12:37:33Z,Info@spectrum-business.spectrum.com,How FORT WORTH businesses stay connected on-the-go{else}}How businesses stay connected on-the-go,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-21T13:57:36Z,info@syspro.com,"Last chance: the future of AP for Syspro with Traild, 22 September 📅",Inbox,,other,,,,,,no invoice number
+2026-09-21T14:35:23Z,vistaprint@mail.vistaprint.com,What’s inside? 👀 It’s a mystery deal,Inbox,,other,,,,,,no invoice number
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398467,2026-09-21,,,9356,bill 9356  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15398891,2026-08-28,,,9372,bill 9372  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15399796,2026-09-21,,,9972,bill 9972  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15400210,2026-08-28,,,9389,bill 9389  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15401860,2026-08-28,,,9423,bill 9423  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15402415,2026-08-28,,,9973,bill 9973  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15402927,2026-08-28,,,9441,bill 9441  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15403449,2026-08-28,,,9442,bill 9442  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15406239,2026-08-28,,,9468,bill 9468  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15439109,2026-08-28,,,9912,bill 9912  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15447737,2026-09-21,,,10079,bill 10079  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15455556,2026-09-21,,,9974,bill 9974  date  amount  unposted batch ; source pdf
+2026-09-21T15:12:59Z,mwatkins@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15464367,2026-08-28,,,9975,bill 9975  date  amount  unposted batch ; source pdf
+2026-09-21T15:26:06Z,Shawn.McKibben@kannonmfg.com,"Fw: Your receipt from Anthropic, PBC #2645-9420-9293",Inbox,,invoice,,,,,,
+2026-09-21T15:29:45Z,lorena@legacywireproducts.com,Updating the shipment for kannon,Inbox,,other,,,,,,no invoice number
+2026-09-21T16:45:19Z,info@capitalmachine.com,"What Does a Red, Yellow, or Green Report Actually Mean?",Inbox,,other,,,,,,no invoice number
+2026-09-21T17:46:16Z,noreply@engieresources.com,Notice - Engie Payment was successfully charged,Inbox,,other,,,,,,no invoice number
+2026-09-21T18:32:11Z,email@alert.ally.com,Your Ally billing statement is available,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-21T18:49:37Z,donotreply@invoices.mscdirect.com,MSC Past Due Notification (DXED#20262641447213976405),Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-21T19:31:02Z,chris.vieux@kannonmfg.com,Canceled: O3 - Tami,Inbox,,other,,,,,,no invoice number
+2026-09-22T13:00:24Z,noreply@fortworthtexas.gov,City of Fort Worth - Payment Received,Inbox,,other,,,,,,no invoice number
+2026-09-22T13:04:25Z,lorena@legacywireproducts.com,Kannon forgot to send the shipment paper sign,Inbox,,other,,,,,,no invoice number
+2026-09-22T13:59:48Z,connect@info.coloniallife.com,Save time with AutoPay,Inbox,,other,,,,,,no invoice number
+2026-09-22T14:55:09Z,EMJCreditSouth@emjmetals.com,EARLE M. JORGENSEN COMPANY - Invoices for 09/22/26,Inbox,,invoice,,,,,,
+2026-09-22T15:15:15Z,noreply@customer.globe.life,New Invoice,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-22T15:32:23Z,noreply@customer.globe.life,New Invoice,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-22T16:07:05Z,auctions@resellcnc.com,$3M CNC Auction Ends Next Week,Inbox,,other,,,,,,no invoice number
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15398467,2026-09-22,774.00,,9356,bill 9356  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15398891,2026-09-22,774.00,,9372,bill 9372  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15399796,2026-09-22,774.00,,9972,bill 9972  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15400210,2026-09-22,774.00,,9389,bill 9389  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15401860,2026-09-22,774.00,,9423,bill 9423  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15402415,2026-09-22,774.00,,9973,bill 9973  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15402927,2026-09-22,774.00,,9441,bill 9441  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15403449,2026-09-22,774.00,,9442,bill 9442  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15455556,2026-09-22,774.00,,9974,bill 9974  date  amount  unposted batch ; source pdf
+2026-09-22T17:47:33Z,ar@onealsteel.com,Payment Confirmation,Inbox,,invoice,15464367,2026-09-22,774.00,,9975,bill 9975  date  amount  unposted batch ; source pdf
+2026-09-22T19:24:13Z,Shawn.McKibben@kannonmfg.com,"Fw: [EXTERNAL]Fw: [EXTERNAL]Re: [EXTERNAL]Fw: 3/8"" 60 x 96 A36 WO 35007.17",Inbox,,invoice,,,,,,
+2026-09-22T19:47:40Z,jim.saxon@morgansteel.net,Past Due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-22T20:13:05Z,Shawn.McKibben@kannonmfg.com,Fw: Past Due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-22T21:25:41Z,Erica.Barrett@novaalloys.com,Past Due Notice - 631,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-23T01:28:47Z,quickbooks@notification.intuit.com,New payment request from Tejas Transportation - invoice 523861,Inbox,,invoice,523861,2026-09-22,250.00,,10191,bill 10191  date  amount  unposted batch ; source pdf
+2026-09-23T03:40:09Z,vsanders@onealsteel.com,O'Neal Steel Credit Invoice For Account # 14748440,Inbox,AI HOLD,credit memo,15439230,2026-09-02,,15439230,9913,bill 9913  date  amount  unposted batch ; source pdf
+2026-09-23T03:40:09Z,vsanders@onealsteel.com,O'Neal Steel Credit Invoice For Account # 14748440,Inbox,AI HOLD,credit memo,15478871,2026-09-02,,,10477,bill 10477  date  amount  unposted batch ; source pdf
+2026-09-23T03:54:22Z,info@email.safety-kleen.com,⏰ Last chance! Save $225 on transmission fluids!,Inbox,,other,,,,,,no invoice number
+2026-09-23T12:20:23Z,Shawn.McKibben@kannonmfg.com,"Fw: Your receipt from Anthropic, PBC #2309-1784-3063",Inbox,,invoice,,,,,,
+2026-09-23T12:58:06Z,info@safety-kleen.com,Reminder: We still want to hear from you—just 5 quick questions!,Inbox,,other,,,,,,no invoice number
+2026-09-23T13:22:22Z,noreply@fortworthtexas.gov,City of Fort Worth - Payment Received,Inbox,,other,,,,,,no invoice number
+2026-09-23T15:27:25Z,Info@spectrum-business.spectrum.com,How FORT WORTH businesses stay connected on-the-go,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-23T15:35:08Z,Info@spectrum-business.spectrum.com,How FORT WORTH businesses stay connected on-the-go,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-23T15:55:51Z,stella@stellasource.com,Customers without files can now order online,Inbox,,other,,,,,,no invoice number
+2026-09-23T16:12:11Z,no-reply@business.amazon.com,Prime Big Deal Days arrive soon,Inbox,,other,,,,,,no invoice number
+2026-09-23T17:55:38Z,accountspayable@kannonmfg.com,RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279,Inbox,,invoice,43293871,2026-06-16,645.00,,10476,bill 10476  date  amount  unposted batch ; source pdf
+2026-09-23T18:19:15Z,pguedry@amcastle.com,RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279,Inbox,,invoice,43293871,2026-06-16,645.00,,10476,bill 10476  date  amount  unposted batch ; source pdf
+2026-09-23T18:45:52Z,MHENRY@EMJMETALS.COM,RE: [EXTERNAL] RE: Kannon Mfg/EMJ skipped invoice,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-23T19:06:38Z,jon@insightcontroller.com,Re: NOTICE OF PAYMENT DUE for KANNON MANUFACTURING INC - TXH-F22041 - HIGGINBOTHAM - FORT WORTH - 9/2/2026 - Imperial PFS® Forms/Letters.,Inbox,,other,,,,,,no invoice number
+2026-09-23T19:44:09Z,quickbooks@notification.intuit.com,Statement from Xcaliber Industrial LLC,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-23T20:05:46Z,kimco-user,RE: A. M. Castle & Co. Payment Inquiry: KANNON MFG INC-FT WORTH #32279,Inbox,,payment inquiry,,,,,,no invoice number
+2026-09-23T21:21:54Z,Shawn.McKibben@kannonmfg.com,"Fw: Your receipt from Anthropic, PBC #2636-8504-5906",Inbox,,invoice,,,,,,
+2026-09-23T21:47:53Z,Shawn.McKibben@kannonmfg.com,"Fw: [EXTERNAL]Re: [EXTERNAL]Fw: [EXTERNAL]Re: [EXTERNAL]Fw: 3/8"" 60 x 96 A36 WO 35007.17",Inbox,,other,,,,,,no invoice number
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15406239,2026-09-21,7901.12,,9468,bill 9468  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15407157,2026-09-22,7901.12,,9492,bill 9492  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15408130,2026-09-21,7901.12,,9493,bill 9493  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15409280,2026-07-14,7901.12,,9519,bill 9519  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15409416,2026-07-14,7901.12,,10475,bill 10475  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15411914,2026-07-14,7901.12,,9555,bill 9555  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15412969,2026-07-14,7901.12,,9574,bill 9574  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15415288,2026-07-14,7901.12,,9594,bill 9594  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15415889,2026-07-14,7901.12,,9610,bill 9610  date  amount  unposted batch ; source pdf
+2026-09-23T21:59:28Z,msullivan@onealsteel.com,ORDER PENDING PAYMENT STATUS - PLEASE ADVISE BUYER - 14748440,Inbox,,invoice,15416408,2026-07-14,7901.12,,9611,bill 9611  date  amount  unposted batch ; source pdf
+2026-09-24T02:48:29Z,outlook-ap-user,Re: NOTICE OF INTENT TO CANCEL for KANNON MANUFACTURING INC - TXH-F22041 - HIGGINBOTHAM - FORT WORTH - 8/27/2026 - Imperial PFS® Forms/Letters.,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-24T11:28:54Z,Info@spectrum-business.spectrum.com,Built to do more for your FORT WORTH business,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-24T11:28:58Z,Info@spectrum-business.spectrum.com,Built to do more for your FORT WORTH business,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-24T13:00:55Z,customersupport@amcastle.com,Precision Waterjet Cutting That Keeps Production Moving,Inbox,,other,,,,,,no invoice number
+2026-09-24T13:32:42Z,MMaurer@higginbotham.net,Re: NOTICE OF INTENT TO CANCEL for KANNON MANUFACTURING INC - TXH-F22041 - HIGGINBOTHAM - FORT WORTH - 8/27/2026 - Imperial PFS® Forms/Letters.,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-24T13:37:29Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-24T13:37:32Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-24T13:37:37Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-24T14:16:00Z,crdingley@altparts.com,Time-Sensitive: 2015 LCG3015NT (3.5KW) & 2006 AMADA FO3015NT (4KW),Inbox,,other,,,,,,no invoice number
+2026-09-24T14:57:25Z,PWright@higginbotham.net,IPFS Finance Note for Products/Completed Operations-Kannon Manufacturing TXH-F22041,Inbox,,other,,,,,,no invoice number
+2026-09-24T16:09:48Z,auctions@resellcnc.com,Precision Mazak CNC Facility Auction - Next Week,Inbox,,other,,,,,,no invoice number
+2026-09-24T16:23:53Z,ardept@Austinhardware.com,Past Due Invoice(s) - 17566 - Kannon Manufacturing Inc,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-24T16:55:46Z,quickbooks@notification.intuit.com,"New payment request from Steel Inspectors of Texas, Inc. - invoice",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-24T16:58:01Z,quickbooks@notification.intuit.com,"New payment request from Steel Inspectors of Texas, Inc. - invoice",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15406239,2026-09-21,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15407157,2026-09-21,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15408130,2026-09-21,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15409280,2026-07-14,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15409416,2026-09-22,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15411914,2026-07-14,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15412969,2026-07-14,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-24T19:46:22Z,MSulliv@onealsteel.com,ORDER PENDING,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-24T20:05:01Z,Shawn.McKibben@kannonmfg.com,Re: ORDER PENDING,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15406239,2026-07-14,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15407157,2026-07-14,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15408130,2026-07-14,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409280,2026-07-14,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409416,2026-07-14,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15411914,2026-07-14,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15412969,2026-07-14,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-24T20:08:03Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-24T20:27:42Z,AGoings@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,other,,,,,,attachments were not PDFs; no invoice number
+2026-09-24T21:26:14Z,florence.dalton@tkaccelis.com,Kannon Manufacturing---Refund,Inbox,,other,,,,,,no invoice number
+2026-09-24T22:04:32Z,antsanch@fastenal.com,Re: Fastenal Past due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-24T22:08:06Z,Shawn.McKibben@kannonmfg.com,Re: Fastenal Past due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-25T02:07:34Z,quickbooks@notification.intuit.com,Reminder: Invoice 17-2557 from NTEX Electric Inc.,Inbox,,invoice,,,,,,
+2026-09-25T02:10:20Z,quickbooks@notification.intuit.com,Reminder: Invoice 17-2523 from NTEX Electric Inc.,Inbox,,invoice,,,,,,
+2026-09-25T02:10:45Z,quickbooks@notification.intuit.com,Reminder: Invoice 17-2522 from NTEX Electric Inc.,Inbox,,invoice,,,,,,
+2026-09-25T03:03:10Z,outlook-ap-user,Re: Reminder: Invoice 17-2523 from NTEX Electric Inc.,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-25T04:18:01Z,no-reply@business.amazon.com,Celebrate Hispanic Heritage,Inbox,,other,,,,,,no invoice number
+2026-09-25T11:13:56Z,no-reply@highradius.com,Kannon Manufacturing Inc - Proactive Reminder,Inbox,,invoice,,,,,,
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15406239,2026-09-24,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15407157,2026-09-24,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15408130,2026-09-24,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409280,2026-09-24,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409416,2026-09-24,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15411914,2026-09-24,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15412969,2026-09-24,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-25T14:14:34Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-25T14:54:02Z,Shawn.McKibben@kannonmfg.com,Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-25T14:55:28Z,Shawn.McKibben@kannonmfg.com,Fw: PALLETS 8' PO 59073,Inbox,,credit memo,,,,,,no invoice number
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15406239,2026-09-24,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15407157,2026-09-24,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15408130,2026-09-24,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409280,2026-07-14,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409416,2026-09-24,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15411914,2026-07-14,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15412969,2026-07-14,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-25T14:58:12Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-25T15:09:11Z,richard@lavanture.ccsend.com,Reminder: LaVanture Open House 2026 - Next Wednesday,Inbox,,other,,,,,,no invoice number
+2026-09-25T16:07:58Z,atl.sales@mcmaster.com,Phone Call Follow Up: Invoice 65594812 with McMaster-Carr,Inbox,,invoice,65594812,2026-05-26,4456.43,58206,8749,bill 8749  date  amount  unposted batch ; source pdf
+2026-09-25T16:45:06Z,info@capitalmachine.com,The Right Machine Should Come With the Right People Behind It,Inbox,,other,,,,,,no invoice number
+2026-09-25T17:37:18Z,auctions@resellcnc.com,Ends Next Week - Like New Porta Solutions 5-Axis 3-Spindle Muticenters Auction,Inbox,,other,,,,,,no invoice number
+2026-09-25T18:05:22Z,auctions@resellcnc.com,2021 Accu-Cut 6SM Honing Machine w/Fanuc Robot,Inbox,,other,,,,,,no invoice number
+2026-09-25T18:32:28Z,Info@spectrum-business.spectrum.com,[INSIDE] Your exclusive iPhone 18 Pro offer,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-25T18:40:26Z,Info@spectrum-business.spectrum.com,[INSIDE] Your exclusive iPhone 18 Pro offer,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-25T19:19:03Z,EBILL@mygraybarnow.com,Your eBill from Graybar,Inbox,,invoice,20973449,2024-03-20,98.91,,MISSING,due 2024-03-20; PDF says Total Paid By ACH on 03/20/2024 $98.91; not a September invoice; source pdf
+2026-09-25T19:35:11Z,terry.regan@jpsteel.us,PAST DUE INVOICES,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-25T19:46:35Z,danae@abybenefits.com,Invoice 154258 from ABY Benefits LLC,Inbox,,invoice,154258,2026-09-25,45.00,,MISSING,this invoice $45.00; customer total balance $90.00; source pdf
+2026-09-25T21:03:27Z,Accounting@TPITexas.com,Past Due Statement Reminder - KANNON - 8/31/2026 12:00:00 AM,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-09-26T12:06:12Z,ARNotifications@versalift.com,C06512 KANNON MANUFACTURING INC: Second Reminder - $187.50 due Ref:0003112007,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-26T13:14:49Z,jake@resellcnc.com,"3 Auctions Ending Soon - Mazak CNC Facility, Firearms Mfg Shop & Deerfield Electric",Inbox,,other,,,,,,no invoice number
+2026-09-26T21:28:04Z,DoNotReply@ColonialLife.com,Your Invoice is Ready for You,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-27T17:35:30Z,email@alert.ally.com,Reminder: 9/29/2026 is your scheduled payment date,Inbox,,other,,,,,,no invoice number
+2026-09-28T06:51:26Z,ThianWei.Tan@coherent.com,Open items on account with Coherent Corp. ~ CN#1165395 ~ Kannon Manufacturing Inc,Inbox,,other,,,,,,no invoice number
+2026-09-28T12:31:27Z,Info@spectrum-business.spectrum.com,How to save on the latest iPhone 18 Pro,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-28T12:39:16Z,Info@spectrum-business.spectrum.com,How to save on the latest iPhone 18 Pro,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15406239,2026-09-24,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15407157,2026-09-24,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15408130,2026-09-24,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409280,2026-07-14,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409416,2026-09-24,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15411914,2026-07-14,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15412969,2026-07-14,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-28T14:38:55Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-28T15:50:03Z,Shawn.McKibben@kannonmfg.com,Ck# 16850,Inbox,,other,,,,,,no invoice number
+2026-09-28T16:29:05Z,vistaprint@mail.vistaprint.com,"Sip, sip, save $50 off qualifying orders $150+",Inbox,,other,,,,,,no invoice number
+2026-09-28T16:31:09Z,michelle@ktgalvanizing.com,Checking to see if you cancelled check 18521?,Inbox,,other,,,,,,no invoice number
+2026-09-28T17:20:21Z,Rashon.Smith@mcnichols.com,CN#321417 ***Urgent Payment Information***,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-28T22:38:36Z,quickbooks@notification.intuit.com,Reminder: Invoice 1820 from Insight Controller Services,Inbox,,invoice,1820,2026-09-15,3777.78,,10183,bill 10183  date  amount  unposted batch ; source pdf
+2026-09-29T04:09:07Z,DoNotReply@ipfs.com,NOTICE OF INTENT TO CANCEL for KANNON MANUFACTURING INC - TXH-F22041 - HIGGINBOTHAM - FORT WORTH - 9/28/2026 - Imperial PFS® Forms/Letters.,Inbox,,other,,,,,,no invoice number
+2026-09-29T12:08:22Z,support@alarm-billing.com,CryWolf False Alarm Case #02600565 has been Closed,Inbox,,other,,,,,,no invoice number
+2026-09-29T12:58:54Z,emarketing@metalsupermarkets.com,The Steel Tubing Guide For Your Next Project!,Inbox,,other,,,,,,no invoice number
+2026-09-29T13:07:07Z,ar@technitoolinc.com,Invoice S1395419.002 PO# 59299,Inbox,,invoice,S1395419.002,2026-09-28,43.61,59299,MISSING,source pdf
+2026-09-29T13:18:27Z,DoNotReply@altparts.com,Attached is the Invoice for Kannon Mfg dated 9/28/2026.,Inbox,,invoice,0099474-IN,2026-09-28,165.00,59295,MISSING,source pdf
+2026-09-29T13:49:09Z,no-reply@business.amazon.com,Big deals are coming,Inbox,,other,,,,,,no invoice number
+2026-09-29T13:58:33Z,richard@lavanture.ccsend.com,LaVanture Open House 2026,Inbox,,other,,,,,,no invoice number
+2026-09-29T14:05:18Z,connect@info.coloniallife.com,Go online with Colonial Life for Clients,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-29T15:20:39Z,donotreply@invoices.mscdirect.com,"MSC Invoice 82970031, SOUTHFIELD MI 48033-4432, Your PO# VENDING/1575 (DXED#202627211102638084E6)",Inbox,,invoice,82970031,2026-09-28,70.68,VENDING/1575,MISSING,invoice date 2026-09-28; due 2026-10-28; source pdf
+2026-09-29T15:31:09Z,246@serviceexperts.com,Your Statement from Service Experts Dallas,Inbox,,invoice,,,,,,
+2026-09-29T15:46:06Z,Shawn.McKibben@kannonmfg.com,Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,,,,,,no PDF attachment
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15406239,2026-09-24,,,9468,no PDF attachment; bill 9468  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15407157,2026-09-24,,,9492,no PDF attachment; bill 9492  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15408130,2026-09-24,,,9493,no PDF attachment; bill 9493  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409280,2026-07-14,,,9519,no PDF attachment; bill 9519  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15409416,2026-09-24,,,10475,no PDF attachment; bill 10475  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15411914,2026-07-14,,,9555,no PDF attachment; bill 9555  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15412969,2026-07-14,,,9574,no PDF attachment; bill 9574  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415288,2026-07-14,,,9594,no PDF attachment; bill 9594  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15415889,2026-07-14,,,9610,no PDF attachment; bill 9610  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15416408,2026-07-14,,,9611,no PDF attachment; bill 9611  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15439230,2026-07-14,,,9913,no PDF attachment; bill 9913  date  amount  unposted batch ; source body
+2026-09-29T15:50:08Z,MSulliv@onealsteel.com,RE: [EXTERNAL]Re: [EXTERNAL]Re: [EXTERNAL]Re: ORDER PENDING 14748440 KANNON MFG,Inbox,,invoice,15478871,2026-07-14,,,10477,no PDF attachment; bill 10477  date  amount  unposted batch ; source body
+2026-09-29T15:54:27Z,quickbooks@notification.intuit.com,Invoice SH:27943 Re:,Inbox,,invoice,27943,2026-08-18,1259.69,58888,9977,bill 9977  date  amount  unposted batch ; source pdf
+2026-09-29T15:54:37Z,quickbooks@notification.intuit.com,Invoice SH:27944 Re:,Inbox,,invoice,27944,2026-08-18,391.76,58909,9978,bill 9978  date  amount  unposted batch ; source pdf
+2026-09-29T15:54:49Z,quickbooks@notification.intuit.com,Invoice SH:27946 Re:,Inbox,,invoice,27946,2026-08-18,1567.04,58741,9979,bill 9979  date  amount  unposted batch ; source pdf
+2026-09-29T15:54:59Z,quickbooks@notification.intuit.com,Invoice SH:28008 Re:,Inbox,,invoice,28008,2026-08-25,1480.62,58981,10106,bill 10106  date  amount  unposted batch ; source pdf
+2026-09-29T16:45:12Z,info@capitalmachine.com,Is Your Machine a Fit for Our Preventative Maintenance Program?,Inbox,,other,,,,,,no invoice number
+2026-09-29T17:08:24Z,dgoss@technitoolinc.com,credit on account,Inbox,,invoice,S1387370.001,,,,9948,no PDF attachment; bill 9948  date  amount  unposted batch ; source body
+2026-09-29T17:29:42Z,auto-confirm@amazon.com,"Ordered: ""Amazon Basics Ultra Paper...""",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-29T17:50:15Z,jessica@resellcnc.com,Bring Offers - Machine Shop Tool Cart In Texas,Inbox,,other,,,,,,no invoice number
+2026-09-29T18:34:26Z,no-reply@amazon.com,Payment Declined for 114-3164018-7196228,Inbox,,other,,,,,,no invoice number
+2026-09-29T18:49:57Z,accounting@jartex.com,Invoice # 26-2891,Inbox,,invoice,,,,,,
+2026-09-29T18:50:59Z,accounting@jartex.com,Invoice # 26-2892,Inbox,,invoice,,,,,,
+2026-09-29T18:51:22Z,Rosana@fabcorp.com,INVOICE 470471 PO 59216,Inbox,,invoice,470471,2026-09-28,,59216,MISSING,scanned invoice; no total printed on the saved pages; source subject
+2026-09-29T18:51:42Z,accounting@jartex.com,Invoice # 26-2893,Inbox,,invoice,,,,,,
+2026-09-29T20:25:08Z,quickbooks@notification.intuit.com,Invoice from Greentree Packaging & Lumber,Inbox,,invoice,,,,,,
+2026-09-29T20:30:27Z,no-reply@amazon.com,Payment Declined for 113-1855792-6588254,Inbox,,other,,,,,,no invoice number
+2026-09-29T23:01:58Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1474316,Inbox,,invoice,1474316,2026-09-29,194.40,59273,MISSING,PDF also prints 1479537 above the invoice number; source pdf
+2026-09-30T00:03:35Z,Accounting@TPITexas.com,TPI Customer Statement - KANNON - 8/31/2026 12:00:00 AM,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-30T06:50:32Z,invoice.reply@mcmaster.com,Invoice for Your Order 59324,Inbox,,packing slip,,,,,,no invoice number
+2026-09-30T06:50:32Z,invoice.reply@mcmaster.com,Invoice for Your Order 59324,Inbox,,packing slip,,,,,,no invoice number
+2026-09-30T10:28:43Z,email@alert.ally.com,We've received your vehicle payment.,Inbox,,other,,,,,,no invoice number
+2026-09-30T12:57:06Z,ar@technitoolinc.com,Invoice S1395419.001 PO# 59299,Inbox,,invoice,S1395419.001,2026-09-29,19.34,59299,MISSING,source pdf
+2026-09-30T13:02:42Z,info@safety-kleen.com,Closing Soon: Don’t Miss Your Chance to Weigh In,Inbox,,other,,,,,,no invoice number
+2026-09-30T13:49:29Z,raservices@rolledalloys.com,Clearance Deals at Rolled Alloys!,Inbox,,other,,,,,,no invoice number
+2026-09-30T13:51:35Z,no-reply@amazon.com,Payment Declined for 113-1855792-6588254,Inbox,,other,,,,,,no invoice number
+2026-09-30T13:54:21Z,no-reply@amazon.com,Payment Declined for 114-3164018-7196228,Inbox,,other,,,,,,no invoice number
+2026-09-30T14:07:39Z,theholestory@m.mcnichols.com,Enhance Performance with McNICHOLS® Finishing Services!,Inbox,,other,,,,,,no invoice number
+2026-09-30T14:18:03Z,riley@resellcnc.com,Losing Money on Your CNC Machines? Get A Cash Offer,Inbox,,other,,,,,,no invoice number
+2026-09-30T14:49:45Z,auto-confirm@amazon.com,"Ordered: ""Logitech MK955 Signature..."" and 1 more item",Inbox,,invoice,,,,,,no PDF attachment
+2026-09-30T15:28:29Z,Info@spectrum-business.spectrum.com,How to save on the latest iPhone 18 Pro,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-30T15:37:07Z,Info@spectrum-business.spectrum.com,How to save on the latest iPhone 18 Pro,Inbox/AutoPay Archive,AI Skipped 2,other,,,,,,no invoice number
+2026-09-30T16:35:59Z,CLopez@higginbotham.net,IPFS NOTICE OF INTENT TO CANCEL-EFFECTIVE 10-11-2026- Non payment Installment#6 due 09-17-26,Inbox,,other,,,,,,no invoice number
+2026-09-30T17:02:01Z,MyAccount@spectrumemails.com,Your Spectrum Business Internet Statement is Ready,Inbox/AutoPay Archive,AI Skipped,statement,,,,,,statement; not checked (Treyce)
+2026-09-30T17:40:23Z,quickbooks@notification.intuit.com,New payment request from Tejas Transportation - invoice 523863,Inbox,,invoice,523863,2026-09-30,600.00,,10401,bill 10401  date  amount  unposted batch ; source pdf
+2026-09-30T17:43:58Z,misty.mccoy@kannonmfg.com,FW: 1000913 KANNON MFG INC.,Inbox,,invoice,,,,,,
+2026-09-30T18:13:31Z,auction@resellcnc.com,$3M CNC Auction Ends Tomorrow,Inbox,,other,,,,,,no invoice number
+2026-09-30T18:58:43Z,jhencke@rmpis.com,RMP Industrial Supply Inc - Invoice# 1474409,Inbox,,invoice,1474409,2026-09-30,259.20,59298,MISSING,PDF also prints 1479633 above the invoice number; source pdf
+2026-09-30T19:24:02Z,CLopez@higginbotham.net,RE: IPFS Finance Note for Products/Completed Operations-Kannon Manufacturing TXH-F22041- set up Auto Pay correspondence,Inbox,,other,,,,,,no invoice number
+2026-09-30T19:39:42Z,mchannell@precisionfabsvs.com,"19584, 19585, 19586, 19587, 19588",Inbox,,packing slip,,,,,,no invoice number
+2026-09-30T20:04:54Z,kimco-user,RE: Auto-Email of A/R Statement,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-09-30T21:49:20Z,accounting@pbtesting.com,"INVOICE 389070.00, 59284",Inbox,,invoice,389070,2026-09-30,340.00,59284,MISSING,source pdf
+2026-09-30T22:57:44Z,quickbooks@notification.intuit.com,"New payment request from Vineyard Advisors & CPAs, PLLC - invoice 4940",Inbox,,invoice,4940,2026-09-30,3506.25,,MISSING,source pdf
+2026-09-30T23:21:10Z,estevan.uribe@willbanksmetals.com,Credit Note-216068,Inbox,,packing slip,,,,,,no invoice number
+2026-09-30T23:55:47Z,outlook-ap-user,Re: IPFS Finance Note for Products/Completed Operations-Kannon Manufacturing TXH-F22041- set up Auto Pay correspondence,Inbox,,other,,,,,,no invoice number
+2026-10-01T03:34:41Z,noreply@amada.com,"Amada Invoice#: IN0000183743, Customer: KANNON MANUFACTURING INC, Customer PO#: 58150",Inbox,,invoice,IN0000183743,2026-09-30,1399.24,58150,MISSING,source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040460840,2026-09-30,296.76,,MISSING,Gas product invoice; source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040461079,2026-09-30,385.15,,MISSING,Gas product invoice; source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040461132,2026-09-30,170.85,,MISSING,Gas product invoice; source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040461906,2026-09-30,220.50,,MISSING,Gas product invoice; source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040462826,2026-09-30,704.00,,MISSING,Gas product invoice; source pdf
+2026-10-01T11:01:33Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040472242,2026-09-30,1563.16,,MISSING,source pdf
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,other,0000018220,2026-07-13,643.22,,MISSING,"statement payment, not an invoice; source kyle-list; 10/1 Gas number Kyle asked to check; statement line PAYMENT"
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040344711,2026-07-31,15.89,,MISSING,source kyle-list; 10/1 Gas number Kyle asked to check; statement line FIN CHRG
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040406308,2026-08-31,130.10,,MISSING,source kyle-list; 10/1 Gas number Kyle asked to check; statement line CYL RENT
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040412279,2026-08-31,21.78,,MISSING,source kyle-list; 10/1 Gas number Kyle asked to check; statement line FIN CHRG
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040477446,2026-09-30,131.35,,MISSING,source pdf; 10/1 Gas number Kyle asked to check; statement line CYL RENT
+2026-10-01T11:30:28Z,billing@gasandsupply.com,Gas&Supply Invoice/Statement,Inbox,,invoice,0040482402,2026-09-30,2.22,,MISSING,source kyle-list; 10/1 Gas number Kyle asked to check; statement line FIN CHRG
+2026-10-01T13:28:24Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-01T13:28:25Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-01T13:28:26Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-01T13:28:27Z,support@ebizcharge.com,"Friendly payment reminder, as your account with us now appears as past due",Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-01T13:50:59Z,update+accountingcrosslinktxcom@orders.gosteelhead.com,Invoice #28377 for 59225 (#8667) from Crosslink Powder Coating,Inbox,,invoice,28377,2026-09-30,1245.81,59225,MISSING,"printed subtotal $1,245.81; source body"
+2026-10-01T17:06:47Z,collections@shoppas.com,Shoppa's Material Handling LTD. - Account Statement as of 10-01-26,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-10-01T18:17:43Z,accounting@tracemetalindustries.com,"Statement from TRACE METAL INDUSTRIES, INC..",Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-10-01T20:31:28Z,antsanch@fastenal.com,Re: Fastenal Past due,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-01T22:09:45Z,billings@e.mcnichols.com,Statement of Account,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-10-02T00:02:49Z,billingdal@grmdocument.com,Your GRM invoice 00013160 is now available. Period 09-01-2026 - 09-30-2026,Inbox,,invoice,00013160,2026-09-30,196.84,,MISSING,source pdf
+2026-10-02T02:05:11Z,ar@leespring.com,Your Lee Spring Invoice #1390049,Inbox,,invoice,1390049,2026-09-30,660.50,59332,MISSING,source body
+2026-10-02T12:41:26Z,DRheinheimer@lavanture.com,SV1429560 - Past Due invoice,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-02T14:08:59Z,quickbooks@notification.intuit.com,Invoice 1826 from Insight Controller Services,Inbox,,invoice,1826,2026-09-30,7790.67,,10442,bill 10442  date  amount  unposted batch ; source pdf
+2026-10-02T20:59:43Z,dereks@SSS-STEEL.com,TUBE SUPPLY Statement () Transmission for KANNON MANUFACTURING INC,Inbox,,statement,,,,,,statement; not checked (Treyce)
+2026-10-02T21:03:53Z,Accounting@TPITexas.com,Past Due Statement Reminder - KANNON - 9/30/2026 12:00:00 AM,Inbox,,statement,,,,,,past-due notice; not checked (Treyce)
+2026-10-02T23:18:41Z,quickbooks@notification.intuit.com,Invoice - Reminder: Your payment to Green Valley Compressor LLC is due,Inbox,,invoice,2158,2026-09-02,405.94,,10244,bill 10244  date  amount  unposted batch ; source pdf
+2026-10-03T16:59:23Z,quickbooks@notification.intuit.com,"Reminder: Invoice 4940 from Vineyard Advisors & CPAs, PLLC",Inbox,,invoice,4940,2026-09-30,3506.25,,MISSING,source pdf
