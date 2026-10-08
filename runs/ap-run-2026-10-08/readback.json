@@ -1,0 +1,874 @@
+{
+  "bills": [
+    {
+      "bill": 10541,
+      "invoice": "367745",
+      "vendor": "1110-LUXOR STAFFING, INC.",
+      "vendor_id": 112,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2540.3,
+      "covered": 2540.3,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Contract Labor-.",
+          "description": "Contract labor",
+          "qty": 1.0,
+          "unit_price": 2540.3,
+          "extended": 2540.3,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1737,
+          "text": "AP Clerk: @Treyce Hodges Luxor Staffing invoice 367745 is entered and is not posted. The PDF total is $2,540.30. There is no purchase order.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10542,
+      "invoice": "PS-INV104078",
+      "vendor": "1290-Legacy Wire Products",
+      "vendor_id": 292,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 702.0,
+      "covered": 702.0,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "ME26-1951 - ASSEMBLY -WELDMENT, LOWERMOUNTING, 175 DGEBOC, GEN3",
+          "description": "ME26-1951 - ASSEMBLY -WELDMENT, LOWERMOUNTING, 175 DGEBOC, GEN3",
+          "qty": 27.0,
+          "unit_price": 26.0,
+          "extended": 702.0,
+          "receipt_id": 25247,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1738,
+          "text": "AP Clerk: @Treyce Hodges Legacy Wire Products invoice PS-INV104078 is entered and is not posted. The PDF total is $702.00. Purchase order 59334 receipts were selected.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": "PO59334-Legacy Wire Products"
+    },
+    {
+      "bill": 10543,
+      "invoice": "PS-INV104079",
+      "vendor": "1290-Legacy Wire Products",
+      "vendor_id": 292,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 1248.0,
+      "covered": 1248.0,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "ME26-1951 - ASSEMBLY -WELDMENT, LOWERMOUNTING, 175 DGEBOC, GEN3",
+          "description": "ME26-1951 - ASSEMBLY -WELDMENT, LOWERMOUNTING, 175 DGEBOC, GEN3",
+          "qty": 48.0,
+          "unit_price": 26.0,
+          "extended": 1248.0,
+          "receipt_id": 25248,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1739,
+          "text": "AP Clerk: @Treyce Hodges Legacy Wire Products invoice PS-INV104079 is entered and is not posted. The PDF total is $1,248.00. Purchase order 59322 receipts were selected.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": "PO59322-Legacy Wire Products"
+    },
+    {
+      "bill": 10544,
+      "invoice": "1474542",
+      "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "vendor_id": 322,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 226.14,
+      "covered": 226.14,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Machining Tools-.",
+          "description": "Toolholders",
+          "qty": 1.0,
+          "unit_price": 204.0,
+          "extended": 204.0,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [
+        {
+          "id": 5757,
+          "name": "Freight External-Freight External",
+          "amount": 22.14
+        }
+      ],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1740,
+          "text": "AP Clerk: @Treyce Hodges RMP Industrial Supply invoice 1474542 is entered and is not posted. The PDF total is $226.14. There is no purchase order. Freight of $22.14 is an additional charge.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10545,
+      "invoice": "1474543",
+      "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "vendor_id": 322,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 171.39,
+      "covered": 171.39,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Machining Tools-.",
+          "description": "Inserts",
+          "qty": 1.0,
+          "unit_price": 156.02,
+          "extended": 156.02,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [
+        {
+          "id": 5758,
+          "name": "Freight External-Freight External",
+          "amount": 15.37
+        }
+      ],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1741,
+          "text": "AP Clerk: @Treyce Hodges RMP Industrial Supply invoice 1474543 is entered and is not posted. The PDF total is $171.39. There is no purchase order. Freight of $15.37 is an additional charge.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10546,
+      "invoice": "0040483159",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2119.68,
+      "covered": 2119.68,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "description": "Shop supplies",
+          "qty": 1.0,
+          "unit_price": 2119.68,
+          "extended": 2119.68,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1742,
+          "text": "AP Clerk: Gas and Supply invoice 0040483159 is entered and is not posted. The PDF total is $2,119.68. There is no KIMCO purchase order, so it is miscellaneous shop supplies.",
+          "mentions": []
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10547,
+      "invoice": "0040484366",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 312.0,
+      "covered": 312.0,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "description": "Shop supplies",
+          "qty": 1.0,
+          "unit_price": 312.0,
+          "extended": 312.0,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1743,
+          "text": "AP Clerk: Gas and Supply invoice 0040484366 is entered and is not posted. The PDF total is $312.00. There is no KIMCO purchase order, so it is miscellaneous shop supplies.",
+          "mentions": []
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10548,
+      "invoice": "0040482925",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 43.8,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1744,
+          "text": "AP Clerk: @Shawn McKibben Gas and Supply invoice 0040482925 is on hold and is not posted. The PDF total is $43.80. No open receipt matches quantity 4.0 EA. Open receipts: none. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO59081-GAS AND SUPPLY"
+    },
+    {
+      "bill": 10549,
+      "invoice": "0040484376",
+      "vendor": "1069-GAS AND SUPPLY",
+      "vendor_id": 71,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 264.0,
+      "covered": 264.0,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "description": "Shop supplies",
+          "qty": 1.0,
+          "unit_price": 264.0,
+          "extended": 264.0,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1745,
+          "text": "AP Clerk: Gas and Supply invoice 0040484376 is entered and is not posted. The PDF total is $264.00. There is no KIMCO purchase order, so it is miscellaneous shop supplies.",
+          "mentions": []
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10550,
+      "invoice": "125624",
+      "vendor": "1098-JP STEEL",
+      "vendor_id": 100,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 394.5,
+      "covered": 394.5,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "RT-1.625 x 1.375 x 0.13-A36",
+          "description": "RT-1.625 x 1.375 x 0.13-A36",
+          "qty": 789.0,
+          "unit_price": 0.5,
+          "extended": 394.5,
+          "receipt_id": 25257,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1746,
+          "text": "AP Clerk: @Shawn McKibben JP Steel invoice 125624 is entered and is not posted. The PDF total is $394.50. Purchase order 59187 receipts were selected.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO59187-JP STEEL"
+    },
+    {
+      "bill": 10551,
+      "invoice": "28396",
+      "vendor": "1276-Crosslink Powder Coating",
+      "vendor_id": 278,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2671.25,
+      "covered": 2671.25,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "1020249-1 - PEDESTAL WELDMENT",
+          "description": "1020249-1 - PEDESTAL WELDMENT",
+          "qty": 9.0,
+          "unit_price": 205.58,
+          "extended": 1850.22,
+          "receipt_id": 25163,
+          "gl": ""
+        },
+        {
+          "item": "1020249-1 - PEDESTAL WELDMENT",
+          "description": "1020249-1 - PEDESTAL WELDMENT",
+          "qty": 1.0,
+          "unit_price": 205.58,
+          "extended": 205.58,
+          "receipt_id": 25164,
+          "gl": ""
+        },
+        {
+          "item": "1020249-4 - Pedestal Weldment",
+          "description": "1020249-4 - Pedestal Weldment",
+          "qty": 2.0,
+          "unit_price": 294.5,
+          "extended": 589.0,
+          "receipt_id": 25162,
+          "gl": ""
+        }
+      ],
+      "charges": [
+        {
+          "id": 5759,
+          "name": "F-Fees & Surcharges",
+          "amount": 26.45
+        }
+      ],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1747,
+          "text": "AP Clerk: @Treyce Hodges Crosslink Powder Coating invoice 28396 is entered and is not posted. The PDF total is $2,671.25. Purchase order 59258 receipts were selected. The packaging fee of $26.45 is an additional charge.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": "PO59258-Crosslink Powder Coating"
+    },
+    {
+      "bill": 10552,
+      "invoice": "PS-INV104080",
+      "vendor": "1290-Legacy Wire Products",
+      "vendor_id": 292,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2506.5,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1748,
+          "text": "AP Clerk: @Shawn McKibben Legacy Wire Products invoice PS-INV104080 is on hold and is not posted. The PDF total is $2,506.50. Purchase order 59271 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10553,
+      "invoice": "2610003592",
+      "vendor": "1086-HUDSON ENERGY-24312",
+      "vendor_id": 88,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2508.12,
+      "covered": 2508.12,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Maintenance/Service-.",
+          "description": "Electric bill 08/31/2026 through 10/01/2026",
+          "qty": 1.0,
+          "unit_price": 2508.12,
+          "extended": 2508.12,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1749,
+          "text": "AP Clerk: @Treyce Hodges Hudson Energy invoice 2610003592 is entered and is not posted. The PDF total is $2,508.12. There is no purchase order.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10554,
+      "invoice": "18663",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 6736.92,
+      "covered": 6736.92,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "A-04421-000 - Fender, Drive Over",
+          "description": "A-04421-000 - Fender, Drive Over",
+          "qty": 62.0,
+          "unit_price": 108.66,
+          "extended": 6736.92,
+          "receipt_id": 24987,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1750,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18663 is entered and is not posted. The PDF total is $6,736.92. Purchase order 58966 receipts were selected.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO58966-TPI"
+    },
+    {
+      "bill": 10555,
+      "invoice": "18664",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 7171.56,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1751,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18664 is on hold and is not posted. The PDF total is $7,171.56. No open receipt matches quantity 66.0 EA. Open receipts: none. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO58931-TPI"
+    },
+    {
+      "bill": 10556,
+      "invoice": "18676",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 4129.08,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1752,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18676 is on hold and is not posted. The PDF total is $4,129.08. No open receipt matches quantity 38.0 EA. Open receipts: 24987 qty 62.0 EA-Each $6736.92 A-04421-000 - Fender, Drive Over. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO58966-TPI"
+    },
+    {
+      "bill": 10557,
+      "invoice": "18677",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 10757.34,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1753,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18677 is on hold and is not posted. The PDF total is $10,757.34. Purchase order 59043 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10558,
+      "invoice": "18678",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 108.66,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1754,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18678 is on hold and is not posted. The PDF total is $108.66. Purchase order 59043 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10559,
+      "invoice": "18679",
+      "vendor": "1181-TPI",
+      "vendor_id": 183,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 325.98,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1755,
+          "text": "AP Clerk: @Shawn McKibben Telecom Products invoice 18679 is on hold and is not posted. The PDF total is $325.98. Purchase order 59061 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10560,
+      "invoice": "1474645",
+      "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "vendor_id": 322,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 188.48,
+      "covered": 188.48,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Shop Supplies - G&S-.",
+          "description": "Tap Magic cutting fluid",
+          "qty": 1.0,
+          "unit_price": 72.92,
+          "extended": 72.92,
+          "receipt_id": null,
+          "gl": ""
+        },
+        {
+          "item": "Machining Tools-.",
+          "description": "Spiral flute pipe taps",
+          "qty": 1.0,
+          "unit_price": 115.56,
+          "extended": 115.56,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1756,
+          "text": "AP Clerk: @Treyce Hodges RMP Industrial Supply invoice 1474645 is entered and is not posted. The PDF total is $188.48. There is no purchase order.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10561,
+      "invoice": "3652",
+      "vendor": "1325-AVEX INSTALLATIONS LLC",
+      "vendor_id": 327,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 162.34,
+      "covered": 162.34,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "Capital Expenditure - Leasehold Improvements-.",
+          "description": "Monitoring fee",
+          "qty": 1.0,
+          "unit_price": 149.97,
+          "extended": 149.97,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [
+        {
+          "amount": 12.37
+        }
+      ],
+      "notes": [
+        {
+          "id": 1757,
+          "text": "AP Clerk: @Treyce Hodges AVEX Installations invoice 3652 is entered and is not posted. The PDF total is $162.34. There is no purchase order. The merchandise is coded like the vendor's posted bill. Printed sales tax of $12.37 is on the Taxes tab.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10562,
+      "invoice": "2810822429",
+      "vendor": "1187-UNIFIRST CORPORATION",
+      "vendor_id": 189,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 928.54,
+      "covered": 928.58,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [
+        {
+          "item": "Uniforms & Safety-.",
+          "description": "Uniforms and aprons",
+          "qty": 1.0,
+          "unit_price": 608.85,
+          "extended": 608.85,
+          "receipt_id": null,
+          "gl": ""
+        },
+        {
+          "item": "Shop Supplies - G&S-.",
+          "description": "Shop supplies",
+          "qty": 1.0,
+          "unit_price": 250.47,
+          "extended": 250.47,
+          "receipt_id": null,
+          "gl": ""
+        }
+      ],
+      "charges": [],
+      "taxes": [
+        {
+          "amount": 69.26
+        }
+      ],
+      "notes": [
+        {
+          "id": 1758,
+          "text": "AP Clerk: @Treyce Hodges UniFirst invoice 2810822429 is entered and is not posted. The PDF total is $928.54. There is no KIMCO purchase order. Uniforms and aprons are one miscellaneous line. Towels, mats, and shop charges are a second miscellaneous line. Printed sales tax of $69.22 is on the Taxes tab.",
+          "mentions": [
+            "33"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10563,
+      "invoice": "9307130416",
+      "vendor": "1150-RYERSON, JOSEPH T. & SON",
+      "vendor_id": 152,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 1296.68,
+      "covered": 1296.68,
+      "batch": "API Agent - 10/8/26",
+      "batch_id": 750,
+      "lines": [
+        {
+          "item": "PL-0.06 X 60 X 120-CS-GALV",
+          "description": "PL-0.06 X 60 X 120-CS-GALV",
+          "qty": 8.0,
+          "unit_price": 160.688,
+          "extended": 1285.5,
+          "receipt_id": 25397,
+          "gl": ""
+        }
+      ],
+      "charges": [
+        {
+          "id": 5760,
+          "name": "F-Fees & Surcharges",
+          "amount": 11.16
+        },
+        {
+          "id": 5761,
+          "name": "Purchase Price Variance",
+          "amount": 0.02
+        }
+      ],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1759,
+          "text": "AP Clerk: @Shawn McKibben Ryerson invoice 9307130416 is entered and is not posted. The PDF total is $1,296.68. Purchase order 59329 receipts were selected. A purchase price variance of $0.02 covers the difference.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": "PO59329-RYERSON, JOSEPH T. & SON"
+    },
+    {
+      "bill": 10564,
+      "invoice": "PS-INV104085",
+      "vendor": "1290-Legacy Wire Products",
+      "vendor_id": 292,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 2205.72,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1760,
+          "text": "AP Clerk: @Shawn McKibben Legacy Wire Products invoice PS-INV104085 is on hold and is not posted. The PDF total is $2,205.72. Purchase order 59283 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    },
+    {
+      "bill": 10565,
+      "invoice": "PS-INV104086",
+      "vendor": "1290-Legacy Wire Products",
+      "vendor_id": 292,
+      "posted": null,
+      "comments": "API Agent",
+      "header": 501.3,
+      "covered": 0,
+      "batch": "TRANSFER AP",
+      "batch_id": 375,
+      "lines": [],
+      "charges": [],
+      "taxes": [],
+      "notes": [
+        {
+          "id": 1761,
+          "text": "AP Clerk: @Shawn McKibben Legacy Wire Products invoice PS-INV104086 is on hold and is not posted. The PDF total is $501.30. Purchase order 59303 was not found. Nothing was selected. The bill is in Transfer AP.",
+          "mentions": [
+            "104"
+          ]
+        }
+      ],
+      "po": ""
+    }
+  ],
+  "unifirst_fixed": false,
+  "avex_sample": {
+    "id": 9254,
+    "number": "3582",
+    "vendor": "1325-AVEX INSTALLATIONS LLC",
+    "posted": true,
+    "lines": [
+      {
+        "item": "Capital Expenditure - Leasehold Improvements-.",
+        "description": "Monitoring fee - service\r\nno zwave no\r\nautomation\r\nMonitoring fee that\r\nincludes basic service\r\ncalls at no charge.",
+        "qty": 3.0,
+        "unit_price": 49.99,
+        "extended": 149.97,
+        "receipt_id": null,
+        "gl": "1555100 - Leasehold Improvements"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1042 @@
+{
+  "dupes": {
+    "3652": [],
+    "2390": [],
+    "367745": [],
+    "361302": [
+      {
+        "id": 9605,
+        "number": "361302",
+        "vendor": "1110-LUXOR STAFFING, INC.",
+        "vendor_id": 112,
+        "posted": true,
+        "amount": 1925.0,
+        "batch": ""
+      }
+    ],
+    "361804": [
+      {
+        "id": 9711,
+        "number": "361804",
+        "vendor": "1110-LUXOR STAFFING, INC.",
+        "vendor_id": 112,
+        "posted": true,
+        "amount": 840.0,
+        "batch": ""
+      }
+    ],
+    "PS-INV104078": [],
+    "PS-INV104079": [],
+    "1474542": [],
+    "1474543": [],
+    "0040483159": [],
+    "0040484366": [],
+    "0040482925": [],
+    "0040484376": []
+  },
+  "samples": {
+    "71": {
+      "invoice_id": 10510,
+      "number": "0040455291",
+      "vendor": "1069-GAS AND SUPPLY",
+      "terms_id": 4,
+      "terms": "F-N60-Net 60",
+      "remit_id": 192,
+      "type": 4
+    },
+    "45": {
+      "invoice_id": 10471,
+      "number": "PS-INV103317",
+      "vendor": "1043-CAPITAL MACHINE TECHNOLOGIES",
+      "terms_id": 1,
+      "terms": "Net 30-Net 30",
+      "remit_id": 166,
+      "type": 3
+    },
+    "112": {
+      "invoice_id": 10469,
+      "number": "2221",
+      "vendor": "1110-LUXOR STAFFING, INC.",
+      "terms_id": 1,
+      "terms": "Net 30-Net 30",
+      "remit_id": 736,
+      "type": 4
+    },
+    "88": {
+      "invoice_id": 10465,
+      "number": "2609000773",
+      "vendor": "1086-HUDSON ENERGY-24312",
+      "terms_id": 62,
+      "terms": "Due Upon Receipt",
+      "remit_id": 209,
+      "type": 4
+    },
+    "322": {
+      "invoice_id": 10461,
+      "number": "1474266",
+      "vendor": "1320-RMP INDUSTRIAL SUPPLY",
+      "terms_id": 1,
+      "terms": "Net 30-Net 30",
+      "remit_id": 536,
+      "type": 4
+    },
+    "292": {
+      "invoice_id": 10282,
+      "number": "PS-INV104043",
+      "vendor": "1290-Legacy Wire Products",
+      "terms_id": 1,
+      "terms": "Net 30-Net 30",
+      "remit_id": 482,
+      "type": 3
+    }
+  },
+  "names": {},
+  "po_lines": [
+    {
+      "id": 17890,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 18096,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7324,
+          "text": "PO59322-Legacy Wire Products",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 18124,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7336,
+          "text": "PO59334-Legacy Wire Products",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 17891,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "02"
+      }
+    },
+    {
+      "id": 17892,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "03"
+      }
+    },
+    {
+      "id": 17893,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "04"
+      }
+    },
+    {
+      "id": 17894,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "05"
+      }
+    },
+    {
+      "id": 17895,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "06"
+      }
+    },
+    {
+      "id": 17896,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "07"
+      }
+    },
+    {
+      "id": 17897,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "08"
+      }
+    },
+    {
+      "id": 17898,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "09"
+      }
+    },
+    {
+      "id": 17899,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "10"
+      }
+    },
+    {
+      "id": 17900,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "11"
+      }
+    },
+    {
+      "id": 17901,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "12"
+      }
+    },
+    {
+      "id": 17902,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "13"
+      }
+    },
+    {
+      "id": 17903,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "14"
+      }
+    },
+    {
+      "id": 17904,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "15"
+      }
+    },
+    {
+      "id": 17905,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "16"
+      }
+    },
+    {
+      "id": 17906,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "17"
+      }
+    },
+    {
+      "id": 17907,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "18"
+      }
+    },
+    {
+      "id": 17908,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "19"
+      }
+    },
+    {
+      "id": 17909,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "20"
+      }
+    },
+    {
+      "id": 17910,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "21"
+      }
+    },
+    {
+      "id": 17911,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "22"
+      }
+    },
+    {
+      "id": 17912,
+      "values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "23"
+      }
+    }
+  ],
+  "receipts": [
+    {
+      "id": 24333,
+      "part": "MLW49-56-7240",
+      "description": "MLW49-56-7240 MILWAUKEE 7/16 IN. QUICK CHANGE",
+      "qty": 1.0,
+      "unit": 14.0,
+      "extended": 14.0,
+      "po_line_id": 17890,
+      "po_line": "PO59081-01",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040430010"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 25248,
+      "part": "PO59322-01",
+      "description": "",
+      "qty": 48.0,
+      "unit": 26.0,
+      "extended": 1248.0,
+      "po_line_id": 18096,
+      "po_line": "PO59322-01",
+      "invoiced": null,
+      "quantity_invoiced": null,
+      "invoiced_bill": null,
+      "open": true,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7324,
+          "text": "PO59322-Legacy Wire Products",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 25247,
+      "part": "PO59334-01",
+      "description": "",
+      "qty": 27.0,
+      "unit": 26.0,
+      "extended": 702.0,
+      "po_line_id": 18124,
+      "po_line": "PO59334-01",
+      "invoiced": null,
+      "quantity_invoiced": null,
+      "invoiced_bill": null,
+      "open": true,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7336,
+          "text": "PO59334-Legacy Wire Products",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "01"
+      }
+    },
+    {
+      "id": 24334,
+      "part": "GHS4000A",
+      "description": "GHS4000A GRIFFIN HEAT SHIELD 4000A TIG",
+      "qty": 3.0,
+      "unit": 11.3,
+      "extended": 33.9,
+      "po_line_id": 17891,
+      "po_line": "PO59081-02",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040424839"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "02"
+      }
+    },
+    {
+      "id": 24335,
+      "part": "STY57-533A",
+      "description": "STY57-533A STANLEY 42 OZ COMPO-CAST",
+      "qty": 4.0,
+      "unit": 47.76,
+      "extended": 191.04,
+      "po_line_id": 17892,
+      "po_line": "PO59081-03",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040424839"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "03"
+      }
+    },
+    {
+      "id": 24336,
+      "part": "PFXPXTW1425R",
+      "description": "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE",
+      "qty": 1.0,
+      "unit": 36.12,
+      "extended": 36.12,
+      "po_line_id": 17893,
+      "po_line": "PO59081-04",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040438057"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "04"
+      }
+    },
+    {
+      "id": 24337,
+      "part": "MIL269767",
+      "description": "MIL269767 MILLER 269767 26\u20196\" WATER HOSE, qty 1 @ 108.82",
+      "qty": 1.0,
+      "unit": 108.82,
+      "extended": 108.82,
+      "po_line_id": 17894,
+      "po_line": "PO59081-05",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040438056"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "05"
+      }
+    },
+    {
+      "id": 24338,
+      "part": "MIL269771",
+      "description": "MIL269771 MILLER 269771 25\u20199\" GAS HOSE, qty 1 @ 98.71",
+      "qty": 1.0,
+      "unit": 98.71,
+      "extended": 98.71,
+      "po_line_id": 17895,
+      "po_line": "PO59081-06",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040438056"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "06"
+      }
+    },
+    {
+      "id": 24339,
+      "part": "PRTJ7324H",
+      "description": "PRTJ7324H PROTO 1/2\" DRIVE 6 PT 3/4\" qty 2 @ 13.91",
+      "qty": 2.0,
+      "unit": 13.91,
+      "extended": 27.82,
+      "po_line_id": 17896,
+      "po_line": "PO59081-07",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040438055"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "07"
+      }
+    },
+    {
+      "id": 24340,
+      "part": "ELCWW10204F-DP",
+      "description": "ELCWW10204F-DP WIRE WIZZARD ACCU-TRAK HAT qty 1 @ 182.50",
+      "qty": 1.0,
+      "unit": 182.5,
+      "extended": 182.5,
+      "po_line_id": 17897,
+      "po_line": "PO59081-08",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040438053"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "08"
+      }
+    },
+    {
+      "id": 24341,
+      "part": "CGW42304",
+      "description": "CGW42304 CAMEL 4-1/2X7/8 60GR qty 100 @ 3.88",
+      "qty": 100.0,
+      "unit": 3.88,
+      "extended": 388.0,
+      "po_line_id": 17898,
+      "po_line": "PO59081-09",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "09"
+      }
+    },
+    {
+      "id": 24342,
+      "part": "3-M60440227472",
+      "description": "3-M60440227472 3M 051141- 27447 -8 CUBITRON II qty 200 @ 5.25",
+      "qty": 200.0,
+      "unit": 5.25,
+      "extended": 1050.0,
+      "po_line_id": 17899,
+      "po_line": "PO59081-10",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "10"
+      }
+    },
+    {
+      "id": 24343,
+      "part": "WSP1801S0020",
+      "description": "WSP1801S0020 ALLIANCE WHALESPRAY ANTI-SPATTER qty 48 @ 5.50",
+      "qty": 48.0,
+      "unit": 5.5,
+      "extended": 264.0,
+      "po_line_id": 17900,
+      "po_line": "PO59081-11",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "11"
+      }
+    },
+    {
+      "id": 24344,
+      "part": "PFXPX23T37",
+      "description": "PFXPX23T37 PROFAX 23T37 NOZZLE qty 60 @ 9.63",
+      "qty": 60.0,
+      "unit": 9.63,
+      "extended": 577.8,
+      "po_line_id": 17901,
+      "po_line": "PO59081-12",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "12"
+      }
+    },
+    {
+      "id": 24345,
+      "part": "PFXPX14H35",
+      "description": "PFXPX14H35 TWECO STYLE 14H35 .035 HEAVY qty 250 @ 0.87",
+      "qty": 250.0,
+      "unit": 0.87,
+      "extended": 217.5,
+      "po_line_id": 17902,
+      "po_line": "PO59081-13",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "13"
+      }
+    },
+    {
+      "id": 24346,
+      "part": "PFXPX14H45",
+      "description": "PFXPX14H45 PROFAX 14H45 CONTACT TIP qty 250 @ 0.97",
+      "qty": 250.0,
+      "unit": 0.97,
+      "extended": 242.5,
+      "po_line_id": 17903,
+      "po_line": "PO59081-14",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "14"
+      }
+    },
+    {
+      "id": 24347,
+      "part": "TIL48M",
+      "description": "TIL48M PREMIUM TOP GRAIN GOATSKIN SPLIT qty 12 @ 15.96",
+      "qty": 12.0,
+      "unit": 15.96,
+      "extended": 191.52,
+      "po_line_id": 17904,
+      "po_line": "PO59081-15",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "15"
+      }
+    },
+    {
+      "id": 24348,
+      "part": "PIP34-874/XL",
+      "description": "PIP34-874/XL MAXIFLEX ULTIMATE CUT A1 GLOVE qty 48 @ 4.68",
+      "qty": 48.0,
+      "unit": 4.68,
+      "extended": 224.64,
+      "po_line_id": 17905,
+      "po_line": "PO59081-16",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "16"
+      }
+    },
+    {
+      "id": 24349,
+      "part": "MKL96007",
+      "description": "MKL96007 MARKAL 96007 SILVER-STREAK ROUND qty 4 @ 6.44",
+      "qty": 4.0,
+      "unit": 6.44,
+      "extended": 25.76,
+      "po_line_id": 17906,
+      "po_line": "PO59081-17",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "17"
+      }
+    },
+    {
+      "id": 24350,
+      "part": "MIL269765",
+      "description": "MIL269765 MILLER 269765 25\u2019 POWER CABLE, qty 1 @ 184.04",
+      "qty": 1.0,
+      "unit": 184.04,
+      "extended": 184.04,
+      "po_line_id": 17907,
+      "po_line": "PO59081-18",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "18"
+      }
+    },
+    {
+      "id": 24351,
+      "part": "MIL301253",
+      "description": "MIL301253 WELDCRAFT TORCH BODY W-375 qty 1 @ 180.18",
+      "qty": 1.0,
+      "unit": 180.18,
+      "extended": 180.18,
+      "po_line_id": 17908,
+      "po_line": "PO59081-19",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "19"
+      }
+    },
+    {
+      "id": 24352,
+      "part": "PFXPXTW1425R",
+      "description": "PFXPXTW1425R 1/4 X 25\u2019 GRADE \"R\" TWIN HOSE qty 1 @ 36.12",
+      "qty": 1.0,
+      "unit": 36.12,
+      "extended": 36.12,
+      "po_line_id": 17909,
+      "po_line": "PO59081-20",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "20"
+      }
+    },
+    {
+      "id": 24353,
+      "part": "STY54-024",
+      "description": "STY54-024 STANLEY BALL PEIN HAMMER 24OZ qty 3 @ 18.83",
+      "qty": 3.0,
+      "unit": 18.83,
+      "extended": 56.49,
+      "po_line_id": 17910,
+      "po_line": "PO59081-21",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "21"
+      }
+    },
+    {
+      "id": 24354,
+      "part": "ANC30SS",
+      "description": "ANC30SS ANCHOR 30SS STAINLESS TOOTH qty 50 @ 1.24",
+      "qty": 50.0,
+      "unit": 1.24,
+      "extended": 62.0,
+      "po_line_id": 17911,
+      "po_line": "PO59081-22",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "22"
+      }
+    },
+    {
+      "id": 24355,
+      "part": "VIC0323-0252",
+      "description": "VIC0323-0252 VICTOR 8-MFA HEATING NOZZLE, qty 2 @ 78.37",
+      "qty": 2.0,
+      "unit": 78.37,
+      "extended": 156.74,
+      "po_line_id": 17912,
+      "po_line": "PO59081-23",
+      "invoiced": true,
+      "quantity_invoiced": null,
+      "invoiced_bill": {
+        "id": null,
+        "text": "0040417672"
+      },
+      "open": false,
+      "kit": false,
+      "amount_213_93": false,
+      "po_values": {
+        "Purchase_Order_Number": {
+          "id": 7083,
+          "text": "PO59081-GAS AND SUPPLY",
+          "isAbstract": false
+        },
+        "Purchase_Line_Number": "23"
+      }
+    }
+  ]
+}
