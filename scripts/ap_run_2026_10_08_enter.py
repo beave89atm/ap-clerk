@@ -480,6 +480,14 @@ def qty_matches(invoice_qty: float, receipt_qty: float, invoice_uom: str, receip
 
 
 def load_open_receipts(client: KimcoClient, po_numbers: set[str]) -> dict[str, list[dict[str, Any]]]:
+    """Index purchase lines, then their receipt children.
+
+    The purchase-lines list has no status filter (open, closed, and fully
+    received lines are all in it). A line with an empty
+    poLineReceiptsForCounting child is a real PO that has not been received.
+    Keep its PO id. Dropping it made enter_one say the purchase order was
+    not found.
+    """
     rows = client.list_items("purchase_lines", fields="Purchase_Order_Number,Purchase_Line_Number")
     found: dict[str, list[dict[str, Any]]] = {po: [] for po in po_numbers}
     line_ids: list[tuple[str, int]] = []
@@ -490,11 +498,24 @@ def load_open_receipts(client: KimcoClient, po_numbers: set[str]) -> dict[str, l
             if re.search(rf"PO{po}\b", text):
                 line_ids.append((po, int(row["id"])))
                 break
+    seen_po_ids: set[tuple[str, int]] = set()
     for po, line_id in line_ids:
         record = client.get_item("purchase_lines", line_id)
         po_lookup = (record.get("values") or {}).get("Purchase_Order_Number") or {}
         po_id = lookup_id(po_lookup)
-        for receipt_id in child_receipt_ids(record):
+        receipt_ids = child_receipt_ids(record)
+        if po_id and (po, int(po_id)) not in seen_po_ids:
+            seen_po_ids.add((po, int(po_id)))
+            found[po].append(
+                {
+                    "id": None,
+                    "po": po,
+                    "po_id": int(po_id),
+                    "open": False,
+                    "placeholder": True,
+                }
+            )
+        for receipt_id in receipt_ids:
             full = client.get_item("receipts", receipt_id)
             fact = receipt_fact(full)
             fact.pop("fields", None)
@@ -503,6 +524,21 @@ def load_open_receipts(client: KimcoClient, po_numbers: set[str]) -> dict[str, l
             fact["po_id"] = po_id
             found[po].append(fact)
     return found
+
+
+def po_absence_reason(po: str, lines: list[dict[str, Any]]) -> str:
+    """PO is in KIMCO and nothing has been received. Not a missing purchase order."""
+    parts: list[str] = []
+    for line in lines:
+        qty = line.get("qty")
+        uom = str(line.get("uom") or "EA")
+        token = str(line.get("token") or "").strip()
+        bit = f"{float(qty):g} {uom}"
+        if token:
+            bit += f" {token}"
+        parts.append(bit)
+    what = " and ".join(parts) if parts else "the invoice quantity"
+    return f"No receipt recorded yet on PO {po} for {what}. Nothing was selected."
 
 
 def receipt_qty_in_invoice_units(receipt_qty: float, invoice_uom: str, receipt_uom: str) -> float | None:
@@ -586,7 +622,19 @@ def match_lines(job: dict[str, Any], receipts: list[dict[str, Any]]) -> tuple[li
                     f"{row['id']} qty {row.get('qty')} {row.get('uom')} ${row.get('extended')} {row.get('part')}"
                     for row in open_rows[:8]
                 )
-                return [], 0.0, f"No open receipt matches quantity {qty} {uom}. Open receipts: {detail or 'none'}."
+                invoiced_rows = [
+                    row for row in receipts if row.get("id") and not row.get("open") and not row.get("placeholder")
+                ]
+                invoiced = ", ".join(
+                    f"{row['id']} qty {row.get('qty')} {row.get('uom')} ${row.get('extended')} "
+                    f"{row.get('part')} bill {row.get('invoiced_bill') or row.get('invoiced')}"
+                    for row in invoiced_rows[:8]
+                )
+                return [], 0.0, (
+                    f"No open receipt matches quantity {qty} {uom}. "
+                    f"Open receipts: {detail or 'none'}. "
+                    f"Already invoiced: {invoiced or 'none'}."
+                )
             options.sort(
                 key=lambda combo: abs(sum(float(row.get("extended") or 0) for row in combo) - float(line["amount"]))
             )
@@ -888,15 +936,19 @@ def enter_one(
     hold_reason = ""
     receipt_ids: list[int] = []
     if job["kind"] == "po":
+        facts = list(receipts.get(job["po"], []))
         if not job.get("po_id"):
-            for fact in receipts.get(job["po"], []):
+            for fact in facts:
                 if fact.get("po_id"):
                     job["po_id"] = int(fact["po_id"])
                     break
+        real = [fact for fact in facts if fact.get("id") and not fact.get("placeholder")]
         if not job.get("po_id"):
             hold_reason = f"Purchase order {job['po']} was not found. Nothing was selected."
+        elif not real:
+            hold_reason = po_absence_reason(str(job["po"]), list(job.get("lines_match") or []))
         else:
-            receipt_ids, ppv, hold_reason = match_lines(job, receipts.get(job["po"], []))
+            receipt_ids, ppv, hold_reason = match_lines(job, real)
     created = already or create_header(client, job, batch_id, sample)
     if live is not None:
         live[(int(job["vendor_id"]), number)] = int(created)
