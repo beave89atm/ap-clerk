@@ -34,6 +34,19 @@ from ap_clerk.graph import (
 )
 from ap_clerk.kimco import KimcoClient, KimcoError, added_comment_payload
 from ap_clerk.misc_lines import misc_add_item_payload
+from ap_clerk.ap_run import (
+    attachment_page_check,
+    end_of_run_report,
+    guard_receipt_selection,
+    line_price_variances,
+    po_absence_reason,
+    po_lookup_hold,
+    preflight_enter,
+    purchase_gl_hold,
+    qc_printed_total,
+    quantities_match,
+    unifirst_tax_gap,
+)
 from ap_clerk.rules import (
     ap_clerk_edit_note,
     comments_for,
@@ -60,7 +73,6 @@ BATCH_NAME = "API Agent - 10/8/26"
 TRANSFER = 375
 CAP = 25
 MIN_NEW_ID = 10540
-PPV_LIMIT = 75.0
 SELECT = "id,subject,from,receivedDateTime,parentFolderId,categories,lastModifiedDateTime"
 
 # Printed totals read from the invoice page text (math ties to the total line).
@@ -468,15 +480,13 @@ def qty_same(left: float, right: float) -> bool:
 
 
 def qty_matches(invoice_qty: float, receipt_qty: float, invoice_uom: str, receipt_uom: str) -> bool:
-    if qty_same(invoice_qty, receipt_qty):
-        return True
-    inv = invoice_uom.upper()
-    rec = receipt_uom.upper()
-    if "IN" in inv and rec.startswith("FT") and qty_same(invoice_qty, receipt_qty * 12):
-        return True
-    if inv.startswith("FT") and "IN" in rec and qty_same(invoice_qty * 12, receipt_qty):
-        return True
-    return False
+    """Equal counts in different units are not a match. Feet and inches still convert."""
+    return quantities_match(invoice_qty, receipt_qty, invoice_uom, receipt_uom)
+
+
+def guard_job(job: dict[str, Any], cohort: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Invoice number, duplicate, and misc-vs-PO guards for this run's jobs."""
+    return preflight_enter(job, cohort if cohort is not None else JOBS)
 
 
 def load_open_receipts(client: KimcoClient, po_numbers: set[str]) -> dict[str, list[dict[str, Any]]]:
@@ -526,21 +536,6 @@ def load_open_receipts(client: KimcoClient, po_numbers: set[str]) -> dict[str, l
     return found
 
 
-def po_absence_reason(po: str, lines: list[dict[str, Any]]) -> str:
-    """PO is in KIMCO and nothing has been received. Not a missing purchase order."""
-    parts: list[str] = []
-    for line in lines:
-        qty = line.get("qty")
-        uom = str(line.get("uom") or "EA")
-        token = str(line.get("token") or "").strip()
-        bit = f"{float(qty):g} {uom}"
-        if token:
-            bit += f" {token}"
-        parts.append(bit)
-    what = " and ".join(parts) if parts else "the invoice quantity"
-    return f"No receipt recorded yet on PO {po} for {what}. Nothing was selected."
-
-
 def receipt_qty_in_invoice_units(receipt_qty: float, invoice_uom: str, receipt_uom: str) -> float | None:
     inv = invoice_uom.upper()
     rec = receipt_uom.upper()
@@ -580,6 +575,7 @@ def match_lines(job: dict[str, Any], receipts: list[dict[str, Any]]) -> tuple[li
     open_rows = [row for row in receipts if row.get("open")]
     used: set[int] = set()
     chosen: list[dict[str, Any]] = []
+    line_rows: list[dict[str, float]] = []
     for line in job.get("lines_match") or []:
         qty = float(line["qty"])
         token = str(line.get("token") or "")
@@ -649,15 +645,22 @@ def match_lines(job: dict[str, Any], receipts: list[dict[str, Any]]) -> tuple[li
             picked = list(options[0])
         chosen.extend(picked)
         used.update(int(row["id"]) for row in picked)
-    receipt_ext = round(sum(float(row.get("extended") or 0) for row in chosen), 2)
-    merch = round(float(job["merch"]), 2)
-    gap = round(merch - receipt_ext, 2)
-    if abs(gap) >= PPV_LIMIT:
-        return [], gap, (
-            f"The price gap is ${abs(gap):,.2f}, which is $75 or more. "
-            "Receipts were not selected."
+        line_rows.append(
+            {
+                "invoice_amount": float(line["amount"]),
+                "receipt_amount": round(sum(float(row.get("extended") or 0) for row in picked), 2),
+            }
         )
-    return [int(row["id"]) for row in chosen], gap, ""
+    guarded = guard_receipt_selection(chosen)
+    if not guarded["ok"]:
+        return [], 0.0, guarded["reason"]
+    if not line_rows:
+        receipt_ext = round(sum(float(row.get("extended") or 0) for row in chosen), 2)
+        line_rows = [{"invoice_amount": float(job["merch"]), "receipt_amount": receipt_ext}]
+    decision = line_price_variances(line_rows)
+    if decision["action"] == "hold":
+        return [], float(decision["net"]), decision["reason"]
+    return guarded["ids"], float(decision["ppv"]), ""
 
 
 def sample_for(client: KimcoClient, vendor_id: int, cache: dict[int, dict[str, Any]]) -> dict[str, Any]:
@@ -832,9 +835,11 @@ def confirm_attachment(client: KimcoClient, invoice_id: int, number: str) -> tup
     if not content:
         return 0, "attachment-download-failed"
     document = pymupdf.open(stream=content, filetype="pdf")
-    for page in document:
-        if number not in page.get_text("text"):
-            return document.page_count, "page-missing-invoice-number"
+    texts = [page.get_text("text") for page in document]
+    others = [str(job["number"]) for job in JOBS if str(job["number"]) != str(number)]
+    check = attachment_page_check(texts, number, others)
+    if not check["ok"]:
+        return document.page_count, check["reason"]
     stem = str(invoice_id)
     for index, page in enumerate(document, start=1):
         image = QC / f"{stem}-p{index}.png"
@@ -925,6 +930,20 @@ def enter_one(
         "pages": 0,
         "receipts": "",
     }
+    block = guard_job(job)
+    if block.get("number"):
+        job["number"] = block["number"]
+        number = job["number"]
+        row["invoice"] = number
+    if block["action"] == "hold":
+        row["result"] = "HOLD"
+        row["reason"] = block["reason"]
+        row["owner"] = block.get("owner") or ""
+        return row
+    if block["action"] == "already":
+        row["result"] = "ALREADY"
+        row["reason"] = block["reason"]
+        return row
     already = existing_id(client, number, int(job["vendor_id"]), live)
     if already and already <= MIN_NEW_ID:
         row["bill_id"] = already
@@ -943,10 +962,15 @@ def enter_one(
                     job["po_id"] = int(fact["po_id"])
                     break
         real = [fact for fact in facts if fact.get("id") and not fact.get("placeholder")]
-        if not job.get("po_id"):
-            hold_reason = f"Purchase order {job['po']} was not found. Nothing was selected."
-        elif not real:
-            hold_reason = po_absence_reason(str(job["po"]), list(job.get("lines_match") or []))
+        po_found = bool(job.get("po_id")) or any(fact.get("po_id") or fact.get("placeholder") for fact in facts)
+        looked_up = po_lookup_hold(
+            str(job["po"]),
+            list(job.get("lines_match") or []),
+            po_in_kimco=po_found,
+            receipts=real,
+        )
+        if looked_up:
+            hold_reason = looked_up
         else:
             receipt_ids, ppv, hold_reason = match_lines(job, real)
     created = already or create_header(client, job, batch_id, sample)
@@ -995,8 +1019,28 @@ def enter_one(
     attach_status = "attached" if client.list_attachments(created) else attach(client, created, path)
     pages, attach_check = confirm_attachment(client, created, number)
     row["pages"] = pages
+    row["attachment_ok"] = attach_check == "ok"
+    page = page_text(path) if path.exists() else ""
+    total_qc = qc_printed_total(page_text=page, typed_amount=float(job["amount"]))
+    row["printed_total"] = total_qc["printed_total"] if total_qc["printed_total"] is not None else ""
+    if not total_qc["ok"]:
+        hold_reason = hold_reason or total_qc["reason"]
     live = totals(client.get_item("ap_invoices", created))
     covered_ok = cents(live["verification"]) == round(float(job["amount"]), 2) and live["covered"] == round(float(job["amount"]), 2)
+    tax_gap = round(float(job["amount"]) - float(live["covered"] or 0), 2)
+    tax_decision = unifirst_tax_gap(
+        vendor=str(job["vendor"]),
+        printed_total=float(job["amount"]),
+        covered=float(live["covered"] or 0),
+        tax_gap=tax_gap,
+    )
+    if tax_decision["action"] == "ppv" and not hold_reason:
+        ppv = round(float(ppv or 0) + float(tax_decision["ppv"]), 2)
+        charge_status = add_charges(client, created, job, float(tax_decision["ppv"]))
+        live = totals(client.get_item("ap_invoices", created))
+        covered_ok = cents(live["verification"]) == round(float(job["amount"]), 2) and live["covered"] == round(
+            float(job["amount"]), 2
+        )
     passed = (
         not hold_reason
         and covered_ok
@@ -1076,6 +1120,13 @@ def enter_one(
             "gl": "; ".join(str(line.get("gl") or "") for line in final["lines"]),
         }
     )
+    for line in final["lines"]:
+        gl_decision = purchase_gl_hold(line.get("gl"))
+        if gl_decision["blank"]:
+            row["gl_note"] = gl_decision["reason"]
+        if gl_decision["hold"]:
+            row["result"] = "HOLD"
+            row["reason"] = gl_decision["reason"]
     LOGGER.info("%s %s bill %s covered %s", result, number, created, final.get("covered"))
     return row
 
@@ -1120,14 +1171,19 @@ def main() -> None:
         save(rows)
         if row["result"] in {"PASS", "HOLD"} and row.get("bill_id") and int(row["bill_id"]) > MIN_NEW_ID:
             created += 1
+    orphans = end_of_run_report(rows)
     payload = {
         "batch_name": BATCH_NAME,
         "batch_id": batch["id"],
         "sign_ins": "see log",
         "entered": created,
         "rows": rows,
+        "orphans": orphans["orphans"],
     }
     (OUT / "result.json").write_text(json.dumps(payload, indent=2, default=str))
+    (OUT / "orphans.json").write_text(json.dumps(orphans, indent=2, default=str))
+    if orphans["orphans"]:
+        LOGGER.error("Bills created without a note: %s", orphans["orphans"])
     print(json.dumps({"batch": batch, "entered": created, "results": [(r["invoice"], r["result"], r["bill_id"]) for r in rows]}))
 
 

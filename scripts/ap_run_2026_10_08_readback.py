@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from ap_clerk.ap_run import purchase_gl_hold, qc_printed_total, unifirst_tax_gap
 from ap_clerk.kimco import KimcoClient
 from ap_clerk.rules import lookup_id, lookup_text
 from scripts.ap_run_2026_10_08_enter import BATCH_NAME, OUT, move_batch
@@ -104,15 +105,25 @@ def main() -> None:
         record = client.get_item("ap_invoices", invoice_id)
         info = totals(record)
         values = record.get("values") or {}
+        vendor = lookup_text(values.get("Vendor"))
+        page_path = OUT / "qc" / f"{invoice_id}.txt"
+        page = page_path.read_text() if page_path.exists() else ""
+        typed = info.get("verification") if info.get("verification") not in (None, "") else 0
+        total_qc = qc_printed_total(page_text=page, typed_amount=float(typed or 0))
+        gl_holds = [purchase_gl_hold(line.get("gl")) for line in info.get("lines") or []]
+        tax_gap = round(float(typed or 0) - float(info.get("covered") or 0), 2)
         readback.append(
             {
                 "bill": invoice_id,
                 "invoice": values.get("Invoice_Number"),
-                "vendor": lookup_text(values.get("Vendor")),
+                "vendor": vendor,
                 "vendor_id": lookup_id(values.get("Vendor")),
                 "posted": values.get("Posted"),
                 "comments": values.get("Comments"),
                 "header": info.get("verification"),
+                "printed_total": total_qc["printed_total"],
+                "printed_total_qc": "pass" if total_qc["ok"] else "fail",
+                "printed_total_reason": total_qc["reason"],
                 "covered": info.get("covered"),
                 "batch": info.get("batch"),
                 "batch_id": info.get("batch_id"),
@@ -121,6 +132,13 @@ def main() -> None:
                 "taxes": info.get("taxes"),
                 "notes": note_mentions(record),
                 "po": lookup_text(values.get("Purchase_Order")),
+                "gl_hold": any(item["hold"] for item in gl_holds),
+                "tax_gap": unifirst_tax_gap(
+                    vendor=str(vendor or ""),
+                    printed_total=float(typed or 0),
+                    covered=float(info.get("covered") or 0),
+                    tax_gap=tax_gap,
+                ),
             }
         )
     # AVEX history item, for the report.

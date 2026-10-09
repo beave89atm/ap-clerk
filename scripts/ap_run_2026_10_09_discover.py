@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from ap_clerk.graph import ALLOWED_MAILBOX, GraphClient, load_graph_credentials
+from ap_clerk.ap_run import intake_action
 from ap_clerk.rules import classify_mail
 
 OUT = ROOT / "runs" / "ap-run-2026-10-09" / "inbox-listing.json"
@@ -67,6 +68,7 @@ def main() -> None:
         blob = f"{from_name} {sender(message)} {subject}".lower()
         if any(token in blob for token in ("spectrum", "culligan", "toyota", "waste connection", "engie")):
             kind = "auto-pay"
+        disposition = intake_action(kind)
         rows.append(
             {
                 "id": message.get("id"),
@@ -80,6 +82,7 @@ def main() -> None:
                 "parentFolderId": message.get("parentFolderId"),
                 "lastModifiedDateTime": message.get("lastModifiedDateTime"),
                 "kind": kind,
+                "enter": disposition["enter"],
                 "too_new": received > CUTOFF,
                 "jp_too_new": received > JP_CUTOFF and "jp steel" in blob,
             }

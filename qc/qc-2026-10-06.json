@@ -1,0 +1,1528 @@
+{
+  "qc_date": "2026-10-06",
+  "batch_name": "API Agent - 10/6/26",
+  "batch_id": 746,
+  "batch_status": 0,
+  "batch_unposted_count": 19,
+  "login": {
+    "sign_ins": 1,
+    "author_id": 175,
+    "author_name": "API Agent"
+  },
+  "reads": "GET only. No KIMCO write, no mail move, no email.",
+  "none_of_the_20_posted": true,
+  "mcmaster_slips_not_reuploaded": true,
+  "mcmaster_slips": [
+    {
+      "bill_id": 10142,
+      "attachment_count": 3,
+      "attachments": [
+        {
+          "id": 158998,
+          "name": "2026-09-18_Invoice_72094446_for_PO_59224.PDF",
+          "size": 24630,
+          "modified_on": "2026-09-18T15:57:41.44",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        {
+          "id": 159263,
+          "name": "packing-slip-59224-page 2.pdf",
+          "size": 21024,
+          "modified_on": "2026-09-22T11:43:37.78",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        {
+          "id": 159948,
+          "name": "packing-slip-59224-PL5765761-01.pdf",
+          "size": 125121,
+          "modified_on": "2026-09-24T20:47:10.68",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        }
+      ],
+      "unchanged_from_last_night": true
+    },
+    {
+      "bill_id": 10144,
+      "attachment_count": 2,
+      "attachments": [
+        {
+          "id": 159030,
+          "name": "2026-09-18_Invoice_72087570_for_PO_59235.PDF",
+          "size": 24291,
+          "modified_on": "2026-09-21T06:15:11.82",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        {
+          "id": 159262,
+          "name": "packing-slip-59235-page 1.pdf",
+          "size": 108839,
+          "modified_on": "2026-09-22T11:42:27.07",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        }
+      ],
+      "unchanged_from_last_night": true
+    },
+    {
+      "bill_id": 10147,
+      "attachment_count": 2,
+      "attachments": [
+        {
+          "id": 159033,
+          "name": "2026-09-15_Invoice_71839575_for_PO_59191.PDF",
+          "size": 24267,
+          "modified_on": "2026-09-21T06:15:22.697",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        },
+        {
+          "id": 159950,
+          "name": "packing-slip-59191-PL5539373-01.pdf",
+          "size": 95202,
+          "modified_on": "2026-09-24T20:47:15.67",
+          "modified_by": {
+            "id": 175,
+            "text": "API Agent"
+          }
+        }
+      ],
+      "unchanged_from_last_night": true
+    }
+  ],
+  "bills": [
+    {
+      "bill_id": 10444,
+      "vendor": {
+        "id": 37,
+        "text": "1035-BESHERT STEEL PROCESSING"
+      },
+      "invoice_number": "JVT SI-44544",
+      "invoice_date": "2026-09-24",
+      "po": {
+        "id": 6976,
+        "text": "PO58974-BESHERT STEEL PROCESSING"
+      },
+      "header_total": 14408.46,
+      "payable": 0,
+      "invoice_amount": 0,
+      "invoice_verification_amount": 14408.46,
+      "invoice_net_amount": 0,
+      "tax_amount_header": 0,
+      "lines": [],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 375,
+      "batch_name": "TRANSFER AP",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice-JVT_SI-44544.pdf",
+      "pdf_original_name": "Invoice-JVT SI-44544.pdf",
+      "mailbox_subject": "Invoice-JVT SI-44544",
+      "mailbox_received": "2026-09-25T16:22:30Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "PDF total is $14,408.46. The header verification amount matches that figure. The payable rollup (Invoice Amount and Invoice Net Amount) is $0.00 because no receipt lines were selected.",
+        "PDF line 1 is 20 pieces of 0.1875 in x 60 in x 120 in plate at $85.50/CWT, extended $6,549.30. The bill has no line.",
+        "PDF line 2 is 18 pieces of 0.2500 in x 60 in x 120 in plate at $85.50/CWT, extended $7,859.16. The bill has no line.",
+        "No sales-tax amount is printed (the tax name is printed with no dollars). None was booked."
+      ]
+    },
+    {
+      "bill_id": 10445,
+      "vendor": {
+        "id": 37,
+        "text": "1035-BESHERT STEEL PROCESSING"
+      },
+      "invoice_number": "JVT SI-44545",
+      "invoice_date": "2026-09-24",
+      "po": {
+        "id": 7177,
+        "text": "PO59175-BESHERT STEEL PROCESSING"
+      },
+      "header_total": 1895.85,
+      "payable": 1895.85,
+      "invoice_amount": 1895.85,
+      "invoice_verification_amount": 1895.85,
+      "invoice_net_amount": 1895.85,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21622,
+          "item": {
+            "id": 8141,
+            "text": "PL-0.188 X 60 X 120-A656-80K"
+          },
+          "description": null,
+          "quantity": 6,
+          "unit_price": 316.7,
+          "extended": 1900.2,
+          "receipt_id": 24716,
+          "receipt": "PO59175-BESHERT STEEL PROCESSING - 2026/9/28",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance"
+          },
+          "name": "Purchase Price Variance",
+          "quantity": 1,
+          "unit_price": -4.35,
+          "amount": -4.35,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice-JVT_SI-44545.pdf",
+      "pdf_original_name": "Invoice-JVT SI-44545.pdf",
+      "mailbox_subject": "Invoice-JVT SI-44545",
+      "mailbox_received": "2026-09-25T16:22:32Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "Quantity matches: 6 pieces. Header total and payable match the printed $1,895.85. PO 59175 and date 2026-09-24 match. No sales-tax amount is printed and none was booked.",
+        "The printed line is $82.50 per hundredweight, extended $1,895.85. The bill line is 6 at $316.70 (receipt each-price), extended $1,900.20. Purchase Price Variance of -$4.35 makes the payable $1,895.85. That variance is price, not tax."
+      ]
+    },
+    {
+      "bill_id": 10446,
+      "vendor": {
+        "id": 37,
+        "text": "1035-BESHERT STEEL PROCESSING"
+      },
+      "invoice_number": "JVT SI-44546",
+      "invoice_date": "2026-09-24",
+      "po": {
+        "id": 7254,
+        "text": "PO59252-BESHERT STEEL PROCESSING"
+      },
+      "header_total": 12570.06,
+      "payable": 12570.06,
+      "invoice_amount": 12570.06,
+      "invoice_verification_amount": 12570.06,
+      "invoice_net_amount": 12570.06,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21623,
+          "item": {
+            "id": 10336,
+            "text": "PL-0.313 X 48 X 120-A572"
+          },
+          "description": null,
+          "quantity": 9,
+          "unit_price": 416.71,
+          "extended": 3750.39,
+          "receipt_id": 24717,
+          "receipt": "PO59252-BESHERT STEEL PROCESSING - 2026/9/28",
+          "ppv": null
+        },
+        {
+          "line_id": 21624,
+          "item": {
+            "id": 8135,
+            "text": "PL-0.375 X 60 X 120-100K"
+          },
+          "description": null,
+          "quantity": 12,
+          "unit_price": 735.09,
+          "extended": 8821.08,
+          "receipt_id": 24718,
+          "receipt": "PO59252-BESHERT STEEL PROCESSING - 2026/9/28",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance"
+          },
+          "name": "Purchase Price Variance",
+          "quantity": 1,
+          "unit_price": -1.41,
+          "amount": -1.41,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice-JVT_SI-44546.pdf",
+      "pdf_original_name": "Invoice-JVT SI-44546.pdf",
+      "mailbox_subject": "Invoice-JVT SI-44546",
+      "mailbox_received": "2026-09-25T16:22:39Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "Quantities match: 9 pieces and 12 pieces. Header total and payable match the printed $12,570.06. PO 59252 and date 2026-09-24 match. No sales-tax amount is printed and none was booked.",
+        "Printed line 1 is $81.50/CWT, extended $3,745.74. The bill is 9 at $416.71, extended $3,750.39 ($4.65 higher).",
+        "Printed line 2 is $96.00/CWT, extended $8,824.32. The bill is 12 at $735.09, extended $8,821.08 ($3.24 lower).",
+        "Purchase Price Variance of -$1.41 closes the net $1.41 gap. That variance is price, not tax."
+      ]
+    },
+    {
+      "bill_id": 10447,
+      "vendor": {
+        "id": 202,
+        "text": "1200-WILLBANKS METALS"
+      },
+      "invoice_number": "215661",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7068,
+        "text": "PO59066-WILLBANKS METALS"
+      },
+      "header_total": 1654.62,
+      "payable": 1654.62,
+      "invoice_amount": 1654.62,
+      "invoice_verification_amount": 1654.62,
+      "invoice_net_amount": 1654.62,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21625,
+          "item": {
+            "id": 13823,
+            "text": "S0264-1 - I BEAM - W 4 X 13 X 22.00 - ASTM A36 - WITH HOLES - E"
+          },
+          "description": null,
+          "quantity": 7,
+          "unit_price": 77.23,
+          "extended": 540.61,
+          "receipt_id": 24680,
+          "receipt": "PO59066-WILLBANKS METALS - 2026/9/25",
+          "ppv": null
+        },
+        {
+          "line_id": 21626,
+          "item": {
+            "id": 13824,
+            "text": "S0264-4 - I BEAM - W 4 X 13 X 22.00 - ASTM A36 - ENGINE SKID"
+          },
+          "description": null,
+          "quantity": 14,
+          "unit_price": 65.53,
+          "extended": 917.42,
+          "receipt_id": 24681,
+          "receipt": "PO59066-WILLBANKS METALS - 2026/9/25",
+          "ppv": null
+        },
+        {
+          "line_id": 21627,
+          "item": {
+            "id": 13824,
+            "text": "S0264-4 - I BEAM - W 4 X 13 X 22.00 - ASTM A36 - ENGINE SKID"
+          },
+          "description": null,
+          "quantity": 3,
+          "unit_price": 65.53,
+          "extended": 196.59,
+          "receipt_id": 24682,
+          "receipt": "PO59066-WILLBANKS METALS - 2026/9/25",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice-215661.pdf",
+      "pdf_original_name": "Invoice-215661.pdf",
+      "mailbox_subject": "Invoice-215661",
+      "mailbox_received": "2026-09-25T23:20:13Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10448,
+      "vendor": {
+        "id": 202,
+        "text": "1200-WILLBANKS METALS"
+      },
+      "invoice_number": "215662",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7224,
+        "text": "PO59222-WILLBANKS METALS"
+      },
+      "header_total": 5869.42,
+      "payable": 5869.42,
+      "invoice_amount": 5869.42,
+      "invoice_verification_amount": 5869.42,
+      "invoice_net_amount": 5869.42,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21628,
+          "item": {
+            "id": 13823,
+            "text": "S0264-1 - I BEAM - W 4 X 13 X 22.00 - ASTM A36 - WITH HOLES - E"
+          },
+          "description": null,
+          "quantity": 34,
+          "unit_price": 65.23,
+          "extended": 2217.82,
+          "receipt_id": 24683,
+          "receipt": "PO59222-WILLBANKS METALS - 2026/9/25",
+          "ppv": null
+        },
+        {
+          "line_id": 21629,
+          "item": {
+            "id": 13824,
+            "text": "S0264-4 - I BEAM - W 4 X 13 X 22.00 - ASTM A36 - ENGINE SKID"
+          },
+          "description": null,
+          "quantity": 68,
+          "unit_price": 53.7,
+          "extended": 3651.6,
+          "receipt_id": 24684,
+          "receipt": "PO59222-WILLBANKS METALS - 2026/9/25",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice-215662.pdf",
+      "pdf_original_name": "Invoice-215662.pdf",
+      "mailbox_subject": "Invoice-215662",
+      "mailbox_received": "2026-09-25T23:20:13Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10449,
+      "vendor": {
+        "id": 208,
+        "text": "1206-EMJ Earl M. Jorgensen Company"
+      },
+      "invoice_number": "T608658432",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7241,
+        "text": "PO59239-EMJ Earl M. Jorgensen Company"
+      },
+      "header_total": 922.9,
+      "payable": 922.9,
+      "invoice_amount": 922.9,
+      "invoice_verification_amount": 922.9,
+      "invoice_net_amount": 922.9,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21630,
+          "item": {
+            "id": 1251,
+            "text": "RT-1.50 X 0.625 X 0.438-A519-1026"
+          },
+          "description": null,
+          "quantity": 357.5,
+          "unit_price": 2.5815,
+          "extended": 922.89,
+          "receipt_id": 24755,
+          "receipt": "PO59239-EMJ Earl M. Jorgensen Company - 2026/9/28",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance"
+          },
+          "name": "Purchase Price Variance",
+          "quantity": 1,
+          "unit_price": 0.01,
+          "amount": 0.01,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-26_Invoices.pdf",
+      "pdf_original_name": "Invoices.pdf",
+      "mailbox_subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/25/26",
+      "mailbox_received": "2026-09-26T03:07:11Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10450,
+      "vendor": {
+        "id": 117,
+        "text": "1115-MCMASTER-CARR"
+      },
+      "invoice_number": "72561882",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7289,
+        "text": "PO59287-MCMASTER-CARR"
+      },
+      "header_total": 464.91,
+      "payable": 464.91,
+      "invoice_amount": 464.91,
+      "invoice_verification_amount": 464.91,
+      "invoice_net_amount": 464.91,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21631,
+          "item": {
+            "id": 13848,
+            "text": "96439A630 - CLS-0420-3 18-8 Stainless Steel Press-Fit Nut for S"
+          },
+          "description": null,
+          "quantity": 51,
+          "unit_price": 5.42,
+          "extended": 276.42,
+          "receipt_id": 25058,
+          "receipt": "PO59287-MCMASTER-CARR - 2026/9/30",
+          "ppv": null
+        },
+        {
+          "line_id": 21632,
+          "item": {
+            "id": 13832,
+            "text": "4464K221 - 304 Stainless Steel Threaded Pipe Fitting Medium-Pre"
+          },
+          "description": null,
+          "quantity": 40,
+          "unit_price": 3.62,
+          "extended": 144.8,
+          "receipt_id": 25059,
+          "receipt": "PO59287-MCMASTER-CARR - 2026/9/30",
+          "ppv": null
+        },
+        {
+          "line_id": 21633,
+          "item": {
+            "id": 13826,
+            "text": "95185A210 - S-0420-2-ZI Zinc-Plated Steel Press-Fit Nut for She"
+          },
+          "description": null,
+          "quantity": 4,
+          "unit_price": 7.47,
+          "extended": 29.88,
+          "receipt_id": 25060,
+          "receipt": "PO59287-MCMASTER-CARR - 2026/9/30",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "F-Fees & Surcharges",
+          "quantity": 1,
+          "unit_price": 13.81,
+          "amount": 13.81,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-26_Invoice_72561882_for_PO_59287.PDF",
+      "pdf_original_name": "Invoice 72561882 for PO 59287.PDF",
+      "mailbox_subject": "Invoice for Your Order 59287",
+      "mailbox_received": "2026-09-26T08:20:44Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10451,
+      "vendor": {
+        "id": 66,
+        "text": "1064-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601"
+      },
+      "invoice_number": "TXFT4100596",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7250,
+        "text": "PO59248-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601"
+      },
+      "header_total": 27.81,
+      "payable": 27.81,
+      "invoice_amount": 27.81,
+      "invoice_verification_amount": 27.81,
+      "invoice_net_amount": 27.81,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21634,
+          "item": {
+            "id": 20151,
+            "text": "70-02-201011 - NUT NYLOCK 5/16\"- 18 ZINC: Fastenal 11635677"
+          },
+          "description": null,
+          "quantity": 110,
+          "unit_price": 0.207,
+          "extended": 22.77,
+          "receipt_id": 24399,
+          "receipt": "PO59248-FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601 - 2026/9/22",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "F-Fees & Surcharges",
+          "quantity": 1,
+          "unit_price": 5.04,
+          "amount": 5.04,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-26_fastenal-invoice.pdf",
+      "pdf_original_name": "fastenal-invoice.pdf",
+      "mailbox_subject": "Fastenal Invoice Notice",
+      "mailbox_received": "2026-09-26T22:23:24Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10452,
+      "vendor": {
+        "id": 128,
+        "text": "1126-MSC INDUSTRIAL SUPPLY"
+      },
+      "invoice_number": "82328681",
+      "invoice_date": "2026-09-24",
+      "po": null,
+      "header_total": 107.28,
+      "payable": 107.28,
+      "invoice_amount": 107.28,
+      "invoice_verification_amount": 107.28,
+      "invoice_net_amount": 107.28,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21635,
+          "item": {
+            "id": 53,
+            "text": "Machining Tools-."
+          },
+          "description": "OSG 1650 No.25 130D WD1 HSSE jobber drill, shipped 4",
+          "quantity": 4,
+          "unit_price": 26.82,
+          "extended": 107.28,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_82328681_02627782.PDF",
+      "pdf_original_name": "82328681_02627782.PDF",
+      "mailbox_subject": "MSC Invoice 82328681, SOUTHFIELD MI  48033-4432, Your PO# VENDING/1574     (DXED#2026268141953943376C)",
+      "mailbox_received": "2026-09-25T18:26:08Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10453,
+      "vendor": {
+        "id": 322,
+        "text": "1320-RMP INDUSTRIAL SUPPLY"
+      },
+      "invoice_number": "1474130",
+      "invoice_date": "2026-09-25",
+      "po": null,
+      "header_total": 147.65,
+      "payable": 147.65,
+      "invoice_amount": 147.65,
+      "invoice_verification_amount": 147.65,
+      "invoice_net_amount": 147.65,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21636,
+          "item": {
+            "id": 53,
+            "text": "Machining Tools-."
+          },
+          "description": "YGT GYG6703 1/2 x 1/2 x 1-1/4 x 3-1/4 4 flute end mill, shipped 3",
+          "quantity": 3,
+          "unit_price": 44.1326,
+          "extended": 132.4,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "F-Fees & Surcharges",
+          "quantity": 1,
+          "unit_price": 15.25,
+          "amount": 15.25,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Inv1474130.pdf",
+      "pdf_original_name": "Inv1474130.pdf",
+      "mailbox_subject": "RMP Industrial Supply Inc - Invoice# 1474130",
+      "mailbox_received": "2026-09-25T23:01:54Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10454,
+      "vendor": {
+        "id": 140,
+        "text": "1138-PCT SUPPORT"
+      },
+      "invoice_number": "23125",
+      "invoice_date": "2026-09-25",
+      "po": null,
+      "header_total": 120,
+      "payable": 120,
+      "invoice_amount": 120,
+      "invoice_verification_amount": 120,
+      "invoice_net_amount": 120,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21637,
+          "item": {
+            "id": 51,
+            "text": "IT & Computer-."
+          },
+          "description": "Remote support, Claude to O365, 0.25 hour",
+          "quantity": 0.25,
+          "unit_price": 160,
+          "extended": 40,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21638,
+          "item": {
+            "id": 51,
+            "text": "IT & Computer-."
+          },
+          "description": "Remote support, Grok to O365, 0.50 hour",
+          "quantity": 0.5,
+          "unit_price": 160,
+          "extended": 80,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Invoice_23125_from_PCT_Support.pdf",
+      "pdf_original_name": "Invoice_23125_from_PCT_Support.pdf",
+      "mailbox_subject": "Your Invoice from PCT Support - 23125",
+      "mailbox_received": "2026-09-25T21:20:24Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10455,
+      "vendor": {
+        "id": 184,
+        "text": "1182-TRACE METAL INDUSTRIES, INC"
+      },
+      "invoice_number": "238293",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7219,
+        "text": "PO59217-TRACE METAL INDUSTRIES, INC"
+      },
+      "header_total": 1420,
+      "payable": 1420,
+      "invoice_amount": 1420,
+      "invoice_verification_amount": 1420,
+      "invoice_net_amount": 1420,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21639,
+          "item": {
+            "id": 21136,
+            "text": "PL-1.75 X 9.75 DIA-A36-CIRCLE"
+          },
+          "description": null,
+          "quantity": 7,
+          "unit_price": 71,
+          "extended": 497,
+          "receipt_id": 24871,
+          "receipt": "PO59217-TRACE METAL INDUSTRIES, INC - 2026/9/29",
+          "ppv": null
+        },
+        {
+          "line_id": 21640,
+          "item": {
+            "id": 21136,
+            "text": "PL-1.75 X 9.75 DIA-A36-CIRCLE"
+          },
+          "description": null,
+          "quantity": 4,
+          "unit_price": 71,
+          "extended": 284,
+          "receipt_id": 24872,
+          "receipt": "PO59217-TRACE METAL INDUSTRIES, INC - 2026/9/29",
+          "ppv": null
+        },
+        {
+          "line_id": 21641,
+          "item": {
+            "id": 21136,
+            "text": "PL-1.75 X 9.75 DIA-A36-CIRCLE"
+          },
+          "description": null,
+          "quantity": 9,
+          "unit_price": 71,
+          "extended": 639,
+          "receipt_id": 24870,
+          "receipt": "PO59217-TRACE METAL INDUSTRIES, INC - 2026/9/29",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Inv_238293_from_TRACE_METAL_INDUSTRIES__INC_4535795_121016.pdf",
+      "pdf_original_name": "Inv_238293_from_TRACE_METAL_INDUSTRIES__INC_4535795_121016.pdf",
+      "mailbox_subject": "Invoices from TRACE METAL INDUSTRIES, INC",
+      "mailbox_received": "2026-09-25T20:33:38Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10456,
+      "vendor": {
+        "id": 184,
+        "text": "1182-TRACE METAL INDUSTRIES, INC"
+      },
+      "invoice_number": "238294",
+      "invoice_date": "2026-09-25",
+      "po": {
+        "id": 7012,
+        "text": "PO59010-TRACE METAL INDUSTRIES, INC"
+      },
+      "header_total": 250,
+      "payable": 250,
+      "invoice_amount": 250,
+      "invoice_verification_amount": 250,
+      "invoice_net_amount": 250,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21642,
+          "item": {
+            "id": 1400,
+            "text": "PL-1.00 X 6.00 X 9.25-316-RECT"
+          },
+          "description": null,
+          "quantity": 2,
+          "unit_price": 125,
+          "extended": 250,
+          "receipt_id": 24869,
+          "receipt": "PO59010-TRACE METAL INDUSTRIES, INC - 2026/9/29",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-25_Inv_238294_from_TRACE_METAL_INDUSTRIES__INC_4535801_121016.pdf",
+      "pdf_original_name": "Inv_238294_from_TRACE_METAL_INDUSTRIES__INC_4535801_121016.pdf",
+      "mailbox_subject": "Invoices from TRACE METAL INDUSTRIES, INC",
+      "mailbox_received": "2026-09-25T20:33:38Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10457,
+      "vendor": {
+        "id": 189,
+        "text": "1187-UNIFIRST CORPORATION"
+      },
+      "invoice_number": "2810818189",
+      "invoice_date": "2026-09-25",
+      "po": null,
+      "header_total": 1264.36,
+      "payable": 1264.36,
+      "invoice_amount": 1168,
+      "invoice_verification_amount": 1264.36,
+      "invoice_net_amount": 1264.36,
+      "tax_amount_header": 96.36,
+      "lines": [
+        {
+          "line_id": 21643,
+          "item": {
+            "id": 28,
+            "text": "Uniforms & Safety-."
+          },
+          "description": "Uniforms, aprons, and garment protection",
+          "quantity": 1,
+          "unit_price": 682.88,
+          "extended": 682.88,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21644,
+          "item": {
+            "id": 31,
+            "text": "Shop Supplies - G&S-."
+          },
+          "description": "Shop supplies, soap, mats, wipers, mops, and service charges",
+          "quantity": 1,
+          "unit_price": 485.12,
+          "extended": 485.12,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [
+        {
+          "tax_code": {
+            "id": 2,
+            "text": "Sales Tax"
+          },
+          "taxable_amount": 1168,
+          "tax_rate": 0.0825,
+          "tax_amount": 96.36,
+          "manual": true
+        }
+      ],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-26_DirectInvoice_2810818189.pdf",
+      "pdf_original_name": "DirectInvoice_2810818189.pdf",
+      "mailbox_subject": "Invoice Number 2810818189 from UniFirst",
+      "mailbox_received": "2026-09-26T00:17:59Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "Vendor, invoice 2810818189, date 2026-09-25, blank PO, freight none, and the total match. Printed pre-tax is $1,168.00, sales tax is $96.36, and the amount due is $1,264.36. Tax is on the Taxes tab (taxable $1,168.00 at 8.25%, tax $96.36), not an additional charge and not PPV.",
+        "The two summary lines do not match the printed split. Uniforms and aprons plus garment protection charges are $613.28. Shop supplies, including the towel rolls, material protection, the $10.00 DEFE charge, and the $3.00 energy surcharge, are $554.72.",
+        "The bill books Uniforms & Safety at $682.88 and Shop Supplies at $485.12. The $69.60 difference is 6 of item 624907, 2-ply center-pull towel rolls, at $11.60 each. Those towels are inside the uniform line instead of shop supplies."
+      ]
+    },
+    {
+      "bill_id": 10458,
+      "vendor": {
+        "id": 45,
+        "text": "1043-CAPITAL MACHINE TECHNOLOGIES"
+      },
+      "invoice_number": "PS-INV103813",
+      "invoice_date": "2026-09-26",
+      "po": {
+        "id": 7118,
+        "text": "PO59116-CAPITAL MACHINE TECHNOLOGIES"
+      },
+      "header_total": 692.5,
+      "payable": 692.5,
+      "invoice_amount": 692.5,
+      "invoice_verification_amount": 692.5,
+      "invoice_net_amount": 692.5,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21645,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Labor non-warranty break-fix, serial 8B1017975T",
+          "quantity": 2,
+          "unit_price": 210,
+          "extended": 420,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21646,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Shop supplies break-fix, serial 8B1017975T",
+          "quantity": 1,
+          "unit_price": 25,
+          "extended": 25,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21647,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Travel non-warranty break-fix, serial 8B1017975T",
+          "quantity": 1.5,
+          "unit_price": 165,
+          "extended": 247.5,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-27_Sales_Invoice_PS-INV103813.pdf",
+      "pdf_original_name": "Sales Invoice PS-INV103813.pdf",
+      "mailbox_subject": "Capital Machine Technologies, LLC - Sales Invoice PS-INV103813 - AMTECH/KANNON MANUFACTURING",
+      "mailbox_received": "2026-09-27T01:58:32Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10459,
+      "vendor": {
+        "id": 45,
+        "text": "1043-CAPITAL MACHINE TECHNOLOGIES"
+      },
+      "invoice_number": "PS-INV103814",
+      "invoice_date": "2026-09-26",
+      "po": {
+        "id": 7118,
+        "text": "PO59116-CAPITAL MACHINE TECHNOLOGIES"
+      },
+      "header_total": 692.5,
+      "payable": 692.5,
+      "invoice_amount": 692.5,
+      "invoice_verification_amount": 692.5,
+      "invoice_net_amount": 692.5,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21648,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Labor non-warranty break-fix, serial 8C1014651",
+          "quantity": 2,
+          "unit_price": 210,
+          "extended": 420,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21649,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Shop supplies break-fix, serial 8C1014651",
+          "quantity": 1,
+          "unit_price": 25,
+          "extended": 25,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21650,
+          "item": {
+            "id": 46,
+            "text": "Equipment Repair & Maint.-."
+          },
+          "description": "Travel non-warranty break-fix, serial 8C1014651",
+          "quantity": 1.5,
+          "unit_price": 165,
+          "extended": 247.5,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-27_Sales_Invoice_PS-INV103814.pdf",
+      "pdf_original_name": "Sales Invoice PS-INV103814.pdf",
+      "mailbox_subject": "Capital Machine Technologies, LLC - Sales Invoice PS-INV103814 - AMTECH/KANNON MANUFACTURING",
+      "mailbox_received": "2026-09-27T02:00:11Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10460,
+      "vendor": {
+        "id": 346,
+        "text": "1344-Exotic Metals"
+      },
+      "invoice_number": "960315",
+      "invoice_date": "2026-09-28",
+      "po": {
+        "id": 7272,
+        "text": "PO59270-Exotic Metals"
+      },
+      "header_total": 273.9,
+      "payable": 273.9,
+      "invoice_amount": 273.9,
+      "invoice_verification_amount": 273.9,
+      "invoice_net_amount": 273.9,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21651,
+          "item": {
+            "id": 15603,
+            "text": "RB-3.00-410-ESM-8005 - 3\" DIA 410 BAR"
+          },
+          "description": null,
+          "quantity": 27.5,
+          "unit_price": 9.9636,
+          "extended": 274,
+          "receipt_id": 25017,
+          "receipt": "PO59270-Exotic Metals - 2026/9/30",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance"
+          },
+          "name": "Purchase Price Variance",
+          "quantity": 1,
+          "unit_price": -0.1,
+          "amount": -0.1,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-28_INVOICE_960315_KANNON_MFG.PDF",
+      "pdf_original_name": "INVOICE 960315 KANNON MFG.PDF",
+      "mailbox_subject": "Exotic Metals & Alloys | Invoice Submission |Thank You for Your Business",
+      "mailbox_received": "2026-09-28T20:18:24Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "Quantity, PO 59270, date 2026-09-28, and the payable match. The invoice is 27.5 inches (printed as 2.292 feet) at $9.9600 per inch, extended $273.90. NON TAX is $0.00 and no tax was booked. No freight.",
+        "The bill line is 27.5 at $9.9636, extended $274.00. Purchase Price Variance of -$0.10 makes the payable $273.90. That variance is the receipt unit price, not tax."
+      ]
+    },
+    {
+      "bill_id": 10461,
+      "vendor": {
+        "id": 322,
+        "text": "1320-RMP INDUSTRIAL SUPPLY"
+      },
+      "invoice_number": "1474266",
+      "invoice_date": "2026-09-28",
+      "po": null,
+      "header_total": 68.77,
+      "payable": 68.77,
+      "invoice_amount": 68.77,
+      "invoice_verification_amount": 68.77,
+      "invoice_net_amount": 68.77,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21652,
+          "item": {
+            "id": 53,
+            "text": "Machining Tools-."
+          },
+          "description": "OSG 1650502108 5/16-18 UNC tap",
+          "quantity": 1,
+          "unit_price": 38.1205,
+          "extended": 38.12,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        },
+        {
+          "line_id": 21653,
+          "item": {
+            "id": 53,
+            "text": "Machining Tools-."
+          },
+          "description": "YGT-C T1445C 5/16-18 UNC tap",
+          "quantity": 1,
+          "unit_price": 18.5209,
+          "extended": 18.52,
+          "receipt_id": null,
+          "receipt": null,
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "F-Fees & Surcharges",
+          "quantity": 1,
+          "unit_price": 12.13,
+          "amount": 12.13,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-28_Inv1474266.pdf",
+      "pdf_original_name": "Inv1474266.pdf",
+      "mailbox_subject": "RMP Industrial Supply Inc - Invoice# 1474266",
+      "mailbox_received": "2026-09-28T23:01:49Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10462,
+      "vendor": {
+        "id": 13,
+        "text": "1011-AIR PRODUCTS"
+      },
+      "invoice_number": "436566988",
+      "invoice_date": "2026-09-28",
+      "po": null,
+      "header_total": 2506.9,
+      "payable": 2506.9,
+      "invoice_amount": 2315.84,
+      "invoice_verification_amount": 2506.9,
+      "invoice_net_amount": 2506.9,
+      "tax_amount_header": 191.06,
+      "lines": [],
+      "taxes": [
+        {
+          "tax_code": {
+            "id": 2,
+            "text": "Sales Tax"
+          },
+          "taxable_amount": 2315.84,
+          "tax_rate": 0.0625,
+          "tax_amount": 144.74,
+          "manual": true
+        },
+        {
+          "tax_code": {
+            "id": 2,
+            "text": "Sales Tax"
+          },
+          "taxable_amount": 2315.84,
+          "tax_rate": 0.02,
+          "tax_amount": 46.32,
+          "manual": true
+        }
+      ],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "shop supplies",
+          "quantity": 1,
+          "unit_price": 2052.29,
+          "amount": 2052.29,
+          "charge_type": 2
+        },
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "shop supplies",
+          "quantity": 1,
+          "unit_price": 135,
+          "amount": 135,
+          "charge_type": 2
+        },
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "shop supplies",
+          "quantity": 1,
+          "unit_price": 120,
+          "amount": 120,
+          "charge_type": 2
+        },
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 11,
+            "text": "F-Fees & Surcharges"
+          },
+          "name": "shop supplies",
+          "quantity": 1,
+          "unit_price": 8.55,
+          "amount": 8.55,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-29_Air_Products_Invoice_0436566988.PDF",
+      "pdf_original_name": "Air Products Invoice 0436566988.PDF",
+      "mailbox_subject": "Air Products Invoice 0436566988 (US10)",
+      "mailbox_received": "2026-09-29T01:37:15Z",
+      "result": "PASS",
+      "mismatches": []
+    },
+    {
+      "bill_id": 10463,
+      "vendor": {
+        "id": 208,
+        "text": "1206-EMJ Earl M. Jorgensen Company"
+      },
+      "invoice_number": "T608738432",
+      "invoice_date": "2026-09-28",
+      "po": {
+        "id": 7249,
+        "text": "PO59247-EMJ Earl M. Jorgensen Company"
+      },
+      "header_total": 1987.15,
+      "payable": 1987.15,
+      "invoice_amount": 1987.15,
+      "invoice_verification_amount": 1987.15,
+      "invoice_net_amount": 1987.15,
+      "tax_amount_header": 0,
+      "lines": [
+        {
+          "line_id": 21654,
+          "item": {
+            "id": 7299,
+            "text": "RT-1.625 X 1.375 X 0.13-A513"
+          },
+          "description": null,
+          "quantity": 2854,
+          "unit_price": 0.4684,
+          "extended": 1336.81,
+          "receipt_id": 24877,
+          "receipt": "PO59247-EMJ Earl M. Jorgensen Company - 2026/9/29",
+          "ppv": null
+        },
+        {
+          "line_id": 21655,
+          "item": {
+            "id": 7299,
+            "text": "RT-1.625 X 1.375 X 0.13-A513"
+          },
+          "description": null,
+          "quantity": 1427,
+          "unit_price": 0.4684,
+          "extended": 668.41,
+          "receipt_id": 24878,
+          "receipt": "PO59247-EMJ Earl M. Jorgensen Company - 2026/9/29",
+          "ppv": null
+        }
+      ],
+      "taxes": [],
+      "additional_charges": [
+        {
+          "list": "InvoiceAdditionalCharges",
+          "charge": {
+            "id": 13,
+            "text": "Purchase Price Variance"
+          },
+          "name": "Purchase Price Variance",
+          "quantity": 1,
+          "unit_price": -18.07,
+          "amount": -18.07,
+          "charge_type": 2
+        }
+      ],
+      "batch_id": 746,
+      "batch_name": "API Agent - 10/6/26",
+      "posted": false,
+      "posted_field": null,
+      "posted_date": null,
+      "posted_by": null,
+      "void": false,
+      "status": 1,
+      "pdf_file": "2026-09-29_Invoices.pdf",
+      "pdf_original_name": "Invoices.pdf",
+      "mailbox_subject": "EARLE M. JORGENSEN COMPANY - Invoices for 09/28/26",
+      "mailbox_received": "2026-09-29T03:06:53Z",
+      "result": "MISMATCH",
+      "mismatches": [
+        "PO 59247, date 2026-09-28, and the payable match the printed $1,987.15. Sales tax is blank and none was booked. Freight is prepaid, and no freight charge was booked.",
+        "The invoice is 356.76 feet at $5.57 per foot, extended $1,987.15.",
+        "The bill is 2,854 inches (receipt 24877) and 1,427 inches (receipt 24878), 4,281 inches in all, which is 356.75 feet, at $0.4684 per inch. The extensions are $1,336.81 and $668.41, totaling $2,005.22. Purchase Price Variance of -$18.07 makes the payable $1,987.15. That variance is the receipt unit price, not tax."
+      ]
+    }
+  ]
+}

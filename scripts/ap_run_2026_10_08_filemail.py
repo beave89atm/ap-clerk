@@ -26,6 +26,7 @@ from ap_clerk.graph import (
     GraphClient,
     load_graph_credentials,
 )
+from ap_clerk.ap_run import plan_from_run_rows
 from scripts.sept25_30_email_move_execute import archive_folder, folder_path, sender_of, stamp
 from scripts.sept_archive_check_2026_10_07 import plain
 
@@ -172,6 +173,14 @@ def file_one(
 
 
 def main() -> None:
+    progress_path = OUT / "progress.json"
+    progress = json.loads(progress_path.read_text()) if progress_path.exists() else []
+    entered = [row for row in progress if row.get("received") in ENTERED_RECEIVED]
+    plan = plan_from_run_rows(entered, dest_folder=f"Inbox/{ARCHIVE_NAME}")
+    if not any(item.get("allow") for item in plan["moves"]):
+        (OUT / "mail-moves.json").write_text(json.dumps({"stopped": plan["stop_reason"], "moves": plan["moves"]}, indent=2, default=str))
+        print(json.dumps({"stopped": plan["stop_reason"], "moved": 0}))
+        return
     listing = json.loads((OUT / "inbox-listing.json").read_text())["rows"]
     by_received = {row["received"]: row for row in listing}
     creds = load_graph_credentials()
@@ -183,14 +192,23 @@ def main() -> None:
     days: dict[str, list[dict[str, Any]]] = {}
     cache: dict[str, dict[str, Any]] = {}
     rows = []
+    allowed = {item.get("received") for item in plan["moves"] if item.get("allow")}
     for received in ENTERED_RECEIVED:
-        rows.append(
-            file_one(graph, by_received[received], days, cache, fort, ARCHIVE_NAME, ENTERED_IN_AI_CATEGORY)
-        )
+        if received not in allowed:
+            rows.append({"received": received, "moved": "n", "result": plan.get("stop_reason") or "not-allowed"})
+            break
+        outcome = file_one(graph, by_received[received], days, cache, fort, ARCHIVE_NAME, ENTERED_IN_AI_CATEGORY)
+        rows.append(outcome)
+        if outcome.get("moved") != "y":
+            break
     for received in AUTOPAY_RECEIVED:
-        rows.append(
-            file_one(graph, by_received[received], days, cache, autopay, AUTOPAY_NAME, LEGACY_AI_SKIPPED_CATEGORY)
-        )
+        if "archive" in AUTOPAY_NAME.lower():
+            rows.append({"received": received, "moved": "n", "result": "Archive folders are not touched."})
+            break
+        outcome = file_one(graph, by_received[received], days, cache, autopay, AUTOPAY_NAME, LEGACY_AI_SKIPPED_CATEGORY)
+        rows.append(outcome)
+        if outcome.get("moved") != "y":
+            break
     (OUT / "mail-moves.json").write_text(json.dumps(rows, indent=2))
     progress_path = OUT / "progress.json"
     if progress_path.exists():
