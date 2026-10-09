@@ -1,0 +1,72 @@
+[
+  {
+    "received": "2026-10-01T05:00:34Z",
+    "subject": "Reminder: Customer Satisfaction Survey",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-01T17:05:16Z",
+    "subject": "The future of hydration is already here.",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-05T12:29:16Z",
+    "subject": "Meet your iPhone 18 Pro savings",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-05T12:37:21Z",
+    "subject": "Meet your iPhone 18 Pro savings",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-05T17:04:35Z",
+    "subject": "Your Spectrum Business Internet, TV and Voice Statement is Ready",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-06T15:26:22Z",
+    "subject": "This fall, give your business an edge",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  },
+  {
+    "received": "2026-10-06T15:27:27Z",
+    "subject": "This fall, give your business an edge",
+    "moved": "y",
+    "result": "moved",
+    "folder_after": "Inbox/AutoPay Archive",
+    "categories_after": [
+      "AI Skipped"
+    ]
+  }
+]
