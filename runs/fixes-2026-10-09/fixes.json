@@ -1,0 +1,74 @@
+[
+  {
+    "bill": "10582",
+    "change": "invoice number 885055 to 15491464",
+    "before": "invoice=885055 vendor=137 posted=None void=False batch=751:API Agent - 10/9/26 verification=9490.5 po=PO59341-ONEAL STEEL, LLC. line_qty=24.0 receipts=25262 covered=9490.5 notes=1",
+    "after": "invoice=15491464 vendor=137 posted=None void=False batch=751:API Agent - 10/9/26 verification=9490.5 po=PO59341-ONEAL STEEL, LLC. line_qty=24.0 receipts=25262 covered=9490.5 notes=2",
+    "note id + text": "1815: AP Clerk: @Treyce Hodges the vendor invoice number was entered as 885055, which is O'Neal's ship-to customer code. I corrected it to 15491464, the printed INVOICE NO. The amount is $9,490.50 on PO 59341. The bill is not posted.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10590",
+    "change": "cleared Crosslink PO 59137 link; still on hold in Transfer AP",
+    "before": "invoice=15492850 vendor=137 posted=None void=False batch=375:TRANSFER AP verification=10503.04 po=PO59137-Crosslink Powder Coating line_qty=none receipts=none covered=0 notes=1",
+    "after": "invoice=15492850 vendor=137 posted=None void=False batch=375:TRANSFER AP verification=10503.04 po= line_qty=none receipts=none covered=0 notes=2 attach=ok pages=1 prior-note=1816",
+    "note id + text": "1822: AP Clerk: @Anthony @Shawn McKibben the printed customer PO 59137 on O'Neal invoice 15492850 is not an O'Neal purchase order. KIMCO purchase order 59137 is Crosslink Powder Coating, so I removed that purchase-order link. Receipts 24136 and 24558 belong to that other purchase order and were not selected. No O'Neal receipt is on file for the 8 pieces of 3/8 plate and 8 pieces of 1/4 plate. The bill stays in Transfer AP and is not posted.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "email",
+    "change": "tagged Entered in AI and moved to Fort Worth archive",
+    "before": "Inbox lastModified=2026-10-07T04:28:13Z",
+    "after": "Inbox/9 - FORT WORTH ARCHIVE categories=['Entered in AI']",
+    "note id + text": "",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10569",
+    "change": "unselected receipt 25214 and moved to Transfer AP",
+    "before": "invoice=130154 vendor=304 posted=None void=False batch=751:API Agent - 10/9/26 verification=6040.0 po=PO59199-Morgan Steel line_qty=40.0 receipts=25214 covered=6040.0 notes=1",
+    "after": "invoice=130154 vendor=304 posted=None void=False batch=375:TRANSFER AP verification=6040.0 po=PO59199-Morgan Steel line_qty=none receipts=none covered=0 notes=2",
+    "note id + text": "1820: AP Clerk: @Shawn McKibben units don't match on Morgan Steel invoice 130154. It bills 40 pieces and receipt 25214 is recorded as 40 inches, so I unselected that receipt and moved the bill to Transfer AP. Please confirm the receipt. It looks similar to held invoice 130153 on PO 59013, but this is a separate PO 59199 and a separate sales order.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10515",
+    "change": "posted-note-only PO 59088",
+    "before": "invoice=PS-INV103344 vendor=45 posted=True void=False batch=None: verification=610.0 po= line_qty=2.0,1.0,1.0 receipts=none covered=610.0 notes=1",
+    "after": "invoice=PS-INV103344 vendor=45 posted=True void=False batch=None: verification=610.0 po= line_qty=2.0,1.0,1.0 receipts=none covered=610.0 notes=2",
+    "note id + text": "1817: AP Clerk: @Treyce Hodges bill 10515 is already posted or void, so I did not remove the miscellaneous line or move the batch. Capital Machine invoice PS-INV103344 for $610.0 prints PO 59088, which needs a receipt. Bill 10471 is 1043-CAPITAL MACHINE TECHNOLOGIES invoice PS-INV103317 for $610.0, batch None, posted=True. Bill 10471 is invoice PS-INV103317 for $610.0. This bill is invoice PS-INV103344 for $610.0. The invoice numbers are different.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10519",
+    "change": "report only",
+    "before": "invoice=0099474-IN vendor=215 posted=True void=False batch=None: verification=807.34 po=PO59302-CAPITAL MACHINE TECHNOLOGIES line_qty=20.0 receipts=25061 covered=807.34 notes=1. QA said this used Capital Machine's PO 59302 receipt. Live vendor is 1213-Alternative Parts Inc. Header PO is PO59302-CAPITAL MACHINE TECHNOLOGIES. receipt 25061 qty 20.0 EA-Each $780.0 part A5587 po PO59302-CAPITAL MACHINE TECHNOLOGIES vendor None Not changed.",
+    "after": "invoice=0099474-IN vendor=215 posted=True void=False batch=None: verification=807.34 po=PO59302-CAPITAL MACHINE TECHNOLOGIES line_qty=20.0 receipts=25061 covered=807.34 notes=1. QA said this used Capital Machine's PO 59302 receipt. Live vendor is 1213-Alternative Parts Inc. Header PO is PO59302-CAPITAL MACHINE TECHNOLOGIES. receipt 25061 qty 20.0 EA-Each $780.0 part A5587 po PO59302-CAPITAL MACHINE TECHNOLOGIES vendor None Not changed.",
+    "note id + text": "",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10472",
+    "change": "note only; orphan from crashed run. Clarifying overwrite returned HTTP 400, so the note still says it is held because it is posted. Coding unchanged.",
+    "before": "invoice=WB4337861607 vendor=339 posted=True void=False batch=None: verification=985.0 po=PO59113-XCALIBER line_qty=250.0 receipts=23907 covered=985.0 notes=0",
+    "after": "invoice=WB4337861607 vendor=339 posted=True void=False batch=None: verification=985.0 po=PO59113-XCALIBER line_qty=250.0 receipts=23907 covered=985.0 notes=1",
+    "note id + text": "1818: AP Clerk: @Treyce Hodges Xcaliber invoice WB4337861607 is an orphan from a crashed run. The 10/6 catch-up stopped on this invoice when the response ended prematurely, and no note was saved. Live state: batch None, header $985.0, posted True, receipts 23907, 0 existing notes. It is held because it is posted. I did not change anything else.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10491",
+    "change": "note only; posted receipt 24982",
+    "before": "invoice=18564 vendor=183 posted=True void=False batch=None: verification=434.64 po=PO58931-TPI line_qty=4.0 receipts=24982 covered=434.64 notes=3",
+    "after": "invoice=18564 vendor=183 posted=True void=False batch=None: verification=434.64 po=PO58931-TPI line_qty=4.0 receipts=24982 covered=434.64 notes=4",
+    "note id + text": "1821: AP Clerk: @Treyce Hodges this posted bill selected receipt 24982 (66 ea A-04421-000, PO 58931) that belongs to invoice 18664, and its quantity was changed to 4. It needs a posted-bill adjustment so 18664 (bill 10555) can be matched.",
+    "readback ok y/n": "y"
+  },
+  {
+    "bill": "10555",
+    "change": "note only; points at bill 10491",
+    "before": "invoice=18664 vendor=183 posted=None void=False batch=375:TRANSFER AP verification=7171.56 po=PO58931-TPI line_qty=none receipts=none covered=0 notes=2",
+    "after": "invoice=18664 vendor=183 posted=None void=False batch=375:TRANSFER AP verification=7171.56 po=PO58931-TPI line_qty=none receipts=none covered=0 notes=3",
+    "note id + text": "1819: AP Clerk: @Treyce Hodges this note points at bill 10491. Invoice 18664 is waiting on that posted bill, invoice 18564, which selected receipt 24982 that belongs here and changed its quantity to 4.",
+    "readback ok y/n": "y"
+  }
+]
