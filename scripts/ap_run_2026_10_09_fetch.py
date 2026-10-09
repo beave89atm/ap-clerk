@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from ap_clerk.graph import ALLOWED_MAILBOX, GraphClient, load_graph_credentials
+from ap_clerk.ap_run import resolve_invoice_number
 from ap_clerk.pdf_invoice import parse_invoice_pdf
 
 LISTING = ROOT / "runs" / "ap-run-2026-10-09" / "inbox-listing.json"
@@ -93,6 +94,14 @@ def main() -> None:
                 from_name=row.get("from_name") or "",
                 from_address=row["sender"],
             )
+            guarded = resolve_invoice_number(
+                str(parsed.get("vendor") or row.get("from_name") or ""),
+                "\n".join(texts),
+                claimed=str(parsed.get("invoice_number") or ""),
+            )
+            if guarded.get("number"):
+                parsed["invoice_number"] = guarded["number"]
+            parsed["invoice_number_guard"] = guarded["reason"]
             docs.append(
                 {
                     "file": name,

@@ -20,6 +20,17 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from ap_clerk.ap_run import (
+    attachment_page_check,
+    cross_unit_selection,
+    end_of_run_report,
+    plan_from_run_rows,
+    po_lookup_hold,
+    preflight_enter,
+    purchase_gl_hold,
+    qc_printed_total,
+    unifirst_tax_gap,
+)
 from ap_clerk.cli import _find_or_create_batch
 from ap_clerk.graph import (
     ALLOWED_MAILBOX,
@@ -174,9 +185,11 @@ def prepare_pdfs() -> None:
         with dest.open("wb") as handle:
             writer.write(handle)
         document = pymupdf.open(dest)
-        for page in document:
-            if item["number"] not in page.get_text("text"):
-                raise SystemExit(f"{dest.name} page is missing invoice {item['number']}")
+        texts = [page.get_text("text") for page in document]
+        others = [str(other["number"]) for other in JOBS if str(other["number"]) != str(item["number"])]
+        check = attachment_page_check(texts, item["number"], others)
+        if not check["ok"]:
+            raise SystemExit(f"{dest.name} {check['reason']}")
         LOGGER.info("PDF %s pages %s", dest.name, document.page_count)
 
 
@@ -327,9 +340,11 @@ def confirm_attachment(client: KimcoClient, invoice_id: int, number: str) -> tup
     if not content:
         return 0, "attachment-download-failed"
     document = pymupdf.open(stream=content, filetype="pdf")
-    for page in document:
-        if number not in page.get_text("text"):
-            return document.page_count, "page-missing-invoice-number"
+    texts = [page.get_text("text") for page in document]
+    others = [str(job["number"]) for job in JOBS if str(job["number"]) != str(number)]
+    check = attachment_page_check(texts, number, others)
+    if not check["ok"]:
+        return document.page_count, check["reason"]
     for index, page in enumerate(document, start=1):
         image = QC / f"{invoice_id}-p{index}.png"
         page.get_pixmap(matrix=pymupdf.Matrix(1.7, 1.7), alpha=False).save(str(image))
@@ -360,29 +375,15 @@ def discover_pittsburg(client: KimcoClient) -> int | None:
     return None
 
 
+def guard_job(item: dict[str, Any], cohort: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Invoice number, duplicate, and misc-vs-PO guards for this run's jobs."""
+    return preflight_enter(item, cohort if cohort is not None else JOBS)
+
+
 def piece_inch_match(item: dict[str, Any], facts: list[dict[str, Any]]) -> tuple[list[int], float, str]:
-    """40 pieces billed against 40 inches received is a match when the dollars are within $75."""
-    open_rows = [row for row in facts if row.get("id") and row.get("open") and not row.get("placeholder")]
-    want = float((item.get("lines_match") or [{"qty": 0}])[0]["qty"])
-    hits = [
-        row
-        for row in open_rows
-        if abs(float(row.get("qty") or 0) - want) < 0.001 and "IN" in str(row.get("uom") or "").upper()
-    ]
-    if len(hits) != 1:
-        detail = ", ".join(
-            f"{row['id']} qty {row.get('qty')} {row.get('uom')} ${row.get('extended')}" for row in open_rows[:6]
-        )
-        return [], 0.0, (
-            f"No single open inch receipt matches {want:g} pieces on PO {item.get('po')}. "
-            f"Open receipts: {detail or 'none'}. Nothing was selected."
-        )
-    gap = round(float(item["merch"]) - float(hits[0].get("extended") or 0), 2)
-    if abs(gap) >= 75:
-        return [], gap, (
-            f"The price gap is ${abs(gap):,.2f}, which is $75 or more. Receipts were not selected."
-        )
-    return [int(hits[0]["id"])], gap, ""
+    """Unit exception is the O'Neal single-bar rule only. Morgan Steel is not selected."""
+    decision = cross_unit_selection(item, facts)
+    return list(decision["ids"]), float(decision["ppv"]), decision["reason"]
 
 
 def enter_one(client, item, batch_id, samples, receipts, live) -> dict[str, Any]:
@@ -406,6 +407,20 @@ def enter_one(client, item, batch_id, samples, receipts, live) -> dict[str, Any]
         "pages": 0,
         "receipts": "",
     }
+    block = guard_job(item)
+    if block.get("number"):
+        item["number"] = block["number"]
+        number = item["number"]
+        row["invoice"] = number
+    if block["action"] == "hold":
+        row["result"] = "HOLD"
+        row["reason"] = block["reason"]
+        row["owner"] = block.get("owner") or ""
+        return row
+    if block["action"] == "already":
+        row["result"] = "ALREADY"
+        row["reason"] = block["reason"]
+        return row
     already = existing_id(client, number, int(item["vendor_id"]), live)
     if already and already <= MIN_NEW_ID:
         row["bill_id"] = already
@@ -421,10 +436,15 @@ def enter_one(client, item, batch_id, samples, receipts, live) -> dict[str, Any]
     elif item["kind"] == "po" and not hold_reason:
         facts = list(receipts.get(item["po"], []))
         real = [fact for fact in facts if fact.get("id") and not fact.get("placeholder")]
-        if not item.get("po_id"):
-            hold_reason = f"Purchase order {item['po']} was not found. Nothing was selected."
-        elif not real:
-            hold_reason = po_absence_reason(str(item["po"]), list(item.get("lines_match") or []))
+        po_found = bool(item.get("po_id")) or any(fact.get("po_id") or fact.get("placeholder") for fact in facts)
+        looked_up = po_lookup_hold(
+            str(item["po"]),
+            list(item.get("lines_match") or []),
+            po_in_kimco=po_found,
+            receipts=real,
+        )
+        if looked_up:
+            hold_reason = looked_up
         else:
             receipt_ids, ppv, hold_reason = match_lines(item, real)
     created = already or header_for(client, item, batch_id, sample)
@@ -469,8 +489,28 @@ def enter_one(client, item, batch_id, samples, receipts, live) -> dict[str, Any]
     attach_status = "attached" if client.list_attachments(created) else attach(client, created, path)
     pages, attach_check = confirm_attachment(client, created, number)
     row["pages"] = pages
+    row["attachment_ok"] = attach_check == "ok"
+    page = ""
+    if path.exists():
+        document = pymupdf.open(path)
+        page = "\n".join(one.get_text("text") for one in document)
+    total_qc = qc_printed_total(page_text=page, typed_amount=float(item["amount"]))
+    row["printed_total"] = total_qc["printed_total"] if total_qc["printed_total"] is not None else ""
+    if not total_qc["ok"]:
+        hold_reason = hold_reason or total_qc["reason"]
     live_totals = totals(client.get_item("ap_invoices", created))
     covered_ok = cents(live_totals["verification"]) == target_amount and live_totals["covered"] == target_amount
+    tax_decision = unifirst_tax_gap(
+        vendor=str(item["vendor"]),
+        printed_total=float(item["amount"]),
+        covered=float(live_totals["covered"] or 0),
+        tax_gap=round(float(item["amount"]) - float(live_totals["covered"] or 0), 2),
+    )
+    if tax_decision["action"] == "ppv" and not hold_reason:
+        ppv = round(float(ppv or 0) + float(tax_decision["ppv"]), 2)
+        charge_status = add_charges(client, created, item, float(tax_decision["ppv"]))
+        live_totals = totals(client.get_item("ap_invoices", created))
+        covered_ok = cents(live_totals["verification"]) == target_amount and live_totals["covered"] == target_amount
     passed = (
         not hold_reason
         and covered_ok
@@ -548,11 +588,24 @@ def enter_one(client, item, batch_id, samples, receipts, live) -> dict[str, Any]
             "gl": "; ".join(str(line.get("gl") or "") for line in final["lines"]),
         }
     )
+    for line in final["lines"]:
+        gl_decision = purchase_gl_hold(line.get("gl"))
+        if gl_decision["blank"]:
+            row["gl_note"] = gl_decision["reason"]
+        if gl_decision["hold"]:
+            row["result"] = "HOLD"
+            row["reason"] = gl_decision["reason"]
     LOGGER.info("%s %s bill %s covered %s", result, number, created, final.get("covered"))
     return row
 
 
 def file_emails(rows: list[dict[str, Any]]) -> None:
+    plan = plan_from_run_rows(rows, dest_folder="Inbox/9 - FORT WORTH ARCHIVE")
+    (OUT / "mail-move-plan.json").write_text(json.dumps(plan, indent=2, default=str))
+    if not any(item.get("allow") for item in plan["moves"]):
+        (OUT / "mail-moves.json").write_text(json.dumps(plan["moves"], indent=2, default=str))
+        LOGGER.info("Email moves stopped: %s", plan.get("stop_reason"))
+        return
     listing = json.loads(LISTING.read_text())["rows"]
     by_received = {row["received"]: row for row in listing}
     entered_received = {}
@@ -565,7 +618,11 @@ def file_emails(rows: list[dict[str, Any]]) -> None:
     days: dict[str, list] = {}
     cache: dict[str, dict] = {}
     moves = []
+    allowed = {item.get("received") for item in plan["moves"] if item.get("allow")}
     for received, bills in entered_received.items():
+        if received not in allowed:
+            moves.append({"received": received, "moved": "n", "result": plan.get("stop_reason") or "not-allowed"})
+            break
         expected = by_received[received]
         # Every invoice we intended from this email must be entered.
         intended = [item for item in JOBS if item["received"] == received and item.get("vendor_id")]
@@ -638,6 +695,10 @@ def file_emails(rows: list[dict[str, Any]]) -> None:
         if result["moved"] == "y":
             for bill in bills:
                 bill["email_moved"] = "y"
+        else:
+            moves.append(result)
+            LOGGER.info("Mail verify failed for %s. Stopping.", received)
+            break
         moves.append(result)
         LOGGER.info("Mail %s %s", received, result["moved"])
     (OUT / "mail-moves.json").write_text(json.dumps(moves, indent=2))
@@ -740,6 +801,13 @@ def autopay_folder(graph: GraphClient) -> str:
 
 
 def file_autopay() -> list[dict[str, Any]]:
+    plan = plan_from_run_rows(
+        [{"result": "HOLD", "bill_id": "autopay", "vendor": "", "invoice": received, "received": received, "source_folder": "Inbox"} for received in sorted(AUTOPAY_RECEIVED)],
+        dest_folder="Inbox/AutoPay Archive",
+    )
+    if not any(item.get("allow") for item in plan["moves"]):
+        LOGGER.info("Autopay moves stopped: %s", plan.get("stop_reason"))
+        return plan["moves"]
     listing = json.loads(LISTING.read_text())["rows"]
     wanted = [row for row in listing if row["received"] in AUTOPAY_RECEIVED]
     creds = load_graph_credentials()
@@ -1000,6 +1068,10 @@ def main() -> None:
         (OUT / "progress.json").write_text(json.dumps(rows, indent=2, default=str))
         if row["result"] in {"PASS", "HOLD"} and row.get("bill_id") and int(row["bill_id"]) > MIN_NEW_ID:
             created += 1
+    orphans = end_of_run_report(rows)
+    (OUT / "orphans.json").write_text(json.dumps(orphans, indent=2, default=str))
+    if orphans["orphans"]:
+        LOGGER.error("Bills created without a note: %s", orphans["orphans"])
     file_emails(rows)
     autopay = file_autopay()
     write_outputs(rows, batch, autopay, finish.SIGN_INS)
