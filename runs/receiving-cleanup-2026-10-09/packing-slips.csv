@@ -1,0 +1,163 @@
+email_received_time,sender,subject,vendor,number_read,kimco_bill_po,attach_action,archived,stuck_reason
+2026-09-22 07:11:58 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,"McMaster packing list, shipped qty 40, but the PO box did not resolve to a live bill"
+2026-09-22 07:14:51 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,5765761-02,10142 / PO59224,,n,Slip quantities [2] contradict bill 10142 line quantities [1.0]
+2026-09-22 07:15:11 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,One scan holds several McMaster slips and a page with no PO; left the email untouched
+2026-09-28 09:02:10 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,American Quality Powder Coating,77271,10490 / PO59274,newly-attached,y,
+2026-09-29 09:15:46 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179880 180005,,,n,No PO or packing-list number on this scan matched one live bill
+2026-09-29 14:48:40 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77332 77331 77333 77330,,,n,Scan contains more than one PO; left the email untouched
+2026-09-29 14:48:44 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,77329 77326 77328 77327,,,n,Scan contains more than one PO; left the email untouched
+2026-09-29 14:49:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-01 09:55:32 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179924,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-01 09:55:49 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5499,,,n,"Crosslink packing slip 5499 and PO 59225 match bill 10524, but the shipped quantity was not readable"
+2026-10-01 09:56:06 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-01 09:56:15 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5493,,,n,"Crosslink packing slip 5493 and PO 59258 match bill 10551, but the shipped quantity was not readable"
+2026-10-01 09:56:30 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,77391,,,n,PO 59321 did not match one live bill
+2026-10-05 14:43:34 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-05 14:44:00 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-05 14:44:09 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Legacy Wire Products,$-SHPT103393 S-SHPT103392,,,n,One scan holds two Legacy Wire shipments (PO 59322 and PO 59334); not attached as a single file
+2026-10-05 14:44:41 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77362,,,n,PO 59333 did not match one live bill
+2026-10-05 14:45:04 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77359,,,n,PO 59330 did not match one live bill
+2026-10-05 14:45:19 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77361,,,n,PO 59331 did not match one live bill
+2026-10-05 14:46:56 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77436,,,n,PO 59335 did not match one live bill
+2026-10-05 14:49:56 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5511,,,n,"Crosslink packing slip 5511 and PO 59258 match bill 10551, but the shipped quantity was not readable on this copy"
+2026-10-05 14:50:12 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-06 06:45:27 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,77446 77444 77452,,,n,Scan contains more than one PO; left the email untouched
+2026-10-07 08:57:40 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,JARTEX INDUSTRIES,77459,,,n,PO 59365 did not match one live bill
+2026-10-07 08:58:12 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,K-T Galvanizing Co,77447 77463 77461,,,n,PO 59352 did not match one live bill
+2026-10-07 08:58:36 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-07 08:58:50 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-07 08:59:16 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77456,,,n,PO 59363 did not match one live bill
+2026-10-07 08:59:30 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,PO 59313 did not match one live bill
+2026-10-07 08:59:30 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77460,,,n,PO 59366 did not match one live bill
+2026-10-07 08:59:44 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77449,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-07 08:59:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77448,,,n,PO 59353 did not match one live bill
+2026-10-07 09:00:17 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77453,,,n,PO 59358 did not match one live bill
+2026-10-07 09:00:18 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77450,,,n,PO 59355 did not match one live bill
+2026-10-07 09:00:19 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,77451,,,n,PO 59346 did not match one live bill
+2026-10-07 11:33:54 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,AMERICAN QUALITY POWDERCOATING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:18:19 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:18:19 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:18:37 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,PO 59193 did not match one live bill
+2026-10-08 09:18:39 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:18:45 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:19:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:19:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:19:20 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:19:21 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5511,10551 / PO59258,,n,"Slip quantities [3] contradict bill 10551 line quantities [9.0, 1.0, 2.0]"
+2026-10-08 09:19:26 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Legacy Wire Products,S-SHPT103393,10543 / PO59322,newly-attached,y,
+2026-10-08 09:19:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,ALTERNATIVE LASER SERVICES,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:16 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,PO 59324 did not match one live bill
+2026-10-08 09:24:16 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Legacy Wire Products,S-SHPT103392,10542 / PO59334,newly-attached,y,
+2026-10-08 09:24:27 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",4153,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:39 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",1014,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:49 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",1152,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:51 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",1013,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:54 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",1015,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:24:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",4154,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:25:03 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:25:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"PRECISION FABRICATION SERVICES, LLC",7155,,,n,PO 58873 did not match one live bill
+2026-10-08 09:26:52 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:02 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:03 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,"Morgan Steel shipper; the customer PO was not readable, so it was not matched"
+2026-10-08 09:27:17 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:20 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:24 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,5493,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:27:33 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5499,,,n,Duplicate of the Crosslink 5499 slip; shipped quantity was not readable
+2026-10-08 09:27:35 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179924,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:48 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,PREMIUM ALLOYS,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:27:54 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:28:02 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,PO 59081 did not match one live bill
+2026-10-08 09:30:36 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:30:37 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Hagen's Fasteners,5158738,10390 / PO59057,newly-attached,y,
+2026-10-08 09:30:48 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Hagen's Fasteners,5158738,10390 / PO59057,newly-attached,y,
+2026-10-08 09:30:56 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,5765761-02,10142 / PO59224,,n,Slip quantities [2] contradict bill 10142 line quantities [1.0]
+2026-10-08 09:31:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,10142 / PO59224,,n,Slip quantities [2] contradict bill 10142 line quantities [1.0]
+2026-10-08 09:31:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,PO 58221 did not match one live bill
+2026-10-08 09:31:22 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,American Bearing,,10408 / PO59232,newly-attached,y,
+2026-10-08 09:31:23 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,6118363-01,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:31:29 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,American Bearing,,10403 / PO59188,newly-attached,y,
+2026-10-08 09:31:40 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:31:42 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:38:38 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179925,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:38:40 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180105,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:38:48 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180051 180054,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:38:59 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180059,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:39:05 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:39:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,K-T Galvanizing Co,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:39:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:39:21 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:39:26 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:39:27 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:41:56 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,WILLBANKS METALS,,,,n,PO 59202 did not match one live bill
+2026-10-08 09:43:34 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5410,10351 / PO59137,,n,Slip quantities [2] contradict bill 10351 line quantities [7.0]
+2026-10-08 09:43:36 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Crosslink Powder Coating,5444,,,n,More than one live bill matches this slip; left it
+2026-10-08 09:43:44 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:43:57 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179196,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:44:04 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180241,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:44:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179927,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:44:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180176,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:44:21 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601,,,,n,Scan contains more than one PO; left the email untouched
+2026-10-08 09:44:26 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:44:27 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,McMaster-Carr,5756929-01,10144 / PO59235,already-attached,y,
+2026-10-08 09:44:38 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No unique vendor plus PO or packing-list match
+2026-10-08 09:44:43 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:44:45 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,More than one live bill matches this slip; left it
+2026-10-08 09:44:53 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:45:02 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:45:38 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Production Metals Inc,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:46:18 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,METRO SPROCKET & GEAR,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:48:30 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:48:54 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Tube Supply,28131,,,n,PO 59238 did not match one live bill
+2026-10-08 09:49:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601,,,,n,Scan contains more than one PO; left the email untouched
+2026-10-08 09:51:35 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,WILLBANKS METALS,,,,n,PO 57207 did not match one live bill
+2026-10-08 09:51:51 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,FASTENAL INDUSTRIAL & CONSTRUCTION  Acct# TXFT40601,,,,n,Scan contains more than one PO; left the email untouched
+2026-10-08 09:52:00 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,BESHERT STEEL PROCESSING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 09:52:06 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 09:52:14 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 10:00:48 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,179880 178880,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:00:57 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180005,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:01:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 10:01:02 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:01:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:01:09 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:01:31 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Morgan Steel,,,,n,"Scan is a Morgan Steel purchase order, not a packing slip"
+2026-10-08 10:03:47 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 10:03:53 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 12:54:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 12:54:02 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Legacy Wire Products,S-SHPT103325,10282 / PO59212,newly-attached,y,
+2026-10-08 12:54:15 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Legacy Wire Products,S-SHPT103324,10281 / PO59196,newly-attached,y,
+2026-10-08 12:54:17 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,More than one live bill matches this slip; left it
+2026-10-08 12:54:22 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 12:54:32 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,MCMASTER-CARR,,,,n,PO 59164 did not match one live bill
+2026-10-08 12:54:43 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Alternative Parts,0144279,10359 / PO59130,newly-attached,y,
+2026-10-08 12:54:52 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 12:54:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 12:54:58 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 12:55:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180229,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 12:55:13 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180050,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 12:55:14 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,180228,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:13:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:13:20 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:13:24 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,LEECO STEEL,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:13:29 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:13:29 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:13:36 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Phoenix Metals Company,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:15:07 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,WILLBANKS METALS,,,,n,"Willbanks PO 59074 matches bill 10355, but the piece quantities were not readable enough to attach"
+2026-10-08 13:15:37 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:15:43 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:16:23 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,BESHERT STEEL PROCESSING,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:17:13 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:32:28 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,KLOECKNER METALS CORP-DFW,,,,n,Kloeckner scan did not yield a readable PO and quantity
+2026-10-08 13:32:51 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,P&B TESTING,28032,,,n,PO 59168 did not match one live bill
+2026-10-08 13:33:26 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Production Metals Inc,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:33:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Central Expanded Metals,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:34:10 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,METAL SUPERMARKETS,,,,n,"Metal Supermarkets slip shows order 1091744, which is not bill 1091811; left it"
+2026-10-08 13:34:38 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,No PO or packing-list number on this scan matched one live bill
+2026-10-08 13:34:45 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,WILLBANKS METALS,,,,n,"Willbanks PO 59000 matches bill 10238, but the piece quantities were not readable enough to attach"
+2026-10-08 13:35:08 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,,,,,n,Could not read a vendor and a PO or packing-list number
+2026-10-08 13:35:52 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,METAL SUPERMARKETS,,,,n,"Scan is a Metal Supermarkets purchase order, not a packing slip"
+2026-10-08 13:35:52 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,"HOUSTON PLATING & COATINGS, LLC",,,,n,PO 58785 did not match one live bill
+2026-10-08 13:37:58 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,LEECO STEEL,,,,n,"Scan is a Leeco Steel purchase order, not a packing slip"
+2026-10-08 13:38:01 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,LEECO STEEL,,,,n,"Scan is a Leeco Steel purchase order, not a packing slip"
+2026-10-08 13:38:05 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,METAL SUPERMARKETS,,,,n,"A bill matched, but the quantity was not clear enough to attach"
+2026-10-08 13:39:55 CDT,scans@sharp-mfp.com,Scanned image from Kannon Manufacturing,Tube Supply,,,,n,PO 58915 did not match one live bill

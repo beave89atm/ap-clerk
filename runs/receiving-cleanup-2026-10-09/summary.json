@@ -1,0 +1,12 @@
+{
+  "mailbox": "receiving@kannonmfg.com",
+  "folder_name": "Receiving Archive",
+  "folder_location": "top-level mailbox folder, sibling of Inbox",
+  "folder_id": "AAMkAGJiNDE4NGE2LTlhNTAtNDMyNC04MDRkLWFkNTcyYmQ1NzJkMwAuAAAAAACXq9kqHtytS73nbJzmxZp4AQDVOZ233KHtR5Ei2ke1JWs2AAAIIObuAAA=",
+  "folder_parent_id": "AQMkAGJiADQxODRhNi05YTUwLTQzMjQtODA0ZC1hZDU3MmJkNTcyZDMALgAAA5er2Soe3K1LvedsnObFmngBANU5nbfcoe1HkSLaR7UlazYAAAIBCAAAAA==",
+  "inbox_listed": 162,
+  "already_attached_archived": 1,
+  "newly_attached_archived": 10,
+  "stuck": 151,
+  "scans_arrived_after_listing": 88
+}
